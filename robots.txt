@@ -1,0 +1,13 @@
+User-agent: OAI-SearchBot
+Allow: /offers/
+
+User-agent: ChatGPT-User
+Allow: /offers/
+
+User-agent: GPTBot
+Disallow: /offers/
+
+User-agent: *
+Allow: /
+
+Sitemap: https://arisconstantinou.github.io/sitemap.xml
