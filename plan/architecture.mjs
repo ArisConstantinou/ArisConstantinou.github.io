@@ -27,7 +27,7 @@ export function doorOnWall(door,room,point,cmPerUnit,attachment){
 export function architecture(items,cmPerUnit){
   const scale=cmPerUnit/100,areas=items.filter(i=>AREA_3D.includes(i.type));
   const floors=areas.map(item=>({item,rings:worldRings(item).map(r=>r.map(p=>({x:p.x*scale,y:p.y*scale})))}));
-  const edges=floors.filter(f=>f.item.type==='room').flatMap(f=>f.rings.flatMap(r=>r.map((a,n)=>({a,b:r[(n+1)%r.length],owner:f.item.id,height:heightCm(f.item)/100,thickness:.14}))));
+  const edges=floors.flatMap(f=>f.rings.flatMap(r=>r.map((a,n)=>({a,b:r[(n+1)%r.length],owner:f.item.id,height:heightCm(f.item)/100,thickness:.14}))));
   for(const item of items.filter(i=>i.type==='wall')){const [a,b]=openingLine({...item,type:'window'},scale);edges.push({a,b,owner:item.id,height:heightCm(item)/100,thickness:item.h*scale});}
   const openings=items.filter(i=>['door','window'].includes(i.type)).map(item=>({item,line:openingLine(item,scale),bottom:item.type==='door'?0:.9,top:(item.type==='door'?0:.9)+heightCm(item)/100}));
   const walls=new Map(),epsilon=1e-6;

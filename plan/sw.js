@@ -1,4 +1,4 @@
-const VERSION='nk-plan-94e755381890e964';
+const VERSION='nk-plan-a4ddb6e26c70a9b6';
 const APP_FILES=['./','./index.html','./app.js','./geometry.mjs','./architecture.mjs','./view3d.mjs','./styles.css','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png','./vendor/three/three.module.min.js','./vendor/three/three.core.min.js','./vendor/three/OrbitControls.js','./vendor/three/LICENSE'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(APP_FILES))));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{

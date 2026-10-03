@@ -357,7 +357,7 @@ function activate3D(value){
 function reconcileDoors(){
   if(!plan.measurement)return;
   for(const door of plan.items.filter(i=>i.type==='door'&&i.attachment)){
-    const room=plan.items.find(i=>i.id===door.attachment.roomId&&['room','wall'].includes(i.type)&&i.floor===door.floor);
+    const room=plan.items.find(i=>i.id===door.attachment.roomId&&['room','ramp','stairs','wall'].includes(i.type)&&i.floor===door.floor);
     if(!room){delete door.attachment;continue;}
     const pose=doorOnWall(door,room,null,plan.measurement.cmPerUnit,door.attachment);
     if(!pose||heightCm(door)>heightCm(room))throw Error('Η πόρτα πρέπει να χωρά στο μήκος και στο ύψος του τοίχου.');
