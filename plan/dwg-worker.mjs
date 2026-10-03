@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Separate LibreDWG adapter. Source and matching decoder source: vendor/libredwg/SOURCE.md.
+import {LibreDwg,Dwg_File_Type,createModule} from './vendor/libredwg/dist/libredwg-web.js';
+import {drawingBounds,drawingRegions,cleanText} from './drawing-geometry.mjs';
+export function neutralDwg(db){
+ const blocks=new Map(db.tables.BLOCK_RECORD.entries.map(b=>[b.name,b])),paths=[],arcs=[],texts=[],counts={},warnings=[];
+ const multiply=(a,b)=>[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]],at=(p,m)=>({x:p.x*m[0]+p.y*m[2]+m[4],y:-(p.x*m[1]+p.y*m[3]+m[5])});
+ const recommended=layer=>/wall|τοιχ|column|A-35|A-Column|DOOR.?WINDOW|A-18/i.test(layer)&&!/dim|text|furn|E-/i.test(layer);
+ function visit(entities,m=[1,0,0,1,0,0],parentLayer,depth=0){if(depth>8)return;for(const e of entities){if(e.isVisible===false)continue;const layer=e.layer==='0'&&parentLayer?parentLayer:e.layer||'0';counts[layer]=(counts[layer]||0)+1;
+  if(e.type==='INSERT'){const b=blocks.get(e.name);if(!b||/^\*D/.test(e.name))continue;const a=e.rotation||0,c=Math.cos(a),s=Math.sin(a),sx=e.xScale||1,sy=e.yScale||1,base=b.basePoint||{x:0,y:0},p=e.insertionPoint,transform=[c*sx,s*sx,-s*sy,c*sy,p.x-c*sx*base.x+s*sy*base.y,p.y-s*sx*base.x-c*sy*base.y];visit(b.entities,multiply(m,transform),layer,depth+1);continue;}
+  if(e.type==='LINE'||e.type==='LWPOLYLINE'||e.type==='POLYLINE_2D'){
+   const raw=e.type==='LINE'?[e.startPoint,e.endPoint]:e.vertices;if(!raw||raw.length<2)continue;const points=raw.map(p=>at(p,m));if(points.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)))continue;paths.push({points,closed:!!(e.flag&1)||!!e.isClosed,layer,recommended:recommended(layer),stroke:'#647078',fill:null,curved:raw.some(v=>Math.abs(v.bulge||0)>.001)});
+  }else if(e.type==='ARC'){
+   const center=at(e.center,m),start=at({x:e.center.x+Math.cos(e.startAngle)*e.radius,y:e.center.y+Math.sin(e.startAngle)*e.radius},m),end=at({x:e.center.x+Math.cos(e.endAngle)*e.radius,y:e.center.y+Math.sin(e.endAngle)*e.radius},m),radius=Math.hypot(start.x-center.x,start.y-center.y);let a=Math.atan2(start.y-center.y,start.x-center.x),b=Math.atan2(end.y-center.y,end.x-center.x);if(m[0]*m[3]-m[1]*m[2]>0)[a,b]=[b,a];arcs.push({center,radius,start:a,end:b,layer});const sweep=(b-a+Math.PI*2)%(Math.PI*2);paths.push({points:Array.from({length:17},(_,n)=>({x:center.x+Math.cos(a+sweep*n/16)*radius,y:center.y+Math.sin(a+sweep*n/16)*radius})),closed:false,curved:true,layer,recommended:recommended(layer),stroke:'#358c9a',fill:null});
+  }else if(['TEXT','MTEXT','ATTRIB'].includes(e.type)&&e.insertionPoint){const text=cleanText(e.text);if(text)texts.push({...at(e.insertionPoint,m),text,layer});}
+  if(paths.length>100000)throw Error('Υπερβολικά μεγάλο σχέδιο. Εξήγαγε μία κάτοψη σε ξεχωριστό αρχείο.');
+ }}visit(db.entities);
+ const layers=Object.entries(counts).map(([name,count])=>({name,count,recommended:recommended(name)})).sort((a,b)=>Number(b.recommended)-Number(a.recommended)||a.name.localeCompare(b.name));
+ const units=({1:2.54,2:30.48,4:.1,5:1,6:100})[db.header.INSUNITS]||0;if(!units)warnings.push('Το DWG δεν δηλώνει υποστηριζόμενες μονάδες m/cm/mm. Επιβεβαίωσε τη μονάδα πριν από την εισαγωγή.');
+ if(!paths.length)throw Error('Δεν βρέθηκε υποστηριζόμενη 2D γεωμετρία στο DWG.');const scene={kind:'dwg',paths,arcs,texts,layers,bounds:drawingBounds(paths),cmPerSourceUnit:units,warnings};scene.regions=drawingRegions(scene);return scene;
+}
+if(typeof self!=='undefined'&&typeof self.postMessage==='function')self.onmessage=async e=>{const t=performance.now();try{const messages=[],module=await createModule({locateFile:name=>new URL('./vendor/libredwg/wasm/'+name,import.meta.url).href,printErr:s=>messages.push(String(s))}),parser=LibreDwg.createByWasmInstance(module),ptr=parser.dwg_read_data(e.data.buffer,Dwg_File_Type.DWG);if(!ptr)throw Error('Το DWG δεν αποκωδικοποιήθηκε. Δοκίμασε επανεξαγωγή από το CAD.');let result;try{const {database,stats}=parser.convertEx(ptr);result=neutralDwg(database);if(stats.unknownEntityCount)result.warnings.push(stats.unknownEntityCount+' μη υποστηριζόμενα CAD αντικείμενα δεν μετατράπηκαν.');if(messages.some(s=>/error|warning/i.test(s)))result.warnings.push('Ο αποκωδικοποιητής ανέφερε προειδοποίηση. Έλεγξε τη γεωμετρία στην προεπισκόπηση.');}finally{parser.dwg_free(ptr);}self.postMessage({result,ms:performance.now()-t});}catch(error){self.postMessage({error:error.message});}};

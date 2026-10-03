@@ -161,10 +161,29 @@ function duplicate(){if(selectedText){const i=plan.items.find(i=>i.id===selected
 function scaleSelected(factor){const items=movable();if(!items.length||!Number.isFinite(factor)||factor<.1||factor>10)return notify('Χρησιμοποίησε συντελεστή από 0,1 έως 10.');const b=bounds(items),cx=b.x+b.w/2,cy=b.y+b.h/2;if(items.some(i=>i.w*factor<8||i.h*factor<8||i.w*factor>100000||i.h*factor>100000))return notify('Οι διαστάσεις πρέπει να είναι από 8 έως 100.000 μονάδες.');change(()=>items.forEach(i=>{const icx=i.x+i.w/2,icy=i.y+i.h/2;i.w=round(i.w*factor);i.h=round(i.h*factor);i.x=round(cx+(icx-cx)*factor-i.w/2);i.y=round(cy+(icy-cy)*factor-i.h/2);}));}
 function rotateSelected(){const items=movable();if(!items.length)return;const b=bounds(items),cx=b.x+b.w/2,cy=b.y+b.h/2;change(()=>items.forEach(i=>{const r=rotateVector(i.x+i.w/2-cx,i.y+i.h/2-cy,90);i.x=round(cx+r.x-i.w/2);i.y=round(cy+r.y-i.h/2);i.rotation=normalAngle(i.rotation+90);}));}
 function reorder(front){const ids=new Set(selected);change(()=>{const group=plan.items.filter(i=>ids.has(i.id)),rest=plan.items.filter(i=>!ids.has(i.id));plan.items=front?[...rest,...group]:[...group,...rest];});}
-function openPanel(id){document.querySelectorAll('.sidebar,.inspector').forEach(el=>el.classList.toggle('open',el.id===id&&!el.classList.contains('open')));}
+const compactUI=matchMedia('(max-width:850px),(pointer:coarse)');
+function updatePanelButtons(){document.querySelectorAll('[data-open-panel],[data-toggle-panel]').forEach(b=>b.setAttribute('aria-expanded',compactUI.matches?$(b.dataset.openPanel||b.dataset.togglePanel).classList.contains('open'):!document.querySelector('.workspace').classList.contains((b.dataset.openPanel||b.dataset.togglePanel)+'-collapsed')));}
+function openPanel(id){if(compactUI.matches)document.querySelectorAll('.sidebar,.inspector').forEach(el=>el.classList.toggle('open',el.id===id&&!el.classList.contains('open')));else document.querySelector('.workspace').classList.toggle(id+'-collapsed');updatePanelButtons();}
 function finishGesture(cancel=false){if(!gesture)return;const g=gesture;gesture=null;const canvas=$('canvas');if(canvas.hasPointerCapture(g.pointer))canvas.releasePointerCapture(g.pointer);if(g.type==='draw-freehand'){if(cancel)cancelDraft();else finishDraft();return;}if(cancel && g.before){plan=JSON.parse(g.before);render();return;}if(g.type==='marquee'){const b=g.box;if(!g.additive)selected.clear();for(const i of visible()){const ib=bounds([i]);if(ib.x>=b.x&&ib.y>=b.y&&ib.x+ib.w<=b.x+b.w&&ib.y+ib.h<=b.y+b.h)selected.add(i.id);}}else if(g.before)record();render();}
+const touchPointers=new Map();let touchView=null,touchDraft=null;
+function beginTouchView(){
+  const points=[...touchPointers.values()].slice(0,2),mid={clientX:(points[0].x+points[1].x)/2,clientY:(points[0].y+points[1].y)/2},r=$('canvas').getBoundingClientRect();
+  touchView={view:clone(view),anchor:point(mid),x:mid.clientX,y:mid.clientY,distance:Math.max(1,Math.hypot(points[1].x-points[0].x,points[1].y-points[0].y)),scale:Math.max(view.w/r.width,view.h/r.height)};
+}
+function endTouchPointer(e){
+  touchPointers.delete(e.pointerId);if(!touchView)return false;
+  if($('canvas').hasPointerCapture(e.pointerId))$('canvas').releasePointerCapture(e.pointerId);
+  if(touchPointers.size>=2)beginTouchView();else if(!touchPointers.size){touchView=null;touchDraft=null;}
+  return true;
+}
 $('canvas').addEventListener('pointerdown',e=>{
-  if(e.button!==0&&e.button!==1)return;if(e.pointerType!=='touch')e.preventDefault();if(gesture)finishGesture();const p=point(e);$('canvas').focus();$('canvas').setPointerCapture(e.pointerId);
+  if(e.button!==0&&e.button!==1)return;
+  if(e.pointerType==='touch'){
+    if(!touchPointers.size)touchDraft=clone(draft);touchPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(touchPointers.size>=2){if(gesture)finishGesture(true);draft=clone(touchDraft);for(const id of touchPointers.keys())$('canvas').setPointerCapture(id);beginTouchView();renderCanvas();return;}
+    if(touchView){$('canvas').setPointerCapture(e.pointerId);return;}
+  }else e.preventDefault();
+  if(gesture)finishGesture();const p=point(e);$('canvas').focus({preventScroll:true});$('canvas').setPointerCapture(e.pointerId);
   if(mode==='pan'||space||e.button===1){gesture={type:'pan',start:p,view:clone(view),clientX:e.clientX,clientY:e.clientY,pointer:e.pointerId};return;}
   if(mode==='route'){const q={x:snapTo(p.x),y:snapTo(p.y)};if(!draft)draft={kind:'points',points:[]};const last=draft.points.at(-1);if(!last||Math.hypot(q.x-last.x,q.y-last.y)>.01){if(draft.points.length>=500)return notify('Μέχρι 500 σημεία ανά βέλος. Πάτησε Τέλος.');draft.points.push(q);}draft.hover=null;renderCanvas();return;}
   if(mode==='freehand'){draft={kind:'freehand',points:[{x:p.x,y:p.y}]};gesture={type:'draw-freehand',pointer:e.pointerId};renderCanvas();return;}
@@ -172,11 +191,16 @@ $('canvas').addEventListener('pointerdown',e=>{
   const text=e.target.closest('[data-bound-text]');if(mode==='text'&&text){const i=plan.items.find(i=>i.id===text.dataset.owner);selected=new Set([i.id]);selectedText={id:i.id,field:text.dataset.boundText};render();if(!i.locked)gesture={type:'textmove',start:p,original:clone(i),field:selectedText.field,before:serialize(),pointer:e.pointerId};return;}
   const handle=e.target.closest('[data-handle]');if(handle){const i=selection()[0];if(!i||i.locked)return;const original=clone(i),cx=i.x+i.w/2,cy=i.y+i.h/2;gesture={type:handle.dataset.handle,start:p,original,before:serialize(),sx:Number(handle.dataset.sx),sy:Number(handle.dataset.sy),angle:Math.atan2(p.y-cy,p.x-cx)*180/Math.PI,pointer:e.pointerId};return;}
   const target=e.target.closest('[data-id]');if(target){const id=target.dataset.id;if(e.shiftKey||multiSelect){selectItem(id,true);return;}if(!selected.has(id))selectItem(id);const items=movable();if(items.length)gesture={type:'move',start:p,originals:clone(items),before:serialize(),pointer:e.pointerId};return;}
+  if(e.pointerType==='touch'&&!multiSelect){gesture={type:'pan',start:p,view:clone(view),clientX:e.clientX,clientY:e.clientY,pointer:e.pointerId,blank:true,moved:false};return;}
   gesture={type:'marquee',start:p,box:{x:p.x,y:p.y,w:0,h:0},additive:e.shiftKey,pointer:e.pointerId};selectedText=null;if(!e.shiftKey)selected.clear();render();
 });
 $('canvas').addEventListener('pointermove',e=>{
+  if(touchPointers.has(e.pointerId))touchPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(touchView){
+    if(touchPointers.size>=2){const [a,b]=[...touchPointers.values()],g=touchView,mx=(a.x+b.x)/2,my=(a.y+b.y)/2,factor=clamp(g.view.w*g.distance/Math.max(1,Math.hypot(b.x-a.x,b.y-a.y)),120,50000)/g.view.w;view={x:g.anchor.x+(g.view.x-g.anchor.x)*factor-(mx-g.x)*g.scale*factor,y:g.anchor.y+(g.view.y-g.anchor.y)*factor-(my-g.y)*g.scale*factor,w:g.view.w*factor,h:g.view.h*factor};renderCanvas();}return;
+  }
   if(mode==='route'&&draft&&!gesture){const p=point(e);draft.hover={x:snapTo(p.x),y:snapTo(p.y)};renderCanvas();return;}
-  if(!gesture||gesture.pointer!==e.pointerId)return;const g=gesture,p=point(e);if(g.type==='pan'){const rect=$('canvas').getBoundingClientRect();const scale=g.view.w/rect.width;view.x=g.view.x-(e.clientX-g.clientX)*scale;view.y=g.view.y-(e.clientY-g.clientY)*scale;renderCanvas();return;}
+  if(!gesture||gesture.pointer!==e.pointerId)return;const g=gesture,p=point(e);if(g.type==='pan'){if(Math.hypot(e.clientX-g.clientX,e.clientY-g.clientY)>6)g.moved=true;const rect=$('canvas').getBoundingClientRect();const scale=g.view.w/rect.width;view.x=g.view.x-(e.clientX-g.clientX)*scale;view.y=g.view.y-(e.clientY-g.clientY)*scale;renderCanvas();return;}
   if(g.type==='draw-freehand'){const last=draft.points.at(-1),spacing=view.w/$('canvas').getBoundingClientRect().width*3;if(Math.hypot(p.x-last.x,p.y-last.y)>=spacing){if(draft.points.length<500)draft.points.push({x:p.x,y:p.y});else draft.points[draft.points.length-1]={x:p.x,y:p.y};}renderCanvas();return;}
   if(g.type==='route-point'){const o=g.original,i=plan.items.find(i=>i.id===o.id),local=rotateVector(p.x-o.x-o.w/2,p.y-o.y-o.h/2,-o.rotation),pts=clone(g.points);pts[g.index]={x:snapTo(local.x),y:snapTo(local.y)};setRoutePoints(i,pts,o);}
   if(g.type==='textmove'){const delta=rotateVector(p.x-g.start.x,p.y-g.start.y,-g.original.rotation),i=plan.items.find(i=>i.id===g.original.id);i[g.field+'OffsetX']=round((g.original[g.field+'OffsetX']??0)+snapTo(delta.x));i[g.field+'OffsetY']=round((g.original[g.field+'OffsetY']??0)+snapTo(delta.y));}
@@ -185,8 +209,8 @@ $('canvas').addEventListener('pointermove',e=>{
   if(g.type==='resize'){const o=g.original,i=plan.items.find(i=>i.id===o.id),delta=rotateVector(p.x-g.start.x,p.y-g.start.y,-o.rotation);let dw=g.sx?snapTo(delta.x)*g.sx:0,dh=g.sy?snapTo(delta.y)*g.sy:0;let w=clamp(o.w+dw,8,100000),h=clamp(o.h+dh,8,100000);if(e.shiftKey&&g.sx&&g.sy){const f=Math.abs(dw/o.w)>Math.abs(dh/o.h)?w/o.w:h/o.h;w=clamp(o.w*f,8,100000);h=clamp(o.h*f,8,100000);}const offset=rotateVector(g.sx*(w-o.w)/2,g.sy*(h-o.h)/2,o.rotation);i.w=round(w);i.h=round(h);i.x=round(o.x+o.w/2+offset.x-w/2);i.y=round(o.y+o.h/2+offset.y-h/2);}
   if(g.type==='marquee')g.box={x:Math.min(p.x,g.start.x),y:Math.min(p.y,g.start.y),w:Math.abs(p.x-g.start.x),h:Math.abs(p.y-g.start.y)};renderCanvas();updateFields();
 });
-$('canvas').addEventListener('pointerup',e=>{if(gesture?.pointer===e.pointerId){if(gesture.type==='draw-freehand'&&draft.points.length<500){const p=point(e),last=draft.points.at(-1);if(Math.hypot(p.x-last.x,p.y-last.y)>.01)draft.points.push({x:p.x,y:p.y});}finishGesture();}});
-$('canvas').addEventListener('pointercancel',()=>finishGesture(true));
+$('canvas').addEventListener('pointerup',e=>{if(endTouchPointer(e))return;if(gesture?.pointer===e.pointerId){if(gesture.blank&&!gesture.moved){selected.clear();selectedText=null;}if(gesture.type==='draw-freehand'&&draft.points.length<500){const p=point(e),last=draft.points.at(-1);if(Math.hypot(p.x-last.x,p.y-last.y)>.01)draft.points.push({x:p.x,y:p.y});}finishGesture();}});
+$('canvas').addEventListener('pointercancel',e=>{if(!endTouchPointer(e))finishGesture(true);});
 $('canvas').addEventListener('lostpointercapture',()=>{if(gesture)finishGesture();});
 $('canvas').addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY>0?1.12:1/1.12,point(e));},{passive:false});
 $('canvas').addEventListener('dblclick',e=>{if(mode==='route'){finishDraft();return;}if(e.target.closest('[data-id]')){if(innerWidth<=850)openPanel('inspector');$(selectedText?'text-content':'prop-label').focus();}});
@@ -218,7 +242,13 @@ $('text-content').onchange=()=>{const i=selectedText&&plan.items.find(i=>i.id===
 for(const axis of ['x','y'])$('text-offset-'+axis).onchange=()=>{const i=selectedText&&plan.items.find(i=>i.id===selectedText.id),value=Number($('text-offset-'+axis).value);if(!i||i.locked)return;if(!Number.isFinite(value)||Math.abs(value)>100000){notify('Μη έγκυρη θέση κειμένου.');renderProperties();return;}change(()=>i[selectedText.field+'Offset'+axis.toUpperCase()]=value);};
 $('text-font-size').onchange=()=>{const i=selectedText&&plan.items.find(i=>i.id===selectedText.id),value=Number($('text-font-size').value);if(!i||i.locked||selectedText.field!=='label')return;if(!Number.isFinite(value)||value<8||value>200){notify('Το μέγεθος γραμμάτων είναι από 8 έως 200.');renderProperties();return;}change(()=>i.labelFontSize=value);};
 $('delete-text').onclick=deleteText;$('reset-text-position').onclick=()=>{const i=selectedText&&plan.items.find(i=>i.id===selectedText.id);if(i&&!i.locked)change(()=>{i[selectedText.field+'OffsetX']=0;i[selectedText.field+'OffsetY']=0;});};$('select-text-owner').onclick=()=>setMode('select');
-document.querySelectorAll('[data-open-panel]').forEach(b=>b.onclick=()=>openPanel(b.dataset.openPanel));document.querySelectorAll('[data-close-panel]').forEach(b=>b.onclick=()=>b.closest('aside').classList.remove('open'));
+document.querySelectorAll('[data-open-panel],[data-toggle-panel]').forEach(b=>b.onclick=()=>openPanel(b.dataset.openPanel||b.dataset.togglePanel));document.querySelectorAll('[data-close-panel]').forEach(b=>b.onclick=()=>{b.closest('aside').classList.remove('open');updatePanelButtons();});
+$('mobile-fit').onclick=fit;$('mobile-dimensions').onclick=()=>openDimensions();
+$('open-document').onclick=()=>{$('document-name').value=plan.title;document.querySelector('.export-menu').open=false;$('document-dialog').showModal();};
+$('close-document').onclick=()=>$('document-dialog').close();$('document-name').onchange=()=>change(()=>plan.title=$('document-name').value.trim()||'Κάτοψη');
+$('document-add-floor').onclick=()=>{$('document-dialog').close();$('add-floor').click();};
+const resizeViewport=()=>{document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||innerHeight)+'px');updatePanelButtons();};
+window.visualViewport?.addEventListener('resize',resizeViewport);window.addEventListener('resize',resizeViewport);resizeViewport();
 $('help').onclick=()=>$('help-dialog').showModal();$('close-help').onclick=()=>$('help-dialog').close();$('help-dialog').addEventListener('click',e=>{if(e.target===$('help-dialog')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
 document.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea')||document.querySelector('dialog[open]'))return;const ctrl=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();if(ctrl&&k==='z'){e.preventDefault();e.shiftKey?redo():undo();return;}if(ctrl&&k==='y'){e.preventDefault();redo();return;}if(ctrl&&k==='d'){e.preventDefault();duplicate();return;}if(ctrl&&k==='s'){e.preventDefault();openPlans();return;}if(e.key==='Enter'&&mode==='route'){e.preventDefault();finishDraft();return;}if(e.key==='Escape'){setMode('select');selected.clear();selectedText=null;selectedVertex=null;document.querySelectorAll('aside.open').forEach(a=>a.classList.remove('open'));render();}if(e.code==='Space'){e.preventDefault();space=true;renderCanvas();}if(k==='h')setMode('pan');if(k==='v')setMode('select');if(k==='t')setMode('text');if(k==='a'&&!ctrl)setMode('route');if(k==='p'&&!ctrl)setMode('freehand');if(draft&&(e.key==='Delete'||e.key==='Backspace')){e.preventDefault();draft.points.pop();renderCanvas();return;}if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();removeSelected();}if(e.key.startsWith('Arrow')&&movable().length){e.preventDefault();const step=e.shiftKey?10:1,dx=e.key==='ArrowLeft'?-step:e.key==='ArrowRight'?step:0,dy=e.key==='ArrowUp'?-step:e.key==='ArrowDown'?step:0;change(()=>{if(selectedText){const i=plan.items.find(i=>i.id===selectedText.id),d=rotateVector(dx,dy,-i.rotation);i[selectedText.field+'OffsetX']=(i[selectedText.field+'OffsetX']??0)+d.x;i[selectedText.field+'OffsetY']=(i[selectedText.field+'OffsetY']??0)+d.y;}else movable().forEach(i=>{i.x+=dx;i.y+=dy;});});}});
 document.addEventListener('keyup',e=>{if(e.code==='Space'){space=false;renderCanvas();}});window.addEventListener('blur',()=>{space=false;finishGesture();});
@@ -236,7 +266,7 @@ $('export-json').onclick=()=>{finishDraft();download(new Blob([JSON.stringify({.
 $('export-svg').onclick=()=>{finishDraft();download(new Blob([svgExport()],{type:'image/svg+xml'}),fileStem()+'.svg');};
 $('export-png').onclick=async()=>{finishDraft();try{const svg=svgExport(),url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}));try{const image=new Image();await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=reject;image.src=url;});const factor=Math.min(2,4096/image.width,4096/image.height);const canvas=document.createElement('canvas');canvas.width=Math.ceil(image.width*factor);canvas.height=Math.ceil(image.height*factor);canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw Error();download(blob,fileStem()+'.png');notify('Η εικόνα PNG είναι έτοιμη.');}finally{URL.revokeObjectURL(url);}}catch{notify('Η εξαγωγή PNG απέτυχε. Δοκίμασε SVG.');}};
 $('import').onclick=()=>{$('file-input').click();document.querySelector('.export-menu').open=false;};
-$('file-input').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>2_000_000)throw Error('Το αρχείο είναι πολύ μεγάλο.');const imported=validate(JSON.parse(await file.text()));setMode('select');change(()=>{plan=imported;selected.clear();selectedText=null;selectedVertex=null;});fit();notify('Το σχέδιο εισήχθη. Η προηγούμενη έκδοση επανέρχεται με Αναίρεση.');}catch(error){notify(error.message||'Δεν φορτώθηκε το αρχείο.');}finally{e.target.value='';}};
+$('file-input').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const header=new TextDecoder().decode(await file.slice(0,12).arrayBuffer());if(header.startsWith('%PDF')||/^AC10\d\d/.test(header)){const {openDrawingImport}=await import('./drawing-import.mjs');openDrawingImport(file,raw=>{const imported=validate(raw);setMode('select');change(()=>{plan=imported;selected.clear();selectedText=null;selectedVertex=null;});fit();notify('Η κάτοψη μετατράπηκε σε επεξεργάσιμα στοιχεία. Αναίρεση επαναφέρει το προηγούμενο σχέδιο.');});return;}if(file.size>2_000_000)throw Error('Το αρχείο JSON είναι πολύ μεγάλο.');const imported=validate(JSON.parse(await file.text()));setMode('select');change(()=>{plan=imported;selected.clear();selectedText=null;selectedVertex=null;});fit();notify('Το σχέδιο εισήχθη. Η προηγούμενη έκδοση επανέρχεται με Αναίρεση.');}catch(error){notify(error.message||'Δεν φορτώθηκε το αρχείο.');}finally{e.target.value='';}};
 $('reset').onclick=()=>{if(!confirm('Νέο κενό σχέδιο; Το τρέχον επανέρχεται με Αναίρεση.'))return;setMode('select');change(()=>{plan={...starter(),title:'Νέα κάτοψη',notes:'',items:[]};selected.clear();});fit();document.querySelector('.export-menu').open=false;};
 $('starter').onclick=()=>{if(!confirm('Επαναφορά της αρχικής κάτοψης; Το τρέχον επανέρχεται με Αναίρεση.'))return;setMode('select');change(()=>{plan=starter();selected.clear();});fit();document.querySelector('.export-menu').open=false;};
 async function saveForCodex(){finishDraft();const button=$('save-codex');button.disabled=true;try{const response=await fetch('/api/save',{method:'POST',headers:{'Content-Type':'application/json'},body:serialize()}),result=await response.json();if(!response.ok)throw Error(result.error);$('save-status').textContent='Αποθηκεύτηκε για Codex';notify('Έτοιμο. Πες μου «διάβασε το αποθηκευμένο σχέδιο». Φάκελος: NK Plan Builder / Plans',6500);}catch(error){notify(error.message||'Δεν αποθηκεύτηκε. Χρησιμοποίησε εξαγωγή JSON.');}finally{button.disabled=false;}}
@@ -352,7 +382,7 @@ $('download-plan').onclick=()=>$('export-json').click();$('load-plan-file').oncl
 $('reset-plan').onclick=()=>{$('reset').click();$('plans-dialog').close();activeSavedId=null;};
 $('save-codex').hidden=!(location.hostname==='127.0.0.1'&&location.port==='5381');
 function activate3D(value){
-  is3D=value;if(!value){$('three-door').setAttribute('aria-pressed',false);threeView?.setDoorMode(false);}$('canvas-shell').classList.toggle('view-3d',value);$('three-host').hidden=!value;$('three-tools').hidden=!value;$('view-toggle').textContent=value?'2D':'3D';$('view-toggle').setAttribute('aria-pressed',value);threeView?.setActive(value);refreshLiveDimensions();
+  is3D=value;if(!value){$('three-door').setAttribute('aria-pressed',false);threeView?.setDoorMode(false);}$('canvas-shell').classList.toggle('view-3d',value);$('three-host').hidden=!value;$('three-tools').hidden=!value;$('three-guide').hidden=!value;$('view-toggle').setAttribute('aria-pressed',value);$('view-2d').setAttribute('aria-pressed',!value);threeView?.setActive(value);refreshLiveDimensions();
 }
 function reconcileDoors(){
   if(!plan.measurement)return;
@@ -383,15 +413,15 @@ function moveDoor3D(id,roomId,point){
   const scale=plan.measurement.cmPerUnit/100,pose=doorOnWall(door,room,{x:point.x/scale,y:point.y/scale},plan.measurement.cmPerUnit);if(!pose||heightCm(door)>heightCm(room))return;
   Object.assign(door,pose);selected=new Set([id]);autosave();render();
 }
-$('three-door').onclick=()=>{const value=$('three-door').getAttribute('aria-pressed')!=='true';$('three-door').setAttribute('aria-pressed',value);threeView?.setDoorMode(value);if(value)notify('Πάτησε επάνω σε έναν τοίχο για πόρτα 90 cm.');};
-function syncThree(){if(is3D&&!plan.measurement)activate3D(false);if(is3D&&threeView){threeView.sync(plan,selected);$('zoom-label').textContent='3D';}}
+$('three-door').onclick=()=>{if(!plan.measurement){openDimensions();notify('Βάλε μία γνωστή διάσταση για πόρτες πραγματικού μεγέθους.');return;}const value=$('three-door').getAttribute('aria-pressed')!=='true';$('three-door').setAttribute('aria-pressed',value);threeView?.setDoorMode(value);if(value)notify('Πάτησε επάνω σε έναν τοίχο για πόρτα 90 cm.');};
+function syncThree(){if(is3D&&threeView){threeView.sync(plan.measurement?plan:{...plan,measurement:{cmPerUnit:1,unit:'m',showBuilding:false}},selected);$('zoom-label').textContent='3D';$('three-calibrate').hidden=!!plan.measurement;$('three-guide-text').textContent=plan.measurement?'1 δάχτυλο: '+($('three-top').getAttribute('aria-pressed')==='true'?'μετακίνηση':'περιστροφή')+' · 2: μετακίνηση / zoom':'Σχηματική 3D · χωρίς πραγματική κλίμακα';}}
 function refreshLiveDimensions(){
   const i=selection().length===1?selection()[0]:null,physical=i&&HEIGHT_TYPES.includes(i.type),m=plan.measurement;
-  $('three-selection').hidden=!is3D||!physical;$('section-live').hidden=!physical;
-  if(!physical)return;$('three-selection-name').textContent=[i.number,i.label||TYPES[i.type].name].filter(Boolean).join(' · ');
+  $('three-selection').hidden=!is3D||!physical||!m;$('three-guide').hidden=!is3D||!!(physical&&m);$('section-live').hidden=!physical;
+  if(!physical)return;const card=$('three-selection');if(card.dataset.item!==i.id){card.classList.remove('expanded');card.dataset.item=i.id;}const propertiesText=compactUI.matches?(card.classList.contains('expanded')?'Κλείσιμο':'Μεγέθη'):'Ρυθμίσεις';if($('three-properties').textContent!==propertiesText)$('three-properties').textContent=propertiesText;$('three-properties').setAttribute('aria-expanded',compactUI.matches?card.classList.contains('expanded'):'false');$('three-selection-name').textContent=[i.number,i.label||TYPES[i.type].name].filter(Boolean).join(' · ');
   const unit=m?.unit??'m',values={w:m?physicalValue(i.w):'',h:m?physicalValue(i.h):'',z:heightCm(i)/(unit==='m'?100:1)};
   for(const prefix of ['section','three']){
-    for(const axis of ['w','h','z']){const field=$(prefix+'-'+axis);if(document.activeElement!==field)field.value=values[axis]===''?'':Number(values[axis].toFixed(5));field.disabled=!!i.locked||!m;}
+    for(const axis of ['w','h','z']){const field=$(prefix+'-'+axis);if(document.activeElement!==field)field.value=values[axis]===''?'':Number(values[axis].toFixed(unit==='m'?3:1));field.disabled=!!i.locked||!m;}
     $(prefix+'-unit').value=unit;$(prefix+'-unit').disabled=!!i.locked||!m;
   }
 }
@@ -409,16 +439,17 @@ for(const prefix of ['section','three']){
   $(prefix+'-unit').onchange=()=>change(()=>{plan.measurement.unit=$(prefix+'-unit').value;plan.units=plan.measurement.unit;});
 }
 $('view-toggle').onclick=async()=>{
-  if(threeLoading)return;if(is3D){activate3D(false);render();fit();return;}
-  if(!plan.measurement){openDimensions();notify('Όρισε μία γνωστή διάσταση για σωστή κλίμακα στη 3D όψη.');return;}
+  if(threeLoading||is3D)return;
   threeLoading=true;$('view-toggle').disabled=true;
   try{finishDraft();setMode('select');if(!threeView){const {createPlan3D}=await import('./view3d.mjs');threeView=createPlan3D($('three-host'),{onDoorPlace:placeDoor3D,onDoorMove:moveDoor3D,onDoorMoveEnd:()=>{record();render();},onSelect:(id,add)=>{if(id)selectItem(id,add||multiSelect);else{selected.clear();render();}},onError:message=>{threeView?.dispose();threeView=null;activate3D(false);render();notify(message);}});}activate3D(true);syncThree();threeView.setAngle('angle');$('three-top').setAttribute('aria-pressed',false);$('three-angle').setAttribute('aria-pressed',true);}
   catch(e){activate3D(false);notify('Δεν άνοιξε η 3D όψη. Δοκίμασε browser με WebGL2. Το σχέδιό σου παραμένει διαθέσιμο στη 2D.');console.warn(e);}
   finally{threeLoading=false;$('view-toggle').disabled=false;}
 };
-for(const angle of ['top','angle'])$('three-'+angle).onclick=()=>{threeView?.setAngle(angle);$('three-top').setAttribute('aria-pressed',angle==='top');$('three-angle').setAttribute('aria-pressed',angle==='angle');};
+$('view-2d').onclick=()=>{if(threeLoading||!is3D)return;activate3D(false);render();fit();};
+$('three-calibrate').onclick=()=>openDimensions();
+for(const angle of ['top','angle'])$('three-'+angle).onclick=()=>{threeView?.setAngle(angle);$('three-top').setAttribute('aria-pressed',angle==='top');$('three-angle').setAttribute('aria-pressed',angle==='angle');syncThree();};
 $('three-ceilings').onclick=()=>{const show=$('three-ceilings').getAttribute('aria-pressed')!=='true';$('three-ceilings').setAttribute('aria-pressed',show);threeView?.setCeilings(show);};
-$('three-clear').onclick=()=>{selected.clear();render();};$('three-properties').onclick=()=>openPanel('inspector');
+$('three-clear').onclick=()=>{selected.clear();render();};$('three-properties').onclick=()=>{if(compactUI.matches){$('three-selection').classList.toggle('expanded');refreshLiveDimensions();}else{document.querySelector('.workspace').classList.remove('inspector-collapsed');updatePanelButtons();}};
 new ResizeObserver(()=>{const r=$('canvas').getBoundingClientRect();if(r.width&&r.height){const centreY=view.y+view.h/2;view.h=view.w*r.height/r.width;view.y=centreY-view.h/2;renderCanvas();}}).observe($('canvas-shell'));
 render();requestAnimationFrame(fit);autosave();if(restoreError)notify(restoreError);
 
@@ -432,7 +463,7 @@ async function setupOffline(){
   try{
     const registration=await navigator.serviceWorker.register('./sw.js',{scope:'./'});
     const refresh=async()=>{
-      const keys=await caches.keys(),ready=keys.some(k=>k.startsWith('nk-plan-'));
+      const keys=await caches.keys(),ready=!!navigator.serviceWorker.controller&&!!registration.active&&keys.some(k=>k.startsWith('nk-plan-'));
       status.textContent=ready?(navigator.onLine?'Έτοιμο για offline':'Offline · εργασία στη συσκευή'):'Χρειάζεται πρώτη φόρτωση με σύνδεση';
     };
     let applyUpdate=false;
