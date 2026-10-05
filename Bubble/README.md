@@ -30,9 +30,9 @@ Native WebGL2 instancing, original shaders, soft shadow mapping and procedural m
 
 ## Run and test
 
-Serve this folder with `python3 -m http.server 8080` and open http://localhost:8080 . Run `npm test` or `node tests/logic.mjs` for the 14 deterministic checks. `python3 tests/bundle.py` creates the fully standalone `Bubble.html` with the same source embedded, for local use without module-file requests.
+Serve this folder with `python3 -m http.server 8080` and open http://localhost:8080 . Run `npm test` or `node tests/logic.mjs` for the 17 deterministic checks. `python3 tests/bundle.py` creates the fully standalone `Bubble.html` with the same source embedded, for local use without module-file requests.
 
-Browser test scripts use Python Playwright and Chromium. The supplied reports record 18 desktop integration checks and 8 touch/UI checks. The double-tap timing handler is tested with rapid synthetic pointer events; joystick movement, jump, firing and camera use touch emulation. Screenshots in the downloadable project were rendered by the real game, not concept images.
+Browser test scripts use Python Playwright and Chromium. The supplied reports record 18 desktop integration checks and 9 touch/UI checks. The double-tap timing handler is tested with rapid synthetic pointer events; joystick movement, jump, firing and camera use touch emulation. Screenshots in the downloadable project were rendered by the real game, not concept images.
 
 ## Scope and limits
 

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {World} from '../src/world.js';
 import {makeActor} from '../src/actors.js';
 import {hitKnight,sectorFor} from '../src/combat.js';
-import {TAU,add,norm,sub,len,raySphere,rayBox} from '../src/engine.js';
+import {TAU,add,norm,sub,len,raySphere,rayBox,angleDelta} from '../src/engine.js';
 const world=new World();let checks=0;const test=(name,f)=>{f();checks++;console.log('PASS',name);};
 test('Castle contains thousands of individual bevelled stones',()=>assert(world.nodes.length>6000));
 test('All ten spawn positions are collision-free',()=>{for(let p of[[0,0,12],[-10,0,6],[11,0,3],[-23,0,12],[24,0,16],[-23,0,-10],[-5,0,-19],[4,5,-21],[22,-5,-16],[27,-5,-25]])assert(!world.blocked(p[0],p[2],p[1]),JSON.stringify(p));});
@@ -18,4 +18,8 @@ test('Repeated frontal fire cannot complete 360-degree capture',()=>{let b=makeA
 test('Covering every direction produces a persistent gum mummy',()=>{let b=makeActor(0,[0,0,7],0x00ffff,'test');for(let i=0;i<4;i++)hitKnight(b,[0,0,12],world);for(let i=0;i<8;i++){let a=b.yaw+i*TAU/8,src=add(b.p,[Math.sin(a)*4,0,Math.cos(a)*4]);hitKnight(b,src,world);hitKnight(b,src,world);}assert.equal(b.state,'captured');assert(b.coverage.every(v=>v>=.999));});
 test('Wall pin requires five anchor hits after exhaustion',()=>{let b=makeActor(0,[7,0,-13],0x00ffff,'test');for(let i=0;i<4;i++)hitKnight(b,[7,0,-8],world);assert.equal(b.state,'pinning');assert.equal(b.pinHits,1);for(let i=0;i<3;i++)hitKnight(b,[7,0,-8],world);assert.equal(b.state,'pinning');hitKnight(b,[7,0,-8],world);assert.equal(b.state,'captured');assert(b.pin);});
 test('Projectile intersection is swept and distance bounded',()=>{assert(raySphere([0,1,0],[0,0,1],[0,1,3],.5,4));assert.equal(raySphere([0,1,0],[0,0,1],[0,1,3],.5,2),null);});
+
+test('Coating sector is valid for every knight yaw and multiple turns',()=>{let b=makeActor(0,[0,0,7],0,'test');for(let yaw of[-20,-7,-3,0,3,6.09,7,20]){b.yaw=yaw;for(let i=0;i<8;i++){let a=yaw+i*TAU/8,source=add(b.p,[Math.sin(a)*4,0,Math.cos(a)*4]);assert.equal(sectorFor(b,source),i);}}});
+test('Full wrapping works after arbitrary actor rotations',()=>{for(let yaw of[-7,6.09,20]){let b=makeActor(0,[0,0,7],0,'test');b.yaw=yaw;for(let i=0;i<4;i++)hitKnight(b,[0,0,12],world);for(let i=0;i<8;i++){let a=yaw+i*TAU/8,source=add(b.p,[Math.sin(a)*4,0,Math.cos(a)*4]);hitKnight(b,source,world);hitKnight(b,source,world);}assert.equal(b.state,'captured');}});
+test('Shortest angle delta turns knights and spider toward the target',()=>{let yaw=-2.1,target=.2;for(let i=0;i<120;i++)yaw+=angleDelta(yaw,target)*.04;assert(Math.abs(angleDelta(yaw,target))<.03);});
 console.log(`\n${checks} logic checks passed.`);

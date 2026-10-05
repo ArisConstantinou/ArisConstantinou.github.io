@@ -1,5 +1,5 @@
 {
-  "passed": 8,
+  "passed": 9,
   "checks": [
     "Mobile controls visible",
     "Real touch joystick moves character",
@@ -8,6 +8,7 @@
     "Right touch stick fires gum",
     "Double-tap handler jumps for two rapid taps",
     "Portrait controls fit viewport",
+    "Portrait objective does not overlap minimap",
     "No mobile JavaScript errors"
   ],
   "errors": [],

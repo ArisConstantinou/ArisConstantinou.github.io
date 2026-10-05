@@ -1,7 +1,7 @@
 /* Bubble — tiny, original WebGL2 renderer. No external runtime dependencies. */
 export const TAU=Math.PI*2, clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(a,b,t)=>a+(b-a)*t;
 export const v3=(x=0,y=0,z=0)=>[x,y,z], add=(a,b)=>a.map((v,i)=>v+b[i]), sub=(a,b)=>a.map((v,i)=>v-b[i]), mul=(a,k)=>a.map(v=>v*k), dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2], cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]], len=a=>Math.hypot(...a), norm=a=>mul(a,1/(len(a)||1));
-export const dist=(a,b)=>len(sub(a,b)), angleDelta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
+export const dist=(a,b)=>len(sub(a,b)), angleDelta=(a,b)=>Math.atan2(Math.sin(b-a),Math.cos(b-a));
 export function hex(h){return [(h>>16&255)/255,(h>>8&255)/255,(h&255)/255,1];}
 export function rng(seed=42){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 export const I=()=>new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
