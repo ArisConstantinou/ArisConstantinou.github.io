@@ -1,0 +1,15 @@
+{
+  "passed": 8,
+  "checks": [
+    "Mobile controls visible",
+    "Real touch joystick moves character",
+    "Mobile jump button triggers physics",
+    "Mobile camera toggles FPS",
+    "Right touch stick fires gum",
+    "Double-tap handler jumps for two rapid taps",
+    "Portrait controls fit viewport",
+    "No mobile JavaScript errors"
+  ],
+  "errors": [],
+  "note": "Chromium touch emulation, not a physical iPhone test."
+}

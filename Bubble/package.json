@@ -1,0 +1,1 @@
+{"name":"bubble-castle","version":"0.1.0","type":"module","private":true,"description":"Bubble: original WebGL2 castle capture game, no runtime dependencies","scripts":{"test":"node tests/logic.mjs","serve":"python3 -m http.server 8080"}}

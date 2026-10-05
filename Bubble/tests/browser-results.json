@@ -1,0 +1,25 @@
+{
+  "passed": 18,
+  "checks": [
+    "WebGL2 boot and ten bots",
+    "WASD moves the player",
+    "Space jumps",
+    "Gravity lands player back on floor",
+    "C toggles first person",
+    "Swept projectile creates a wall splat",
+    "Wall splats persist over time",
+    "Projectile damages armour and leaves gum attached",
+    "Front-only hits cannot finish wrapping",
+    "Eight-sided coating captures the knight",
+    "Dizzy knight pins to wall and stays captured",
+    "Gun fire consumes ammunition",
+    "R replenishes the 180-round tank",
+    "Dungeon cutaway and level UI activate",
+    "Boss spawns only after all ten captures",
+    "Boss fires toxic green projectiles",
+    "Boss can be defeated and the victory screen is reached",
+    "No browser or WebGL errors"
+  ],
+  "errors": [],
+  "note": "Chromium / SwiftShader software WebGL2 desktop integration."
+}
