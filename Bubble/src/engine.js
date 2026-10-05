@@ -32,7 +32,7 @@ precision highp float;in vec3 vWorld,vNormal;in vec4 vColor,vProps,vShadow;out v
 uniform sampler2D uShadow;uniform vec3 uEye,uSun,uFog;uniform float uCut,uDungeon,uShadowOn,uTime;
 float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
 float noise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}
-void main(){if(vProps.z>.5&&vWorld.y>uCut)discard;vec3 N=normalize(vNormal);if(!gl_FrontFacing)N=-N;float ndl=max(dot(N,uSun),0.),shade=1.;vec3 sc=vShadow.xyz/vShadow.w*.5+.5;
+void main(){if(uCut<90.&&vProps.z>.5&&vWorld.y>uCut)discard;vec3 N=normalize(vNormal);if(!gl_FrontFacing)N=-N;float ndl=max(dot(N,uSun),0.),shade=1.;vec3 sc=vShadow.xyz/vShadow.w*.5+.5;
  if(uShadowOn>.5&&all(greaterThan(sc,vec3(0)))&&all(lessThan(sc,vec3(1)))){float bias=max(.003*(1.-ndl),.0014);shade=0.;vec2 texel=1./vec2(textureSize(uShadow,0));for(int x=-1;x<=1;x++)for(int y=-1;y<=1;y++){float d=texture(uShadow,sc.xy+vec2(x,y)*texel).r;shade+=sc.z-bias>d?.34:1.;}shade/=9.;}
  vec3 col=pow(vColor.rgb,vec3(2.2));float rough=vProps.x;if(rough>.75){float grain=noise(vWorld*2.8)*.09+noise(vWorld*12.)*.025;col*=.95+grain;}
  if(rough>.5&&rough<.7){float grain=sin(vWorld.y*20.+noise(vWorld*3.)*6.)*.07;col*=.94+grain;}
@@ -42,7 +42,7 @@ void main(){if(vProps.z>.5&&vWorld.y>uCut)discard;vec3 N=normalize(vNormal);if(!
  float fog=1.-exp(-pow(length(vWorld-uEye)*.007,2.));col=mix(col,uFog,fog);col=col/(col+vec3(.68));frag=vec4(pow(col,vec3(1./2.2)),vColor.a);
 }`;
 const DEPTHFS=`#version 300 es
-precision highp float;in vec3 vWorld;in vec4 vProps;uniform float uCut;void main(){if(vProps.z>.5&&vWorld.y>uCut)discard;}`;
+precision highp float;in vec3 vWorld;in vec4 vProps;uniform float uCut;void main(){if(uCut<90.&&vProps.z>.5&&vWorld.y>uCut)discard;}`;
 export class Renderer{
  constructor(canvas){let gl=this.gl=canvas.getContext('webgl2',{antialias:true,alpha:false,powerPreference:'high-performance'});if(!gl)throw Error('Χρειάζεται WebGL 2. Άνοιξε το παιχνίδι σε ενημερωμένο Safari, Chrome ή Edge.');this.canvas=canvas;this.program=this.programOf(VS,FS);this.depthProgram=this.programOf(VS,DEPTHFS);this.meshes=new Map;this.staticBatches=[];this.dynamicBatches=new Map;this.overlayBatches=new Map;this.stats={calls:0,instances:0};this.sun=norm([-35,55,24]);this.lightVP=mm(ortho(-66,66,-66,66,1,170),lookAt(mul(this.sun,85),[0,0,0]));this.shadowSize=1536;this.makeShadow();gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);this.pixelRatio=1;this.shadowOn=true;}
  programOf(v,f){let gl=this.gl;const shader=(type,source)=>{let s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;};let p=gl.createProgram(),vs=shader(gl.VERTEX_SHADER,v),fs=shader(gl.FRAGMENT_SHADER,f);gl.attachShader(p,vs);gl.attachShader(p,fs);gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));gl.deleteShader(vs);gl.deleteShader(fs);return p;}
