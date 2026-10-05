@@ -1,16 +1,121 @@
 {
-  "passed": 9,
+  "version": "0.3.0",
+  "environment": "Chromium + SwiftShader in Xvfb; offline exact-source bundle; deterministic RAF; emulated touch, NOT physical iPhone/Safari",
+  "passed": 28,
+  "total": 28,
   "checks": [
-    "Mobile controls visible",
-    "Real touch joystick moves character",
-    "Mobile jump button triggers physics",
-    "Mobile camera toggles FPS",
-    "Right touch stick fires gum",
-    "Double-tap handler jumps for two rapid taps",
-    "Portrait controls fit viewport",
-    "Portrait objective does not overlap minimap",
-    "No mobile JavaScript errors"
+    {
+      "name": "portrait uses touch layout",
+      "passed": true
+    },
+    {
+      "name": "portrait all controls reachable",
+      "passed": true
+    },
+    {
+      "name": "portrait LV/XP/Gold/Dust visible",
+      "passed": true
+    },
+    {
+      "name": "Touch movement joystick moves actor",
+      "passed": true
+    },
+    {
+      "name": "Touch JUMP button works and preserves cutaway",
+      "passed": true
+    },
+    {
+      "name": "AUTO chooses nearest visible enemy",
+      "passed": true
+    },
+    {
+      "name": "AUTO retargets closer opponent behind",
+      "passed": true
+    },
+    {
+      "name": "Manual touch aim overrides AUTO selection",
+      "passed": true
+    },
+    {
+      "name": "Mobile MODE switches SLING to LINK",
+      "passed": true
+    },
+    {
+      "name": "Mobile LINK action chooses actual target",
+      "passed": true
+    },
+    {
+      "name": "Mobile CUT clears pending anchor",
+      "passed": true
+    },
+    {
+      "name": "Mobile camera switches to FPS",
+      "passed": true
+    },
+    {
+      "name": "FPS right stick turns camera continuously",
+      "passed": true
+    },
+    {
+      "name": "Touch held FIRE expends ammunition",
+      "passed": true
+    },
+    {
+      "name": "Inventory opening stops held touch fire",
+      "passed": true
+    },
+    {
+      "name": "Inventory close does not leave stuck fire",
+      "passed": true
+    },
+    {
+      "name": "portrait Forge opens and scrolls into view",
+      "passed": true
+    },
+    {
+      "name": "portrait has no runtime errors",
+      "passed": true
+    },
+    {
+      "name": "landscape uses touch layout",
+      "passed": true
+    },
+    {
+      "name": "landscape all controls reachable",
+      "passed": true
+    },
+    {
+      "name": "landscape LV/XP/Gold/Dust visible",
+      "passed": true
+    },
+    {
+      "name": "landscape Forge opens and scrolls into view",
+      "passed": true
+    },
+    {
+      "name": "landscape has no runtime errors",
+      "passed": true
+    },
+    {
+      "name": "small-portrait uses touch layout",
+      "passed": true
+    },
+    {
+      "name": "small-portrait all controls reachable",
+      "passed": true
+    },
+    {
+      "name": "small-portrait LV/XP/Gold/Dust visible",
+      "passed": true
+    },
+    {
+      "name": "small-portrait Forge opens and scrolls into view",
+      "passed": true
+    },
+    {
+      "name": "small-portrait has no runtime errors",
+      "passed": true
+    }
   ],
-  "errors": [],
-  "note": "Chromium touch emulation, not a physical iPhone test."
+  "note": "Subset of browser-results.json; not additional checks."
 }

@@ -1,0 +1,52 @@
+/* 0.3.0: fixed action rail; no essential feature is hidden on touch screens. */
+#rpgStrip{top:100px;font-size:10px;gap:10px;white-space:nowrap;z-index:7;background:#101728ee}
+#rpgStrip>i{width:70px;flex-shrink:0}#rpgStrip>span{font-size:9px}
+#gumState{position:absolute;top:142px;left:50%;transform:translateX(-50%);padding:6px 12px;border-radius:10px;background:#111827c9;max-width:70vw;font-size:10px;text-align:center;pointer-events:none}
+#buffLabel{position:absolute;top:174px;left:50%;transform:translateX(-50%);font-weight:800;font-size:12px;color:#ffe298}
+#targetCard{top:190px}#mobileVitals{display:none}
+#abilityBar{position:absolute;z-index:9;bottom:56px;left:50%;transform:translateX(-50%);display:flex;gap:7px;pointer-events:auto}
+#abilityBar button{position:static!important;inset:auto!important;width:56px!important;height:52px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px;border-radius:12px;background:#181d32ea;border:1px solid #bba1e660;opacity:1;touch-action:none;color:#eee5ff}
+#abilityBar button b{font-size:24px;line-height:24px}#abilityBar button span{font-size:8px;letter-spacing:.6px;font-weight:800}
+#abilityBar #anchorBtn{background:#68438fea!important;border-color:#d9b1ff}#abilityBar .active{background:#50456f!important;border-color:#ffc878}
+#forgeBtn.ready{border-color:#ffcc7e!important;color:#ffdb9e}#forgeBtn,#inventoryBtn{font-size:10px!important;font-weight:800}
+.inventory-card{width:min(780px,94vw);max-width:780px;max-height:92dvh;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:26px!important}
+.armory-head{display:flex;align-items:center;justify-content:space-between;gap:14px}.armory-head h2{font-size:28px;margin:10px 0}.armory-head .secondary{margin:0;padding:10px;white-space:nowrap;width:auto}
+#characterStats{font-size:11px;line-height:1.7;color:#ddcff5;margin:7px 0}
+.section-heading{display:flex;justify-content:space-between;gap:8px;font-size:11px;margin:18px 0 10px}.section-heading>span{font-size:10px;color:#b7bfd0}
+.skill-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.skill-grid button{display:flex;flex-direction:column;align-items:flex-start;gap:7px;border:1px solid #bc92ed55;background:#29243d;padding:12px;border-radius:9px;text-align:left}
+.skill-grid b{font-size:10px}.skill-grid small{font-size:9px;color:#b8b3c9}.skill-grid button:disabled{opacity:.5;cursor:default}
+.inventory-card .gear-row{grid-template-columns:repeat(3,1fr)}.inventory-card .gear-row b{display:block;margin:5px 0 0;font-size:11px}
+.inventory-grid{max-height:250px;overflow-y:auto;touch-action:pan-y}.loot-card{min-height:104px}.loot-card b{font-size:12px}.loot-card em{font-size:8px}
+#forgeSection{border-top:1px solid #d5b79344;margin-top:20px;padding-top:2px}.forge-explain,#forgePreview{font-size:11px;line-height:1.6;margin:10px 0;color:#d3c7b8}
+.forge-selects{display:grid;grid-template-columns:1fr 1fr;gap:10px}.forge-selects label{font-size:10px;color:#c9b9a3}.forge-selects select{display:block;width:100%;font-size:12px;background:#151b2a;color:#f0e5d3;border:1px solid #d8ae7655;padding:11px 8px;border-radius:7px;margin-top:6px;touch-action:manipulation}
+#forgeBtnPanel{padding:12px 20px;min-width:0;font-size:12px}#forgeBtnPanel:disabled{opacity:.35;cursor:default}
+.auto-forge{display:flex;align-items:flex-start;gap:10px;margin:18px 0;font-size:11px}.auto-forge input{width:20px;height:20px;accent-color:#bc8bf4;flex-shrink:0}.auto-forge small{display:block;font-size:10px;line-height:1.6;color:#b7afc4;margin-top:6px}#saveStatus{font-size:10px;color:#a9b8ad;line-height:1.5}
+#nextTier{margin-bottom:14px}.gum-help{font-size:12px;line-height:1.7}
+@media(pointer:coarse){
+ .top-left{top:max(12px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left))}.progress-chip{padding:7px}.progress-chip span{font-size:6px}
+ .hud-buttons{gap:4px}.hud-buttons button{padding:0 7px;min-width:30px;height:34px}#soundBtn{display:none}
+ #rpgStrip{top:max(56px,calc(env(safe-area-inset-top) + 46px));bottom:auto;max-width:calc(100vw - 20px);width:max-content;gap:7px;padding:7px 9px;border-radius:10px;font-size:10px;opacity:1}#rpgStrip>i{width:40px}#rpgStrip>span{font-size:8px}
+ #gumState{top:max(94px,calc(env(safe-area-inset-top) + 82px));width:max-content;max-width:90vw;font-size:10px}
+ #buffLabel{top:max(124px,calc(env(safe-area-inset-top) + 110px));font-size:11px}
+ #mobileVitals{display:flex;position:absolute;left:50%;transform:translateX(-50%);bottom:max(242px,calc(env(safe-area-inset-bottom) + 230px));gap:16px;font-size:10px;padding:6px 12px;border:1px solid #b6d1e533;border-radius:8px;background:#111827bd;white-space:nowrap}
+ #mobileVitals b{font-size:12px;margin-left:3px}#mobileVitals span:first-child{color:#c6eddc}
+ #abilityBar{bottom:max(185px,calc(env(safe-area-inset-bottom) + 169px));gap:7px;width:max-content}#abilityBar button{width:52px!important;height:48px!important}
+ #toast{bottom:max(286px,calc(env(safe-area-inset-bottom) + 269px));max-width:84vw;font-size:10px}
+ #bossPanel{top:max(150px,calc(env(safe-area-inset-top) + 138px));width:min(86vw,400px)}
+ #reloadBtn{bottom:173px!important;right:15px!important;width:35px!important;height:35px!important}
+ .inventory-card{padding:18px!important;width:96vw;max-height:94dvh}.armory-head h2{font-size:22px}.armory-head .eyebrow{font-size:7px}.armory-head .secondary{font-size:11px}
+ .inventory-card .gear-row>div{padding:8px;font-size:8px}.inventory-card .gear-row b{font-size:10px;margin:6px 0 0;white-space:normal;line-height:1.4}
+ .inventory-grid{grid-template-columns:repeat(2,1fr);max-height:240px}.skill-grid{gap:5px}.skill-grid button{padding:9px 7px}.skill-grid b{font-size:9px}.skill-grid small{font-size:8px}
+}
+@media(pointer:coarse) and (orientation:landscape){
+ #rpgStrip{top:12px;max-width:44vw;gap:5px;padding:7px;font-size:9px}#rpgStrip>i{width:33px}#rpgStrip>span{font-size:7px}
+ #gumState{top:50px;font-size:9px;max-width:50vw}#buffLabel{top:82px;font-size:10px}
+ #abilityBar{bottom:max(25px,calc(env(safe-area-inset-bottom) + 10px));gap:5px}#abilityBar button{width:44px!important;height:44px!important}
+ #mobileVitals{bottom:max(80px,calc(env(safe-area-inset-bottom) + 65px));font-size:9px;gap:12px}
+ #toast{bottom:135px;max-width:42vw;font-size:9px}#bossPanel{top:92px;width:42vw}
+ #reloadBtn{bottom:130px!important;right:210px!important}#jumpBtn{right:153px;bottom:113px}#fireBtn{right:98px;bottom:162px}
+ #moveStick,#aimStick{bottom:max(25px,calc(env(safe-area-inset-bottom) + 10px))}
+}
+@media(pointer:coarse) and (max-width:380px) and (orientation:portrait){
+ .progress-chip span{display:none}.top-right{right:8px}#rpgStrip{gap:5px;font-size:9px}#rpgStrip>i{width:25px}#rpgStrip>span{font-size:7px}#abilityBar{gap:5px}#abilityBar button{width:47px!important}#gumState{font-size:9px}#moveStick,#aimStick{width:102px;height:102px}#moveStick{left:12px}#aimStick{right:12px}.joystick>i{top:27px;left:27px}#jumpBtn{right:124px}#fireBtn{right:124px}.forge-selects{grid-template-columns:1fr}
+}

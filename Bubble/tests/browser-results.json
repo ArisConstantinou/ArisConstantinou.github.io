@@ -1,25 +1,212 @@
 {
-  "passed": 18,
+  "version": "0.3.0",
+  "environment": "Chromium + SwiftShader in Xvfb; offline exact-source bundle; deterministic RAF; emulated touch, NOT physical iPhone/Safari",
+  "passed": 51,
+  "total": 51,
   "checks": [
-    "WebGL2 boot and ten bots",
-    "WASD moves the player",
-    "Space jumps",
-    "Gravity lands player back on floor",
-    "C toggles first person",
-    "Swept projectile creates a wall splat",
-    "Wall splats persist over time",
-    "Projectile damages armour and leaves gum attached",
-    "Front-only hits cannot finish wrapping",
-    "Eight-sided coating captures the knight",
-    "Dizzy knight pins to wall and stays captured",
-    "Gun fire consumes ammunition",
-    "R replenishes the 180-round tank",
-    "Dungeon cutaway and level UI activate",
-    "Boss spawns only after all ten captures",
-    "Boss fires toxic green projectiles",
-    "Boss can be defeated and the victory screen is reached",
-    "No browser or WebGL errors"
-  ],
-  "errors": [],
-  "note": "Chromium / SwiftShader software WebGL2 desktop integration."
+    {
+      "name": "Desktop WebGL boot / version / 10 bots",
+      "passed": true
+    },
+    {
+      "name": "Desktop ability and RPG buttons reachable",
+      "passed": true
+    },
+    {
+      "name": "Desktop WASD moves actual actor",
+      "passed": true
+    },
+    {
+      "name": "Desktop jump uses vertical velocity",
+      "passed": true
+    },
+    {
+      "name": "Top-down wall cutaway remains stable while airborne",
+      "passed": true
+    },
+    {
+      "name": "Airborne wall jump applies outward impulse",
+      "passed": true
+    },
+    {
+      "name": "Live SLING starts at current position, not midpoint",
+      "passed": true
+    },
+    {
+      "name": "Live SLING produces flight",
+      "passed": true
+    },
+    {
+      "name": "Live enemy-to-enemy LINK closes their separation",
+      "passed": true
+    },
+    {
+      "name": "Live PULL brings targeted enemy toward player",
+      "passed": true
+    },
+    {
+      "name": "Live SLAM landing makes enemy dizzy",
+      "passed": true
+    },
+    {
+      "name": "Inventory pauses combat",
+      "passed": true
+    },
+    {
+      "name": "LV2 updates visible XP and skill points",
+      "passed": true
+    },
+    {
+      "name": "Skill button spends point and increases maximum HP",
+      "passed": true
+    },
+    {
+      "name": "Forge excludes equipped sacrifice",
+      "passed": true
+    },
+    {
+      "name": "Forge previews the exact lost item and cost",
+      "passed": true
+    },
+    {
+      "name": "Forge button consumes selected feed only",
+      "passed": true
+    },
+    {
+      "name": "Auto Forge UI records opt-in",
+      "passed": true
+    },
+    {
+      "name": "Inventory closes without unpausing incorrectly",
+      "passed": true
+    },
+    {
+      "name": "Ten captures spawn ARACHNE-09",
+      "passed": true
+    },
+    {
+      "name": "Victory screen receives guaranteed boss loot",
+      "passed": true
+    },
+    {
+      "name": "Next siege keeps character and increases difficulty",
+      "passed": true
+    },
+    {
+      "name": "Desktop has no runtime page errors",
+      "passed": true
+    },
+    {
+      "name": "portrait uses touch layout",
+      "passed": true
+    },
+    {
+      "name": "portrait all controls reachable",
+      "passed": true
+    },
+    {
+      "name": "portrait LV/XP/Gold/Dust visible",
+      "passed": true
+    },
+    {
+      "name": "Touch movement joystick moves actor",
+      "passed": true
+    },
+    {
+      "name": "Touch JUMP button works and preserves cutaway",
+      "passed": true
+    },
+    {
+      "name": "AUTO chooses nearest visible enemy",
+      "passed": true
+    },
+    {
+      "name": "AUTO retargets closer opponent behind",
+      "passed": true
+    },
+    {
+      "name": "Manual touch aim overrides AUTO selection",
+      "passed": true
+    },
+    {
+      "name": "Mobile MODE switches SLING to LINK",
+      "passed": true
+    },
+    {
+      "name": "Mobile LINK action chooses actual target",
+      "passed": true
+    },
+    {
+      "name": "Mobile CUT clears pending anchor",
+      "passed": true
+    },
+    {
+      "name": "Mobile camera switches to FPS",
+      "passed": true
+    },
+    {
+      "name": "FPS right stick turns camera continuously",
+      "passed": true
+    },
+    {
+      "name": "Touch held FIRE expends ammunition",
+      "passed": true
+    },
+    {
+      "name": "Inventory opening stops held touch fire",
+      "passed": true
+    },
+    {
+      "name": "Inventory close does not leave stuck fire",
+      "passed": true
+    },
+    {
+      "name": "portrait Forge opens and scrolls into view",
+      "passed": true
+    },
+    {
+      "name": "portrait has no runtime errors",
+      "passed": true
+    },
+    {
+      "name": "landscape uses touch layout",
+      "passed": true
+    },
+    {
+      "name": "landscape all controls reachable",
+      "passed": true
+    },
+    {
+      "name": "landscape LV/XP/Gold/Dust visible",
+      "passed": true
+    },
+    {
+      "name": "landscape Forge opens and scrolls into view",
+      "passed": true
+    },
+    {
+      "name": "landscape has no runtime errors",
+      "passed": true
+    },
+    {
+      "name": "small-portrait uses touch layout",
+      "passed": true
+    },
+    {
+      "name": "small-portrait all controls reachable",
+      "passed": true
+    },
+    {
+      "name": "small-portrait LV/XP/Gold/Dust visible",
+      "passed": true
+    },
+    {
+      "name": "small-portrait Forge opens and scrolls into view",
+      "passed": true
+    },
+    {
+      "name": "small-portrait has no runtime errors",
+      "passed": true
+    }
+  ]
 }

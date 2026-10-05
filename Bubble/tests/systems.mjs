@@ -1,0 +1,41 @@
+import assert from 'node:assert/strict';
+import {World} from '../src/world.js';
+import {makeActor} from '../src/actors.js';
+import {GumSystem,closestOnSegment,springForce,launchVelocity} from '../src/gum.js';
+import {Progression,validateProfile,SAVE_KEY} from '../src/progression.js';
+import {dist} from '../src/engine.js';
+let checks=0;const test=(n,f)=>{f();checks++;console.log('PASS',n);};
+const w=new World();
+function scene(){const player=makeActor(-1,[0,0,8],0xb66aff,'P'),actors=[makeActor(0,[-4,0,4],0,'A'),makeActor(1,[4,0,4],0,'B')],impacts=[];const gum=new GumSystem(w,{player:()=>player,actors:()=>actors,stretch:()=>1,impact:(...a)=>impacts.push(a)});return{gum,player,actors,impacts};}
+const ref=p=>({kind:'surface',p});
+function steps(gum,actors,n=60){for(let i=0;i<n;i++){gum.step(1/60);for(const a of actors)gum.move(a,0,0,1/60);}}
+function item(id,type,power,rarity=0){return{id,type,power,name:{weapon:'Elastic Gumcaster',armor:'Knight Shell',charm:'Gumheart'}[type],rarity,upgrades:0,locked:false,damage:type==='weapon'?power:0,armor:type==='armor'?power:0,stretch:type==='charm'?power:0};}
+test('Zero-length strand projections stay finite',()=>assert.deepEqual(closestOnSegment([2,3,4],[1,1,1],[1,1,1]),[1,1,1]));
+test('Slack elastic strand applies no compression force',()=>assert.deepEqual(springForce([0,0,0],[1,0,0],[0,0,0],[0,0,0],2),[0,0,0]));
+test('Stretched elastic strand pulls endpoints together',()=>assert(springForce([0,0,0],[5,0,0],[0,0,0],[0,0,0],2)[0]>0));
+test('Duplicate anchors rejected without losing first anchor',()=>{const {gum}=scene();gum.select(ref([-3,0,5]),[0,0,-1]);assert.equal(gum.select(ref([-3,0,5]),[0,0,-1]),false);assert(gum.pending);assert.equal(gum.links.length,0);});
+test('Out-of-range second anchor preserves pending anchor',()=>{const {gum}=scene();gum.select(ref([-10,0,5]),[0,0,-1]);assert.equal(gum.select(ref([12,0,5]),[0,0,-1]),false);assert(gum.pending);});
+test('Slingshot changes velocity, never teleports position',()=>{const {gum,player}=scene(),p=player.p.slice();gum.select(ref([-4,0,5]),[0,0,-1]);assert(gum.select(ref([4,0,5]),[0,0,-1]));assert.deepEqual(player.p,p);assert(player.vy>0);assert(player.gumV[2]<0);assert.equal(gum.links.length,1);});
+test('Slingshot launch stays speed bounded',()=>{const v=launchVelocity([-8,0,0],[8,0,0],[0,0,90],[0,0,-1],3);assert(Math.hypot(v[0],v[2])<=18);assert(v.every(Number.isFinite));});
+test('Actor-to-actor elastic link closes their separation',()=>{const {gum,actors}=scene();gum.setMode('link');gum.select({kind:'actor',id:0},[0,0,-1]);gum.select({kind:'actor',id:1},[0,0,-1]);const d=dist(actors[0].p,actors[1].p);steps(gum,actors,45);assert(dist(actors[0].p,actors[1].p)<d-1);});
+test('Pull reduces actor-to-player distance without moving player',()=>{const {gum,player,actors}=scene(),p=player.p.slice(),d=dist(player.p,actors[0].p);assert(gum.pull(actors[0]));steps(gum,actors,60);assert(dist(player.p,actors[0].p)<d);assert.deepEqual(player.p,p);});
+test('Captured actors invalidate their elastic constraints',()=>{const {gum,actors}=scene();gum.pull(actors[0]);actors[0].state='captured';gum.step(.02);assert.equal(gum.links.length,0);});
+test('Wall pinning invalidates temporary elastic constraints',()=>{const {gum,actors}=scene();gum.pull(actors[0]);actors[0].pin={p:[0,0,0],n:[0,0,1]};actors[0].state='pinning';gum.step(.02);assert.equal(gum.links.length,0);assert.equal(gum.pull(actors[0]),false);});
+test('Airborne wall-jump supplies outward velocity',()=>{const {gum,player}=scene();player.p=[7,1,-13.85];player.grounded=false;player.vy=-1;assert.equal(gum.jump(player,[0,0,-1]),'wall');assert(player.gumV[2]>0);assert(player.vy>0);});
+test('Cannot repeatedly climb the same wall without landing',()=>{const {gum,player}=scene();player.p=[7,1,-13.85];player.grounded=false;gum.jump(player,[0,0,-1]);gum.clock+=.3;assert.equal(gum.jump(player,[0,0,-1]),false);});
+test('Airborne jump in open space does not create infinite jump',()=>{const {gum,player}=scene();player.grounded=false;player.p=[0,2,5];assert.equal(gum.jump(player,[0,0,-1]),false);});
+test('High-speed impulse cannot tunnel through castle wall',()=>{const {gum,player}=scene();player.p=[7,0,-12];player.gumV=[0,0,-22];steps(gum,[player],60);assert(player.p[2]>-14.5);assert(player.p.every(Number.isFinite));});
+test('Upward impulse cannot pass through keep ceiling',()=>{const a=makeActor(0,[5,0,-19],0,'A');a.vy=15;a.grounded=false;let peak=0;for(let i=0;i<100;i++){w.move(a,0,0,1/60);peak=Math.max(peak,a.p[1]);}assert(peak+1.85<=4.84,peak);});
+test('Ground SLAM resolves through a real landing impact',()=>{const {gum,actors,impacts}=scene();gum.pull(actors[0]);assert(gum.slam([0,0,1]));steps(gum,actors,100);assert.equal(impacts.length,1);assert(gum.slamCooldown>0);});
+test('Pending anchors expire and active strands are bounded',()=>{const {gum}=scene();gum.select(ref([-4,0,5]),[0,0,-1]);gum.step(19);assert.equal(gum.pending,null);for(let i=0;i<10;i++){gum.select(ref([-4,0,5]),[0,0,-1]);gum.select(ref([4,0,5]),[0,0,-1]);}assert(gum.links.length<=6);});
+test('LV 2 grants one real skill point',()=>{const p=new Progression();assert.equal(p.xp(100),1);assert.equal(p.p.level,2);assert.equal(p.p.skillPoints,1);assert(p.spendSkill('vitality'));assert.equal(p.stats().maxHp,110);assert.equal(p.spendSkill('power'),false);});
+test('Forge cannot consume an equipped item',()=>{const p=new Progression();p.xp(100);p.p.gold=100;p.p.dust=10;p.p.items=[item('a','weapon',20),item('b','armor',10)];p.equip('b');assert(p.forge('a','b').error);assert.equal(p.p.items.length,2);});
+test('Forge consumes exactly selected unequipped material and costs',()=>{const p=new Progression();p.xp(100);p.p.gold=100;p.p.dust=10;p.p.items=[item('a','weapon',20),item('b','armor',10)];p.equip('a');assert(!p.forge('a','b').error);assert.equal(p.gear('weapon').power,23);assert.equal(p.p.items.length,1);assert.equal(p.p.gold,90);assert.equal(p.p.dust,8);});
+test('Locked gear cannot be sacrificed',()=>{const p=new Progression();p.xp(100);p.p.gold=100;p.p.dust=10;p.p.items=[item('a','weapon',20),{...item('b','armor',10),locked:true}];assert(p.forge('a','b').error);});
+test('Auto Forge does not consume Epic or Legendary',()=>{const p=new Progression();p.xp(100);p.p.gold=100;p.p.dust=10;p.p.autoForge=true;p.p.items=[item('a','weapon',40),item('b','armor',10,3),item('c','charm',8,4)];p.equip('a');assert.equal(p.auto(),null);assert.equal(p.p.items.length,3);});
+test('Auto Forge upgrades equipped weapon using safe weaker gear',()=>{const p=new Progression();p.xp(100);p.p.gold=100;p.p.dust=10;p.p.autoForge=true;p.p.items=[item('a','weapon',40),item('b','armor',10,1)];p.equip('a');assert(p.auto());assert.equal(p.gear('weapon').power,43);});
+test('Profile round-trip restores gear by ID without orphan references',()=>{const data=new Map(),storage={getItem:k=>data.get(k),setItem:(k,v)=>data.set(k,v)},p=new Progression(storage);p.p.items=[item('a','weapon',20)];p.equip('a');p.xp(150);p.spendSkill('power');const restored=new Progression(storage);assert.equal(restored.p.level,2);assert.equal(restored.gear('weapon').power,20);assert.equal(restored.p.skills.power,1);assert.equal(restored.p.xp,50);});
+test('Corrupt saves and storage failures do not crash the game',()=>{assert.equal(new Progression({getItem:()=>'{invalid'}).p.level,1);const p=new Progression({getItem:()=>null,setItem:()=>{throw Error('quota');}});assert.equal(p.save(),false);assert(p.storageFailed);});
+test('Saved HTML names and unsafe IDs are not inserted into the UI',()=>{const p=new Progression();p.p.items=[{...item('bad"id','weapon',20),name:'<img>'}];assert.equal(validateProfile(p.p).items.length,0);});
+test('Boss loot is always Legendary and completion unlocks next siege',()=>{const p=new Progression();assert.equal(p.item(true).rarity,4);p.complete();assert.equal(p.p.unlockedTier,2);});
+console.log(`\n${checks} systems checks passed.`);
