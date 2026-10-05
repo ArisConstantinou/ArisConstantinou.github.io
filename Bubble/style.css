@@ -27,3 +27,5 @@
   #fireBtn{bottom:max(48px,calc(env(safe-area-inset-bottom) + 28px));right:143px}
   #reloadBtn{bottom:max(172px,calc(env(safe-area-inset-bottom) + 152px));right:24px}
 }
+
+#autoAimBtn.active{border-color:#d8a7ff88!important;background:#6e4392b8!important;box-shadow:0 0 18px #c27cff30}#autoAimBtn.active span{color:#f0d9ff}@media(pointer:coarse){#autoAimBtn{display:inline-flex;align-items:center;gap:3px}#autoAimBtn span{font-size:7px}.hud-buttons{gap:5px}}
