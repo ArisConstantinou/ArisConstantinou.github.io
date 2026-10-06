@@ -1,4 +1,4 @@
-/* 0.4.3 — one owner per physical finger, independent movement/aim/trigger.
+/* 0.4.4 — one owner per physical finger, independent movement/aim/trigger.
  * Native Touch identifiers are authoritative on iOS: pointer capture loss is
  * not a finger lift. Mouse and pen retain Pointer Events + document tracking.
  */
@@ -32,6 +32,8 @@ export class Controls {
   this.firePointer=null;this.lookPointer=null;this.tapPointer=null;this.mouseDown=false;
   this.lastMoveTap=-1000;this.owners=new Map();this.slots=new Map();this.ignoreClicks=new Map();
   this.resets=[()=>this.releaseSlot('move'),()=>this.releaseSlot('aim')];
+  this.lastTouchAt=-Infinity;
+  document.documentElement.dataset.inputMode=touch?'touch':'desktop';
   protectDocument();
   for(const [id,fn] of Object.entries(ACTIONS))$(id).addEventListener('click',e=>{
    prevent(e);
@@ -43,6 +45,7 @@ export class Controls {
    $(id).addEventListener('resetstick',()=>this.releaseSlot(kind));
 
   document.addEventListener('touchstart',e=>{
+   this.lastTouchAt=performance.now();this.selectInput('touch');
    let handled=false;
    for(const t of e.changedTouches){
     const key='t:'+t.identifier;
@@ -51,6 +54,7 @@ export class Controls {
    if(handled)prevent(e);
   },{capture:true,passive:false});
   document.addEventListener('touchmove',e=>{
+   this.lastTouchAt=performance.now();
    let handled=false;
    // Never replace the whole state with changedTouches: an unmoving left
    // finger still owns movement when only the right finger sends an update.
@@ -60,6 +64,7 @@ export class Controls {
    if(handled)prevent(e);
   },{capture:true,passive:false});
   for(const type of ['touchend','touchcancel'])document.addEventListener(type,e=>{
+   this.lastTouchAt=performance.now();
    let handled=false;
    for(const t of e.changedTouches){const key='t:'+t.identifier;
     if(this.owners.has(key)){this.stop(key,type==='touchcancel',t.clientX,t.clientY);handled=true;}
@@ -68,7 +73,9 @@ export class Controls {
   },{capture:true,passive:false});
 
   document.addEventListener('pointerdown',e=>{
-   if(e.pointerType==='touch')return; // handled exactly once by Touch Events
+   if(e.pointerType==='touch'||e.sourceCapabilities?.firesTouchEvents)return; // touch is handled once
+   if(this.hasTouchOwner())return;
+   this.selectInput('desktop');
    if(e.button===2&&e.target===canvas){prevent(e);if(api.playing())api.use();return;}
    if(e.button!==0)return;
    if(this.start('p:'+e.pointerId,e.target,e.clientX,e.clientY,e.pointerType||'mouse',e.pointerId)){
@@ -77,7 +84,10 @@ export class Controls {
    }
   },true);
   document.addEventListener('pointermove',e=>{
-   if(e.pointerType==='touch')return;
+   if(e.pointerType==='touch'||e.sourceCapabilities?.firesTouchEvents||this.hasTouchOwner())return;
+   // Do not let a delayed compatibility mouse event steal an active touch UI.
+   if(this.touch&&performance.now()-this.lastTouchAt<850)return;
+   if(e.movementX||e.movementY)this.selectInput('desktop');
    const o=this.owners.get('p:'+e.pointerId);
    if(o){
     if(e.pointerType==='mouse'&&e.buttons===0)this.stop(o.key,true);
@@ -95,6 +105,7 @@ export class Controls {
   window.addEventListener('keydown',e=>{
    if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement)return;
    if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab'].includes(e.code))prevent(e);
+   if(/^(Key[WASDCTERBGVIXF]|Digit[1-4]|Arrow(Up|Down|Left|Right)|Space|Escape|Enter|Shift(Left|Right)|Control(Left|Right)|Alt(Left|Right))$/.test(e.code))this.selectInput('desktop');
    this.keys.add(e.code);if(e.repeat)return;
    const calls={Space:'jump',KeyC:'camera',KeyT:'mode',KeyE:'use',KeyR:'reload',KeyB:'path',KeyG:'grip',KeyV:'grade',KeyI:'bag',Escape:'pause',KeyX:'erase',KeyF:'wall'};
    if(calls[e.code])api[calls[e.code]]();
@@ -112,6 +123,18 @@ export class Controls {
   window.addEventListener('pagehide',suspend);
   window.addEventListener('resize',()=>{api.resize();this.refreshLayout();});
   window.visualViewport?.addEventListener('resize',()=>{api.resize();this.refreshLayout();});
+ }
+ // Input UI is determined by the primary pointer initially, then by actual
+ // input. Window width and maxTouchPoints do not turn a mouse PC into a phone.
+ hasTouchOwner(){return [...this.owners.values()].some(o=>o.source==='touch');}
+ selectInput(mode){
+  const touch=mode==='touch';if(this.touch===touch)return;
+  // A real device switch cancels stale actions; ordinary opposite-thumb events
+  // do not enter this branch and keep the independent owners introduced in 0.4.2.
+  this.clear();this.touch=touch;this.mouseActive=false;
+  document.documentElement.dataset.inputMode=mode;
+  this.api.inputMode?.(touch);this.refreshLayout();
+  if(touch&&document.pointerLockElement)document.exitPointerLock();
  }
  start(key,target,x,y,source,id){
   if(!this.api.playing()||this.owners.has(key))return false;

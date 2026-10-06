@@ -17,7 +17,7 @@ with sync_playwright() as pw:
  page=browser.new_page(viewport={'width':1280,'height':800},device_scale_factor=1)
  errors=[];page.on('pageerror',lambda e:errors.append(str(e)));load(page)
  page.evaluate("__bubble.game.renderer.resize('low');__bubble.start()")
- check('Actual WebGL 2 renderer boots v0.4.3',page.evaluate("__bubble.version==='0.4.3' && !!__bubble.game.renderer.gl.getParameter(__bubble.game.renderer.gl.VERSION)"))
+ check('Actual WebGL 2 renderer boots v0.4.4',page.evaluate("__bubble.version==='0.4.4' && !!__bubble.game.renderer.gl.getParameter(__bubble.game.renderer.gl.VERSION)"))
  def run(source):return page.evaluate('()=>{const g=__bubble.game;'+source+'}')
  def reset():run("__bubble.start();g.aiDisabled=true;g.god=true;g.tool='splat';g.form='mass';g.player.yaw=Math.PI;g.refreshTools();")
  data=run("__bubble.step(8);return {hp:g.player.hp,combat:g.knights.filter(a=>a.brain.mode==='combat').length,count:g.knights.length,shown:g.knights.filter(a=>g.visibleActor(a)).length};")
@@ -74,7 +74,7 @@ with sync_playwright() as pw:
  page.close()
  # The updated multi-touch/ring suite lives in ring43.py.
  browser.close()
-report={'version':'0.4.3','environment':'Chromium 144 + SwiftShader; emulated touch, not physical iPhone or Safari','passed':sum(r['pass_'] for r in results),'total':len(results),'results':results}
+report={'version':'0.4.4','environment':'Chromium 144 + SwiftShader; emulated touch, not physical iPhone or Safari','passed':sum(r['pass_'] for r in results),'total':len(results),'results':results}
 (OUT/'browser-results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print(f"{report['passed']}/{report['total']} passed",flush=True)
 if report['passed']!=report['total']:raise SystemExit(1)

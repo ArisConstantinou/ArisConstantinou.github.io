@@ -1,0 +1,65 @@
+{
+  "version": "0.4.4",
+  "base_commit": "1bd138cbc94eaac94f61805b8e64776e866874df",
+  "environment": "Chromium 144.0.7559.96 / SwiftShader, Linux, actual production WebGL2 and CDP emulated touch. Hybrid maxTouchPoints simulated. No physical iPhone or Safari.",
+  "suites": [
+    {
+      "command": "npm test",
+      "passed": 81,
+      "total": 81,
+      "breakdown": {
+        "material_progression": 39,
+        "movement": 11,
+        "ring_trigger": 31
+      }
+    },
+    {
+      "command": "xvfb-run -a python3 tests/browser4.py",
+      "passed": 36,
+      "total": 36
+    },
+    {
+      "command": "xvfb-run -a python3 tests/ring43.py",
+      "passed": 185,
+      "total": 185
+    },
+    {
+      "command": "BUBBLE_BASELINE=<clean 0.4.3 directory> xvfb-run -a python3 tests/desktop44.py",
+      "passed": 67,
+      "total": 67
+    }
+  ],
+  "passed": 369,
+  "total": 369,
+  "source_git_blobs": {
+    "index.html": "43419228a1651746b46c0baf6c3e0162f04e7a91",
+    "desktop4.css": "d19e4e239fc59bea0a5c068a838b6dd02b3a99a7",
+    "src/controls4.js": "60b389a12a3e66acbb53785698ad3aae12663ac8",
+    "src/siege4.js": "cf116fe17dd675da29e4cffc1dca1280e245a21b",
+    "package.json": "f0c0a46fcd008f975e5f9c7d968f191e37dde67d",
+    "README.md": "1db9b206e68e64a3e2848c7ff62a01f40a488125",
+    "tests/desktop44.py": "c6913d9de1143d2a5e417b6854672fc8fa71955e",
+    "tests/browser4.py": "11a9f7e51346b7e3f9c68baf9cbc66f3f039d8d8",
+    "tests/ring43.py": "d0e1425e234b38f7627ce2c2879418859faffbb7"
+  },
+  "unchanged_runtime_files": [
+    "src/engine.js",
+    "src/world.js",
+    "src/actors.js",
+    "src/progression.js",
+    "src/material4.js",
+    "src/knights4.js",
+    "src/aim4.js",
+    "src/twinfire4.js",
+    "src/ring4.js",
+    "play4.css",
+    "touch4.css",
+    "ring4.css",
+    "src/ui4.js"
+  ],
+  "notes": [
+    "The original desktop-joystick visibility bug was reproduced before applying the patch.",
+    "Full detailed reports accompany the downloadable test-report archive.",
+    "Existing character save format and all non-Bubble paths are untouched."
+  ]
+}

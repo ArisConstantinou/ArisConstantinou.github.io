@@ -1,12 +1,13 @@
 {
   "name": "bubble-material-siege",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node tests/material4.test.mjs && node tests/movement_fix.mjs && node tests/twinfire4.test.mjs",
     "test:browser": "BUBBLE_SKIP_MOBILE=1 python3 tests/browser4.py",
     "test:mobile": "python3 tests/ring43.py",
+    "test:desktop-ui": "python3 tests/desktop44.py",
     "test:touch": "python3 tests/ring43.py"
   }
 }

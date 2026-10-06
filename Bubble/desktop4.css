@@ -1,0 +1,78 @@
+/* 0.4.4: a desktop action dock, not the mobile thumb controls made smaller.
+   CSS defaults to desktop until Controls resolves the input device at startup.
+   Narrow mouse windows remain desktop; large touch screens remain touch. */
+#actionDock{display:contents}
+#desktopTrigger{display:none}
+html:not([data-input-mode="touch"]) .touch-copy,
+html[data-input-mode="touch"] .desktop-copy{display:none!important}
+html[data-input-mode="touch"] #desktopTrigger,
+html[data-input-mode="touch"] #desktopHints{display:none!important}
+html:not([data-input-mode="touch"]) #moveStick,
+html:not([data-input-mode="touch"]) #aimStick,
+html:not([data-input-mode="touch"]) #fireBtn,
+html:not([data-input-mode="touch"]) #jumpBtn,
+html:not([data-input-mode="touch"]) #gaitBtn{display:none!important}
+html:not([data-input-mode="touch"]) #actionDock{
+ position:absolute;left:50%;bottom:52px;transform:translateX(-50%);
+ width:max-content;max-width:calc(100% - 32px);display:flex;flex-wrap:wrap;
+ align-items:center;justify-content:center;gap:8px;padding:10px 12px;
+ border:1px solid #c8b7e736;border-radius:15px;background:#121728e8;
+ box-shadow:0 7px 25px #0005;pointer-events:none;
+}
+html:not([data-input-mode="touch"]) #actionDock .thumb-cluster{
+ position:static;inset:auto;width:auto;height:auto;display:flex;
+ flex-wrap:wrap;justify-content:center;align-items:center;gap:7px;
+ opacity:1;transform:none;
+}
+html:not([data-input-mode="touch"]) #actionDock .action{
+ position:relative;inset:auto;min-width:65px;width:auto;height:49px;
+ display:grid;grid-template-columns:18px auto;grid-template-rows:20px 15px;
+ align-items:center;justify-content:start;gap:0 6px;padding:6px 10px;
+ border:1px solid #a899bc40;border-radius:8px;background:#25283d;
+ box-shadow:none;backdrop-filter:none;
+}
+html:not([data-input-mode="touch"]) #actionDock .action b{
+ font-size:16px;grid-column:1;grid-row:1;line-height:1;
+}
+html:not([data-input-mode="touch"]) #actionDock .action small{
+ font-size:10px;letter-spacing:.3px;grid-column:1/-1;grid-row:2;text-align:left;
+}
+html:not([data-input-mode="touch"]) #actionDock .action kbd{
+ display:inline-block;position:static;inset:auto;grid-column:2;grid-row:1;
+ justify-self:end;background:#111422;border:1px solid #ffffff1a;
+ border-radius:4px;padding:1px 4px;font-size:10px;line-height:14px;color:#ddd3ee;
+}
+html:not([data-input-mode="touch"]) #actionDock .action:hover{background:#3a354f}
+html:not([data-input-mode="touch"]) #actionDock .action.active,
+html:not([data-input-mode="touch"]) #actionDock .action.pressed{
+ background:#593c7a;border-color:#c19bef;
+}
+html:not([data-input-mode="touch"]) #desktopTrigger{
+ display:flex;gap:8px;align-items:center;padding:0 12px 0 2px;
+ max-width:172px;min-height:44px;border-right:1px solid #ffffff20;
+ color:#c7dbeb;font-size:10px;line-height:1.6;
+}
+html:not([data-input-mode="touch"]) #desktopTrigger>span{font-size:22px;color:#d0a6fc}
+html:not([data-input-mode="touch"]) #desktopHints{
+ display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;
+ position:absolute;left:12px;right:12px;bottom:12px;line-height:20px;
+ font-size:10px;letter-spacing:0;pointer-events:none;color:#f0edf9;
+}
+#desktopHints>span{white-space:nowrap}
+#desktopHints kbd{
+ font:inherit;font-weight:750;padding:2px 5px;border:1px solid #ffffff32;
+ border-radius:4px;background:#101528b8;margin-right:3px;
+}
+html:not([data-input-mode="touch"]) #chargeInfo{
+ right:0;bottom:calc(100% + 10px);width:240px;text-align:left;
+}
+@media(max-width:740px){
+ html:not([data-input-mode="touch"]) #actionDock{bottom:78px;gap:6px;padding:8px}
+ html:not([data-input-mode="touch"]) #desktopTrigger{
+  border-right:0;max-width:100%;min-height:24px;padding:0;flex-basis:100%;justify-content:center;
+ }
+ html:not([data-input-mode="touch"]) #desktopTrigger>span{font-size:16px}
+ html:not([data-input-mode="touch"]) #actionDock .action{min-width:54px;height:45px;padding:5px 7px}
+ html:not([data-input-mode="touch"]) #desktopHints{gap:4px 10px;max-width:500px;margin:auto}
+ html:not([data-input-mode="touch"]) #targetPanel{right:12px}
+}
