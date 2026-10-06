@@ -1,66 +1,98 @@
+/* 0.4.2 — one owner per physical finger, independent movement/aim/trigger.
+ * Native Touch identifiers are authoritative on iOS: pointer capture loss is
+ * not a finger lift. Mouse and pen retain Pointer Events + document tracking.
+ */
 const $=id=>document.getElementById(id);
-export class Controls{
+const ACTIONS={jumpBtn:'jump',modeBtn:'mode',zoneBtn:'zone',useBtn:'use',reloadBtn:'reload',pathBtn:'path',gripBtn:'grip',gradeBtn:'grade',gaitBtn:'gait',cameraBtn:'camera',bagBtn:'bag',pauseBtn:'pause'};
+const prevent=e=>{if(e.cancelable)e.preventDefault();};
+
+function protectDocument(){
+ if(document.documentElement.dataset.bubbleTouchProtected)return;
+ document.documentElement.dataset.bubbleTouchProtected='true';
+ // These restrictions belong to this game document, not the browser chrome.
+ for(const type of ['selectstart','contextmenu','dragstart','copy','cut','paste'])
+  document.addEventListener(type,prevent,{capture:true,passive:false});
+ const clearSelection=()=>{const s=window.getSelection();if(s?.rangeCount)s.removeAllRanges();};
+ document.addEventListener('selectionchange',clearSelection);
+ document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&['a','c','x','v'].includes(e.key.toLowerCase())){
+   prevent(e);e.stopImmediatePropagation();clearSelection();
+  }
+ },true);
+ clearSelection();
+}
+
+export class Controls {
  constructor(canvas,api,touch){
   this.api=api;this.canvas=canvas;this.touch=touch;this.keys=new Set();
-  this.move=[0,0];this.aim=[0,0];this.aimActive=false;this.aimRevision=0;
+  this.move=[0,0];this.aim=[0,0];this.moveActive=false;this.aimActive=false;this.aimRevision=0;
   this.mouse=[innerWidth/2,innerHeight*.5];this.mouseActive=false;
-  this.firePointer=null;this.lookPointer=null;this.lastMoveTap=-1000;
-  this.tapPointer=null;this.resets=[];
-  for(const [id,type]of[['moveStick','move'],['aimStick','aim']])this.stick(id,type);
-  const fire=$('fireBtn');
-  fire.addEventListener('pointerdown',e=>{
-   e.preventDefault();e.stopPropagation();if(!api.playing()||this.firePointer!==null)return;
-   this.firePointer=e.pointerId;this.fireY=e.clientY;fire.setPointerCapture(e.pointerId);api.beginFire();
+  this.firePointer=null;this.lookPointer=null;this.tapPointer=null;this.mouseDown=false;
+  this.lastMoveTap=-1000;this.owners=new Map();this.slots=new Map();this.ignoreClicks=new Map();
+  this.resets=[()=>this.releaseSlot('move'),()=>this.releaseSlot('aim')];
+  protectDocument();
+  for(const [id,fn] of Object.entries(ACTIONS))$(id).addEventListener('click',e=>{
+   prevent(e);
+   // A touch action is dispatched once on touchend. Ignore its ghost click.
+   if(e.detail!==0&&(this.ignoreClicks.get(id)||0)>performance.now())return;
+   api[fn]();
   });
-  fire.addEventListener('pointermove',e=>{if(e.pointerId===this.firePointer&&this.fireY-e.clientY>28)api.arc(true);});
-  const endFire=(e,cancel=false)=>{
-   if(e.pointerId!==this.firePointer)return;const id=this.firePointer;this.firePointer=null;
-   e.preventDefault();if(cancel)api.cancelFire();else api.endFire();
-   if(fire.hasPointerCapture(id))fire.releasePointerCapture(id);
-  };
-  fire.addEventListener('pointerup',e=>endFire(e));
-  fire.addEventListener('pointercancel',e=>endFire(e,true));
-  fire.addEventListener('lostpointercapture',e=>endFire(e,true));
-  const buttons={jumpBtn:'jump',modeBtn:'mode',zoneBtn:'zone',useBtn:'use',reloadBtn:'reload',pathBtn:'path',gripBtn:'grip',gradeBtn:'grade',gaitBtn:'gait',cameraBtn:'camera',bagBtn:'bag',pauseBtn:'pause'};
-  for(const [id,fn]of Object.entries(buttons))$(id).addEventListener('click',e=>{e.preventDefault();api[fn]();});
-  canvas.addEventListener('contextmenu',e=>e.preventDefault());
-  canvas.addEventListener('pointerdown',e=>{
-   if(!api.playing())return;
-   if(e.pointerType==='touch'){
-    e.preventDefault();
-    if(api.isFPS()&&e.clientX>innerWidth*.40&&this.lookPointer===null){
-     this.lookPointer=e.pointerId;this.look=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);
-    }else if(!api.isFPS()&&this.tapPointer===null){
-     this.tapPointer=e.pointerId;this.tapStart=[e.clientX,e.clientY,performance.now()];this.tapMoved=false;canvas.setPointerCapture(e.pointerId);
-    }
-    return;
+  for(const [id,kind] of [['moveStick','move'],['aimStick','aim']])
+   $(id).addEventListener('resetstick',()=>this.releaseSlot(kind));
+
+  document.addEventListener('touchstart',e=>{
+   let handled=false;
+   for(const t of e.changedTouches){
+    const key='t:'+t.identifier;
+    if(this.start(key,t.target,t.clientX,t.clientY,'touch',t.identifier))handled=true;
    }
-   if(e.button===0){this.mouseDown=true;api.beginFire();}
-   if(e.button===2)api.use();if(api.isFPS())this.lock();
-  });
-  const releaseCanvas=(e,cancel=false)=>{
-   if(e.pointerType!=='touch'&&this.mouseDown){this.mouseDown=false;cancel?api.cancelFire():api.endFire();}
-   if(e.pointerId===this.lookPointer)this.lookPointer=null;
-   if(e.pointerId===this.tapPointer){
-    this.tapPointer=null;
-    if(!cancel&&!this.tapMoved&&api.playing())api.tap?.(e.clientX,e.clientY);
+   if(handled)prevent(e);
+  },{capture:true,passive:false});
+  document.addEventListener('touchmove',e=>{
+   let handled=false;
+   // Never replace the whole state with changedTouches: an unmoving left
+   // finger still owns movement when only the right finger sends an update.
+   for(const t of e.changedTouches){const owner=this.owners.get('t:'+t.identifier);
+    if(owner){this.update(owner,t.clientX,t.clientY);handled=true;}
    }
-  };
-  window.addEventListener('pointerup',e=>releaseCanvas(e));
-  canvas.addEventListener('pointercancel',e=>releaseCanvas(e,true));
-  canvas.addEventListener('lostpointercapture',e=>releaseCanvas(e,true));
-  window.addEventListener('pointermove',e=>{
-   if(e.pointerType==='touch'){
-    if(e.pointerId===this.lookPointer){api.look(-(e.clientX-this.look[0])*.003,-(e.clientY-this.look[1])*.003);this.look=[e.clientX,e.clientY];}
-    if(e.pointerId===this.tapPointer&&Math.hypot(e.clientX-this.tapStart[0],e.clientY-this.tapStart[1])>12)this.tapMoved=true;
-    return;
+   if(handled)prevent(e);
+  },{capture:true,passive:false});
+  for(const type of ['touchend','touchcancel'])document.addEventListener(type,e=>{
+   let handled=false;
+   for(const t of e.changedTouches){const key='t:'+t.identifier;
+    if(this.owners.has(key)){this.stop(key,type==='touchcancel',t.clientX,t.clientY);handled=true;}
+   }
+   if(handled)prevent(e);
+  },{capture:true,passive:false});
+
+  document.addEventListener('pointerdown',e=>{
+   if(e.pointerType==='touch')return; // handled exactly once by Touch Events
+   if(e.button===2&&e.target===canvas){prevent(e);if(api.playing())api.use();return;}
+   if(e.button!==0)return;
+   if(this.start('p:'+e.pointerId,e.target,e.clientX,e.clientY,e.pointerType||'mouse',e.pointerId)){
+    prevent(e);const o=this.owners.get('p:'+e.pointerId);
+    try{o.el.setPointerCapture(e.pointerId);}catch{} // document is the fallback
+   }
+  },true);
+  document.addEventListener('pointermove',e=>{
+   if(e.pointerType==='touch')return;
+   const o=this.owners.get('p:'+e.pointerId);
+   if(o){
+    if(e.pointerType==='mouse'&&e.buttons===0)this.stop(o.key,true);
+    else{prevent(e);this.update(o,e.clientX,e.clientY);}
    }
    this.mouse=[e.clientX,e.clientY];this.mouseActive=true;
    if(document.pointerLockElement===canvas&&api.isFPS())api.look(-e.movementX*.0027,-e.movementY*.0024);
-  });
+  },true);
+  for(const type of ['pointerup','pointercancel'])document.addEventListener(type,e=>{
+   if(e.pointerType==='touch')return;
+   if(this.owners.has('p:'+e.pointerId)){prevent(e);this.stop('p:'+e.pointerId,type==='pointercancel',e.clientX,e.clientY);}
+  },true);
+  // No global lostpointercapture reset: the finger may still be held. Real
+  // touchcancel/pointercancel, pagehide and visibility loss end their owners.
   window.addEventListener('keydown',e=>{
    if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement)return;
-   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab'].includes(e.code))e.preventDefault();
+   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab'].includes(e.code))prevent(e);
    this.keys.add(e.code);if(e.repeat)return;
    const calls={Space:'jump',KeyC:'camera',KeyT:'mode',KeyE:'use',KeyR:'reload',KeyB:'path',KeyG:'grip',KeyV:'grade',KeyI:'bag',Escape:'pause',KeyX:'erase',KeyF:'wall'};
    if(calls[e.code])api[calls[e.code]]();
@@ -68,42 +100,83 @@ export class Controls{
    if(e.code==='AltLeft'||e.code==='AltRight')api.arc(true);
   });
   window.addEventListener('keyup',e=>this.keys.delete(e.code));
-  window.addEventListener('blur',()=>{this.clear();if(api.playing())api.pause(true);});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden){this.clear();if(api.playing())api.pause(true);}});
-  window.addEventListener('resize',()=>api.resize());window.visualViewport?.addEventListener('resize',()=>api.resize());
- }
- stick(id,type){
-  const el=$(id),knob=el.querySelector('i');let active=null,origin=[0,0];
-  const update=e=>{
-   if(e.pointerId!==active)return;e.preventDefault();
-   const radius=el.clientWidth*.34,dx=e.clientX-origin[0],dy=e.clientY-origin[1],length=Math.hypot(dx,dy);
-   const raw=Math.min(1,length/radius),dead=.12,magnitude=Math.max(0,(raw-dead)/(1-dead));
-   this[type]=length?[dx/length*magnitude,dy/length*magnitude]:[0,0];
-   if(type==='aim'&&magnitude>0)this.aimRevision++;
-   const scale=Math.min(1,radius/(length||1));knob.style.transform=`translate(${dx*scale}px,${dy*scale}px)`;
-  };
-  const reset=()=>{
-   const pointerId=active;active=null;this[type]=[0,0];knob.style.transform='';el.classList.remove('engaged');
-   if(type==='aim')this.aimActive=false;
-   if(pointerId!==null&&el.hasPointerCapture(pointerId))el.releasePointerCapture(pointerId);
-  };
-  this.resets.push(reset);
-  el.addEventListener('pointerdown',e=>{
-   e.preventDefault();e.stopPropagation();if(!this.api.playing()||active!==null)return;
-   active=e.pointerId;el.setPointerCapture(active);const r=el.getBoundingClientRect();origin=[r.left+r.width/2,r.top+r.height/2];
-   el.classList.add('engaged');if(type==='aim')this.aimActive=true;
-   if(type==='move'){const now=performance.now();if(now-this.lastMoveTap<280)this.api.jump();this.lastMoveTap=now;}
-   update(e);
+  const suspend=()=>{this.clear();if(api.playing())api.pause(true);};
+  window.addEventListener('blur',()=>{
+   // On touch browsers a visible-page focus/callout change is not app exit.
+   // Actual app exit is handled by visibilitychange/pagehide below.
+   if(!this.touch||document.hidden)suspend();
   });
-  el.addEventListener('pointermove',update);
-  for(const event of['pointerup','pointercancel','lostpointercapture'])el.addEventListener(event,e=>{if(e.pointerId===active)reset();});
-  el.addEventListener('resetstick',reset);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)suspend();});
+  window.addEventListener('pagehide',suspend);
+  window.addEventListener('resize',()=>api.resize());
+  window.visualViewport?.addEventListener('resize',()=>api.resize());
  }
+ start(key,target,x,y,source,id){
+  if(!this.api.playing()||this.owners.has(key))return false;
+  const el=target instanceof Element?target.closest('#moveStick,#aimStick,#fireBtn,canvas,button'):null;
+  if(!el)return false;
+  let kind,action;
+  if(el.id==='moveStick')kind='move';
+  else if(el.id==='aimStick')kind='aim';
+  else if(el.id==='fireBtn')kind='fire';
+  else if(source==='touch'&&ACTIONS[el.id]){kind='action:'+el.id;action=ACTIONS[el.id];}
+  else if(el===this.canvas){
+   if(source!=='touch')kind='fire';
+   else if(this.api.isFPS()&&x>innerWidth*.40)kind='look';
+   else if(!this.api.isFPS())kind='tap';
+   else return false;
+  }else return false;
+  if(this.slots.has(kind))return false;
+  const r=el.getBoundingClientRect(),o={key,kind,el,source,id,action,start:[x,y],last:[x,y],origin:[r.left+r.width/2,r.top+r.height/2],moved:false};
+  this.owners.set(key,o);this.slots.set(kind,key);
+  if(kind==='move'||kind==='aim'){
+   this[kind+'Active']=true;el.classList.add('engaged');
+   if(kind==='move'){const now=performance.now();if(now-this.lastMoveTap<280)this.api.jump();this.lastMoveTap=now;}
+   this.update(o,x,y);
+  }else if(kind==='fire'){
+   this.firePointer=id;this.mouseDown=source!=='touch';this.api.beginFire();
+   if(source!=='touch'&&this.api.isFPS())this.lock();
+  }else if(kind==='look')this.lookPointer=id;
+  else if(kind==='tap')this.tapPointer=id;
+  else el.classList.add('pressed');
+  return true;
+ }
+ update(o,x,y){
+  if(o.kind==='move'||o.kind==='aim'){
+   const radius=o.el.clientWidth*.34,dx=x-o.origin[0],dy=y-o.origin[1],length=Math.hypot(dx,dy);
+   const raw=Math.min(1,length/radius),dead=.12,magnitude=Math.max(0,(raw-dead)/(1-dead));
+   this[o.kind]=length?[dx/length*magnitude,dy/length*magnitude]:[0,0];
+   if(o.kind==='aim'&&magnitude>0)this.aimRevision++;
+   const scale=Math.min(1,radius/(length||1));
+   o.el.querySelector('i').style.transform=`translate(${dx*scale}px,${dy*scale}px)`;
+  }else if(o.kind==='fire'&&o.el.id==='fireBtn'&&o.start[1]-y>28)this.api.arc(true);
+  else if(o.kind==='look')this.api.look(-(x-o.last[0])*.003,-(y-o.last[1])*.003);
+  else if(o.kind==='tap'&&Math.hypot(x-o.start[0],y-o.start[1])>12)o.moved=true;
+  o.last=[x,y];
+ }
+ stop(key,cancel=false,x,y){
+  const o=this.owners.get(key);if(!o)return;
+  this.owners.delete(key);if(this.slots.get(o.kind)===key)this.slots.delete(o.kind);
+  if(o.kind==='move'||o.kind==='aim'){
+   this[o.kind]=[0,0];this[o.kind+'Active']=false;
+   o.el.classList.remove('engaged','firing');o.el.querySelector('i').style.transform='';
+  }else if(o.kind==='fire'){
+   this.firePointer=null;this.mouseDown=false;cancel?this.api.cancelFire():this.api.endFire();
+  }else if(o.kind==='look')this.lookPointer=null;
+  else if(o.kind==='tap'){
+   this.tapPointer=null;if(!cancel&&!o.moved&&this.api.playing())this.api.tap?.(x??o.last[0],y??o.last[1]);
+  }else if(o.action){
+   o.el.classList.remove('pressed');this.ignoreClicks.set(o.el.id,performance.now()+700);
+   const r=o.el.getBoundingClientRect(),px=x??o.last[0],py=y??o.last[1];
+   if(!cancel&&px>=r.left-6&&px<=r.right+6&&py>=r.top-6&&py<=r.bottom+6)this.api[o.action]();
+  }
+  if(o.source!=='touch')try{if(o.el.hasPointerCapture(o.id))o.el.releasePointerCapture(o.id);}catch{}
+ }
+ releaseSlot(kind){const key=this.slots.get(kind);if(key)this.stop(key,true);}
  clear(){
-  this.keys.clear();this.mouseDown=false;const id=this.firePointer;this.firePointer=null;
-  if(id!==null&&$('fireBtn').hasPointerCapture(id))$('fireBtn').releasePointerCapture(id);
-  this.lookPointer=this.tapPointer=null;this.api.cancelFire();
-  for(const reset of this.resets)reset();this.move=[0,0];this.aim=[0,0];this.aimActive=false;
+  this.keys.clear();for(const key of [...this.owners.keys()])this.stop(key,true);
+  this.move=[0,0];this.aim=[0,0];this.moveActive=this.aimActive=this.mouseDown=false;
+  this.firePointer=this.lookPointer=this.tapPointer=null;this.api.cancelFire();
  }
  lock(){if(this.touch||!this.api.playing())return;try{const p=this.canvas.requestPointerLock();p?.catch?.(()=>{});}catch{}}
 }

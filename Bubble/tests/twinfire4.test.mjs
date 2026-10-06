@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import {writeFileSync} from 'node:fs';
+import {TwinStickFire,SPLAT_INTERVAL} from '../src/twinfire4.js';
+const results=[];
+const test=(name,fn)=>{try{fn();results.push({name,pass:true});console.log('PASS',name);}catch(e){results.push({name,pass:false,error:e.message});console.error('FAIL',name,e.message);}};
+function fixture(){let shots=0,reloads=0;const fire=new TwinStickFire();const g={touch:true,tool:'splat',fireDown:false,reloadTime:0,ammo:180,input:{aim:[0,-1],aimActive:true,firePointer:null},playing:()=>true,shoot(n,lob){assert.equal(n,1);assert.equal(lob,false);this.ammo--;shots++;},reload(){this.reloadTime=1.7;reloads++;}};return{fire,g,get shots(){return shots;},get reloads(){return reloads;},step(t){for(let i=0;i<Math.round(t*60);i++)fire.step(g,1/60);}};}
+test('First displaced aim frame immediately fires a normal shot',()=>{const f=fixture();f.step(1/60);assert.equal(f.shots,1);});
+test('Holding aim continuously fires at a bounded simulation cadence',()=>{const f=fixture();f.step(1);assert(f.shots>=6&&f.shots<=7);assert.equal(f.g.ammo,180-f.shots);});
+test('No aim release is needed to shoot',()=>{const f=fixture();f.step(2);assert(f.shots>=12);assert(f.g.input.aimActive);});
+test('Returning to center stops without a queued release shot',()=>{const f=fixture();f.step(.3);const n=f.shots;f.g.input.aim=[0,0];f.step(1);assert.equal(f.shots,n);});
+test('Releasing aim stops immediately',()=>{const f=fixture();f.step(.3);const n=f.shots;f.g.input.aimActive=false;f.step(1);assert.equal(f.shots,n);});
+test('Small thumb drift in the dead zone never starts shooting',()=>{const f=fixture();f.g.input.aim=[0,.15];f.step(1);assert.equal(f.shots,0);});
+test('Manual FIRE charge owns ammunition exclusively',()=>{const f=fixture();f.g.fireDown=true;f.g.input.firePointer=8;f.step(3);assert.equal(f.shots,0);assert.equal(f.g.ammo,180);});
+test('A held manual pointer suppresses autofire during refill',()=>{const f=fixture();f.g.input.firePointer=8;f.g.fireDown=false;f.step(2);assert.equal(f.shots,0);});
+test('Manual discharge cooldown prevents a double shot on release',()=>{const f=fixture();f.fire.manualShot();f.fire.step(f.g,.01);assert.equal(f.shots,0);f.step(.3);assert(f.shots>=1);});
+test('Repeated deadzone crossings cannot bypass the fire rate',()=>{const f=fixture();for(let i=0;i<120;i++){f.g.input.aimActive=i%2===0;f.fire.step(f.g,1/120);}assert(f.shots<=7);});
+test('Empty magazine starts one refill while aim remains held',()=>{const f=fixture();f.g.ammo=1;f.step(1);assert.equal(f.shots,1);assert.equal(f.reloads,1);assert(f.g.input.aimActive);});
+test('Refill completion resumes normal fire with the same held thumb',()=>{const f=fixture();f.g.ammo=0;f.step(.1);f.g.ammo=180;f.g.reloadTime=0;f.step(.5);assert(f.shots>=3);});
+for(const tool of ['flow','erase','strand'])test(tool+' aim alone never operates the tool',()=>{const f=fixture();f.g.tool=tool;f.step(3);assert.equal(f.shots,0);assert.equal(f.reloads,0);});
+test('Pausing or defeat blocks all automatic shots',()=>{const f=fixture();f.g.playing=()=>false;f.step(1);assert.equal(f.shots,0);});
+test('Desktop controls do not acquire mobile autofire',()=>{const f=fixture();f.g.touch=false;f.step(1);assert.equal(f.shots,0);});
+test('Low frame rate never creates a catch-up burst in one frame',()=>{const f=fixture();f.fire.step(f.g,2);assert.equal(f.shots,1);});
+test('Automatic fire never mutates the left joystick',()=>{const f=fixture();f.g.input.move=[.7,-.4];f.step(2);assert.deepEqual(f.g.input.move,[.7,-.4]);});
+test('Reset does not preserve a firing latch',()=>{const f=fixture();f.step(1);f.fire.reset();assert(!f.fire.engaged);assert(!f.fire.firing);assert.equal(f.fire.cooldown,0);});
+const report={version:'0.4.2',suite:'twin-stick-fire',passed:results.filter(x=>x.pass).length,total:results.length,results};writeFileSync(new URL('twinfire-results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');if(report.passed!==report.total)process.exitCode=1;

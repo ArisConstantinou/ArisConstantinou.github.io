@@ -1,0 +1,73 @@
+{
+  "version": "0.4.2",
+  "baseline_commit": "a0cfc1c68ca137ca8f676aa2f33ab13dc1c07fda",
+  "status": "passed",
+  "environment": {
+    "browser": "Chromium 144.0.7559.96",
+    "renderer": "WebGL2, ANGLE SwiftShader under Xvfb",
+    "touch": "Chromium DevTools Protocol emulated mobile touches",
+    "physical_iPhone_or_Safari_tested": false
+  },
+  "suites": [
+    {
+      "report": "logic-results.json",
+      "passed": 39,
+      "total": 39
+    },
+    {
+      "report": "movement-fix-results.json",
+      "passed": 11,
+      "total": 11
+    },
+    {
+      "report": "twinfire-results.json",
+      "passed": 20,
+      "total": 20
+    },
+    {
+      "report": "browser-results.json",
+      "passed": 64,
+      "total": 64
+    },
+    {
+      "report": "touch-results.json",
+      "passed": 128,
+      "total": 128
+    },
+    {
+      "report": "final-smoke.json",
+      "passed": 2,
+      "total": 2
+    }
+  ],
+  "passed": 264,
+  "total": 264,
+  "new_touch_viewports": [
+    "430x744",
+    "430x932",
+    "932x430",
+    "375x667"
+  ],
+  "additional_regression_viewports": [
+    "1280x800",
+    "932x430 with simulated safe areas"
+  ],
+  "notes": [
+    "Production renderer, DOM handlers, combat and material collision are used.",
+    "Parallel pointer loss/cancel and visible-page blur are explicit fault injections, not a claim they were observed on a physical iPhone.",
+    "The final regression run awaits native cancellation acknowledgement before asserting no later shot.",
+    "264 includes 2 final exact-source smoke checks in addition to the 262 logic/regression/multitouch checks.",
+    "Subjective touch feel, Safari native callouts and hardware performance still require real-device playtesting."
+  ],
+  "source_git_blob_hashes": {
+    "index.html": "e9938cb20b645315bb66a4b5eeb1e0a9ffd861f7",
+    "touch4.css": "9f1986472ad1ada7ba3141fe43b334a526cd44f9",
+    "src/controls4.js": "63962d07a7fb4a60b3fdb12e4bc1fe4204d194a4",
+    "src/twinfire4.js": "22267adcb0372c311c3f0d23aa9f1e17258ee893",
+    "src/siege4.js": "73e5b6dfb73157f280787ccb20e3be91e03d718f",
+    "tests/twinfire4.test.mjs": "40541c3e4787632e1bddd2ffe144b17004254a12",
+    "tests/touch42.py": "ff62641e1b7dffa44285e5894f36170ac73af77e",
+    "tests/browser4.py": "e45d380df16e1edc7762574c64b14abc7c05d128",
+    "tests/browser_harness.py": "4f2225aef5f535e9950e98678e17acf9234f97be"
+  }
+}

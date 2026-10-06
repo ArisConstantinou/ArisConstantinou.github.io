@@ -1,0 +1,13 @@
+/* Applies to every label, toast and dynamically inserted inventory card. */
+html,body,body *,body *::before,body *::after {
+ -webkit-user-select:none!important;user-select:none!important;
+ -webkit-touch-callout:none!important;-webkit-user-drag:none!important;
+ -webkit-tap-highlight-color:transparent;
+}
+::selection{background:transparent;color:inherit}
+#game,#hud,.thumb-cluster,.stick,#hud button{touch-action:none}
+.stick i,.stick span,.stick small,.action>*,.top-tools button>*{pointer-events:none}
+.action.pressed{background:#603b8e;border-color:#d2a6ff}
+#aimStick.firing{border-color:#eed6ff;box-shadow:0 0 0 3px #bc78ff40,inset 0 0 22px #b66aff30}
+#aimStick.firing i{background:#b66aff90}
+#aimStick small{letter-spacing:.7px}
