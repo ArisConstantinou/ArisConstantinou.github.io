@@ -1,1 +1,11 @@
-{"name":"bubble-material-siege","version":"0.4.0","private":true,"type":"module","scripts":{"test":"node tests/material4.test.mjs","test:browser":"python3 tests/browser4.py"}}
+{
+  "name": "bubble-material-siege",
+  "version": "0.4.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/material4.test.mjs && node tests/movement_fix.mjs",
+    "test:browser": "python3 tests/browser4.py",
+    "test:mobile": "python3 tests/mobile_fix.py"
+  }
+}

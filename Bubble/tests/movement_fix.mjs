@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {writeFileSync} from 'node:fs';
+import {World} from '../src/world.js';
+import {GumVolume,attachPhysics,moveBody} from '../src/material4.js';
+const checks=[];
+const body=p=>({id:-1,p:p.slice(),home:p.slice(),lastSafe:p.slice(),radius:.43,height:2.12,grounded:true,vy:0,vel:[0,0,0]});
+function test(name,fn){try{const data=fn();checks.push({name,pass:true,data});console.log('PASS',name);}catch(e){checks.push({name,pass:false,error:e.message});console.log('FAIL',name,e.message);}}
+function scene(){const w=new World(),v=new GumVolume;attachPhysics(w,v,[]);return {w,v};}
+for(const d of [[0,1],[1,0],[-1,0]])test('Embedded player escapes toward '+d,()=>{const {w,v}=scene(),a=body([0,0,20]);v.stamp([0,1.4,19.5],[.75,.7,.85],3.2);assert(w.blocked(...[a.p[0],a.p[2],a.p[1]],a.radius,a.height));let maxStep=0;for(let i=0;i<60;i++){const prev=a.p.slice();moveBody(w,a,d[0]*4/60,d[1]*4/60,1/60);maxStep=Math.max(maxStep,Math.hypot(...a.p.map((x,k)=>x-prev[k])));}assert(!w.blocked(a.p[0],a.p[2],a.p[1],a.radius,a.height));assert(Math.hypot(a.p[0],a.p[2]-20)>3);assert(maxStep<.15);return{position:a.p,maxStep};});
+test('Overlap recovery alone frees a small intrusion without deleting material',()=>{const{w,v}=scene(),a=body([0,0,20]);v.stamp([0,1.4,19.5],[.75,.7,.85],3.2);const n=v.values.size;for(let i=0;i<60;i++)moveBody(w,a,0,0,1/60);assert.equal(v.values.size,n);assert(!w.blocked(a.p[0],a.p[2],a.p[1],a.radius,a.height));return{position:a.p,samples:n};});
+test('Player cannot walk through an intact tall gum wall',()=>{const{w,v}=scene(),a=body([0,0,23]);for(let y=0;y<4;y+=.2)v.stamp([0,y,20],[2,.45,.65],3);for(let i=0;i<180;i++)moveBody(w,a,0,-5/60,1/60);assert(a.p[2]>20.5);assert(a.p[1]<.2);return a.p;});
+test('Recovery cannot cross stone architecture',()=>{const{w,v}=scene(),a=body([0,0,22]);w.solid(.65,22,.5,5,4);v.stamp([-.30,1.35,22],[.85,.8,.7],3);for(let i=0;i<90;i++)moveBody(w,a,4/60,0,1/60);assert(a.p[0]<.01);assert(!w.raw.blocked(a.p[0],a.p[2],a.p[1],a.radius,a.height));return a.p;});
+test('Safety clearance prevents direct new gum deposition inside shooter',()=>{const{w,v}=scene(),a=body([0,0,20]);v.protectedBody=()=>a;for(let i=0;i<50;i++)v.stamp([0,1.25,20],[1.1,1.2,1.1],3);assert(!v.blocked(0,20,0,a.radius,a.height));assert.equal(v.values.size,0);for(let i=0;i<60;i++)moveBody(w,a,0,4/60,1/60);assert(a.p[2]>23);return{p:a.p,samples:v.values.size};});
+test('Self clearance preserves deposition elsewhere and can still erase it',()=>{const{v}=scene(),a=body([0,0,20]);v.protectedBody=()=>a;v.stamp([2,1,20],[.6,.6,.6],3);assert(v.value([2,1,20])>.7);v.erase([2,1,20]);assert(v.value([2,1,20])<.7);});
+test('Low gum patches can be traversed in both directions',()=>{const{w,v}=scene(),a=body([0,0,24]);for(let z=18;z<23;z+=.4)v.stamp([0,0,z],[.8,.35,.8],2.7);for(let i=0;i<100;i++)moveBody(w,a,0,-4/60,1/60);assert(a.p[2]<18);for(let i=0;i<100;i++)moveBody(w,a,0,4/60,1/60);assert(a.p[2]>23.5);return a.p;});
+test('Existing raised paths still support the character',()=>{const{w,v}=scene(),a=body([0,0,25]);for(let z=25;z>16;z-=.2)v.stamp([0,-.25+(25-z)*.28,z],[1.1,.4,1.1],3.2);for(let i=0;i<130;i++)moveBody(w,a,0,-3.4/60,1/60);assert(a.p[2]<19);assert(a.p[1]>1.6);assert(a.grounded);return a.p;});
+test('Suspension ignore state is restored after physics step',()=>{const{w}=scene(),a=body([0,0,24]);const sentinel={};w.ignore=sentinel;moveBody(w,a,.04,0,1/60);assert.equal(w.ignore,sentinel);});
+const result={version:'0.4.1',passed:checks.filter(x=>x.pass).length,total:checks.length,checks};writeFileSync(new URL('movement-fix-results.json',import.meta.url),JSON.stringify(result,null,2));if(result.passed!==result.total)process.exitCode=1;

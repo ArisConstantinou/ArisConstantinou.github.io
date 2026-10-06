@@ -17,7 +17,7 @@ with sync_playwright() as pw:
  page=browser.new_page(viewport={'width':1280,'height':800},device_scale_factor=1)
  errors=[];page.on('pageerror',lambda e:errors.append(str(e)));load(page)
  page.evaluate("__bubble.game.renderer.resize('low');__bubble.start()")
- check('Actual WebGL 2 renderer boots v0.4.0',page.evaluate("__bubble.version==='0.4.0' && !!__bubble.game.renderer.gl.getParameter(__bubble.game.renderer.gl.VERSION)"))
+ check('Actual WebGL 2 renderer boots v0.4.1',page.evaluate("__bubble.version==='0.4.1' && !!__bubble.game.renderer.gl.getParameter(__bubble.game.renderer.gl.VERSION)"))
  def run(source):return page.evaluate('()=>{const g=__bubble.game;'+source+'}')
  def reset():run("__bubble.start();g.aiDisabled=true;g.god=true;g.tool='splat';g.form='mass';g.player.yaw=Math.PI;g.refreshTools();")
  data=run("__bubble.step(8);return {hp:g.player.hp,combat:g.knights.filter(a=>a.brain.mode==='combat').length,count:g.knights.length,shown:g.knights.filter(a=>g.visibleActor(a)).length};")
@@ -81,12 +81,12 @@ with sync_playwright() as pw:
   # True touch events through CDP, not just calls into an input mock.
   cdp=ctx.new_cdp_session(page);r=page.locator('#aimStick').bounding_box();x=r['x']+r['width']/2;y=r['y']+r['height']/2
   page.evaluate("__bubble.game.player.pathOn=false;__bubble.game.tool='splat';__bubble.game.testAim=[0,0,22];__bubble.game.updateAim();__bubble.game.refreshTools()")
-  cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':x,'y':y-12,'id':1}]});page.evaluate('__bubble.step(.5)');held=page.evaluate('__bubble.game.fireDown&&__bubble.game.charge>0');cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]});spent=page.evaluate('__bubble.game.ammo<180');check(name+' right joystick can aim and charge/release with one thumb',held and spent)
+  cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':x,'y':y-12,'id':1}]});page.evaluate('__bubble.step(.5)');held=page.evaluate('!__bubble.game.fireDown&&__bubble.game.charge===0&&Math.hypot(...__bubble.game.input.aim)>0');cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]});spent=page.evaluate('__bubble.game.ammo===180');check(name+' right joystick aims without charging or firing',held and spent)
   page.evaluate('__bubble.game.ammo=180');cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':x,'y':y-12,'id':2}]});page.evaluate('__bubble.step(.4)');cdp.send('Input.dispatchTouchEvent',{'type':'touchCancel','touchPoints':[]});check(name+' interrupted touches cancel without accidental shots',page.evaluate('!__bubble.game.fireDown&&__bubble.game.ammo===180'))
   check(name+' no runtime exceptions',not errors,errors)
   print('Closing touch context '+name,flush=True);ctx.close();print('Closed '+name,flush=True)
  browser.close()
-report={'version':'0.4.0','environment':'Chromium 144 + SwiftShader; emulated touch, not physical iPhone or Safari','passed':sum(r['pass_'] for r in results),'total':len(results),'results':results}
+report={'version':'0.4.1','environment':'Chromium 144 + SwiftShader; emulated touch, not physical iPhone or Safari','passed':sum(r['pass_'] for r in results),'total':len(results),'results':results}
 (OUT/'browser-results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print(f"{report['passed']}/{report['total']} passed",flush=True)
 if report['passed']!=report['total']:raise SystemExit(1)
