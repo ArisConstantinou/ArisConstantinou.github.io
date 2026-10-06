@@ -1,12 +1,1 @@
-{
-  "name": "bubble-castle",
-  "version": "0.3.0",
-  "type": "module",
-  "private": true,
-  "description": "Bubble: WebGL2 elastic gum castle siege; no runtime dependencies",
-  "scripts": {
-    "test": "node tests/logic.mjs && node tests/systems.mjs",
-    "serve": "python3 -m http.server 8080",
-    "bundle": "python3 tests/bundle.py"
-  }
-}
+{"name":"bubble-material-siege","version":"0.4.0","private":true,"type":"module","scripts":{"test":"node tests/material4.test.mjs","test:browser":"python3 tests/browser4.py"}}

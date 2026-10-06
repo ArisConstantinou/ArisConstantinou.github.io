@@ -1,0 +1,164 @@
+{
+  "version": "0.4.0",
+  "suite": "material-and-rules",
+  "passed": 39,
+  "total": 39,
+  "results": [
+    {
+      "name": "22 enemies are distributed in 2/3/6 local squads",
+      "pass": true
+    },
+    {
+      "name": "Starting the castle does not aggro the hidden squads",
+      "pass": true
+    },
+    {
+      "name": "A stamped gum mass has an actual external ray surface",
+      "pass": true
+    },
+    {
+      "name": "Subsequent splats attach to existing outer surface and increase height",
+      "pass": true
+    },
+    {
+      "name": "Adjacent stamps fuse in the same continuous field",
+      "pass": true
+    },
+    {
+      "name": "Rendering is a generated mesh, not a decorative sphere stack",
+      "pass": true
+    },
+    {
+      "name": "Wall mass blocks a real projectile path",
+      "pass": true
+    },
+    {
+      "name": "Wall mass blocks player movement rather than only rendering cover",
+      "pass": true
+    },
+    {
+      "name": "The same wall also blocks AI line of sight",
+      "pass": true
+    },
+    {
+      "name": "Removing gum opens a real hole, not a decal-only erasure",
+      "pass": true
+    },
+    {
+      "name": "Construction budget stops new material and never deletes existing support",
+      "pass": true
+    },
+    {
+      "name": "Invalid material input is rejected",
+      "pass": true
+    },
+    {
+      "name": "Saturated density does not continually remesh unchanged terrain",
+      "pass": true
+    },
+    {
+      "name": "Gum platforms support feet at the rendered surface",
+      "pass": true
+    },
+    {
+      "name": "Thick sloped paths can be climbed without collider snagging",
+      "pass": true
+    },
+    {
+      "name": "A gum cushion prevents unsupported ground fall-through",
+      "pass": true
+    },
+    {
+      "name": "Deflection reverses only the normal component and loses energy",
+      "pass": true
+    },
+    {
+      "name": "Projectile intersection distinguishes head from torso",
+      "pass": true
+    },
+    {
+      "name": "Torso hit regions follow the knocked-down skeleton",
+      "pass": true
+    },
+    {
+      "name": "Arm and leg targets have genuinely distinct hit shapes",
+      "pass": true
+    },
+    {
+      "name": "One head hit does not magically fully blind",
+      "pass": true
+    },
+    {
+      "name": "Accumulated head coating actually removes vision and firing",
+      "pass": true
+    },
+    {
+      "name": "Binding the weapon arm stops shots, not just an animation",
+      "pass": true
+    },
+    {
+      "name": "Chest accumulation causes impulse and loss of balance",
+      "pass": true
+    },
+    {
+      "name": "Grounded leg coating creates a foot-to-ground anchor",
+      "pass": true
+    },
+    {
+      "name": "Zero health alone never counts as a full capture",
+      "pass": true
+    },
+    {
+      "name": "Full directional coating and region coating can finish a capture",
+      "pass": true
+    },
+    {
+      "name": "A guard cannot see the player behind its facing cone",
+      "pass": true
+    },
+    {
+      "name": "Nearby sound produces investigation, not instant combat",
+      "pass": true
+    },
+    {
+      "name": "Last-known hearing position does not track the unseen player",
+      "pass": true
+    },
+    {
+      "name": "Sight confirmation is required before a patrol fires",
+      "pass": true
+    },
+    {
+      "name": "Distant squad does not hear a local fight",
+      "pass": true
+    },
+    {
+      "name": "A suspended guard rises over time without teleportation",
+      "pass": true
+    },
+    {
+      "name": "Cutting a suspended tether resumes gravity",
+      "pass": true
+    },
+    {
+      "name": "Swing release preserves existing momentum",
+      "pass": true
+    },
+    {
+      "name": "Movable props block rays at their actual current position",
+      "pass": true
+    },
+    {
+      "name": "Existing v3 character saves remain compatible",
+      "pass": true
+    },
+    {
+      "name": "Equipped items are protected from Forge sacrifice",
+      "pass": true
+    },
+    {
+      "name": "Auto Forge defaults to explicit opt-in",
+      "pass": true
+    }
+  ]
+}

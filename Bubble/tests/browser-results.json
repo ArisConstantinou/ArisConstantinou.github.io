@@ -1,212 +1,508 @@
 {
-  "version": "0.3.0",
-  "environment": "Chromium + SwiftShader in Xvfb; offline exact-source bundle; deterministic RAF; emulated touch, NOT physical iPhone/Safari",
-  "passed": 51,
-  "total": 51,
-  "checks": [
+  "version": "0.4.0",
+  "environment": "Chromium 144 + SwiftShader; emulated touch, not physical iPhone or Safari",
+  "passed": 64,
+  "total": 64,
+  "results": [
     {
-      "name": "Desktop WebGL boot / version / 10 bots",
-      "passed": true
+      "name": "Actual WebGL 2 renderer boots v0.4.0",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "Desktop ability and RPG buttons reachable",
-      "passed": true
+      "name": "Eight idle seconds never trigger a global enemy rush",
+      "pass_": true,
+      "detail": {
+        "hp": 100,
+        "combat": 0,
+        "count": 22,
+        "shown": 0
+      }
     },
     {
-      "name": "Desktop WASD moves actual actor",
-      "passed": true
+      "name": "Hidden room patrols are not exposed through the cutaway camera",
+      "pass_": true,
+      "detail": {
+        "hp": 100,
+        "combat": 0,
+        "count": 22,
+        "shown": 0
+      }
     },
     {
-      "name": "Desktop jump uses vertical velocity",
-      "passed": true
+      "name": "Normal jump uses upward motion",
+      "pass_": true,
+      "detail": {
+        "y": 1.2416666666666674,
+        "vy": 2.7500000000000036
+      }
     },
     {
-      "name": "Top-down wall cutaway remains stable while airborne",
-      "passed": true
+      "name": "Sprint remains faster and consumes stamina",
+      "pass_": true,
+      "detail": {
+        "z": 19.79999999999995,
+        "stamina": 87.99999999999984
+      }
     },
     {
-      "name": "Airborne wall jump applies outward impulse",
-      "passed": true
+      "name": "Real pointer tap fires one splat and consumes one unit",
+      "pass_": true,
+      "detail": {
+        "ammo": 179,
+        "n": 9
+      }
     },
     {
-      "name": "Live SLING starts at current position, not midpoint",
-      "passed": true
+      "name": "Full charge reaches entire 180-unit capacity",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "Live SLING produces flight",
-      "passed": true
+      "name": "Full charge consumes all tank ammunition",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "Live enemy-to-enemy LINK closes their separation",
-      "passed": true
+      "name": "Reload restores the existing 180-unit tank",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "Live PULL brings targeted enemy toward player",
-      "passed": true
+      "name": "Pause cancels a held charge without firing or spending ammunition",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "Live SLAM landing makes enemy dizzy",
-      "passed": true
+      "name": "Pause/resume restores play",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "Inventory pauses combat",
-      "passed": true
+      "name": "Frontal charged impact covers one half, not the unseen back",
+      "pass_": true,
+      "detail": {
+        "front": 4,
+        "back": 4,
+        "down": 1.8666666666666702,
+        "coat": {
+          "head": 0.9450000000000001,
+          "chest": 1.3,
+          "armL": 0.9450000000000001,
+          "armR": 0.9450000000000001,
+          "legL": 0.9450000000000001,
+          "legR": 0.9450000000000001
+        },
+        "ammo": 0,
+        "captured": false
+      }
     },
     {
-      "name": "LV2 updates visible XP and skill points",
-      "passed": true
+      "name": "Frontal charged impact knocks the guard off balance",
+      "pass_": true,
+      "detail": {
+        "front": 4,
+        "back": 4,
+        "down": 1.8666666666666702,
+        "coat": {
+          "head": 0.9450000000000001,
+          "chest": 1.3,
+          "armL": 0.9450000000000001,
+          "armR": 0.9450000000000001,
+          "legL": 0.9450000000000001,
+          "legR": 0.9450000000000001
+        },
+        "ammo": 0,
+        "captured": false
+      }
     },
     {
-      "name": "Skill button spends point and increases maximum HP",
-      "passed": true
+      "name": "Lob is a ballistic projectile passing above head height",
+      "pass_": true,
+      "detail": {
+        "high": 5.338354230204449,
+        "head": 1.08,
+        "covered": 8
+      }
     },
     {
-      "name": "Forge excludes equipped sacrifice",
-      "passed": true
+      "name": "Descending charged splash covers more directions than frontal splash",
+      "pass_": true,
+      "detail": {
+        "high": 5.338354230204449,
+        "head": 1.08,
+        "covered": 8
+      }
     },
     {
-      "name": "Forge previews the exact lost item and cost",
-      "passed": true
+      "name": "Infinite FLOW builds collidable volume without spending tank ammo",
+      "pass_": true,
+      "detail": {
+        "n": 101,
+        "ammo": 180,
+        "hit": {
+          "t": 3.7062500000000007,
+          "p": [
+            0,
+            0.2937499999999993,
+            22
+          ],
+          "n": [
+            0,
+            0.9842534794726108,
+            -0.1767628019297583
+          ],
+          "gum": true
+        }
+      }
     },
     {
-      "name": "Forge button consumes selected feed only",
-      "passed": true
+      "name": "Cover tool builds an actual head-height projectile barrier",
+      "pass_": true,
+      "detail": {
+        "gum": true,
+        "n": 162
+      }
     },
     {
-      "name": "Auto Forge UI records opt-in",
-      "passed": true
+      "name": "Eraser opens a passable shot hole in built cover",
+      "pass_": true,
+      "detail": false
     },
     {
-      "name": "Inventory closes without unpausing incorrectly",
-      "passed": true
+      "name": "Left-hand PATH creates a rising walkable route while moving",
+      "pass_": true,
+      "detail": {
+        "p": [
+          5.496666666666665,
+          3.9058593750001793,
+          20.19999999999979
+        ],
+        "on": true,
+        "n": 388,
+        "grounded": true
+      }
     },
     {
-      "name": "Ten captures spawn ARACHNE-09",
-      "passed": true
+      "name": "PATH can turn and is not a straight filament bridge",
+      "pass_": true,
+      "detail": {
+        "p": [
+          5.496666666666665,
+          3.9058593750001793,
+          20.19999999999979
+        ],
+        "on": true,
+        "n": 388,
+        "grounded": true
+      }
     },
     {
-      "name": "Victory screen receives guaranteed boss loot",
-      "passed": true
+      "name": "Grade toggle supports downhill and level paths",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "Next siege keeps character and increases difficulty",
-      "passed": true
+      "name": "Second grade toggle selects level construction",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "Desktop has no runtime page errors",
-      "passed": true
+      "name": "Active gloves climb gum-covered walls with a stamina cost",
+      "pass_": true,
+      "detail": {
+        "p": [
+          -7,
+          4.049999999999996,
+          21.162500000000005
+        ],
+        "grip": true,
+        "stamina": 89.5000000000006
+      }
     },
     {
-      "name": "portrait uses touch layout",
-      "passed": true
+      "name": "Active gloves can hold position on the wall without movement input",
+      "pass_": true,
+      "detail": {
+        "before": 4.049999999999996,
+        "after": 4.007499999999997
+      }
     },
     {
-      "name": "portrait all controls reachable",
-      "passed": true
+      "name": "Object tether moves a physical crate rather than teleporting it",
+      "pass_": true,
+      "detail": {
+        "grabbed": true,
+        "before": [
+          -4,
+          0,
+          24
+        ],
+        "after": [
+          3.846596148552461,
+          0,
+          24.462618074877206
+        ]
+      }
     },
     {
-      "name": "portrait LV/XP/Gold/Dust visible",
-      "passed": true
+      "name": "Ceiling suspension requires existing gum and lifts over time",
+      "pass_": true,
+      "detail": {
+        "grabbed": true,
+        "first": 0,
+        "after": 2.3291633910891365,
+        "hanging": true,
+        "captured": true,
+        "count": 1
+      }
     },
     {
-      "name": "Touch movement joystick moves actor",
-      "passed": true
+      "name": "Suspended immobilization awards a capture exactly once",
+      "pass_": true,
+      "detail": {
+        "grabbed": true,
+        "first": 0,
+        "after": 2.3291633910891365,
+        "hanging": true,
+        "captured": true,
+        "count": 1
+      }
     },
     {
-      "name": "Touch JUMP button works and preserves cutaway",
-      "passed": true
+      "name": "SWING attaches to high geometry and moves the body",
+      "pass_": true,
+      "detail": {
+        "on": true,
+        "p": [
+          -2.482360509897578,
+          0.656782728313139,
+          20.922490562003635
+        ],
+        "before": [
+          -5.880074652543378,
+          0,
+          -6.675305392511218
+        ],
+        "after": [
+          -5.880074652543378,
+          0,
+          -6.675305392511218
+        ],
+        "released": true
+      }
     },
     {
-      "name": "AUTO chooses nearest visible enemy",
-      "passed": true
+      "name": "Releasing SWING preserves momentum",
+      "pass_": true,
+      "detail": {
+        "on": true,
+        "p": [
+          -2.482360509897578,
+          0.656782728313139,
+          20.922490562003635
+        ],
+        "before": [
+          -5.880074652543378,
+          0,
+          -6.675305392511218
+        ],
+        "after": [
+          -5.880074652543378,
+          0,
+          -6.675305392511218
+        ],
+        "released": true
+      }
     },
     {
-      "name": "AUTO retargets closer opponent behind",
-      "passed": true
+      "name": "A moved crate operates the pressure plate and opens a physical gate",
+      "pass_": true,
+      "detail": {
+        "active": true,
+        "height": 3.5
+      }
     },
     {
-      "name": "Manual touch aim overrides AUTO selection",
-      "passed": true
+      "name": "Gum interaction pulls the lever and opens the vault gate",
+      "pass_": true,
+      "detail": {
+        "lever": true,
+        "height": -1.5
+      }
     },
     {
-      "name": "Mobile MODE switches SLING to LINK",
-      "passed": true
+      "name": "Collecting the three objectives summons ARACHNE-09",
+      "pass_": true,
+      "detail": {
+        "seals": 3,
+        "boss": true
+      }
     },
     {
-      "name": "Mobile LINK action chooses actual target",
-      "passed": true
+      "name": "Charged projectile impacts damage the boss; victory preserves progression and three Legendary items",
+      "pass_": true,
+      "detail": {
+        "chargedDamage": 120,
+        "win": true,
+        "tier": 2,
+        "legendary": 3
+      }
     },
     {
-      "name": "Mobile CUT clears pending anchor",
-      "passed": true
+      "name": "BAG opens the real existing progression/Forge interface",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "Mobile camera switches to FPS",
-      "passed": true
+      "name": "Closing BAG restores active gameplay",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "FPS right stick turns camera continuously",
-      "passed": true
+      "name": "No runtime exceptions in desktop integration",
+      "pass_": true,
+      "detail": []
     },
     {
-      "name": "Touch held FIRE expends ammunition",
-      "passed": true
+      "name": "430x932 thumb targets do not overlap",
+      "pass_": true,
+      "detail": []
     },
     {
-      "name": "Inventory opening stops held touch fire",
-      "passed": true
+      "name": "430x932 controls remain on screen",
+      "pass_": true,
+      "detail": []
     },
     {
-      "name": "Inventory close does not leave stuck fire",
-      "passed": true
+      "name": "430x932 controls are at least 44px",
+      "pass_": true,
+      "detail": []
     },
     {
-      "name": "portrait Forge opens and scrolls into view",
-      "passed": true
+      "name": "430x932 lower central play area contains no controls",
+      "pass_": true,
+      "detail": []
     },
     {
-      "name": "portrait has no runtime errors",
-      "passed": true
+      "name": "430x932 right joystick can aim and charge/release with one thumb",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "landscape uses touch layout",
-      "passed": true
+      "name": "430x932 interrupted touches cancel without accidental shots",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "landscape all controls reachable",
-      "passed": true
+      "name": "430x932 no runtime exceptions",
+      "pass_": true,
+      "detail": []
     },
     {
-      "name": "landscape LV/XP/Gold/Dust visible",
-      "passed": true
+      "name": "932x430 thumb targets do not overlap",
+      "pass_": true,
+      "detail": []
     },
     {
-      "name": "landscape Forge opens and scrolls into view",
-      "passed": true
+      "name": "932x430 controls remain on screen",
+      "pass_": true,
+      "detail": []
     },
     {
-      "name": "landscape has no runtime errors",
-      "passed": true
+      "name": "932x430 controls are at least 44px",
+      "pass_": true,
+      "detail": []
     },
     {
-      "name": "small-portrait uses touch layout",
-      "passed": true
+      "name": "932x430 lower central play area contains no controls",
+      "pass_": true,
+      "detail": []
     },
     {
-      "name": "small-portrait all controls reachable",
-      "passed": true
+      "name": "932x430 right joystick can aim and charge/release with one thumb",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "small-portrait LV/XP/Gold/Dust visible",
-      "passed": true
+      "name": "932x430 interrupted touches cancel without accidental shots",
+      "pass_": true,
+      "detail": null
     },
     {
-      "name": "small-portrait Forge opens and scrolls into view",
-      "passed": true
+      "name": "932x430 no runtime exceptions",
+      "pass_": true,
+      "detail": []
     },
     {
-      "name": "small-portrait has no runtime errors",
-      "passed": true
+      "name": "375x667 thumb targets do not overlap",
+      "pass_": true,
+      "detail": []
+    },
+    {
+      "name": "375x667 controls remain on screen",
+      "pass_": true,
+      "detail": []
+    },
+    {
+      "name": "375x667 controls are at least 44px",
+      "pass_": true,
+      "detail": []
+    },
+    {
+      "name": "375x667 lower central play area contains no controls",
+      "pass_": true,
+      "detail": []
+    },
+    {
+      "name": "375x667 right joystick can aim and charge/release with one thumb",
+      "pass_": true,
+      "detail": null
+    },
+    {
+      "name": "375x667 interrupted touches cancel without accidental shots",
+      "pass_": true,
+      "detail": null
+    },
+    {
+      "name": "375x667 no runtime exceptions",
+      "pass_": true,
+      "detail": []
+    },
+    {
+      "name": "932x430 safe areas thumb targets do not overlap",
+      "pass_": true,
+      "detail": []
+    },
+    {
+      "name": "932x430 safe areas controls remain on screen",
+      "pass_": true,
+      "detail": []
+    },
+    {
+      "name": "932x430 safe areas controls are at least 44px",
+      "pass_": true,
+      "detail": []
+    },
+    {
+      "name": "932x430 safe areas lower central play area contains no controls",
+      "pass_": true,
+      "detail": []
+    },
+    {
+      "name": "932x430 safe areas right joystick can aim and charge/release with one thumb",
+      "pass_": true,
+      "detail": null
+    },
+    {
+      "name": "932x430 safe areas interrupted touches cancel without accidental shots",
+      "pass_": true,
+      "detail": null
+    },
+    {
+      "name": "932x430 safe areas no runtime exceptions",
+      "pass_": true,
+      "detail": []
     }
   ]
 }

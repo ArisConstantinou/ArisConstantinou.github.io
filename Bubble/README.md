@@ -1,53 +1,70 @@
-# Bubble — The Sticky Siege 0.3.0
+# Bubble — Material Siege 0.4.0
 
-A playable 3D bubblegum castle siege for Aris Constantinou. Greek interface, desktop and touch controls. Updated 5 October 2026.
+Updated 6 October 2026 for Aris. Published in **`Bubble/` on `main` of `ArisConstantinou/ArisConstantinou.github.io`**, at https://arisconstantinou.github.io/Bubble/ . No separate repository. The original castle, houses, stairs, upper keep and underground vault remain. Native WebGL2, no external runtime JavaScript, textures, models, fonts, analytics or ads.
 
-## Play / repository
+## What replaces the 0.3 toolkit
 
-Published at https://arisconstantinou.github.io/Bubble/ . Source belongs only in `Bubble/` on `main` in `ArisConstantinou/ArisConstantinou.github.io`. There is no separate Bubble repository. Version 0.3.0 is visible on the opening screen and in the Armory. Versioned URLs prevent the old game module from being reused with the new UI.
+The active entry point is now `src/siege4.js`. The old SLING / LINK / PULL / SLAM button strip is **not loaded**. Earlier source files remain in the repository for reference, not as a second overlay. Movement, sprint, jump, wall-jump, FPS / top-down, equipment, skills and Forge remain.
+
+- **SPLAT / charge:** tap and release for a small projectile. Hold then release for a larger mass, up to the entire current 180-unit tank after 2.8 seconds. Drag FIRE upwards, or hold Alt on desktop, for a gravity-driven overhead shot. Frontal charged impacts coat four facing sectors; they do not complete the unseen back. Overhead impacts can cover more regions, subject to line-of-sight and impact direction. Impulse can knock a guard down or pin them to nearby wall geometry.
+- **FLOW:** infinite supply, sustained short-range material deposition. Repeated deposits combine in a sparse density field. The field generates the visible marching-tetrahedra mesh and also drives support, body collision, bullet collision and occlusion. The next shot collides with the outside of existing gum. Select MASS, WALL or CUSHION. WALL grows upwards from a floor-supported base; it is not a free floating instant door. CUSHION is a wide, elastic pad. All gum softens landing damage; designated cushions additionally bounce.
+- **Connection / E:** tether a crate or a sufficiently coated guard and pull by moving. Aim at a high surface and connect again to suspend the held object or guard. With no held target, connect to a high wall/beam for an elastic swing. Filaments have travel time, spring forces, gravity and collision; they do not teleport the body. E or jump releases a swing while retaining velocity.
+- **PATH / left glove:** toggle from a stable starting surface, then walk and steer. A roughly two-metre-wide thick route grows ahead of the left hand. Change grade between uphill, downhill and level. Curves are built from movement, not a straight line between two clicked endpoints. Ceilings and walls obstruct construction. Unsupported continuous runs are limited to 18 metres before another support is needed.
+- **GRIP:** the standard player suit has an anti-adhesive outer layer and soles. This does not dissolve or erase gum. Engaging the gloves exposes adhesive pads: move towards a gum-coated wall to climb; stop input to hold position; jump to release. Climbing and holding consume stamina. This is baseline equipment, not a rare armor requirement. Toxic impacts still cause damage.
+- **ERASE:** locally remove gum and cut nearby tether endpoints, without deleting all constructions. Shots striking gum at a shallow angle can physically deflect with reduced velocity; more direct enemy hits erode it.
+
+## Enemy interactions and stealth
+
+There are 22 guards, in local groups **2 / 3 / 6 / 3 / 2 / 6**. Their initial patrols are in rooms, the keep and the dungeon, away from the spawn. Hearing produces **`?` investigation of a last-known position**, not perfect knowledge or an instant attack. Sight checks use facing, distance, height and physical occlusion. Guards attack only after sight confirmation and remain locally bounded. Hidden guards are not displayed through the top-down cutaway.
+
+The same procedural skeleton drives the rendered pose and hit shapes in both cameras. Separate head, torso, left/right arm and left/right leg regions accumulate gum. Head coating covers the visor and prevents sight; a free hand tries to clean it. A bound weapon arm stops shooting. Chest hits produce velocity impulses and loss of balance. Grounded, sufficiently coated feet attach to the floor and stop the patrol moving. These are gameplay changes as well as poses, not only colored flashes. Knockdown shapes follow the fallen pose.
+
+FPS uses the actual aim ray. Top-down lets the player choose head / chest / arms / legs, with assistance towards an accessible point. **The projectile still hits the first physical obstruction or body region in its path.** The requested region is not assigned as damage through an obstacle.
+
+Zero HP alone does not count as a capture. Full coating, a successful wall pin or coated suspension can secure a guard. Rewards are awarded once. A frontal charged shot provides broad front coverage without automatically capturing the whole body.
+
+## A reason to explore quietly
+
+Collect three seals: **west house, upper keep, underground vault**. This summons ARACHNE-09 in the main courtyard. Capturing every guard is optional, giving stealth a real purpose. The spider retains two phases, toxic projectiles/puddles and a dizzy damage window. Winning grants three Legendary items and unlocks the next siege difficulty in the existing castle, not a new map.
+
+Two small working environment interactions are included: a weighted plate opens the west-house gate, and a remotely operated lever opens a vault gate. A crate, the player or enough deposited gum can operate the plate. This is a first interactive scenario, not a claim of a complete authored puzzle campaign.
 
 ## Controls
 
-Desktop: WASD / arrows move, mouse aims, left mouse fires, C switches top-down / first person, Space jumps, Shift sprints, R refills, Esc pauses. Click the FPS canvas to capture the mouse.
+**Desktop:** WASD/arrows move; Shift sprints; Control sneaks. Space jumps or releases a swing. Mouse aims; left button presses/releases SPLAT or holds FLOW. Alt selects a lob while charging. C changes camera, T changes tool, 1–4 chooses body region, E connects/releases, R refills, B toggles PATH, V changes grade, G toggles GRIP, X selects eraser, F selects wall FLOW, I opens BAG, Escape pauses. Click the FPS canvas for pointer lock.
 
-Mobile: left joystick moves; right joystick aims and fires. JUMP, FIRE, reload and camera have separate buttons. Double-tap the left joystick to jump. Drag the right side of the FPS scene to look. Portrait and landscape have a persistent ability bar and visible LV, XP, Gold, Dust, skill points, HP, stamina and ammunition.
+**Mobile:** left joystick moves. Right joystick aims and holds the shot/flow; release it to fire a charge. A separate FIRE button is also available, including upward dragging for a lob. Double-tap the left joystick or use JUMP. WALK cycles WALK / RUN / SNEAK. Tools sit beside the two joysticks, not across the screen centre. PATH exposes its grade button only while active. Camera, BAG and pause stay in the upper corner. Safe-area insets and portrait/landscape layouts are supported. Auto quality uses the lightweight render preset on touch devices; full shadows can be selected in pause settings.
 
-**Elastic gum:** MODE / T changes SLING and LINK. E or the SLING/LINK button places an anchor. Q / PULL tethers an aimed knight to the player. F / SLAM throws linked knights into a nearby wall or slams them onto the ground. X / CUT releases temporary strands. I / BAG opens equipment and skills; FORGE opens the crafting panel without consuming anything.
+## Character compatibility
 
-SLING needs two different surface points, at least 1.2 m apart and within the current stretch range. On mobile, aim manually with the right stick before each anchor; AUTO does not redirect surface anchors. With no wall in that direction, a ground point ahead is used. A nearby completed strand launches the player with velocity from their current position: no teleport to its midpoint. The strand remains as a bounce line. LINK attaches a knight to a surface or a second knight. A golden marker shows the pending first anchor. Invalid second points preserve the first; it expires after 18 simulation seconds. At most six active temporary strands are retained. Static bounce lines last 60 seconds, enemy links 24, and PULL 14. SLAM has a three-second cooldown. Temporary strands end when their knight is captured or enters the wall-pinning capture state.
+`progression.js` and the **`bubble-character-v3`** save format are unchanged. Existing level, XP, skills, gear, Gold, Dust, unlocked siege tiers and Auto Forge preference are reused. Equipment and crafting protection remain. Character saves are local to the current browser/origin. There is no cloud account or synchronization. Position, guards, seals, gum geometry and active tethers are not a saved live match: refreshing starts a fresh siege with the same character. Clearing site data removes the save.
 
-For a wall jump, jump normally, approach a wall while airborne, then press jump again. Repeated jumps on the same wall require landing first. Horizontal impulses use collision substeps; head clearance stops upward travel through supported ceilings. Top-down cutaway height is tied to the grounded level, not the jump apex.
+## Simulation limits — deliberate and visible
 
-AUTO chooses a visible nearby target with limited hysteresis rather than permanently holding the previous opponent. A closer enemy behind can take priority in top-down. The right joystick overrides AUTO. FPS assistance uses a forward cone and does not spin the camera behind the player.
+This is a **bounded, game-oriented material simulation**, not a physical chewing-gum fluid solver. World construction is a static scalar volume; it does not reproduce continuous viscous flow, fully simulated soft bodies or structural collapse when a support is removed. Moving objects, suspension and swinging use explicit approximate spring/rigid-body motion. Body reactions are procedural poses, not an anatomical ragdoll. Construction meshes update incrementally. The armor interaction is an explicit fictional equipment rule.
 
-## Capture / boss
+FLOW has unlimited supply, **not unlimited device memory**. At 18,000 active density samples on touch / 26,000 on desktop, new construction stops and the HUD asks the player to erase unwanted gum. Existing supports are never silently removed to make room. Erasure frees the budget. Long-session balance, Safari behavior and real-device frame rates still need playtesting. No multiplayer or service-worker cache is included.
 
-Ten armoured knights have health, stamina and different gum colours. Player gum is purple. Low stamina causes dizziness. Zero health does not delete a knight: finish the capture. Near a wall, five anchor hits complete permanent pinning. In open space, circle the knight and coat all eight directional sectors. Repeated frontal hits cannot finish the back.
+## Source map
 
-The tank holds 180 shots, refills in 1.7 seconds from unlimited reserve, and is visible on the FPS weapon with a changing liquid level and three-digit display. Captures restore up to 80 gum, 12 HP and 20 stamina. Every second capture drops a random full-ammo, 12-second speed, or 12-second regeneration power-up.
+`engine.js`, `world.js`, `actors.js`, `progression.js`: preserved 0.3 renderer, castle, spider/weapon and character system.
 
-After ten captures ARACHNE-09 enters the courtyard: eight articulated mechanical legs, green toxic gum, spread shots, damaging floor puddles, a second phase and a dizzy damage window. It drops three Legendary items on defeat. The victory flow collects outstanding loot subject to inventory capacity, unlocks the next siege and preserves the character. Higher siege tiers increase enemy health, damage and reward scaling in the existing castle. They are not newly authored maps.
+`material4.js`: sparse gum field, mesh generation, shared collision, props, springs and tether motion.
 
-## Character / Forge
+`knights4.js`: posed hit regions, gum responses, local perception and patrols.
 
-Capture XP grants levels and one skill point per level. Spend points on Gum Power (+8% per point), Elastic (+8% range/force before the stretch cap), or Vitality (+10 maximum HP). Equipment slots are Gumcaster, Armor and Charm; rarities are Common, Magic, Rare, Epic and Legendary. Tap a card to equip. Nearby loot is attracted to the player when unobstructed. Inventory capacity is 120 items.
+`ui4.js`: safe touch/keyboard controls and equipment/Forge UI.
 
-Forge unlocks at level 2 or after completing a siege. Select the item to improve and the exact sacrifice. The preview shows the power increase, lost item, and cost: two Dust plus Gold, increasing with previous upgrades. Equipped or locked gear cannot be sacrificed. Auto Forge is explicitly opt-in; once on a level-up event or siege completion it may improve the equipped Gumcaster using weaker, unequipped, unlocked Common/Magic/Rare gear. It never automatically sacrifices Epic or Legendary gear. All weapons remain Bubble Gumcasters; other weapon categories are not included.
+`siege4.js`: current game, material tools, charge/lob, player actions, objectives, boss, rendering and integration.
 
-Local storage saves character level, XP, skills, gear, materials, Auto Forge preference and unlocked siege tiers. It does **not** save a live match's position, enemy captures or temporary strands. Reloading starts a fresh siege with the saved character. Saves are local to the browser/origin, not an account or cloud backup. Clearing site data removes them. Invalid save data and unavailable storage are handled without crashing; the Armory shows storage status.
+`play4.css`: responsive two-thumb layout. `index.html`: only the 0.4 entry point.
 
-## Implementation
+## Run and verify
 
-Native WebGL2 instancing and original procedural models, shaders and materials. No external runtime JavaScript, models, textures, fonts or audio downloads. Sounds use Web Audio. The existing castle, enterable houses, battlements, stairs, underground vault, armoured actors and spider are preserved.
+Serve this directory with `python3 -m http.server 8080` and open http://localhost:8080 . No npm install is required for play or logic tests.
 
-`src/engine.js`: renderer and math. `world.js`: geometry, colliders, floor/ceiling support and navigation. `actors.js`: models and weapon display. `combat.js`: directional capture rules. `gum.js`: damped elastic constraints, inertia, wall jump, bounce and collision-triggered slam. `progression.js`: validated character data, skills and safe crafting. `game.js`: integration, AI, aiming, input and HUD. `systems.css`: responsive ability and Armory layout layered over the original styling.
+`npm test` runs the deterministic material / combat / progression checks. Browser checks require Python Playwright, Chromium and (in a headless Linux environment) Xvfb: `xvfb-run -a python3 tests/browser4.py`.
 
-Gum uses spring constraints and procedural strand geometry, not fluid simulation. Static colliders approximate the rendered architecture. The graphics remain procedural/stylised, not Unreal photorealism. Surface splats are bounded at 220 desktop / 140 touch, actor impact blobs at 22; permanent coating sectors remain separate. Toxic puddles expire after nine seconds. No multiplayer or service-worker cache is included.
+The browser harness loads the **exact local production modules as blob modules**, using a deterministic simulation clock. It uses the real WebGL2 renderer, DOM input handlers, synthetic touch events through Chromium and actual gameplay update loops; it does not mock rendering or physics. Network navigation is not needed. `CHROMIUM` and `BUBBLE_TEST_OUTPUT` can override the executable and report directory.
 
-## Run / verify
-
-Serve this directory with `python3 -m http.server 8080`, then open http://localhost:8080 . `npm test` runs 17 original logic checks and 28 new systems checks. `python3 tests/bundle.py` creates `Bubble.html`, the standalone HTML containing the same modules and styles. Serve the modular project for the normal deployment.
-
-For browser tests, install Python Playwright and a Chromium executable, then run `xvfb-run -a python3 tests/browser.py`. `CHROMIUM` can override `/usr/bin/chromium`; `BUBBLE_TEST_OUTPUT` can select the output directory. The harness loads the exact offline source bundle, controls requestAnimationFrame deterministically, and steps the production update loop. It uses the real WebGL renderer, not a canvas mock. Screenshots are actual game output.
-
-Version 0.3.0 verification: **45 deterministic checks and 51 browser integration checks passed**. The browser run covered 1280×800 desktop and 430×932, 932×430, 375×667 touch viewports. Reports include exact checks and environment. `mobile-results.json` is a subset of `browser-results.json`, not additional checks. Tests used Chromium/SwiftShader and emulated touch, **not a physical iPhone or Safari**. Hardware frame rate, Safari-specific behaviour and long-session balance still need real-device playtesting. Debug controls exist only with `?test=1` or the explicit test bundle.
+Verification for this revision: **39 logic checks and 64 browser integration checks**. Viewports include 1280×800, 430×932, 932×430, 375×667 and simulated landscape safe areas. Tests use Chromium 144 / SwiftShader and emulated touch, **not a physical iPhone 14 Pro Max or Safari**. Reports list every check. Test controls exist only with `?test=1` or the explicit local test flag; normal play does not expose `__bubble`.
