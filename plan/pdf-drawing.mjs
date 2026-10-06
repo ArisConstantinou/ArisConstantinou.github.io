@@ -11,13 +11,22 @@ function lineArcs(paths){
 }
 const normalized=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[AKOTEHPXYB]/g,c=>({A:'Α',K:'Κ',O:'Ο',T:'Τ',E:'Ε',H:'Η',P:'Ρ',X:'Χ',Y:'Υ',B:'Β'}[c]));
 function canvasFor(width,height){const canvas=typeof document!=='undefined'?document.createElement('canvas'):new OffscreenCanvas(width,height);canvas.width=width;canvas.height=height;return canvas;}
+// PDF.js getTextContent uses async stream iteration, which Safari can lack even
+// when getReader is available. Drain its public stream API without a global shim.
+export async function readPDFText(page,signal){
+ const aborted=()=>{if(signal?.aborted)throw signal.reason||new DOMException('Ακυρώθηκε','AbortError');};
+ aborted();const reader=page.streamTextContent().getReader(),text={items:[],styles:Object.create(null),lang:null};
+ const cancel=()=>{reader.cancel(signal.reason).catch(()=>{});};signal?.addEventListener('abort',cancel,{once:true});
+ try{for(;;){aborted();const {value,done}=await reader.read();aborted();if(done)return text;text.lang??=value.lang;Object.assign(text.styles,value.styles);text.items.push(...value.items);}}
+ finally{signal?.removeEventListener('abort',cancel);reader.releaseLock();}
+}
 export async function readPDF(buffer,pageNumber=0,signal){
  const task=getDocument({data:new Uint8Array(buffer),useSystemFonts:true,isEvalSupported:false,stopAtErrors:true}),cancel=()=>task.destroy();signal?.addEventListener('abort',cancel,{once:true});const doc=await task.promise;
  try{
   const pages=[];let automatic=1,score=-1;
-  for(let n=1;n<=Math.min(30,doc.numPages);n++){if(signal?.aborted)throw new DOMException('Ακυρώθηκε','AbortError');const p=await doc.getPage(n),t=(await p.getTextContent()).items.map(v=>v.str||'').join(' '),name=t.match(/(?:ΚΑΤΟΨΗ|KATOΨΗ|ΚΑΤΟΨ|FLOOR PLAN)[^\d]{0,35}/i)?.[0]?.trim()||'',key=normalized(name||t),rank=/ΚΑΤΟΨ.*ΙΣΟΓΕΙ|GROUND FLOOR/i.test(key+' '+t)?10:/ΚΑΤΟΨ|FLOOR PLAN/i.test(key+' '+t)?5:0;pages.push({number:n,name});if(rank>score){score=rank;automatic=n;}}
+  for(let n=1;n<=Math.min(30,doc.numPages);n++){if(signal?.aborted)throw new DOMException('Ακυρώθηκε','AbortError');const p=await doc.getPage(n),t=(await readPDFText(p,signal)).items.map(v=>v.str||'').join(' '),name=t.match(/(?:ΚΑΤΟΨΗ|KATOΨΗ|ΚΑΤΟΨ|FLOOR PLAN)[^\d]{0,35}/i)?.[0]?.trim()||'',key=normalized(name||t),rank=/ΚΑΤΟΨ.*ΙΣΟΓΕΙ|GROUND FLOOR/i.test(key+' '+t)?10:/ΚΑΤΟΨ|FLOOR PLAN/i.test(key+' '+t)?5:0;pages.push({number:n,name});if(rank>score){score=rank;automatic=n;}}
   pageNumber=pageNumber||automatic;
-  const page=await doc.getPage(pageNumber),viewport=page.getViewport({scale:1}),ops=await page.getOperatorList(),text=await page.getTextContent(),paths=[],arcs=[],texts=[],stack=[];let matrix=viewport.transform.slice(),stroke='#000000',fill='#000000',lineWidth=1,imageArea=0;
+  const page=await doc.getPage(pageNumber),viewport=page.getViewport({scale:1}),ops=await page.getOperatorList(),text=await readPDFText(page,signal),paths=[],arcs=[],texts=[],stack=[];let matrix=viewport.transform.slice(),stroke='#000000',fill='#000000',lineWidth=1,imageArea=0;
   const at=(x,y)=>({x:x*matrix[0]+y*matrix[2]+matrix[4],y:x*matrix[1]+y*matrix[3]+matrix[5]});
   for(let n=0;n<ops.fnArray.length;n++){if(n%2000===0){if(signal?.aborted)throw new DOMException('Ακυρώθηκε','AbortError');await new Promise(r=>setTimeout(r,0));}const op=ops.fnArray[n],args=ops.argsArray[n];if(op===OPS.save)stack.push({matrix:matrix.slice(),stroke,fill,lineWidth});else if(op===OPS.restore){const v=stack.pop();if(v)({matrix,stroke,fill,lineWidth}=v);}else if(op===OPS.transform)matrix=multiply(matrix,args);else if(op===OPS.setStrokeRGBColor)stroke=args[0];else if(op===OPS.setFillRGBColor)fill=args[0];else if(op===OPS.setLineWidth)lineWidth=args[0];else if(op===OPS.constructPath){
    const paint=args[0],draw=args[1][0],isStroke=[OPS.stroke,OPS.closeStroke,OPS.fillStroke,OPS.eoFillStroke,OPS.closeFillStroke,OPS.closeEOFillStroke].includes(paint),isFill=[OPS.fill,OPS.eoFill,OPS.fillStroke,OPS.eoFillStroke,OPS.closeFillStroke,OPS.closeEOFillStroke].includes(paint);let points=[],curved=false,closed=false;
