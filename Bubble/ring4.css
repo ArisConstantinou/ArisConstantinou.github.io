@@ -1,0 +1,62 @@
+/* 0.4.3: aim-only inner disc + intentional outer fire ring.
+   72% inner radius matches RING_EXIT; firing starts just outside at 76%.
+   Enlarged right-stick geometry does not change left-stick touch ownership. */
+#aimStick{
+ width:132px;height:132px;right:12px;bottom:20px;
+ background:radial-gradient(circle closest-side,#25283e 0 70%,#6e36a94a 73% 100%);
+ border:2px solid #ba81ffb3;box-shadow:0 0 13px #a260e52e;
+ isolation:isolate;transition:border-color .08s,box-shadow .08s;
+}
+#aimStick *{pointer-events:none}
+#aimStick .ring-zone{
+ position:absolute;inset:0;border:0;border-radius:50%;
+ background:radial-gradient(circle closest-side,transparent 0 70%,#af6cf72a 72% 100%);
+ box-shadow:inset 0 0 12px #c77bff30;
+}
+#aimStick .aim-zone{
+ position:absolute;inset:14%;border:1px solid #89dccd6b;border-radius:50%;
+ background:radial-gradient(circle closest-side,#3c435945,#15233965);
+}
+#aimStick i{
+ width:36px;height:36px;left:calc(50% - 18px);top:calc(50% - 18px);
+ background:linear-gradient(145deg,#bfd7e785,#7184a04d);border-color:#deecfaae;
+ box-shadow:0 2px 9px #0005;z-index:2;
+}
+#aimStick small{
+ left:0;right:0;bottom:32%;font-size:7px;letter-spacing:.6px;
+ color:#c3f9ed;font-weight:800;line-height:10px;z-index:1;
+}
+#aimStick .ring-caption{
+ position:absolute;bottom:5px;left:0;right:0;text-align:center;
+ color:#dfbbff;font-size:8px;letter-spacing:1.7px;font-weight:800;line-height:12px;
+}
+#aimStick.engaged{border-color:#c698fd;box-shadow:0 0 12px #a76cdd40}
+#aimStick.engaged .aim-zone{border-color:#b4ffef;box-shadow:0 0 6px #81f9db28}
+#aimStick.ring-requested:not(.ring-disabled){border-color:#e4b6ff}
+#aimStick.firing{
+ border-color:#edcbff;box-shadow:0 0 0 2px #d58cff6e,0 0 22px #c670ff75;
+}
+#aimStick.firing .ring-zone{
+ background:radial-gradient(circle closest-side,transparent 0 70%,#cc83ffb3 72% 100%);
+ box-shadow:inset 0 0 13px #ecc2ff99;
+}
+#aimStick.firing i{background:#cdb1eaad}
+#aimStick.firing .ring-caption{color:#fff}
+#aimStick.ring-disabled{border-color:#a394b2;box-shadow:none}
+#aimStick.ring-disabled .ring-zone{opacity:.28}
+#aimStick.ring-disabled .ring-caption{font-size:6px;letter-spacing:.1px;color:#c5bfd0}
+/* Keep utility targets beside, not over, the larger ring. */
+#rightCluster .zone,#rightCluster .use{right:148px;width:44px}
+@media(max-width:390px) and (orientation:portrait){
+ #aimStick{width:108px;height:108px;right:8px;bottom:20px}
+ #aimStick i{width:30px;height:30px;left:calc(50% - 15px);top:calc(50% - 15px)}
+ #aimStick small{font-size:6px;letter-spacing:.3px}
+ #aimStick .ring-caption{font-size:7px;letter-spacing:1px;bottom:3px}
+ #rightCluster .zone,#rightCluster .use{right:120px;width:44px}
+}
+@media(orientation:landscape) and (max-height:540px){
+ #aimStick{width:120px;height:120px;right:15px;bottom:3px}
+ #rightCluster .zone,#rightCluster .use{right:146px;width:48px}
+ #aimStick small{font-size:6.5px}
+ #aimStick .ring-caption{font-size:7px;bottom:4px}
+}

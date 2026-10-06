@@ -1,67 +1,45 @@
-# Bubble — Material Siege 0.4.2
+# Bubble — Material Siege 0.4.3
 
-Play: https://arisconstantinou.github.io/Bubble/?v=0.4.2
+Play: https://arisconstantinou.github.io/Bubble/?v=0.4.3
 
-Changes remain **only in `Bubble/` on `main` of `ArisConstantinou/ArisConstantinou.github.io`**. This release addresses the player's report of movement interruption during fights and the need to lift the aim thumb to fire. It also disables text selection and copy/paste menus inside the game document.
+Source stays **only in `Bubble/` on `main` of `ArisConstantinou/ArisConstantinou.github.io`**. This is the requested outer-fire-ring control change over 0.4.2, not a new game or a concept image.
 
-## Two-thumb combat
+## Right joystick: inner aim, outer trigger
 
-**Left joystick moves. Right joystick aims AND fires normal SPLAT shots while displaced.** No release is needed to shoot. The centre dead zone does not fire; centring, lifting or cancelling that right touch stops normal shots without clearing the left touch. The cadence is one normal shot per 0.16 seconds of simulation time, with no catch-up burst. An empty tank reloads automatically and shooting resumes while the same thumbs remain held.
+The **inner disc only aims**, including at full aiming speed. The **purple outer ring** deliberately enables normal SPLAT firing. Keep the same right finger down and drag outward to shoot. Drag back inside to stop firing while continuing to aim. Lifting/cancelling the right touch stops with no queued or release-time normal shot. **The left joystick only moves** and is not part of the firing decision.
 
-The separate **ΦΟΡΤΙΣΗ / FIRE** button retains tap shooting and hold/release charged shots; drag upwards while holding for a lob. It takes exclusive trigger ownership during a charge, so the right stick cannot simultaneously drain the tank. Releasing an aim touch does not cancel a different finger's charge. Normal shots never build up a charge.
+The outer ring glows while it operates. Thumb distance is measured against the actual displayed outer radius, separately from the aiming vector. Full aiming input is reached at 60% of the outer radius; firing begins at 76%, and ends at or below 72%. The small hysteresis band within the ring filters boundary tremor. Simply looking around no longer automatically fires as it did in 0.4.2.
 
-In **FLOW / ERASE / STRAND**, the right stick remains aim-only. FIRE operates the selected tool; connecting uses the existing connection action. This prevents accidental construction while looking around. The right-stick label changes between `AIM + FIRE` and `AIM` to match the tool.
+Normal shots retain their 0.16-second simulation cadence, with no catch-up bursts. An empty tank reloads automatically. Staying in the ring resumes shots after reload; moving back inside during reload does not resume shooting. The existing **ΦΟΡΤΙΣΗ** button remains for charged/lob shots and takes exclusive ammunition priority; a held ring cannot drain ammo during that charge.
 
-## Independent touch ownership
+**FLOW / ERASE:** inner disc aims only; outer ring runs the continuous tool. Returning inside stops deposition/erasure. The separate FIRE button still works. **STRAND:** connection stays on its separate intentional button; the ring is dimmed and does not repeatedly connect/release. Switching a tool or camera while holding the ring requires an inward return followed by a fresh outward gesture before the new action begins.
 
-Mobile input now tracks each finger by its native Touch identifier. One owner controls movement, one controls aim, and another can operate FIRE or an action button. Document-level tracking continues outside a joystick's visible circle. A changed right touch never replaces the unchanged left state. Mouse/pen use Pointer Events separately, so a mobile touch is not processed twice.
+## Touch ownership and UI
 
-A lost pointer-capture notification is not treated as a lifted native touch. A real `touchend` or `touchcancel` releases only its matching owner. A visible-page focus change on mobile does not globally reset movement. Actual page hiding, app exit, pause, inventory and restart still stop controls safely. Resuming does not replay stale input. Action buttons execute once without a duplicate compatibility click.
+The native-Touch ownership fixes from 0.4.2 remain. Movement, aim and the separate trigger have their own finger IDs. A right-side lift/cancel or unrelated pointer-capture event does not clear a still-held left finger. Tracking continues outside the visual joystick. Pause, BAG, page hiding and restart clear controls safely.
 
-The 0.4.1 collision fix remains: bounded escape from overlapping self-deposited gum, shooter clearance during deposition and solid normal obstacles. This release does **not** disable collision, remove player-built cover or change enemies' combat rules to make movement appear fixed.
+A browser-toolbar or orientation resize disarms the ring before another shot, without cancelling the held left movement contact. Return inside, then outward, to resume firing.
 
-## No selection or copy/paste inside the page
+The right joystick is larger with visible inner and outer zones. Nearby utility buttons are repositioned beside the ring, not over it or in the middle of the screen. Portrait, compact portrait and landscape styles retain safe-area insets. Text selection, copy/cut/paste, dragging and touch callouts stay blocked inside the game document, not the browser interface.
 
-All static and dynamic game UI disables text selection, dragging, iOS touch callouts and tap highlighting. The document cancels selection/context-menu/copy/cut/paste events, clears residual DOM selections, and blocks the corresponding Ctrl/Cmd shortcuts. Game menus, scrolling help, settings and BAG/Forge remain usable. This applies to the **game page**, not Safari's address bar, browser interface or operating-system menus.
+## Existing gameplay is preserved
 
-## Other controls
+The original castle, player movement/sprint/jump, gum material/collision recovery, body-region aiming, local stealth patrols, charged shots, FLOW, PATH, GRIP, object tethers, swing, suspension, seals, boss, skills and Forge remain. World geometry and enemy behavior are unchanged by this patch. The basic left movement is not modified to repair firing behavior.
 
-WALK cycles walk, RUN and SNEAK. JUMP or double-tap the left stick jumps. TOP targeting still supports body-region selection, tap-to-select a visible guard, and terrain tapping for construction. Projectiles hit the first physical obstruction; there is no shooting through cover.
+Character saves still use **`bubble-character-v3`**, at the same browser/origin. Level, XP, skills, items, materials and Forge preferences remain compatible. Do not clear site data to update; refresh and verify `0.4.3`. Live siege positions and constructions are not saved across a page reload. There is no multiplayer, cloud save, analytics, advertising or new external runtime dependency.
 
-On desktop: WASD/arrows move, Shift sprints, Control sneaks, Space jumps, mouse aims, left mouse fires/charges, Alt selects a lob. C changes camera; T changes tool; 1–4 selects a body region; E connects/releases; R reloads; B toggles PATH; V changes grade; G toggles GRIP; X selects ERASE; F selects wall FLOW; I opens BAG; Escape pauses.
+Gum is still the existing bounded static scalar volume, not a full viscous-fluid/soft-body simulation. Infinite FLOW supply does not imply unlimited memory or structural-collapse simulation. None of these systems have been reworked in this controls patch.
 
-## Preserved game systems
+## Run / verify
 
-The castle, houses, stairs, upper keep, underground vault, sprint/jumps, equipment, skills, Gold/Dust and explicit safe Forge remain. The player suit has anti-adhesive lining and soles, with selectable sticky glove pads; it does not destroy material. Captured/immobilized enemies are not killed or deleted.
+Serve this directory with `python3 -m http.server 8080` and open http://localhost:8080 .
 
-There are 22 locally patrolling guards in groups of 2/3/6/3/2/6. Hearing produces a `?` investigation; sight confirmation is required to attack. Collect three seals in the west house, upper keep and vault to summon ARACHNE-09. A weighted plate and a remotely operated lever open gates. Capturing all guards is optional. The boss retains its second phase, toxic projectiles and dizzy window; victory grants Legendary loot and unlocks a harder siege.
+- `npm test`: 39 existing material/progression checks, 11 collision regressions, and the updated pure ring/trigger tests.
+- `BUBBLE_SKIP_MOBILE=1 xvfb-run -a python3 tests/browser4.py`: existing desktop gameplay regression suite.
+- `xvfb-run -a python3 tests/ring43.py`: actual production WebGL2 modules and Chromium CDP multi-touch tests at 430×744, 430×932, 932×430 and 375×667, including simulated landscape safe areas.
 
-The standard tank contains 180 units and reloads from reserve. A fully held SPLAT consumes the available tank. FLOW has unlimited supply but a finite active-material memory budget; ERASE frees it. Frontal charged splashes do not coat the unseen back. Swinging, pulling and hanging use springs, gravity and collision.
+`CHROMIUM` overrides the Chromium executable, `BUBBLE_VIEWPORT=430x744` selects one touch viewport, and `BUBBLE_TEST_OUTPUT` selects the report directory. The harness uses the exact local production modules as blob URLs; it does not mock rendering, touch handlers or gameplay. Tests deliberately stage isolated guard scenes for repeatability.
 
-## Simulation and save limits
+`src/ring4.js` contains the pure radial-intent gate. `src/controls4.js` measures independent aim radius and owns touches. `src/twinfire4.js` implements the ring trigger/cadence and manual-fire priority. `ring4.css` and the corresponding markup render the zones. `src/siege4.js` integrates the trigger and tool state. Existing renderer/world/material files remain unchanged.
 
-Gum construction is a bounded static scalar volume, not a complete fluid or soft-body simulation. It fuses into a generated mesh, supports bodies and blocks rays, but does not collapse structurally when its support is removed. Enemy reactions are procedural poses. Infinite supply does not mean unlimited device memory; construction stops at the budget rather than deleting a platform under the player.
-
-The **`bubble-character-v3`** save format is unchanged. Level, XP, skills, gear and Forge preferences remain local to the same browser/origin. Refreshing starts a new live siege, not a new character; current positions, gum structures, enemies and seals are not persisted. **Do not clear site data to update the build**, because that removes the character save. No multiplayer, analytics, ads, external runtime assets or service-worker cache is included.
-
-## Verification for 0.4.2
-
-The baseline came from the deployed Pages artifact for commit `a0cfc1c68ca137ca8f676aa2f33ab13dc1c07fda`. Tests use the exact production modules, real WebGL2 renderer, DOM handlers and Chromium DevTools Protocol touch input. No rendering or collision mocks are substituted.
-
-Completed: **70 logic checks** (39 material/AI/progression + 11 movement regressions + 20 new firing checks), **64 browser regression checks**, and **128 new touch/combat checks**. The new suite runs 32 checks at each of 430×744, 430×932, 932×430 and 375×667. The browser regression suite also checks landscape safe-area margins. Reports distinguish native synthetic touches from deliberate fault injection of focus/capture/cancel events.
-
-Coverage includes movement while receiving enemy damage, repeated right-thumb re-grips with an unmoving left contact, leaving joystick bounds, normal firing without thumb release, charge priority, reload/resume, third-finger actions, cancellation, pause, resize, FPS, selection blocking and working BAG. See `tests/hotfix-0.4.2-results.json` for recorded suite totals and source hashes.
-
-**Chromium 144 / SwiftShader under Xvfb with emulated touch, not a physical iPhone or Safari.** Safari operating-system callout behaviour, real-device performance and subjective thumb comfort still need real-device playtesting. Passing these checks is not a claim that every possible device issue is eliminated.
-
-```
-npm test
-xvfb-run -a python3 tests/browser4.py
-xvfb-run -a python3 tests/touch42.py
-```
-
-Browser tests require Python Playwright and Chromium. `CHROMIUM` selects the executable; `BUBBLE_TEST_OUTPUT` selects the report directory; `BUBBLE_VIEWPORT=430x744` restricts the new touch suite to one viewport. The local test harness loads the production files as blob modules to avoid network navigation dependencies. Historical `mobile_fix.py` describes the old 0.4.1 aim-only behaviour; use `touch42.py` for this release.
-
-## Current source
-
-`controls4.js`: independent finger ownership and document interaction protection. `twinfire4.js`: simulation-clock normal-shot cadence and manual-charge priority. `touch4.css`: document protection and firing feedback. `siege4.js`: production integration. `aim4.js`, `material4.js` and the scene/combat/progression foundations are preserved. The old Controls class in `ui4.js` remains unused; that file still supplies BAG/Forge.
+Final verification: **302 / 302 checks passed** — 39 existing material/progression, 11 movement/collision, 31 ring logic, 36 desktop WebGL regressions and 185 production multi-touch checks. All were run against the published source files; the report records Git blob hashes. See `tests/hotfix-0.4.3-results.json`. Browser tests use Chromium/SwiftShader and synthetic touch, **not a physical iPhone 14 Pro Max or Safari**. The feel on an actual device still needs user testing. Test controls are not exposed during normal play.

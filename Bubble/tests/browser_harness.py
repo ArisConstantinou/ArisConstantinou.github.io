@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 ROOT=Path(__file__).resolve().parents[1]
-ORDER=['engine','world','actors','progression','material4','knights4','ui4','controls4','aim4','twinfire4','siege4']
+ORDER=['engine','world','actors','progression','material4','knights4','ui4','ring4','controls4','aim4','twinfire4','siege4']
 def load(page,test=True):
  html=(ROOT/'index.html').read_text()
  html=re.sub(r'<link rel="stylesheet"[^>]+>',lambda m: '<style>'+ (ROOT/re.search(r'href="([^"?]+)',m.group()).group(1)).read_text()+'</style>',html)

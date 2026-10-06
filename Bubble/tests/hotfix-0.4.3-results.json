@@ -1,0 +1,95 @@
+{
+  "version": "0.4.3",
+  "base_commit": "228a74858f6e762b3f6699d7dc973ac60cf31ad4",
+  "verified_at_utc": "2026-10-06T11:50:06.943156+00:00",
+  "total_passed": 302,
+  "total_checks": 302,
+  "suites": [
+    {
+      "name": "material-and-rules",
+      "passed": 39,
+      "total": 39,
+      "report_sha256": "3ce315720b55412a8d841de222b3327fde6dea50a8462684872427c24a6003d2"
+    },
+    {
+      "name": "movement-fix-results",
+      "passed": 11,
+      "total": 11,
+      "report_sha256": "dc7315a6a5d0f3781503ab7383256c2db0abf12b588942313bb0cd33ef3847d0"
+    },
+    {
+      "name": "outer-fire-ring",
+      "passed": 31,
+      "total": 31,
+      "report_sha256": "a1f7a4e7e0ea809645b5185a43cdd617a8a498ec50118e9d6b9a2a58a968cf1d"
+    },
+    {
+      "name": "browser-results",
+      "passed": 36,
+      "total": 36,
+      "report_sha256": "ddee930f493043040e9170ef071821c79d4e3b84d4254902650b7078c39915b9"
+    },
+    {
+      "name": "outer-fire-ring-production-touch",
+      "passed": 185,
+      "total": 185,
+      "report_sha256": "5b4a773c6164dbac3d7d933d9260ec7fd236d7baa6c4db59f757ad406d49151b"
+    }
+  ],
+  "touch_checks_by_viewport": {
+    "430x744": 46,
+    "430x932": 46,
+    "932x430": 47,
+    "375x667": 46
+  },
+  "environment": {
+    "browser": "144.0.7559.96",
+    "renderer": "Actual WebGL2, ANGLE SwiftShader under Xvfb",
+    "input": "Chromium CDP multi-touch plus targeted cancellation events",
+    "physical_iphone_tested": false,
+    "safari_tested": false
+  },
+  "coverage": [
+    "Inner aiming and left movement never fire; full aim speed available inside",
+    "Same-finger outward firing and inward stop, no lift or release-time shot",
+    "Left remains responsive while right changes and during incoming enemy fire",
+    "Manual charged/lob shot priority; no simultaneous tank draining",
+    "Reload resumes only when outer intent remains",
+    "FLOW/ERASE outer trigger, inner silent; STRAND remains explicit",
+    "Tool/camera changes require new outward gesture",
+    "Browser viewport resize disarms firing before the next shot without clearing left touch",
+    "Pause, BAG, cancellation and page selection/clipboard guards",
+    "Four touch viewports, landscape safe areas, no control overlap or central obstruction",
+    "Existing material, hit-area, movement, stealth, puzzle, boss and Forge checks"
+  ],
+  "limitations": [
+    "Controlled scenes and deterministic simulation clock, not a long-session performance benchmark",
+    "No physical iPhone 14 Pro Max or Safari run",
+    "Original bounded material model is unchanged"
+  ],
+  "source_git_blob_sha1": {
+    "index.html": "1983b3e1093482cb89f318a62e420918b8dd2f6b",
+    "play4.css": "442c4ecc7a0558f1a5332b356412f9121e3a5ee0",
+    "touch4.css": "9f1986472ad1ada7ba3141fe43b334a526cd44f9",
+    "ring4.css": "fe9cb916f5a6f3ae1a74321ce6fdbce7e0803812",
+    "src/actors.js": "93e1abac0b384333dd495a7b73755ad469f1e09f",
+    "src/aim4.js": "a49e22892a8f21808791e65da4100f427e28e1e9",
+    "src/combat.js": "8a44e28784fc03b3d6c13d10cc0eeeabe9034207",
+    "src/controls4.js": "d294fc63369a161adce8e4b7e6596b69b3e8d051",
+    "src/engine.js": "88c4bc386784f528f8abc4013ba3e1335b65f5f4",
+    "src/game.js": "85c59da0c059c67b1469d5ca98496bf66d9cdeb9",
+    "src/gum.js": "a6cd3956d7a8383ff15d88c2bc4b8a38ae40e6f9",
+    "src/knights4.js": "3276f29c9203a3f2a5c148201d0759398036f2d2",
+    "src/material4.js": "844e5b1c31b181d307a2e07b386b611a586b6e3c",
+    "src/progression.js": "c41d56e5a56b84e5454fbf7a952f07b4db6ca414",
+    "src/ring4.js": "a828cbecbf7380a385218b1ec1f89f9163cd69aa",
+    "src/siege4.js": "7f1c2c01b288c043c2942954b87528863bd891fa",
+    "src/twinfire4.js": "be4980e4ebc529c553de772ed244fc8a6c72213c",
+    "src/ui4.js": "55999dc46e1dfa7e07fb2f3e4888b602f52e4433",
+    "src/world.js": "4fd96a148549b6c2e82591461714c59d3c4d8abd",
+    "tests/browser4.py": "bf5b0546f6935f14b117291e9b74a4f05211dd1a",
+    "tests/browser_harness.py": "5084d8383c1d756061de890fb0cfede2bb839119",
+    "tests/ring43.py": "5a76b7a13cae57c492ae3963ebde3fab0f6f67c7",
+    "tests/twinfire4.test.mjs": "273d6d7336de8eb29ef5c3c9e8d73a7d9356e36d"
+  }
+}

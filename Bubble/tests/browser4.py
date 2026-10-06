@@ -17,7 +17,7 @@ with sync_playwright() as pw:
  page=browser.new_page(viewport={'width':1280,'height':800},device_scale_factor=1)
  errors=[];page.on('pageerror',lambda e:errors.append(str(e)));load(page)
  page.evaluate("__bubble.game.renderer.resize('low');__bubble.start()")
- check('Actual WebGL 2 renderer boots v0.4.2',page.evaluate("__bubble.version==='0.4.2' && !!__bubble.game.renderer.gl.getParameter(__bubble.game.renderer.gl.VERSION)"))
+ check('Actual WebGL 2 renderer boots v0.4.3',page.evaluate("__bubble.version==='0.4.3' && !!__bubble.game.renderer.gl.getParameter(__bubble.game.renderer.gl.VERSION)"))
  def run(source):return page.evaluate('()=>{const g=__bubble.game;'+source+'}')
  def reset():run("__bubble.start();g.aiDisabled=true;g.god=true;g.tool='splat';g.form='mass';g.player.yaw=Math.PI;g.refreshTools();")
  data=run("__bubble.step(8);return {hp:g.player.hp,combat:g.knights.filter(a=>a.brain.mode==='combat').length,count:g.knights.length,shown:g.knights.filter(a=>g.visibleActor(a)).length};")
@@ -69,24 +69,12 @@ with sync_playwright() as pw:
  data=run("const before=g.boss.hp;g.impact({used:180,lob:false,v:[0,0,-22],source:[0,0,8],owner:'player'},{boss:true,p:[0,2,1.7],n:[0,0,1]});const chargedDamage=before-g.boss.hp;g.boss.hp=1;g.impact({used:1,owner:'player'},{boss:true,p:[0,2,1.7],n:[0,0,1]});__bubble.step(3);return {chargedDamage,win:g.ended,tier:g.progress.p.unlockedTier,legendary:g.progress.p.items.filter(x=>x.rarity===4).length};")
  check('Charged projectile impacts damage the boss; victory preserves progression and three Legendary items',data['chargedDamage']>=120 and data['win'] and data['tier']>=2 and data['legendary']>=3,data)
  reset();page.keyboard.press('i');check('BAG opens the real existing progression/Forge interface',page.locator('#inventory').is_visible() and run('return g.paused'))
- page.locator('#closeBag').click();check('Closing BAG restores active gameplay',run('return g.playing()'))
+ r=page.locator('#closeBag').bounding_box();page.mouse.click(r['x']+r['width']/2,r['y']+r['height']/2);check('Closing BAG restores active gameplay',run('return g.playing()'))
  check('No runtime exceptions in desktop integration',not errors,errors)
  page.close()
- for width,height,safe in ([] if os.environ.get('BUBBLE_SKIP_MOBILE') else [(430,932,False),(932,430,False),(375,667,False),(932,430,True)]):
-  ctx=browser.new_context(viewport={'width':width,'height':height},device_scale_factor=1,has_touch=True,is_mobile=True);page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)));load(page);page.evaluate("__bubble.game.renderer.resize('low');__bubble.start();__bubble.game.aiDisabled=true;__bubble.game.god=true;__bubble.game.player.pathOn=true;__bubble.game.refreshTools()")
-  if safe:page.evaluate("document.documentElement.style.setProperty('--safe-l','59px');document.documentElement.style.setProperty('--safe-r','59px');document.documentElement.style.setProperty('--safe-b','21px')")
-  name=f'{width}x{height}'+(' safe areas' if safe else '')
-  layout=page.evaluate('''()=>{const ids=['moveStick','aimStick','jumpBtn','gaitBtn','pathBtn','gripBtn','gradeBtn','fireBtn','modeBtn','zoneBtn','useBtn','reloadBtn'];const all=ids.map(id=>{const r=document.getElementById(id).getBoundingClientRect();return{id,x:r.x,y:r.y,w:r.width,h:r.height}});let overlaps=[];for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++){const a=all[i],b=all[j];if(Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)>1&&Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)>1)overlaps.push([a.id,b.id]);}return{all,overlaps,off:all.filter(r=>r.x<0||r.y<0||r.x+r.w>innerWidth+1||r.y+r.h>innerHeight+1),small:all.filter(r=>r.w<44||r.h<44),center:all.filter(r=>r.x<innerWidth*.55&&r.x+r.w>innerWidth*.45&&r.y>innerHeight*.5)}}''')
-  check(name+' thumb targets do not overlap',not layout['overlaps'],layout['overlaps']);check(name+' controls remain on screen',not layout['off'],layout['off']);check(name+' controls are at least 44px',not layout['small'],layout['small']);check(name+' lower central play area contains no controls',not layout['center'],layout['center'])
-  # True touch events through CDP, not just calls into an input mock.
-  cdp=ctx.new_cdp_session(page);r=page.locator('#aimStick').bounding_box();x=r['x']+r['width']/2;y=r['y']+r['height']/2
-  page.evaluate("__bubble.game.player.pathOn=false;__bubble.game.tool='splat';__bubble.game.testAim=[0,0,22];__bubble.game.updateAim();__bubble.game.refreshTools()")
-  cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':x,'y':y-12,'id':1}]});page.evaluate('__bubble.step(.5)');held=page.evaluate('!__bubble.game.fireDown&&__bubble.game.charge===0&&Math.hypot(...__bubble.game.input.aim)>0');cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]});spent=page.evaluate('__bubble.game.ammo<180');check(name+' right joystick aims and fires normals without charging',held and spent)
-  page.evaluate('__bubble.game.ammo=180');cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':x,'y':y-12,'id':2}]});page.evaluate('__bubble.step(.4)');ammo=page.evaluate('__bubble.game.ammo');cdp.send('Input.dispatchTouchEvent',{'type':'touchCancel','touchPoints':[]});page.wait_for_function('!__bubble.game.input.aimActive',timeout=1500);page.evaluate('__bubble.step(.2)');check(name+' interrupted touches stop without release-time shots',page.evaluate('!__bubble.game.fireDown&&__bubble.game.ammo')==ammo)
-  check(name+' no runtime exceptions',not errors,errors)
-  print('Closing touch context '+name,flush=True);ctx.close();print('Closed '+name,flush=True)
+ # The updated multi-touch/ring suite lives in ring43.py.
  browser.close()
-report={'version':'0.4.2','environment':'Chromium 144 + SwiftShader; emulated touch, not physical iPhone or Safari','passed':sum(r['pass_'] for r in results),'total':len(results),'results':results}
+report={'version':'0.4.3','environment':'Chromium 144 + SwiftShader; emulated touch, not physical iPhone or Safari','passed':sum(r['pass_'] for r in results),'total':len(results),'results':results}
 (OUT/'browser-results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print(f"{report['passed']}/{report['total']} passed",flush=True)
 if report['passed']!=report['total']:raise SystemExit(1)
