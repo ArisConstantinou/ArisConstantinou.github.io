@@ -1,0 +1,26 @@
+name: Chronicle preview runtime
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/chronicle-preview-runtime.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare isolated Chromium software renderer
+        run: |
+          mkdir -p out
+          npm install --no-save playwright@1.51.1
+          PLAYWRIGHT_BROWSERS_PATH="$PWD/out" npx playwright install chromium --only-shell
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chronicle-preview-runtime
+          path: out/
+          retention-days: 1
