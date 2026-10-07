@@ -52,7 +52,46 @@ export function createFortress(region,m,assets=null){if(region.owner==='red')m={
  const rubble=new THREE.Group();rubble.userData.dynamic=true;for(let i=0;i<18;i++){const a=i*2.399,d=3+i%5;const rock=box(rubble,m.darkStone,Math.cos(a)*d,1+Math.sin(i)*.4,r+Math.sin(a)*3,1.1+(i%3)*.3,.7+(i%2)*.4,1.2,i);rock.rotation.x=i*.37;}rubble.visible=false;g.add(rubble);g.userData.rubble=rubble;mergeStatic(g);g.traverse(o=>{if(o.userData.banner)g.userData.banners.push(o);});return g;
 }
 export function setFortressState(g,state,m){if(!state)return;for(const f of g.userData.banners)f.material=m.flags[state.owner]||m.flagNeutral;const ratio=state.fortHp/state.maxFortHp;g.userData.rubble.visible=ratio<.47;g.userData.wallChunks.forEach((w,i)=>{w.visible=ratio>(i===2?.035:i===1?.17:0);});g.traverse(o=>{if(o.userData.gate)o.visible=ratio>.16;});}
-export function createBuilding(type,m,variant=0){const g=new THREE.Group();if(['barracks','houses','housing','market','granary','workshop','church','archery','stable','siege','infirmary'].includes(type)){const house=createHouse(m,variant,{large:type!=='housing'&&type!=='houses'});g.add(house);if(type==='barracks'){for(let i=0;i<5;i++){rod(g,m.wood,[-3+i*.65,.2,5],[-3+i*.65,4.2,5],.055);box(g,m.iron,-3+i*.65,4.38,5,.2,.55,.08);}box(g,m.wood,-1.7,2.4,5,3.5,.13,.2);}if(type==='market'){for(let i=0;i<2;i++){box(g,m.wood,i*3.7-2,.7,5.5,3,1.4,1.7);for(const x of[-1.4,1.4])box(g,m.darkWood,i*3.7-2+x,1.9,5.5,.12,3.8,.12);box(g,i?m.flagGold:m.flagPlayer,i*3.7-2,3.6,5.5,3.3,.1,2.3);}}}else if(type==='farm'){box(g,m.dirt,0,.04,0,14,.1,10);for(let i=0;i<12;i++){box(g,m.darkWood,(i-5.5)*1.1,.12,0,.12,.12,9);for(let j=0;j<7;j++){const stalk=cylinder(g,m.wheat,(i-5.5)*1.1,.54,(j-3)*1.25,.035,.92,6);stalk.rotation.z=Math.sin(i+j)*.08;const ear=new THREE.Mesh(new THREE.ConeGeometry(.105,.39,5),m.wheat);ear.position.set((i-5.5)*1.1,1.17,(j-3)*1.25);ear.rotation.z=stalk.rotation.z;ear.castShadow=true;g.add(ear);}}}else if(type==='walls'){for(let i=0;i<3;i++)box(g,m.stone,(i-1)*3,1.7,0,2.8,3.4,1.2);}else{g.add(createHouse(m,variant,{large:true}));}return mergeStatic(g);}
+// Compact, distinct silhouettes remain readable if detailed GLBs cannot load.
+// These are compatibility models; the full renderer uses the authored buildings.
+function createSpecialistBuilding(type,m){
+ const g=new THREE.Group();g.userData.facilityType=type;
+ if(type==='barracks'){
+  box(g,m.darkStone,0,.35,-1.1,8.2,.7,5.4);box(g,m.stone,0,2.7,-1.1,7.9,4.7,5.1);roof(g,m.roof,8.7,5.9,2.25,5.1,0,-1.1);
+  box(g,m.darkWood,0,1.6,1.49,1.6,2.55,.16);box(g,m.paleStone,0,3.03,1.62,2,.3,.38);for(const x of[-3,-1.5,1.5,3])arrowSlit(g,m,x,3.65,1.51);
+  for(let i=0;i<3;i++)box(g,m.stone,0,.12+i*.15,2.55-i*.35,2.45,.24+i*.3,.55);
+  for(let i=0;i<5;i++){const x=-3.7+i*.47;rod(g,m.wood,[x,.15,3.9],[x,3.1,3.9],.045);box(g,m.iron,x,3.24,3.9,.15,.4,.06);}box(g,m.wood,-2.76,1.7,3.88,2.3,.13,.23);
+  for(const x of[2.1,3.25]){const shield=cylinder(g,m.flagPlayer,x,1.15,3.2,.6,.12,12);shield.rotation.x=Math.PI/2;box(g,m.paleStone,x,1.15,3.28,.09,.86,.04);}
+ }else if(type==='stable'){
+  box(g,m.darkStone,0,.22,-1.6,8.4,.44,4.2);box(g,m.wood,0,1.8,-3.6,8.1,3.2,.2);
+  for(const x of[-4,-1.35,1.35,4]){box(g,m.darkWood,x,1.9,-1.6,.18,3.8,4);for(const z of[-3.6,.35])box(g,m.wood,x,2.15,z,.23,4.3,.23);}
+  roof(g,m.straw,8.8,4.7,1.45,4.1,0,-1.6);box(g,m.darkWood,0,3.8,.4,8.4,.27,.23);
+  for(const x of[-2.7,0,2.7]){box(g,m.wood,x,.66,.42,1.9,1.12,.56);box(g,m.straw,x,1.27,.42,1.73,.16,.49);}
+  for(const x of[-4.25,4.25]){for(const z of[.8,2.4,4.1])box(g,m.darkWood,x,.94,z,.15,1.88,.15);for(const y of[.7,1.38])box(g,m.wood,x,y,2.5,.12,.12,3.4);}
+  for(const x of[-2.9,2.9])for(const y of[.7,1.38])box(g,m.wood,x,y,4.1,2.7,.12,.12);
+  for(let i=0;i<3;i++)cylinder(g,m.straw,-2.9+i*.61,.38,2.65,.34,.74,10);
+ }else if(type==='archery'){
+  box(g,m.darkWood,0,1.12,-3.58,8.2,2.24,.18);for(const x of[-4,0,4])box(g,m.wood,x,1.42,-3.6,.15,2.84,.23);
+  for(const x of[-2.65,0,2.65]){rod(g,m.wood,[x-.55,0,-2.32],[x,2.5,-2.6],.075);rod(g,m.wood,[x+.55,0,-2.32],[x,2.5,-2.6],.075);rod(g,m.wood,[x,0,-3.3],[x,2.1,-2.6],.065);
+   for(const [r,mat,z]of[[.8,m.straw,-2.43],[.55,m.paleStone,-2.29],[.32,m.flagPlayer,-2.23],[.13,m.ochre,-2.18]]){const target=cylinder(g,mat,x,1.78,z,r,.13,20);target.rotation.x=Math.PI/2;}}
+  box(g,m.wood,0,.06,3.1,7.8,.12,.24);box(g,m.wood,3.65,1.1,.15,.18,2.2,2.1);
+  for(const z of[-.57,.06,.69]){const bow=new THREE.Mesh(new THREE.TorusGeometry(.55,.035,4,12,Math.PI),m.darkWood);bow.rotation.y=Math.PI/2;bow.position.set(3.6,1.2,z);g.add(bow);rod(g,m.leather,[3.6,.65,z],[3.6,1.75,z],.01);}
+  for(const x of[-4,-2.4])for(const z of[.5,2.6])box(g,m.wood,x,1.55,z,.12,3.1,.12);roof(g,m.cloth,2,2.65,.45,3.05,-3.2,1.55);box(g,m.wood,-3.2,.65,1.1,1.6,1.3,.65);
+ }else if(type==='quarry'){
+  for(let row=0;row<3;row++)for(let col=0;col<4;col++){const h=1+(2-row)*.83+(col%2)*.14;box(g,row===2?m.paleStone:m.rock,(col-1.5)*1.86,h/2,-3.35+row*1.12,1.8,h,1.05);}
+  for(const x of[-2.2,-.4])box(g,m.darkWood,x,2.15,1.5,.23,4.3,.23);rod(g,m.wood,[-2.3,.2,.15],[-1.25,4.3,1.5],.13);rod(g,m.wood,[-.3,.2,.15],[-1.25,4.3,1.5],.13);
+  box(g,m.wood,-1.3,4.24,1.5,2.3,.25,.27);rod(g,m.wood,[-1.3,4.24,1.5],[1.8,3.74,1.5],.16);rod(g,m.leather,[1.65,3.78,1.5],[1.65,1.25,1.5],.032);box(g,m.paleStone,1.65,.86,1.5,1.35,1.5,1.13);
+  for(let i=0;i<5;i++){const block=box(g,m.paleStone,(i%3)*1.35-.55,.3+(i>2?.55:0),3.15,1.2,.6,1.05);block.rotation.y=(i%2)*.09;}
+ }else if(type==='mine'){
+  for(const side of[-1,1]){sphere(g,m.ironOre,side*2.8,1.75,-1.25,1.55,2.3,2.6);sphere(g,m.rock,side*1.4,3.22,-1.48,1.48,1.3,2.25);}sphere(g,m.rock,0,3.83,-2,2.5,1.16,1.55);
+  box(g,m.window,0,1.36,-.34,2.63,2.72,.08);for(const x of[-1.42,1.42])box(g,m.wood,x,1.46,-.23,.28,2.92,.47);box(g,m.wood,0,2.84,-.23,3.22,.35,.48);
+  box(g,m.dirt,0,.035,1.2,2.3,.07,3.7);for(let i=0;i<4;i++)box(g,m.wood,i%2?.17:-.14,.105,.13+i*.78,1.75,.14,.35,i%2?-.14:.09);
+  const cartZ=2.15;box(g,m.wood,0,.6,cartZ,1.58,.2,1.55);for(const x of[-.81,.81])box(g,m.wood,x,1.0,cartZ,.14,.88,1.7);for(const z of[cartZ-.76,cartZ+.76])box(g,m.wood,0,1.0,z,1.58,.88,.13);for(const x of[-.92,.92])for(const z of[cartZ-.49,cartZ+.49]){const wheel=cylinder(g,m.darkWood,x,.49,z,.39,.16,10);wheel.rotation.z=Math.PI/2;}for(let i=0;i<4;i++)sphere(g,m.ironOre,(i%2-.5)*.52,1.05+(i%2)*.13,cartZ+(i<2?-.3:.25),.42,.38,.45);
+  for(let i=0;i<3;i++)sphere(g,m.ironOre,2.75+(i%2)*.65,.42,i*.65+.2,.55,.6,.6);
+ }else return null;
+ return mergeStatic(g);
+}
+export function createBuilding(type,m,variant=0){const specialist=createSpecialistBuilding(type,m);if(specialist)return specialist;const g=new THREE.Group();if(['houses','housing','market','granary','workshop','church','siege','infirmary'].includes(type)){const house=createHouse(m,variant,{large:type!=='housing'&&type!=='houses'});g.add(house);if(type==='market'){for(let i=0;i<2;i++){box(g,m.wood,i*3.7-2,.7,5.5,3,1.4,1.7);for(const x of[-1.4,1.4])box(g,m.darkWood,i*3.7-2+x,1.9,5.5,.12,3.8,.12);box(g,i?m.flagGold:m.flagPlayer,i*3.7-2,3.6,5.5,3.3,.1,2.3);}}}else if(type==='farm'){box(g,m.dirt,0,.04,0,14,.1,10);for(let i=0;i<12;i++){box(g,m.darkWood,(i-5.5)*1.1,.12,0,.12,.12,9);for(let j=0;j<7;j++){const stalk=cylinder(g,m.wheat,(i-5.5)*1.1,.54,(j-3)*1.25,.035,.92,6);stalk.rotation.z=Math.sin(i+j)*.08;const ear=new THREE.Mesh(new THREE.ConeGeometry(.105,.39,5),m.wheat);ear.position.set((i-5.5)*1.1,1.17,(j-3)*1.25);ear.rotation.z=stalk.rotation.z;ear.castShadow=true;g.add(ear);}}}else if(type==='walls'){for(let i=0;i<3;i++)box(g,m.stone,(i-1)*3,1.7,0,2.8,3.4,1.2);}else{g.add(createHouse(m,variant,{large:true}));}return mergeStatic(g);}
 export function createBridge(m,length=34,width=8,pierHeight=7){const g=new THREE.Group();box(g,m.stone,0,.15,0,width,.9,length);for(const x of[-width/2,width/2]){box(g,m.paleStone,x,.95,0,.6,1.55,length+.3);for(let i=0;i<7;i++)box(g,m.stone,x,1.83,(i-3)*length/6,.9,.3,.9);}for(const z of[-length*.38,0,length*.38]){box(g,m.darkStone,0,-pierHeight/2,z,width*.89,pierHeight,1.8);for(const x of[-width*.48,width*.48]){const a=new THREE.Mesh(new THREE.ConeGeometry(1.2,3,4),m.darkStone);a.rotation.z=Math.PI/2;a.position.set(x,-pierHeight*.52,z);g.add(a);}}const radius=length*.177;for(const side of[-1,1])for(const center of[-length*.19,length*.19])for(let i=0;i<12;i++){const a=(i+.5)/12*Math.PI,b=box(g,m.paleStone,side*(width/2-.13),-.4-radius+Math.sin(a)*radius,center+Math.cos(a)*radius,.84,.95,Math.PI*radius/12*1.04);b.rotation.x=-a-Math.PI/2;}return mergeStatic(g);}
 export function createSiege(type,m,owner){const g=new THREE.Group(),isT=type==='trebuchet';const w=isT?3.2:3.2,d=isT?5.1:5.9;box(g,m.darkWood,0,.75,0,w,.42,d);for(const x of[-w*.55,w*.55])for(const z of[-d*.36,d*.36]){const wheel=cylinder(g,m.darkWood,x,.85,z,.89,.25,12);wheel.rotation.z=Math.PI/2;const rim=cylinder(g,m.darkIron,x,.85,z,.91,.08,12);rim.rotation.z=Math.PI/2;for(let i=0;i<4;i++){const a=box(g,m.wood,x,.85,z,.31,.14,1.62);a.rotation.x=i*Math.PI/4;}}
  let mechanism;

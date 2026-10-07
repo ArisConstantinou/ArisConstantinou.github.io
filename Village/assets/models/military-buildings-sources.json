@@ -1,0 +1,562 @@
+{
+  "assets": [
+    {
+      "file": "building-barracks.glb",
+      "type": "barracks",
+      "kind": "building",
+      "title": "Byzantine stone barracks",
+      "source": "https://github.com/0ADMods/millenniumad/blob/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/structures/byzantines/barracks_02.xml",
+      "sourceRevision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+      "author": "The Council of Modders, Fallen Empire Studio, Scion Development; Wildfire Games",
+      "authorUrl": "https://www.wildfiregames.com/",
+      "license": "CC-BY-SA-3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "attribution": "Byzantine stone barracks from Millennium A.D., by The Council of Modders, Fallen Empire Studio, Scion Development. Roof textures by Wildfire Games (https://www.wildfiregames.com/). Used and adapted under Creative Commons Attribution-ShareAlike 3.0 (https://creativecommons.org/licenses/by-sa/3.0/). This complete GLB adaptation remains available under CC BY-SA 3.0.",
+      "retrieved": "2026-10-07",
+      "bytes": 1198000,
+      "sha256": "d4e25be3888dca02641780a0f662a093463fd0e6ff54f034642cd85a59b017f3",
+      "triangles": 2459,
+      "renderedMeshes": 2,
+      "materials": 2,
+      "embeddedTextures": [
+        {
+          "name": "",
+          "width": 1024,
+          "height": 512
+        },
+        {
+          "name": "",
+          "width": 1024,
+          "height": 512
+        },
+        {
+          "name": "",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "name": "",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "requiredExtensions": [
+        "EXT_texture_webp",
+        "KHR_mesh_quantization"
+      ],
+      "animations": [],
+      "up": "+Y",
+      "facing": "+Z",
+      "normalization": "precise-static-bounds",
+      "bounds": {
+        "min": [
+          -4.65,
+          0.00029685615024765966,
+          -4.088895453210295
+        ],
+        "max": [
+          4.65,
+          6.689873649558661,
+          4.0887177082452375
+        ],
+        "size": [
+          9.3,
+          6.689576793408413,
+          8.177613161455533
+        ]
+      },
+      "inputs": [
+        {
+          "file": "art/actors/props/structures/byzantines/barracks_roof_revamp.xml",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/props/structures/byzantines/barracks_roof_revamp.xml",
+          "bytes": 538,
+          "sha256": "d712b8c0edc94ba1abd8f80c7035491bb2dfbeb474615301a8376e3b7d77816a"
+        },
+        {
+          "file": "art/actors/structures/byzantines/barracks_02.xml",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/structures/byzantines/barracks_02.xml",
+          "bytes": 1448,
+          "sha256": "e981e35d9039158a0c782757a7e16b723661e4ac6a8fe4cec6db0fa79b149d53"
+        },
+        {
+          "file": "art/license.txt",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/license.txt",
+          "bytes": 1552,
+          "sha256": "247ea9380781c56e71018bb3714faf557192f0c3ad6a3d7d231c6f20f325d0e4"
+        },
+        {
+          "file": "art/meshes/props/byza_barracks_revamp_roof.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/meshes/props/byza_barracks_revamp_roof.dae",
+          "bytes": 19619,
+          "sha256": "415fe202b4e5fc89a6d8254effab9d0b237f1c5f97e61d04e9d3bc89247fcfaf"
+        },
+        {
+          "file": "art/meshes/structural/byza_barracks_revamp.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/meshes/structural/byza_barracks_revamp.dae",
+          "bytes": 448411,
+          "sha256": "35331f9b04518dbc0c338e58a6825f269d5f76919479a91ce40b694f4fc8c61c"
+        },
+        {
+          "file": "art/textures/skins/null_black.dds",
+          "repository": "0ad/0ad",
+          "revision": "61a3b9507d974084e6badb88a0826bd89a6d5b8b",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/textures/skins/null_black.dds",
+          "bytes": 152,
+          "sha256": "1b2fefc88f9523c56af637318150f92722e88bf93f3876d38b6c039114b21c7a"
+        },
+        {
+          "file": "art/textures/skins/structural/ao/byza_barracks_revamp.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/ao/byza_barracks_revamp.png",
+          "bytes": 138034,
+          "sha256": "63b708d04c4a6a6e282f1c2c4beb29cd9b54d5d9179c89b754217f61d287ef11"
+        },
+        {
+          "file": "art/textures/skins/structural/byza/byza_struct_02.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/byza/byza_struct_02.png",
+          "bytes": 4347610,
+          "sha256": "4f28c4327660ba365bf048693deceee53862496b261ea9b507d53951366ff885"
+        },
+        {
+          "file": "art/textures/skins/structural/byza/byza_struct_02_norm.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/byza/byza_struct_02_norm.png",
+          "bytes": 5381333,
+          "sha256": "082691af2a455295df51c654ba25c982ef6d0e48a2993e5e3182a94540d0c9da"
+        },
+        {
+          "file": "art/textures/skins/structural/byza/byza_struct_02_spec.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/byza/byza_struct_02_spec.png",
+          "bytes": 1624315,
+          "sha256": "c8dc2f03ba3b2025044470936bb511c965e645c880d6bd4b6065a70a5c21ec31"
+        },
+        {
+          "file": "art/textures/skins/structural/rome_struct_2.png",
+          "repository": "0ad/0ad",
+          "revision": "61a3b9507d974084e6badb88a0826bd89a6d5b8b",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/textures/skins/structural/rome_struct_2.png",
+          "bytes": 2411592,
+          "sha256": "7ebc61edaa4e4febb00c769f825e8cb833cce2c6f83eef0528f64982b9dd8825"
+        },
+        {
+          "file": "art/textures/skins/structural/rome_struct_2_norm.png",
+          "repository": "0ad/0ad",
+          "revision": "61a3b9507d974084e6badb88a0826bd89a6d5b8b",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/textures/skins/structural/rome_struct_2_norm.png",
+          "bytes": 2291384,
+          "sha256": "40408f41f39a030faccba786e01e00c7da89f74db8095cda7902f7b86840bc02"
+        }
+      ],
+      "licenseNotice": "This files in this directory are copyright (C) 2015 The Council of Modders, Fallen Empire Studio, Scion Development.\n\nIf not noted otherwise then the files are licensed under the Creative Commons Attribution-Share Alike 3.0\n(CC-BY-SA) license, available at http://creativecommons.org/licenses/by-sa/3.0/\n\nBriefly, this means:\n\n* You may use, modify and distribute these files, for commercial and\n  non-commercial purposes.\n\n* If you distribute one of these files, you must include attribution (e.g.\n  in the credits screen of a game or a video, or in a text file accompanying\n  the files). The attribution must include:\n  * A link to http://creativecommons.org/licenses/by-sa/3.0/\n  * The name \"The Council of Modders, Fallen Empire Studio, Scion Development\" as the original authors\n  * A link to http://www.wildfiregames.com/\n\n* If you distribute one of these files, you must release it (and any\n  modifications you have made to it) under the CC-by-sa license.\n\nSome of the files in the \"textures/\" directory are derived from materials provided by CGTextures (http://www.cgtextures.com/). The original materials are the property of CGTextures or its contributors. Special permission has been granted by CGTextures to distribute these derived textures as CC-BY-SA. (This has no effect on the standard licensing of CGTextures materials, or on any other work derived from them.)\n\nAll CGTextures materials have been altered from their original form. To access original super-high resolution CGTextures materials, please visit http://www.cgtextures.com/ .",
+      "wildfireLicenseSource": "https://github.com/0ad/0ad/blob/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/LICENSE.txt",
+      "modifications": [
+        "Converted the source COLLADA actor mesh and props to a self-contained glTF 2.0 binary with embedded PBR textures.",
+        "Clipped underground foundation skirts at the source authored ground plane before fitting, preserving interpolated position, normal, UV0 and UV1 data. Removed source terrain decals and death/damage effects.",
+        "Preserved the authored above-ground architecture and UV texture detail. Centered the above-ground geometry in XZ and fitted uniformly inside the existing construction plot with 0.7 m total footprint margin.",
+        "Converted source specular maps to roughness. Used authored normal maps and AO maps where supplied. Kept materials opaque and nonmetallic.",
+        "Compressed embedded textures to WebP at no more than 1024 px and quantized static geometry, without mesh simplification.",
+        "Recoloured only saturated purple cloth regions in the base atlas to muted indigo, retaining their folds and gold insignia; masonry is unchanged."
+      ],
+      "validation": {
+        "khronosErrors": 0,
+        "khronosWarnings": 2,
+        "warningExplanation": "Source geometry has no stored tangent attribute; Three.js derives tangent space from UVs for normal maps.",
+        "actualVendoredLoaderVerified": true,
+        "selfContained": true,
+        "finiteVertexChecks": 5950,
+        "vertexEnvelopeVerifiedInsideConstructionPlot": true,
+        "cpuPreviewOfFinalGlbVerified": true,
+        "referenceHuman": {
+          "heightMetres": 1.8,
+          "groundMetres": 0,
+          "source": "unit-worker.glb",
+          "method": "Baked only visible evaluated actor meshes; excluded Blender importer invisible bone-shape helpers before measuring."
+        }
+      },
+      "integration": {
+        "maxHeight": 8,
+        "footprint": {
+          "width": 10,
+          "depth": 11
+        },
+        "usablePlot": {
+          "width": 9.3,
+          "depth": 10.3
+        },
+        "staticModel": true,
+        "sourceGroundWasTrimmed": true,
+        "cpuReferenceImpression": "The central passage clears the 1.8 m reference actor; retain the existing free-construction footprint scale.",
+        "fortInteriorUse": null
+      },
+      "usedExtensions": [
+        "EXT_texture_webp",
+        "KHR_mesh_quantization"
+      ]
+    },
+    {
+      "file": "building-stable.glb",
+      "type": "stable",
+      "kind": "building",
+      "title": "Anglo timber and thatch horse stable",
+      "source": "https://github.com/0ADMods/millenniumad/blob/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/structures/anglo/stables.xml",
+      "sourceRevision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+      "author": "The Council of Modders, Fallen Empire Studio, Scion Development; Wildfire Games",
+      "authorUrl": "https://www.wildfiregames.com/",
+      "license": "CC-BY-SA-3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "attribution": "Anglo timber and thatch horse stable from Millennium A.D., by The Council of Modders, Fallen Empire Studio, Scion Development. Original horse model, textures and rig by Wildfire Games (https://www.wildfiregames.com/). Used and adapted under Creative Commons Attribution-ShareAlike 3.0 (https://creativecommons.org/licenses/by-sa/3.0/). This complete GLB adaptation remains available under CC BY-SA 3.0.",
+      "retrieved": "2026-10-07",
+      "bytes": 2456116,
+      "sha256": "868b05782f967538276bbf460b08fd562db5a5ea2318dd589f4012df75435181",
+      "triangles": 19608,
+      "renderedMeshes": 6,
+      "materials": 6,
+      "embeddedTextures": [
+        {
+          "name": "Image_1",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "Image_2",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "Image_4",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "name": "Image_0",
+          "width": 512,
+          "height": 256
+        },
+        {
+          "name": "Image_1",
+          "width": 512,
+          "height": 256
+        },
+        {
+          "name": "Image_5",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "name": "Image_6",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "name": "Image_4",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "name": "Image_2",
+          "width": 512,
+          "height": 256
+        },
+        {
+          "name": "Image_3",
+          "width": 512,
+          "height": 256
+        }
+      ],
+      "requiredExtensions": [
+        "EXT_texture_webp",
+        "KHR_mesh_quantization"
+      ],
+      "animations": [],
+      "up": "+Y",
+      "facing": "+Z",
+      "normalization": "precise-static-bounds",
+      "bounds": {
+        "min": [
+          -4.649999940859814,
+          -6.421897235764362e-05,
+          -4.20879834223276
+        ],
+        "max": [
+          4.649999940859814,
+          5.331894476884094,
+          4.208760299076271
+        ],
+        "size": [
+          9.299999881719629,
+          5.331958695856452,
+          8.417558641309032
+        ]
+      },
+      "inputs": [
+        {
+          "file": "art/actors/props/structures/anglo/anglo_stables_hay_pile.xml",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/props/structures/anglo/anglo_stables_hay_pile.xml",
+          "bytes": 510,
+          "sha256": "2526de92d885cc2d49f25401b1b565397700c0337dd6b1a57662db16f2a8a356"
+        },
+        {
+          "file": "art/actors/structures/anglo/stables.xml",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/structures/anglo/stables.xml",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "bytes": 1566,
+          "sha256": "b35cd17bb130a5f57663341b197f26d73574042142706ae2b047f71637e8647f"
+        },
+        {
+          "file": "art/license.txt",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/license.txt",
+          "bytes": 1552,
+          "sha256": "247ea9380781c56e71018bb3714faf557192f0c3ad6a3d7d231c6f20f325d0e4"
+        },
+        {
+          "file": "art/meshes/props/anglo_stables_hay_pile.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/meshes/props/anglo_stables_hay_pile.dae",
+          "bytes": 18809,
+          "sha256": "327e8dc920856b498410a2336ca7d87b422e6ecc4ed3cbdca237863659c1b9cf"
+        },
+        {
+          "file": "art/meshes/structural/anglo_stables.dae",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/meshes/structural/anglo_stables.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "bytes": 256161,
+          "sha256": "367e78db7997f7d6fc447202b2359c2d8e490691233d60a640121914dc617c1a"
+        },
+        {
+          "file": "art/textures/skins/structural/anglo_struct.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/anglo_struct.png",
+          "bytes": 2395817,
+          "sha256": "1a569394b19ad3b617a7d30489a239b389ea3e2f706531f70df90a7c36a1ee53"
+        },
+        {
+          "file": "art/textures/skins/structural/anglo_struct_norm.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/anglo_struct_norm.png",
+          "bytes": 3756085,
+          "sha256": "dadb54f5cdbc1700388ef3c5bc61a07d52143062131231cd64ade6b27667da40"
+        },
+        {
+          "file": "art/textures/skins/structural/anglo_struct_spec.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/anglo_struct_spec.png",
+          "bytes": 909350,
+          "sha256": "f1725f48f3712eef7d64d28aa6a60a3a68cc9a96abdc264402ccfc762421f3ec"
+        },
+        {
+          "file": "art/textures/skins/structural/ao/anglo_stables_ao.png",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/ao/anglo_stables_ao.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "bytes": 81952,
+          "sha256": "82f704970de1d0f7a151c75d34e3aec23d6adbb7b08c796ed2b23048a8afb7c5"
+        }
+      ],
+      "licenseNotice": "This files in this directory are copyright (C) 2015 The Council of Modders, Fallen Empire Studio, Scion Development.\n\nIf not noted otherwise then the files are licensed under the Creative Commons Attribution-Share Alike 3.0\n(CC-BY-SA) license, available at http://creativecommons.org/licenses/by-sa/3.0/\n\nBriefly, this means:\n\n* You may use, modify and distribute these files, for commercial and\n  non-commercial purposes.\n\n* If you distribute one of these files, you must include attribution (e.g.\n  in the credits screen of a game or a video, or in a text file accompanying\n  the files). The attribution must include:\n  * A link to http://creativecommons.org/licenses/by-sa/3.0/\n  * The name \"The Council of Modders, Fallen Empire Studio, Scion Development\" as the original authors\n  * A link to http://www.wildfiregames.com/\n\n* If you distribute one of these files, you must release it (and any\n  modifications you have made to it) under the CC-by-sa license.\n\nSome of the files in the \"textures/\" directory are derived from materials provided by CGTextures (http://www.cgtextures.com/). The original materials are the property of CGTextures or its contributors. Special permission has been granted by CGTextures to distribute these derived textures as CC-BY-SA. (This has no effect on the standard licensing of CGTextures materials, or on any other work derived from them.)\n\nAll CGTextures materials have been altered from their original form. To access original super-high resolution CGTextures materials, please visit http://www.cgtextures.com/ .",
+      "wildfireLicenseSource": "https://github.com/0ad/0ad/blob/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/LICENSE.txt",
+      "modifications": [
+        "Converted the source COLLADA actor mesh and props to a self-contained glTF 2.0 binary with embedded PBR textures.",
+        "Clipped underground foundation skirts at the source authored ground plane before fitting, preserving interpolated position, normal, UV0 and UV1 data. Removed source terrain decals and death/damage effects.",
+        "Preserved the authored above-ground architecture and UV texture detail. Centered the above-ground geometry in XZ and fitted uniformly inside the existing construction plot with 0.7 m total footprint margin.",
+        "Converted source specular maps to roughness. Used authored normal maps and AO maps where supplied. Kept materials opaque and nonmetallic.",
+        "Compressed embedded textures to WebP at no more than 1024 px and quantized static geometry, without mesh simplification.",
+        "Selected the correctly mapped Anglo stable actor and textures. The alternative Carolingian asset was rejected because its upstream roof UVs referenced an incompatible atlas.",
+        "Added eight existing project horse models at the stable author’s original stall sockets, facing inward. Baked the authored idle pose at physical source scale, grounded their hooves, and joined their static geometry by material to reduce draw calls. These are decorative facility occupants and do not create mobile units."
+      ],
+      "validation": {
+        "khronosErrors": 0,
+        "khronosWarnings": 5,
+        "warningExplanation": "Source geometry has no stored tangent attribute; Three.js derives tangent space from UVs for normal maps.",
+        "actualVendoredLoaderVerified": true,
+        "selfContained": true,
+        "finiteVertexChecks": 52431,
+        "vertexEnvelopeVerifiedInsideConstructionPlot": true,
+        "cpuPreviewOfFinalGlbVerified": true,
+        "referenceHuman": {
+          "heightMetres": 1.8,
+          "groundMetres": 0,
+          "source": "unit-worker.glb",
+          "method": "Baked only visible evaluated actor meshes; excluded Blender importer invisible bone-shape helpers before measuring."
+        }
+      },
+      "integration": {
+        "maxHeight": 7,
+        "footprint": {
+          "width": 10,
+          "depth": 10
+        },
+        "usablePlot": {
+          "width": 9.3,
+          "depth": 9.3
+        },
+        "staticModel": true,
+        "sourceGroundWasTrimmed": true,
+        "cpuReferenceImpression": "The central passage clears the 1.8 m reference actor; retain the existing free-construction footprint scale.",
+        "fortInteriorUse": "Do not shrink the full compound into the separate 6.4 m fortress stable footprint.",
+        "decorativeHorses": 8
+      },
+      "derivedAssets": [
+        {
+          "file": "horse.glb",
+          "sourceProvenance": "horse-sources.json",
+          "source": "https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/art/actors/fauna/horse_bay_01.xml",
+          "author": "Wildfire Games",
+          "license": "CC-BY-SA-3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "bytes": 2469704,
+          "sha256": "e6773d5bd7ce1789a3419705d8287ef5dfa5c1b4b54ccdac1c8e30638f94306f",
+          "inputCopies": 8,
+          "sourceInputs": [
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/skeletal/horse_celtic.dae",
+              "bytes": 325523,
+              "sha256": "5f09d58df36aba1cb5de49fe96e421a2b904de1924af3e242d4f381959b60302"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/props/horse/hair_mane_01.dae",
+              "bytes": 96483,
+              "sha256": "59ad146c1af5f430db71bc63f5a06baec6487e22160e8366baf1cd895934947e"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/props/horse/hair_tail_01.dae",
+              "bytes": 84691,
+              "sha256": "072888a3c60ed59d5f802f155110e37ca090627533c88f57ba6785b649f384c9"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/props/horse/blanket_short.dae",
+              "bytes": 93611,
+              "sha256": "5ea8cf3863f95bb84695751b0909387a8fc38bd469d09abc141fc1f652bb46eb"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/props/horse/rein_01.dae",
+              "bytes": 116317,
+              "sha256": "13ad1621d63d8a7ea01f9208df2b1cb821eaa8f5283917354b01e4b1cd5dd8a1"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/skeletal/horse_bay_02.png",
+              "bytes": 210353,
+              "sha256": "a31e509d38c719ff062b889ff5c18e4551779b3980e239e79a25092bfc280ed9"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/skeletal/horse_norm.png",
+              "bytes": 61660,
+              "sha256": "7095a26efdc09c1cd1fb9980697bd7ec376bd5de715671b246ab334806128448"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/props/horse/hair_black.png",
+              "bytes": 74271,
+              "sha256": "98b070cd0befdb3bd07cb411d965c9c3618a1c43e29f96df1c75cef0b862b828"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/props/horse/hair_norm.png",
+              "bytes": 91778,
+              "sha256": "a37d8b6262d9f1a693ee79911b65665a7606e91e4d755fb5b10619308cfb0f07"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/props/horse/blanket_leather.png",
+              "bytes": 485174,
+              "sha256": "d2e4db2923e2909507fdfe197e36490aa40927411538238e42cd42ceea81f45a"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/props/horse/head_straps.png",
+              "bytes": 141008,
+              "sha256": "cd0204b5828c164ae324ac4397db32ded6b21035b7af16a4a74781a32d96ebc6"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/props/horse/head_straps_norm.png",
+              "bytes": 116052,
+              "sha256": "21214d7613d06c25838379747eb6a665f606a1c9de010be4ad0fde6c590b915b"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/animation/quadraped/horse_idle_01.dae",
+              "bytes": 1224960,
+              "sha256": "2e3fdacf89b2888c616971627a7dc24eaae47bda966bf4de76d8d13bd5b620bd"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/animation/quadraped/horse_walk.dae",
+              "bytes": 782640,
+              "sha256": "d48b6f71e70bf9062221d2f635b82c54776d724261f3737a340a080a10a6cf78"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/animation/quadraped/horse_trot.dae",
+              "bytes": 750906,
+              "sha256": "b32b4e9c4588ac4c51d1e1e94d499723bd4c4d9a3ee794511a87367f3bf2e048"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/actors/fauna/horse_bay_01.xml",
+              "bytes": 538,
+              "sha256": "53a6d07c898e5aa6f8906e18c7b168d161cd19d3e109849a8d14a94c3b7eef45"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/variants/quadraped/horse/bay_01.xml",
+              "bytes": 398,
+              "sha256": "413715f3aaccf1027e90ac353c80e9266d4855a317fed60120e08a5ff16a6d70"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/actors/props/horse/horse_hair_mane_black_brown.xml",
+              "bytes": 1500,
+              "sha256": "78bdf30e850dffc4dc4a75ea299ac82c92dd4e18919741036a55ae8a76690c45"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/actors/props/horse/horse_hair_tail_black_brown.xml",
+              "bytes": 1516,
+              "sha256": "5414878ea06567cbe1528cc614350f4b99d7207f6ac5ccd97512d017483a500f"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/actors/props/horse/cav_blanket_leather.xml",
+              "bytes": 1444,
+              "sha256": "18f7bdf68b2c28c3ac2f77ca65da02c2575063a0ff8b377ccbee805807813b57"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/actors/props/horse/cav_rein_leather.xml",
+              "bytes": 1665,
+              "sha256": "089a542f49dc674ee5b877aee329e6c8c3efd9c9174aafc7b3fadfdf67dfe5bc"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/variants/quadraped/horse/props/blanket_leather.xml",
+              "bytes": 228,
+              "sha256": "0cc5251adbd91466e9cb8b1dd33064d3039394299183f3ece3036e6a7cdbca8f"
+            }
+          ]
+        }
+      ],
+      "usedExtensions": [
+        "EXT_texture_webp",
+        "KHR_mesh_quantization"
+      ]
+    }
+  ],
+  "shareAlikeScope": "The listed adapted art assets remain CC BY-SA 3.0. See each asset record for original authors, source URLs, exact source revisions and input hashes.",
+  "previewNote": "CPU previews are renderings of the exported GLBs with a 1.8 m scale-reference actor; they are not screenshots of live WebGL gameplay."
+}

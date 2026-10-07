@@ -2,7 +2,13 @@
 
 Μεσαιωνικό παιχνίδι στρατηγικής σε πραγματικό 3D, για έναν παίκτη εναντίον υπολογιστή. Ανάπτυξε τους οικισμούς, συντήρησε στρατό, έλεγξε τα περάσματα του ποταμού και ένωσε εννέα φέουδα σε μία ηγεμονία.
 
-**Έκδοση 2.2.0 · [Παίξε στο GitHub Pages](https://arisconstantinou.github.io/Village/)**
+**Έκδοση 2.3.0 · [Παίξε στο GitHub Pages](https://arisconstantinou.github.io/Village/)**
+
+## Νέα στην έκδοση 2.3
+
+- **Στρατιωτικές εγκαταστάσεις με δική τους μορφή:** ξεχωριστός στρατώνας, στάβλος και πεδίο τοξοβολίας, με κτίρια και εξοπλισμό που αντιστοιχούν στη λειτουργία τους.
+- **Εγκαταστάσεις εξόρυξης:** το λατομείο και το μεταλλείο αποκτούν διαφορετική γεωμετρία, με πέτρα, ξύλινες υποστηρίξεις και εργαλεία εργασίας.
+- **Ίδια οικόπεδα, λεπτομερέστερα κτίρια:** οι νέες εγκαταστάσεις εφαρμόζονται και στις υπάρχουσες αποθηκεύσεις. Η θέση, η περιστροφή, η κατασκευή και η αναβάθμιση εξακολουθούν να χρησιμοποιούν τα κοινά φυσικά όρια του παιχνιδιού.
 
 ## Νέα στην έκδοση 2.2
 
@@ -103,7 +109,7 @@
 Για τοπική εκτέλεση:
 
 ```sh
-python3 -m http.server 8000 
+python3 -m http.server 8000 --directory .
 ```
 
 Άνοιξε `http://localhost:8000/`. Τα native ES modules απαιτούν HTTP(S) server. Ο κώδικας και τα υλικά διανέμονται τοπικά, χωρίς εξάρτηση από εξωτερικό CDN κατά το παιχνίδι.
@@ -122,7 +128,7 @@ npm test
 
 Οι εννέα χάρτες υλικών 1K προέρχονται από το [Poly Haven](https://polyhaven.com/license) με άδεια **CC0-1.0**: Castle Wall Variation, Forest Ground 01 και Weathered Planks. Διανέμονται χωρίς επεξεργασία στο `assets/medieval/`. Το `assets/medieval/SOURCES.json` περιλαμβάνει δημιουργούς, ακριβή URLs λήψης και SHA256.
 
-Τα μοντέλα κάστρου **Modular Fort 01** (Rico Cilliers) και δέντρου **Fir Tree 01** (Rico Cilliers / Rob Tuytel) προέρχονται από το Poly Haven με CC0. Η κατοικία **Old Medieval House** είναι του Spiral / Spiral Softworks, από το OpenGameArt, με CC0. Οι χαρακτήρες προέρχονται από το VibeAssets με CC0. Ο ίππος και ο κριός προέρχονται από τα καλλιτεχνικά αρχεία του **0 A.D. / Wildfire Games**, με **CC-BY-SA-3.0**. Το τρεμπουσέ προέρχεται από το **Millennium AD**, με δημιουργό τον **Alexandermb / The Council of Modders, Fallen Empire Studio, Scion Development** και επιπλέον υλικά του Wildfire Games, επίσης με **CC-BY-SA-3.0**. Τα παράγωγα GLB διανέμονται με την ίδια άδεια. Τα πέντε κτίρια παραγωγής και φροντίδας είναι του **Daniel Andersson / Daniel74**, μέσω OpenGameArt, με **CC0-1.0**. Οι αντίστοιχες πηγές, δημιουργοί, άδειες, αρχικά αρχεία, SHA256 και τροποποιήσεις περιγράφονται στα αρχεία `scenery-sources.json`, `units-sources.json`, `tree-sources.json`, `siege-sources.json`, `horse-sources.json`, `trebuchet-sources.json` και `buildings-sources.json` στο `assets/models/`.
+Τα μοντέλα κάστρου **Modular Fort 01** (Rico Cilliers) και δέντρου **Fir Tree 01** (Rico Cilliers / Rob Tuytel) προέρχονται από το Poly Haven με CC0. Η κατοικία **Old Medieval House** είναι του Spiral / Spiral Softworks, από το OpenGameArt, με CC0. Οι χαρακτήρες προέρχονται από το VibeAssets με CC0. Ο ίππος και ο κριός προέρχονται από τα καλλιτεχνικά αρχεία του **0 A.D. / Wildfire Games**, με **CC-BY-SA-3.0**. Το τρεμπουσέ προέρχεται από το **Millennium AD**, με δημιουργό τον **Alexandermb / The Council of Modders, Fallen Empire Studio, Scion Development** και επιπλέον υλικά του Wildfire Games, επίσης με **CC-BY-SA-3.0**. Τα παράγωγα GLB διανέμονται με την ίδια άδεια. Τα πέντε κτίρια παραγωγής και φροντίδας είναι του **Daniel Andersson / Daniel74**, μέσω OpenGameArt, με **CC0-1.0**. Οι στρατώνες, ο στάβλος και το πεδίο τοξοβολίας χρησιμοποιούν καλλιτεχνικά στοιχεία του **Millennium AD**, με **CC BY-SA 3.0**, και τα αντίστοιχα παράγωγα διατηρούν την ίδια άδεια. Το λατομείο και το μεταλλείο συνδυάζουν βράχο του **Rico Cilliers / Poly Haven**, αντικείμενα του **Daniel Andersson**, υλικά CC0 και γεωμετρία του έργου. Οι αντίστοιχες πηγές, δημιουργοί, άδειες, αρχικά αρχεία, SHA256 και τροποποιήσεις περιγράφονται στα αρχεία `scenery-sources.json`, `units-sources.json`, `tree-sources.json`, `siege-sources.json`, `horse-sources.json`, `trebuchet-sources.json`, `buildings-sources.json`, `military-buildings-sources.json` και `specialist-sites-sources.json` στο `assets/models/`.
 
 Το Three.js διανέμεται τοπικά στο `vendor/three.module.js` με την άδεια **MIT**, η οποία περιλαμβάνεται στο `vendor/THREE-LICENSE.txt`.
 

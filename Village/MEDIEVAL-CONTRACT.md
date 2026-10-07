@@ -1,6 +1,6 @@
 # FEΟUDA 1280 shared implementation contract
 
-Target: transform this existing GitHub Pages game into a playable medieval real-time strategy campaign, with actual Three.js 3D rendering, castles, armies, sieges, territory capture, villagers and resource economy. Greek UI; Cypriot pounds (CY£), fictional map in 1280. No Moutoullas branding. Preserve old browser save keys; use `feouda-1280-v1`. Version 2.2.0. Do not change or publish any `chronicle/` files. Root handles UI/CSS/index/PWA/publishing.
+Target: transform this existing GitHub Pages game into a playable medieval real-time strategy campaign, with actual Three.js 3D rendering, castles, armies, sieges, territory capture, villagers and resource economy. Greek UI; Cypriot pounds (CY£), fictional map in 1280. No Moutoullas branding. Preserve old browser save keys; use `feouda-1280-v1`. Version 2.3.0. Do not change or publish any `chronicle/` files. Root handles UI/CSS/index/PWA/publishing.
 
 ## Files / ownership
 - Root owns `feouda-data.js`, UI `app.js`, `style.css`, `index.html`, PWA and staging. Root supplies vendored Three.js `vendor/three.module.js`.
@@ -101,16 +101,27 @@ Unit arguments may be a squad object, a unit type string or a numeric radius. Th
 Renderer is real 3D terrain, shadows, stone material, detailed castle walls/gates/crenellations, timber trebuchets and rams, soldiers/horses/banners, visible missiles and battle dust, trees/resource clusters, distant hills/atmosphere. Show different fortresses/settlements, not identical clones. Keep targets aligned with data positions; troop feet at same heightAt ground; broken fortress walls visually change. Resource workers/settlement growth visible. Stable performant static caches/instancing. No pretend photographic AAA claims.
 
 ## Shared balance/experience
-Initial player owns 3 of 9 regions, begins with a visible home castle and supporting village/quarry. 2 neutral frontier regions and 2 enemy factions with 2 regions each. 6 starting player squads including one ram so first actions meaningful. Food and wages matter, civilian development matters, actual scattered resources. Upgrades/campaign persist. Early raid warning before real incursion; RTS tactical pause and 1x/2x/4x. All generic labels Greek. Return clear disabled reasons to UI via commands. Tests should verify costs, queues, battle range, marching and siege/capture, AI, resources, persistence.
+Initial player owns 3 of 9 regions, begins with a visible home castle and supporting village/quarry. 2 neutral frontier regions and 2 enemy factions with 2 regions each. 7 starting player squads including one ram so first actions meaningful. Food and wages matter, civilian development matters, actual scattered resources. Upgrades/campaign persist. Early raid warning before real incursion; RTS tactical pause and 1x/2x/4x. All generic labels Greek. Return clear disabled reasons to UI via commands. Tests should verify costs, queues, battle range, marching and siege/capture, AI, resources, persistence.
 
-## Detailed model integration, version 2.2
+## Detailed model integration, version 2.3
 
-The 14-entry local asset manifest includes an anatomical horse, a counterweight trebuchet and five specialist buildings in addition to the existing humans, ram, modular fortress, thatched house and fir LODs. All models and textures are embedded or served from this repository.
+The 19-entry local asset manifest includes an anatomical horse, a counterweight trebuchet and ten specialist buildings in addition to the existing humans, ram, modular fortress, thatched house and fir LODs. All models and textures are embedded or served from this repository.
 
 - Preserve `normalization: 'authored'` for the horse and trebuchet. Their original origins, scales, sockets and full animation sweeps are measured against the engine clearance. Horse clips are Idle/Walk/Trot; trebuchet clips are Idle/Attack.
 - A mounted human follows the horse's animated saddle position with an upright seated pose. Gait advances with traveled distance; it does not continue walking during tactical pause.
 - Synchronize the trebuchet's authored sling release/reload with the game attack cycle. Projectiles originate at `prop_projectile`, use the original loaded stone geometry and retain the engine impact time.
 - Specialist mapping: `siege` uses the blacksmith workshop, `lumberyard` the sawmill, `market` the trade hall, `infirmary` the stone chapel, and `well` the roofed stone well. The well is capped at 3.15 m high. Other dimensions fit inside existing reserved plots.
 - Use precise geometry bounds for building fitting and grounding. A conservative AABB transformed through an authored rotation can incorrectly enlarge the bounding box and make the model float. Scaffolds and all four placement rotations must stay within the same plot and clearance contract.
-- The sawmill preserves its authored Sawing clip and six-bone wheel/crank/blade mechanism. Inland mills remain stationary; river-adjacent mills can animate without changing placement or economy rules.
+- The sawmill preserves its authored Sawing clip and six-node wheel/crank/blade mechanism. Inland mills remain stationary; river-adjacent mills can animate without changing placement or economy rules.
 - Credits and modifications are recorded in `horse-sources.json`, `trebuchet-sources.json`, and `buildings-sources.json`. The horse and trebuchet adaptations retain CC BY-SA 3.0; the five building assets are CC0.
+
+
+## Distinct facilities, version 2.3
+
+Five further local GLBs map directly to `barracks`, `stable`, `archery`, `quarry` and `mine`. Each model's full visible geometry is centered and grounded using precise vertex bounds, then uniformly fitted inside the existing plot with a 0.7 m total margin. Authored ground skirts and scattered props must not distort that fit or reduce doors and work areas to an implausible human scale.
+
+- Preserve saved structure IDs, positions, rotations, levels, job links and all existing economy rules. New detailed art automatically replaces the visual model on those saved plots.
+- The actual military and resource models and their placement ghosts must remain inside the same obstacle envelope as construction scaffolds and upgraded buildings.
+- The courtyard stable retains its existing geometry inside the fixed 6.4×6.6 m envelope. The detailed open-map stable has a larger human-scale layout; do not shrink its doorways to fit that courtyard blocker.
+- Compatibility rendering has five distinct simplified silhouettes: stone barracks, open stalls, target range, working quarry and timber mine entrance. Their geometry uses the same centering, grounding and fitting rules.
+- Public source revisions, creators, licences and adaptations are recorded in `military-buildings-sources.json` and `specialist-sites-sources.json`. Every released GLB and provenance file is included in the versioned offline cache.

@@ -185,6 +185,61 @@
       ],
       "maxHeight": 3.15,
       "credit": "Daniel Andersson / OpenGameArt · CC0"
+    },
+    {
+      "id": "archery-range",
+      "file": "building-archery.glb",
+      "kind": "building",
+      "types": [
+        "archery"
+      ],
+      "forwardYaw": 0,
+      "maxHeight": 8,
+      "credit": "The Council of Modders, Fallen Empire Studio, Scion Development; Wildfire Games · CC BY-SA 3.0"
+    },
+    {
+      "id": "stone-quarry",
+      "file": "building-quarry.glb",
+      "kind": "building",
+      "types": [
+        "quarry"
+      ],
+      "forwardYaw": 0,
+      "maxHeight": 5,
+      "credit": "Rico Cilliers / Poly Haven; Daniel Andersson; Dario Barresi, Dimitrios Savva and Rob Tuytel · CC0"
+    },
+    {
+      "id": "iron-mine",
+      "file": "building-mine.glb",
+      "kind": "building",
+      "types": [
+        "mine"
+      ],
+      "forwardYaw": 0,
+      "maxHeight": 5,
+      "credit": "Rico Cilliers / Poly Haven; Daniel Andersson; Dario Barresi, Dimitrios Savva and Rob Tuytel · CC0"
+    },
+    {
+      "id": "stone-barracks",
+      "file": "building-barracks.glb",
+      "kind": "building",
+      "types": [
+        "barracks"
+      ],
+      "forwardYaw": 0,
+      "maxHeight": 8,
+      "credit": "The Council of Modders, Fallen Empire Studio, Scion Development; Wildfire Games · CC BY-SA 3.0"
+    },
+    {
+      "id": "timber-stable",
+      "file": "building-stable.glb",
+      "kind": "building",
+      "types": [
+        "stable"
+      ],
+      "forwardYaw": 0,
+      "maxHeight": 7,
+      "credit": "The Council of Modders, Fallen Empire Studio, Scion Development; Wildfire Games · CC BY-SA 3.0"
     }
   ]
 }

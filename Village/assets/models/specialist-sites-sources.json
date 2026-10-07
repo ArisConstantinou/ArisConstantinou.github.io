@@ -1,0 +1,622 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-10-07",
+  "releaseVersion": "2.3.0",
+  "purpose": "Attribution, license notices, immutable source-file records and adaptation details for the three specialist facilities.",
+  "licenses": {
+    "CC0-1.0": {
+      "name": "Creative Commons CC0 1.0 Universal Public Domain Dedication",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    "CC-BY-SA-3.0": {
+      "name": "Creative Commons Attribution-ShareAlike 3.0 Unported",
+      "url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "adaptationNotice": "The archery-range GLB is an adaptation of the original art and is distributed under CC BY-SA 3.0. The share-alike applies to that art, not the independently authored game code."
+    }
+  },
+  "sourceGroups": [
+    {
+      "id": "millenniumad-range",
+      "title": "Byzantine archery range and bow props",
+      "authors": [
+        "The Council of Modders",
+        "Fallen Empire Studio",
+        "Scion Development"
+      ],
+      "repository": "https://github.com/0ADMods/millenniumad",
+      "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+      "sourceUrl": "https://github.com/0ADMods/millenniumad/blob/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/structures/byzantines/range.xml",
+      "license": "CC-BY-SA-3.0",
+      "authorLink": "https://www.wildfiregames.com/",
+      "licenseSourceUrl": "https://github.com/0ADMods/millenniumad/blob/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/license.txt",
+      "licenseNotice": "This files in this directory are copyright (C) 2015 The Council of Modders, Fallen Empire Studio, Scion Development.\n\nIf not noted otherwise then the files are licensed under the Creative Commons Attribution-Share Alike 3.0\n(CC-BY-SA) license, available at http://creativecommons.org/licenses/by-sa/3.0/\n\nBriefly, this means:\n\n* You may use, modify and distribute these files, for commercial and\n  non-commercial purposes.\n\n* If you distribute one of these files, you must include attribution (e.g.\n  in the credits screen of a game or a video, or in a text file accompanying\n  the files). The attribution must include:\n  * A link to http://creativecommons.org/licenses/by-sa/3.0/\n  * The name \"The Council of Modders, Fallen Empire Studio, Scion Development\" as the original authors\n  * A link to http://www.wildfiregames.com/\n\n* If you distribute one of these files, you must release it (and any\n  modifications you have made to it) under the CC-by-sa license.\n\nSome of the files in the \"textures/\" directory are derived from materials provided by CGTextures (http://www.cgtextures.com/). The original materials are the property of CGTextures or its contributors. Special permission has been granted by CGTextures to distribute these derived textures as CC-BY-SA. (This has no effect on the standard licensing of CGTextures materials, or on any other work derived from them.)\n\nAll CGTextures materials have been altered from their original form. To access original super-high resolution CGTextures materials, please visit http://www.cgtextures.com/ .",
+      "files": [
+        {
+          "file": "art/actors/structures/byzantines/range.xml",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/structures/byzantines/range.xml",
+          "bytes": 2118,
+          "sha256": "6cfdaa8309b5c67d094bbb2cc67676086816c226f5233e72e5c33701e57a2ff5"
+        },
+        {
+          "file": "art/actors/props/structures/byzantines/range_roof.xml",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/props/structures/byzantines/range_roof.xml",
+          "bytes": 540,
+          "sha256": "497182c3a48bcc33afe40a81578f4082d1be5b732d6c8d24313242749885ad76"
+        },
+        {
+          "file": "art/meshes/props/byza_range_roof.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/meshes/props/byza_range_roof.dae",
+          "bytes": 19777,
+          "sha256": "576fa317acb0daab9796b549a4098c0eacc0068a667f87ffd454cbf3fbbf31a4"
+        },
+        {
+          "file": "art/textures/skins/structural/ao/byza_range.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/ao/byza_range.png",
+          "bytes": 117462,
+          "sha256": "400c881e9c4814f395a65419fbc466b21063fcb0ce771fe4ddedba9f7ceece01"
+        },
+        {
+          "file": "art/actors/props/structures/byzantines/range_props.xml",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/props/structures/byzantines/range_props.xml",
+          "bytes": 541,
+          "sha256": "c8f86c3318a27bb794ca771c0bb21a9954332fb5d80c56485e6d7d7286e32110"
+        },
+        {
+          "file": "art/meshes/props/byza_range_props.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/meshes/props/byza_range_props.dae",
+          "bytes": 607077,
+          "sha256": "203db8d2f207a2d131ba421d6c2f70b791b9d866d812d2746554efa6b36e1744"
+        },
+        {
+          "file": "art/actors/props/structures/byzantines/range_tent.xml",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/props/structures/byzantines/range_tent.xml",
+          "bytes": 525,
+          "sha256": "3b65ccdbdf82ca0420d7e129d828ce1cd9e4aeb5a21506274e400f7eaf54f92a"
+        },
+        {
+          "file": "art/meshes/props/byza_range_tent.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/meshes/props/byza_range_tent.dae",
+          "bytes": 32583,
+          "sha256": "04edb2bc7e9aa20bbb2a84fc706a956250bdbcf191e0006b4de91d9352a72bc5"
+        },
+        {
+          "file": "art/actors/props/units/weapons/bow_byza.xml",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/props/units/weapons/bow_byza.xml",
+          "bytes": 626,
+          "sha256": "e030f9e38ffc6a3ac70a8858e111c0a01f8a5676495063f9e98855c2c7350895"
+        },
+        {
+          "file": "art/meshes/props/weap_byza_bow.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/meshes/props/weap_byza_bow.dae",
+          "bytes": 40223,
+          "sha256": "808346ca5bd2ca36c22a2902ecd2380fb87cf833ead45cebfed02b74b3f3b966"
+        },
+        {
+          "file": "art/textures/skins/structural/norse_struct.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/norse_struct.png",
+          "bytes": 2333198,
+          "sha256": "bc2a574e5d0a0b089a6a39e2471d4c2bb3f84fa51705a3e91dafda2a2c805860"
+        },
+        {
+          "file": "art/meshes/structural/byza_range.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/meshes/structural/byza_range.dae",
+          "bytes": 807572,
+          "sha256": "5572ffda5b6ebbe2515ee9dceb7e1edb60040b6a6500ce3e5f5b0d3c73ea12b0"
+        },
+        {
+          "file": "art/textures/skins/structural/byzantine_struct.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/byzantine_struct.png",
+          "bytes": 1701655,
+          "sha256": "6e84900cd26cffd20199e73a5feaa0eaa7250ad10f783782dc774219790b6fd9"
+        },
+        {
+          "file": "art/textures/skins/structural/byzantine_struct_norm.png",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/textures/skins/structural/byzantine_struct_norm.png",
+          "bytes": 3870480,
+          "sha256": "e8492fca7aaf1d0f592823f8a6fbfcdb47db28b53f7d579dd1e06be315c061f8"
+        },
+        {
+          "file": "art/license.txt",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/license.txt",
+          "bytes": 1552,
+          "sha256": "247ea9380781c56e71018bb3714faf557192f0c3ad6a3d7d231c6f20f325d0e4"
+        }
+      ]
+    },
+    {
+      "id": "0ad-range-materials",
+      "title": "Original 0 A.D. Roman building, awning and neutral PBR source maps",
+      "authors": [
+        "Wildfire Games"
+      ],
+      "repository": "https://github.com/0ad/0ad",
+      "revision": "61a3b9507d974084e6badb88a0826bd89a6d5b8b",
+      "license": "CC-BY-SA-3.0",
+      "authorLink": "https://www.wildfiregames.com/",
+      "licenseSourceUrl": "https://github.com/0ad/0ad/blob/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/LICENSE.txt",
+      "licenseNotice": "The files in this directory are Copyright (C) 2009 Wildfire Games.\n\nThese files are licensed under the Creative Commons Attribution-Share Alike 3.0\n(CC-by-sa) license, available at http://creativecommons.org/licenses/by-sa/3.0/\n\nBriefly, this means:\n\n* You may use, modify and distribute these files, for commercial and\n  non-commercial purposes.\n\n* If you distribute one of these files, you must include attribution (e.g.\n  in the credits screen of a game or a video, or in a text file accompanying\n  the files). The attribution must include:\n  * A link to http://creativecommons.org/licenses/by-sa/3.0/\n  * The name \"Wildfire Games\" as the original author\n  * A link to http://www.wildfiregames.com/\n\n* If you distribute one of these files, you must release it (and any\n  modifications you have made to it) under the CC-by-sa license.\n\nSome of the files in the \"textures/\" directory are derived from materials provided by CGTextures (http://www.cgtextures.com/). The original materials are the property of CGTextures or its contributors. Special permission has been granted by CGTextures to distribute these derived textures as CC-BY-SA. (This has no effect on the standard licensing of CGTextures materials, or on any other work derived from them.)\n\nAll CGTextures materials have been altered from their original form. To access original super-high resolution CGTextures materials, please visit http://www.cgtextures.com/ .",
+      "files": [
+        {
+          "file": "art/textures/skins/structural/rome_struct_2.png",
+          "repository": "0ad/0ad",
+          "revision": "61a3b9507d974084e6badb88a0826bd89a6d5b8b",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/textures/skins/structural/rome_struct_2.png",
+          "bytes": 2411592,
+          "sha256": "7ebc61edaa4e4febb00c769f825e8cb833cce2c6f83eef0528f64982b9dd8825"
+        },
+        {
+          "file": "art/textures/skins/structural/rome_struct_2_norm.png",
+          "repository": "0ad/0ad",
+          "revision": "61a3b9507d974084e6badb88a0826bd89a6d5b8b",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/textures/skins/structural/rome_struct_2_norm.png",
+          "bytes": 2291384,
+          "sha256": "40408f41f39a030faccba786e01e00c7da89f74db8095cda7902f7b86840bc02"
+        },
+        {
+          "file": "art/textures/skins/null_black.dds",
+          "repository": "0ad/0ad",
+          "revision": "61a3b9507d974084e6badb88a0826bd89a6d5b8b",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/textures/skins/null_black.dds",
+          "bytes": 152,
+          "sha256": "1b2fefc88f9523c56af637318150f92722e88bf93f3876d38b6c039114b21c7a"
+        },
+        {
+          "file": "art/textures/skins/props/stall_big_stripe_a_cloth.png",
+          "repository": "0ad/0ad",
+          "revision": "61a3b9507d974084e6badb88a0826bd89a6d5b8b",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/textures/skins/props/stall_big_stripe_a_cloth.png",
+          "bytes": 161456,
+          "sha256": "6905e399d2d6ea019763f5a1e895e3256eed2ae5c7297230d0c1ebca2f560cae"
+        },
+        {
+          "file": "art/textures/skins/default_norm.png",
+          "repository": "0ad/0ad",
+          "revision": "61a3b9507d974084e6badb88a0826bd89a6d5b8b",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/textures/skins/default_norm.png",
+          "bytes": 69,
+          "sha256": "b1ba25ca729a28c798a99a1a0bcf9310d0994a55b4f9d1a36f163fb31676cecf"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-boulder-01",
+      "title": "Boulder 01 photogrammetric rock",
+      "authors": [
+        "Rico Cilliers"
+      ],
+      "provider": "Poly Haven",
+      "sourceUrl": "https://polyhaven.com/a/boulder_01",
+      "license": "CC0-1.0",
+      "licenseSourceUrl": "https://polyhaven.com/license",
+      "files": [
+        {
+          "sourceFile": "boulder_01_1k.gltf",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/boulder_01/boulder_01_1k.gltf",
+          "bytes": 2773,
+          "sha256": "51487934db898b4c24072780a451e34eca5c02e3ada24a62bbc600bbc4019e92"
+        },
+        {
+          "sourceFile": "textures/boulder_01_arm_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/boulder_01/boulder_01_arm_1k.jpg",
+          "bytes": 659386,
+          "sha256": "c57187c5746b6be913fa53846cb44ff78743e7ca5000f131c9627b99563c2b87"
+        },
+        {
+          "sourceFile": "textures/boulder_01_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/boulder_01/boulder_01_diff_1k.jpg",
+          "bytes": 987467,
+          "sha256": "c38f0e918f6dc16b8d386ba3cdd89805c78320c119a1ceec85856f82b09a65b8"
+        },
+        {
+          "sourceFile": "boulder_01.bin",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/boulder_01/boulder_01.bin",
+          "bytes": 2938808,
+          "sha256": "7f5b06503d62bd95bfe9c6b8a354a5cc8ff04a4d271a8cf87a3e3125db4232d7"
+        },
+        {
+          "sourceFile": "textures/boulder_01_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/boulder_01/boulder_01_nor_gl_1k.jpg",
+          "bytes": 1183552,
+          "sha256": "0810cf6e89d89bb6eb065b4d2e2855288f5dcbd2c15c6e40ab90d462021b50aa"
+        }
+      ]
+    },
+    {
+      "id": "daniel-props2",
+      "title": "Medieval Props Pack 2",
+      "authors": [
+        "Daniel Andersson (Daniel74)"
+      ],
+      "sourceUrl": "https://opengameart.org/content/medieval-props-pack-2",
+      "originalSourceUrl": "https://www.blendswap.com/blends/view/55181",
+      "license": "CC0-1.0",
+      "licenseNotice": "--------------------------------------------------------------------------------\nThank you for downloading \"Medieval Props 2\" by Daniel74\nReleased under\nCreative Commons Zero (Public Domain)\nDownloaded from http://www.blendswap.com/blends/view/55181\n\nThe following is important licensing information, please keep this file for\narchival and future reference when working with the file. It's important that\nyou know, understand and follow any requirements stated in this file regarding\nthe usage of the materials included.\n\nSome parts of this file are marked with [#], the corresponding numbered note is\nat the end of the file.\n\n--------------------------------------------------------------------------------\n################################################################################\n\nVERY IMPORTANT LICENSE INFORMATION:\n\nThis blend has been released under\nCreative Commons Zero (Public Domain)\n\nThis means that you can use it for any purpose you see fit, even commercially,\nas long as you respect these requirements:\n\n\t--There are no requirements for CC-0 licensed blends.\n################################################################################\n--------------------------------------------------------------------------------\n\nABOUT THE BLEND:\n\nReady for Blender 2.63\nPublished on: 2012-09-27 06:20:34\n\n--------------------------------------------------------------------------------\n\nHELP US MODERATE THIS BLEND:\nIf you find anomalies in this blend or any of the contained files such as:\n\n\t- Missing, unneeded or corrupted files.\n\t- Inaccurate/mismatching preview image on the site.\n\t- Illegal distribution of third party files.\n\t- Ripping from a game or other 3D repository.\n\t- Uncredited or incorrect use of other CC licensed works.\n\t- Some other troubling issues[1].\n\nPlease submit a report from  http://www.blendswap.com/blends/view/55181\nby pressing the red button with the flag, including links and details that serve\nas evidence and can help us to solve any conflicts or issues derived from the\ncontents of this file.\n\n--------------------------------------------------------------------------------\n\nThank you for using Blend Swap!\n\nRegister to get tons of more blends! http://www.blendswap.com/register\nShare your own blends with the world from http://www.blendswap.com/blends/add\n\nGet answers to your questions and doubts: http://www.blendswap.com/page/faq\nIf the site doesn't work for you try here: http://www.blendswap.com/page/issues\nFor questions please contact us: http://www.blendswap.com/contact\nCheck out our Terms Of Use: http://www.blendswap.com/tou\nReport website bugs: http://www.blendswap.com/bugs\n\nConsider getting an associate Membership to get some neat features and\nenhancements.\n\n--------------------------------------------------------------------------------\n\nNOTES:\n\n[1] Please make sure your problem is not derived from a setting in Blender (like\nhidden layers or objects) before submitting a report under the \"Other\" category.\nIssues arising from this type of problem will be ignored.\n\n--------------------------------------------------------------------------------\n######################    END OF BLEND SWAP LICENSE.txt    #####################",
+      "usedComponents": [
+        "WheelBarrow mesh and original UVs",
+        "Wood.jpg"
+      ],
+      "download": {
+        "url": "https://opengameart.org/sites/default/files/55181_props2.zip",
+        "bytes": 1608772,
+        "sha256": "2ede85af530011554e9005ca25a85ee7be1e9afeeb702e8a19a61568669524d4"
+      },
+      "blend": {
+        "file": "Props2.blend",
+        "bytes": 696180,
+        "sha256": "7958954934345286dad4fe8904aaebb3dc0b15f16e0d83b7e64a0d94fb263869"
+      },
+      "textureFiles": [
+        {
+          "file": "Wood.jpg",
+          "bytes": 1041571,
+          "sha256": "44aa34c895b0d1638d50e35f055a8cd2244ff4bcdda527692869820a05159428"
+        }
+      ]
+    },
+    {
+      "id": "daniel-props3",
+      "title": "Medieval Props Pack 3",
+      "authors": [
+        "Daniel Andersson (Daniel74)"
+      ],
+      "sourceUrl": "https://opengameart.org/content/medieval-props-pack-3",
+      "originalSourceUrl": "https://www.blendswap.com/blends/view/55189",
+      "license": "CC0-1.0",
+      "licenseNotice": "--------------------------------------------------------------------------------\nThank you for downloading \"Medieval Props 3\" by Daniel74\nReleased under\nCreative Commons Zero (Public Domain)\nDownloaded from http://www.blendswap.com/blends/view/55189\n\nThe following is important licensing information, please keep this file for\narchival and future reference when working with the file. It's important that\nyou know, understand and follow any requirements stated in this file regarding\nthe usage of the materials included.\n\nSome parts of this file are marked with [#], the corresponding numbered note is\nat the end of the file.\n\n--------------------------------------------------------------------------------\n################################################################################\n\nVERY IMPORTANT LICENSE INFORMATION:\n\nThis blend has been released under\nCreative Commons Zero (Public Domain)\n\nThis means that you can use it for any purpose you see fit, even commercially,\nas long as you respect these requirements:\n\n\t--There are no requirements for CC-0 licensed blends.\n################################################################################\n--------------------------------------------------------------------------------\n\nABOUT THE BLEND:\n\nReady for Blender 2.63\nPublished on: 2012-09-27 07:59:02\n\n--------------------------------------------------------------------------------\n\nHELP US MODERATE THIS BLEND:\nIf you find anomalies in this blend or any of the contained files such as:\n\n\t- Missing, unneeded or corrupted files.\n\t- Inaccurate/mismatching preview image on the site.\n\t- Illegal distribution of third party files.\n\t- Ripping from a game or other 3D repository.\n\t- Uncredited or incorrect use of other CC licensed works.\n\t- Some other troubling issues[1].\n\nPlease submit a report from  http://www.blendswap.com/blends/view/55189\nby pressing the red button with the flag, including links and details that serve\nas evidence and can help us to solve any conflicts or issues derived from the\ncontents of this file.\n\n--------------------------------------------------------------------------------\n\nThank you for using Blend Swap!\n\nRegister to get tons of more blends! http://www.blendswap.com/register\nShare your own blends with the world from http://www.blendswap.com/blends/add\n\nGet answers to your questions and doubts: http://www.blendswap.com/page/faq\nIf the site doesn't work for you try here: http://www.blendswap.com/page/issues\nFor questions please contact us: http://www.blendswap.com/contact\nCheck out our Terms Of Use: http://www.blendswap.com/tou\nReport website bugs: http://www.blendswap.com/bugs\n\nConsider getting an associate Membership to get some neat features and\nenhancements.\n\n--------------------------------------------------------------------------------\n\nNOTES:\n\n[1] Please make sure your problem is not derived from a setting in Blender (like\nhidden layers or objects) before submitting a report under the \"Other\" category.\nIssues arising from this type of problem will be ignored.\n\n--------------------------------------------------------------------------------\n######################    END OF BLEND SWAP LICENSE.txt    #####################",
+      "usedComponents": [
+        "Ladder mesh and original UVs",
+        "Rope2.jpg"
+      ],
+      "download": {
+        "url": "https://opengameart.org/sites/default/files/55189_props3.zip",
+        "bytes": 7787702,
+        "sha256": "a6bdeeaf9b2a01ba3d9e043f298ca7cdc71924433be70063974f5f42ffd081f5"
+      },
+      "blend": {
+        "file": "Props3.blend",
+        "bytes": 958476,
+        "sha256": "41b43f170e00591f95df207f65b7d8215e434f913ead7137dfc469d0123699d0"
+      },
+      "textureFiles": [
+        {
+          "file": "Rope2.jpg",
+          "bytes": 22272,
+          "sha256": "00af71e40fd7697136d5a304f613101fe52e12e2723f3fa6f86abfdfab59fbe5"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-forrest_ground_01",
+      "title": "Forest Ground 01",
+      "authors": [
+        {
+          "name": "Rob Tuytel",
+          "role": "Author"
+        }
+      ],
+      "provider": "Poly Haven",
+      "sourceUrl": "https://polyhaven.com/a/forrest_ground_01",
+      "license": "CC0-1.0",
+      "licenseSourceUrl": "https://polyhaven.com/license",
+      "files": {
+        "color": {
+          "file": "earth_color_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forrest_ground_01/forrest_ground_01_diff_1k.jpg",
+          "bytes": 833711,
+          "sha256": "3dd6875cb3908e022a3c45ebbffa5e84c670ff2691fbbb6dc9ea4bff88523800",
+          "width": 1024,
+          "height": 1024,
+          "colorSpace": "sRGB",
+          "modified": false
+        },
+        "normal": {
+          "file": "earth_normal_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forrest_ground_01/forrest_ground_01_nor_gl_1k.jpg",
+          "bytes": 1428763,
+          "sha256": "32528a7cdee962cc0b248ee4023a74d0df175737ea90e1eb425122351e0bdab4",
+          "width": 1024,
+          "height": 1024,
+          "colorSpace": "linear",
+          "modified": false,
+          "convention": "OpenGL (+Y)"
+        },
+        "roughness": {
+          "file": "earth_roughness_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forrest_ground_01/forrest_ground_01_rough_1k.jpg",
+          "bytes": 257165,
+          "sha256": "30d8b56a03d7b12da16f58011b675662a40e58e1cdc768119a5f03968140058c",
+          "width": 1024,
+          "height": 1024,
+          "colorSpace": "linear",
+          "modified": false
+        }
+      }
+    },
+    {
+      "id": "polyhaven-weathered_planks",
+      "title": "Weathered Planks",
+      "authors": [
+        {
+          "name": "Dario Barresi",
+          "role": "Processing"
+        },
+        {
+          "name": "Dimitrios Savva",
+          "role": "Photography"
+        }
+      ],
+      "provider": "Poly Haven",
+      "sourceUrl": "https://polyhaven.com/a/weathered_planks",
+      "license": "CC0-1.0",
+      "licenseSourceUrl": "https://polyhaven.com/license",
+      "files": {
+        "color": {
+          "file": "timber_color_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/weathered_planks/weathered_planks_diff_1k.jpg",
+          "bytes": 599581,
+          "sha256": "01c9a372cfd7a7bf471b59c2458ed3ccecc93448aebf7ba0cc5b3b5b6ed24349",
+          "width": 1024,
+          "height": 1024,
+          "colorSpace": "sRGB",
+          "modified": false
+        },
+        "normal": {
+          "file": "timber_normal_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/weathered_planks/weathered_planks_nor_gl_1k.jpg",
+          "bytes": 681552,
+          "sha256": "381d298f3194ec4961b04b4912b9b6efea4b2ff7b914dac57e24c8b6b0be6a25",
+          "width": 1024,
+          "height": 1024,
+          "colorSpace": "linear",
+          "modified": false,
+          "convention": "OpenGL (+Y)"
+        },
+        "roughness": {
+          "file": "timber_roughness_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/weathered_planks/weathered_planks_rough_1k.jpg",
+          "bytes": 218802,
+          "sha256": "a017728183597417a350d1846a5a46db9702ee6d472a21c5da2f23015d606aa3",
+          "width": 1024,
+          "height": 1024,
+          "colorSpace": "linear",
+          "modified": false
+        }
+      }
+    }
+  ],
+  "assets": [
+    {
+      "id": "archery-range",
+      "title": "Byzantine archery range",
+      "file": "building-archery.glb",
+      "buildingTypes": [
+        "archery"
+      ],
+      "license": "CC-BY-SA-3.0",
+      "sourceGroups": [
+        "millenniumad-range",
+        "0ad-range-materials"
+      ],
+      "bytes": 2020752,
+      "sha256": "06b6aec73f6929c87f24e3c2845950ec8624ce1b68484e9b5b4537f97d53ddac",
+      "triangles": 7633,
+      "meshes": 7,
+      "materialCount": 4,
+      "embeddedTextureCount": 7,
+      "upAxis": "+Y",
+      "facing": "+Z",
+      "static": true,
+      "maxHeight": 8.0,
+      "runtimeSizeXYZ": [
+        9.26253141524474,
+        6.84316017220101,
+        9.3
+      ],
+      "rawBoundsXYZ": {
+        "min": [
+          -4.63126570762237,
+          0.00019812443718292272,
+          -4.65
+        ],
+        "max": [
+          4.63126570762237,
+          6.843358296638193,
+          4.65
+        ],
+        "size": [
+          9.26253141524474,
+          6.84316017220101,
+          9.3
+        ]
+      },
+      "changes": [
+        "Compiled a static self-contained GLB with embedded WebP textures, KHR_mesh_quantization and KHR_texture_transform; no Draco, Meshopt or KTX decoder is required.",
+        "Converted original source materials to roughness/metalness PBR, preserving authored UV coordinates and supplied surface normal maps. Texture resolution is capped at 1024 pixels.",
+        "Centered the complete geometry footprint and grounded its visible foundation. Sub-millimetre quantization tolerance is corrected by runtime precise vertex bounds.",
+        "Assembled the original stone/brick teaching tower, tiled arcade, bow racks, circular practice targets, canvas shelter and three authored bows using the source actor socket transforms.",
+        "Removed separate ground decals, particle/death variants and hidden below-ground foundation skirts. Clipped source triangles at source Y=0 while interpolating normals and UV sets.",
+        "Kept the static bow rack geometry; the source weapon attack animation is not included.",
+        "Normalized uniformly to the 9.3 metre usable inner plot. No axis was scaled independently."
+      ],
+      "validation": {
+        "khronosErrors": 0,
+        "khronosWarnings": 3,
+        "warningExplanation": "Tangent-space normals are generated by the renderer from the supplied normals and UVs, which is supported by the game's fixed Three.js r170 renderer. The validator cautions about portability to unrelated renderers.",
+        "actualVendoredLoaderPassed": true,
+        "selfContainedTexturesDecoded": true,
+        "finiteVertexChecks": 13735
+      }
+    },
+    {
+      "id": "stone-quarry",
+      "title": "Stonecutters quarry",
+      "file": "building-quarry.glb",
+      "buildingTypes": [
+        "quarry"
+      ],
+      "license": "CC0-1.0",
+      "sourceGroups": [
+        "polyhaven-boulder-01",
+        "daniel-props2",
+        "daniel-props3",
+        "polyhaven-weathered_planks",
+        "polyhaven-forrest_ground_01"
+      ],
+      "bytes": 2743076,
+      "sha256": "6d0cba4928b58a05c62e571c8590f4a0aeaaae686d0e0b3ca5c4585d2982b196",
+      "triangles": 34266,
+      "meshes": 7,
+      "materialCount": 7,
+      "embeddedTextureCount": 11,
+      "upAxis": "+Y",
+      "facing": "+Z",
+      "static": true,
+      "maxHeight": 5.0,
+      "runtimeSizeXYZ": [
+        9.25345316934721,
+        4.507379375591296,
+        9.3
+      ],
+      "rawBoundsXYZ": {
+        "min": [
+          -4.552101772559931,
+          0.00028156476741614256,
+          -4.574999809265137
+        ],
+        "max": [
+          4.552101772559931,
+          4.43496108812565,
+          4.574999809265137
+        ],
+        "size": [
+          9.104203545119862,
+          4.434679523358234,
+          9.149999618530273
+        ]
+      },
+      "changes": [
+        "Compiled a static self-contained GLB with embedded WebP textures, KHR_mesh_quantization and KHR_texture_transform; no Draco, Meshopt or KTX decoder is required.",
+        "Converted original source materials to roughness/metalness PBR, preserving authored UV coordinates and supplied surface normal maps. Texture resolution is capped at 1024 pixels.",
+        "Centered the complete geometry footprint and grounded its visible foundation. Sub-millimetre quantization tolerance is corrected by runtime precise vertex bounds.",
+        "Welded coincident photogrammetry vertices while preserving per-loop UVs, then derived a 7934-triangle rock LOD and 238-triangle small-debris LOD from Boulder 01. Repeated pieces use different scale and rotation.",
+        "Preserved Daniel Andersson's authored wheelbarrow and ladder geometry and UVs, converted their legacy material to PBR, and repositioned them within a custom medieval workyard.",
+        "Added original bevelled oak frames, forged joint straps and nails, hand-operated windlass, wound and hanging hemp rope, mason bench, pickaxe and mallet. All supplied geometry is static.",
+        "Retained the original rope fiber and mineral rock photographic detail through PBR material conversion.",
+        "Used an irregular shallow earth apron with perimeter at ground level. No terrain excavation, external geometry or negative-height dependency is required.",
+        "Normalized uniformly to a 9.15 metre source envelope. The renderer fits that envelope to the 9.3 metre usable plot.",
+        "Composed a stepped rock face, rough hewn benches, dressed-stone stockpile, open timber workshop and hand derrick with a stone in the lifting sling. Workshop front clear headroom is approximately 2.1 metres after runtime fit."
+      ],
+      "validation": {
+        "khronosErrors": 0,
+        "khronosWarnings": 4,
+        "warningExplanation": "Tangent-space normals are generated by the renderer from the supplied normals and UVs, which is supported by the game's fixed Three.js r170 renderer. The validator cautions about portability to unrelated renderers.",
+        "actualVendoredLoaderPassed": true,
+        "selfContainedTexturesDecoded": true,
+        "finiteVertexChecks": 41714
+      }
+    },
+    {
+      "id": "iron-mine",
+      "title": "Timber-shored iron mine",
+      "file": "building-mine.glb",
+      "buildingTypes": [
+        "mine"
+      ],
+      "license": "CC0-1.0",
+      "sourceGroups": [
+        "polyhaven-boulder-01",
+        "daniel-props2",
+        "daniel-props3",
+        "polyhaven-weathered_planks",
+        "polyhaven-forrest_ground_01"
+      ],
+      "bytes": 3157084,
+      "sha256": "e21d5a6c5d3dc194afc5cf5e65e049f1e6a0ac0b4dba94baa43f479a33c0d7da",
+      "triangles": 47528,
+      "meshes": 8,
+      "materialCount": 8,
+      "embeddedTextureCount": 11,
+      "upAxis": "+Y",
+      "facing": "+Z",
+      "static": true,
+      "maxHeight": 5.0,
+      "runtimeSizeXYZ": [
+        9.25345316934721,
+        4.631125827814569,
+        9.3
+      ],
+      "rawBoundsXYZ": {
+        "min": [
+          -4.552101772559931,
+          -0.0001131089114143613,
+          -4.574999809265137
+        ],
+        "max": [
+          4.552101772559931,
+          4.5563169510745,
+          4.574999809265137
+        ],
+        "size": [
+          9.104203545119862,
+          4.556430059985914,
+          9.149999618530273
+        ]
+      },
+      "changes": [
+        "Compiled a static self-contained GLB with embedded WebP textures, KHR_mesh_quantization and KHR_texture_transform; no Draco, Meshopt or KTX decoder is required.",
+        "Converted original source materials to roughness/metalness PBR, preserving authored UV coordinates and supplied surface normal maps. Texture resolution is capped at 1024 pixels.",
+        "Centered the complete geometry footprint and grounded its visible foundation. Sub-millimetre quantization tolerance is corrected by runtime precise vertex bounds.",
+        "Welded coincident photogrammetry vertices while preserving per-loop UVs, then derived a 7934-triangle rock LOD and 238-triangle small-debris LOD from Boulder 01. Repeated pieces use different scale and rotation.",
+        "Preserved Daniel Andersson's authored wheelbarrow and ladder geometry and UVs, converted their legacy material to PBR, and repositioned them within a custom medieval workyard.",
+        "Added original bevelled oak frames, forged joint straps and nails, hand-operated windlass, wound and hanging hemp rope, mason bench, pickaxe and mallet. All supplied geometry is static.",
+        "Retained the original rope fiber and mineral rock photographic detail through PBR material conversion.",
+        "Used an irregular shallow earth apron with perimeter at ground level. No terrain excavation, external geometry or negative-height dependency is required.",
+        "Normalized uniformly to a 9.15 metre source envelope. The renderer fits that envelope to the 9.3 metre usable plot.",
+        "Composed three rock masses around a genuine recessed gallery with three braced timber support frames, roof and side shoring, plank handbarrow ramp, ore sorting crib and manual hauling windlass. There are no rails or powered machinery. Central portal clear span after runtime fit is approximately 2.27 metres wide by 2.5 metres high."
+      ],
+      "validation": {
+        "khronosErrors": 0,
+        "khronosWarnings": 4,
+        "warningExplanation": "Tangent-space normals are generated by the renderer from the supplied normals and UVs, which is supported by the game's fixed Three.js r170 renderer. The validator cautions about portability to unrelated renderers.",
+        "actualVendoredLoaderPassed": true,
+        "selfContainedTexturesDecoded": true,
+        "finiteVertexChecks": 57346
+      }
+    }
+  ],
+  "renderValidation": {
+    "method": "CPU Cycles renders of the exact published optimized GLBs, at the runtime uniform placement scale. The preview-only visible worker is 1.8 metres tall and is not included in any facility GLB.",
+    "webglRuntimeLoader": "The actual locally vendored Three.js r170 GLTFLoader decoded every embedded texture and checked finite visible geometry, exact bounds and required extensions.",
+    "limitation": "This checks asset decoding and geometry. It is not a live physical GPU frame-rate measurement."
+  }
+}

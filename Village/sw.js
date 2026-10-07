@@ -1,13 +1,13 @@
-const CACHE='feouda-v2.2.0';
+const CACHE='feouda-v2.3.0';
 // Exact URLs match index.html and every native ES-module import. Runtime assets
 // are served locally, so a completed install is sufficient for offline play.
 const FILES=[
- './','./index.html','./app.js?v=2.2.0','./style.css?v=2.2.0',
- './feouda-engine.js?v=2.2.0','./feouda-data.js?v=2.2.0',
- './feouda-world.js?v=2.2.0','./feouda-models.js?v=2.2.0',
- './feouda-materials.js?v=2.2.0','./feouda-icons.js?v=2.2.0',
- './feouda-software.js?v=2.2.0','./feouda-software-textures.js?v=2.2.0',
- './feouda-assets.js?v=2.2.0',
+ './','./index.html','./app.js?v=2.3.0','./style.css?v=2.3.0',
+ './feouda-engine.js?v=2.3.0','./feouda-data.js?v=2.3.0',
+ './feouda-world.js?v=2.3.0','./feouda-models.js?v=2.3.0',
+ './feouda-materials.js?v=2.3.0','./feouda-icons.js?v=2.3.0',
+ './feouda-software.js?v=2.3.0','./feouda-software-textures.js?v=2.3.0',
+ './feouda-assets.js?v=2.3.0',
  './vendor/three.module.js','./vendor/THREE-LICENSE.txt',
  './vendor/GLTFLoader.js','./vendor/BufferGeometryUtils.js','./vendor/SkeletonUtils.js',
  './assets/models/manifest.json',
@@ -19,10 +19,14 @@ const FILES=[
  './assets/models/building-blacksmith.glb','./assets/models/building-sawmill.glb',
  './assets/models/building-tradehall.glb','./assets/models/building-chapel.glb',
  './assets/models/building-well.glb',
+ './assets/models/building-barracks.glb','./assets/models/building-stable.glb',
+ './assets/models/building-archery.glb','./assets/models/building-quarry.glb',
+ './assets/models/building-mine.glb',
  './assets/models/units-sources.json','./assets/models/siege-sources.json',
  './assets/models/tree-sources.json','./assets/models/scenery-sources.json',
  './assets/models/horse-sources.json','./assets/models/trebuchet-sources.json',
  './assets/models/buildings-sources.json',
+ './assets/models/military-buildings-sources.json','./assets/models/specialist-sites-sources.json',
  './assets/medieval/castle_wall_color_1k.jpg',
  './assets/medieval/castle_wall_normal_1k.jpg',
  './assets/medieval/castle_wall_roughness_1k.jpg',

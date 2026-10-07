@@ -1,10 +1,10 @@
 import * as THREE from './vendor/three.module.js';
-import {MAP,REGIONS,RESOURCE_NODES,FACTIONS,BRIDGES,UNIT_TYPES,BUILDINGS,heightAt,riverX,regionAt} from './feouda-data.js?v=2.2.0';
-import {BUILDING_FOOTPRINTS,PLACEMENT_ROADS,UNIT_CLEARANCE,isWorldPointWalkable,isWorldSegmentWalkable} from './feouda-engine.js?v=2.2.0';
-import {createAssetLibrary} from './feouda-assets.js?v=2.2.0';
-import {createSoftwareRenderer} from './feouda-software.js?v=2.2.0';
-import {createMaterials} from './feouda-materials.js?v=2.2.0';
-import {createFortress,setFortressState,createHouse,createBuilding,createBridge,createSiege,createResource,soldierGeometries,box,cylinder,mergeStatic} from './feouda-models.js?v=2.2.0';
+import {MAP,REGIONS,RESOURCE_NODES,FACTIONS,BRIDGES,UNIT_TYPES,BUILDINGS,heightAt,riverX,regionAt} from './feouda-data.js?v=2.3.0';
+import {BUILDING_FOOTPRINTS,PLACEMENT_ROADS,UNIT_CLEARANCE,isWorldPointWalkable,isWorldSegmentWalkable} from './feouda-engine.js?v=2.3.0';
+import {createAssetLibrary} from './feouda-assets.js?v=2.3.0';
+import {createSoftwareRenderer} from './feouda-software.js?v=2.3.0';
+import {createMaterials} from './feouda-materials.js?v=2.3.0';
+import {createFortress,setFortressState,createHouse,createBuilding,createBridge,createSiege,createResource,soldierGeometries,box,cylinder,mergeStatic} from './feouda-models.js?v=2.3.0';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),mix=(a,b,t)=>a+(b-a)*t;
 const random=seed=>()=>{seed=Math.imul(seed^seed>>>15,1|seed);seed^=seed+Math.imul(seed^seed>>>7,61|seed);return((seed^seed>>>14)>>>0)/4294967296;};
@@ -72,7 +72,10 @@ export function createBattlefield(canvas,callbacks={}){
   for(const bucket of treeBuckets.values())for(const mesh of bucket.meshes){mesh.count=bucket.count;mesh.instanceMatrix.needsUpdate=true;}for(const mesh of nature.trees)mesh.instanceMatrix.needsUpdate=true;
   treeLodSignature=[Math.round(view.x/5),Math.round(view.z/5),Math.round(view.distance/8),Math.round(view.azimuth*8),closeCount,assetRevision,vegetationSignature].join(':');
  }
- function fitBuilding(model,type){model.scale.setScalar(.78);model.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3()),fp=BUILDING_FOOTPRINTS[type]||{width:10,depth:10},factor=Math.min(1,(fp.width-.7)/Math.max(.1,size.x),(fp.depth-.7)/Math.max(.1,size.z));model.scale.multiplyScalar(factor);return model;}
+ function fitBuilding(model,type){
+  model.scale.setScalar(.78);model.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(model,true),size=bounds.getSize(new THREE.Vector3()),fp=BUILDING_FOOTPRINTS[type]||{width:10,depth:10},factor=Math.min(1,(fp.width-.7)/Math.max(.1,size.x),(fp.depth-.7)/Math.max(.1,size.z));
+  model.scale.multiplyScalar(factor);model.updateMatrixWorld(true);bounds.setFromObject(model,true);const center=bounds.getCenter(new THREE.Vector3());model.position.x-=center.x;model.position.y-=bounds.min.y;model.position.z-=center.z;return model;
+ }
  function buildModel(type,variant=0){
   const fp=BUILDING_FOOTPRINTS[type]||{width:10,depth:10},spec=assets.getSpec('building',type),dimensions={width:fp.width-.7,depth:fp.depth-.7};if(spec?.maxHeight)dimensions.height=spec.maxHeight;
   const model=spec?.animated?assets.createAnimated('building',type,dimensions,variant):assets.create('building',type,dimensions,variant);
