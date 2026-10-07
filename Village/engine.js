@@ -70,6 +70,22 @@ function costReason(state,cost){
   if(!missing.length)return '';
   return 'Λείπουν: '+missing.map(([key,value])=>key==='money'?formatMoney(value-state.resources[key]):`${Math.ceil(value-state.resources[key])} ${RESOURCES[key].short.toLowerCase()}`).join(', ')+'.';
 }
+// Office replies and physical visits share one economy/cooldown, but only visits
+// may advance exploration or inspect a construction site.
+export function getDialogueStatus(state,npcId,choiceId,context='onsite'){
+  const npc=NPC_MAP[npcId],remaining=Math.max(0,(own(state.dialogueCooldowns,npcId)?state.dialogueCooldowns[npcId]:0)-state.elapsed);
+  const no=(code,reason)=>({available:false,code,reason,remaining});
+  if(!npc)return no('unknown','Δεν βρέθηκε αυτός ο κάτοικος.');
+  const choice=npc.choices.find(c=>c.id===choiceId);
+  if(!choice)return no('unknown','Διάλεξε μια από τις διαθέσιμες συζητήσεις.');
+  if(!['office','onsite'].includes(context))return no('unknown','Δεν βρέθηκε αυτός ο τρόπος συζήτησης.');
+  if(context==='office'&&state.selectedBuilding!=='office')return no('location','Επέστρεψε στο κοινοτικό γραφείο για να απαντήσεις στα αιτήματα.');
+  if(context==='onsite'&&state.selectedBuilding!==npc.buildingId)return no('location',`Συνάντησε ${npc.name} στο σημείο «${LOCATION_MAP[npc.buildingId].name}» ή απάντησε από το κοινοτικό γραφείο.`);
+  if(remaining>0)return no('cooldown',`Η επόμενη ουσιαστική συζήτηση με ${npc.name} ανοίγει σε ${formatDuration(remaining)}.`);
+  const reason=costReason(state,choice.cost);
+  if(reason)return no('cost',reason);
+  return {available:true,code:'ready',reason:'Έτοιμο για απάντηση.',remaining:0};
+}
 export function getProjectStatus(state,project,buildingId){
   const p=PROJECT_MAP[typeof project==='string'?project:project?.id];
   if(!p)return {available:false,reason:'Δεν βρέθηκε αυτό το έργο.',targetId:null,cost:{},duration:0};
@@ -295,6 +311,17 @@ export function createGame(options={}){
     }
   }
   function addWorkers(amount){const added=Math.min(amount,40-state.workers.total);state.workers.total+=added;state.population+=added;}
+  function resolveDialogue(npcId,choiceId,context){
+    const status=getDialogueStatus(state,npcId,choiceId,context);
+    if(!status.available)return fail(status.reason);
+    const npc=NPC_MAP[npcId],c=npc.choices.find(ch=>ch.id===choiceId);
+    const channel=context==='office'?'Απάντηση στο γραφείο':'Συζήτηση';
+    applyResources(c.cost,-1,`${channel}: ${npc.name}`,'resident');applyResources(c.reward,1,`${channel}: ${npc.name}`,'resident');applyMetrics(c.effects);
+    state.dialogueCooldowns[npcId]=state.elapsed+21600;
+    if(!state.stats.talkedNPCs.includes(npcId))state.stats.talkedNPCs.push(npcId);
+    addLog(`${channel} · ${npc.name}: ${c.label}.`);
+    return okay(`${npc.name}: ${c.description}`);
+  }
   function finishJobs(){
     const done=state.jobs.filter(j=>j.remaining<=EPSILON);
     if(!done.length)return;
@@ -480,17 +507,8 @@ export function createGame(options={}){
       return okay(`${LOCATION_MAP[buildingId].name} · κατάσταση ${Math.round(state.buildings[buildingId].condition)}%.`);
     });},
     returnToOffice(){return transact(()=>{state.selectedBuilding='office';return okay('Επέστρεψες στο κοινοτικό γραφείο.');});},
-    talk(npcId,choiceId){return transact(()=>{
-      const npc=NPC_MAP[npcId];if(!npc)return fail('Δεν βρέθηκε αυτός ο κάτοικος.');
-      const c=npc.choices.find(ch=>ch.id===choiceId);if(!c)return fail('Διάλεξε μια από τις διαθέσιμες συζητήσεις.');
-      if(state.selectedBuilding!==npc.buildingId)return fail(`Πήγαινε στο ${LOCATION_MAP[npc.buildingId].name} για να μιλήσεις με ${npc.name}.`);
-      const readyAt=state.dialogueCooldowns[npcId]||0;if(readyAt>state.elapsed)return fail(`Η επόμενη ουσιαστική συζήτηση με ${npc.name} ανοίγει σε ${formatDuration(readyAt-state.elapsed)}.`);
-      const reason=costReason(state,c.cost);if(reason)return fail(reason);
-      applyResources(c.cost,-1,`Συζήτηση: ${npc.name}`,'resident');applyResources(c.reward,1,`Συζήτηση: ${npc.name}`,'resident');applyMetrics(c.effects);
-      state.dialogueCooldowns[npcId]=state.elapsed+21600;
-      if(!state.stats.talkedNPCs.includes(npcId))state.stats.talkedNPCs.push(npcId);
-      addLog(`${npc.name}: ${c.label}.`);return okay(`${npc.name}: ${c.description}`);
-    });},
+    talk(npcId,choiceId){return transact(()=>resolveDialogue(npcId,choiceId,'onsite'));},
+    replyAtOffice(npcId,choiceId){return transact(()=>resolveDialogue(npcId,choiceId,'office'));},
     setTax(rate){return transact(()=>{
       if(typeof rate!=='number'||!Number.isFinite(rate)||rate<0||rate>.16)return fail('Η κοινοτική εισφορά πρέπει να είναι από 0% έως 16%.');
       state.tax=Math.round(rate*10000)/10000;addLog(`Κοινοτική εισφορά: ${Math.round(state.tax*100)}%. ${rate>.08?'Οι υψηλότερες εισφορές μειώνουν σταδιακά την εμπιστοσύνη.':'Η εισφορά καταγράφεται δημόσια.'}`);

@@ -1,4 +1,4 @@
-const CACHE='moutoullas-v1.0.0';
+const CACHE='moutoullas-v1.1.0';
 const FILES=['./','./index.html','./app.js','./style.css','./icons.js','./locations.js','./engine.js','./game-content.js','./world.js','./history.json','./sources.json','./icon.svg','./icon-192.png','./icon-512.png','./apple-touch-icon.png','./manifest.webmanifest','./assets/1pound.jpg'];
 const ALLOWED=new Set(FILES.map(p=>new URL(p,self.location.href).href));
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting()))});
