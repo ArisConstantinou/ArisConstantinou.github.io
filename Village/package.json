@@ -1,1 +1,1 @@
-{"name":"moutoullas-mouchtaris","version":"1.2.0","private":true,"type":"module","scripts":{"test":"node tests/engine.test.mjs"}}
+{"name":"feouda-1280","version":"2.0.0","private":true,"type":"module","scripts":{"test":"node tests/feouda.test.mjs"}}

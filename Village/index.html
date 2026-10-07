@@ -1,44 +1,41 @@
 <!doctype html>
 <html lang="el">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="application-version" content="1.2.0">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Ο Μουχτάρης"><link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<meta name="theme-color" content="#f0e9db"><meta name="description" content="Γίνε ο μουχτάρης του Μουτουλλά. Ένα παιχνίδι στρατηγικής για την αναγέννηση ενός κυπριακού χωριού, τις τέχνες και τους ανθρώπους του.">
-<title>Μουτουλλάς — Ο Μουχτάρης</title>
-<link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./style.css?v=1.2.0">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="application-version" content="2.0.0"><meta name="theme-color" content="#12191d">
+<meta name="description" content="Φέουδα 1280. Μεσαιωνική στρατηγική σε πραγματικό 3D: ανάπτυξε τους οικισμούς σου, οχύρωσε τα κάστρα και οδήγησε τον στρατό σου σε μάχες και πολιορκίες.">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Φέουδα 1280">
+<title>ΦΕΟΥΔΑ · 1280 — Το χρονικό των στεμμάτων</title>
+<link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="./apple-touch-icon.png"><link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./style.css?v=2.0.0">
 </head>
 <body>
-<div id="game-shell">
-<header class="masthead">
-<button class="brand" data-action="panel" data-value="overview" aria-label="Μουτουλλάς — Κοινοτικό γραφείο"><span class="brand-mark" id="brand-mark"></span><span><strong>Μουτουλλάς<span class="brand-dot">.</span></strong><small>Ο ΜΟΥΧΤΑΡΗΣ</small></span></button>
-<div class="place-tag"><span class="tiny-leaf">ΜΑΡΑΘΑΣΑ · ΚΥΠΡΟΣ</span><span>Ένας τόπος. Οι άνθρωποί του. Εσύ.</span></div>
-<div class="header-right"><div id="day-display" class="day-display"></div><button id="sound-btn" class="icon-button" data-action="sound" aria-label="Ενεργοποίηση ήχου" title="Ήχος"></button><button class="icon-button" data-action="modal" data-value="help" aria-label="Οδηγίες" id="help-btn"></button><button class="icon-button" data-action="modal" data-value="settings" aria-label="Αποθήκευση και ρυθμίσεις" id="settings-btn"></button></div>
+<main id="game-shell">
+<canvas id="battlefield" tabindex="0" aria-label="Τρισδιάστατος στρατηγικός χάρτης φέουδων. Επίλεξε οχυρό, πόρο ή απόσπασμα."></canvas>
+<div class="screen-shade" aria-hidden="true"></div>
+<header class="war-header">
+<button class="brand" data-action="home" aria-label="Φέουδα 1280 — Αργυρόκαστρο"><span id="brand-crest"></span><span><strong>ΦΕΟΥΔΑ</strong><small>ΤΟ ΧΡΟΝΙΚΟ ΤΩΝ ΣΤΕΜΜΑΤΩΝ · 1280</small></span></button>
+<div id="campaign-status" class="campaign-status"></div>
+<div class="header-controls"><button data-action="pause" id="pause-button" aria-label="Παύση"></button><div id="speed-controls" class="speed-controls"><button data-action="speed" data-value="1" class="active">1×</button><button data-action="speed" data-value="2">2×</button><button data-action="speed" data-value="4">4×</button></div><button data-action="sound" id="sound-button" aria-label="Ενεργοποίηση ήχου"></button><button data-action="help" id="help-button" aria-label="Οδηγίες"></button><button data-action="settings" id="settings-button" aria-label="Αποθήκευση και ρυθμίσεις"></button></div>
 </header>
-<section class="resource-strip" id="resources" aria-label="Πόροι του χωριού"></section>
-<main class="world-area" id="world-area">
-<canvas id="village" aria-label="Διαδραστικός χάρτης των ορεινών πλαγιών του Μουτουλλά και της ρεματιάς. Επίλεξε ένα κτίριο για πληροφορίες και έργα." tabindex="0"></canvas>
-<div class="world-vignette" aria-hidden="true"></div>
-<div class="map-caption"><span class="live-dot"></span><span id="map-mode-label">ΑΠΟ ΤΟ ΓΡΑΦΕΙΟ ΤΟΥ ΜΟΥΧΤΑΡΗ</span><span class="caption-separator"></span><span class="altitude">~800 μ.</span></div>
-<div class="chapter-caption" id="chapter-caption"></div>
-<nav class="tool-rail" id="tool-rail" aria-label="Διοίκηση χωριού"></nav>
-<div class="event-alert" id="event-alert" hidden></div>
-<aside class="side-panel" id="side-panel" aria-label="Πίνακας διοίκησης"><div class="panel-header" id="panel-header"></div><div class="panel-content" id="panel-content"></div></aside>
-<button id="reopen-panel" class="reopen-panel" data-action="open-panel" hidden></button>
-<div id="walk-hint" class="walk-hint" hidden></div>
-<div id="walk-joystick" class="walk-joystick" hidden aria-label="Κίνηση μουχτάρη"><span></span></div>
-<div class="bottom-hud">
-<div class="camera-tools"><button data-action="zoom" data-value="-1" aria-label="Σμίκρυνση">−</button><button data-action="camera" aria-label="Επαναφορά κάμερας" id="reset-camera"></button><button data-action="zoom" data-value="1" aria-label="Μεγέθυνση">+</button><span class="camera-separator"></span><button data-action="layer" aria-label="Εμφάνιση κατάστασης κτιρίων" id="layer-btn"></button></div>
-<div class="mode-switch" aria-label="Τρόπος παιχνιδιού"><button class="selected" data-action="mode" data-value="office" id="office-mode"></button><button data-action="mode" data-value="walk" id="walk-mode"></button></div>
-<div class="save-indicator" id="save-indicator"><span></span> Η πρόοδος αποθηκεύεται</div>
-</div>
-<div id="active-jobs" class="active-jobs" aria-label="Εργασίες σε εξέλιξη"></div>
-<div class="map-note">Καλλιτεχνική απόδοση του Μουτουλλά · Φανταστικό σενάριο</div>
-</main>
-</div>
-<div class="toast-stack" id="toasts" role="status" aria-live="polite"></div>
+<section id="resource-bar" class="resource-bar" aria-label="Ταμείο και πόροι"></section>
+<nav class="left-rail" id="left-rail" aria-label="Διοίκηση ηγεμονίας"></nav>
+<section class="map-heading" id="map-heading"></section>
+<div class="map-switch" id="map-switch" aria-label="Προβολή χάρτη"><button data-action="map-mode" data-value="terrain" class="active">ΤΟΠΟΣ</button><button data-action="map-mode" data-value="political">ΣΥΝΟΡΑ</button><button data-action="map-mode" data-value="resources">ΠΟΡΟΙ</button></div>
+<aside id="side-panel" class="side-panel" aria-label="Συμβούλιο"><header id="panel-header"></header><div id="panel-body"></div></aside>
+<div id="command-hint" class="command-hint" hidden></div>
+<section id="raid-banner" class="raid-banner" aria-live="polite" hidden></section>
+<section id="minimap-wrap" class="minimap-wrap" aria-label="Χάρτης περιοχών"><header><span>ΟΙ ΕΝΝΕΑ ΜΕΘΟΡΙΟΙ</span><button data-action="overview" title="Γενική άποψη" aria-label="Γενική άποψη χάρτη" id="overview-button"></button></header><canvas id="minimap" width="240" height="164" aria-label="Επίλεξε σημείο για εστίαση στον χάρτη"></canvas><footer><i class="player-dot"></i>Δικό σου <i class="enemy-dot"></i>Αντίπαλοι <i class="neutral-dot"></i>Ελεύθερα</footer></section>
+<div class="camera-controls"><button data-action="zoom" data-value="-1" aria-label="Σμίκρυνση">−</button><button data-action="home" aria-label="Εστίαση στο κάστρο" id="camera-home"></button><button data-action="zoom" data-value="1" aria-label="Μεγέθυνση">+</button></div>
+<section id="selection-deck" class="selection-deck" aria-label="Επιλογή και διαταγές"></section>
+<section id="build-queue" class="build-queue" aria-label="Εργασίες και εκπαίδευση"></section>
+<div id="save-status" class="save-status">ΑΥΤΟΜΑΤΗ ΑΠΟΘΗΚΕΥΣΗ</div>
+<div id="loading-screen" class="loading-screen"><div class="loading-emblem">♜</div><span class="eyebrow">ΧΡΟΝΙΚΟ ΤΟΥ 1280</span><h1>Ένας κόσμος υπό διεκδίκηση.</h1><p id="loading-message">Στήνονται τα τείχη. Ανοίγουν οι δρόμοι.</p><div class="loading-line"><i></i></div></div>
+<div id="welcome" class="welcome" hidden><div class="welcome-copy"><span class="eyebrow">ΜΕΘΟΡΙΟΣ · ΑΝΟΙΞΗ 1280</span><h1>Η γη θέλει χέρια.<br>Το στέμμα θέλει<br><em>στρατηγική.</em></h1><p>Τρία φέουδα σε εμπιστεύονται. Πέρα από τον ποταμό, δύο οίκοι ετοιμάζουν τις σημαίες τους. Θρέψε τον λαό σου, χτίσε την άμυνά του και διάλεξε πού θα δοθεί η πρώτη μάχη.</p><button class="button brass large" data-action="begin">Ανάλαβε την ηγεμονία <span>→</span></button><div class="welcome-facts"><span>9 ΦΕΟΥΔΑ</span><span>2 ΑΝΤΙΠΑΛΟΙ ΟΙΚΟΙ</span><span>6 ΤΥΠΟΙ ΣΤΡΑΤΟΥ</span></div><small>Πραγματικός χρόνος με τακτική παύση · Αποθήκευση στη συσκευή</small></div></div>
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
 <div id="modal-root"></div>
-<noscript><div class="no-script">Το παιχνίδι χρειάζεται ενεργή JavaScript.</div></noscript>
-<script type="module" src="./app.js?v=1.2.0"></script>
+<input id="import-file" type="file" accept="application/json,.json" hidden>
+</main>
+<noscript>Το Φέουδα 1280 χρειάζεται JavaScript και WebGL 2.</noscript>
+<script type="module" src="./app.js?v=2.0.0"></script>
 </body>
 </html>
