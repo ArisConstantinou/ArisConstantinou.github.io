@@ -27,11 +27,10 @@ jobs:
           manifest=[]
           for asset in ['stone_wall_05','plastered_wall_02','wood_planks','forest_ground_04']:
               data=json.loads(get('https://api.polyhaven.com/files/'+asset))
-              (out/(asset+'-api.json')).write_text(json.dumps(data,indent=2))
               print(asset,list(data),flush=True)
               item={'id':asset,'source':'https://polyhaven.com/a/'+asset,'license':'CC0-1.0','files':{}}
-              for channel in ['diff','nor_gl','rough']:
-                  formats=data[channel]['1k']
+              for channel,key in [('diff','Diffuse'),('nor_gl','nor_gl'),('rough','Rough')]:
+                  formats=data[key]['1k']
                   ext='jpg' if 'jpg' in formats else 'png'
                   url=formats[ext]['url']
                   prefix='stone_wall' if asset=='stone_wall_05' else asset
