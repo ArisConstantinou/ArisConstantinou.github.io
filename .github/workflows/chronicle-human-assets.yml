@@ -1,0 +1,52 @@
+name: Chronicle human assets
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/chronicle-human-assets.yml', 'Village/chronicle/tools/build_humans.py']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  humans:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download human modelling dependencies
+        run: |
+          mkdir -p /tmp/chronicle-assets out
+          python -m pip install bpy==4.3.0 requests pillow
+          git clone --depth 1 https://github.com/makehumancommunity/mpfb2.git /tmp/chronicle-assets/mpfb2
+          curl -fL --retry 2 --max-time 180 https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip -o /tmp/chronicle-assets/system.zip
+          mkdir -p /tmp/chronicle-assets/system
+          unzip -q /tmp/chronicle-assets/system.zip -d /tmp/chronicle-assets/system
+          find /tmp/chronicle-assets/system -name '*.mhclo' | head -30
+      - name: Generate clothed people with skin, eyes, fingers and armatures
+        run: python Village/chronicle/tools/build_humans.py
+      - name: Bundle an offline character-capable Three.js runtime
+        run: |
+          mkdir -p /tmp/chronicle-assets/runtime
+          cd /tmp/chronicle-assets/runtime
+          npm init -y
+          npm install three@0.160.1 esbuild@0.24.2
+          cat > entry.js <<'JS'
+          import * as THREE from 'three';
+          import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+          import {clone} from 'three/addons/utils/SkeletonUtils.js';
+          window.THREE=THREE;
+          window.HumanAssets={GLTFLoader,clone};
+          JS
+          ./node_modules/.bin/esbuild entry.js --bundle --minify --format=iife --outfile=$GITHUB_WORKSPACE/out/human-engine.js
+          cp node_modules/three/LICENSE $GITHUB_WORKSPACE/out/THREE-LICENSE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chronicle-human-assets
+          path: out/
+          retention-days: 7
