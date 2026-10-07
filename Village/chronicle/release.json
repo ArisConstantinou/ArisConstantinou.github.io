@@ -1,0 +1,10 @@
+{
+  "version": "0.4.0",
+  "application": "Μουτουλλάς — Χρονικό ενός τόπου",
+  "entry": "./index.html",
+  "verificationWorkflowRun": 37665460894,
+  "verification": "passed: real Chromium WebGL render, human model switching, keyboard movement, local textures and mobile layout",
+  "demoHistoricalData": true,
+  "humanBaseModels": 2,
+  "preview": "./preview/character.png"
+}
