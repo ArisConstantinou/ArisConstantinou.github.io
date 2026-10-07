@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Ο Μουχτάρης"><link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="theme-color" content="#f0e9db"><meta name="description" content="Γίνε ο μουχτάρης του Μουτουλλά. Ένα παιχνίδι στρατηγικής για την αναγέννηση ενός κυπριακού χωριού, τις τέχνες και τους ανθρώπους του.">
+<title>Μουτουλλάς — Ο Μουχτάρης</title>
+<link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div id="game-shell">
+<header class="masthead">
+<button class="brand" data-action="panel" data-value="overview" aria-label="Μουτουλλάς — Κοινοτικό γραφείο"><span class="brand-mark" id="brand-mark"></span><span><strong>Μουτουλλάς<span class="brand-dot">.</span></strong><small>Ο ΜΟΥΧΤΑΡΗΣ</small></span></button>
+<div class="place-tag"><span class="tiny-leaf">ΜΑΡΑΘΑΣΑ · ΚΥΠΡΟΣ</span><span>Ένας τόπος. Οι άνθρωποί του. Εσύ.</span></div>
+<div class="header-right"><div id="day-display" class="day-display"></div><button id="sound-btn" class="icon-button" data-action="sound" aria-label="Ενεργοποίηση ήχου" title="Ήχος"></button><button class="icon-button" data-action="modal" data-value="help" aria-label="Οδηγίες" id="help-btn"></button><button class="icon-button" data-action="modal" data-value="settings" aria-label="Αποθήκευση και ρυθμίσεις" id="settings-btn"></button></div>
+</header>
+<section class="resource-strip" id="resources" aria-label="Πόροι του χωριού"></section>
+<main class="world-area" id="world-area">
+<canvas id="village" aria-label="Διαδραστικός χάρτης του Μουτουλλά. Επίλεξε ένα κτίριο για πληροφορίες και έργα." tabindex="0"></canvas>
+<div class="world-vignette" aria-hidden="true"></div>
+<div class="map-caption"><span class="live-dot"></span><span id="map-mode-label">ΑΠΟ ΤΟ ΓΡΑΦΕΙΟ ΤΟΥ ΜΟΥΧΤΑΡΗ</span><span class="caption-separator"></span><span class="altitude">~800 μ.</span></div>
+<div class="chapter-caption" id="chapter-caption"></div>
+<nav class="tool-rail" id="tool-rail" aria-label="Διοίκηση χωριού"></nav>
+<div class="event-alert" id="event-alert" hidden></div>
+<aside class="side-panel" id="side-panel" aria-label="Πίνακας διοίκησης"><div class="panel-header" id="panel-header"></div><div class="panel-content" id="panel-content"></div></aside>
+<button id="reopen-panel" class="reopen-panel" data-action="open-panel" hidden></button>
+<div id="walk-hint" class="walk-hint" hidden></div>
+<div id="walk-joystick" class="walk-joystick" hidden aria-label="Κίνηση μουχτάρη"><span></span></div>
+<div class="bottom-hud">
+<div class="camera-tools"><button data-action="zoom" data-value="-1" aria-label="Σμίκρυνση">−</button><button data-action="camera" aria-label="Επαναφορά κάμερας" id="reset-camera"></button><button data-action="zoom" data-value="1" aria-label="Μεγέθυνση">+</button><span class="camera-separator"></span><button data-action="layer" aria-label="Εμφάνιση κατάστασης κτιρίων" id="layer-btn"></button></div>
+<div class="mode-switch" aria-label="Τρόπος παιχνιδιού"><button class="selected" data-action="mode" data-value="office" id="office-mode"></button><button data-action="mode" data-value="walk" id="walk-mode"></button></div>
+<div class="save-indicator" id="save-indicator"><span></span> Η πρόοδος αποθηκεύεται</div>
+</div>
+<div id="active-jobs" class="active-jobs" aria-label="Εργασίες σε εξέλιξη"></div>
+<div class="map-note">Καλλιτεχνική απόδοση του Μουτουλλά · Φανταστικό σενάριο</div>
+</main>
+</div>
+<div class="toast-stack" id="toasts" role="status" aria-live="polite"></div>
+<div id="modal-root"></div>
+<noscript><div class="no-script">Το παιχνίδι χρειάζεται ενεργή JavaScript.</div></noscript>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
