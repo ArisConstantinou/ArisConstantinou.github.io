@@ -1,4 +1,4 @@
-import { LOCATIONS } from './locations.js?v=1.1.2';
+import { LOCATIONS } from './locations.js?v=1.2.0';
 
 // A hand-drawn, procedural interpretation of Moutoullas. Positions are deliberately
 // a playable composition, never a claim to be cadastral or surveyed coordinates.
@@ -12,15 +12,41 @@ const lerp = (a,b,t) => a+(b-a)*t;
 function rng(seed) { let s = seed >>> 0; return () => ((s = Math.imul(1664525,s)+1013904223 >>> 0) / 4294967296); }
 function seedOf(s) { let h=2166136261; for(const c of s)h=Math.imul(h^c.charCodeAt(0),16777619);return h>>>0; }
 function elevation(x,z) {
-  const hill=6.7*Math.exp(-((x-spread(77))**2+(z-spread(77))**2)/820);
-  const eastSlope=.075*Math.max(0,x-34),westSlope=.044*Math.max(0,30-x);
-  return .65+eastSlope+westSlope+.013*Math.max(0,z-35)+hill;
+  if(!TERRAIN_FIELD)return mountainHeightRaw(x,z);
+  const q=(x-z-TERRAIN_FIELD.minQ)/TERRAIN_FIELD.step,t=(x+z-TERRAIN_FIELD.minT)/TERRAIN_FIELD.step;
+  const i=clamp(Math.floor(q),0,TERRAIN_FIELD.n-2),j=clamp(Math.floor(t),0,TERRAIN_FIELD.m-2),a=clamp(q-i,0,1),b=clamp(t-j,0,1),v=TERRAIN_FIELD.values,k=i*TERRAIN_FIELD.m+j;
+  return lerp(lerp(v[k],v[k+TERRAIN_FIELD.m],a),lerp(v[k+1],v[k+TERRAIN_FIELD.m+1],a),b);
+}
+let TERRAIN_FIELD=null;
+function mountainHeightRaw(x,z) {
+  // The village occupies the sides of an actual mountain valley. The stream is
+  // its lowest continuous line; houses, people and roads use this same surface.
+  const cross=x-riverXAt(z),distance=Math.sqrt(cross*cross+16)-4;
+  const slope=cross>=0?.75:.52;
+  // Rounded shoulders and diagonal wooded spurs break up the mountain mass.
+  // Ridges vary mainly across x-z, preserving a single-valued visible surface.
+  const shoulder=slope*distance-.00105*distance*distance;
+  const ridge=(8.5*Math.sin((x-z)*.039-1.2)+3.4*Math.cos((x-z)*.078+.4))*distance/(distance+30);
+  const fold=1.2*Math.sin(z*.038+distance*.026)*Math.min(1,distance/28);
+  return riverElevation(z)+shoulder+ridge+fold;
+}
+function riverElevation(z){return 6+(90-z)*.17;}
+function riverXAt(z){
+  let a=RIVER[0],b=RIVER[1];
+  for(let i=1;i<RIVER.length;i++){a=RIVER[i-1];b=RIVER[i];if(z<=b[1])break;}
+  return lerp(a[0],b[0],(z-a[1])/(b[1]-a[1]));
 }
 function project(x,z,h=0,base=null) { return {x:(x-z)*U,y:(x+z)*V-(h+(base??elevation(x,z)))*U}; }
 function unproject(sx,sy) {
-  let x=sx/(2*U)+sy/(2*V),z=sy/(2*V)-sx/(2*U);
-  for(let i=0;i<5;i++){ const dy=sy+elevation(x,z)*U;x=sx/(2*U)+dy/(2*V);z=dy/(2*V)-sx/(2*U); }
-  return {x,z};
+  // x-z is fixed by the horizontal projection. Along that ray the terrain is
+  // strictly monotone, so a bracketed solve remains stable on the steep slopes.
+  const difference=sx/U;
+  const yAt=t=>t*V-elevation((t+difference)/2,(t-difference)/2)*U;
+  let low=-512,high=640;
+  for(let i=0;i<12&&yAt(low)>sy;i++)low-=512;
+  for(let i=0;i<12&&yAt(high)<sy;i++)high+=512;
+  for(let i=0;i<48;i++){const mid=(low+high)/2;if(yAt(mid)<sy)low=mid;else high=mid;}
+  const sum=(low+high)/2;return {x:(sum+difference)/2,z:(sum-difference)/2};
 }
 function poly(c,pts,fill,stroke=null,width=1) {
   if(!pts.length)return;c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)c.lineTo(pts[i].x,pts[i].y);c.closePath();
@@ -30,17 +56,18 @@ function line(c,pts,color,width=1) {if(pts.length<2)return;c.beginPath();c.moveT
 function oval(c,x,y,rx,ry,fill) {c.beginPath();c.ellipse(x,y,rx,ry,0,0,TAU);c.fillStyle=fill;c.fill();}
 function rounded(c,x,y,w,h,r=8) {c.beginPath();if(c.roundRect)c.roundRect(x,y,w,h,r);else{c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);}c.closePath();}
 const ROAD_PATHS = [
-  [[38,95],[39,83],[40,73],[44,64],[46,56],[48,50],[52,45],[53,37],[56,29],[58,14]],
-  [[14,56],[27,55],[34,55],[38,57],[44,57],[49,60],[55,64],[62,68],[69,74],[76,77],[86,85]],
+  [[39,83],[40,73],[44,64],[46,56],[48,50],[52,45],[53,37],[56,29],[58,14]],
+  [[27,55],[34,55],[38,57],[44,57],[49,60],[55,64],[62,68],[69,74],[76,77],[86,85]],
   [[46,50],[45,43],[48,38],[55,37],[60,38],[66,42],[71,45],[80,49],[91,52]],
   [[52,46],[58,53],[65,53],[69,57],[73,62],[80,65],[91,70]],
-  [[34,55],[31,43],[27,34],[23,22],[17,13]],
-  [[38,58],[29,59],[23,63],[22,73],[25,83]],
+  [[34,55],[31,43],[27,34],[23,22]],
+  [[38,58],[32,60],[25,63],[25,68],[29,73],[30,78]],
   [[53,37],[61,30],[68,29],[76,25],[88,20],[102,17]],
   [[39,82],[47,82],[56,82],[63,77]],
   [[45,43],[41,34],[40,29],[44,24],[49,23],[56,29]],
 ].map(expand);
-const RIVER = expand([[15,-8],[18,7],[22,21],[28,34],[32,42],[36,51],[37,58],[33,70],[34,86],[39,105],[45,120]]);
+// Continue the same channel beyond the playable area so its ends stay out of view.
+const RIVER = expand([[-5,-108],[15,-8],[18,7],[22,21],[28,34],[32,42],[36,51],[37,58],[33,70],[34,86],[39,105],[45,120],[85,220]]);
 function distanceToSegment(p,a,b) {const dx=b[0]-a[0],dz=b[1]-a[1],d=dx*dx+dz*dz;const t=d?clamp(((p.x-a[0])*dx+(p.z-a[1])*dz)/d,0,1):0;return Math.hypot(p.x-a[0]-t*dx,p.z-a[1]-t*dz);}
 function nearRoad(x,z,d=2.4){return ROAD_PATHS.some(path=>path.some((a,i)=>i&&distanceToSegment({x,z},path[i-1],a)<d));}
 function nearRiver(x,z,d=3){return RIVER.some((a,i)=>i&&distanceToSegment({x,z},RIVER[i-1],a)<d);}
@@ -54,6 +81,34 @@ const ACCESS_PATHS=LOCATIONS.filter(l=>!['bridge','orchard','square'].includes(l
 });
 const ROAD_SAMPLES=[...TRUNK_SAMPLES,...ACCESS_PATHS.map(p=>samplePath(p))];
 const RIVER_SAMPLES=samplePath(RIVER,.8);
+
+function buildTerrainField(){
+  const step=1.5,minQ=-360,minT=-220,n=481,m=481,values=new Float32Array(n*m);
+  const pads=LOCATIONS.filter(l=>footprint(l).h||['square','market','fountain','wash'].includes(l.type)).map(loc=>{
+    const f=footprint(loc),special={square:[10,10],market:[9.5,8.5],fountain:[5.5,5.5],wash:[6.5,6.5]}[loc.type];
+    const w=special?.[0]||f.w,d=special?.[1]||f.d;
+    return {x:loc.x,z:loc.z,b:mountainHeightRaw(loc.x,loc.z),x0:loc.x-w/2-1.9,x1:loc.x+w/2+(loc.style==='courtyard'?3.3:1.9),z0:loc.z-d/2-.8,z1:loc.z+d/2+4.4};
+  });
+  for(let i=0;i<n;i++){
+    const q=minQ+i*step;
+    for(let j=0;j<m;j++){
+      const t=minT+j*step,x=(t+q)/2,z=(t-q)/2;let h=mountainHeightRaw(x,z),best=0,flat=h;
+      if(Math.abs(x-riverXAt(z))>3.7)for(const p of pads){
+        const dx=Math.max(p.x0-x,0,x-p.x1),dz=Math.max(p.z0-z,0,z-p.z1),outside=Math.hypot(dx,dz);
+        if(outside>=4.2)continue;const u=1-outside/4.2,weight=u*u*(3-2*u);
+        if(weight>best){best=weight;flat=p.b;}
+      }
+      h=lerp(h,flat,best);
+      values[i*m+j]=h;
+    }
+    // Extend the uphill approach when a pad needs extra support. Raising that
+    // approach preserves the level yard and entrance instead of cutting its
+    // downhill half away. Screen depth still remains strictly increasing.
+    for(let j=m-2;j>=0;j--)values[i*m+j]=Math.max(values[i*m+j],values[i*m+j+1]-step*.432);
+  }
+  return {step,minQ,minT,n,m,values};
+}
+TERRAIN_FIELD=buildTerrainField();
 
 function makeCanvas(w,h) {
   let c;if(typeof document!=='undefined'&&document.createElement)c=document.createElement('canvas');else if(typeof OffscreenCanvas!=='undefined')c=new OffscreenCanvas(w,h);else throw new Error('Canvas is unavailable');
@@ -230,10 +285,7 @@ function drawHouse(c,loc,condition,rand){
   const shadow=[P(loc.x-f.w/2,loc.z-f.d/2),P(loc.x+f.w/2,loc.z-f.d/2),P(loc.x+f.w/2+1.8,loc.z+f.d/2+1.1),P(loc.x-f.w/2+1.0,loc.z+f.d/2+1.7)];
   poly(c,shadow,'#38432b21');
   const tones=[['#beb39b','#898b7b','#a5a18b'],['#b7ad98','#848573','#a49b83'],['#c2b59c','#938a74','#b0a289']][seedOf(loc.id)%3];
-  if(loc.x>60&&loc.type!=='church'){
-    const drop=.7+(loc.x-60)*.013;block(c,loc.x,loc.z,f.w+.6,f.d+.8,drop,['#b0a890','#7d806c','#979a7f'],b-drop);
-    wallStones(c,{x:loc.x-f.w/2-.3,z:loc.z+f.d/2+.4},{x:loc.x+f.w/2+.3,z:loc.z+f.d/2+.4},0,drop,'z',b-drop,seedOf(loc.id)+88,condition);
-  }
+  drawHillsideFoundation(c,loc);
   block(c,loc.x,loc.z,f.w+.12,f.d+.12,.27,['#b1a58b','#777b6a','#9b987f'],b-.08);
   block(c,loc.x,loc.z,f.w,f.d,f.h,tones,b);
   wallStones(c,{x:loc.x+f.w/2,z:loc.z-f.d/2},{x:loc.x+f.w/2,z:loc.z+f.d/2},0,f.h,'x',b,seedOf(loc.id),condition);
@@ -350,6 +402,34 @@ function drawStoneWall(c,points,height=.65){
     for(let j=0;j<n;j++){const t=(j+.5)/n,x=lerp(a[0],b[0],t),z=lerp(a[1],b[1],t);block(c,x,z,.75,.52,height,['#c4bda2','#899079','#a1a58b']);}
   }
 }
+function drawHillsideFoundation(c,loc){
+  const f=footprint(loc),b=elevation(loc.x,loc.z),x0=loc.x-f.w/2-.55,x1=loc.x+f.w/2+.62,z0=loc.z-f.d/2-.35,z1=loc.z+f.d/2+1.2;
+  // A level house is cut into the hill. Only its downhill sides need masonry;
+  // the foundation follows the real ground below, never a repeated floating box.
+  for(const [a,d]of [[[x1,z0],[x1,z1]],[[x0,z1],[x1,z1]]]){
+    const n=Math.ceil(Math.hypot(d[0]-a[0],d[1]-a[1])/.75);
+    for(let i=0;i<n;i++){
+      const t=i/n,u=(i+1)/n,aa=[lerp(a[0],d[0],t),lerp(a[1],d[1],t)],bb=[lerp(a[0],d[0],u),lerp(a[1],d[1],u)],ea=Math.min(b,mountainHeightRaw(...aa)-.1),eb=Math.min(b,mountainHeightRaw(...bb)-.1);
+      if(b-Math.min(ea,eb)<.1)continue;
+      poly(c,[project(...aa,0,b),project(...bb,0,b),project(...bb,0,eb),project(...aa,0,ea)],a[0]===d[0]?'#747967':'#8d8c73','#5d67543d',.5);
+      for(let h=.3;h<b-Math.min(ea,eb);h+=.42){const ya=Math.max(ea,b-h),yb=Math.max(eb,b-h);line(c,[project(...aa,0,ya),project(...bb,0,yb)],'#c4b59875',.75);}
+      if(i%2===0)line(c,[project(...bb,0,b),project(...bb,0,eb)],'#525f493a',.6);
+    }
+  }
+  groundRect(c,loc.x,loc.z+.4,f.w+1.17,f.d+1.55,'#b5a98b',null,b,.01);
+}
+
+function drawMountainRiser(c,points,height=1.3){
+  const pts=samplePath(points,.8);
+  for(let i=1;i<pts.length;i++){
+    const a=pts[i-1],b=pts[i],pa=project(...a),pb=project(...b),aa=project(...a,-height),bb=project(...b,-height);
+    poly(c,[pa,pb,bb,aa],i%3?'#7e8168':'#888770','#56634d35',.5);
+    for(let y=.35;y<height;y+=.4)line(c,[project(...a,-y),project(...b,-y)],'#c0b28b60',.6);
+    if(i%2===0)line(c,[pa,aa],'#59664d50',.55);
+  }
+  line(c,pts.map(p=>project(...p,.02)),'#b2ac83',2.3);
+  line(c,pts.map(p=>project(...p,.15)),'#768a515f',2.4);
+}
 function drawSpecial(c,loc,condition,rand){
   const b=elevation(loc.x,loc.z),x=loc.x,z=loc.z,P=(a,d,h=0)=>project(a,d,h,b);
   if(loc.type==='square'){
@@ -461,35 +541,55 @@ function drawTree(c,x,z,type='olive',scale=1,variation=.5,shadow=true){
 }
 
 function terrainCanvas(){
-  const c=makeCanvas(4400,2500),g=c.getContext('2d');g.translate(2200,320);
+  const c=makeCanvas(4400,3400),g=c.getContext('2d');g.translate(2200,1450);
   const random=rng(1280);
-  const land=[[-90,-90],[205,-90],[205,205],[-90,205]].map(p=>project(...p));
-  const gradient=g.createLinearGradient(-700,0,1100,1450);gradient.addColorStop(0,'#c8cca3');gradient.addColorStop(.5,'#bac29a');gradient.addColorStop(1,'#a4b58d');poly(g,land,gradient);
-  // Long overlapping contour terraces communicate a steep inhabited valley.
-  for(let level=0;level<11;level++){
-    const x0=51+level*4.8,z0=77+level*3.4;
-    const pts=[];for(let k=0;k<=14;k++){const t=k/14,xx=x0+Math.sin(t*Math.PI)*20+t*7,zz=z0-23+t*43;pts.push(project(xx,zz));}
-    line(g,pts,'#65815426',12+level%3*4);line(g,pts.map(q=>({x:q.x,y:q.y-3})),'#d5d1ad73',2.2);
+  // A tessellated heightfield, lit from the upper left, makes the entire land a
+  // continuous mountain slope. Warm exposed rock interrupts olive vegetation.
+  const step=2.8,tiles=[];
+  for(let x=-106;x<265;x+=step)for(let z=-100;z<252;z+=step){
+    const mx=x+step/2,mz=z+step/2,h=elevation(mx,mz),hx=(elevation(mx+.25,mz)-elevation(mx-.25,mz))/.5,hz=(elevation(mx,mz+.25)-elevation(mx,mz-.25))/.5;
+    const light=clamp((1+hx*.85-hz*.45)/Math.sqrt(1+hx*hx+hz*hz)/1.39,.32,1);
+    const across=mx-riverXAt(mz),rocks=(Math.sin(mx*.095+mz*.078)+Math.cos(mx*.17-mz*.042))*.5;
+    const rocky=clamp((Math.abs(across)-10)/16,0,1)*clamp((rocks-.2)*1.45,0,1),base=[142,157,105].map((v,i)=>lerp(v,[166,154,116][i],rocky)),shade=.53+light*.5,variation=Math.sin(mx*.23+mz*.09)*.7;
+    const color=base.map(v=>Math.round(clamp(v*shade+variation,0,255))),dark=color.map(v=>Math.round(v*.975));
+    const a=project(x,z),b=project(x+step,z),d=project(x,z+step),cc=project(x+step,z+step);
+    tiles.push({depth:x+z,pts:[a,b,cc,d],color:`rgb(${color})`,dark:`rgb(${dark})`});
   }
-  for(let i=0;i<70;i++){
-    const x=-30+random()*190,z=-25+random()*190,rx=4+random()*11,rz=3+random()*12;
-    if(nearRoad(x,z,4)||nearRiver(x,z,5))continue;
-    const pts=[];for(let j=0;j<18;j++){const a=j/18*TAU;pts.push(project(x+Math.cos(a)*rx,z+Math.sin(a)*rz));}
-    poly(g,pts,['#a0b17b14','#d7d1a021','#82976a12','#b4b77c1d'][i%4]);
+  tiles.sort((a,b)=>a.depth-b.depth);
+  for(const tile of tiles)poly(g,tile.pts,tile.color,tile.color,.8);
+  // Broken outcrops run across the hillside. Their feet meet the same terrain
+  // mesh; these are rock faces within the inhabited mountain, not a backdrop.
+  for(let band=0;band<9;band++){
+    const start=19+band*8.4,path=[];
+    for(let i=0;i<13;i++){const z=13+i*9.5,x=riverXAt(z)+start+Math.sin(z*.071+band*.8)*2.2;path.push([x,z]);}
+    for(let i=0;i<path.length-2;i+=3){
+      const a=path[i],b=path[i+1],d=path[i+2];
+      if([a,b,d].some(p=>nearRoad(...p,3.8)||LOCATIONS.some(l=>Math.hypot(l.x-p[0],l.z-p[1])<7)))continue;
+      const pts=samplePath([a,b,d],1.3),upper=pts.map(p=>project(...p)),lower=pts.map(([x,z])=>project(x-2.3,z+.9));
+      poly(g,[...upper,...lower.reverse()],band%3?'#9b997760':'#898b6b85');
+      line(g,upper,'#c1b88a89',1.4);line(g,upper.map(p=>({x:p.x+.4,y:p.y+4})),'#656f5144',1.1);
+    }
   }
   // Irregular, stony banks and a narrow stream, never a straight-sided canal.
-  const riverBand=(half,color,phase)=>{
-    const edge=(side)=>RIVER_SAMPLES.map(([x,z],i)=>project(x+side*(half+.22*Math.sin(i*.69+phase)+.14*Math.cos(i*.31)),z));
+  const riverBand=(half,color,phase,water=false)=>{
+    const edge=(side)=>RIVER_SAMPLES.map(([x,z],i)=>project(x+side*(half+.22*Math.sin(i*.69+phase)+.14*Math.cos(i*.31)),z,0,water?riverElevation(z):null));
     poly(g,[...edge(1),...edge(-1).reverse()],color);
   };
-  riverBand(3.35,'#889d83',.4);riverBand(2.75,'#b4b797',1.2);riverBand(1.88,'#61968c',0);riverBand(1.25,'#82aca0',.5);
-  line(g,RIVER_SAMPLES.map(([x,z],i)=>project(x+Math.sin(i*.18)*.31,z)),'#b9cbb067',5);
+  // The water occupies a carved continuous channel below the banks. Its own
+  // downhill profile avoids tiny interpolation ripples from nearby level yards.
+  riverBand(3.35,'#889d83',.4);riverBand(2.75,'#b4b797',1.2);riverBand(1.88,'#61968c',0,true);riverBand(1.25,'#82aca0',.5,true);
+  line(g,RIVER_SAMPLES.map(([x,z],i)=>project(x+Math.sin(i*.18)*.31,z,0,riverElevation(z))),'#b9cbb067',5);
   for(let i=0;i<RIVER_SAMPLES.length;i+=2){const p=RIVER_SAMPLES[i];for(const sign of [-1,1]){const q=project(p[0]+sign*(2.0+random()*1.0),p[1]+random()-.5);oval(g,q.x,q.y,2.2+random()*3.6,1.5+random()*2.0,i%4?'#a1ac90':'#c5c6aa');}}
   // Lane widths stay human-scale; access spurs lead to front yards.
   ROAD_SAMPLES.forEach((path,i)=>{
     const pts=path.map(p=>project(...p)),main=i<TRUNK_SAMPLES.length;
-    line(g,pts,main?'#8e967431':'#929f7730',main?21:13);line(g,pts,main?'#cfc3a2':'#c7bd9b',main?16:9);line(g,pts,'#e1d5b43d',main?7:3);
+    line(g,pts,main?'#5e6e444c':'#53674435',main?16:11);line(g,pts,main?'#bfb694':'#b6ac8b',main?11.5:7);line(g,pts,'#e1d5b426',main?4:2);
     for(let j=0;j<path.length;j+=2){const p=path[j];if(nearRiver(p[0],p[1],1.5)&&Math.abs(p[1]-spread(57))>2.2)continue;const q=project(p[0]+(random()-.5)*.6,p[1]+(random()-.5)*.6);line(g,[q,{x:q.x+1.7+random()*2,y:q.y+1}],j%3?'#aca78a54':'#ede0b64d',.75);}
+    for(let j=1;j<path.length-1;j+=2){
+      const a=path[j-1],b=path[j+1],rise=Math.abs(elevation(...b)-elevation(...a)),run=Math.hypot(b[0]-a[0],b[1]-a[1]);if(rise<run*.23||nearRiver(...path[j],2.2))continue;
+      const p=project(...path[j]),pa=project(...a),pb=project(...b),dx=pb.x-pa.x,dy=pb.y-pa.y,len=Math.hypot(dx,dy)||1,w=main?5.6:3.3,edge=[{x:p.x-dy/len*w,y:p.y+dx/len*w},{x:p.x+dy/len*w,y:p.y-dx/len*w}];
+      line(g,edge,'#787b5e',1.5);line(g,edge.map(v=>({x:v.x,y:v.y-1.2})),'#ddd0a9',.8);
+    }
   });
   // Every homestead has its own irregular yard rather than a repeated square plot.
   for(const loc of LOCATIONS){
@@ -505,15 +605,16 @@ function terrainCanvas(){
       }
     }
   }
-  // Older retaining walls hold narrow cultivated terraces high above the stream.
-  for(const path of [ [[70,82],[80,85],[88,83]],[[68,86],[78,90],[88,88]],[[75,91],[84,95],[94,93]],[[16,69],[26,72]],[[14,75],[25,79]],[[12,81],[24,86]],[[64,20],[72,22],[81,20]] ])drawStoneWall(g,expand(path),.65);
+  // Short, irregular stone terraces follow contour lanes rather than stacking
+  // the whole village on identical platforms.
+  for(const [i,path]of [ [[70,82],[80,85],[88,83]],[[68,86],[78,90],[88,88]],[[75,91],[84,95],[94,93]],[[64,20],[72,22],[81,20]],[[57,44],[63,48],[69,52]],[[45,58],[51,62],[58,67]],[[43,26],[48,29],[54,32]],[[63,35],[68,39],[72,44]] ].entries())drawMountainRiser(g,expand(path),.8+(i%3)*.38);
   for(let i=0;i<2000;i++){
     const x=-25+random()*185,z=-22+random()*180;
     if(nearRoad(x,z,2.2)||nearRiver(x,z,3.5)||LOCATIONS.some(b=>Math.hypot(b.x-x,b.z-z)<6.4))continue;
     const p=project(x,z);line(g,[{x:p.x-1.5,y:p.y},{x:p.x,y:p.y-2.3},{x:p.x+1,y:p.y}],i%3?'#76895038':'#e2d79c46',.8);
     if(i%8===0)oval(g,p.x+2,p.y+1,1.4,.9,'#c7bd9695');
   }
-  return {canvas:c,x:-2200,y:-320};
+  return {canvas:c,x:-2200,y:-1450};
 }
 
 function createBuildingSprite(loc,condition){
@@ -586,6 +687,16 @@ export function createVillageRenderer(canvas,callbacks={}) {
   // The square's plane tree, two church cypresses and riverbank trees are landmarks.
   addTree(spread(56.8),spread(40.6),'gold',1.25,.38);addTree(spread(80.3),spread(73),'cypress',1.15,.5);addTree(spread(69.1),spread(73.3),'cypress',1.05,.7);
   addTree(spread(31.3),spread(33.4),'gold',1,.4);addTree(spread(36.9),spread(74.2),'olive',.9,.6);addTree(spread(18.9),spread(56.4),'gold',1,.2);
+  // Wooded shoulders frame the high homes. Clumps follow the mountain ridges,
+  // leaving the settlement, its yards and its river crossings unobstructed.
+  const ridgeGroves=[[108,38,17,22],[112,72,18,23],[90,110,18,15],[-4,31,14,27]];
+  for(const [cx,cz,rx,rz]of ridgeGroves){
+    let planted=0,tries=0;while(planted<27&&tries++<220){
+      const a=random()*TAU,r=Math.sqrt(random()),x=cx+Math.cos(a)*rx*r,z=cz+Math.sin(a)*rz*r;
+      if(nearRoad(x,z,3.7)||nearRiver(x,z,4.5)||LOCATIONS.some(l=>Math.hypot(x-l.x,z-l.z)<9.3)||trees.some(t=>Math.hypot(t.x-x,t.z-z)<2.5))continue;
+      addTree(x,z,random()<.83?'pine':'olive',.72+random()*.38);planted++;
+    }
+  }
   // No decorative house clones: every visible dwelling is a distinct location.
   const npcs=Array.from({length:22},(_,i)=>({id:i,path:ROAD_SAMPLES[i%ROAD_SAMPLES.length],offset:random(),speed:.36+random()*.21,shirt:['#a97650','#788365','#b4a071','#71878a','#a9916f','#6c7a64','#b27f63'][i%7],hat:i%3===0?'#b9a274':null,basket:i%4===0,scale:i%9===0?.73:.9+random()*.14}));
   function conditionOf(loc){const val=state?.buildings?.[loc.id]?.condition;return Number.isFinite(val)?clamp(val,0,100):(loc.condition??30);}
@@ -597,7 +708,7 @@ export function createVillageRenderer(canvas,callbacks={}) {
   function worldPoint(x,y){const v=viewCenter();return {x:(x-v.x)/cam.scale+cam.x,y:(y-v.y)/cam.scale+cam.y};}
   function screenToGround(x,y){const p=worldPoint(x,y);return unproject(p.x,p.y);}
   function clientPoint(event){const r=canvas.getBoundingClientRect?canvas.getBoundingClientRect():{left:0,top:0,width,height};return {x:(event.clientX-r.left)*(width/(r.width||width)),y:(event.clientY-r.top)*(height/(r.height||height))};}
-  function setCameraDefault(){const availableWidth=width-insets.left-insets.right,availableHeight=height-insets.top-insets.bottom;cam.x=-8;cam.y=480;cam.scale=width<700?.84:clamp(Math.min(availableWidth/1580,availableHeight/1050)*1.2,.69,1.08);if(mode==='walk'){const p=project(player.x,player.z);cam.x=p.x;cam.y=p.y;cam.scale=Math.max(cam.scale,1.22);}}
+  function setCameraDefault(){const availableWidth=width-insets.left-insets.right,availableHeight=height-insets.top-insets.bottom;cam.x=width<700?185:25;cam.y=width<700?235:145;cam.scale=width<700?.51:clamp(Math.min(availableWidth/1720,availableHeight/1020)*1.08,.48,.94);if(mode==='walk'){const p=project(player.x,player.z);cam.x=p.x;cam.y=p.y;cam.scale=Math.max(cam.scale,1.22);}}
   function resize(){
     const r=canvas.getBoundingClientRect?canvas.getBoundingClientRect():{};
     const w=Math.round(r.width||canvas.clientWidth||width||1200),h=Math.round(r.height||canvas.clientHeight||height||800);
@@ -681,7 +792,13 @@ export function createVillageRenderer(canvas,callbacks={}) {
   function updatePlayer(dt,now){
     if(mode!=='walk'||!inputEnabled){player.moving=false;return;}
     followPause=Math.max(0,followPause-dt);let mx=movement.x+keyboard.x,my=movement.y+keyboard.y,dx=0,dz=0;
-    if(Math.hypot(mx,my)>.08){route=[];moveTarget=null;pendingVisit=null;dx=mx+my*(U/V);dz=-mx+my*(U/V);}
+    if(Math.hypot(mx,my)>.08){
+      route=[];moveTarget=null;pendingVisit=null;
+      // Invert the local terrain projection: pushing up still travels up the
+      // screen on a steep slope instead of sliding diagonally down its face.
+      const h=.025,hx=(elevation(player.x+h,player.z)-elevation(player.x-h,player.z))/(2*h),hz=(elevation(player.x,player.z+h)-elevation(player.x,player.z-h))/(2*h),ax=V-U*hx,az=V-U*hz,denom=ax+az;
+      const difference=mx/U;dz=(my-ax*difference)/denom;dx=dz+difference;const length=Math.hypot(dx,dz)||1;dx/=length;dz/=length;
+    }
     else if(route.length){const p=route[0],dist=Math.hypot(p.x-player.x,p.z-player.z);if(dist<.22){route.shift();if(!route.length)moveTarget=null;}else{dx=p.x-player.x;dz=p.z-player.z;}}
     const length=Math.hypot(dx,dz);player.moving=length>.01;
     if(player.moving){const stride=Math.min(length,dt*5.8);dx=dx/length*stride;dz=dz/length*stride;const nx=player.x+dx,nz=player.z+dz;if(!blocked(nx,nz)){player.x=nx;player.z=nz;}else if(!blocked(nx,player.z))player.x=nx;else if(!blocked(player.x,nz))player.z=nz;player.phase+=dt*2.5;dirty=true;}
@@ -690,13 +807,16 @@ export function createVillageRenderer(canvas,callbacks={}) {
     if(pendingVisit&&!route.length){const id=pendingVisit,loc=LOCATIONS.find(l=>l.id===id);pendingVisit=null;if(loc&&Math.hypot(loc.x-player.x,loc.z-player.z)<8.5)callbacks.onVisit?.(id);}
   }
   function drawBackdrop(now){
-    const bg=ctx.createLinearGradient(0,0,width,height);bg.addColorStop(0,'#d3d7b6');bg.addColorStop(1,'#b1bd98');ctx.fillStyle=bg;ctx.fillRect(0,0,width,height);
+    const bg=ctx.createLinearGradient(0,0,0,height);bg.addColorStop(0,'#bcccca');bg.addColorStop(.46,'#d9d4b5');bg.addColorStop(1,'#839575');ctx.fillStyle=bg;ctx.fillRect(0,0,width,height);
+    for(let layer=0;layer<3;layer++){
+      const pts=[{x:-80,y:height}];for(let i=0;i<=20;i++){const x=-80+i*(width+160)/20,y=height*(.05+layer*.07)+Math.sin(i*.71+layer*2)*height*.045-Math.cos(i*.38+layer)*height*.055;pts.push({x,y});}pts.push({x:width+80,y:height});poly(ctx,pts,['#92a49a','#81978a','#738e77'][layer]);
+    }
   }
   function drawWorld(now){
     const center=viewCenter();ctx.save();ctx.translate(center.x,center.y);ctx.scale(cam.scale,cam.scale);ctx.translate(-cam.x,-cam.y);
     ctx.drawImage(ground.canvas,ground.x,ground.y);
     // Fine moving reflections keep the river alive without noisy particle effects.
-    for(let i=6;i<RIVER_SAMPLES.length-5;i+=7){const q=RIVER_SAMPLES[i],p=project(q[0]+Math.sin(now*.00035+i)*.6,q[1]+Math.sin(now*.00015+i)*.5);const alpha=.16+.12*Math.sin(now*.001+i);line(ctx,[{x:p.x-4,y:p.y},{x:p.x+4,y:p.y+2}],`rgba(233,239,209,${alpha})`,1.2);}
+    for(let i=6;i<RIVER_SAMPLES.length-5;i+=7){const q=RIVER_SAMPLES[i],z=q[1]+Math.sin(now*.00015+i)*.5,p=project(q[0]+Math.sin(now*.00035+i)*.6,z,0,riverElevation(z));const alpha=.16+.12*Math.sin(now*.001+i);line(ctx,[{x:p.x-4,y:p.y},{x:p.x+4,y:p.y+2}],`rgba(233,239,209,${alpha})`,1.2);}
     if(mode==='walk'&&route.length){
       ctx.save();ctx.setLineDash([3,8]);line(ctx,[project(player.x,player.z),...route.map(p=>project(p.x,p.z))],'#f2dfaaa0',2);ctx.restore();
       const p=project(moveTarget.x,moveTarget.z);ctx.beginPath();ctx.ellipse(p.x,p.y,9,4.5,0,0,TAU);ctx.strokeStyle='#ebce8a';ctx.lineWidth=2;ctx.stroke();
@@ -804,6 +924,8 @@ export function createVillageRenderer(canvas,callbacks={}) {
     visitSelected(){const loc=LOCATIONS.find(l=>l.id===selected);if(mode!=='walk')return {ok:false,message:'Βγες πρώτα από το γραφείο για να επισκεφθείς το χωριό.'};if(!loc)return {ok:false,message:'Επίλεξε πρώτα ένα κτίριο στον χάρτη.'};const distance=Math.hypot(loc.x-player.x,loc.z-player.z);if(distance>=8.5)return {ok:false,message:'Πλησίασε το κτίριο με τον μουχτάρη και πάτησε ξανά Επίσκεψη.',distance};callbacks.onVisit?.(loc.id);return {ok:true,id:loc.id,distance};},
     walkToBuilding(id,options={}){const loc=LOCATIONS.find(l=>l.id===id);if(!loc)return {ok:false,message:'Δεν βρέθηκε αυτή η τοποθεσία.'};switchMode('walk');selected=id;callbacks.onSelect?.(id);const visit=options.visitOnArrival!==false;if(Math.hypot(loc.x-player.x,loc.z-player.z)<8.5){if(visit)callbacks.onVisit?.(id);return {ok:true,id,arrived:true};}setWalkTarget(entranceOf(loc));if(!route.length)return {ok:false,message:'Δεν βρέθηκε ελεύθερη διαδρομή. Πλησίασε με το joystick ή τα πλήκτρα.'};pendingVisit=visit?id:null;followPause=0;return {ok:true,id,arrived:false,steps:route.length};},
     renderFrame,
+    getGroundProjection(x,z){const p=project(x,z);return {...screenPoint(p),height:elevation(x,z),world:p};},
+    getGroundAtScreen(x,y){return screenToGround(x,y);},
     getDebugState(){const nearest=LOCATIONS.map(l=>({id:l.id,name:l.name,distance:Math.hypot(l.x-player.x,l.z-player.z)})).sort((a,b)=>a.distance-b.distance)[0];return {width,height,dpr,mode,layer,selected,hovered,inputEnabled,camera:{...cam},insets:{...insets},player:{...player},nearest,route:[...route],pendingVisit,buildingCount:LOCATIONS.length,treeCount:trees.length,npcCount:npcs.length,hitboxes:hitboxes.map(b=>({...b})),labels:labelHits.map(l=>({...l})),cachedBuildings:sprites.size};},
     destroy(){destroyed=true;listeners.forEach(fn=>fn());observer?.disconnect();if(typeof cancelAnimationFrame==='function')cancelAnimationFrame(frameId);sprites.clear();treeSprites.clear();}
   };

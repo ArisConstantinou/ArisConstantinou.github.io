@@ -1,7 +1,7 @@
-import {createGame,PROJECTS,ROLES,MISSIONS,RESOURCES,NPCS,BARTERS,CHAPTERS,formatMoney,formatDuration,getProjectStatus,getMissionStatus,getDialogueStatus,getEconomyRates,getFreeWorkers,getChapter} from './engine.js?v=1.1.2';
-import {LOCATIONS,LOCATION_MAP} from './locations.js?v=1.1.2';
-import {createVillageRenderer} from './world.js?v=1.1.2';
-import {icon,portrait,buildingIllustration,welcomeArt} from './icons.js?v=1.1.2';
+import {createGame,PROJECTS,ROLES,MISSIONS,RESOURCES,NPCS,BARTERS,CHAPTERS,formatMoney,formatDuration,getProjectStatus,getMissionStatus,getDialogueStatus,getEconomyRates,getFreeWorkers,getChapter} from './engine.js?v=1.2.0';
+import {LOCATIONS,LOCATION_MAP} from './locations.js?v=1.2.0';
+import {createVillageRenderer} from './world.js?v=1.2.0';
+import {icon,portrait,buildingIllustration,welcomeArt} from './icons.js?v=1.2.0';
 
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -11,7 +11,7 @@ const storage={getItem:k=>{try{return localStorage.getItem(k)}catch{return null}
 const safeStore=(k,v)=>{try{storage.setItem(k,v)}catch{}};
 const game=createGame({storage});
 const initialStorageWarning=game.state.storageWarning;
-const view={panel:'overview',selected:'office',mode:'office',filter:'all',layer:'normal',peopleSection:'requests',pendingTalk:null,panelOpen:true,modal:null,welcomeMode:'campaign',sound:false,history:[],historyError:false,lastPanelAt:0,lastLogId:null,started:!!storage.getItem('moutoullas-welcomed-v1')};
+const view={panel:'overview',selected:'office',mode:'office',filter:'all',layer:'normal',peopleSection:'requests',pendingTalk:null,panelOpen:window.innerWidth>600,modal:null,welcomeMode:'campaign',sound:false,history:[],historyError:false,lastPanelAt:0,lastLogId:null,started:!!storage.getItem('moutoullas-welcomed-v1')};
 let audioCtx=null,renderer=null,rendering=false,lastJobIds=[],tickTimer=null,panelPointerDown=false;
 const NAV=[['overview','office','Γραφείο'],['projects','hammer','Έργα'],['people','people','Κάτοικοι'],['treasury','ledger','Ταμείο'],['market','market','Αγορά'],['missions','flag','Αποστολές'],['history','book','Ο τόπος']];
 const PANELS={overview:['ΚΟΙΝΟΤΙΚΟ ΓΡΑΦΕΙΟ','Καλώς ήρθες, μουχτάρη.'],projects:['Η ΑΝΑΓΕΝΝΗΣΗ ΤΟΥ ΧΩΡΙΟΥ','Έργα & φροντίδα'],people:['ΚΑΝΕΝΑΣ ΔΕΝ ΠΕΡΙΣΣΕΥΕΙ','Οι άνθρωποί μας'],treasury:['ΚΑΘΕ ΛΙΡΑ ΜΕΤΡΑ','Το τεφτέρι'],market:['ΑΠΟ ΤΟΝ ΤΟΠΟ ΜΑΣ','Η μικρή αγορά'],missions:['ΒΗΜΑ ΒΗΜΑ, ΜΑΖΙ','Το χρονικό μας'],history:['ΠΡΑΓΜΑΤΙΚΟΣ ΤΟΠΟΣ · ΑΛΗΘΙΝΕΣ ΡΙΖΕΣ','Γνωρίζοντας τον Μουτουλλά']};
@@ -175,7 +175,7 @@ async function onAction(e){const el=e.target.closest('[data-action]');if(!el||el
  case 'modal':showModal(value);break;
  case 'close-modal':closeModal();break;
  case 'choose-mode':view.welcomeMode=value;showModal('welcome');break;
- case 'begin':{game.reset(view.welcomeMode);game.setPaused(false);safeStore('moutoullas-welcomed-v1','1');view.started=true;view.modal=null;closeModal();panel('overview');toast('Καλωσόρισες, μουχτάρη. Ας δώσουμε πρώτα νερό στο χωριό.');break;}
+ case 'begin':{game.reset(view.welcomeMode);game.setPaused(false);safeStore('moutoullas-welcomed-v1','1');view.started=true;view.modal=null;closeModal();view.panel='overview';view.panelOpen=window.innerWidth>600;render(true);updateInsets();toast('Καλωσόρισες, μουχτάρη. Ας δώσουμε πρώτα νερό στο χωριό.');break;}
  case 'save':game.save();toast(storage.failed?'Η αποθήκευση δεν είναι διαθέσιμη. Εξήγαγε ένα αντίγραφο.':'Η θητεία σου αποθηκεύτηκε.',!!storage.failed);break;
  case 'export':exportSave();break;
  case 'import':$('save-file')?.click();break;
