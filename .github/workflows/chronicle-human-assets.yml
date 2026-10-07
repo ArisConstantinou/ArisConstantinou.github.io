@@ -32,7 +32,7 @@ jobs:
       - name: Generate clothed people with skin, eyes, fingers and armatures
         run: |
           python - <<'PY'
-          import bpy, runpy, os
+          import bpy, runpy, os, sys, traceback
           original = bpy.utils.extension_path_user
           def extension_path(package, *, path='', create=False):
               if package == 'mpfb':
@@ -41,8 +41,14 @@ jobs:
                   return folder
               return original(package,path=path,create=create)
           bpy.utils.extension_path_user=extension_path
-          runpy.run_path('Village/chronicle/tools/build_humans.py',run_name='__main__')
-          os._exit(0)
+          if 'mpfb' not in bpy.context.preferences.addons:
+              bpy.context.preferences.addons.new().module='mpfb'
+          try:
+              runpy.run_path('Village/chronicle/tools/build_humans.py',run_name='__main__')
+          except Exception:
+              traceback.print_exc()
+              sys.stdout.flush();sys.stderr.flush();os._exit(1)
+          sys.stdout.flush();sys.stderr.flush();os._exit(0)
           PY
       - name: Bundle an offline character-capable Three.js runtime
         if: always()
