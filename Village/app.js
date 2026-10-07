@@ -1,7 +1,7 @@
-import {createGame,PROJECTS,ROLES,MISSIONS,RESOURCES,NPCS,BARTERS,CHAPTERS,formatMoney,formatDuration,getProjectStatus,getMissionStatus,getDialogueStatus,getEconomyRates,getFreeWorkers,getChapter} from './engine.js';
-import {LOCATIONS,LOCATION_MAP} from './locations.js';
-import {createVillageRenderer} from './world.js';
-import {icon,portrait,buildingIllustration,welcomeArt} from './icons.js';
+import {createGame,PROJECTS,ROLES,MISSIONS,RESOURCES,NPCS,BARTERS,CHAPTERS,formatMoney,formatDuration,getProjectStatus,getMissionStatus,getDialogueStatus,getEconomyRates,getFreeWorkers,getChapter} from './engine.js?v=1.1.1';
+import {LOCATIONS,LOCATION_MAP} from './locations.js?v=1.1.1';
+import {createVillageRenderer} from './world.js?v=1.1.1';
+import {icon,portrait,buildingIllustration,welcomeArt} from './icons.js?v=1.1.1';
 
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -205,6 +205,6 @@ if(initialStorageWarning)toast(initialStorageWarning,true);
 if(!view.started){game.setPaused(true);showModal('welcome')}else if(game.state.offlineSummary){showModal('offline')}
 tickTimer=setInterval(()=>{if(view.started)game.tick();render()},1000);
 fetch('./history.json').then(r=>{if(!r.ok)throw new Error('history');return r.json()}).then(data=>{view.history=Array.isArray(data)?data:data.entries||[];if(view.panel==='history')render(true)}).catch(()=>{view.historyError=true;if(view.panel==='history')render(true)});
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})})}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).catch(()=>{})})}
 // Read-only UI diagnostics make failures inspectable without altering the simulation.
 window.moutoullas={getState:()=>JSON.parse(JSON.stringify(game.state)),getView:()=>({...view,history:undefined}),getMap:()=>renderer?.getDebugState?.()};

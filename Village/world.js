@@ -1,4 +1,4 @@
-import { LOCATIONS } from './locations.js';
+import { LOCATIONS } from './locations.js?v=1.1.1';
 
 // A hand-drawn, procedural interpretation of Moutoullas. Positions are deliberately
 // a playable composition, never a claim to be cadastral or surveyed coordinates.
