@@ -1,0 +1,74 @@
+name: Chronicle 0.4 verified publication
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/chronicle-publish04.yml'
+      - 'Village/chronicle/tools/release04.part*'
+      - 'Village/chronicle/tools/publish04.py'
+      - 'Village/chronicle/tools/smoke04.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: chronicle-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Retrieve the verified anatomical asset build
+        uses: actions/download-artifact@v4
+        with:
+          name: chronicle-anatomical-assets
+          github-token: ${{ github.token }}
+          run-id: 37659873092
+          path: /tmp/chronicle-source-assets
+      - name: Retrieve the photographic CC0 surfaces
+        uses: actions/download-artifact@v4
+        with:
+          name: chronicle-surface-assets
+          github-token: ${{ github.token }}
+          run-id: 37661223403
+          path: /tmp/chronicle-surface-assets
+      - name: Assemble checked source and local assets
+        run: |
+          python -m pip install 'pillow==11.1.0' 'playwright==1.51.0'
+          python Village/chronicle/tools/publish04.py
+          node --check Village/chronicle/game.bundle.js
+          node --check Village/chronicle/vendor/runtime.js
+      - name: Install test browser
+        run: python -m playwright install chromium --with-deps --only-shell
+      - name: Render the actual scene and check desktop and touch layouts
+        run: xvfb-run -a python Village/chronicle/tools/smoke04.py
+      - name: Record test evidence beside the release
+        run: |
+          mkdir -p Village/chronicle/preview
+          cp chronicle-check/character.png Village/chronicle/preview/character.png
+          cp chronicle-check/character-woman.png Village/chronicle/preview/character-woman.png
+          cp chronicle-check/mobile.png Village/chronicle/preview/mobile.png
+          cp chronicle-check/results.json Village/chronicle/preview/test-results.json
+      - name: Commit only the Chronicle application
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Village/chronicle
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Publish Chronicle 0.4: anatomical humans, grounded architecture and photographic materials'
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - name: Preserve verification images and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chronicle-04-browser-check
+          path: chronicle-check/
+          retention-days: 7
