@@ -1,0 +1,51 @@
+name: Chronicle anatomical asset build
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/chronicle-assets.yml'
+      - 'Village/chronicle/tools/build_humans.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: chronicle-assets
+  cancel-in-progress: true
+jobs:
+  humans:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Acquire Blender and CC0 MakeHuman source assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chronicle-assets/system out/vendor
+          cd /tmp/chronicle-assets
+          curl -fL --retry 2 https://download.blender.org/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz -o blender.tar.xz
+          tar -xf blender.tar.xz
+          git clone --depth 1 https://github.com/makehumancommunity/mpfb2.git
+          curl -fL --retry 2 https://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip -o system.zip
+          unzip -q system.zip -d system
+          find system -name '*.mhclo' -o -name '*.mhmat' > "$GITHUB_WORKSPACE/out/available-assets.txt"
+      - name: Export two clothed, textured, deform-rigged humans
+        shell: bash
+        run: |
+          /tmp/chronicle-assets/blender-4.2.3-linux-x64/blender --background --python-exit-code 1 --python Village/chronicle/tools/build_humans.py 2>&1 | tee out/build.log
+      - name: Package pinned Three.js runtime
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p out/vendor
+          curl -fL --retry 2 https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js -o out/vendor/three.module.js
+          curl -fL --retry 2 https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/GLTFLoader.js -o out/vendor/GLTFLoader.js
+          curl -fL --retry 2 https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/utils/SkeletonUtils.js -o out/vendor/SkeletonUtils.js
+          curl -fL --retry 2 https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/utils/BufferGeometryUtils.js -o out/vendor/BufferGeometryUtils.js
+          curl -fL --retry 2 https://cdn.jsdelivr.net/npm/three@0.160.1/LICENSE -o out/vendor/THREE-LICENSE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chronicle-anatomical-assets
+          path: out/
+          retention-days: 7
