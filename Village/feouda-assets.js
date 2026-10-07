@@ -17,14 +17,19 @@ function inspect(gltf){
 function normalize(gltf,spec,dimensions={}){
  const content=gltf.scene.userData.hasSkin?cloneSkeleton(gltf.scene):gltf.scene.clone(true);
  const root=new THREE.Group();root.name='asset:'+spec.id;root.userData.assetId=spec.id;root.userData.assetKind=spec.kind;root.userData.dynamic=true;root.add(content);
- content.rotation.y+=safe(spec.forwardYaw,0);content.updateMatrixWorld(true);bounds.setFromObject(content);
+ content.rotation.y+=safe(spec.forwardYaw,0);content.updateMatrixWorld(true);
+ // A rotated source building needs vertex bounds: rotating its local AABB can
+ // invent a floor below the mesh and leave the imported architecture floating.
+ bounds.setFromObject(content,spec.kind==='building');
  const size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
  const factors=[];
  if(dimensions.height)factors.push(dimensions.height/Math.max(.001,size.y));
  if(dimensions.width)factors.push(dimensions.width/Math.max(.001,size.x));
  if(dimensions.depth)factors.push(dimensions.depth/Math.max(.001,size.z));
- const factor=factors.length?Math.min(...factors):safe(spec.scale,1);
- content.position.x-=center.x;content.position.y-=bounds.min.y;content.position.z-=center.z;
+ // Some animated machines and mounts are already fitted to a measured swept
+ // collision envelope. Recentering their idle pose would invalidate that fit.
+ const authored=spec.normalization==='authored',factor=authored?safe(spec.scale,1):factors.length?Math.min(...factors):safe(spec.scale,1);
+ if(!authored){content.position.x-=center.x;content.position.y-=bounds.min.y;content.position.z-=center.z;}
  const normalized=new THREE.Group();normalized.scale.setScalar(factor);root.remove(content);normalized.add(content);root.add(normalized);
  root.traverse(o=>{if(!o.isMesh)return;o.castShadow=true;o.receiveShadow=true;o.userData.sharedAsset=true;});
  root.userData.dimensions={width:size.x*factor,height:size.y*factor,depth:size.z*factor};root.userData.normalized=normalized;
@@ -62,11 +67,25 @@ export function createAssetLibrary({software=false,onStatus=()=>{},onAsset=()=>{
   object.name='module:'+name;object.userData.assetId=asset.spec.id;object.userData.assetModule=name;object.userData.dynamic=true;object.userData.dimensions={width:dimensions.width||size.x,height:dimensions.height||size.y,depth:dimensions.depth||size.z};
   object.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true;o.userData.sharedAsset=true;}});return object;
  }
- function createAnimated(kind,type,dimensions={}){
-  const asset=match(kind,type);if(!asset)return null;const object=normalize(asset.gltf,asset.spec,dimensions),mixer=new THREE.AnimationMixer(object),clips=asset.gltf.animations;
-  const idle=clips.find(c=>/idle/i.test(c.name))||clips[0],attack=clips.find(c=>/attack|fire|throw/i.test(c.name)),actions={idle:idle?mixer.clipAction(idle):null,attack:attack?mixer.clipAction(attack):null};let active='idle';actions.idle?.play();
-  object.userData.softwareDynamic=true;object.userData.animate=(time,attacking)=>{const next=attacking&&actions.attack?'attack':'idle';if(next!==active){actions[active]?.stop();actions[next]?.play();active=next;}if(actions[active])mixer.setTime(time);object.updateMatrixWorld(true);};
-  object.userData.disposeAnimation=()=>{mixer.stopAllAction();mixer.uncacheRoot(object);};return object;
+ function createAnimated(kind,type,dimensions={},variant=0){
+  const asset=match(kind,type,variant);if(!asset)return null;
+  const object=normalize(asset.gltf,asset.spec,dimensions),mixer=new THREE.AnimationMixer(object),clips=asset.gltf.animations,named=new Map();object.traverse(node=>{if(node.name)named.set(node.name.toLowerCase(),node);});
+  const configured=asset.spec.clips||{},findClip=(name,expression)=>clips.find(c=>c.name===configured[name])||clips.find(c=>expression.test(c.name));
+  const idle=findClip('idle',/idle|stand/i)||clips[0],walk=findClip('walk',/^walk$|walk/i),trot=findClip('trot',/trot|gallop|run/i),attack=findClip('attack',/attack|fire|throw/i);
+  const aliases={idle,walk,trot,attack},actions=new Map(clips.map(c=>[c.name,mixer.clipAction(c)]));let active=null,activeTime=0,activeLoop=true;
+  function poseClip(name,time=0,loop=true){
+   const clip=aliases[name]||clips.find(c=>c.name===name);if(!clip)return false;const action=actions.get(clip.name);
+   if(active!==clip.name){mixer.stopAllAction();action.reset().play();active=clip.name;}action.paused=false;action.enabled=true;action.clampWhenFinished=!loop;action.setLoop(loop?THREE.LoopRepeat:THREE.LoopOnce,loop?Infinity:1);
+   activeTime=loop?((time%clip.duration)+clip.duration)%clip.duration:THREE.MathUtils.clamp(time,0,clip.duration);activeLoop=loop;mixer.setTime(activeTime);object.updateMatrixWorld(true);return true;
+  }
+  const socketPoint=new THREE.Vector3();function socketLocal(name,target){const raw=asset.spec.sockets?.[name]||name,node=named.get(raw.toLowerCase())||[...named.values()].find(n=>n.name.toLowerCase().endsWith(':'+raw.toLowerCase()));if(!node)return null;node.getWorldPosition(socketPoint);target.copy(object.worldToLocal(socketPoint));const offset=asset.spec.socketOffsets?.[name];if(offset)target.add(new THREE.Vector3(...offset));return target;}
+  object.userData.softwareDynamic=true;object.userData.animationInfo={idle:idle?.name,walk:walk?.name,trot:trot?.name,attack:attack?.name,idleDuration:idle?.duration||0,walkDuration:walk?.duration||0,trotDuration:trot?.duration||0,strideLength:{...asset.spec.strideLength},attackDuration:attack?.duration||0,releaseAt:safe(asset.spec.releaseAt,(attack?.duration||1)*.32),reloadAt:safe(asset.spec.reloadAt,(attack?.duration||1)*.85),loadedObject:asset.spec.loadedObject||null,sockets:{...asset.spec.sockets}};
+  object.userData.animate=(time,attacking=false,moving=false)=>{const name=attacking&&attack?'attack':moving?(trot?'trot':walk?'walk':'idle'):'idle';poseClip(name,time,true);};
+  object.userData.poseClip=poseClip;object.userData.socketLocal=socketLocal;
+  object.userData.setNodeVisible=(name,visible)=>{const node=named.get(name?.toLowerCase());if(node)node.visible=visible;};
+  object.userData.socketAt=(clip,time,name,target)=>{const previous={active,time:activeTime,loop:activeLoop};if(!poseClip(clip,time,false))return null;const result=socketLocal(name,target);if(previous.active)poseClip(previous.active,previous.time,previous.loop);return result;};
+  object.userData.animationState=()=>({clip:active,time:activeTime,loop:activeLoop});
+  object.userData.disposeAnimation=()=>{mixer.stopAllAction();mixer.uncacheRoot(object);};if(idle)poseClip('idle',0);return object;
  }
  function createCharacter(type,{height=1.9,variant=0}={}){
   const asset=match('unit',type,variant);if(!asset)return null;
@@ -81,7 +100,7 @@ export function createAssetLibrary({software=false,onStatus=()=>{},onAsset=()=>{
   const lowestFoot=()=>{let y=Infinity;for(const name of ['LeftFoot','LeftToeBase','RightFoot','RightToeBase']){const b=bone(name);if(!b)continue;b.getWorldPosition(footPoint);y=Math.min(y,object.worldToLocal(footPoint).y);}return Number.isFinite(y)?y:0;};
   object.updateMatrixWorld(true);const footRest=lowestFoot();let mode='idle';
   return{object,assetId:asset.spec.id,info:asset.info,
-   socket(name,target){const b=bone(name==='left'?'LeftHand':'RightHand');if(!b)return target.set(name==='left'?-.37:.37,1.06,.05);b.getWorldPosition(localHand);return target.copy(object.worldToLocal(localHand));},
+   socket(name,target){const b=bone(({left:'LeftHand',right:'RightHand',hips:'Hips',head:'Head',leftFoot:'LeftFoot',rightFoot:'RightFoot'})[name]||name);if(!b)return target.set(name==='left'?-.37:.37,1.06,.05);b.getWorldPosition(localHand);return target.copy(object.worldToLocal(localHand));},
    update({time=0,phase=time*7,walking=false,attacking=false,role=type}={}){
     const next=walking&&actions.walk?'walk':'idle';if(next!==mode){actions[mode]?.stop();actions[next]?.play();mode=next;}
     if(actions.walk&&walking)mixer.setTime(time+(variant%7)*.217);
@@ -93,7 +112,7 @@ export function createAssetLibrary({software=false,onStatus=()=>{},onAsset=()=>{
      if(walking){const swing=Math.sin(phase),opposite=-swing;pose('LeftUpLeg',sagittal,swing*.36);pose('RightUpLeg',sagittal,opposite*.36);pose('LeftLeg',sagittal,Math.max(0,-swing)*.55);pose('RightLeg',sagittal,Math.max(0,-opposite)*.55);pose('LeftArm',sagittal,-swing*.26);pose('RightArm',sagittal,swing*.26);}
      if(role==='archer'){pose('LeftArm',sagittal,-.5);pose('LeftForeArm',sagittal,-.55);pose('RightForeArm',sagittal,-.7);}
      else if(role==='sword'||role==='spear'||role==='cavalry'){pose('RightForeArm',sagittal,-.72);pose('LeftForeArm',sagittal,-.8);}
-     if(role==='cavalry'){pose('LeftUpLeg',sagittal,-1.05);pose('RightUpLeg',sagittal,-1.05);pose('LeftLeg',sagittal,1.12);pose('RightLeg',sagittal,1.12);}
+     if(role==='cavalry'){pose('LeftUpLeg',sagittal,-1.05);pose('RightUpLeg',sagittal,-1.05);pose('LeftUpLeg',frontal,.4);pose('RightUpLeg',frontal,-.4);pose('LeftLeg',sagittal,1.25);pose('RightLeg',sagittal,1.25);}
      if(attacking){pose('RightArm',sagittal,-.35+Math.sin(time*5)*.58);pose('Spine',frontal,Math.sin(time*5)*.035);}
      pose('Spine02',sagittal,Math.sin(time*1.5+variant)*.008);
      object.updateMatrixWorld(true);if(role!=='cavalry')object.userData.normalized.position.y+=footRest-lowestFoot();

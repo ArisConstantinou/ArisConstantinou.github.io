@@ -1,0 +1,561 @@
+{
+  "assets": [
+    {
+      "file": "horse.glb",
+      "type": "horse",
+      "kind": "mount",
+      "title": "Rigged bay horse with black mane and tail, quilted leather riding pad, bridle and reins",
+      "author": "Wildfire Games",
+      "authorUrl": "https://www.wildfiregames.com/",
+      "source": "https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/art/actors/fauna/horse_bay_01.xml",
+      "license": "CC-BY-SA-3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "attribution": "Horse model, mane, tail, riding pad, bridle, textures and animations by Wildfire Games (https://www.wildfiregames.com/), used and adapted under CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/). The horse GLB adaptation remains CC BY-SA 3.0.",
+      "retrieved": "2026-10-07",
+      "bytes": 2469704,
+      "sha256": "e6773d5bd7ce1789a3419705d8287ef5dfa5c1b4b54ccdac1c8e30638f94306f",
+      "triangles": 2264,
+      "renderedMeshes": 5,
+      "materialCount": 4,
+      "embeddedImages": 7,
+      "skinJoints": [
+        "Horse_root",
+        "Horse_Spine",
+        "Horse_Spine_1",
+        "Horse_Spine_2",
+        "Horse_Neck",
+        "Horse_Neck_1",
+        "Horse_Neck_2",
+        "Horse_Head",
+        "Horse_ear_R",
+        "Horse_ear_2_R",
+        "Horse_ear_L",
+        "Horse_ear_2_L",
+        "Horse_shoulder_R",
+        "Horse_upperarm_R",
+        "Horse_Arm_R",
+        "Horse_Forearm_R",
+        "Horse_Hand_R",
+        "Horse_Hoof_R",
+        "Horse_shoulder_L",
+        "Horse_upperarm_L",
+        "Horse_Arm_L",
+        "Horse_Forearm_L",
+        "Horse_Hand_L",
+        "Horse_Hoof_L",
+        "Horse_Belly",
+        "Horse_Femur_L",
+        "Horse_Thigh_L",
+        "Horse_Leg_L",
+        "Horse_Shin_L",
+        "Horse_Foot_L",
+        "Horse_Hoof_back_L",
+        "Horse_Femur_R",
+        "Horse_Thigh_R",
+        "Horse_Leg_R",
+        "Horse_Shin_R",
+        "Horse_Foot_R",
+        "Horse_Hoof_back_R",
+        "Horse_Tail_base",
+        "Horse_Tail",
+        "Horse_Tail_2",
+        "Horse_Tail_3",
+        "Horse_Tail_4",
+        "Horse_Tail_5",
+        "Horse_Tail_6",
+        "Horse_Tail_7",
+        "Knee_B_L",
+        "Knee_B_R",
+        "Horse_Tail_8",
+        "Horse_Tail_9",
+        "Horse_Tail_10",
+        "Horse_Hair",
+        "Horse_Hand_IK_R",
+        "Hand_R",
+        "Hoof_F_R",
+        "Horse_Hand_IK_L",
+        "Hand_L",
+        "Hoof_F_L",
+        "Horse_HeadNub",
+        "Horse_leg_IK_L",
+        "Foot_L",
+        "Hoof_B_L",
+        "Horse_leg_IK_R",
+        "Foot_R",
+        "Hoof_B_R",
+        "prop_head",
+        "Knee_Stretch_R",
+        "Knee_Stretch_L",
+        "prop_chest",
+        "prop_shield",
+        "prop_rider",
+        "prop_saddle",
+        "prop_wings",
+        "Knee_Stretch_B_L",
+        "Leg_Stretch_L",
+        "Knee_Stretch_B_R",
+        "Leg_Stretch_R",
+        "Leg_target_L",
+        "Leg_target_R",
+        "Knee_F_L",
+        "Knee_F_R",
+        "Shoulder_Target_R",
+        "Shoulder_Target_L",
+        "prop_decals",
+        "prop_rider_R",
+        "prop_rider_L",
+        "prop_hair"
+      ],
+      "animations": [
+        {
+          "name": "Idle",
+          "duration": 2,
+          "channels": 262
+        },
+        {
+          "name": "Walk",
+          "duration": 1.6666669845581055,
+          "channels": 181
+        },
+        {
+          "name": "Trot",
+          "duration": 0.6666666865348816,
+          "channels": 262
+        }
+      ],
+      "normalization": {
+        "mode": "authored",
+        "units": "metres",
+        "up": "+Y",
+        "facing": "+Z",
+        "sourceToMetreScale": 0.41017720794075135,
+        "sourceHorizontalCenter": [
+          -0.03719073848186816,
+          0,
+          0.508260533787378
+        ],
+        "fixedGroundOffsetMetres": 0.0033676982552994657,
+        "maximumSampledHorizontalRadiusMetres": 1.5349999775113157,
+        "ground": "The minimum sampled hoof height is Y = 0 within floating-point tolerance; idle hooves are 3.4 mm above it. Preserve full exported root transform."
+      },
+      "idleBounds": {
+        "min": [
+          -0.36954933098955683,
+          0.0033676984152037964,
+          -1.3558985123713008
+        ],
+        "max": [
+          0.40245791543925524,
+          2.097784556930306,
+          1.468346939343034
+        ],
+        "size": [
+          0.7720072464288121,
+          2.0944168585151024,
+          2.8242454517143347
+        ],
+        "radius": 1.4689425092231863
+      },
+      "animationBounds": {
+        "Idle": {
+          "duration": 2,
+          "tracks": 262,
+          "min": [
+            -0.9544800254198913,
+            0.0033677031409392417,
+            -1.427791262306404
+          ],
+          "max": [
+            0.9523328505444953,
+            2.097784481648993,
+            1.4697963190819194
+          ],
+          "radius": 1.5349999775113157,
+          "seatMin": [
+            0.015254759759832173,
+            1.5876422376932255,
+            0.1229716112045175
+          ],
+          "seatMax": [
+            0.015254759759832173,
+            1.5876422388392473,
+            0.12297161120451766
+          ]
+        },
+        "Walk": {
+          "duration": 1.6666669845581055,
+          "tracks": 181,
+          "min": [
+            -0.38440980073518244,
+            -1.3550957150831877e-07,
+            -1.4697898572683208
+          ],
+          "max": [
+            0.41491140987198466,
+            2.0019745217157445,
+            1.4627393060887817
+          ],
+          "radius": 1.4698690255385276,
+          "seatMin": [
+            0.013406780141136295,
+            1.4975545942089268,
+            0.04549511240860887
+          ],
+          "seatMax": [
+            0.01709592263128728,
+            1.585588292447237,
+            0.07666124012589687
+          ]
+        },
+        "Trot": {
+          "duration": 0.6666666865348816,
+          "tracks": 262,
+          "min": [
+            -0.3718099516712281,
+            0.0016027795317794455,
+            -1.454415219404887
+          ],
+          "max": [
+            0.40303983832422824,
+            2.058679955319984,
+            1.4276434464812306
+          ],
+          "radius": 1.454495218570613,
+          "seatMin": [
+            0.01525437064199775,
+            1.5411173927674762,
+            0.03949984113775051
+          ],
+          "seatMax": [
+            0.015254759810619856,
+            1.625699027541324,
+            0.05220320106178189
+          ]
+        }
+      },
+      "attachments": {
+        "prop_rider": {
+          "position": [
+            0.015254759759832173,
+            1.5876422376932258,
+            0.1229716112045176
+          ],
+          "quaternion": [
+            -0.7470164427818228,
+            1.9895942389285697e-09,
+            1.6689510267534838e-09,
+            0.6648055612083819
+          ]
+        },
+        "prop_saddle": {
+          "position": [
+            0.015254759759832173,
+            1.5876422376932258,
+            0.1229716112045176
+          ],
+          "quaternion": [
+            -0.7470164427818228,
+            1.9895942389285697e-09,
+            1.6689510267534838e-09,
+            0.6648055612083819
+          ]
+        },
+        "prop_hair": {
+          "position": [
+            0.015254808755526914,
+            0.008389354101381197,
+            -0.20847689130764877
+          ],
+          "quaternion": [
+            -0.7071067215819016,
+            5.338514385807383e-08,
+            5.338514825409408e-08,
+            0.7071068407911844
+          ]
+        },
+        "Horse_Head": {
+          "position": [
+            0.015254804345327064,
+            1.8427696091908035,
+            1.1171302312426
+          ],
+          "quaternion": [
+            3.4819276741973053e-07,
+            0.2952878572323347,
+            0.9554083322700302,
+            7.961831955767603e-08
+          ]
+        }
+      },
+      "seatSurfaceMeasurementsIdle0": {
+        "bodyBackY": 1.6075189621831334,
+        "ridingPadY": 1.630389023610759,
+        "socketY": 1.5876422376932258,
+        "riderHipsSuggestedY": 1.715389023610759
+      },
+      "riderIntegration": "prop_rider and prop_saddle are animated source sockets. Their local axes retain the source rig orientation and are not upright +Y. Follow socket world position, keeping the human rider upright. At Idle time 0 the pad top is at Y = 1.630389 m, 0.042747 m above the socket. A Mixamo Hips target roughly 0.085 m above the pad is only an initial estimate; align the actual rider seated mesh and verify its combined hull.",
+      "gaitMeasurements": {
+        "Walk": {
+          "hoofRanges": {
+            "Horse_Hoof_R": {
+              "x": [
+                -0.048038139566552646,
+                -0.04572648624607706
+              ],
+              "y": [
+                0.07945488824819791,
+                0.24545194684573937
+              ],
+              "z": [
+                0.11487530501249536,
+                1.0787152874886528
+              ]
+            },
+            "Horse_Hoof_L": {
+              "x": [
+                0.07646612533189183,
+                0.07899051687862137
+              ],
+              "y": [
+                0.07917841055420938,
+                0.24166191365520168
+              ],
+              "z": [
+                0.12159000604563766,
+                1.0787158153630558
+              ]
+            },
+            "Horse_Hoof_back_R": {
+              "x": [
+                -0.04298523276548659,
+                -0.04271892986886593
+              ],
+              "y": [
+                0.09302851978286839,
+                0.2156822974024527
+              ],
+              "z": [
+                -1.1713436305985996,
+                -0.2108126903524716
+              ]
+            },
+            "Horse_Hoof_back_L": {
+              "x": [
+                0.07306977959289764,
+                0.07351828649015994
+              ],
+              "y": [
+                0.09300761560370222,
+                0.21502863924779964
+              ],
+              "z": [
+                -1.2193956891062239,
+                -0.22283036293858582
+              ]
+            }
+          },
+          "estimatedGroundContactSpeed": 0.8144294033248705,
+          "estimatedStrideLength": 1.357382597774919,
+          "method": "Median backwards Z speed of hoof pivots while within 4.5 cm of their minimum height; multiplied by clip duration."
+        },
+        "Trot": {
+          "hoofRanges": {
+            "Horse_Hoof_R": {
+              "x": [
+                -0.04830126024677296,
+                -0.04554744437724491
+              ],
+              "y": [
+                0.09288868718219695,
+                0.29476410628878114
+              ],
+              "z": [
+                0.0025406317884225094,
+                1.0038911039529614
+              ]
+            },
+            "Horse_Hoof_L": {
+              "x": [
+                0.07605706175995518,
+                0.07886781599995771
+              ],
+              "y": [
+                0.09162129924213111,
+                0.29486459870840587
+              ],
+              "z": [
+                0.0025217007972705707,
+                1.003851169783901
+              ]
+            },
+            "Horse_Hoof_back_R": {
+              "x": [
+                -0.042894548309706,
+                -0.04238920257283339
+              ],
+              "y": [
+                0.09271872340601403,
+                0.29929874262972694
+              ],
+              "z": [
+                -1.2358255313765325,
+                -0.28586327878067885
+              ]
+            },
+            "Horse_Hoof_back_L": {
+              "x": [
+                0.07290373313033388,
+                0.07340492322466498
+              ],
+              "y": [
+                0.09263910462075703,
+                0.29997011720999106
+              ],
+              "z": [
+                -1.2358244705464156,
+                -0.2858628849430596
+              ]
+            }
+          },
+          "estimatedGroundContactSpeed": 2.2112030637154385,
+          "estimatedStrideLength": 1.4741354197429501,
+          "method": "Median backwards Z speed of hoof pivots while within 4.5 cm of their minimum height; multiplied by clip duration."
+        }
+      },
+      "inputs": [
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/skeletal/horse_celtic.dae",
+          "bytes": 325523,
+          "sha256": "5f09d58df36aba1cb5de49fe96e421a2b904de1924af3e242d4f381959b60302"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/props/horse/hair_mane_01.dae",
+          "bytes": 96483,
+          "sha256": "59ad146c1af5f430db71bc63f5a06baec6487e22160e8366baf1cd895934947e"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/props/horse/hair_tail_01.dae",
+          "bytes": 84691,
+          "sha256": "072888a3c60ed59d5f802f155110e37ca090627533c88f57ba6785b649f384c9"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/props/horse/blanket_short.dae",
+          "bytes": 93611,
+          "sha256": "5ea8cf3863f95bb84695751b0909387a8fc38bd469d09abc141fc1f652bb46eb"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/props/horse/rein_01.dae",
+          "bytes": 116317,
+          "sha256": "13ad1621d63d8a7ea01f9208df2b1cb821eaa8f5283917354b01e4b1cd5dd8a1"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/skeletal/horse_bay_02.png",
+          "bytes": 210353,
+          "sha256": "a31e509d38c719ff062b889ff5c18e4551779b3980e239e79a25092bfc280ed9"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/skeletal/horse_norm.png",
+          "bytes": 61660,
+          "sha256": "7095a26efdc09c1cd1fb9980697bd7ec376bd5de715671b246ab334806128448"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/props/horse/hair_black.png",
+          "bytes": 74271,
+          "sha256": "98b070cd0befdb3bd07cb411d965c9c3618a1c43e29f96df1c75cef0b862b828"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/props/horse/hair_norm.png",
+          "bytes": 91778,
+          "sha256": "a37d8b6262d9f1a693ee79911b65665a7606e91e4d755fb5b10619308cfb0f07"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/props/horse/blanket_leather.png",
+          "bytes": 485174,
+          "sha256": "d2e4db2923e2909507fdfe197e36490aa40927411538238e42cd42ceea81f45a"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/props/horse/head_straps.png",
+          "bytes": 141008,
+          "sha256": "cd0204b5828c164ae324ac4397db32ded6b21035b7af16a4a74781a32d96ebc6"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/props/horse/head_straps_norm.png",
+          "bytes": 116052,
+          "sha256": "21214d7613d06c25838379747eb6a665f606a1c9de010be4ad0fde6c590b915b"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/animation/quadraped/horse_idle_01.dae",
+          "bytes": 1224960,
+          "sha256": "2e3fdacf89b2888c616971627a7dc24eaae47bda966bf4de76d8d13bd5b620bd"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/animation/quadraped/horse_walk.dae",
+          "bytes": 782640,
+          "sha256": "d48b6f71e70bf9062221d2f635b82c54776d724261f3737a340a080a10a6cf78"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/animation/quadraped/horse_trot.dae",
+          "bytes": 750906,
+          "sha256": "b32b4e9c4588ac4c51d1e1e94d499723bd4c4d9a3ee794511a87367f3bf2e048"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/actors/fauna/horse_bay_01.xml",
+          "bytes": 538,
+          "sha256": "53a6d07c898e5aa6f8906e18c7b168d161cd19d3e109849a8d14a94c3b7eef45"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/variants/quadraped/horse/bay_01.xml",
+          "bytes": 398,
+          "sha256": "413715f3aaccf1027e90ac353c80e9266d4855a317fed60120e08a5ff16a6d70"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/actors/props/horse/horse_hair_mane_black_brown.xml",
+          "bytes": 1500,
+          "sha256": "78bdf30e850dffc4dc4a75ea299ac82c92dd4e18919741036a55ae8a76690c45"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/actors/props/horse/horse_hair_tail_black_brown.xml",
+          "bytes": 1516,
+          "sha256": "5414878ea06567cbe1528cc614350f4b99d7207f6ac5ccd97512d017483a500f"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/actors/props/horse/cav_blanket_leather.xml",
+          "bytes": 1444,
+          "sha256": "18f7bdf68b2c28c3ac2f77ca65da02c2575063a0ff8b377ccbee805807813b57"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/actors/props/horse/cav_rein_leather.xml",
+          "bytes": 1665,
+          "sha256": "089a542f49dc674ee5b877aee329e6c8c3efd9c9174aafc7b3fadfdf67dfe5bc"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/variants/quadraped/horse/props/blanket_leather.xml",
+          "bytes": 228,
+          "sha256": "0cc5251adbd91466e9cb8b1dd33064d3039394299183f3ece3036e6a7cdbca8f"
+        }
+      ],
+      "modifications": [
+        "Converted the original COLLADA geometry and compatible authored Idle, Walk and Trot clips to self-contained GLB with Three.js 0.170.0. Preserved original mesh topology and UVs; no invented primitive horse geometry and no artificial polygon inflation.",
+        "Joined body, mane, tail, quilted leather riding pad and bridle/reins from the official matching 0 A.D. horse art. Rebound the four accessory meshes to the same 86 named bone nodes after verifying inverse bind matrices. Kept prop_rider and prop_saddle sockets.",
+        "Embedded the original diffuse and normal PNG maps. Used rough nonmetallic PBR materials. Kept the mane/tail strand alpha mask; interpreted the riding pad texture alpha as its original player-colour data, not opacity, so the pad remains opaque. Omitted source specular maps rather than incorrectly treating them as metallic-roughness data.",
+        "Removed source workstation image/material paths before conversion and assigned only explicitly downloaded embedded textures. The final GLB has no external image or buffer URIs.",
+        "Added a small vertical HorseGrounding track sampled at 120 Hz to compensate for negative hoof heights in the source body/animation combination while preserving above-ground and airborne poses. Maximum pre-normalization corrections were Idle: 0.012243 source units, Walk: 0.163423 source units, Trot: 0.094738 source units.",
+        "Translated and uniformly scaled the complete rig to face +Z in a Y-up, metre-based frame. Centered and fitted the sampled body, mane, tail, pad and bridle sweep inside a 1.535 m horizontal radius, leaving margin inside 1.55 m. Retained natural anatomy. Omitted Gallop, whose longer tail/hoof sweep would require a materially smaller horse for the same cavalry clearance.",
+        "Optimized redundant animation keyframes without removing joints or authored motion. This GLB adaptation remains licensed CC-BY-SA-3.0."
+      ],
+      "licenseNotice": "The files in this directory are Copyright (C) 2009 Wildfire Games.\n\nThese files are licensed under the Creative Commons Attribution-Share Alike 3.0\n(CC-by-sa) license, available at http://creativecommons.org/licenses/by-sa/3.0/\n\nBriefly, this means:\n\n* You may use, modify and distribute these files, for commercial and\n  non-commercial purposes.\n\n* If you distribute one of these files, you must include attribution (e.g.\n  in the credits screen of a game or a video, or in a text file accompanying\n  the files). The attribution must include:\n  * A link to http://creativecommons.org/licenses/by-sa/3.0/\n  * The name \"Wildfire Games\" as the original author\n  * A link to http://www.wildfiregames.com/\n\n* If you distribute one of these files, you must release it (and any\n  modifications you have made to it) under the CC-by-sa license.\n\nSome of the files in the \"textures/\" directory are derived from materials provided by CGTextures (http://www.cgtextures.com/). The original materials are the property of CGTextures or its contributors. Special permission has been granted by CGTextures to distribute these derived textures as CC-BY-SA. (This has no effect on the standard licensing of CGTextures materials, or on any other work derived from them.)\n\nAll CGTextures materials have been altered from their original form. To access original super-high resolution CGTextures materials, please visit http://www.cgtextures.com/ .",
+      "validation": {
+        "tool": "glTF Transform 4.5.1 / Khronos glTF Validator",
+        "errors": 0,
+        "warnings": [
+          "Five skinned mesh nodes are nested under the original axis-conversion and grounding roots; clone the complete scene and joint hierarchy.",
+          "Four normal-mapped primitives use runtime-generated tangent space, supported by the vendored Three.js r170 renderer."
+        ],
+        "externalDependencies": false,
+        "extensionsUsed": [],
+        "roundTrip": "Loaded the final GLB through Three.js r170 GLTFLoader, rendered it with its embedded textures, and sampled each exported clip at 121 times. All sampled horizontal radii remain below 1.55 m and minimum Y is nonnegative within 0.000001 m."
+      },
+      "previewVerified": "Source horse reference and an accurate textured, skinned render of the final round-tripped GLB were visually inspected. Anatomy, coat UVs, mane/tail alpha, tack and gait poses were checked."
+    }
+  ]
+}

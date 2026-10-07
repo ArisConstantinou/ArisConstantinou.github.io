@@ -1,0 +1,361 @@
+{
+  "assets": [
+    {
+      "file": "siege-trebuchet.glb",
+      "type": "trebuchet",
+      "title": "Carolingian counterweight trebuchet",
+      "source": "https://github.com/0ADMods/millenniumad/blob/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/units/caro/siege_trebuchet.xml",
+      "author": "Alexandermb; The Council of Modders, Fallen Empire Studio, Scion Development; Wildfire Games",
+      "authorUrl": "https://www.wildfiregames.com/",
+      "creatorCreditSource": "https://wildfiregames.com/forum/topic/24319-millennium-ad-alpha-23-release-discussion/page/2/",
+      "license": "CC-BY-SA-3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "attribution": "Carolingian trebuchet model, rig and animations by Alexandermb / The Council of Modders, Fallen Empire Studio, Scion Development. Siege timber and granite textures and projectile model by Wildfire Games (https://www.wildfiregames.com/). Used and adapted under CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/). This GLB adaptation remains under CC BY-SA 3.0.",
+      "retrieved": "2026-10-07",
+      "sourceRevision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+      "bytes": 781044,
+      "sha256": "b2d07b20c552201e0092a9960f6f18b26d4270a197b4813c09c75480001656cc",
+      "triangles": 2514,
+      "meshes": [
+        {
+          "name": "Sphere01",
+          "triangles": 54,
+          "skinJoints": []
+        },
+        {
+          "name": "Esfera_001_002",
+          "triangles": 612,
+          "skinJoints": []
+        },
+        {
+          "name": "Caro_trebuchet",
+          "triangles": 1848,
+          "skinJoints": [
+            "Tb_Root",
+            "Tb_lever_A",
+            "Tb_lever_B",
+            "Tb_lever_base_R",
+            "Tb_lever_rope_R",
+            "Tb_lever_base_L",
+            "Tb_lever_rope_L",
+            "Tb_weapon_1",
+            "Tb_counter_weight",
+            "Tb_weapon_2",
+            "Tb_weapon_rope_2",
+            "Tb_weapon_rope_1",
+            "Tb_weapon_pulley",
+            "Tb_sling_rope_1",
+            "Tb_sling_rope_2",
+            "Tb_sling_rope_3",
+            "Tb_sling_rope_4",
+            "Tb_sling_rope_5",
+            "Tb_sling_rope_8",
+            "Tb_sling_rope_9",
+            "Tb_sling_rope_10",
+            "Tb_sling_rope_11",
+            "Tb_sling",
+            "Tb_arm_L",
+            "Tb_arm_R",
+            "prop_projectile",
+            "Tb_weapon_weight",
+            "Tb_weapon_weight_arm",
+            "prop-weight",
+            "prop_engineer_1",
+            "prop_engineer_2",
+            "prop_engineer_3",
+            "prop_ammo_1",
+            "prop_ammo_2"
+          ]
+        }
+      ],
+      "animations": [
+        {
+          "name": "Idle",
+          "duration": 0.5416666865348816,
+          "channels": 96
+        },
+        {
+          "name": "Attack",
+          "duration": 14.583330154418945,
+          "channels": 96
+        }
+      ],
+      "normalization": "authored",
+      "up": "+Y",
+      "facing": "+Z",
+      "idleBounds": {
+        "min": [
+          -1.4859104197207211,
+          3.304464968323373e-08,
+          -4.201585172091076
+        ],
+        "max": [
+          1.4859104197207211,
+          3.522944544525383,
+          1.2961439741816356
+        ],
+        "size": [
+          2.9718208394414423,
+          3.522944511480733,
+          5.497729146272712
+        ]
+      },
+      "attackBounds": {
+        "min": [
+          -1.4859104197207211,
+          -1.1102230246251565e-16,
+          -4.65000000380601
+        ],
+        "max": [
+          1.4859104197207211,
+          7.694592325256939,
+          4.649999983449412
+        ],
+        "size": [
+          2.9718208394414423,
+          7.694592325256939,
+          9.299999987255422
+        ]
+      },
+      "collisionRadius": 4.8,
+      "maximumMeasuredAnimatedRadius": 4.650000003806038,
+      "release": {
+        "socket": "prop_projectile",
+        "projectileNode": "Trebuchet_LoadedStone",
+        "projectileMesh": "Sphere01",
+        "sourceClip": "Attack",
+        "sourceClipSeconds": 14.583330154418945,
+        "sourceReleaseFraction": 0.15,
+        "sourceReleaseSeconds": 2.187499523162842,
+        "sourceReloadFraction": 0.85,
+        "localReleasePosition": [
+          2.6081550845276913e-05,
+          7.487827537743741,
+          2.2063058832477997
+        ],
+        "projectileIsOrdinaryCloneableMesh": true,
+        "hideLoadedStone": "Hide Trebuchet_LoadedStone at clip fraction 0.15 until fraction 0.85. Clone its ordinary child mesh/group and preserve world scale for a detached projectile."
+      },
+      "integration": {
+        "preserveAuthoredOriginAndScale": true,
+        "cloneCompleteSceneWithSkeletonUtils": true,
+        "groundY": 0,
+        "animateIndependentlyPerInstance": true,
+        "doNotNormalizeAgainstIdleBounds": "The complete sling sweep extends beyond the ready pose. The authored scale already reserves the entire animation inside the existing 4.8 m collision radius.",
+        "parts": {
+          "beam": [
+            "Tb_weapon_1",
+            "Tb_weapon_2"
+          ],
+          "counterweight": [
+            "Tb_weapon_weight",
+            "Tb_weapon_weight_arm",
+            "Tb_counter_weight",
+            "Trebuchet_CounterweightStones"
+          ],
+          "sling": [
+            "Tb_sling_rope_1",
+            "Tb_sling_rope_2",
+            "Tb_sling_rope_3",
+            "Tb_sling_rope_4",
+            "Tb_sling_rope_5",
+            "Tb_sling_rope_8",
+            "Tb_sling_rope_9",
+            "Tb_sling_rope_10",
+            "Tb_sling_rope_11",
+            "Tb_sling"
+          ],
+          "winches": [
+            "Tb_lever_A",
+            "Tb_lever_B",
+            "Tb_lever_base_R",
+            "Tb_lever_rope_R",
+            "Tb_lever_base_L",
+            "Tb_lever_rope_L",
+            "Tb_weapon_pulley"
+          ]
+        }
+      },
+      "textures": [
+        {
+          "source": "hele_siege.dds",
+          "embedded": "PNG RGB",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "source": "stone_temperate_granite.dds",
+          "embedded": "PNG RGB",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "inputs": [
+        {
+          "file": "art/meshes/structural/caro_trebuchet.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/meshes/structural/caro_trebuchet.dae",
+          "bytes": 376989,
+          "sha256": "7bafaf1cedc5ba62a1e77cdd7812087cdd2dc5fee0954eb3159a2c0b61204948"
+        },
+        {
+          "file": "art/animation/mechanical/caro_trebuchet_idle.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/animation/mechanical/caro_trebuchet_idle.dae",
+          "bytes": 445363,
+          "sha256": "b876efd86b6bdcfbb7bbd71b0dfd8e8c3fade6f015486609169b1e3d8e952874"
+        },
+        {
+          "file": "art/animation/mechanical/caro_trebuchet_attack.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/animation/mechanical/caro_trebuchet_attack.dae",
+          "bytes": 1145953,
+          "sha256": "43d4c5ac71cb6b2dc7837491a47b797040b4e68298e1bde01668c0dca435c75f"
+        },
+        {
+          "file": "art/actors/units/caro/siege_trebuchet.xml",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/units/caro/siege_trebuchet.xml",
+          "bytes": 1470,
+          "sha256": "822700bd8cfb0e9df113661f7bdc7f218915d33ab5856dd0eb4def4e278f10aa"
+        },
+        {
+          "file": "art/license.txt",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/license.txt",
+          "bytes": 1552,
+          "sha256": "247ea9380781c56e71018bb3714faf557192f0c3ad6a3d7d231c6f20f325d0e4"
+        },
+        {
+          "file": "art/actors/props/units/trebuchet_rocks.xml",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/actors/props/units/trebuchet_rocks.xml",
+          "bytes": 477,
+          "sha256": "0ee850f9c41923bffca7aa1f693c101f633666df14e38a7713c4f7137d3436a6"
+        },
+        {
+          "file": "art/meshes/props/trebuchet_rocks.dae",
+          "repository": "0ADMods/millenniumad",
+          "revision": "91636b405ee8d0088ec3a34fba6074dbd5c9d0f3",
+          "url": "https://raw.githubusercontent.com/0ADMods/millenniumad/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/meshes/props/trebuchet_rocks.dae",
+          "bytes": 92849,
+          "sha256": "78e53d4e4e34cf1fab8d93553a2bd43feac96d1d9047039412d01d65b72583e1"
+        },
+        {
+          "file": "art/meshes/props/onager_projectile.dae",
+          "repository": "0ad/0ad",
+          "revision": "master (retrieved 2026-10-07)",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/props/onager_projectile.dae",
+          "bytes": 13666,
+          "sha256": "87fa59348ff4605dbd6c94d3cf0bf5ca227dd915a2717ba191a8918935998709"
+        },
+        {
+          "file": "art/actors/props/units/weapons/rock.xml",
+          "repository": "0ad/0ad",
+          "revision": "master (retrieved 2026-10-07)",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/actors/props/units/weapons/rock.xml",
+          "bytes": 476,
+          "sha256": "44fae7c1689ee56fee8447277058ba84ef8114cd07de7c6977c6174e8d381097"
+        },
+        {
+          "file": "art/textures/skins/structural/hele_siege.dds",
+          "repository": "0ad/0ad",
+          "revision": "master (retrieved 2026-10-07)",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/structural/hele_siege.dds",
+          "bytes": 87536,
+          "sha256": "89a3baaa7998d122b42b40a406100243ba5870a1fbf986d2ac96e19179ca3ac6"
+        },
+        {
+          "file": "art/textures/skins/gaia/stone_temperate_granite.dds",
+          "repository": "0ad/0ad",
+          "revision": "master (retrieved 2026-10-07)",
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/gaia/stone_temperate_granite.dds",
+          "bytes": 22000,
+          "sha256": "2e12611d1c991b413d696ce86f891fe023308ab830998dd4342882dec2a14f9c"
+        }
+      ],
+      "modifications": [
+        "Converted original COLLADA geometry, 34-bone skeletal rig, and Idle/Attack animations to a self-contained GLB using Three.js 0.170.0.",
+        "Combined the original trebuchet, original counterweight-stone prop and original onager projectile according to the creator actor attachments; omitted external crew and loose ammunition props because the game supplies its own crew.",
+        "Decoded original DDS textures to RGB PNG, embedded both albedos, and assigned nonmetallic rough MeshStandardMaterials. No image upscaling was applied.",
+        "Triangulated the projectile source polygon declarations for the COLLADA importer; preserved all original projectile faces.",
+        "Preserved Blender Z-up skeletal axes beneath a Y-up scene wrapper; mapped original animation tracks by bone name and removed redundant consecutive animation samples.",
+        "Applied one uniform scale and translation using the complete 240 Hz sampled attack envelope, grounding the feet at Y=0 and keeping all animated geometry inside a 4.65 m horizontal radius.",
+        "Named separate counterweight and loaded-stone groups and added integration metadata. The loaded stone can be cloned independently for flight.",
+        "This model adaptation is distributed under CC-BY-SA-3.0."
+      ],
+      "licenseNotices": [
+        {
+          "source": "https://github.com/0ADMods/millenniumad/blob/91636b405ee8d0088ec3a34fba6074dbd5c9d0f3/art/license.txt",
+          "text": "This files in this directory are copyright (C) 2015 The Council of Modders, Fallen Empire Studio, Scion Development.\n\nIf not noted otherwise then the files are licensed under the Creative Commons Attribution-Share Alike 3.0\n(CC-BY-SA) license, available at http://creativecommons.org/licenses/by-sa/3.0/\n\nBriefly, this means:\n\n* You may use, modify and distribute these files, for commercial and\n  non-commercial purposes.\n\n* If you distribute one of these files, you must include attribution (e.g.\n  in the credits screen of a game or a video, or in a text file accompanying\n  the files). The attribution must include:\n  * A link to http://creativecommons.org/licenses/by-sa/3.0/\n  * The name \"The Council of Modders, Fallen Empire Studio, Scion Development\" as the original authors\n  * A link to http://www.wildfiregames.com/\n\n* If you distribute one of these files, you must release it (and any\n  modifications you have made to it) under the CC-by-sa license.\n\nSome of the files in the \"textures/\" directory are derived from materials provided by CGTextures (http://www.cgtextures.com/). The original materials are the property of CGTextures or its contributors. Special permission has been granted by CGTextures to distribute these derived textures as CC-BY-SA. (This has no effect on the standard licensing of CGTextures materials, or on any other work derived from them.)\n\nAll CGTextures materials have been altered from their original form. To access original super-high resolution CGTextures materials, please visit http://www.cgtextures.com/ ."
+        },
+        {
+          "source": "https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/art/LICENSE.txt",
+          "text": "The files in this directory are Copyright (C) 2009 Wildfire Games.\n\nThese files are licensed under the Creative Commons Attribution-Share Alike 3.0\n(CC-by-sa) license, available at http://creativecommons.org/licenses/by-sa/3.0/\n\nBriefly, this means:\n\n* You may use, modify and distribute these files, for commercial and\n  non-commercial purposes.\n\n* If you distribute one of these files, you must include attribution (e.g.\n  in the credits screen of a game or a video, or in a text file accompanying\n  the files). The attribution must include:\n  * A link to http://creativecommons.org/licenses/by-sa/3.0/\n  * The name \"Wildfire Games\" as the original author\n  * A link to http://www.wildfiregames.com/\n\n* If you distribute one of these files, you must release it (and any\n  modifications you have made to it) under the CC-by-sa license.\n\nSome of the files in the \"textures/\" directory are derived from materials provided by CGTextures (http://www.cgtextures.com/). The original materials are the property of CGTextures or its contributors. Special permission has been granted by CGTextures to distribute these derived textures as CC-BY-SA. (This has no effect on the standard licensing of CGTextures materials, or on any other work derived from them.)\n\nAll CGTextures materials have been altered from their original form. To access original super-high resolution CGTextures materials, please visit http://www.cgtextures.com/ ."
+        }
+      ],
+      "validation": {
+        "tool": "Khronos glTF Validator 2.0.0-dev.3.10",
+        "errors": 0,
+        "warnings": 1,
+        "warning": "Original skinned mesh sits beneath its coordinate conversion wrapper. Complete-scene cloning and animated world bounds were independently verified with the runtime GLTFLoader.",
+        "measuredSourceAnimation": {
+          "sampleRate": 240,
+          "sampledFrames": 3501,
+          "maximumAnimatedRadius": 4.650000003806038,
+          "minimumY": -1.1102230246251565e-16,
+          "releaseTime": 2.187499523162842,
+          "releasePosition": [
+            2.6081550845276913e-05,
+            7.487827537743741,
+            2.2063058832477997
+          ]
+        },
+        "exportedGlbRuntime": {
+          "selfContainedTextures": [
+            {
+              "width": 256,
+              "height": 256
+            },
+            {
+              "width": 128,
+              "height": 128
+            }
+          ],
+          "skinJoints": 34,
+          "meshes": 3,
+          "sampledAnimationFrames": 1751,
+          "physicalVertexChecks": 13206042,
+          "maximumRadius": 4.64999997583118,
+          "minimumY": -2.014719169274315e-09,
+          "attackBounds": {
+            "min": [
+              -1.4859104381665094,
+              -2.014719169274315e-09,
+              -4.649999975831152
+            ],
+            "max": [
+              1.4859104381665094,
+              7.694117469658602,
+              4.648334199734105
+            ]
+          },
+          "releasePosition": [
+            2.6081550845276913e-05,
+            7.487827537743741,
+            2.2063058832477997
+          ],
+          "independentClonedSkeletons": true,
+          "ordinaryCloneableProjectileMesh": true
+        },
+        "visualInspection": "Rendered actual textured, deformed mesh in ready, release, reset and rear views; verified frame bracing, winding drums, metal straps, hinged counterweight stones and articulated sling."
+      }
+    }
+  ]
+}

@@ -76,6 +76,115 @@
         "fir-lod"
       ],
       "credit": "Rico Cilliers / Rob Tuytel / Poly Haven · CC0"
+    },
+    {
+      "id": "counterweight-trebuchet",
+      "file": "siege-trebuchet.glb",
+      "kind": "siege",
+      "types": [
+        "trebuchet"
+      ],
+      "normalization": "authored",
+      "forwardYaw": 0,
+      "clips": {
+        "idle": "Idle",
+        "attack": "Attack"
+      },
+      "releaseAt": 2.187499523,
+      "reloadAt": 12.395830631,
+      "sockets": {
+        "launch": "prop_projectile"
+      },
+      "loadedObject": "Trebuchet_LoadedStone",
+      "credit": "Alexandermb / Millennium A.D. · CC BY-SA 3.0"
+    },
+    {
+      "id": "bay-horse",
+      "file": "horse.glb",
+      "kind": "mount",
+      "types": [
+        "horse"
+      ],
+      "normalization": "authored",
+      "forwardYaw": 0,
+      "clips": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "trot": "Trot"
+      },
+      "sockets": {
+        "rider": "prop_rider",
+        "saddle": "prop_saddle"
+      },
+      "socketOffsets": {
+        "rider": [
+          0,
+          0.127747,
+          0
+        ]
+      },
+      "strideLength": {
+        "walk": 1.3573826,
+        "trot": 1.4741354
+      },
+      "credit": "Wildfire Games · CC BY-SA 3.0"
+    },
+    {
+      "id": "blacksmith-workshop",
+      "file": "building-blacksmith.glb",
+      "kind": "building",
+      "types": [
+        "siege"
+      ],
+      "maxHeight": 9,
+      "credit": "Daniel Andersson / OpenGameArt · CC0"
+    },
+    {
+      "id": "water-sawmill",
+      "file": "building-sawmill.glb",
+      "kind": "building",
+      "types": [
+        "lumberyard"
+      ],
+      "animated": true,
+      "clips": {
+        "idle": "Sawing"
+      },
+      "sockets": {
+        "wheel": "Wheel"
+      },
+      "maxHeight": 9,
+      "credit": "Daniel Andersson / OpenGameArt · CC0"
+    },
+    {
+      "id": "timber-tradehall",
+      "file": "building-tradehall.glb",
+      "kind": "building",
+      "types": [
+        "market"
+      ],
+      "maxHeight": 8,
+      "credit": "Daniel Andersson / OpenGameArt · CC0"
+    },
+    {
+      "id": "stone-chapel",
+      "file": "building-chapel.glb",
+      "kind": "building",
+      "types": [
+        "infirmary"
+      ],
+      "maxHeight": 12,
+      "credit": "Daniel Andersson / OpenGameArt · CC0"
+    },
+    {
+      "id": "stone-well",
+      "file": "building-well.glb",
+      "kind": "building",
+      "types": [
+        "well"
+      ],
+      "maxHeight": 3.15,
+      "credit": "Daniel Andersson / OpenGameArt · CC0"
     }
   ]
 }

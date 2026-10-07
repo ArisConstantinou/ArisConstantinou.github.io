@@ -1,0 +1,172 @@
+[
+  {
+    "asset": "building-blacksmith.glb",
+    "gameType": "siege",
+    "title": "Medieval Blacksmith",
+    "author": "Daniel Andersson (Daniel74)",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/medieval-blacksmith",
+    "download": "https://opengameart.org/sites/default/files/75729_Blacksmith1Upload_blend.zip",
+    "sourceArchiveSha256": "343c4f203d225bf9e4c731e0317d8d3871abc96e70b661526d57b9d96bdb6d1b",
+    "sourceFile": "medieval-blacksmith/Blacksmith1Upload.blend",
+    "sourceFileSha256": "80cb599443e582b1e5238fb44af31dd6e128925a773899f27cec28d1089ec2fd",
+    "retrieved": "2026-10-07",
+    "bytes": 3859088,
+    "sha256": "6cd4071a87b53e5aba867662c050b7869ddb734e93c1be4c20a9f76a2413bfac",
+    "triangles": 33396,
+    "materials": 22,
+    "embeddedTextures": 22,
+    "animations": [],
+    "extensionsRequired": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ],
+    "modifications": [
+      "Converted Blender geometry, UVs and materials to self-contained GLB",
+      "Restored legacy diffuse textures as PBR materials",
+      "Limited texture resolution to 1024 pixels and encoded JPEG quality 85",
+      "Removed presentation cameras and lights; joined static geometry",
+      "Muted source blue window textures while retaining leaded glazing pattern",
+      "Deduplicated geometry and materials; quantized geometry; encoded embedded WebP textures without simplifying the mesh"
+    ],
+    "attribution": "Original model and textures by Daniel Andersson / Daniel74, released under Creative Commons Zero. Conversion and game-specific material adjustments for FEΟUDA 1280."
+  },
+  {
+    "asset": "building-sawmill.glb",
+    "gameType": "lumberyard",
+    "title": "Medieval Waterpowered Sawmill",
+    "author": "Daniel Andersson (Daniel74)",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/medieval-waterpowered-sawmill",
+    "download": "https://opengameart.org/sites/default/files/75340_WaterPoweredSawmillUpload_blend.zip",
+    "sourceArchiveSha256": "401b24a4b240eba41c299072000dd3420262e0a6fa8d86206e0a92e002b02637",
+    "sourceFile": "medieval-waterpowered-sawmill/WaterPoweredSawmillUpload.blend",
+    "sourceFileSha256": "230f8260d35254551f0ca07b4a37e022816823e307becb66badda65d8f47b532",
+    "retrieved": "2026-10-07",
+    "bytes": 928340,
+    "sha256": "499461efa5744fa46eb3dfec06f842b2e5683fda96cbcd00649befec66af18f8",
+    "triangles": 8870,
+    "materials": 5,
+    "embeddedTextures": 5,
+    "animations": [
+      {
+        "name": "Sawing",
+        "duration": 5.041666507720947,
+        "channels": 18
+      }
+    ],
+    "extensionsRequired": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ],
+    "modifications": [
+      "Converted Blender geometry, UVs and materials to self-contained GLB",
+      "Restored legacy diffuse textures as PBR materials",
+      "Limited texture resolution to 1024 pixels and encoded JPEG quality 85",
+      "Removed presentation cameras and lights; joined static geometry",
+      "Deduplicated geometry and materials; quantized geometry; encoded embedded WebP textures without simplifying the mesh"
+    ],
+    "attribution": "Original model and textures by Daniel Andersson / Daniel74, released under Creative Commons Zero. Conversion and game-specific material adjustments for FEΟUDA 1280."
+  },
+  {
+    "asset": "building-tradehall.glb",
+    "gameType": "market",
+    "title": "Medieval Tavern",
+    "author": "Daniel Andersson (Daniel74)",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/medieval-tavern",
+    "download": "https://opengameart.org/sites/default/files/75282_ThePaintedWench_02Upload_blend.zip",
+    "sourceArchiveSha256": "6a0729898de0a4f1f3f79635931a1c50b862a49e020f25634dd51a337cb214df",
+    "sourceFile": "medieval-tavern/ThePaintedWench_02Upload.blend",
+    "sourceFileSha256": "63fbee981fa22636a13b618a0a1e18a9f3266159371fce63fee96225d0a34563",
+    "retrieved": "2026-10-07",
+    "bytes": 1116732,
+    "sha256": "53ee32f996d6a907e9968569ab19fd1df773d362945f057dc7538cfb2bced574",
+    "triangles": 8017,
+    "materials": 10,
+    "embeddedTextures": 10,
+    "animations": [],
+    "extensionsRequired": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ],
+    "modifications": [
+      "Converted Blender geometry, UVs and materials to self-contained GLB",
+      "Restored legacy diffuse textures as PBR materials",
+      "Limited texture resolution to 1024 pixels and encoded JPEG quality 85",
+      "Removed presentation cameras and lights; joined static geometry",
+      "Muted source blue window textures while retaining leaded glazing pattern",
+      "Deduplicated geometry and materials; quantized geometry; encoded embedded WebP textures without simplifying the mesh"
+    ],
+    "attribution": "Original model and textures by Daniel Andersson / Daniel74, released under Creative Commons Zero. Conversion and game-specific material adjustments for FEΟUDA 1280."
+  },
+  {
+    "asset": "building-chapel.glb",
+    "gameType": "infirmary",
+    "title": "Medieval Church",
+    "author": "Daniel Andersson (Daniel74)",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/medieval-church",
+    "download": "https://opengameart.org/sites/default/files/75990_Church1Upload_blend.zip",
+    "sourceArchiveSha256": "3ae3570511aa016a89aefc1249b38170969ca27ad51684ffa63bee5ca047bd08",
+    "sourceFile": "medieval-church/75990_Church1Upload_blend/Church1Upload.blend",
+    "sourceFileSha256": "6386382191d987c37ba21ff4516542f36a0160af125ece10ae9a46d897d17a7f",
+    "retrieved": "2026-10-07",
+    "bytes": 1957060,
+    "sha256": "3873f8129b3668b60a937a5443ecc58ab10215e317cf5f2f4ba1a9b9a06a4c98",
+    "triangles": 16769,
+    "materials": 12,
+    "embeddedTextures": 11,
+    "animations": [],
+    "extensionsRequired": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ],
+    "modifications": [
+      "Converted Blender geometry, UVs and materials to self-contained GLB",
+      "Restored legacy diffuse textures as PBR materials",
+      "Limited texture resolution to 1024 pixels and encoded JPEG quality 85",
+      "Removed presentation cameras and lights; joined static geometry",
+      "Removed interior furniture not visible to the exterior RTS camera",
+      "Deduplicated geometry and materials; quantized geometry; encoded embedded WebP textures without simplifying the mesh"
+    ],
+    "attribution": "Original model and textures by Daniel Andersson / Daniel74, released under Creative Commons Zero. Conversion and game-specific material adjustments for FEΟUDA 1280."
+  },
+  {
+    "asset": "building-well.glb",
+    "gameType": "well",
+    "title": "Medieval Well",
+    "author": "Daniel Andersson (Daniel74)",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/medieval-well",
+    "download": "https://opengameart.org/sites/default/files/55087_well.zip",
+    "sourceArchiveSha256": "69ce70d9802341fb0109f3bc96306698dc88c7c4552e113f447ee545c6eee88d",
+    "sourceFile": "medieval-well/Well.blend",
+    "sourceFileSha256": "dd41b3dcdeadb6fa9126080be7822bc67f86d6e027e07a6bad5c193e5a704b6b",
+    "retrieved": "2026-10-07",
+    "bytes": 379544,
+    "sha256": "02491b2b173c53cdb7d6a26317ecc2c2581f14485aad638e857f0470223b1f3e",
+    "triangles": 954,
+    "materials": 5,
+    "embeddedTextures": 4,
+    "animations": [],
+    "extensionsRequired": [
+      "EXT_texture_webp",
+      "KHR_mesh_quantization"
+    ],
+    "modifications": [
+      "Converted Blender geometry, UVs and materials to self-contained GLB",
+      "Restored legacy diffuse textures as PBR materials",
+      "Limited texture resolution to 1024 pixels and encoded JPEG quality 85",
+      "Removed presentation cameras and lights; joined static geometry",
+      "Removed source presentation ground plane",
+      "Deduplicated geometry and materials; quantized geometry; encoded embedded WebP textures without simplifying the mesh"
+    ],
+    "attribution": "Original model and textures by Daniel Andersson / Daniel74, released under Creative Commons Zero. Conversion and game-specific material adjustments for FEΟUDA 1280."
+  }
+]

@@ -1,11 +1,11 @@
 # FEΟUDA 1280 shared implementation contract
 
-Target: transform this existing GitHub Pages game into a playable medieval real-time strategy campaign, with actual Three.js 3D rendering, castles, armies, sieges, territory capture, villagers and resource economy. Greek UI; Cypriot pounds (CY£), fictional map in 1280. No Moutoullas branding. Preserve old browser save keys; use `feouda-1280-v1`. Version 2.0.0. Do not change or publish any `chronicle/` files. Root handles UI/CSS/index/PWA/publishing.
+Target: transform this existing GitHub Pages game into a playable medieval real-time strategy campaign, with actual Three.js 3D rendering, castles, armies, sieges, territory capture, villagers and resource economy. Greek UI; Cypriot pounds (CY£), fictional map in 1280. No Moutoullas branding. Preserve old browser save keys; use `feouda-1280-v1`. Version 2.2.0. Do not change or publish any `chronicle/` files. Root handles UI/CSS/index/PWA/publishing.
 
 ## Files / ownership
-- Root owns `dist/feouda-data.js`, UI `dist/app.js`, `dist/style.css`, `dist/index.html`, PWA and staging. Root supplies vendored Three.js `dist/vendor/three.module.js`.
-- Engine agent owns `dist/feouda-engine.js` and `tests/feouda.test.mjs` only.
-- 3D agent owns `dist/feouda-world.js` and additional `dist/feouda-models.js` / `dist/feouda-materials.js` if needed. Do not alter shared data silently.
+- Root owns `feouda-data.js`, UI `app.js`, `style.css`, `index.html`, PWA and staging. Root supplies vendored Three.js `vendor/three.module.js`.
+- Engine agent owns `feouda-engine.js` and `tests/feouda.test.mjs` only.
+- 3D agent owns `feouda-world.js` and additional `feouda-models.js` / `feouda-materials.js` if needed. Do not alter shared data silently.
 
 ## Data module
 Exports `FACTIONS` dictionary; `REGIONS` array; `RESOURCE_NODES` array; `UNIT_TYPES`, `BUILDINGS`, `TECHS` dictionaries; `MAP`, `BRIDGES`; `heightAt(x,z)`, `riverX(z)`, `regionAt(x,z)`.
@@ -79,7 +79,7 @@ The obstacle list contains rotated rectangles or circles, with source, region an
 
 Infantry and archer centres reserve .8 m, cavalry 1.6 m and siege chassis 4.8 m against solid geometry. Siege bridge clearance uses a 2.05 m half-width. A* edges, diagonal corners, path smoothing, every real movement segment and every crowd-separation push all use continuous collision checks. An obsolete path is stopped before penetration and rebuilt. A newly occupied destination moves to the nearest reachable free point. Repairing or reinforcing a wall waits if its restored geometry would enclose a soldier; pending jobs expose `blockedReason` for the UI.
 
-The renderer also checks each visible formation member's point, anchor-to-offset segment and previous-to-next segment using the shared helpers. This prevents the outer soldiers of a formation from visually passing through a building when the squad centre is clear. Typical visible-member radii are .46 m for humans and 1.05 m for horses.
+The renderer also checks each visible formation member's point, anchor-to-offset segment and previous-to-next segment using the shared helpers. This prevents the outer soldiers of a formation from visually passing through a building when the squad centre is clear. Visible-member collision envelopes cover human bodies at .8 m and mounted cavalry inside the engine’s 1.6 m clearance. The authored horse and trebuchet keep their measured origin and full animated envelope; normalizing only an idle pose must not enlarge them beyond those limits.
 
 `getNavigation()` preserves its existing methods and adds optional unit/radius arguments:
 
@@ -102,3 +102,15 @@ Renderer is real 3D terrain, shadows, stone material, detailed castle walls/gate
 
 ## Shared balance/experience
 Initial player owns 3 of 9 regions, begins with a visible home castle and supporting village/quarry. 2 neutral frontier regions and 2 enemy factions with 2 regions each. 6 starting player squads including one ram so first actions meaningful. Food and wages matter, civilian development matters, actual scattered resources. Upgrades/campaign persist. Early raid warning before real incursion; RTS tactical pause and 1x/2x/4x. All generic labels Greek. Return clear disabled reasons to UI via commands. Tests should verify costs, queues, battle range, marching and siege/capture, AI, resources, persistence.
+
+## Detailed model integration, version 2.2
+
+The 14-entry local asset manifest includes an anatomical horse, a counterweight trebuchet and five specialist buildings in addition to the existing humans, ram, modular fortress, thatched house and fir LODs. All models and textures are embedded or served from this repository.
+
+- Preserve `normalization: 'authored'` for the horse and trebuchet. Their original origins, scales, sockets and full animation sweeps are measured against the engine clearance. Horse clips are Idle/Walk/Trot; trebuchet clips are Idle/Attack.
+- A mounted human follows the horse's animated saddle position with an upright seated pose. Gait advances with traveled distance; it does not continue walking during tactical pause.
+- Synchronize the trebuchet's authored sling release/reload with the game attack cycle. Projectiles originate at `prop_projectile`, use the original loaded stone geometry and retain the engine impact time.
+- Specialist mapping: `siege` uses the blacksmith workshop, `lumberyard` the sawmill, `market` the trade hall, `infirmary` the stone chapel, and `well` the roofed stone well. The well is capped at 3.15 m high. Other dimensions fit inside existing reserved plots.
+- Use precise geometry bounds for building fitting and grounding. A conservative AABB transformed through an authored rotation can incorrectly enlarge the bounding box and make the model float. Scaffolds and all four placement rotations must stay within the same plot and clearance contract.
+- The sawmill preserves its authored Sawing clip and six-bone wheel/crank/blade mechanism. Inland mills remain stationary; river-adjacent mills can animate without changing placement or economy rules.
+- Credits and modifications are recorded in `horse-sources.json`, `trebuchet-sources.json`, and `buildings-sources.json`. The horse and trebuchet adaptations retain CC BY-SA 3.0; the five building assets are CC0.
