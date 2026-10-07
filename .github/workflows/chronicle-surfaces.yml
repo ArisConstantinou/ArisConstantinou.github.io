@@ -1,0 +1,46 @@
+name: Chronicle photographic surfaces
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/chronicle-surfaces.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  surfaces:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download selected public CC0 material maps
+        shell: python
+        run: |
+          import json, urllib.request, pathlib, time
+          out=pathlib.Path('out'); out.mkdir(exist_ok=True)
+          headers={'User-Agent':'MoutoullasChronicle/0.2 (CC0 art preparation)'}
+          def get(url):
+              for attempt in range(3):
+                  try:
+                      with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=90) as r:return r.read()
+                  except Exception:
+                      if attempt==2:raise
+                      time.sleep(2)
+          manifest=[]
+          for asset in ['stone_wall','plastered_wall_02','wood_planks','forest_ground_04']:
+              data=json.loads(get('https://api.polyhaven.com/files/'+asset))
+              item={'id':asset,'source':'https://polyhaven.com/a/'+asset,'license':'CC0-1.0','files':{}}
+              for channel in ['diff','nor_gl','rough']:
+                  formats=data[channel]['1k']
+                  ext='jpg' if 'jpg' in formats else 'png'
+                  url=formats[ext]['url']
+                  path=out/(asset+'_'+channel+'.'+ext)
+                  path.write_bytes(get(url));item['files'][channel]={'name':path.name,'url':url,'bytes':path.stat().st_size}
+                  print(path,path.stat().st_size)
+              manifest.append(item)
+          (out/'SURFACE-SOURCES.json').write_text(json.dumps(manifest,indent=2))
+          (out/'SURFACE-LICENSE.txt').write_text('Selected original Poly Haven textures. License: CC0 1.0 Universal.\nhttps://polyhaven.com/license\nThese are generic photographic materials, not surfaces measured or photographed in Moutoullas.\n')
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chronicle-surface-assets
+          path: out/
+          retention-days: 7
