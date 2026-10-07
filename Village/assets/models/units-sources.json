@@ -1,0 +1,137 @@
+{
+  "license": "CC0-1.0",
+  "assets": [
+    {
+      "file": "unit-infantry.glb",
+      "type": "infantry",
+      "title": "Medieval captain of the guard, rigged with idle animation",
+      "source": "https://vibeassets.io/a/gmxn9fptt1",
+      "download": "https://vibeassets.io/download/gmxn9fptt1",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "author": "VibeAssets contributor (Meshy-6 generated source)",
+      "retrieved": "2026-10-07",
+      "sourceSha256": "f82dbeb403d16c5fbebfe603a5d823e626aa0ccf987b886be87d91d1406078cb",
+      "sha256": "f9c63faff034c8f75595f73ce9fdf01cd23f384dbcd06344462502153fba84b1",
+      "bytes": 851200,
+      "triangles": 23949,
+      "materials": 1,
+      "skins": 1,
+      "joints": [
+        "Hips",
+        "LeftUpLeg",
+        "LeftLeg",
+        "LeftFoot",
+        "LeftToeBase",
+        "RightUpLeg",
+        "RightLeg",
+        "RightFoot",
+        "RightToeBase",
+        "Spine02",
+        "Spine01",
+        "Spine",
+        "LeftShoulder",
+        "LeftArm",
+        "LeftForeArm",
+        "LeftHand",
+        "RightShoulder",
+        "RightArm",
+        "RightForeArm",
+        "RightHand",
+        "neck",
+        "Head",
+        "head_end",
+        "headfront"
+      ],
+      "animations": [
+        {
+          "name": "Armature|Idle|baselayer",
+          "duration": 4.0333333015441895
+        }
+      ],
+      "sourceHeightMeters": 1.9,
+      "sourceUp": "+Y",
+      "sourceFacing": "+Z",
+      "sourceOrigin": "feet",
+      "notes": [
+        "Visually inspected source preview: adult human proportions; no chibi scaling.",
+        "One skinned mesh with 1024px embedded WebP albedo, preserved during optimization.",
+        "Reduced mesh with glTF Transform4.5.1 simplify; 0.6% mesh-radius error ceiling.",
+        "Corrected source material: removed albedo self-emission and excessive specular; explicit restrained metallic and roughness.",
+        "No baked weapon. Attach equipment to RightHand/LeftHand bones.",
+        "Source is fantasy medieval costume, not a claim of historically exact1280 armour."
+      ],
+      "validation": {
+        "tool": "glTF Transform4.5.1 / Khronos glTF Validator",
+        "errors": 0,
+        "warning": "Source centimetre scale on skinned mesh and armature (preserved together)."
+      }
+    },
+    {
+      "file": "unit-worker.glb",
+      "type": "worker",
+      "title": "Jolly medieval drunkard, rigged with idle animation",
+      "source": "https://vibeassets.io/a/1d0tjjx6z5",
+      "download": "https://vibeassets.io/download/1d0tjjx6z5",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "author": "VibeAssets contributor (Meshy-6 generated source)",
+      "retrieved": "2026-10-07",
+      "sourceSha256": "35b934b3db15a3cc8a1026a31b1ca76a8d1c18f8c2501076a710855befce9b7c",
+      "sha256": "284fe2970e189372e45279397dfae30408d6320efa927b7902c39a7344ce9350",
+      "bytes": 693120,
+      "triangles": 18997,
+      "materials": 1,
+      "skins": 1,
+      "joints": [
+        "Hips",
+        "LeftUpLeg",
+        "LeftLeg",
+        "LeftFoot",
+        "LeftToeBase",
+        "RightUpLeg",
+        "RightLeg",
+        "RightFoot",
+        "RightToeBase",
+        "Spine02",
+        "Spine01",
+        "Spine",
+        "LeftShoulder",
+        "LeftArm",
+        "LeftForeArm",
+        "LeftHand",
+        "RightShoulder",
+        "RightArm",
+        "RightForeArm",
+        "RightHand",
+        "neck",
+        "Head",
+        "head_end",
+        "headfront"
+      ],
+      "animations": [
+        {
+          "name": "Armature|Idle|baselayer",
+          "duration": 4.0333333015441895
+        }
+      ],
+      "sourceHeightMeters": 1.72,
+      "sourceUp": "+Y",
+      "sourceFacing": "+Z",
+      "sourceOrigin": "feet",
+      "notes": [
+        "Visually inspected source preview: adult human proportions; no chibi scaling.",
+        "One skinned mesh with 1024px embedded WebP albedo, preserved during optimization.",
+        "Reduced mesh with glTF Transform4.5.1 simplify; 0.6% mesh-radius error ceiling.",
+        "Corrected source material: removed albedo self-emission and excessive specular; explicit restrained metallic and roughness.",
+        "No baked weapon. Attach equipment to RightHand/LeftHand bones.",
+        "Source is fantasy medieval costume, not a claim of historically exact1280 armour."
+      ],
+      "validation": {
+        "tool": "glTF Transform4.5.1 / Khronos glTF Validator",
+        "errors": 0,
+        "warning": "Source centimetre scale on skinned mesh and armature (preserved together)."
+      }
+    }
+  ]
+}

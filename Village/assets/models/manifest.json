@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "armoured-infantry",
+      "file": "unit-infantry.glb",
+      "kind": "unit",
+      "types": [
+        "spear",
+        "sword",
+        "cavalry"
+      ],
+      "height": 1.9,
+      "forwardYaw": 0,
+      "credit": "VibeAssets · CC0"
+    },
+    {
+      "id": "villager",
+      "file": "unit-worker.glb",
+      "kind": "unit",
+      "types": [
+        "civilian",
+        "archer"
+      ],
+      "height": 1.74,
+      "forwardYaw": 0,
+      "credit": "VibeAssets · CC0"
+    },
+    {
+      "id": "stone-fortress",
+      "file": "castle-modules.glb",
+      "kind": "fortress",
+      "types": [
+        "castle",
+        "outpost",
+        "town"
+      ],
+      "modular": true,
+      "credit": "Rico Cilliers / Poly Haven · CC0"
+    },
+    {
+      "id": "thatched-house",
+      "file": "building-thatched-house.glb",
+      "kind": "building",
+      "types": [
+        "houses",
+        "granary"
+      ],
+      "forwardYaw": 0,
+      "credit": "Spiral Softworks / OpenGameArt · CC0"
+    },
+    {
+      "id": "covered-ram",
+      "file": "siege-ram.glb",
+      "kind": "siege",
+      "types": [
+        "ram"
+      ],
+      "forwardYaw": 0,
+      "credit": "Wildfire Games · CC BY-SA 3.0"
+    },
+    {
+      "id": "fir-tree",
+      "file": "tree-fir.glb",
+      "kind": "tree",
+      "types": [
+        "fir"
+      ],
+      "credit": "Rico Cilliers / Rob Tuytel / Poly Haven · CC0"
+    },
+    {
+      "id": "fir-tree-lod",
+      "file": "tree-fir-lod.glb",
+      "kind": "tree",
+      "types": [
+        "fir-lod"
+      ],
+      "credit": "Rico Cilliers / Rob Tuytel / Poly Haven · CC0"
+    }
+  ]
+}

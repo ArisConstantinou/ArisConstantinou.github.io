@@ -1,0 +1,76 @@
+{
+  "assets": [
+    {
+      "file": "siege-ram.glb",
+      "type": "ram",
+      "title": "Hide-covered six-wheel battering ram",
+      "source": "https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/art/actors/units/romans/siege_ram.xml",
+      "author": "Wildfire Games",
+      "authorUrl": "https://www.wildfiregames.com/",
+      "license": "CC-BY-SA-3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "attribution": "Battering ram model, texture and animations by Wildfire Games (https://www.wildfiregames.com/), used and adapted under CC BY-SA3.0 (https://creativecommons.org/licenses/by-sa/3.0/).",
+      "retrieved": "2026-10-07",
+      "bytes": 986792,
+      "sha256": "cc01b23238cff6d2fa0313048189def7801af47ca5c7ba777f37d7d241495ebe",
+      "triangles": 2342,
+      "skinJoints": [
+        "sixwheel",
+        "l_mid",
+        "l_back",
+        "l_front",
+        "r_mid",
+        "r_back",
+        "r_front",
+        "weapon",
+        "prop_shield_left",
+        "prop_shield_right"
+      ],
+      "animations": [
+        {
+          "name": "Idle",
+          "duration": 1.25,
+          "channels": 3
+        },
+        {
+          "name": "Attack",
+          "duration": 1.25,
+          "channels": 6
+        }
+      ],
+      "sourceDimensions": [
+        7.02394,
+        8.60672,
+        14.73562
+      ],
+      "sourceUp": "+Y after Collada Z-up conversion",
+      "sourceFacing": "+Z",
+      "inputs": [
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/structural/rome_ram.dae",
+          "sha256": "a0ed319b93cf370d8f6b43d35e55ef1a130d3ea0bf6b6c85506b7b951a05466f"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/structural/rome_ram.png",
+          "sha256": "e5c8aeb372370eaaede2ef2d1bafddf30eac7051bcc2ce7b8b893a4d46df3095"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/animation/mechanical/rome_ram_attack.dae",
+          "sha256": "9e9f3ea1f34f3fab6d4018495474b4b774a222e84a0173109a5ca3e12a021630"
+        }
+      ],
+      "modifications": [
+        "Converted source COLLADA into GLB using Three.js0.170.0, preserving skeletal rig and Idle/Attack animation.",
+        "Embedded original512px texture in a nonmetallic rough physically lit material.",
+        "No changes to source geometry; omitted optional Roman shield attachments.",
+        "This GLB adaptation remains licensed CC-BY-SA-3.0."
+      ],
+      "licenseNotice": "The files in this directory are Copyright (C) 2009 Wildfire Games.\n\nThese files are licensed under the Creative Commons Attribution-Share Alike 3.0\n(CC-by-sa) license, available at http://creativecommons.org/licenses/by-sa/3.0/\n\nBriefly, this means:\n\n* You may use, modify and distribute these files, for commercial and\n  non-commercial purposes.\n\n* If you distribute one of these files, you must include attribution (e.g.\n  in the credits screen of a game or a video, or in a text file accompanying\n  the files). The attribution must include:\n  * A link to http://creativecommons.org/licenses/by-sa/3.0/\n  * The name \"Wildfire Games\" as the original author\n  * A link to http://www.wildfiregames.com/\n\n* If you distribute one of these files, you must release it (and any\n  modifications you have made to it) under the CC-by-sa license.\n\nSome of the files in the \"textures/\" directory are derived from materials provided by CGTextures (http://www.cgtextures.com/). The original materials are the property of CGTextures or its contributors. Special permission has been granted by CGTextures to distribute these derived textures as CC-BY-SA. (This has no effect on the standard licensing of CGTextures materials, or on any other work derived from them.)\n\nAll CGTextures materials have been altered from their original form. To access original super-high resolution CGTextures materials, please visit http://www.cgtextures.com/ .",
+      "validation": {
+        "tool": "glTF Transform4.5.1 / Khronos glTF Validator",
+        "errors": 0,
+        "warning": "Skinned mesh nested under original axis-conversion scene root; clone complete scene."
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+[
+  {
+    "asset": "castle-modules.glb",
+    "title": "Modular Fort 01",
+    "author": "Rico Cilliers",
+    "license": "CC0-1.0",
+    "source": "https://polyhaven.com/a/modular_fort_01",
+    "download": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/modular_fort_01/modular_fort_01_1k.gltf",
+    "bytes": 10609316,
+    "sha256": "cb9e71dcb8ba1592009cf020e8f66e065950ea184b4689243c52bbc9d61a9f33",
+    "textures": "Original 1K glTF PBR maps embedded",
+    "triangles": 28218,
+    "modifications": "glTF dependencies bundled into one self-contained GLB; no geometry changes."
+  },
+  {
+    "asset": "building-thatched-house.glb",
+    "title": "Old Medieval House",
+    "author": "Spiral / Spiral Softworks",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/old-medieval-house",
+    "download": "https://opengameart.org/sites/default/files/Old_Medieval_Shack_House_.7z",
+    "triangles": 1206,
+    "textures": "Two embedded 1K JPEG colour maps",
+    "modifications": "FBX converted to GLB, textures reduced from original to 1024px; converted wood/thatch materials corrected to nonmetallic rough surfaces.",
+    "bytes": 482320,
+    "sha256": "ddb878af92e803c035a5aa5884fb1e4046753f0a6a871bf97f5334cddbd5f542"
+  }
+]

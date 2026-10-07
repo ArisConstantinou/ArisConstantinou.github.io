@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import {createGame,SAVE_KEY} from '../feouda-engine.js';
-import {UNIT_TYPES,REGIONS,BRIDGES,riverX} from '../feouda-data.js';
+import {createGame,SAVE_KEY,BUILDING_FOOTPRINTS,UNIT_CLEARANCE,FORT_POLYGONS,isWorldSegmentWalkable} from '../feouda-engine.js';
+import {UNIT_TYPES,BUILDINGS,REGIONS,BRIDGES,RESOURCE_NODES,riverX} from '../feouda-data.js';
 
 const cases=[];
 const test=(name,fn)=>cases.push({name,fn});
@@ -13,6 +13,10 @@ const quiet=()=>{
   return game;
 };
 const rich=game=>{for(const key of Object.keys(game.state.resources))game.state.resources[key]=10000;return game;};
+const plot=(game,type,regionId,rotation=0)=>{
+  const placement=game.findBuildLocation(type,regionId,rotation);assert.ok(placement,'A legal '+type+' plot must be available in '+regionId);
+  return {type,regionId,x:placement.x,z:placement.z,rotation:placement.rotation};
+};
 class MemoryStorage {
   constructor(initial={}){this.data={...initial};this.reads=[];this.writes=[];}
   getItem(key){this.reads.push(key);return this.data[key]??null;}
@@ -118,7 +122,7 @@ test('build preview gives effective level cost even when supplies are insufficie
 
 test('construction reserves four civilians and physically changes building level/housing',()=>{
   const game=quiet(),before=game.state.availableWorkers,housing=game.state.housing;
-  assert.equal(game.command('build',{type:'houses',regionId:'quarry'}).ok,true);
+  assert.equal(game.command('build',plot(game,'houses','quarry')).ok,true);
   assert.equal(game.state.availableWorkers,before-4);
   assert.equal(game.state.regions.quarry.buildings.houses||0,0);
   advance(game,36);
@@ -327,7 +331,7 @@ test('a resumed background tab cannot fast-forward hours of unobserved war',()=>
 
 test('save round trip preserves troops, orders, jobs, resources and separate campaign progress',()=>{
   const game=quiet(),s=own(game)[0];
-  game.command('build',{type:'houses',regionId:'quarry'});game.command('order',{ids:[s.id],type:'move',x:-97,z:72});advance(game,3);
+  assert.equal(game.command('build',plot(game,'houses','quarry')).ok,true);game.command('order',{ids:[s.id],type:'move',x:-97,z:72});advance(game,3);
   const encoded=game.exportSave(),restored=createGame();
   assert.equal(restored.importSave(encoded).ok,true);
   assert.deepEqual(restored.state.resources,game.state.resources);
@@ -360,6 +364,298 @@ test('victory depends on ownership plus civilian prosperity; defeat requires los
   assert.equal(lost.reset().ok,true);assert.equal(lost.state.outcome,null);assert.equal(own(lost).length,7);
 });
 
+
+// Independent geometric reference: distances between the swept centre line and
+// the displayed solid's edges. This does not use the engine's intersection test.
+const trajectoryEvidence={segments:0,solidChecks:0,intersections:0,types:new Set(),routes:0};
+function pointSegmentDistance(p,a,b) {
+  const dx=b.x-a.x,dz=b.z-a.z,length=dx*dx+dz*dz;
+  const t=length?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.z-a.z)*dz)/length)):0;
+  return Math.hypot(p.x-a.x-t*dx,p.z-a.z-t*dz);
+}
+function segmentDistance(a,b,c,d) {
+  const cross=(p,q,r)=>(q.x-p.x)*(r.z-p.z)-(q.z-p.z)*(r.x-p.x);
+  if(cross(a,b,c)*cross(a,b,d)<0&&cross(c,d,a)*cross(c,d,b)<0)return 0;
+  return Math.min(pointSegmentDistance(a,c,d),pointSegmentDistance(b,c,d),pointSegmentDistance(c,a,b),pointSegmentDistance(d,a,b));
+}
+function sweptIntersects(a,b,solid,radius) {
+  if(Math.max(a.x,b.x)+radius<solid.minX||Math.min(a.x,b.x)-radius>solid.maxX||Math.max(a.z,b.z)+radius<solid.minZ||Math.min(a.z,b.z)-radius>solid.maxZ)return false;
+  if(solid.radius!==undefined)return pointSegmentDistance(solid,a,b)<solid.radius+radius-1e-6;
+  const cosine=Math.cos(solid.rotation||0),sine=Math.sin(solid.rotation||0);
+  const corners=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([x,z])=>({x:solid.x+x*solid.width/2*cosine+z*solid.depth/2*sine,z:solid.z-x*solid.width/2*sine+z*solid.depth/2*cosine}));
+  const inside=p=>{
+    const signs=corners.map((c,i)=>{const d=corners[(i+1)%4];return(d.x-c.x)*(p.z-c.z)-(d.z-c.z)*(p.x-c.x);});
+    return signs.every(v=>v>1e-7)||signs.every(v=>v< -1e-7);
+  };
+  return inside(a)||inside(b)||corners.some((corner,i)=>segmentDistance(a,b,corner,corners[(i+1)%4])<radius-1e-6);
+}
+function traceStep(game,squad,seconds=.1) {
+  const before={x:squad.x,z:squad.z};game.step(seconds);
+  assert.ok(squad.hp>0,'The test unit must remain alive');
+  const nav=game.getNavigation();assert.ok(nav.isWalkable(squad,squad),'Physical unit centre must remain on a legal point');
+  for(const solid of nav.getObstacles()) {
+    trajectoryEvidence.solidChecks++;
+    const hit=sweptIntersects(before,squad,solid,UNIT_CLEARANCE[squad.type]);
+    if(hit)trajectoryEvidence.intersections++;
+    assert.equal(hit,false,squad.type+' swept through '+solid.source+' '+solid.id+' '+solid.part+' from '+JSON.stringify(before)+' to '+JSON.stringify({x:squad.x,z:squad.z}));
+  }
+  trajectoryEvidence.segments++;trajectoryEvidence.types.add(squad.type);
+}
+function traceTo(game,squad,destination,maxSeconds=150) {
+  for(let elapsed=0;elapsed<maxSeconds&&Math.hypot(squad.x-destination.x,squad.z-destination.z)>1;elapsed+=.1)traceStep(game,squad);
+  assert.ok(Math.hypot(squad.x-destination.x,squad.z-destination.z)<2,squad.type+' did not reach '+JSON.stringify(destination));
+  trajectoryEvidence.routes++;
+}
+
+test('every initial building is a saved plot and every initial squad has physical clearance',()=>{
+  const game=quiet(),nav=game.getNavigation();
+  assert.ok(game.state.structures.length>25);
+  for(const region of REGIONS)for(const type of Object.keys(BUILDING_FOOTPRINTS)) {
+    const sum=game.state.structures.filter(s=>s.type===type&&s.regionId===region.id).reduce((n,s)=>n+s.level,0);
+    assert.equal(sum,game.state.regions[region.id].buildings[type]||0);
+  }
+  for(const squad of game.state.squads)assert.ok(nav.isWalkable(squad,squad),'Initial '+squad.type+' overlaps a solid');
+  for(const structure of game.state.structures)assert.equal(nav.isWalkable(structure),structure.type==='farm');
+});
+
+test('placement previews and an abandoned ghost never charge or create a building',()=>{
+  const game=quiet(),before=JSON.stringify(game.state),quote=game.canCommand('build',{type:'houses',regionId:'home'});
+  assert.equal(quote.ok,true);assert.equal(quote.requiresPlacement,true);assert.ok(quote.cost.money>0);
+  const p=plot(game,'houses','home',Math.PI/2);
+  for(let i=0;i<4;i++) {
+    const preview=game.canCommand('build',{...p,rotation:p.rotation+i*Math.PI/2});
+    assert.equal(typeof preview.ok,'boolean');assert.ok(preview.placement);assert.equal(preview.placement.x,p.x);
+  }
+  assert.equal(game.command('build',{type:'houses',regionId:'home'}).ok,false);
+  assert.equal(JSON.stringify(game.state),before);
+});
+
+test('a confirmed rotated plot charges once and completes at the identical saved position',()=>{
+  const game=quiet(),p=plot(game,'houses','home',Math.PI/4),before={...game.state.resources};
+  const quote=game.canCommand('build',p);assert.equal(quote.ok,true);assert.equal(quote.requiresPlacement,false);
+  const result=game.command('build',p);assert.equal(result.ok,true);
+  const structure=game.state.structures.find(s=>s.id===result.structureId),job=game.state.jobs.find(j=>j.id===result.jobId);
+  assert.ok(structure&&job);assert.equal(structure.status,'building');assert.equal(structure.level,0);
+  assert.equal(structure.x,p.x);assert.equal(structure.z,p.z);close(structure.rotation,p.rotation);
+  assert.equal(job.structureId,structure.id);assert.equal(job.x,p.x);assert.equal(job.z,p.z);
+  for(const [key,cost]of Object.entries(quote.cost))close(game.state.resources[key],before[key]-cost);
+  const after={...game.state.resources};assert.equal(game.command('build',p).ok,false);assert.deepEqual(game.state.resources,after);
+  assert.equal(game.getNavigation().isWalkable(structure),false);
+  advance(game,quote.duration+.2);
+  assert.equal(structure.status,'ready');assert.equal(structure.level,1);assert.equal(structure.jobId,null);
+  assert.equal(structure.x,p.x);assert.equal(structure.z,p.z);close(structure.rotation,p.rotation);
+  assert.equal(game.state.regions.home.buildings.houses,3);
+});
+
+test('existing-building upgrades keep their plot and reject an attempted relocation',()=>{
+  const game=quiet(),structure=game.state.structures.find(s=>s.regionId==='home'&&s.type==='houses');
+  const location={x:structure.x,z:structure.z,rotation:structure.rotation},count=game.state.structures.length;
+  const payload={type:structure.type,regionId:structure.regionId,structureId:structure.id},quote=game.canCommand('build',payload);
+  assert.equal(quote.ok,true);assert.equal(quote.requiresPlacement,false);assert.equal(quote.targetLevel,2);
+  const before={...game.state.resources};assert.equal(game.command('build',{...payload,x:structure.x+1}).ok,false);assert.deepEqual(game.state.resources,before);
+  assert.equal(game.command('build',payload).ok,true);assert.equal(structure.status,'upgrading');
+  advance(game,quote.duration+.1);
+  assert.equal(structure.level,2);assert.equal(structure.status,'ready');assert.equal(game.state.structures.length,count);
+  assert.deepEqual({x:structure.x,z:structure.z,rotation:structure.rotation},location);assert.equal(game.state.regions.home.buildings.houses,3);
+});
+
+test('placement rejects water, bridges, forts, resources, roads, steep slopes and foreign land without spending',()=>{
+  const game=rich(quiet());game.state.squads=[];
+  const home=REGIONS.find(r=>r.id==='home'),node=RESOURCE_NODES.find(n=>n.regionId==='home'),bridge=BRIDGES[0];
+  const invalid=[
+    {type:'houses',regionId:'home',x:NaN,z:0},
+    {type:'houses',regionId:'home',x:-241,z:0},
+    {type:'houses',regionId:'home',x:home.x,z:home.z},
+    {type:'houses',regionId:'home',x:node.x,z:node.z},
+    {type:'houses',regionId:'home',x:-160,z:-54},
+    {type:'houses',regionId:'home',x:-166,z:-36},
+    {type:'houses',regionId:'quarry',x:riverX(140),z:140},
+    {type:'houses',regionId:'quarry',x:bridge.x,z:bridge.z},
+    {type:'houses',regionId:'ironhold',x:166,z:-90},
+    {type:'houses',regionId:'home',x:-80,z:0}
+  ];
+  const before={...game.state.resources},count=game.state.structures.length;
+  for(const p of invalid){assert.equal(game.canCommand('build',p).ok,false,JSON.stringify(p));assert.equal(game.command('build',p).ok,false);}
+  assert.deepEqual(game.state.resources,before);assert.equal(game.state.structures.length,count);assert.equal(game.state.jobs.length,0);
+  assert.match(game.canCommand('build',invalid[4]).message,/δρόμο/);
+  assert.match(game.canCommand('build',invalid[5]).message,/πλαγιά|κλίση/);
+  assert.equal(game.findBuildLocation('houses','ironhold'),null);
+});
+
+test('a unit and a rotated existing plot both prevent overlapping construction',()=>{
+  const game=quiet(),p=plot(game,'houses','home',Math.PI/4),s=solo(game,'ram',p);
+  const resources={...game.state.resources};assert.equal(game.command('build',p).ok,false);assert.deepEqual(game.state.resources,resources);
+  s.x=-225;s.z=40;s.anchor={x:s.x,z:s.z};
+  assert.equal(game.command('build',p).ok,true);
+  const quote=game.canCommand('build',{...p,type:'well',x:p.x+2,z:p.z+2,rotation:Math.PI/2});
+  assert.equal(quote.ok,false);assert.match(quote.message,/επικαλύπτει/);
+});
+
+test('farmland reserves a building plot while remaining passable to soldiers',()=>{
+  const game=quiet(),p=plot(game,'farm','home',Math.PI/4);
+  assert.equal(game.command('build',p).ok,true);
+  const structure=game.state.structures.find(s=>s.id===game.state.jobs[0].structureId);
+  assert.equal(game.getNavigation().isWalkable(structure),true);
+  assert.equal(game.canCommand('build',{...p,type:'houses'}).ok,false);
+});
+
+test('a legacy campaign gains plots without losing elapsed time, money, building levels or unfinished work',()=>{
+  const original=quiet(),p=plot(original,'houses','quarry');
+  assert.equal(original.command('build',p).ok,true);advance(original,7);
+  const legacy=JSON.parse(original.exportSave());delete legacy.state.structures;
+  for(const job of legacy.state.jobs)for(const key of ['structureId','x','z','rotation','targetLevel'])delete job[key];
+  const resources={...legacy.state.resources},remaining=legacy.state.jobs[0].remaining,t=legacy.state.t;
+  const levels=REGIONS.map(r=>({...legacy.state.regions[r.id].buildings}));
+  const storage=new MemoryStorage({[SAVE_KEY]:JSON.stringify(legacy)}),restored=createGame({storage});
+  assert.equal(restored.loaded,true);assert.equal(restored.storageError,null);close(restored.state.t,t);
+  assert.deepEqual(restored.state.resources,resources);assert.deepEqual(REGIONS.map(r=>r&&restored.state.regions[r.id].buildings),levels);
+  assert.equal(restored.state.jobs[0].remaining,remaining);
+  const job=restored.state.jobs[0],structure=restored.state.structures.find(s=>s.id===job.structureId);
+  assert.equal(structure.status,'building');assert.equal(structure.jobId,job.id);assert.equal(structure.x,job.x);
+  advance(restored,remaining+.1);assert.equal(structure.status,'ready');assert.equal(restored.state.regions.quarry.buildings.houses,1);
+});
+
+test('an unfinished construction site survives save/reload with its exact plot and physical obstacle',()=>{
+  const game=quiet(),p=plot(game,'granary','home',Math.PI/3);
+  const result=game.command('build',p);assert.equal(result.ok,true);advance(game,4);
+  const restored=createGame({storage:new MemoryStorage({[SAVE_KEY]:game.exportSave()})});assert.equal(restored.loaded,true);
+  const a=game.state.structures.find(s=>s.id===result.structureId),b=restored.state.structures.find(s=>s.id===result.structureId);
+  assert.deepEqual(b,a);assert.deepEqual(restored.state.jobs,game.state.jobs);assert.equal(restored.getNavigation().isWalkable(b),false);
+});
+
+test('malformed, overlapping or unlinked saved plots are rejected transactionally',()=>{
+  const game=quiet();assert.equal(game.command('build',plot(game,'houses','quarry')).ok,true);
+  const saved=game.exportSave(),before=JSON.parse(saved).state;
+  const mutators=[
+    s=>s.structures=null,
+    s=>s.structures[0].x=Infinity,
+    s=>s.structures[0].level=99,
+    s=>s.structures[0].id=s.structures[1].id,
+    s=>{s.structures[0].x=s.structures[1].x;s.structures[0].z=s.structures[1].z;},
+    s=>s.jobs[0].structureId='missing-plot',
+    s=>s.structures.find(p=>p.status==='building').jobId='missing-job',
+    s=>s.regions.home.buildings.houses++
+  ];
+  for(const mutate of mutators){const value=JSON.parse(saved);mutate(value.state);assert.equal(game.importSave(JSON.stringify(value)).ok,false);assert.deepEqual(JSON.parse(game.exportSave()).state,before);}
+});
+
+test('all six unit types physically route around several starter buildings and two new construction sites',()=>{
+  for(const type of Object.keys(UNIT_TYPES)) {
+    const game=rich(quiet()),s=solo(game,type==='trebuchet'?'ram':type,{x:-225,z:40});
+    s.type=type;s.hp=s.maxHp=UNIT_TYPES[type].hp;s.men=UNIT_TYPES[type].men;
+    assert.equal(game.command('build',plot(game,'houses','home',Math.PI/4)).ok,true);
+    assert.equal(game.command('build',plot(game,'granary','home',Math.PI/8)).ok,true);
+    const obstacles=game.state.structures.filter(p=>p.regionId==='home'&&(['houses','barracks','stable'].includes(p.type)||p.status==='building')).sort((a,b)=>(a.status==='building'?0:1)-(b.status==='building'?0:1));
+    for(const obstacle of obstacles) {
+      const nav=game.getNavigation();let chosen=null;
+      for(let i=0;i<24;i++) {
+        const angle=i*Math.PI/12,radius=23+UNIT_CLEARANCE[type],a={x:obstacle.x+Math.cos(angle)*radius,z:obstacle.z+Math.sin(angle)*radius},b={x:obstacle.x-Math.cos(angle)*radius,z:obstacle.z-Math.sin(angle)*radius};
+        if(nav.isWalkable(a,s)&&nav.isWalkable(b,s)&&nav.findPath(a,b,s)){chosen={a,b};break;}
+      }
+      assert.ok(chosen,'No test approach to '+obstacle.id+' for '+type);
+      s.x=chosen.a.x;s.z=chosen.a.z;s.anchor={...chosen.a};s.order={type:'hold',...chosen.a};s.path=[];
+      assert.equal(nav.clearSegment(chosen.a,chosen.b,s),false,'The direct route must be obstructed');
+      assert.equal(game.command('order',{ids:[s.id],type:'move',...chosen.b}).ok,true);
+      assert.ok(s.path.length>1,'A real detour must be produced');
+      traceTo(game,s,chosen.b);
+    }
+  }
+});
+
+test('placing a construction site across an active route reroutes the marching unit immediately',()=>{
+  const game=quiet(),p=plot(game,'houses','home',Math.PI/4),s=solo(game,'cavalry',{x:-202,z:p.z}),target={x:-155,z:p.z};
+  assert.equal(game.command('order',{ids:[s.id],type:'move',...target}).ok,true);traceStep(game,s,.5);
+  assert.equal(game.command('build',p).ok,true);assert.equal(s.path.length,0,'The obsolete route must be invalidated when the site is confirmed');
+  traceTo(game,s,target);assert.equal(game.state.structures.find(a=>a.status==='building')?.type,'houses');
+});
+
+test('when a moving unit target becomes a construction site it selects a reachable free destination',()=>{
+  const game=quiet(),p=plot(game,'houses','home',Math.PI/4),s=solo(game,'spear',{x:-202,z:p.z});
+  assert.equal(game.command('order',{ids:[s.id],type:'move',x:p.x,z:p.z}).ok,true);traceStep(game,s,.5);
+  assert.equal(game.command('build',p).ok,true);
+  const target={x:s.order.x,z:s.order.z};assert.ok(Math.hypot(target.x-p.x,target.z-p.z)>4);
+  assert.ok(game.getNavigation().isWalkable(target,s));traceTo(game,s,target);
+});
+
+test('even an obsolete injected shortcut cannot tunnel through a rotated building corner',()=>{
+  const game=quiet(),p=plot(game,'houses','home',Math.PI/4),s=solo(game,'cavalry',{x:-202,z:p.z});
+  assert.equal(game.command('build',p).ok,true);
+  const target={x:-155,z:p.z};
+  assert.equal(game.getNavigation().clearSegment(s,target,s),false);
+  s.order={type:'move',...target};s.path=[{...target}];s.repathAt=1e8;
+  traceTo(game,s,target);
+});
+
+test('destroying walls never removes the physical keep, interior buildings or corner towers',()=>{
+  const game=quiet(),nav=game.getNavigation();
+  for(const r of REGIONS)game.state.regions[r.id].fortHp=0;
+  for(const r of REGIONS) {
+    for(const point of FORT_POLYGONS[r.id])assert.equal(nav.isWalkable(point),false,'A standing tower must remain solid');
+    assert.equal(nav.isWalkable({x:r.x,z:r.z-4}),false,'The surviving keep must remain solid');
+    if(r.kind==='castle')for(const [x,z]of[[-9,3.1],[8.8,4],[3.5,7.6]])assert.equal(nav.isWalkable({x:r.x+x,z:r.z+z}),false);
+  }
+});
+
+test('closed gates stop infantry; an opened narrow gate passes infantry and rejects a siege chassis',()=>{
+  const game=quiet(),r=REGIONS.find(r=>r.id==='firwood'),control=game.state.regions[r.id];control.owner='player';
+  const s=solo(game,'spear',{x:r.x,z:r.z+19}),target={x:r.x,z:r.z+5.5},nav=game.getNavigation();
+  assert.equal(nav.findPath(s,target,s),null);
+  control.fortHp=control.maxFortHp*.1;
+  assert.equal(nav.clearSegment(s,target,s),true);assert.equal(nav.clearSegment(s,target,'ram'),false);
+  assert.equal(isWorldSegmentWalkable(game.state,s,target,.46),true);
+  assert.equal(game.command('order',{ids:[s.id],type:'move',...target}).ok,true);traceTo(game,s,target);
+});
+
+test('wall repair waits for a soldier to leave the gate before restoring a solid portcullis',()=>{
+  const game=rich(quiet()),r=REGIONS.find(r=>r.id==='firwood'),control=game.state.regions[r.id];control.owner='player';control.fortHp=control.maxFortHp*.1;
+  const s=solo(game,'spear',{x:r.x,z:r.z+9});assert.ok(game.getNavigation().isWalkable(s,s));
+  assert.equal(game.command('repair',{regionId:r.id}).ok,true);
+  for(let i=0;i<120;i++)traceStep(game,s,.1);
+  assert.ok(control.fortHp/control.maxFortHp<=.16+1e-6);assert.equal(game.state.jobs[0].blocked,true);
+  const target={x:r.x,z:r.z+23};assert.equal(game.command('order',{ids:[s.id],type:'move',...target}).ok,true);traceTo(game,s,target);
+  advance(game,100);close(control.fortHp,control.maxFortHp);assert.equal(game.state.jobs.length,0);
+});
+
+
+
+test('fully developed legacy provinces preserve every upgrade when gaining persistent plots',()=>{
+  const original=quiet();
+  for(const r of Object.values(original.state.regions))r.buildings=Object.fromEntries(Object.entries(BUILDINGS).map(([type,def])=>[type,def.max]));
+  const envelope=JSON.parse(original.exportSave());delete envelope.state.structures;
+  const restored=createGame();assert.equal(restored.importSave(JSON.stringify(envelope)).ok,true);
+  for(const region of REGIONS)assert.deepEqual(restored.state.regions[region.id].buildings,envelope.state.regions[region.id].buildings);
+  assert.equal(restored.state.structures.length,REGIONS.length*Object.keys(BUILDING_FOOTPRINTS).length);
+  const second=createGame();assert.equal(second.importSave(restored.exportSave()).ok,true);assert.deepEqual(second.state.structures,restored.state.structures);
+});
+
+test('a legacy unit inside a surviving keep is placed safely when loading without advancing time',()=>{
+  const original=quiet(),r=REGIONS.find(r=>r.id==='home'),s=own(original).find(s=>s.type==='ram');
+  original.state.regions.home.fortHp=0;s.x=r.x;s.z=r.z-4;s.anchor={x:s.x,z:s.z};s.order={type:'hold',...s.anchor};s.path=[];
+  original.state.t=223;
+  const envelope=JSON.parse(original.exportSave());delete envelope.state.structures;
+  const restored=createGame({storage:new MemoryStorage({[SAVE_KEY]:JSON.stringify(envelope)})});assert.equal(restored.loaded,true);
+  const unit=restored.state.squads.find(unit=>unit.id===s.id);assert.ok(restored.getNavigation().isWalkable(unit,unit));
+  assert.ok(Math.hypot(unit.x-s.x,unit.z-s.z)>5);assert.equal(restored.state.t,223);assert.deepEqual(restored.state.resources,envelope.state.resources);
+  traceStep(restored,unit);
+});
+
+test('every troop and siege type crosses both bridge decks with its physical clearance',()=>{
+  for(const type of Object.keys(UNIT_TYPES))for(const bridge of BRIDGES) {
+    const game=quiet(),s=solo(game,type==='trebuchet'?'ram':type,{x:-65,z:bridge.z}),target={x:72,z:bridge.z};
+    s.type=type;s.hp=s.maxHp=UNIT_TYPES[type].hp;s.men=UNIT_TYPES[type].men;
+    assert.equal(game.command('order',{ids:[s.id],type:'move',...target}).ok,true);
+    let enteredDeck=false;
+    for(let elapsed=0;elapsed<110&&Math.hypot(s.x-target.x,s.z-target.z)>1;elapsed+=.1) {
+      traceStep(game,s);
+      if(Math.abs(s.x-riverX(s.z))<11) {
+        enteredDeck=true;assert.ok(Math.abs(s.z-bridge.z)<=3.25-Math.min(UNIT_CLEARANCE[type],2.05)+1e-6);
+      }
+    }
+    assert.equal(enteredDeck,true);assert.ok(Math.hypot(s.x-target.x,s.z-target.z)<2);trajectoryEvidence.routes++;
+  }
+});
+
+
 let passed=0;
 for(const {name,fn} of cases) {
   const start=performance.now();
@@ -367,3 +663,5 @@ for(const {name,fn} of cases) {
   catch(error){console.error(`FAIL ${name}`);console.error(error);process.exitCode=1;}
 }
 console.log(`\n${passed}/${cases.length} tests passed.`);
+
+console.log('Trajectory evidence: '+trajectoryEvidence.routes+' completed routes; '+trajectoryEvidence.segments+' actual movement segments; '+trajectoryEvidence.solidChecks+' independent solid checks; '+[...trajectoryEvidence.types].join(', ')+'; '+trajectoryEvidence.intersections+' intersections.');

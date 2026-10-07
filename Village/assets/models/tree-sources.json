@@ -1,0 +1,91 @@
+{
+  "assets": [
+    {
+      "file": "tree-fir.glb",
+      "title": "Fir Tree01 \u2014 tree C",
+      "author": "Rico Cilliers (model), Rob Tuytel (photographs)",
+      "source": "https://polyhaven.com/a/fir_tree_01",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-10-07",
+      "sha256": "aadb11052d266796b4e7f584fa9832ddf4855c80c313ac8c5867d2718b47df93",
+      "bytes": 3588336,
+      "triangles": 29231,
+      "materials": 4,
+      "maps": 6,
+      "sourceDimensions": [
+        6.25672,
+        14.49131,
+        5.88552
+      ],
+      "sourceUp": "+Y",
+      "sourceOrigin": "trunk base, source minimumY -0.09359m",
+      "sourceGltf": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/fir_tree_01/fir_tree_01_1k.gltf",
+      "alphaMapSource": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fir_tree_01/fir_tree_01_twig_alpha_1k.jpg",
+      "requiredExtensions": [
+        "EXT_texture_webp",
+        "KHR_mesh_quantization",
+        "KHR_texture_transform"
+      ],
+      "modifications": [
+        "Extracted the single C tree from the original Poly Haven mesh collection (source505,494triangles).",
+        "Preserved bark,twig and trunk geometry, original vertex colour, normal, albedo and ARM materials.",
+        "Reduced geometry to29,231triangles with glTF Transform4.5.1 and0.3% error bound; quantized vertex attributes for web delivery.",
+        "Pruned unused mesh data and materials; recoded1K texture maps to WebP90 quality without resizing.",
+        "Packed original twig diffuse plus original twig alpha into RGBA; enabled alpha masking at0.38 with double-sided leaves.",
+        "Original C-trunk primitive lacked TEXCOORD_0 despite textured material: added continuous cylindrical UVs with wrapped seam vertices.",
+        "Unavailable trunk B diffuse and ARM files were substituted with already downloaded trunk A diffuse/ARM in extracted source. These materials are unused by tree C and were pruned from final file.",
+        "No Draco or meshopt decoder is required."
+      ],
+      "validation": {
+        "tool": "glTF Transform4.5.1 / Khronos glTF Validator",
+        "errors": 0,
+        "warning": "PBR normal maps use runtime-generated tangent space in Three.js."
+      }
+    },
+    {
+      "file": "tree-fir-lod.glb",
+      "title": "Fir Tree01 \u2014 tree C, distant LOD",
+      "author": "Rico Cilliers (model), Rob Tuytel (photographs)",
+      "source": "https://polyhaven.com/a/fir_tree_01",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-10-07",
+      "sha256": "c44f43af8cfb4f7fa9083a2a76366700f8eb8dda3d42eaa7f9419fed658463eb",
+      "bytes": 1951908,
+      "triangles": 8005,
+      "materials": 4,
+      "maps": 6,
+      "sourceDimensions": [
+        6.25672,
+        14.49131,
+        5.88552
+      ],
+      "sourceUp": "+Y",
+      "sourceOrigin": "trunk base, source minimumY -0.09359m",
+      "sourceGltf": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/fir_tree_01/fir_tree_01_1k.gltf",
+      "alphaMapSource": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fir_tree_01/fir_tree_01_twig_alpha_1k.jpg",
+      "requiredExtensions": [
+        "EXT_texture_webp",
+        "KHR_mesh_quantization",
+        "KHR_texture_transform"
+      ],
+      "modifications": [
+        "Extracted the single C tree from the original Poly Haven mesh collection (source505,494triangles).",
+        "Preserved bark,twig and trunk geometry, original vertex colour, normal, albedo and ARM materials.",
+        "Reduced geometry to29,231triangles with glTF Transform4.5.1 and0.3% error bound; quantized vertex attributes for web delivery.",
+        "Pruned unused mesh data and materials; recoded1K texture maps to WebP90 quality without resizing.",
+        "Packed original twig diffuse plus original twig alpha into RGBA; enabled alpha masking at0.38 with double-sided leaves.",
+        "Original C-trunk primitive lacked TEXCOORD_0 despite textured material: added continuous cylindrical UVs with wrapped seam vertices.",
+        "Unavailable trunk B diffuse and ARM files were substituted with already downloaded trunk A diffuse/ARM in extracted source. These materials are unused by tree C and were pruned from final file.",
+        "No Draco or meshopt decoder is required.",
+        "Derived a distant LOD from optimized main tree with0.8% error bound; retains same1K texture maps and alpha masking."
+      ],
+      "validation": {
+        "tool": "glTF Transform4.5.1 / Khronos glTF Validator",
+        "errors": 0,
+        "warning": "PBR normal maps use runtime-generated tangent space in Three.js."
+      }
+    }
+  ]
+}

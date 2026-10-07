@@ -1,12 +1,22 @@
-const CACHE='feouda-v2.0.0';
+const CACHE='feouda-v2.1.0';
 // Exact URLs match index.html and every native ES-module import. Runtime assets
 // are served locally, so a completed install is sufficient for offline play.
 const FILES=[
- './','./index.html','./app.js?v=2.0.0','./style.css?v=2.0.0',
- './feouda-engine.js?v=2.0.0','./feouda-data.js?v=2.0.0',
- './feouda-world.js?v=2.0.0','./feouda-models.js?v=2.0.0',
- './feouda-materials.js?v=2.0.0','./feouda-icons.js?v=2.0.0',
+ './','./index.html','./app.js?v=2.1.0','./style.css?v=2.1.0',
+ './feouda-engine.js?v=2.1.0','./feouda-data.js?v=2.1.0',
+ './feouda-world.js?v=2.1.0','./feouda-models.js?v=2.1.0',
+ './feouda-materials.js?v=2.1.0','./feouda-icons.js?v=2.1.0',
+ './feouda-software.js?v=2.1.0','./feouda-software-textures.js?v=2.1.0',
+ './feouda-assets.js?v=2.1.0',
  './vendor/three.module.js','./vendor/THREE-LICENSE.txt',
+ './vendor/GLTFLoader.js','./vendor/BufferGeometryUtils.js','./vendor/SkeletonUtils.js',
+ './assets/models/manifest.json',
+ './assets/models/unit-infantry.glb','./assets/models/unit-worker.glb',
+ './assets/models/siege-ram.glb','./assets/models/castle-modules.glb',
+ './assets/models/building-thatched-house.glb',
+ './assets/models/tree-fir.glb','./assets/models/tree-fir-lod.glb',
+ './assets/models/units-sources.json','./assets/models/siege-sources.json',
+ './assets/models/tree-sources.json','./assets/models/scenery-sources.json',
  './assets/medieval/castle_wall_color_1k.jpg',
  './assets/medieval/castle_wall_normal_1k.jpg',
  './assets/medieval/castle_wall_roughness_1k.jpg',
@@ -28,7 +38,7 @@ self.addEventListener('install',event=>{
 });
 self.addEventListener('activate',event=>{
  event.waitUntil(caches.keys()
-  .then(keys=>Promise.all(keys.filter(key=>key!==CACHE&&(key.startsWith('moutoullas-')||key.startsWith('feouda-'))).map(key=>caches.delete(key))))
+  .then(keys=>Promise.all(keys.filter(key=>key!==CACHE&&key.startsWith('feouda-v')).map(key=>caches.delete(key))))
   .then(()=>self.clients.claim()));
 });
 self.addEventListener('fetch',event=>{

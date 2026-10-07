@@ -1,4 +1,4 @@
-import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.0.0';
+import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.1.0';
 
 // Simulation uses world-space positions. Orders, arrows and siege stones travel
 // through the same world the player sees; elapsed wall-clock time never fights wars.
@@ -27,6 +27,308 @@ const infantry = s => UNIT_TYPES[s.type]?.role === 'infantry';
 const player = s => s.owner === 'player' && s.hp > 0;
 const rounded = n => Math.round(n * 100) / 100;
 const fail = message => ({ok:false, message});
+
+// World-metre rectangles include roof overhangs and the .78 model scale.
+// Walls improve the existing fort and therefore never reserve a new plot.
+export const BUILD_FOOTPRINTS=Object.freeze(Object.fromEntries(Object.keys(BUILDINGS).filter(type=>type!=='walls').map(type=>[
+  type,Object.freeze({width:type==='houses'?8:type==='farm'?14:type==='market'?11:10,
+    depth:type==='houses'?8:type==='farm'?11:type==='market'?12:type==='barracks'?11:10,
+    clearance:1.5,blocking:type!=='farm'})
+])));
+export const BUILDING_FOOTPRINTS=BUILD_FOOTPRINTS;
+// Squads may compress their visual formation at a bottleneck. The moving centre
+// still reserves the full chassis of an engine, rather than a zero-size point.
+export const UNIT_CLEARANCE=Object.freeze({spear:.8,sword:.8,archer:.8,cavalry:1.6,ram:4.8,trebuchet:4.8});
+export const FORT_POLYGONS=Object.freeze(Object.fromEntries(REGIONS.map(r=>{
+  const d=r.kind==='castle'?18:r.kind==='town'?12:9;
+  const points=r.kind!=='castle'?[[-d,-d],[d,-d],[d,d],[-d,d]]:
+    r.owner==='red'?[[-d,-d],[d*.72,-d*1.09],[d,d*.84],[-d*.91,d*.95]]:
+    r.owner==='gold'?[[-d*.9,-d],[d*.97,-d*.73],[d*.82,d],[-d,d*.74]]:
+    [[-d,-d*.82],[d*.82,-d],[d,d*.8],[-d*.87,d]];
+  return [r.id,Object.freeze(points.map(([x,z])=>Object.freeze({x:r.x+x,z:r.z+z})))];
+})));
+const ROAD_PAIRS=[['home','firwood'],['home','farmland'],['home','crossing'],['farmland','quarry'],['ironhold','pass'],['ironhold','highlands'],['highlands','sunkeep'],['sunkeep','quarry'],['crossing','pass'],['crossing','highlands']];
+const lerp=(a,b,t)=>a+(b-a)*t;
+function roadSpline(anchors) {
+  const out=[];
+  for(let i=0;i<anchors.length-1;i++) {
+    const p1=anchors[i],p2=anchors[i+1],p0=anchors[i-1]||[2*p1[0]-p2[0],2*p1[1]-p2[1]],p3=anchors[i+2]||[2*p2[0]-p1[0],2*p2[1]-p1[1]];
+    const steps=Math.max(4,Math.ceil(Math.hypot(p2[0]-p1[0],p2[1]-p1[1])/1.6));
+    for(let n=0;n<steps;n++) {const t=n/steps,t2=t*t,t3=t2*t;
+      out.push([0,1].map(axis=>.5*(2*p1[axis]+(-p0[axis]+p2[axis])*t+(2*p0[axis]-5*p1[axis]+4*p2[axis]-p3[axis])*t2+(-p0[axis]+3*p1[axis]-3*p2[axis]+p3[axis])*t3)));
+    }
+  }
+  out.push([...anchors.at(-1)]);return out;
+}
+export const PLACEMENT_ROADS=ROAD_PAIRS.map(([from,to])=>{
+  const a=REGION_BY_ID[from],b=REGION_BY_ID[to],points=[[a.x,a.z+18]];
+  if((a.x-riverX(a.z))*(b.x-riverX(b.z))<0) {
+    const bridge=BRIDGES.reduce((best,p)=>dist(a,p)+dist(b,p)<dist(a,best)+dist(b,best)?p:best),sign=a.x<bridge.x?-1:1;
+    points.push([bridge.x+sign*22,bridge.z],[bridge.x+sign*9,bridge.z],[bridge.x-sign*9,bridge.z],[bridge.x-sign*22,bridge.z]);
+  } else points.push([lerp(a.x,b.x,.5)+6,lerp(a.z,b.z,.5)]);
+  points.push([b.x,b.z+13]);return {id:`${from}-${to}`,width:3.5,points:roadSpline(points)};
+});
+const normalizedRotation=angle=>((angle%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+function localPoint(p,rect) {
+  const dx=p.x-rect.x,dz=p.z-rect.z,c=Math.cos(rect.rotation||0),s=Math.sin(rect.rotation||0);
+  return {x:dx*c-dz*s,z:dx*s+dz*c};
+}
+function pointInsideRect(p,rect,padding=0) {
+  const q=localPoint(p,rect);return Math.abs(q.x)<rect.width/2+padding&&Math.abs(q.z)<rect.depth/2+padding;
+}
+function segmentHitsRect(a,b,rect,padding=0) {
+  const start=localPoint(a,rect),end=localPoint(b,rect);let lo=0,hi=1;
+  for(const [axis,size] of [['x',rect.width/2+padding],['z',rect.depth/2+padding]]) {
+    const d=end[axis]-start[axis];
+    if(Math.abs(d)<EPS){if(start[axis]<=-size||start[axis]>=size)return false;}
+    else {let t1=(-size-start[axis])/d,t2=(size-start[axis])/d;if(t1>t2)[t1,t2]=[t2,t1];lo=Math.max(lo,t1);hi=Math.min(hi,t2);if(lo>=hi-EPS)return false;}
+  }
+  return hi>EPS&&lo<1-EPS;
+}
+function rectanglePoints(rect) {
+  const c=Math.cos(rect.rotation||0),s=Math.sin(rect.rotation||0),out=[];
+  for(const x of [-rect.width/2,0,rect.width/2])for(const z of [-rect.depth/2,0,rect.depth/2])out.push({x:rect.x+x*c+z*s,z:rect.z-x*s+z*c});
+  return out;
+}
+function rectanglesOverlap(a,b,padding=0) {
+  const ca=Math.cos(a.rotation||0),sa=Math.sin(a.rotation||0),cb=Math.cos(b.rotation||0),sb=Math.sin(b.rotation||0);
+  const axes=[[ca,-sa],[sa,ca],[cb,-sb],[sb,cb]],dx=b.x-a.x,dz=b.z-a.z;
+  for(const [x,z] of axes) {
+    // Split clearance between both rectangles. Expanding only the first
+    // rectangle made rotated neighbours pass on placement but fail on reload.
+    const reachA=(a.width/2+padding/2)*Math.abs(x*ca-z*sa)+(a.depth/2+padding/2)*Math.abs(x*sa+z*ca);
+    const reachB=(b.width/2+padding/2)*Math.abs(x*cb-z*sb)+(b.depth/2+padding/2)*Math.abs(x*sb+z*cb);
+    if(Math.abs(dx*x+dz*z)>=reachA+reachB)return false;
+  }
+  return true;
+}
+function inPolygon(p,polygon) {
+  let inside=false;for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){
+    const a=polygon[i],b=polygon[j];if((a[1]>p.z)!==(b[1]>p.z)&&p.x<(b[0]-a[0])*(p.z-a[1])/(b[1]-a[1])+a[0])inside=!inside;
+  }return inside;
+}
+function structureRect(structure) {return {...BUILD_FOOTPRINTS[structure.type],x:structure.x,z:structure.z,rotation:structure.rotation};}
+function withBounds(obstacle) {
+  const c=Math.abs(Math.cos(obstacle.rotation||0)),s=Math.abs(Math.sin(obstacle.rotation||0));
+  const halfX=obstacle.radius??(obstacle.width*c+obstacle.depth*s)/2;
+  const halfZ=obstacle.radius??(obstacle.width*s+obstacle.depth*c)/2;
+  return Object.freeze({...obstacle,minX:obstacle.x-halfX,maxX:obstacle.x+halfX,minZ:obstacle.z-halfZ,maxZ:obstacle.z+halfZ});
+}
+function houseFootprint(variant,large=false,scaleX=1,scaleZ=1) {
+  const w=(large?7.8:4.8)+(variant%3)*.65,d=(large?6.1:4.4)+(variant%2)*.8;
+  const h=(variant%3===0?5.9:4.1)+(large?1.5:0);
+  const minX=(-w/2-.4)*scaleX,maxX=(w/2+(variant%3===1?1.56:.4))*scaleX;
+  const minZ=(-d/2-.5)*scaleZ,maxZ=(d/2+(h>5?2.3:.5))*scaleZ;
+  return {offsetX:(minX+maxX)/2,offsetZ:(minZ+maxZ)/2,width:maxX-minX,depth:maxZ-minZ};
+}
+const FORT_SOLIDS=Object.fromEntries(REGIONS.map(region=>{
+  const parts=[],v=region.id.split('').reduce((sum,c)=>sum+c.charCodeAt(0),0),castle=region.kind==='castle';
+  const add=(part)=>parts.push(withBounds({source:'fort',regionId:region.id,id:region.id+'-'+parts.length,minRatio:-1,...part}));
+  const rect=(x,z,width,depth,extra={})=>add({x:region.x+x,z:region.z+z,width,depth,rotation:0,...extra});
+  const house=(x,z,variant,large,rotation=0,scaleX=1,scaleZ=1)=>{
+    const fp=houseFootprint(variant,large,scaleX,scaleZ),c=Math.cos(rotation),s=Math.sin(rotation);
+    rect(x+fp.offsetX*c+fp.offsetZ*s,z-fp.offsetX*s+fp.offsetZ*c,fp.width,fp.depth,{rotation,part:'building'});
+  };
+  const points=FORT_POLYGONS[region.id];
+  for(let i=0;i<points.length;i++) {
+    const a=points[i],b=points[(i+1)%points.length],dx=b.x-a.x,dz=b.z-a.z,length=Math.hypot(dx,dz);
+    const rotation=-Math.atan2(dz,dx),cx=(a.x+b.x)/2,cz=(a.z+b.z)/2,minRatio=i===2?.035:i===1?.17:0;
+    if(i===2) {
+      const lengthSide=(length-4.5)/2,offset=(length+4.5)/4;
+      for(const sign of [-1,1])add({x:cx+sign*offset*dx/length,z:cz+sign*offset*dz/length,width:lengthSide,depth:2.5,rotation,minRatio,part:'wall'});
+      add({x:cx,z:cz,width:4.2,depth:.5,rotation,minRatio:.16,part:'gate'});
+    } else add({x:cx,z:cz,width:length+.1,depth:2.5,rotation,minRatio,part:'wall'});
+    add({x:a.x,z:a.z,radius:castle?4.3:3.3,part:'tower'});
+  }
+  if(castle) {
+    rect(0,-4,11.6,10.3,{part:'keep'});
+    rect(-3,2,4.3,2.4,{part:'stairs'});
+    add({x:region.x-5.1,z:region.z-8.5,radius:2.6,part:'keep'});
+    // Renderer normalizes both detailed assets and loading fallbacks to these
+    // centred footprints; the hall's source model is rotated a quarter turn.
+    rect(-9,3.1,9.5,7.8,{part:'building'});
+    rect(8.8,4,6.4,6.6,{part:'building'});
+  } else {
+    house(0,-2,v%4,region.kind==='town');
+    if(region.kind==='outpost')rect(0,-4,7,7,{part:'keep'});
+  }
+  rect(3.5,7.6,3,2.3,{part:'cistern'});
+  rect(-4.9,8.5,3.85,.8,{part:'supplies'});
+  return [region.id,Object.freeze(parts)];
+}));
+const obstacleCache=new WeakMap();
+/** The same solid geometry is shared with the renderer's individual soldiers. */
+export function worldObstacles(s) {
+  const mask=REGIONS.map(r=>{
+    const control=s.regions[r.id],ratio=control.fortHp/control.maxFortHp;
+    return (ratio>0?1:0)+(ratio>.035?2:0)+(ratio>.16?4:0)+(ratio>.17?8:0);
+  }).join(',');
+  const cached=obstacleCache.get(s),structures=s.structures||[];
+  if(cached&&cached.structures===structures&&cached.count===structures.length&&cached.mask===mask)return cached.obstacles;
+  const obstacles=[];
+  for(const r of REGIONS) {
+    const control=s.regions[r.id],ratio=control.fortHp/control.maxFortHp;
+    for(const shape of FORT_SOLIDS[r.id])if(ratio>shape.minRatio)obstacles.push(shape);
+  }
+  for(const structure of structures)if(BUILD_FOOTPRINTS[structure.type]?.blocking)obstacles.push(withBounds({...structureRect(structure),source:'structure',id:structure.id,regionId:structure.regionId,part:'building'}));
+  obstacleCache.set(s,{structures,count:structures.length,mask,obstacles});
+  return obstacles;
+}
+function navigationOptions(unit=.65) {
+  const radius=typeof unit==='number'?unit:UNIT_CLEARANCE[typeof unit==='string'?unit:unit?.type]??unit?.radius??.65;
+  return {radius:Math.max(0,radius),terrainRadius:Math.max(0,typeof unit==='object'&&unit?.terrainRadius!==undefined?unit.terrainRadius:Math.min(radius,2.05))};
+}
+function terrainPointWalkable(p,options) {
+  const radius=options.terrainRadius;
+  if(!finite(p?.x)||!finite(p?.z)||p.x<MAP.minX+3+radius||p.x>MAP.maxX-3-radius||p.z<MAP.minZ+3+radius||p.z>MAP.maxZ-3-radius)return false;
+  if(Math.abs(p.x-riverX(p.z))>=11+radius)return true;
+  return BRIDGES.some(b=>Math.abs(p.z-b.z)<=3.25-radius&&Math.abs(p.x-b.x)<=17);
+}
+function obstacleContains(p,obstacle,radius) {
+  if(p.x<obstacle.minX-radius||p.x>obstacle.maxX+radius||p.z<obstacle.minZ-radius||p.z>obstacle.maxZ+radius)return false;
+  return obstacle.radius!==undefined?dist(p,obstacle)<obstacle.radius+radius:pointInsideRect(p,obstacle,radius);
+}
+function obstacleCrosses(a,b,obstacle,radius) {
+  if(Math.max(a.x,b.x)<obstacle.minX-radius||Math.min(a.x,b.x)>obstacle.maxX+radius||Math.max(a.z,b.z)<obstacle.minZ-radius||Math.min(a.z,b.z)>obstacle.maxZ+radius)return false;
+  if(obstacle.radius===undefined)return segmentHitsRect(a,b,obstacle,radius);
+  const dx=b.x-a.x,dz=b.z-a.z,length2=dx*dx+dz*dz;
+  const t=length2?clamp(((obstacle.x-a.x)*dx+(obstacle.z-a.z)*dz)/length2,0,1):0;
+  return Math.hypot(a.x+dx*t-obstacle.x,a.z+dz*t-obstacle.z)<obstacle.radius+radius;
+}
+function pointWalkable(p,options,obstacles) {
+  return terrainPointWalkable(p,options)&&!obstacles.some(shape=>obstacleContains(p,shape,options.radius));
+}
+function segmentWalkable(a,b,options,obstacles) {
+  if(!terrainPointWalkable(a,options)||!terrainPointWalkable(b,options))return false;
+  if(obstacles.some(shape=>obstacleCrosses(a,b,shape,options.radius)))return false;
+  const steps=Math.max(1,Math.ceil(dist(a,b)/.75));
+  for(let i=1;i<steps;i++)if(!terrainPointWalkable({x:a.x+(b.x-a.x)*i/steps,z:a.z+(b.z-a.z)*i/steps},options))return false;
+  return true;
+}
+export function isWorldPointWalkable(s,p,unit=.65) {return pointWalkable(p,navigationOptions(unit),worldObstacles(s));}
+export function isWorldSegmentWalkable(s,a,b,unit=.65) {return segmentWalkable(a,b,navigationOptions(unit),worldObstacles(s));}
+function placementGeometry(type,x,z,rotation=0) {
+  const footprint=BUILD_FOOTPRINTS[type];if(!footprint||!finite(x)||!finite(z)||!finite(rotation))return null;
+  const rect={type,x,z,rotation:normalizedRotation(rotation),...footprint};
+  const heights=rectanglePoints(rect).map(p=>heightAt(p.x,p.z));
+  return {...rect,baseY:Math.max(...heights)+.04,terrainMin:Math.min(...heights)};
+}
+function validatePlacement(s,payload,{allowForeign=false,ignoreId=null,ignoreUnits=false}={}) {
+  const {type,regionId,x,z}=payload,rotation=payload.rotation??0;
+  const placement=placementGeometry(type,x,z,rotation),bad=message=>({ok:false,message,...(placement?{placement}:{})});
+  if(!placement)return bad('Διάλεξε έγκυρη θέση και περιστροφή για το κτίριο.');
+  const region=REGION_BY_ID[regionId];
+  if(!region||(!allowForeign&&s.regions[regionId]?.owner!=='player'))return bad('Το κτίριο πρέπει να βρίσκεται σε δικό σου φέουδο.');
+  const points=rectanglePoints(placement);
+  if(points.some(p=>p.x<MAP.minX+4||p.x>MAP.maxX-4||p.z<MAP.minZ+4||p.z>MAP.maxZ-4))return bad('Ολόκληρο το οικόπεδο πρέπει να βρίσκεται μέσα στον χάρτη.');
+  if(points.some(p=>!inPolygon(p,region.polygon)))return bad('Ολόκληρο το οικόπεδο πρέπει να βρίσκεται μέσα στο επιλεγμένο φέουδο.');
+  for(let i=0;i<region.polygon.length;i++) {
+    const a=region.polygon[i],b=region.polygon[(i+1)%region.polygon.length];
+    if(segmentHitsRect({x:a[0],z:a[1]},{x:b[0],z:b[1]},placement))return bad('Το οικόπεδο τέμνει τα σύνορα του φέουδου. Μετακίνησέ το πιο μέσα.');
+  }
+  if(points.some(p=>Math.abs(p.x-riverX(p.z))<18))return bad('Άφησε απόσταση από το ποτάμι και την όχθη.');
+  if(BRIDGES.some(b=>rectanglesOverlap(placement,{x:b.x,z:b.z,rotation:0,width:58,depth:17},1)))return bad('Η γέφυρα και οι προσβάσεις της πρέπει να μείνουν ελεύθερες.');
+  for(const fort of REGIONS) {
+    const half=fort.kind==='castle'?24:fort.kind==='town'?16:13;
+    if(rectanglesOverlap(placement,{x:fort.x,z:fort.z,rotation:0,width:half*2,depth:half*2},1.5))return bad('Άφησε ελεύθερο χώρο γύρω από το οχυρό και τους πύργους.');
+    if(rectanglesOverlap(placement,{x:fort.x,z:fort.z+half+9,rotation:0,width:12,depth:18},1.5))return bad('Η πύλη χρειάζεται ελεύθερη πρόσβαση για στρατεύματα και εφόδια.');
+  }
+  for(const n of s.nodes) {
+    const plot=n.type==='food'?{x:n.x+4,z:n.z-3.5,rotation:0,width:22,depth:20}:{x:n.x,z:n.z,rotation:0,width:n.type==='wood'?20:14,depth:n.type==='wood'?20:14};
+    if(rectanglesOverlap(placement,plot,1.5))return bad('Αυτή η θέση κρατιέται ελεύθερη για τη συλλογή πόρων.');
+  }
+  for(const other of s.structures||[])if(other.id!==ignoreId&&rectanglesOverlap(placement,structureRect(other),1.5))return bad('Το οικόπεδο επικαλύπτει κτίριο ή ενεργό εργοτάξιο.');
+  for(const road of PLACEMENT_ROADS)for(let i=1;i<road.points.length;i++) {
+    const a=road.points[i-1],b=road.points[i];
+    if(segmentHitsRect({x:a[0],z:a[1]},{x:b[0],z:b[1]},placement,road.width/2+1.2))return bad('Άφησε τον δρόμο ελεύθερο για μετακινήσεις και ανεφοδιασμό.');
+  }
+  const span=placement.baseY-.04-placement.terrainMin;
+  if(span>3.5)return bad('Η πλαγιά είναι πολύ απότομη για ασφαλή θεμέλια. Διάλεξε πιο ομαλό έδαφος.');
+  for(let i=0;i<points.length;i++)for(let j=i+1;j<points.length;j++) {
+    const distance=dist(points[i],points[j]);
+    if(distance>1&&Math.abs(heightAt(points[i].x,points[i].z)-heightAt(points[j].x,points[j].z))/distance>.38)return bad('Η κλίση του εδάφους είναι μεγάλη. Μετακίνησε το κτίριο σε πιο ομαλό σημείο.');
+  }
+  if(!ignoreUnits&&(s.squads||[]).some(unit=>unit.hp>0&&pointInsideRect(unit,placement,Math.max(3,UNIT_CLEARANCE[unit.type])+.4)))return bad('Απομάκρυνε πρώτα τα στρατεύματα από το οικόπεδο.');
+  return {ok:true,placement};
+}
+function findPlacement(s,type,regionId,rotation=0,preferred=null) {
+  if(!has(BUILD_FOOTPRINTS,type)||!has(REGION_BY_ID,regionId)||!finite(rotation))return null;
+  const region=REGION_BY_ID[regionId],check=p=>validatePlacement(s,{type,regionId,rotation,...p},{allowForeign:true});
+  if(preferred){const attempt=check(preferred);if(attempt.ok)return attempt.placement;}
+  const typeIndex=Object.keys(BUILDINGS).indexOf(type),baseAngle=(typeIndex%7)*.86+.38;
+  for(let radius=34;radius<=170;radius+=7) {
+    const count=Math.max(24,Math.ceil(radius*.75));
+    for(let i=0;i<count;i++) {const angle=baseAngle+i*Math.PI*2/count;
+      const result=check({x:region.x+Math.cos(angle)*radius,z:region.z+Math.sin(angle)*radius});if(result.ok)return result.placement;
+    }
+  }
+  for(let x=MAP.minX+10;x<MAP.maxX-10;x+=8)for(let z=MAP.minZ+10;z<MAP.maxZ-10;z+=8) {
+    if(!inPolygon({x,z},region.polygon))continue;const result=check({x,z});if(result.ok)return result.placement;
+  }
+  return null;
+}
+function migrateStructures(s,splitLevels=true) {
+  if(Array.isArray(s.structures))return;
+  if(s.structures!==undefined)throw new Error('Το αρχείο έχει μη έγκυρα οικόπεδα.');
+  s.structures=[];
+  for(const region of REGIONS)for(const [type,level] of Object.entries(s.regions[region.id].buildings)) {
+    if(!has(BUILD_FOOTPRINTS,type))continue;
+    // Older saves recorded aggregate upgrades rather than separate plots.
+    // Keep those levels on a single existing building, so a developed old
+    // province does not need dozens of newly invented parcels to load.
+    const copies=splitLevels?level:Math.min(1,level);
+    for(let i=0;i<copies;i++) {
+      const typeIndex=Object.keys(BUILDINGS).indexOf(type),angle=(typeIndex%7)*.86+i*.3+.38,radius=(region.kind==='castle'?33:25)+Math.floor(typeIndex/7)*12+i*5;
+      const placement=findPlacement(s,type,region.id,-angle+Math.PI/2,{x:region.x+Math.cos(angle)*radius,z:region.z+Math.sin(angle)*radius});
+      if(!placement)throw new Error(`Δεν βρέθηκε ασφαλές οικόπεδο για ${BUILDINGS[type].name} στο ${region.name}.`);
+      s.structures.push({id:`structure-${++s.nextId}`,type,regionId:region.id,x:placement.x,z:placement.z,rotation:placement.rotation,baseY:placement.baseY,terrainMin:placement.terrainMin,level:splitLevels?1:level,status:'ready',jobId:null,variant:typeIndex+i});
+    }
+  }
+  for(const job of s.jobs) {
+    if(job.kind!=='build'||!has(BUILD_FOOTPRINTS,job.type))continue;
+    const placement=findPlacement(s,job.type,job.regionId,0);
+    if(!placement)throw new Error('Δεν βρέθηκε ασφαλές οικόπεδο για ένα παλιό εργοτάξιο.');
+    const structure={id:`structure-${++s.nextId}`,type:job.type,regionId:job.regionId,x:placement.x,z:placement.z,rotation:placement.rotation,baseY:placement.baseY,terrainMin:placement.terrainMin,level:0,status:'building',jobId:job.id,variant:Object.keys(BUILDINGS).indexOf(job.type)};
+    s.structures.push(structure);Object.assign(job,{structureId:structure.id,x:structure.x,z:structure.z,rotation:structure.rotation,targetLevel:1});
+  }
+}
+function validateStructures(s) {
+  migrateStructures(s,false);
+  const max=REGIONS.length*Object.values(BUILDINGS).reduce((sum,building)=>sum+building.max,0)+MAX_JOBS;
+  if(!Array.isArray(s.structures)||s.structures.length>max)throw new Error('Το αρχείο έχει υπερβολικά πολλά οικόπεδα.');
+  const ids=new Set([...s.squads.map(unit=>unit.id),...s.jobs.map(job=>job.id)]);
+  const totals=Object.fromEntries(REGIONS.map(region=>[region.id,{}]));
+  for(const structure of s.structures) {
+    if(!structure||typeof structure.id!=='string'||structure.id.length>80||ids.has(structure.id)||!has(BUILD_FOOTPRINTS,structure.type)||!has(REGION_BY_ID,structure.regionId)||
+      !finite(structure.x)||!finite(structure.z)||!finite(structure.rotation)||!Number.isInteger(structure.level)||structure.level<0||structure.level>BUILDINGS[structure.type].max||
+      !['ready','building','upgrading'].includes(structure.status))throw new Error('Το αρχείο έχει μη έγκυρο κτίριο.');
+    ids.add(structure.id);
+    structure.rotation=normalizedRotation(structure.rotation);
+    if(structure.status==='ready') {
+      if(structure.level<1||structure.jobId!==null)throw new Error('Το ολοκληρωμένο κτίριο έχει μη έγκυρη κατάσταση.');
+    } else {
+      const job=s.jobs.find(job=>job.id===structure.jobId);
+      if(!job||job.kind!=='build'||job.type!==structure.type||job.regionId!==structure.regionId||job.structureId!==structure.id||
+        job.x!==structure.x||job.z!==structure.z||!finite(job.rotation)||Math.abs(normalizedRotation(job.rotation)-structure.rotation)>EPS||
+        job.targetLevel!==structure.level+1||(structure.status==='building'&&structure.level!==0)||(structure.status==='upgrading'&&structure.level<1))throw new Error('Το εργοτάξιο δεν αντιστοιχεί στο έργο κατασκευής.');
+    }
+    const total=totals[structure.regionId];
+    total[structure.type]=(total[structure.type]||0)+structure.level;
+    structure.variant=Number.isInteger(structure.variant)&&structure.variant>=0&&structure.variant<1000?structure.variant:0;
+  }
+  for(const structure of s.structures) {
+    const result=validatePlacement(s,structure,{allowForeign:true,ignoreId:structure.id,ignoreUnits:true});
+    if(!result.ok)throw new Error('Το αποθηκευμένο οικόπεδο δεν είναι έγκυρο: '+result.message);
+    structure.baseY=result.placement.baseY;structure.terrainMin=result.placement.terrainMin;
+  }
+  for(const region of REGIONS)for(const type of Object.keys(BUILD_FOOTPRINTS)) {
+    const total=totals[region.id][type]||0;
+    if(total!==(s.regions[region.id].buildings[type]||0))throw new Error('Οι βαθμίδες των κτιρίων δεν συμφωνούν με την πρόοδο του φέουδου.');
+    const pending=s.jobs.filter(job=>job.kind==='build'&&job.type===type&&job.regionId===region.id);
+    if(total+pending.length>BUILDINGS[type].max||pending.length>1)throw new Error('Το αρχείο περιέχει διπλό ή υπερβολικό έργο.');
+  }
+  for(const job of s.jobs)if(job.kind==='build'&&has(BUILD_FOOTPRINTS,job.type)&&!s.structures.some(structure=>structure.id===job.structureId&&structure.jobId===job.id))throw new Error('Ένα έργο δεν έχει αποθηκευμένο οικόπεδο.');
+}
 
 function newCampaign() {
   const regions = Object.fromEntries(REGIONS.map(r => [r.id, {
@@ -100,69 +402,39 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     return e;
   }
   function bank(p) {return p.x < riverX(p.z) ? -1 : 1;}
-  function onBridge(p) {return BRIDGES.some(b=>Math.abs(p.z-b.z)<=2.8 && Math.abs(p.x-b.x)<=13);}
+  function onBridge(p) {return BRIDGES.some(b=>Math.abs(p.z-b.z)<=2.8 && Math.abs(p.x-b.x)<=17);}
   function inBounds(p) {return finite(p.x)&&finite(p.z)&&p.x>=MAP.minX+3&&p.x<=MAP.maxX-3&&p.z>=MAP.minZ+3&&p.z<=MAP.maxZ-3;}
-  function terrainWalkable(p) {return inBounds(p) && (Math.abs(p.x-riverX(p.z))>=11 || onBridge(p));}
-  function insideFort(p,r,padding=1.8) {
-    const dx=Math.abs(p.x-r.x),dz=Math.abs(p.z-r.z);
-    if(r.kind==='castle') return dx<18+padding && dz<18+padding;
-    return Math.hypot(dx,dz)<(r.kind==='town'?12:9)+padding;
-  }
-  function walkable(p,ignoreRegion=null) {
-    if(!terrainWalkable(p)) return false;
-    return !REGIONS.some(r=>r.id!==ignoreRegion && state.regions[r.id].fortHp>0 && insideFort(p,r));
-  }
-  function squadWalkable(s,p) {
-    if(!walkable(p))return false;
-    if(UNIT_TYPES[s.type].role==='siege'&&Math.abs(p.x-riverX(p.z))<11) {
-      return BRIDGES.some(bridge=>Math.abs(p.z-bridge.z)<=1.15&&Math.abs(p.x-bridge.x)<=13);
-    }
-    return true;
-  }
-  function clearSegment(a,b,ignoreRegion=null) {
-    // Continuous collision prevents a smoothed path from clipping a square wall
-    // corner between terrain samples and stranding a unit at that corner.
-    for(const r of REGIONS) {
-      if(r.id===ignoreRegion||state.regions[r.id].fortHp<=0)continue;
-      if(r.kind==='castle') {
-        let lo=0,hi=1;
-        for(const [axis,centre] of [['x',r.x],['z',r.z]]) {
-          const delta=b[axis]-a[axis],min=centre-19.81,max=centre+19.81;
-          if(Math.abs(delta)<EPS) {if(a[axis]<=min||a[axis]>=max){lo=2;break;}}
-          else {let t1=(min-a[axis])/delta,t2=(max-a[axis])/delta;if(t1>t2)[t1,t2]=[t2,t1];lo=Math.max(lo,t1);hi=Math.min(hi,t2);}
-        }
-        if(lo<hi-EPS&&hi>EPS&&lo<1-EPS)return false;
-      } else {
-        const dx=b.x-a.x,dz=b.z-a.z,length2=dx*dx+dz*dz;
-        const t=length2?clamp(((r.x-a.x)*dx+(r.z-a.z)*dz)/length2,0,1):0;
-        const d=Math.hypot(a.x+dx*t-r.x,a.z+dz*t-r.z);
-        if(d<(r.kind==='town'?13.81:10.81))return false;
-      }
-    }
-    const steps=Math.max(1,Math.ceil(dist(a,b)/1));
-    for(let i=1;i<=steps;i++) {
-      const p={x:a.x+(b.x-a.x)*i/steps,z:a.z+(b.z-a.z)*i/steps};
-      if(!walkable(p,ignoreRegion)) return false;
-      // Leave clearance at the abrupt bank/deck corner as well as on walls.
-      const deck=BRIDGES.some(bridge=>Math.abs(p.z-bridge.z)<=.7&&Math.abs(p.x-bridge.x)<=13);
-      if(Math.abs(p.x-riverX(p.z))<11.8&&!deck)return false;
-    }
-    return true;
-  }
-  function nearestGround(p,ignoreRegion=null) {
-    const start={x:clamp(p.x,MAP.minX+4,MAP.maxX-4),z:clamp(p.z,MAP.minZ+4,MAP.maxZ-4)};
-    if(walkable(start,ignoreRegion)) return start;
-    for(let radius=3;radius<=66;radius+=3) for(let i=0;i<24;i++) {
-      const a=i*Math.PI/12, q={x:start.x+Math.cos(a)*radius,z:start.z+Math.sin(a)*radius};
-      if(walkable(q,ignoreRegion)) return q;
+  function terrainWalkable(p) {return terrainPointWalkable(p,navigationOptions(0));}
+  function walkable(p,unit=.65) {return isWorldPointWalkable(state,p,unit);}
+  function squadWalkable(s,p) {return walkable(p,s);}
+  function clearSegment(a,b,unit=.65) {return isWorldSegmentWalkable(state,a,b,unit);}
+  function nearestGround(p,unit=.65) {
+    if(!finite(p?.x)||!finite(p?.z))return null;
+    const options=navigationOptions(unit),obstacles=worldObstacles(state),test=q=>pointWalkable(q,options,obstacles);
+    const margin=4+options.terrainRadius,start={x:clamp(p.x,MAP.minX+margin,MAP.maxX-margin),z:clamp(p.z,MAP.minZ+margin,MAP.maxZ-margin)};
+    if(test(start))return start;
+    for(let radius=.8;radius<=90;radius+=1.2)for(let i=0;i<32;i++) {
+      const angle=i*Math.PI/16,q={x:start.x+Math.cos(angle)*radius,z:start.z+Math.sin(angle)*radius};
+      if(test(q))return q;
     }
     return null;
   }
+  function nearestReachableGround(start,p,unit=.65) {
+    const first=nearestGround(p,unit);
+    if(first&&findPath(start,first,unit))return first;
+    for(let radius=3;radius<=75;radius+=3)for(let i=0;i<24;i++) {
+      const angle=i*Math.PI/12,q={x:p.x+Math.cos(angle)*radius,z:p.z+Math.sin(angle)*radius};
+      if(walkable(q,unit)&&findPath(start,q,unit))return q;
+    }
+    return {x:start.x,z:start.z};
+  }
   // A* on dry ground includes the two bridge decks. Segment smoothing retains
   // the actual safe crossing, so soldiers cannot shortcut through the river.
-  function findPath(start,end,ignoreRegion=null) {
-    if(!walkable(end,ignoreRegion)) return null;
-    if(clearSegment(start,end,ignoreRegion)) return [{...end}];
+  function findPath(start,end,unit=.65) {
+    const options=navigationOptions(unit),obstacles=worldObstacles(state);
+    const isOpen=p=>pointWalkable(p,options,obstacles),isClear=(a,b)=>segmentWalkable(a,b,options,obstacles);
+    if(!isOpen(start)||!isOpen(end))return null;
+    if(isClear(start,end))return [{...end}];
     const nx=Math.floor((MAP.maxX-MAP.minX-8)/GRID)+1;
     const nz=Math.floor((MAP.maxZ-MAP.minZ-8)/GRID)+1;
     const x0=MAP.minX+4,z0=MAP.minZ+4;
@@ -170,7 +442,17 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       let z=z0+Math.floor(i/nx)*GRID;
       const bridge=BRIDGES.find(bridge=>Math.abs(z-bridge.z)<=GRID/2);
       if(bridge)z=bridge.z;
-      return {x:x0+(i%nx)*GRID,z};
+      let p={x:x0+(i%nx)*GRID,z};
+      // A 4.5 m gate must remain a graph portal even when the regular grid
+      // does not happen to have a sample down its centre.
+      if(options.radius<2)for(const r of REGIONS) {
+        if(state.regions[r.id].fortHp/state.regions[r.id].maxFortHp>.16)continue;
+        const [a,b]=[FORT_POLYGONS[r.id][2],FORT_POLYGONS[r.id][3]],dx=b.x-a.x,dz=b.z-a.z,length=Math.hypot(dx,dz);
+        const cx=(a.x+b.x)/2,cz=(a.z+b.z)/2,tangent=((p.x-cx)*dx+(p.z-cz)*dz)/length;
+        const normal=(-(p.x-cx)*dz+(p.z-cz)*dx)/length;
+        if(Math.abs(tangent)<=GRID/2&&Math.abs(normal)<=GRID*1.8){p={x:p.x-tangent*dx/length,z:p.z-tangent*dz/length};break;}
+      }
+      return p;
     };
     function closestIndex(p) {
       const gx=Math.round((p.x-x0)/GRID),gz=Math.round((p.z-z0)/GRID);
@@ -179,7 +461,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         const x=gx+dx,z=gz+dz;
         if(x<0||z<0||x>=nx||z>=nz) continue;
         const i=z*nx+x,q=point(i),d=dist(p,q);
-        if(d<score && walkable(q,ignoreRegion)&&clearSegment(p,q,ignoreRegion)) {best=i;score=d;}
+        if(d<score && isOpen(q)&&isClear(p,q)) {best=i;score=d;}
       }
       return best;
     }
@@ -212,8 +494,8 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         const x=cx+dx,z=cz+dz;if(x<0||z<0||x>=nx||z>=nz)continue;
         const next=z*nx+x;if(closed[next])continue;
         const b=point(next);
-        if(valid[next]===-1) valid[next]=walkable(b,ignoreRegion)?1:0;
-        if(!valid[next]||!clearSegment(a,b,ignoreRegion))continue;
+        if(valid[next]===-1) valid[next]=isOpen(b)?1:0;
+        if(!valid[next]||!isClear(a,b))continue;
         const cost=g[cur]+(dx&&dz?GRID*Math.SQRT2:GRID);
         if(cost<g[next]){g[next]=cost;parent[next]=cur;push(next,cost+dist(b,goal));}
       }
@@ -223,24 +505,36 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     const smooth=[];let from=start,index=0;
     while(index<route.length) {
       let best=index;
-      for(let j=index+1;j<route.length;j++) {if(clearSegment(from,route[j],ignoreRegion))best=j;}
+      for(let j=index+1;j<route.length;j++) {if(isClear(from,route[j]))best=j;}
       smooth.push(route[best]);from=route[best];index=best+1;
     }
     return smooth;
   }
   function fortAim(r,s) {
-    const dx=s.x-r.x,dz=s.z-r.z;
-    if(r.kind==='castle') {
-      const k=18/Math.max(Math.abs(dx),Math.abs(dz),.01);
-      return {x:r.x+dx*k,z:r.z+dz*k};
+    let best=null,distance=Infinity;
+    for(const shape of FORT_SOLIDS[r.id]) {
+      if(!['wall','gate','tower'].includes(shape.part))continue;
+      let p;
+      if(shape.radius!==undefined) {
+        const dx=s.x-shape.x,dz=s.z-shape.z,d=Math.hypot(dx,dz)||1;
+        p={x:shape.x+dx/d*shape.radius,z:shape.z+dz/d*shape.radius};
+      } else {
+        const local=localPoint(s,shape),x=clamp(local.x,-shape.width/2,shape.width/2),z=clamp(local.z,-shape.depth/2,shape.depth/2);
+        const c=Math.cos(shape.rotation||0),sn=Math.sin(shape.rotation||0);
+        p={x:shape.x+x*c+z*sn,z:shape.z-x*sn+z*c};
+      }
+      const d=dist(s,p);if(d<distance){best=p;distance=d;}
     }
-    const radius=r.kind==='town'?12:9,d=Math.hypot(dx,dz)||1;
-    return {x:r.x+dx/d*radius,z:r.z+dz/d*radius};
+    return best||{x:r.x,z:r.z};
   }
-  const gatePoint = r => ({x:r.x,z:r.z+(r.kind==='castle'?25:r.kind==='town'?18:15)});
+  const gatePoint=r=>{
+    const a=FORT_POLYGONS[r.id][2],b=FORT_POLYGONS[r.id][3],dx=b.x-a.x,dz=b.z-a.z,length=Math.hypot(dx,dz),offset=r.kind==='castle'?9:6;
+    return {x:(a.x+b.x)/2+dz/length*offset,z:(a.z+b.z)/2-dx/length*offset};
+  };
   function standOff(r,s,range) {
     const aim=fortAim(r,s),dx=s.x-aim.x,dz=s.z-aim.z,d=Math.hypot(dx,dz)||1;
-    return nearestGround({x:aim.x+dx/d*Math.max(3.5,range*.8),z:aim.z+dz/d*Math.max(3.5,range*.8)});
+    const clearance=Math.max(UNIT_CLEARANCE[s.type]+.3,range*.8);
+    return nearestGround({x:aim.x+dx/d*clearance,z:aim.z+dz/d*clearance},s);
   }
   function homeFor(owner,from=null) {
     const regions=ownedRegions(owner);
@@ -251,9 +545,9 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     if(!r||!def||state.squads.length>=MAX_SQUADS) return null;
     const angle=(owner==='player'?-.35:Math.PI-.4)+index*.65;
     const radius=(r.kind==='castle'?32:r.kind==='town'?24:21)+Math.floor(index/6)*9;
-    let p=nearestGround({x:r.x+Math.cos(angle)*radius,z:r.z+Math.sin(angle)*radius});
+    let p=nearestGround({x:r.x+Math.cos(angle)*radius,z:r.z+Math.sin(angle)*radius},type);
     if(!p)return null;
-    for(let turn=0;turn<12 && state.squads.some(s=>dist(s,p)<5);turn++) p=nearestGround({x:p.x+Math.cos(turn*1.6)*5,z:p.z+Math.sin(turn*1.6)*5})||p;
+    for(let turn=0;turn<12 && state.squads.some(s=>dist(s,p)<5);turn++) p=nearestGround({x:p.x+Math.cos(turn*1.6)*5,z:p.z+Math.sin(turn*1.6)*5},type)||p;
     const hp=def.hp*(1+techLevel('steel',owner)*.05);
     const s={id:uid('squad'),owner,type,x:p.x,z:p.z,hp,maxHp:hp,men:def.men,
       order:{type:'hold',x:p.x,z:p.z},stance:owner==='player'?'defensive':'aggressive',formation:'line',attackClock:.25+index*.18,
@@ -365,7 +659,18 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       if(state.jobs.filter(j=>j.kind==='build'&&j.regionId===r.id).length>=2)return fail('Η περιοχή εκτελεί ήδη δύο έργα.');
       if(state.availableWorkers<4)return fail('Χρειάζονται 4 διαθέσιμοι εργάτες. Μείωσε προσωρινά την εξόρυξη ή τη συγκομιδή.');
       const cost=costAt(def.cost,level),missing=missingCost(cost);if(missing)return fail(missing);
-      return {ok:true,r,def,cost,duration:def.time*(1+.2*level),workers:4};
+      const base={ok:true,r,def,cost,duration:def.time*(1+.2*level),workers:4};
+      if(payload.type==='walls')return {...base,requiresPlacement:false};
+      if(payload.structureId!==undefined) {
+        const structure=state.structures.find(s=>s.id===payload.structureId);
+        if(!structure||structure.regionId!==r.id||structure.type!==payload.type)return fail('Δεν βρέθηκε το συγκεκριμένο κτίριο σε αυτό το φέουδο.');
+        if(structure.status!=='ready')return fail('Το συγκεκριμένο κτίριο έχει ήδη ενεργό εργοτάξιο.');
+        if((payload.x!==undefined&&payload.x!==structure.x)||(payload.z!==undefined&&payload.z!==structure.z)||(payload.rotation!==undefined&&(!finite(payload.rotation)||Math.abs(normalizedRotation(payload.rotation)-structure.rotation)>EPS)))return fail('Η αναβάθμιση γίνεται στην υπάρχουσα θέση. Δεν μετακινεί το κτίριο.');
+        return {...base,structure,targetLevel:structure.level+1,placement:placementGeometry(structure.type,structure.x,structure.z,structure.rotation),requiresPlacement:false};
+      }
+      if(payload.x===undefined&&payload.z===undefined)return {...base,requiresPlacement:true};
+      const check=validatePlacement(state,payload);if(!check.ok)return check;
+      return {...base,placement:check.placement,targetLevel:1,requiresPlacement:false};
     }
     if(action==='research') {
       const def=has(TECHS,payload.type)?TECHS[payload.type]:null;if(!def)return fail('Δεν υπάρχει αυτή η έρευνα.');
@@ -404,7 +709,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         point={x:payload.x,z:payload.z};
         if(!inBounds(point))return fail('Επίλεξε σημείο μέσα στον χάρτη.');
         if(!terrainWalkable(point))return fail('Το ποτάμι διασχίζεται μόνο από τις δύο γέφυρες. Διάλεξε στεριά.');
-        if(!walkable(point))return fail('Το σημείο βρίσκεται μέσα σε άθικτα τείχη. Διάλεξε χώρο έξω από το οχυρό.');
+        if(!walkable(point))return fail('Το σημείο καταλαμβάνεται από κτίριο, εργοτάξιο ή τείχος. Διάλεξε ελεύθερο έδαφος.');
       }
       if(type==='hold' && (payload.x!==undefined||payload.z!==undefined)) {
         point={x:payload.x,z:payload.z};if(!walkable(point))return fail('Επίλεξε προσβάσιμο σημείο για την άμυνα.');
@@ -459,13 +764,13 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       if(v.point) {
         const bridge=BRIDGES.find(b=>Math.abs(v.point.z-b.z)<4&&Math.abs(v.point.x-b.x)<18);
         // A group ordered onto the bridge forms a column along the span.
-        destination=nearestGround(bridge?{x:v.point.x+(i-(v.squads.length-1)/2)*5,z:bridge.z}:{x:v.point.x+offset.x,z:v.point.z+offset.z});
+        destination=nearestGround(bridge?{x:v.point.x+(i-(v.squads.length-1)/2)*5,z:bridge.z}:{x:v.point.x+offset.x,z:v.point.z+offset.z},s);
       }
-      else if(v.target)destination=nearestGround(v.target);
-      else if(v.region)destination=state.regions[v.region.id].fortHp>0?standOff(v.region,s,def.range):nearestGround(gatePoint(v.region));
+      else if(v.target)destination=nearestGround(v.target,s);
+      else if(v.region)destination=state.regions[v.region.id].fortHp>0?standOff(v.region,s,def.range):nearestGround(gatePoint(v.region),s);
       else destination={x:s.x,z:s.z};
       if(!destination)return fail('Δεν βρέθηκε προσβάσιμο σημείο για το απόσπασμα.');
-      const path=findPath(s,destination);
+      const path=findPath(s,destination,s);
       if(!path)return fail('Η διαδρομή είναι αποκλεισμένη. Διάλεξε διαφορετικό σημείο προσέγγισης.');
       prepared.push({s,path,destination});
     }
@@ -478,7 +783,8 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   }
   function command(action,payload={}) {
     const v=validateCommand(action,payload);if(!v.ok)return {ok:false,message:v.message};
-    let message='Η εντολή δόθηκε.';
+    if(action==='build'&&v.requiresPlacement)return fail('Διάλεξε πρώτα τη θέση του κτιρίου στον χάρτη και επιβεβαίωσε την κατασκευή.');
+    let message='Η εντολή δόθηκε.',details={};
     if(action==='assignWorkers') {
       v.node.workers+=v.delta;
       message=v.delta>0?`${v.delta} εργάτες ανέλαβαν τη συλλογή.`:`${-v.delta} εργάτες επέστρεψαν στη διαθέσιμη ομάδα.`;
@@ -489,7 +795,20 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         label:action==='repair'?'Επισκευή τειχών':v.def.name,
         regionId:v.r?.id||homeFor('player')?.id,remaining:v.duration,duration:v.duration,workers:v.workers,
         cost:v.cost,owner:'player',queuedAt:state.t,...(action==='repair'?{repairAmount:v.repairAmount,applied:0}:{})};
+      if(action==='build'&&has(BUILD_FOOTPRINTS,type)) {
+        let structure=v.structure;
+        if(structure){structure.status='upgrading';structure.jobId=job.id;}
+        else {
+          const p=v.placement;
+          structure={id:uid('structure'),type,regionId:v.r.id,x:p.x,z:p.z,rotation:p.rotation,baseY:p.baseY,terrainMin:p.terrainMin,level:0,status:'building',jobId:job.id,variant:Object.keys(BUILDINGS).indexOf(type)+(v.r.buildings[type]||0)};
+          state.structures.push(structure);
+        }
+        Object.assign(job,{structureId:structure.id,x:structure.x,z:structure.z,rotation:structure.rotation,targetLevel:v.targetLevel});
+        refreshRoutesForStructure(structure);
+        details.structureId=structure.id;
+      }
       state.jobs.push(job);
+      details.jobId=job.id;
       message=action==='train'?`${v.def.name}: προστέθηκαν στην ουρά εκπαίδευσης.`:action==='research'?`Ξεκίνησε η έρευνα: ${v.def.name}.`:`Ξεκίνησε το έργο: ${job.label}.`;
       log(action==='train'?'army':'build',job.label,message);
     } else if(action==='order') {
@@ -519,14 +838,29 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         const targetOwner=target?.owner||state.regions[s.order.regionId||s.order.targetId]?.owner;
         if((s.owner===payload.faction&&targetOwner==='player')||(s.owner==='player'&&targetOwner===payload.faction)) {
           if(s.owner==='player')issueOrder(s,'hold',{point:{x:s.x,z:s.z}});
-          else {const home=homeFor(s.owner,s),point=home&&nearestGround(gatePoint(home));issueOrder(s,'retreat',{point,region:home,path:point?findPath(s,point)||[]:[]});}
+          else {const home=homeFor(s.owner,s),point=home&&nearestGround(gatePoint(home),s);issueOrder(s,'retreat',{point,region:home,path:point?findPath(s,point,s)||[]:[]});}
         }
         s.engagedId=null;
       }
       message=`Ανακωχή 3 λεπτών · ${FACTIONS[payload.faction].shortName}. Δική σου επίθεση την ακυρώνει.`;
       log('diplomacy','Υπογράφηκε ανακωχή',message);
     }
-    recomputeEconomy();dirty=true;notify();save();return {ok:true,message};
+    recomputeEconomy();dirty=true;notify();save();return {ok:true,message,...details};
+  }
+  function refreshRoutesForStructure(structure) {
+    if(!BUILD_FOOTPRINTS[structure.type]?.blocking)return;
+    const rect=structureRect(structure);
+    for(const s of state.squads) {
+      if(s.order.type==='hold'&&s.anchor&&pointInsideRect(s.anchor,rect,UNIT_CLEARANCE[s.type])) {
+        const safe=nearestReachableGround(s,s.anchor,s);if(safe){s.anchor={...safe};s.order.x=safe.x;s.order.z=safe.z;}
+      }
+      if(['move','retreat'].includes(s.order.type)&&finite(s.order.x)&&pointInsideRect(s.order,rect,UNIT_CLEARANCE[s.type])) {
+        const safe=nearestReachableGround(s,s.order,s);if(safe){s.order.x=safe.x;s.order.z=safe.z;}
+      }
+      let previous=s,blocked=false;
+      for(const point of s.path||[]){if(segmentHitsRect(previous,point,rect,UNIT_CLEARANCE[s.type])){blocked=true;break;}previous=point;}
+      if(blocked){s.path=[];s.repathAt=0;}
+    }
   }
   function applyUnitDamage(target,amount,owner) {
     if(!target||target.hp<=0||!hostile(owner,target.owner))return;
@@ -624,7 +958,9 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       const p=s.path[0],distance=dist(s,p);
       if(distance<.1){s.path.shift();continue;}
       const travel=Math.min(distance,movement),q={x:s.x+(p.x-s.x)*travel/distance,z:s.z+(p.z-s.z)*travel/distance};
-      if(!squadWalkable(s,q)) {s.path=[];s.repathAt=0;s.activity='blocked';break;}
+      // Both the swept segment and the destination are checked. Even fast
+      // cavalry or crowd separation cannot tunnel through a thin wall.
+      if(!squadWalkable(s,q)||!clearSegment(s,q,s)) {s.path=[];s.repathAt=0;s.activity='blocked';break;}
       s.heading=Math.atan2(q.x-s.x,q.z-s.z);s.x=q.x;s.z=q.z;movement-=travel;moved+=travel;
       if(travel>=distance-EPS)s.path.shift();
     }
@@ -633,8 +969,8 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   }
   function chase(s,destination) {
     if(state.t<s.repathAt&&s.path.length)return;
-    const end=nearestGround(destination);
-    s.path=end?findPath(s,end)||[]:[];s.repathAt=state.t+1.25;
+    const end=nearestGround(destination,s);
+    s.path=end?findPath(s,end,s)||[]:[];s.repathAt=state.t+1.25;
   }
   function enemyNear(s,radius,anchor=null,leash=Infinity) {
     let nearest=null,distance=radius;
@@ -708,8 +1044,8 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         const d=dist(a,b);if(d>=minimum)continue;
         const dx=d>.001?(a.x-b.x)/d:1,dz=d>.001?(a.z-b.z)/d:0,push=Math.min(.38,(minimum-d)*.35);
         const pa={x:a.x+dx*push,z:a.z+dz*push},pb={x:b.x-dx*push,z:b.z-dz*push};
-        if(squadWalkable(a,pa)){a.x=pa.x;a.z=pa.z;}
-        if(squadWalkable(b,pb)){b.x=pb.x;b.z=pb.z;}
+        if(squadWalkable(a,pa)&&clearSegment(a,pa,a)){a.x=pa.x;a.z=pa.z;}
+        if(squadWalkable(b,pb)&&clearSegment(b,pb,b)){b.x=pb.x;b.z=pb.z;}
       }
     }
     state.squads=state.squads.filter(s=>s.hp>0);
@@ -764,6 +1100,8 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     r.fortHp=Math.min(r.fortHp,r.maxFortHp);
     for(const n of state.nodes)if(n.regionId===id)n.workers=0;
     const lostJobs=state.jobs.filter(j=>j.regionId===id);state.jobs=state.jobs.filter(j=>j.regionId!==id);
+    for(const structure of state.structures)if(structure.regionId===id&&structure.status==='upgrading'){structure.status='ready';structure.jobId=null;}
+    state.structures=state.structures.filter(structure=>structure.regionId!==id||structure.status!=='building');
     if(owner==='player') {
       state.stats.captured++;state.morale=clamp(state.morale+4,0,100);
       log('capture',`${REGION_BY_ID[id].name}: δικό σου φέουδο`,'Οι σημαίες άλλαξαν. Ανάθεσε εργάτες στους πόρους και επισκεύασε τα τείχη πριν από αντεπίθεση.');
@@ -808,25 +1146,43 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   }
   function finishJob(j) {
     const r=state.regions[j.regionId];if(!r||r.owner!=='player')return;
+    if((j.type==='walls'&&!fortChangeIsSafe(j.regionId,r.fortHp>0?Math.min(r.maxFortHp+450,r.fortHp+450):0,r.maxFortHp+450))||
+      (j.kind==='research'&&j.type==='masonry'&&ownedRegions('player').some(meta=>{
+        const fort=state.regions[meta.id],bonus=meta.fortHp*.2;
+        return !fortChangeIsSafe(meta.id,fort.fortHp>0?fort.fortHp+bonus:0,fort.maxFortHp+bonus);
+      }))) {
+      j.blocked=true;j.blockedReason='Απομάκρυνε τα στρατεύματα από τα τείχη πριν ολοκληρωθεί η ενίσχυση.';return false;
+    }
     if(j.kind==='train') {
       const s=spawn('player',j.type,j.regionId,state.stats.trained%8);
       if(s){state.stats.trained++;log('army',`${UNIT_TYPES[j.type].name}: έτοιμοι`,`${REGION_BY_ID[j.regionId].name} · το απόσπασμα περιμένει έξω από την πύλη.`);}
     } else if(j.kind==='research') {
       state.techs[j.type]=(state.techs[j.type]||0)+1;
       if(j.type==='masonry') for(const meta of ownedRegions('player')) {
-        const fort=state.regions[meta.id],bonus=meta.fortHp*.2;fort.maxFortHp+=bonus;fort.fortHp=Math.min(fort.maxFortHp,fort.fortHp+bonus);
+        const fort=state.regions[meta.id],bonus=meta.fortHp*.2;fort.maxFortHp+=bonus;if(fort.fortHp>0)fort.fortHp=Math.min(fort.maxFortHp,fort.fortHp+bonus);
       }
       if(j.type==='steel')for(const s of state.squads.filter(player)){const bonus=UNIT_TYPES[s.type].hp*.05;s.maxHp+=bonus;s.hp+=bonus;}
       log('research',`Ολοκληρώθηκε: ${TECHS[j.type].name}`,TECHS[j.type].benefit);
     } else if(j.type==='repair') {
       r.breached=r.fortHp<=0;log('build',`Επισκευάστηκαν τα τείχη στο ${REGION_BY_ID[j.regionId].name}`,'Η φρουρά έχει ξανά προστασία.');
     } else {
+      if(j.structureId) {
+        const structure=state.structures.find(s=>s.id===j.structureId);
+        if(!structure)return;
+        structure.level=j.targetLevel;structure.status='ready';structure.jobId=null;
+      }
       r.buildings[j.type]=(r.buildings[j.type]||0)+1;
-      if(j.type==='walls'){r.maxFortHp+=450;r.fortHp=Math.min(r.maxFortHp,r.fortHp+450);r.breached=false;}
+      if(j.type==='walls'){r.maxFortHp+=450;if(r.fortHp>0)r.fortHp=Math.min(r.maxFortHp,r.fortHp+450);r.breached=r.fortHp<=0;}
       r.level=1+Math.floor(Object.values(r.buildings).reduce((sum,n)=>sum+n,0)/5);
       state.stats.built++;log('build',`${BUILDINGS[j.type].name}: ολοκληρώθηκε`,`${REGION_BY_ID[j.regionId].name} · ${BUILDINGS[j.type].benefit}`);
     }
     dirty=true;recomputeEconomy();
+    return true;
+  }
+  function fortChangeIsSafe(regionId,hp,maxHp) {
+    const fort=state.regions[regionId],oldRatio=fort.fortHp/fort.maxFortHp,newRatio=hp/maxHp;
+    const restored=FORT_SOLIDS[regionId].filter(shape=>oldRatio<=shape.minRatio&&newRatio>shape.minRatio);
+    return !state.squads.some(squad=>squad.hp>0&&restored.some(shape=>obstacleContains(squad,shape,UNIT_CLEARANCE[squad.type]+.1)));
   }
   function updateJobs(dt) {
     const busy=new Set(),completed=[];
@@ -839,19 +1195,22 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       if(j.type==='repair') {
         const r=state.regions[j.regionId],gate=gatePoint(REGION_BY_ID[j.regionId]);
         const threatened=state.squads.some(s=>s.hp>0&&hostile('player',s.owner)&&dist(s,gate)<23);
-        j.blocked=threatened;if(threatened)continue;
+        j.blocked=threatened;j.blockedReason=threatened?'Εχθρικά στρατεύματα απειλούν την πύλη.':null;if(threatened)continue;
         const amount=Math.min(j.repairAmount-(j.applied||0),j.repairAmount*dt/j.duration);
+        if(!fortChangeIsSafe(j.regionId,Math.min(r.maxFortHp,r.fortHp+amount),r.maxFortHp)) {
+          j.blocked=true;j.blockedReason='Απομάκρυνε τα στρατεύματα από το σημείο επισκευής των τειχών.';continue;
+        }
         r.fortHp=Math.min(r.maxFortHp,r.fortHp+amount);j.applied=(j.applied||0)+amount;r.breached=r.fortHp<=0;
       }
       j.remaining=Math.max(0,j.remaining-dt);
-      if(j.remaining<=EPS){finishJob(j);completed.push(j.id);}
+      if(j.remaining<=EPS&&finishJob(j)!==false)completed.push(j.id);
     }
     if(completed.length)state.jobs=state.jobs.filter(j=>!completed.includes(j.id));
   }
   function aiOrder(s,type,region) {
-    const def=UNIT_TYPES[s.type],p=state.regions[region.id].fortHp>0?standOff(region,s,def.range):nearestGround(gatePoint(region));
+    const def=UNIT_TYPES[s.type],p=state.regions[region.id].fortHp>0?standOff(region,s,def.range):nearestGround(gatePoint(region),s);
     if(!p)return false;
-    const path=findPath(s,p);if(!path)return false;
+    const path=findPath(s,p,s);if(!path)return false;
     issueOrder(s,type,{point:p,region,path});s.stance='aggressive';return true;
   }
   function raidTarget(faction) {
@@ -994,6 +1353,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     if(s.outcome)s.paused=true;
     s.growth=finite(s.growth)?clamp(s.growth,0,32):0;
     s.day=Math.floor(s.t/600)+1;s.lastHungerNotice=finite(s.lastHungerNotice)?s.lastHungerNotice:-1000;s.lastWageNotice=finite(s.lastWageNotice)?s.lastWageNotice:-1000;
+    validateStructures(s);
     return s;
   }
   function exportSave() {
@@ -1006,7 +1366,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   }
   function importSave(text) {
     let candidate;try{candidate=validateSave(text);}catch(error){return fail(error.message);}
-    state=candidate;recomputeEconomy();economyElapsed=0;missionsElapsed=0;saveElapsed=0;noticeElapsed=0;
+    state=candidate;restoreNavigation();recomputeEconomy();economyElapsed=0;missionsElapsed=0;saveElapsed=0;noticeElapsed=0;
     dirty=true;notify();const result=save();
     return {ok:true,message:result.ok?'Η εκστρατεία φορτώθηκε. Ο χρόνος απουσίας δεν προκάλεσε μάχες.':result.message,persisted:result.ok};
   }
@@ -1032,9 +1392,28 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     return {};
   }
   function reset() {
-    state=newCampaign();initializeArmies();state.startedAt=getNow();recomputeEconomy();
+    state=newCampaign();migrateStructures(state);initializeArmies();state.startedAt=getNow();recomputeEconomy();
     log('campaign','Το στέμμα περιμένει τις αποφάσεις σου','Κράτησε τους ανθρώπους χορτάτους, στήριξε τον στρατό και άνοιξε τα περάσματα. Ο κριός σου είναι έτοιμος για την πρώτη πολιορκία.');
     economyElapsed=0;missionsElapsed=0;saveElapsed=0;noticeElapsed=0;notify();save();return {ok:true,message:'Ξεκίνησε νέα εκστρατεία.'};
+  }
+  function restoreNavigation() {
+    for(const squad of state.squads) {
+      if(!walkable(squad,squad)) {
+        const safe=nearestGround(squad,squad);
+        if(safe){squad.x=safe.x;squad.z=safe.z;}
+        squad.path=[];squad.repathAt=0;
+      }
+      if(!walkable(squad.anchor,squad))squad.anchor=nearestGround(squad.anchor,squad)||{x:squad.x,z:squad.z};
+      if(['move','retreat','hold'].includes(squad.order.type)&&finite(squad.order.x)&&!walkable(squad.order,squad)) {
+        const safe=nearestGround(squad.order,squad)||{x:squad.x,z:squad.z};
+        squad.order.x=safe.x;squad.order.z=safe.z;
+      }
+      let previous=squad;
+      for(const p of squad.path) {
+        if(!clearSegment(previous,p,squad)){squad.path=[];squad.repathAt=0;break;}
+        previous=p;
+      }
+    }
   }
   let storedText=null;
   try {
@@ -1045,10 +1424,11 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     if(storedText)try{storage?.setItem?.(`${SAVE_KEY}-recovery`,storedText);storageError+=' Κρατήθηκε αντίγραφο για ανάκτηση.';}catch{}
   }
   if(!loaded) {
-    initializeArmies();state.startedAt=getNow();
+    migrateStructures(state);initializeArmies();state.startedAt=getNow();
     log('campaign','1280 · Η Αργυρή Δρυς σε χρειάζεται','Διαθέτεις τρία φέουδα, επτά αποσπάσματα και έναν κριό. Χτίσε για τους ανθρώπους σου, προφύλαξε τις γέφυρες και διεκδίκησε τη μεθόριο.');
     if(storageError)log('warning','Ανάκτηση αποθήκευσης',storageError);
   }
+  if(loaded)restoreNavigation();
   recomputeEconomy();
   return {
     get state(){return state;},
@@ -1058,10 +1438,13 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     step,command,save,exportSave,importSave,reset,
     canCommand(action,payload={}) {
       const result=validateCommand(action,payload);
-      return {...quoteCommand(action,payload),ok:result.ok,message:result.message||'Η εντολή είναι διαθέσιμη.',...(result.cost?{cost:{...result.cost}}:{}),...(result.duration?{duration:result.duration}:{})};
+      return {...quoteCommand(action,payload),ok:result.ok,message:result.message||'Η εντολή είναι διαθέσιμη.',...(result.cost?{cost:{...result.cost}}:{}),...(result.duration?{duration:result.duration}:{}),
+        ...(result.requiresPlacement!==undefined?{requiresPlacement:result.requiresPlacement}:{}),...(result.placement?{placement:{...result.placement}}:{}),
+        ...(result.structure?{structureId:result.structure.id}:{}),...(result.targetLevel?{targetLevel:result.targetLevel}:{})};
     },
+    findBuildLocation(type,regionId,rotation=0){return state.regions[regionId]?.owner==='player'?findPlacement(state,type,regionId,rotation):null;},
     setPaused(value){state.paused=state.outcome?true:!!value;dirty=true;notify();save();return state.paused;},
     setSpeed(value){if(![1,2,4].includes(value))return fail('Η ταχύτητα μπορεί να είναι 1×, 2× ή 4×.');state.speed=value;dirty=true;notify();save();return {ok:true,message:`Ταχύτητα ${value}×.`};},
-    getNavigation(){return {isWalkable:p=>walkable(p),findPath:(a,b)=>findPath(a,b),onBridge,bank};}
+    getNavigation(){return {isWalkable:(p,unit=.65)=>walkable(p,unit),findPath:(a,b,unit=.65)=>findPath(a,b,unit),clearSegment:(a,b,unit=.65)=>clearSegment(a,b,unit),nearestGround:(p,unit=.65)=>nearestGround(p,unit),getObstacles:()=>worldObstacles(state),fortGate:id=>has(REGION_BY_ID,id)?gatePoint(REGION_BY_ID[id]):null,onBridge,bank};}
   };
 }
