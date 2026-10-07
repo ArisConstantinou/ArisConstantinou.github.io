@@ -1,0 +1,41 @@
+name: Chronicle browser check
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Village/chronicle/**'
+      - '.github/workflows/chronicle-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: chronicle-browser-check
+  cancel-in-progress: true
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check script syntax
+        run: node --check Village/chronicle/game.js
+      - name: Install isolated browser test dependencies
+        run: |
+          mkdir -p /tmp/chronicle-browser
+          cd /tmp/chronicle-browser
+          npm init -y
+          npm install --no-save playwright@1.51.1
+          npx playwright install --with-deps chromium
+      - name: Test desktop and mobile
+        env:
+          NODE_PATH: /tmp/chronicle-browser/node_modules
+        run: node Village/chronicle/smoke.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chronicle-browser-results
+          path: chronicle-test-results/
+          retention-days: 7
