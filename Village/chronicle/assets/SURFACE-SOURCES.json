@@ -1,0 +1,102 @@
+[
+  {
+    "id": "stone_wall_05",
+    "source": "https://polyhaven.com/a/stone_wall_05",
+    "license": "CC0-1.0",
+    "files": {
+      "diff": {
+        "name": "stone_wall_diff.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/stone_wall_05/stone_wall_05_diff_1k.jpg",
+        "bytes": 274532,
+        "source_bytes": 837539
+      },
+      "nor_gl": {
+        "name": "stone_wall_nor_gl.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/stone_wall_05/stone_wall_05_nor_gl_1k.jpg",
+        "bytes": 437659,
+        "source_bytes": 1281194
+      },
+      "rough": {
+        "name": "stone_wall_rough.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/stone_wall_05/stone_wall_05_rough_1k.jpg",
+        "bytes": 22544,
+        "source_bytes": 231944
+      }
+    }
+  },
+  {
+    "id": "plastered_wall_02",
+    "source": "https://polyhaven.com/a/plastered_wall_02",
+    "license": "CC0-1.0",
+    "files": {
+      "diff": {
+        "name": "plastered_wall_02_diff.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall_02/plastered_wall_02_diff_1k.jpg",
+        "bytes": 80736,
+        "source_bytes": 436395
+      },
+      "nor_gl": {
+        "name": "plastered_wall_02_nor_gl.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall_02/plastered_wall_02_nor_gl_1k.jpg",
+        "bytes": 250000,
+        "source_bytes": 960241
+      },
+      "rough": {
+        "name": "plastered_wall_02_rough.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall_02/plastered_wall_02_rough_1k.jpg",
+        "bytes": 10480,
+        "source_bytes": 173930
+      }
+    }
+  },
+  {
+    "id": "wood_planks",
+    "source": "https://polyhaven.com/a/wood_planks",
+    "license": "CC0-1.0",
+    "files": {
+      "diff": {
+        "name": "wood_planks_diff.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_planks/wood_planks_diff_1k.jpg",
+        "bytes": 158554,
+        "source_bytes": 609525
+      },
+      "nor_gl": {
+        "name": "wood_planks_nor_gl.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_planks/wood_planks_nor_gl_1k.jpg",
+        "bytes": 135901,
+        "source_bytes": 652441
+      },
+      "rough": {
+        "name": "wood_planks_rough.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_planks/wood_planks_rough_1k.jpg",
+        "bytes": 64417,
+        "source_bytes": 299757
+      }
+    }
+  },
+  {
+    "id": "forest_ground_04",
+    "source": "https://polyhaven.com/a/forest_ground_04",
+    "license": "CC0-1.0",
+    "files": {
+      "diff": {
+        "name": "forest_ground_04_diff.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forest_ground_04/forest_ground_04_diff_1k.jpg",
+        "bytes": 416211,
+        "source_bytes": 1113899
+      },
+      "nor_gl": {
+        "name": "forest_ground_04_nor_gl.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forest_ground_04/forest_ground_04_nor_gl_1k.jpg",
+        "bytes": 459968,
+        "source_bytes": 1326812
+      },
+      "rough": {
+        "name": "forest_ground_04_rough.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forest_ground_04/forest_ground_04_rough_1k.jpg",
+        "bytes": 201262,
+        "source_bytes": 627507
+      }
+    }
+  }
+]

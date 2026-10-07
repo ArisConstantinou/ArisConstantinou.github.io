@@ -1,0 +1,9 @@
+{
+  "version": "0.4.0",
+  "sourcePayloadSha256": "86b9c1053dab796ef83c056865632ac00dd02d1d8f1cb9a5d04cefc2af9387c2",
+  "humanSourceRun": 37659873092,
+  "surfaceSourceRun": 37661223403,
+  "historicalDataVerified": false,
+  "textures": 12,
+  "humanBaseModels": 2
+}

@@ -1,0 +1,42 @@
+{
+  "prototype": true,
+  "license": "CC0-1.0",
+  "source": "MakeHuman Community system assets / MPFB",
+  "sourceCodeCommit": "d0a32e57a7f915cb2f2b95410e2117648c7bbb7e",
+  "historicalCostumeVerified": false,
+  "characters": [
+    {
+      "id": "villager_man",
+      "bytes": 5052300,
+      "bones": 53,
+      "vertices": 19963,
+      "assets": [
+        "skins/middleage_caucasian_male/middleage_caucasian_male.mhmat",
+        "clothes/male_casualsuit01/male_casualsuit01.mhclo",
+        "clothes/shoes01/shoes01.mhclo",
+        "eyes/low-poly/low-poly.mhclo",
+        "hair/short02/short02.mhclo",
+        "eyebrows/eyebrow001/eyebrow001.mhclo"
+      ],
+      "source_bytes": 18766636,
+      "sha256": "939c620d7465af2baeba9a7dab17f424f802f844cae69e6b44cdafe82b32ed56"
+    },
+    {
+      "id": "villager_woman",
+      "bytes": 4617388,
+      "bones": 53,
+      "vertices": 17927,
+      "assets": [
+        "skins/middleage_caucasian_female/middleage_caucasian_female.mhmat",
+        "clothes/female_elegantsuit01/female_elegantsuit01.mhclo",
+        "clothes/shoes02/shoes02.mhclo",
+        "eyes/low-poly/low-poly.mhclo",
+        "hair/bob01/bob01.mhclo",
+        "eyebrows/eyebrow001/eyebrow001.mhclo"
+      ],
+      "source_bytes": 15360848,
+      "sha256": "20c1912063ce5665dd0b2bae261ccfe2f92b29d147ead3947ab7f677b7b9ed6e"
+    }
+  ],
+  "imageOptimization": "Embedded images resized only; vertex topology, fingers, faces and skin weights preserved."
+}

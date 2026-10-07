@@ -1,0 +1,46 @@
+{
+  "checks": [
+    {
+      "name": "Package initializes as 0.4.0",
+      "pass": true
+    },
+    {
+      "name": "Two human base meshes / 53-bone rigs",
+      "pass": true
+    },
+    {
+      "name": "All 12 texture files served locally",
+      "pass": true
+    },
+    {
+      "name": "Village has detailed building meshes",
+      "pass": true
+    },
+    {
+      "name": "Walking preserves fixed epoch",
+      "pass": true
+    },
+    {
+      "name": "Desktop joystick hidden",
+      "pass": true
+    },
+    {
+      "name": "Second human selectable",
+      "pass": true
+    },
+    {
+      "name": "No uncaught JavaScript errors",
+      "pass": true
+    },
+    {
+      "name": "Touch joystick visible",
+      "pass": true
+    },
+    {
+      "name": "Mobile layout fits viewport",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "method": "Actual Chromium WebGL scene. Deterministic frame callbacks. Mobile viewport emulation, not a physical device."
+}
