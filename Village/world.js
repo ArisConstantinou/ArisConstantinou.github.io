@@ -1,4 +1,4 @@
-import { LOCATIONS } from './locations.js?v=1.1.1';
+import { LOCATIONS } from './locations.js?v=1.1.2';
 
 // A hand-drawn, procedural interpretation of Moutoullas. Positions are deliberately
 // a playable composition, never a claim to be cadastral or surveyed coordinates.
@@ -767,7 +767,12 @@ export function createVillageRenderer(canvas,callbacks={}) {
     }
   }
   function renderFrame(now=0){
-    if(destroyed)return;const dt=lastNow?Math.min(.06,Math.max(0,(now-lastNow)/1000)):0;lastNow=now;updatePlayer(dt,now);
+    if(destroyed)return;
+    // Keep walking speed at 5–10 fps. Small physics steps preserve collision and
+    // arrival checks; a hidden-tab return can advance at most a quarter second.
+    const elapsed=lastNow?Math.min(.25,Math.max(0,(now-lastNow)/1000)):0;lastNow=now;
+    const steps=Math.max(1,Math.ceil(elapsed/.035)),dt=elapsed/steps;
+    for(let i=0;i<steps;i++)updatePlayer(dt,now-(steps-1-i)*dt*1000);
     ctx.setTransform(dpr,0,0,dpr,0,0);drawBackdrop(now);drawWorld(now);drawLabels(now);dirty=false;
   }
   function animate(now){if(destroyed)return;const docHidden=typeof document!=='undefined'&&document.hidden;if(!docHidden){if(now-lastNow>=32||dirty)renderFrame(now);}if(typeof requestAnimationFrame==='function')frameId=requestAnimationFrame(animate);}

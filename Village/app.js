@@ -1,7 +1,7 @@
-import {createGame,PROJECTS,ROLES,MISSIONS,RESOURCES,NPCS,BARTERS,CHAPTERS,formatMoney,formatDuration,getProjectStatus,getMissionStatus,getDialogueStatus,getEconomyRates,getFreeWorkers,getChapter} from './engine.js?v=1.1.1';
-import {LOCATIONS,LOCATION_MAP} from './locations.js?v=1.1.1';
-import {createVillageRenderer} from './world.js?v=1.1.1';
-import {icon,portrait,buildingIllustration,welcomeArt} from './icons.js?v=1.1.1';
+import {createGame,PROJECTS,ROLES,MISSIONS,RESOURCES,NPCS,BARTERS,CHAPTERS,formatMoney,formatDuration,getProjectStatus,getMissionStatus,getDialogueStatus,getEconomyRates,getFreeWorkers,getChapter} from './engine.js?v=1.1.2';
+import {LOCATIONS,LOCATION_MAP} from './locations.js?v=1.1.2';
+import {createVillageRenderer} from './world.js?v=1.1.2';
+import {icon,portrait,buildingIllustration,welcomeArt} from './icons.js?v=1.1.2';
 
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
