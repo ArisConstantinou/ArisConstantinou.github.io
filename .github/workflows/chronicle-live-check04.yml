@@ -1,0 +1,41 @@
+name: Chronicle public URL verification
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/chronicle-live-check04.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Verify the deployed public version and assets
+        shell: python
+        run: |
+          import json, time, urllib.request, hashlib
+          base='https://arisconstantinou.github.io/Village/chronicle/'
+          def fetch(path):
+              req=urllib.request.Request(base+path,headers={'Cache-Control':'no-cache','User-Agent':'Chronicle-release-check/0.4'})
+              with urllib.request.urlopen(req,timeout=30) as r:
+                  assert r.status==200
+                  return r.read()
+          for attempt in range(18):
+              try:
+                  info=json.loads(fetch('build-info.json?check=0.4.0'))
+                  assert info['version']=='0.4.0'
+                  break
+              except Exception as error:
+                  print('Waiting for public deploy:',error,flush=True)
+                  if attempt==17: raise
+                  time.sleep(10)
+          html=fetch('?v=0.4.0').decode()
+          assert 'game.bundle.js' in html and '0.4.0' in html
+          print('PUBLIC PAGE VERIFIED',base,flush=True)
+          for path in ['game.bundle.js','vendor/runtime.js','assets/villager_man.glb','assets/villager_woman.glb','assets/stone_wall_diff.jpg','preview/test-results.json']:
+              data=fetch(path)
+              if path.endswith('.glb'):assert data[:4]==b'glTF'
+              if path.endswith('test-results.json'):assert all(c['pass'] for c in json.loads(data)['checks'])
+              print('HTTP 200',path,len(data),hashlib.sha256(data).hexdigest(),flush=True)
+          print('PUBLIC CHRONICLE 0.4 VERIFIED SUCCESSFULLY',flush=True)
