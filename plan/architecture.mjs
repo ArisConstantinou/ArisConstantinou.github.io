@@ -7,6 +7,7 @@ export function openingLine(item,scale){
   return [-item.w/2,item.w/2].map(u=>({x:(item.x+item.w/2+u*c-v*s)*scale,y:(item.y+item.h/2+u*s+v*c)*scale}));
 }
 export function doorOnWall(door,room,point,cmPerUnit,attachment){
+  if(room.floorOnly)return null;
   const rings=room.type==='wall'?[openingLine({...room,type:'window'},1)]:worldRings(room),margin=2/cmPerUnit;let best;
   rings.forEach((ring,ri)=>ring.forEach((a,ei)=>{
     if(attachment&&(attachment.ring!==ri||attachment.edge!==ei))return;
@@ -27,7 +28,7 @@ export function doorOnWall(door,room,point,cmPerUnit,attachment){
 export function architecture(items,cmPerUnit){
   const scale=cmPerUnit/100,areas=items.filter(i=>AREA_3D.includes(i.type));
   const floors=areas.map(item=>({item,rings:worldRings(item).map(r=>r.map(p=>({x:p.x*scale,y:p.y*scale})))}));
-  const edges=floors.flatMap(f=>f.rings.flatMap(r=>r.map((a,n)=>({a,b:r[(n+1)%r.length],owner:f.item.id,height:heightCm(f.item)/100,thickness:.14}))));
+  const edges=floors.filter(f=>!f.item.floorOnly).flatMap(f=>f.rings.flatMap(r=>r.map((a,n)=>({a,b:r[(n+1)%r.length],owner:f.item.id,height:heightCm(f.item)/100,thickness:.14}))));
   for(const item of items.filter(i=>i.type==='wall')){const [a,b]=openingLine({...item,type:'window'},scale);edges.push({a,b,owner:item.id,height:heightCm(item)/100,thickness:item.h*scale});}
   const openings=items.filter(i=>['door','window'].includes(i.type)).map(item=>({item,line:openingLine(item,scale),bottom:item.type==='door'?0:.9,top:(item.type==='door'?0:.9)+heightCm(item)/100}));
   const walls=new Map(),epsilon=1e-6;

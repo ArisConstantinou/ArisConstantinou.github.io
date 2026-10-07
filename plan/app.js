@@ -53,9 +53,11 @@ function validate(raw) {
       for(const key of ['arrowHead','strokeWidth','routeStyle'])if(i[key]!==undefined)route[key]=i[key];
     }
     if(i.outline!==undefined&&(i.type!=='room'||!validOutline(i.outline)))throw Error('Μη έγκυρο περίγραμμα χώρου.');
+    if(i.hingeRight!==undefined&&(i.type!=='door'||typeof i.hingeRight!=='boolean'))throw Error('Μη έγκυρη φορά πόρτας.');
+    if(i.floorOnly!==undefined&&(i.type!=='room'||typeof i.floorOnly!=='boolean'))throw Error('Μη έγκυρη επιλογή περιμετρικών τοίχων.');
     if(i.heightCm!==undefined&&(!Number.isFinite(i.heightCm)||i.heightCm<20||i.heightCm>10000))throw Error('Το ύψος πρέπει να είναι από 20 έως 10.000 cm.');
-    if(i.attachment!==undefined&&(i.type!=='door'||typeof i.attachment.roomId!=='string'||i.attachment.roomId.length>80||!Number.isInteger(i.attachment.ring)||i.attachment.ring<0||i.attachment.ring>49||!Number.isInteger(i.attachment.edge)||i.attachment.edge<0||i.attachment.edge>799||!Number.isFinite(i.attachment.t)||i.attachment.t<0||i.attachment.t>1))throw Error('Μη έγκυρη σύνδεση πόρτας.');
-    ids.add(i.id);return {id:i.id,type:i.type,x:i.x,y:i.y,w:i.w,h:i.h,rotation:normalAngle(i.rotation),label:i.label,number:i.number,color:i.color,floor:i.floor,locked:!!i.locked,hidden:!!i.hidden,...offsets,...route,...(i.labelFontSize!==undefined?{labelFontSize:i.labelFontSize}:{}),...(i.outline?{outline:clone(i.outline)}:{}),...(i.showDimensions?{showDimensions:true}:{}),...(i.heightCm!==undefined?{heightCm:i.heightCm}:{}),...(i.attachment?{attachment:clone(i.attachment)}:{})};
+    if(i.attachment!==undefined&&(!['door','window'].includes(i.type)||typeof i.attachment.roomId!=='string'||i.attachment.roomId.length>80||!Number.isInteger(i.attachment.ring)||i.attachment.ring<0||i.attachment.ring>49||!Number.isInteger(i.attachment.edge)||i.attachment.edge<0||i.attachment.edge>799||!Number.isFinite(i.attachment.t)||i.attachment.t<0||i.attachment.t>1))throw Error('Μη έγκυρη σύνδεση ανοίγματος.');
+    ids.add(i.id);return {id:i.id,type:i.type,x:i.x,y:i.y,w:i.w,h:i.h,rotation:normalAngle(i.rotation),label:i.label,number:i.number,color:i.color,floor:i.floor,locked:!!i.locked,hidden:!!i.hidden,...offsets,...route,...(i.labelFontSize!==undefined?{labelFontSize:i.labelFontSize}:{}),...(i.outline?{outline:clone(i.outline)}:{}),...(i.floorOnly?{floorOnly:true}:{}),...(i.hingeRight?{hingeRight:true}:{}),...(i.showDimensions?{showDimensions:true}:{}),...(i.heightCm!==undefined?{heightCm:i.heightCm}:{}),...(i.attachment?{attachment:clone(i.attachment)}:{})};
   });
   const measurement=raw.measurement;
   if(measurement&&(!Number.isFinite(measurement.cmPerUnit)||measurement.cmPerUnit<=0||measurement.cmPerUnit>1e7||!['m','cm'].includes(measurement.unit)))throw Error('Μη έγκυρη κλίμακα διαστάσεων.');
@@ -122,13 +124,14 @@ function boundText(item,field,markup){return `<g class="bound-text" data-bound-t
 function labelMarkup(item){if(item.type==='marker')return '';const w=item.w,h=item.h;let x=0,y=item.type==='room'?Math.min(h/4,30):0,font=clamp(Math.min(w/9,h/4),12,20),anchor='middle';if(item.type==='wall'||item.type==='window'){font=14;y=-h/2-11;}else if(item.type==='door'){font=14;y=h/2+23;}else if(item.type==='route'){font=16;x=w/2-18;y=-h/2+70;anchor='end';}else if(item.type==='ramp'){x=-w/2+17;anchor='start';}font=item.labelFontSize??font;const lines=linesFor(item.label,Math.max(w-35,100),font,item.type==='note'?5:3);const baseline=y-(lines.length-1)*font*.62;let out='';if(item.label){let text=`<text text-anchor="${anchor}" fill="${item.type==='text'?esc(item.color):'#253e46'}" font-size="${font}" font-family="Segoe UI,Arial,sans-serif">`;lines.forEach((line,i)=>text+=`<tspan x="${x}" y="${baseline+i*font*1.25}">${esc(line)}</tspan>`);out+=boundText(item,'label',text+'</text>');}if(item.number){const nx=item.type==='wall'?0:item.type==='route'?w/2:-w/2+25,ny=item.type==='wall'?-h/2-52:item.type==='route'?-h/2:-h/2+25;out+=boundText(item,'number',`<circle cx="${nx}" cy="${ny}" r="18" fill="#176d92" stroke="white" stroke-width="2"/><text x="${nx}" y="${ny+6}" text-anchor="middle" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="17">${esc(item.number)}</text>`);}return out;}
 function itemMarkup(i){const w=i.w,h=i.h,x=-w/2,y=-h/2,c=esc(i.color);let body='';
   if(['room','ramp','stairs','note','ac'].includes(i.type))body=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${i.type==='note'?8:2}" fill="${c}" stroke="${i.type==='note'?'#cbcdb7':'#5d7380'}" stroke-width="${i.type==='note'?1:2.5}" vector-effect="non-scaling-stroke"/>`;
-  if(i.type==='room'&&i.outline)body=`<path class="area-outline" d="${i.outline.map(r=>r.map((p,n)=>`${n?'L':'M'} ${(p.x-.5)*w} ${(p.y-.5)*h}`).join(' ')+' Z').join(' ')}" fill="${c}" fill-rule="evenodd" stroke="#5d7380" stroke-width="2.5" vector-effect="non-scaling-stroke"/>`;
+  if(i.type==='room'&&i.outline)body=`<path class="area-outline" d="${i.outline.map(r=>r.map((p,n)=>`${n?'L':'M'} ${(p.x-.5)*w} ${(p.y-.5)*h}`).join(' ')+' Z').join(' ')}" fill="${c}" fill-rule="evenodd" stroke="${i.floorOnly?'#a37a31':'#5d7380'}" ${i.floorOnly?'stroke-dasharray="10 6"':''} stroke-width="2.5" vector-effect="non-scaling-stroke"/>`;
   if(i.type==='ramp')for(let s=1;s<9;s++)body+=`<line x1="${x+3}" x2="${w/2-3}" y1="${y+s*h/9}" y2="${y+s*h/9}" stroke="#c2b592" stroke-width="1"/>`;
   if(i.type==='stairs')for(let s=1;s<12;s++)body+=`<line x1="${x}" x2="${w/2}" y1="${y+s*h/12}" y2="${y+s*h/12}" stroke="#829588" stroke-width="1.5"/>`;
   if(i.type==='ac')for(let s=1;s<7;s++)body+=`<line x1="${x+8}" x2="${w/2-8}" y1="${y+s*h/7}" y2="${y+s*h/7}" stroke="#718b97" stroke-width="1.5"/>`;
   if(i.type==='wall')body=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`;
   if(i.type==='window')body=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}" stroke="#4b788c" stroke-width="2"/><line x1="${x}" x2="${w/2}" y1="0" y2="0" stroke="white" stroke-width="2"/>`;
   if(i.type==='door')body=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}" opacity=".09"/><path d="M ${x} ${h/2} L ${x} ${y} M ${x} ${y} A ${w} ${h} 0 0 1 ${w/2} ${h/2}" fill="none" stroke="${c}" stroke-width="3"/><line x1="${x}" y1="${h/2}" x2="${w/2}" y2="${h/2}" stroke="${c}" stroke-width="5"/>`;
+  if(i.type==='door'&&i.hingeRight)body=`<g transform="scale(-1 1)">${body}</g>`;
   if(i.type==='route')body=arrowMarkup(routePoints(i),c,i.strokeWidth??7,i.arrowHead??'end',true);
   if(i.type==='marker')body=`<ellipse rx="${w/2}" ry="${h/2}" fill="${c}" stroke="white" stroke-width="2"/>`+boundText(i,'number',`<text y="7" text-anchor="middle" fill="white" font-size="22" font-family="Segoe UI,Arial,sans-serif">${esc(i.number)}</text>`);
   if(i.type==='text')body=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent"/>`;
@@ -291,6 +294,7 @@ function renderMeasurements(){
   const i=selection()[0];$('section-dimensions').hidden=!i||['route','marker','text','note'].includes(i.type);
   refreshLiveDimensions();
   if(i){$('section-size').textContent=plan.measurement?`${formatDimension(i.w)} × ${formatDimension(i.h)}${HEIGHT_TYPES.includes(i.type)?' × '+new Intl.NumberFormat('el-GR',{maximumFractionDigits:3}).format(heightCm(i)/(plan.measurement.unit==='m'?100:1))+' '+plan.measurement.unit:''}`:'Όρισε πρώτα μια γνωστή διάσταση.';$('show-section-dimensions').checked=!!i.showDimensions;$('show-section-dimensions').disabled=i.locked||!plan.measurement;}
+  $('section-walls-row').hidden=i?.type!=='room';$('section-walls').checked=!i?.floorOnly;$('section-walls').disabled=!i||i.locked;
   const list=selection(),canMerge=list.length>1&&list.every(i=>i.type==='room'&&!i.locked);
   $('merge-areas').disabled=!canMerge;$('merge-hint').textContent=canMerge?'Η συγχώνευση κρατά το εξωτερικό περίγραμμα και αφαιρεί τις κοινές γραμμές. Το όνομα και ο αριθμός του πρώτου χώρου παραμένουν επεξεργάσιμα.':'Επίλεξε τουλάχιστον δύο ξεκλείδωτους χώρους στο ίδιο επίπεδο.';
 }
@@ -300,7 +304,7 @@ $('merge-areas').onclick=()=>{
   try {
     const geometry=unionAreas(items),first=items[0],oldCenter={x:first.x+first.w/2,y:first.y+first.h/2};
     const labelOffset=rotateVector(first.labelOffsetX??0,(first.labelOffsetY??0)+Math.min(first.h/4,30),first.rotation);
-    const merged={...clone(first),...geometry,rotation:0,id:uid(),labelOffsetX:oldCenter.x+labelOffset.x-geometry.x-geometry.w/2,labelOffsetY:oldCenter.y+labelOffset.y-geometry.y-geometry.h/2-Math.min(geometry.h/4,30),numberOffsetX:0,numberOffsetY:0};
+    const merged={...clone(first),...geometry,floorOnly:items.every(i=>i.floorOnly),rotation:0,id:uid(),labelOffsetX:oldCenter.x+labelOffset.x-geometry.x-geometry.w/2,labelOffsetY:oldCenter.y+labelOffset.y-geometry.y-geometry.h/2-Math.min(geometry.h/4,30),numberOffsetX:0,numberOffsetY:0};
     const ids=new Set(items.map(i=>i.id)),index=plan.items.indexOf(first);
     change(()=>{plan.items=plan.items.filter(i=>!ids.has(i.id));plan.items.splice(index,0,merged);selected=new Set([merged.id]);selectedText=null;selectedVertex=null;});
     multiSelect=false;$('multi-select-tool').setAttribute('aria-pressed','false');notify('Οι χώροι συγχωνεύθηκαν. Η Αναίρεση επαναφέρει όλα τα αρχικά τμήματα.');
@@ -386,23 +390,23 @@ function activate3D(value){
 }
 function reconcileDoors(){
   if(!plan.measurement)return;
-  for(const door of plan.items.filter(i=>i.type==='door'&&i.attachment)){
+  for(const door of plan.items.filter(i=>['door','window'].includes(i.type)&&i.attachment)){
     const room=plan.items.find(i=>i.id===door.attachment.roomId&&['room','ramp','stairs','wall'].includes(i.type)&&i.floor===door.floor);
     if(!room){delete door.attachment;continue;}
-    const pose=doorOnWall(door,room,null,plan.measurement.cmPerUnit,door.attachment);
-    if(!pose||heightCm(door)>heightCm(room))throw Error('Η πόρτα πρέπει να χωρά στο μήκος και στο ύψος του τοίχου.');
-    Object.assign(door,pose);
+    const pose=doorOnWall(door.type==='window'?{...door,h:0}:door,room,null,plan.measurement.cmPerUnit,door.attachment);
+    if(!pose||heightCm(door)+(door.type==='window'?90:0)>heightCm(room))throw Error('Το άνοιγμα πρέπει να χωρά στο μήκος και στο ύψος του τοίχου.');
+    Object.assign(door,pose,door.type==='window'?{y:pose.y-door.h/2}:{});
   }
 }
 function detachMovedDoors(before){
-  for(const door of plan.items.filter(i=>i.type==='door'&&i.attachment)){
+  for(const door of plan.items.filter(i=>['door','window'].includes(i.type)&&i.attachment)){
     const old=before.items.find(i=>i.id===door.id);if(!old||old.w!==door.w||old.h!==door.h||JSON.stringify(old.attachment)!==JSON.stringify(door.attachment))continue;
     const room=plan.items.find(i=>i.id===door.attachment.roomId),oldRoom=before.items.find(i=>i.id===door.attachment.roomId);
     if(JSON.stringify(room)===JSON.stringify(oldRoom)&&(old.x!==door.x||old.y!==door.y||old.rotation!==door.rotation))delete door.attachment;
   }
 }
 function placeDoor3D(roomId,point){
-  const room=plan.items.find(i=>i.id===roomId);if(!room||room.locked||!plan.measurement)return notify('Επίλεξε ξεκλείδωτο τοίχο χώρου με ορισμένη κλίμακα.');
+  const room=plan.items.find(i=>i.id===roomId);if(!room||room.floorOnly||room.locked||!plan.measurement)return notify('Επίλεξε ξεκλείδωτο τοίχο χώρου με ορισμένη κλίμακα.');
   if(plan.items.length>=1000)return notify('Το όριο είναι 1.000 τμήματα ανά σχέδιο.');
   const scale=plan.measurement.cmPerUnit/100,w=90/plan.measurement.cmPerUnit,door=makeItem('door',0,0,w,w,'Πόρτα');door.floor=room.floor;door.heightCm=Math.min(210,heightCm(room));
   const pose=doorOnWall(door,room,{x:point.x/scale,y:point.y/scale},plan.measurement.cmPerUnit);if(!pose)return notify('Ο τοίχος χρειάζεται τουλάχιστον 94 cm για την αρχική πόρτα 90 cm.');
@@ -475,3 +479,5 @@ async function setupOffline(){
   }catch{status.textContent='Offline δεν είναι έτοιμο · άνοιξε με σύνδεση.';status.dataset.state='error';}
 }
 setupOffline();
+
+$('section-walls').onchange=()=>{const i=selection()[0];if(!i||i.type!=='room'||i.locked)return;if(plan.items.some(d=>d.attachment?.roomId===i.id)){notify('Αφαίρεσε πρώτα τις πόρτες που είναι συνδεδεμένες στον χώρο.');renderMeasurements();return;}change(()=>{i.floorOnly=!$('section-walls').checked;});};

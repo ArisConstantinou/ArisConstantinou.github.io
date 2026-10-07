@@ -21,7 +21,7 @@ export function createPlan3D(host,{onSelect,onError,onDoorPlace,onDoorMove,onDoo
   const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-10,10,10,-10,.01,1000);scene.add(new THREE.HemisphereLight(0xffffff,0x799589,2.4));const light=new THREE.DirectionalLight(0xffffff,2.6);light.position.set(-12,25,15);scene.add(light);
   const controls=new OrbitControls(camera,canvas);controls.enableDamping=false;controls.minPolarAngle=0;controls.maxPolarAngle=Math.PI*.47;controls.screenSpacePanning=true;
   const root=new THREE.Group();scene.add(root);const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),labels=host.querySelector('#three-labels');
-  let signature='',selected=new Set(),floorMeshes=[],pickables=[],labelEntries=[],wallMesh,wallOwners=[],ceilings=[],active=false,frame=0,angle='angle',ceilingVisible=false,extent=10,modelBounds,observer,disposed=false,currentItems=[],modelWalls=[],doorMode=false,doorDrag=null;
+  let signature='',selected=new Set(),floorMeshes=[],pickables=[],labelEntries=[],wallMesh,wallOwners=[],ceilings=[],active=false,frame=0,angle='angle',ceilingVisible=false,extent=10,framing,modelBounds,observer,disposed=false,currentItems=[],modelWalls=[],doorMode=false,doorDrag=null;
   host.dataset.ceilings='false';
   const material=color=>new THREE.MeshStandardMaterial({color,roughness:.85,metalness:0});
   function disposeModel(){root.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material])m.dispose();}});root.clear();floorMeshes=[];pickables=[];ceilings=[];labelEntries=[];wallMesh=null;wallOwners=[];labels.replaceChildren();}
@@ -37,7 +37,7 @@ export function createPlan3D(host,{onSelect,onError,onDoorPlace,onDoorMove,onDoo
     const start=performance.now();disposeModel();const items=plan.items.filter(i=>i.floor===plan.activeFloor&&!i.hidden),model=architecture(items,plan.measurement.cmPerUnit);currentItems=items;modelWalls=model.walls;
     for(const f of model.floors){
       const mesh=add(new THREE.Mesh(floorGeometry(f.rings),material(f.item.color)),f.item.id);mesh.userData.baseColor=f.item.color;mesh.userData.width=f.item.w*model.scale;mesh.userData.length=f.item.h*model.scale;mesh.userData.height=heightCm(f.item)/100;floorMeshes.push(mesh);
-      const roof=add(new THREE.Mesh(floorGeometry(f.rings,.06),material('#f5f4ed')),f.item.id);roof.position.y=heightCm(f.item)/100+.06;roof.visible=ceilingVisible;roof.userData.ceiling=true;ceilings.push(roof);makeLabel(f.item,f.rings);
+      if(!f.item.floorOnly){const roof=add(new THREE.Mesh(floorGeometry(f.rings,.06),material('#f5f4ed')),f.item.id);roof.position.y=heightCm(f.item)/100+.06;roof.visible=ceilingVisible;roof.userData.ceiling=true;ceilings.push(roof);}makeLabel(f.item,f.rings);
       if(f.item.type==='stairs'){
         const stairParts=[];const a=-f.item.rotation*Math.PI/180;for(let n=0;n<12;n++){const localZ=(n/12-.5+.5/12)*f.item.h*model.scale,h=(n+1)/12*heightCm(f.item)/100,x=(f.item.x+f.item.w/2)*model.scale+localZ*Math.sin(a),z=(f.item.y+f.item.h/2)*model.scale+localZ*Math.cos(a);stairParts.push(box(f.item.w*model.scale,h,f.item.h*model.scale/12,x,h/2,z,a));}add(new THREE.Mesh(mergeGeometries(stairParts),material(f.item.color)),f.item.id);
       }
@@ -53,9 +53,9 @@ export function createPlan3D(host,{onSelect,onError,onDoorPlace,onDoorMove,onDoo
           const pane=new THREE.Mesh(lineGeometry(p,q,.9,.9+h,.035),new THREE.MeshStandardMaterial({color:'#9fc9d8',transparent:true,opacity:.52,roughness:.18,side:THREE.DoubleSide}));add(pane,i.id);
           const frameParts=[lineGeometry(p,q,.88,.96,.14),lineGeometry(p,q,.9+h-.04,.9+h+.04,.14),box(.06,h,.14,p.x,.9+h/2,p.y),box(.06,h,.14,q.x,.9+h/2,q.y)];add(new THREE.Mesh(mergeGeometries(frameParts),material('#516e76')),i.id);
         } else {
-          const len=Math.hypot(q.x-p.x,q.y-p.y),leafEnd={x:p.x+(q.y-p.y),y:p.y-(q.x-p.x)};
-          add(new THREE.Mesh(lineGeometry(p,leafEnd,0,h,.055),material('#77a7ae')),i.id);
-          const arc=[];for(let n=0;n<=16;n++){const v=n/16*Math.PI/2,dx=(q.x-p.x)*Math.cos(v)+(q.y-p.y)*Math.sin(v),dy=(q.y-p.y)*Math.cos(v)-(q.x-p.x)*Math.sin(v);arc.push(new THREE.Vector3(p.x+dx,.025,p.y+dy));}const curve=new THREE.CatmullRomCurve3(arc);add(new THREE.Mesh(new THREE.TubeGeometry(curve,16,Math.min(.015,len/100),3,false),material('#3686b4')),i.id);
+          const [hinge,latch]=i.hingeRight?[q,p]:[p,q],hand=i.hingeRight?-1:1,len=Math.hypot(q.x-p.x,q.y-p.y),leafEnd={x:hinge.x+hand*(latch.y-hinge.y),y:hinge.y-hand*(latch.x-hinge.x)};
+          add(new THREE.Mesh(lineGeometry(hinge,leafEnd,0,h,.055),material('#77a7ae')),i.id);
+          const arc=[];for(let n=0;n<=16;n++){const v=n/16*Math.PI/2,dx=(latch.x-hinge.x)*Math.cos(v)+hand*(latch.y-hinge.y)*Math.sin(v),dy=(latch.y-hinge.y)*Math.cos(v)-hand*(latch.x-hinge.x)*Math.sin(v);arc.push(new THREE.Vector3(hinge.x+dx,.025,hinge.y+dy));}const curve=new THREE.CatmullRomCurve3(arc);add(new THREE.Mesh(new THREE.TubeGeometry(curve,16,Math.min(.015,len/100),3,false),material('#3686b4')),i.id);
         }
       }
     }
@@ -80,11 +80,14 @@ export function createPlan3D(host,{onSelect,onError,onDoorPlace,onDoorMove,onDoo
   }
   function draw(){frame=0;if(!active)return;const start=performance.now();renderer.render(scene,camera);updateLabels();host.dataset.renderMs=(performance.now()-start).toFixed(2);host.dataset.drawCalls=String(renderer.info.render.calls);host.dataset.triangles=String(renderer.info.render.triangles);host.dataset.geometries=String(renderer.info.memory.geometries);}
   function request(){if(active&&!frame)frame=requestAnimationFrame(draw);}
-  function resize(){const r=host.getBoundingClientRect();if(r.width<1||r.height<1)return;renderer.setSize(r.width,r.height,false);const aspect=r.width/r.height;camera.left=-extent*aspect/2;camera.right=extent*aspect/2;camera.top=extent/2;camera.bottom=-extent/2;camera.updateProjectionMatrix();request();}
+  function resize(){const r=host.getBoundingClientRect();if(r.width<1||r.height<1)return;renderer.setSize(r.width,r.height,false);const aspect=r.width/r.height;
+    // Refit the projection on orientation changes while preserving user zoom and pan.
+    if(framing)extent=Math.max(framing.width/aspect,framing.height,2)*1.22;
+    camera.left=-extent*aspect/2;camera.right=extent*aspect/2;camera.top=extent/2;camera.bottom=-extent/2;camera.updateProjectionMatrix();request();}
   function fit(){if(!modelBounds)return;const center=modelBounds.getCenter(new THREE.Vector3()),size=modelBounds.getSize(new THREE.Vector3()),r=host.getBoundingClientRect(),aspect=Math.max(.2,r.width/r.height);extent=Math.max(size.z,size.x/aspect,size.y*1.5,2)*1.35;camera.zoom=1;controls.target.set(center.x,0,center.z);const distance=Math.max(size.x,size.z,size.y,4)*1.8;
     camera.position.copy(controls.target).add(angle==='top'?new THREE.Vector3(0,distance,.0001):new THREE.Vector3(distance*.65,distance*1.5,distance*.8));camera.up.set(0,1,0);camera.lookAt(controls.target);controls.update();camera.updateMatrixWorld();
     const projected=[];for(const x of [modelBounds.min.x,modelBounds.max.x])for(const y of [modelBounds.min.y,modelBounds.max.y])for(const z of [modelBounds.min.z,modelBounds.max.z])projected.push(new THREE.Vector3(x,y,z).applyMatrix4(camera.matrixWorldInverse));
-    const low=Math.min(...projected.map(p=>p.y)),high=Math.max(...projected.map(p=>p.y));extent=Math.max((Math.max(...projected.map(p=>p.x))-Math.min(...projected.map(p=>p.x)))/aspect,high-low,2)*1.22;
+    const low=Math.min(...projected.map(p=>p.y)),high=Math.max(...projected.map(p=>p.y));framing={width:Math.max(...projected.map(p=>p.x))-Math.min(...projected.map(p=>p.x)),height:high-low};extent=Math.max(framing.width/aspect,framing.height,2)*1.22;
     const shift=(high+low)/2;const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).multiplyScalar(shift);camera.position.add(up);controls.target.add(up);controls.update();resize();
   }
   function setAngle(next){angle=next;host.dataset.angle=angle;controls.enableRotate=angle!=='top';controls.mouseButtons.LEFT=angle==='top'?THREE.MOUSE.PAN:THREE.MOUSE.ROTATE;controls.touches.ONE=angle==='top'?THREE.TOUCH.PAN:THREE.TOUCH.ROTATE;fit();}
