@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import {createTexturePainter} from './feouda-software-textures.js?v=2.1.0';
+import {createTexturePainter} from './feouda-software-textures.js?v=2.1.1';
 
 // A geometry renderer for browsers without a GPU context. It shares the live
 // scene, projection and raycast camera with WebGL; only the rasterizer changes.

@@ -11,3 +11,6 @@
 @media(max-width:780px){.selection-deck.placing{left:10px;right:10px;bottom:12px;transform:none;width:auto;min-height:143px;padding:11px;gap:8px}.placement-copy h3{font-size:17px}.placement-copy .eyebrow{font-size:6px!important;letter-spacing:.09em}.placement-status{font-size:9px}.placement-meta{font-size:7px}.placement-actions{grid-template-columns:1fr;max-width:108px;gap:4px}.placement-actions button{font-size:9px;min-height:29px;padding:4px 8px}.placement-copy .cost{gap:7px;font-size:8px}#game-shell[data-placing] .left-rail{display:none}#game-shell[data-placing] .minimap-wrap{bottom:172px;width:113px}#game-shell[data-placing] #minimap{height:73px}#game-shell[data-placing] .camera-controls{bottom:172px}#game-shell[data-placing] .command-hint{top:196px;max-width:calc(100% - 24px);font-size:9px;padding:8px 10px;gap:7px}#game-shell[data-placing] .toasts{top:238px}}
 
 .job-blocked{font-size:10px;line-height:1.55;color:#e7b992;padding:7px 9px;border-left:2px solid #b58354;background:#4d322829;margin:9px 0}.queue-job .job-blocked{font-size:9px;padding:5px 7px;margin:6px 0 0}
+
+/* A button owns its icon hit area throughout a pointer press. */
+button svg,button svg *{pointer-events:none}

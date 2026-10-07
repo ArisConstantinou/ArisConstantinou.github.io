@@ -1,13 +1,13 @@
-const CACHE='feouda-v2.1.0';
+const CACHE='feouda-v2.1.1';
 // Exact URLs match index.html and every native ES-module import. Runtime assets
 // are served locally, so a completed install is sufficient for offline play.
 const FILES=[
- './','./index.html','./app.js?v=2.1.0','./style.css?v=2.1.0',
- './feouda-engine.js?v=2.1.0','./feouda-data.js?v=2.1.0',
- './feouda-world.js?v=2.1.0','./feouda-models.js?v=2.1.0',
- './feouda-materials.js?v=2.1.0','./feouda-icons.js?v=2.1.0',
- './feouda-software.js?v=2.1.0','./feouda-software-textures.js?v=2.1.0',
- './feouda-assets.js?v=2.1.0',
+ './','./index.html','./app.js?v=2.1.1','./style.css?v=2.1.1',
+ './feouda-engine.js?v=2.1.1','./feouda-data.js?v=2.1.1',
+ './feouda-world.js?v=2.1.1','./feouda-models.js?v=2.1.1',
+ './feouda-materials.js?v=2.1.1','./feouda-icons.js?v=2.1.1',
+ './feouda-software.js?v=2.1.1','./feouda-software-textures.js?v=2.1.1',
+ './feouda-assets.js?v=2.1.1',
  './vendor/three.module.js','./vendor/THREE-LICENSE.txt',
  './vendor/GLTFLoader.js','./vendor/BufferGeometryUtils.js','./vendor/SkeletonUtils.js',
  './assets/models/manifest.json',
