@@ -6,6 +6,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: chronicle-human-assets
+  cancel-in-progress: true
 jobs:
   humans:
     runs-on: ubuntu-latest
@@ -21,15 +24,28 @@ jobs:
       - name: Download human modelling dependencies
         run: |
           mkdir -p /tmp/chronicle-assets out
-          python -m pip install bpy==4.3.0 requests pillow
+          python -m pip install numpy==1.26.4 bpy==4.3.0 requests pillow
           git clone --depth 1 https://github.com/makehumancommunity/mpfb2.git /tmp/chronicle-assets/mpfb2
           curl -fL --retry 2 --max-time 180 https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip -o /tmp/chronicle-assets/system.zip
           mkdir -p /tmp/chronicle-assets/system
           unzip -q /tmp/chronicle-assets/system.zip -d /tmp/chronicle-assets/system
-          find /tmp/chronicle-assets/system -name '*.mhclo' | head -30
       - name: Generate clothed people with skin, eyes, fingers and armatures
-        run: python Village/chronicle/tools/build_humans.py
+        run: |
+          python - <<'PY'
+          import bpy, runpy, os
+          original = bpy.utils.extension_path_user
+          def extension_path(package, *, path='', create=False):
+              if package == 'mpfb':
+                  folder=os.path.join('/tmp/chronicle-assets/mpfb-user',path)
+                  os.makedirs(folder,exist_ok=True)
+                  return folder
+              return original(package,path=path,create=create)
+          bpy.utils.extension_path_user=extension_path
+          runpy.run_path('Village/chronicle/tools/build_humans.py',run_name='__main__')
+          os._exit(0)
+          PY
       - name: Bundle an offline character-capable Three.js runtime
+        if: always()
         run: |
           mkdir -p /tmp/chronicle-assets/runtime
           cd /tmp/chronicle-assets/runtime
