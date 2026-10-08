@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.js';
+import {getHumanAttackPose} from './feouda-combat-motion.js';
 
 // Authored 0 A.D. performance data, retargeted offline to each human rig.
 // The compact bundle contains rotations, grounded root motion and palm grips;
@@ -42,7 +43,7 @@ export function createHumanAnimator(object,data,{variant=0,role='civilian',asset
  const sockets={};for(const[name,parentName]of [['Weapon','RightHand'],['Bow','LeftHand'],['Shield','LeftHand']]){const socket=new THREE.Group();socket.name='HumanGrip'+name;bone(parentName)?.add(socket);sockets[name.toLowerCase()]=socket;}
  const mixer=new THREE.AnimationMixer(object),actions=new Map(),weights=new Map(),seed=seedPhase(variant),footPoint=new THREE.Vector3(),local=new THREE.Vector3(),worldRotation=new THREE.Quaternion(),socketRotation=new THREE.Quaternion();
  const sourceScale=object.userData.normalized?.scale.x||1;
- let current='',lastTime=null,lastDistance=0,travel=0,previousWorld=null,gaitOffset=seed,previousStride=0,initialized=false,lastPoseTime=0,activeRole=role,lastWork=null,lastTool=null,lastAttackTime=null,lastAttackDuration=0,footLift=0,bowDraw=0;
+ let current='',lastTime=null,lastDistance=0,travel=0,previousWorld=null,gaitOffset=seed,previousStride=0,initialized=false,lastPoseTime=0,activeRole=role,lastWork=null,lastTool=null,lastAttackTime=null,lastAttackDuration=0,footLift=0,bowDraw=0,lastCombatCycle=null;
  object.userData.softwareDynamic=true;
  function actionFor(name){let action=actions.get(name);if(!action){const clip=data.clips.get(name)?.clip;if(!clip)return null;action=mixer.clipAction(clip);actions.set(name,action);}return action;}
  function play(name,time,weight){const action=actionFor(name);if(!action)return;action.enabled=true;action.paused=true;action.setLoop(THREE.LoopRepeat,Infinity);if(!action.isScheduled())action.play();action.time=clamp(time,0,data.clips.get(name).duration-1e-7);action.setEffectiveWeight(weight);weights.set(name,weight);}
@@ -50,7 +51,7 @@ export function createHumanAnimator(object,data,{variant=0,role='civilian',asset
  function grips(dt,instant=false){let left=.3,right=.3;if(activeRole==='archer'){left=1;right=current.includes('attack')?.68:.45;}else if(activeRole!=='civilian'){left=right=1;}else if(lastTool||lastWork){right=1;left=['wood','stone','iron','food'].includes(lastTool||lastWork)?.88:.4;}const amount=instant?1:1-Math.exp(-Math.max(0,dt)/.08);for(const skin of skins){skin.morphTargetInfluences[0]+=(left-skin.morphTargetInfluences[0])*amount;skin.morphTargetInfluences[1]+=(right-skin.morphTargetInfluences[1])*amount;}}
  function socketPose(name,position,quaternion){const node=sockets[({right:'weapon',left:'bow'})[name]||name]||bone(name);if(!node)return false;node.getWorldPosition(local);position.copy(object.worldToLocal(local));node.getWorldQuaternion(socketRotation);object.getWorldQuaternion(worldRotation);quaternion.copy(worldRotation.invert().multiply(socketRotation));return true;}
  function sample(name,time,{work=null,tool=work,grip=true}={}){const spec=data.clips.get(name);if(!spec)return false;mixer.stopAllAction();weights.clear();current=name;activeRole=spec.role==='rider'?'cavalry':spec.role;lastWork=work||spec.work;lastTool=tool;play(name,mod(time,spec.duration),1);lastPoseTime=mod(time,spec.duration);mixer.update(0);if(grip)grips(0,true);ground();return true;}
- function update({time=0,dt,phase,distance,speed=0,walking=false,attacking=false,work=null,tool=work,actionTime,actionDuration=1,mountPhase,role:nextRole=role}={}){
+ function update({time=0,dt,phase,distance,speed=0,walking=false,attacking=false,work=null,tool=work,actionTime,actionDuration=1,combatCycle=null,mountPhase,role:nextRole=role}={}){
   time=finite(time);const step=Math.max(0,finite(dt,lastTime===null?1/60:time-lastTime)),travelled=Number.isFinite(distance)?distance:null;
   if(initialized&&step===0&&lastTime===time&&(travelled===null||travelled===lastDistance)){object.updateMatrixWorld(true);return;}
   activeRole=nextRole;lastWork=work;lastTool=tool;lastAttackTime=Number.isFinite(actionTime)?actionTime:null;lastAttackDuration=Math.max(.1,finite(actionDuration,1));
@@ -58,14 +59,16 @@ export function createHumanAnimator(object,data,{variant=0,role='civilian',asset
   previousWorld={x:object.position.x,z:object.position.z};if(movement<Math.max(.75,step*18))travel+=movement;
   const actualSpeed=step>0?movement/step:finite(speed),moving=walking&&(actualSpeed>.035||!initialized&&speed>.035),prefix=activeRole==='cavalry'?'rider':activeRole==='civilian'?'':activeRole;
   const workName=work==='iron'?'stone':work;
-  const recovering=!moving&&current.includes('attack')&&lastAttackTime!==null&&lastAttackTime<lastAttackDuration*.25;
-  let next;if(moving){const running=actualSpeed>(current.includes('run')?2.3:2.65);next=prefix?(prefix+'_'+(running&&data.clips.has(prefix+'_run')?'run':'walk')):running?'jog':tool?(tool==='food'?'food_walk':'tool_walk'):'walk';}else if(attacking||recovering)next=(prefix||'sword')+'_attack'+(activeRole==='sword'&&variant%2?'_b':'');else if(workName&&data.clips.has(workName))next=workName;else next=prefix?prefix+'_idle':tool?(tool==='food'?'food_idle':'tool_idle'):'idle';
+  const attackName=(prefix||'sword')+'_attack'+(activeRole==='sword'&&variant%2?'_b':'');
+  const attackPose=!moving?getHumanAttackPose(data.clips.get(attackName),combatCycle,variant):null;
+  lastCombatCycle=attackPose?{id:attackPose.id,phase:attackPose.phase,phaseProgress:attackPose.phaseProgress,paused:attackPose.paused}:null;
+  let next;if(moving){const running=actualSpeed>(current.includes('run')?2.3:2.65);next=prefix?(prefix+'_'+(running&&data.clips.has(prefix+'_run')?'run':'walk')):running?'jog':tool?(tool==='food'?'food_walk':'tool_walk'):'walk';}else if(attackPose)next=attackName;else if(workName&&data.clips.has(workName))next=workName;else next=prefix?prefix+'_idle':tool?(tool==='food'?'food_idle':'tool_idle'):'idle';
   if(!data.clips.has(next))next='idle';const spec=data.clips.get(next);let sampleTime;
   if(moving){const stride=Math.max(.3,spec.stride*sourceScale);if(current!==next&&previousStride>0){const previousPhase=mod(travel/previousStride+gaitOffset,1);gaitOffset=previousPhase-travel/stride;}previousStride=stride;sampleTime=(activeRole==='cavalry'&&Number.isFinite(mountPhase)?mod(mountPhase,1):mod(travel/stride+gaitOffset,1))*spec.duration;}
-  else if(next.includes('attack')){sampleTime=Number.isFinite(actionTime)?mod((spec.impact||spec.duration*.4)+actionTime/lastAttackDuration*spec.duration,spec.duration):mod(time+seed*spec.duration,spec.duration);}
+  else if(attackPose&&next===attackName)sampleTime=attackPose.time;
   else sampleTime=mod(time*(.93+seed*.14)+seed*spec.duration,spec.duration);
   current=next;lastPoseTime=sampleTime;const blend=initialized?1-Math.exp(-step/.12):1;const all=new Set([...weights.keys(),next]);
-  for(const name of all){const before=weights.get(name)||0,weight=before+((name===next?1:0)-before)*blend;if(weight<.0005&&name!==next){actions.get(name)?.stop();weights.delete(name);continue;}const oldTime=actions.get(name)?.time||0;play(name,name===next?sampleTime:mod(oldTime+step,data.clips.get(name).duration),weight);}
+  for(const name of all){const before=weights.get(name)||0,weight=before+((name===next?1:0)-before)*blend;if(weight<.0005&&name!==next){actions.get(name)?.stop();weights.delete(name);continue;}const oldTime=actions.get(name)?.time||0,oldDuration=data.clips.get(name).duration;play(name,name===next?sampleTime:name.includes('attack')?Math.min(oldTime+step,oldDuration-1e-7):mod(oldTime+step,oldDuration),weight);}
   mixer.update(0);grips(step,!initialized);ground();const normalizedPhase=sampleTime/spec.duration,impact=(spec.impact||0)/spec.duration;
   bowDraw=activeRole==='archer'&&next.includes('attack')?clamp((normalizedPhase-(impact-.3))/.27,0,1)*(normalizedPhase<=impact?1:Math.max(0,1-(normalizedPhase-impact)/.035)):0;
   lastTime=time;initialized=true;
@@ -73,7 +76,7 @@ export function createHumanAnimator(object,data,{variant=0,role='civilian',asset
  sample(role==='civilian'?'idle':role==='cavalry'?'rider_idle':role+'_idle',seed*2);
  return{object,assetId,info:{...info,motionClips:data.clips.size},socketPose,poseClip:sample,
   socket(name,target){const b=bone(({left:'LeftHand',right:'RightHand',hips:'Hips',head:'Head',leftFoot:'LeftFoot',rightFoot:'RightFoot'})[name]||name);if(!b)return target.set(0,0,0);b.getWorldPosition(local);return target.copy(object.worldToLocal(local));},
-  update,motionState(){return{clip:current,time:lastPoseTime,phase:lastPoseTime/(data.clips.get(current)?.duration||1),blend:[...weights].map(([clip,weight])=>({clip,weight})),stride:previousStride,travel,work:lastWork,tool:lastTool,actionTime:lastAttackTime,actionDuration:lastAttackDuration,footLift,bowDraw,grips:skins[0]?.morphTargetInfluences.slice()||[],source:'0 A.D. authored clips, retargeted'};},
+  update,motionState(){return{clip:current,time:lastPoseTime,phase:lastPoseTime/(data.clips.get(current)?.duration||1),blend:[...weights].map(([clip,weight])=>({clip,weight})),stride:previousStride,travel,work:lastWork,tool:lastTool,actionTime:lastAttackTime,actionDuration:lastAttackDuration,combatCycle:lastCombatCycle?{...lastCombatCycle}:null,footLift,bowDraw,grips:skins[0]?.morphTargetInfluences.slice()||[],source:'0 A.D. authored clips, retargeted'};},
   dispose(){mixer.stopAllAction();mixer.uncacheRoot(object);object.removeFromParent();}
  };
 }

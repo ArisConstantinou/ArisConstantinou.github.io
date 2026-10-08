@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {clone as cloneSkeleton} from './vendor/SkeletonUtils.js';
-import {loadHumanMotion,installHumanMorphs,createHumanAnimator} from './feouda-human-motion.js?v=2.6.0';
+import {loadHumanMotion,installHumanMorphs,createHumanAnimator} from './feouda-human-motion.js?v=2.7.0';
 
 // Models and all of their textures are served from this game's own repository.
 // A failed optional download never prevents a saved campaign from opening.

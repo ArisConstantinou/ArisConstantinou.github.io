@@ -1,5 +1,5 @@
-import {FACTIONS, REGIONS, UNIT_TYPES} from './feouda-data.js?v=2.6.0';
-import {FORT_POLYGONS} from './feouda-engine.js?v=2.6.0';
+import {FACTIONS, REGIONS, UNIT_TYPES} from './feouda-data.js?v=2.7.0';
+import {FORT_POLYGONS} from './feouda-engine.js?v=2.7.0';
 
 // Presentation only: an order is the player's intent; activity is what the
 // simulation is doing now. Never invent a path, issue an order or predict an ETA.

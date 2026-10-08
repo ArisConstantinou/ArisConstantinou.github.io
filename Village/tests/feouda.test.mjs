@@ -234,6 +234,9 @@ test('melee attacks require marching into contact; issuing attack does not damag
 test('arrows have travel time and then damage the visible target',()=>{
   const {game,a,b}=duel('archer','spear');
   const hp=b.hp;game.step(.05);
+  assert.equal(game.state.effects.some(e=>e.type==='arrow'&&e.targetId===b.id),false);
+  assert.equal(b.hp,hp);assert.ok(a.attackCycle&&a.attackCycle.releasedAt===null);
+  advance(game,a.attackCycle.releaseAt-game.state.t+.001);
   assert.ok(game.state.effects.some(e=>e.type==='arrow'&&e.targetId===b.id));
   assert.equal(b.hp,hp);advance(game,.8);assert.ok(b.hp<hp);
 });

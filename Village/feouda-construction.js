@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import {box,cylinder,mergeStatic} from './feouda-models.js?v=2.6.0';
+import {box,cylinder,mergeStatic} from './feouda-models.js?v=2.7.0';
 
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const mix=(a,b,t)=>a+(b-a)*t;

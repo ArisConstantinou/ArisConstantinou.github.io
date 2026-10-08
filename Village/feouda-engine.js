@@ -1,4 +1,4 @@
-import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.6.0';
+import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.7.0';
 
 // Simulation uses world-space positions. Orders, arrows and siege stones travel
 // through the same world the player sees; elapsed wall-clock time never fights wars.
@@ -67,6 +67,51 @@ export const BUILDING_FOOTPRINTS=BUILD_FOOTPRINTS;
 export const UNIT_CLEARANCE=Object.freeze({spear:.8,sword:.8,archer:.8,cavalry:1.6,ram:4.8,trebuchet:4.8});
 export const CONSTRUCTION_CREW_CLEARANCE=.8;
 export const CONSTRUCTION_CREW_SPEED=2.4;
+// Animation follows these simulation-time phases. Cooldown is measured from
+// preparation to preparation, preserving each unit's steady attack rate.
+export const COMBAT_TIMING=Object.freeze(Object.fromEntries(Object.entries({
+  spear:{windup:.32,release:.18},sword:{windup:.38,release:.20},
+  archer:{windup:.50,release:.18},cavalry:{windup:.42,release:.20},
+  ram:{windup:.80,release:.30},trebuchet:{windup:1.50,release:.45}
+}).map(([type,timing])=>[type,Object.freeze(timing)])));
+function combatHostile(s,a,b) {
+  const faction=a==='player'?b:a,truce=['red','gold'].includes(faction)&&(s?.ai?.truce?.[faction]??0)>(s?.t??0);
+  return FACTION_KEYS.includes(a)&&FACTION_KEYS.includes(b)&&a!==b&&(a==='player'||b==='player'||a==='neutral'||b==='neutral')&&
+    (!(a==='player'||b==='player')||!truce);
+}
+function cycleTarget(s,cycle) {
+  return cycle?.targetKind==='region'?s?.regions?.[cycle.targetId]:Array.isArray(s?.squads)?s.squads.find(squad=>squad?.id===cycle?.targetId):null;
+}
+/** Detached, read-only phases of a real strike. There is no implied attack
+ * while marching, waiting for a target, or waiting out a cancelled cooldown. */
+export function getCombatCycle(s,squadOrId) {
+  const squad=typeof squadOrId==='string'?(Array.isArray(s?.squads)?s.squads.find(item=>item?.id===squadOrId):null):squadOrId;
+  const paused=!!(s?.paused||s?.outcome),cycle=squad?.attackCycle,t=s?.t;
+  const empty={id:null,phase:'idle',phaseProgress:0,progress:0,paused,remainingSeconds:0,secondsToRelease:0,
+    released:false,impacted:false,startedAt:null,releaseAt:null,endsAt:null,releasedAt:null,impactAt:null,
+    projectileId:null,target:null,aim:null};
+  if(!squad||!finite(squad.hp)||squad.hp<=0||!has(COMBAT_TIMING,squad.type)||!cycle||cycle.version!==1||typeof cycle.id!=='string'||!cycle.id.length||
+    !finite(t)||!finite(cycle.startedAt)||!finite(cycle.releaseAt)||!finite(cycle.endsAt)||
+    cycle.startedAt>t+EPS||cycle.releaseAt<=cycle.startedAt||cycle.endsAt<=cycle.releaseAt||t+EPS>=cycle.endsAt||
+    !finite(cycle.aim?.x)||!finite(cycle.aim?.z)||!['squad','region'].includes(cycle.targetKind)||typeof cycle.targetId!=='string'||
+    (cycle.releasedAt!==null&&(!finite(cycle.releasedAt)||cycle.releasedAt<cycle.releaseAt-EPS||cycle.releasedAt>t+EPS))||
+    (cycle.impactAt!==null&&(!finite(cycle.impactAt)||cycle.releasedAt===null||cycle.impactAt<cycle.releasedAt-EPS||cycle.impactAt>t+EPS)))return empty;
+  const target=cycleTarget(s,cycle),released=finite(cycle.releasedAt);
+  if(!released&&(!target||!combatHostile(s,squad.owner,target.owner)||(cycle.targetKind==='region'?target.fortHp:target.hp)<=0||
+    ['move','retreat'].includes(squad.order?.type)))return empty;
+  const releaseEnd=released?Math.min(cycle.endsAt,cycle.releasedAt+COMBAT_TIMING[squad.type].release):cycle.releaseAt;
+  const phase=!released?'windup':t<releaseEnd-EPS?'release':'recovery';
+  const phaseStart=phase==='windup'?cycle.startedAt:phase==='release'?cycle.releasedAt:releaseEnd;
+  const phaseEnd=phase==='windup'?cycle.releaseAt:phase==='release'?releaseEnd:cycle.endsAt;
+  const meta=cycle.targetKind==='region'?REGION_BY_ID[cycle.targetId]:null;
+  return {id:cycle.id,phase,phaseProgress:clamp((t-phaseStart)/Math.max(EPS,phaseEnd-phaseStart),0,1),
+    progress:clamp((t-cycle.startedAt)/(cycle.endsAt-cycle.startedAt),0,1),paused,
+    remainingSeconds:Math.max(0,cycle.endsAt-t),secondsToRelease:released?0:Math.max(0,cycle.releaseAt-t),
+    released,impacted:finite(cycle.impactAt),startedAt:cycle.startedAt,releaseAt:cycle.releaseAt,endsAt:cycle.endsAt,
+    releasedAt:released?cycle.releasedAt:null,impactAt:finite(cycle.impactAt)?cycle.impactAt:null,projectileId:cycle.projectileId??null,
+    target:{kind:cycle.targetKind,id:cycle.targetId,name:meta?.name||(target&&UNIT_TYPES[target.type]?.name)||'Απόσπασμα',
+      owner:target?.owner??null,x:target?.x??meta?.x??cycle.aim.x,z:target?.z??meta?.z??cycle.aim.z},aim:{...cycle.aim}};
+}
 const CONSTRUCTION_STAGES=['foundation','walls','roof','finish'];
 const CONSTRUCTION_STAGE_TITLES={
   default:['Θεμέλια','Τοιχοποιία','Στέγη και δάπεδα','Τελειώματα'],
@@ -460,8 +505,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   const unitCount = owner => state.squads.filter(s=>s.owner===owner && s.hp>0).length;
   const techLevel = (type,owner='player') => owner==='player' ? (state.techs[type]||0) : 0;
   const isTruce = faction => ['red','gold'].includes(faction) && state.ai.truce[faction] > state.t;
-  const hostile = (a,b) => a!==b && (a==='player' || b==='player' || a==='neutral' || b==='neutral') &&
-    (!(a==='player'||b==='player') || !isTruce(a==='player'?b:a));
+  const hostile = (a,b) => combatHostile(state,a,b);
   const notify = () => {dirty=false; for (const fn of [...listeners]) {try {fn(state);} catch { /* UI listeners cannot stop a battle. */ }} };
   function log(type,title,text='') {
     state.log.unshift({id:uid('log'),t:state.t,type,title,text});
@@ -586,10 +630,10 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     }
     return smooth;
   }
-  function fortAim(r,s) {
+  function fortAim(r,s,navigationState=state) {
     let best=null,distance=Infinity;
     for(const shape of FORT_SOLIDS[r.id]) {
-      if(!['wall','gate','tower'].includes(shape.part))continue;
+      if(!['wall','gate','tower'].includes(shape.part)||navigationState.regions[r.id].fortHp/navigationState.regions[r.id].maxFortHp<=shape.minRatio)continue;
       let p;
       if(shape.radius!==undefined) {
         const dx=s.x-shape.x,dz=s.z-shape.z,d=Math.hypot(dx,dz)||1;
@@ -753,7 +797,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     const hp=def.hp*(1+techLevel('steel',owner)*.05);
     const s={id:uid('squad'),owner,type,x:p.x,z:p.z,hp,maxHp:hp,men:def.men,
       order:{type:'hold',x:p.x,z:p.z},stance:owner==='player'?'defensive':'aggressive',formation:'line',attackClock:.25+index*.18,lastAttack:-1000,
-      path:[],heading:owner==='player'?Math.PI/2:-Math.PI/2,activity:'idle',engagedId:null,
+      path:[],heading:owner==='player'?Math.PI/2:-Math.PI/2,activity:'idle',engagedId:null,attackCycle:null,
       anchor:{...p},repathAt:0,charge:0,lastDamage:-1000,homeRegion:regionId};
     state.squads.push(s);dirty=true;return s;
   }
@@ -983,7 +1027,9 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     }
     return {ok:true,prepared};
   }
+  function cancelAttack(s) {s.attackCycle=null;}
   function issueOrder(s,type,{point,region,target,path}={}) {
+    cancelAttack(s);
     s.order={type,...(region?{regionId:region.id,targetId:region.id}:{}),...(target?{targetId:target.id}:{}),...(point?{x:point.x,z:point.z}:{})};
     s.path=path||[];s.engagedId=null;s.repathAt=state.t+.7;s.activity=s.path.length?'march':'idle';
     if(type==='hold')s.anchor=point?{...point}:{x:s.x,z:s.z};
@@ -1037,7 +1083,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       for(const s of v.squads)s.formation=payload.formation;
       message=`Ο σχηματισμός άλλαξε σε ${payload.formation==='line'?'γραμμή':payload.formation==='column'?'φάλαγγα':'σφήνα'}.`;
     } else if(action==='stance') {
-      for(const s of v.squads){s.stance=payload.stance;s.anchor={x:s.x,z:s.z};s.engagedId=null;}
+      for(const s of v.squads){s.stance=payload.stance;s.anchor={x:s.x,z:s.z};s.engagedId=null;cancelAttack(s);}
       message=payload.stance==='aggressive'?'Τα αποσπάσματα θα εμπλέκονται και θα καταδιώκουν κοντινούς εχθρούς.':'Τα αποσπάσματα θα κρατούν κοντά την αμυντική τους θέση.';
     } else if(action==='trade') {
       if(payload.type==='buy'){state.resources.money-=v.price;state.resources[payload.resource]+=payload.amount;}
@@ -1056,6 +1102,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
           else {const home=homeFor(s.owner,s),point=home&&nearestGround(gatePoint(home),s);issueOrder(s,'retreat',{point,region:home,path:point?findPath(s,point,s)||[]:[]});}
         }
         s.engagedId=null;
+        if(s.attackCycle&&s.attackCycle.releasedAt===null&&!hostile(s.owner,cycleTarget(state,s.attackCycle)?.owner))cancelAttack(s);
       }
       message=`Ανακωχή 3 λεπτών · ${FACTIONS[payload.faction].shortName}. Δική σου επίθεση την ακυρώνει.`;
       log('diplomacy','Υπογράφηκε ανακωχή',message);
@@ -1084,36 +1131,39 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       }
     }
   }
-  function applyUnitDamage(target,amount,owner) {
-    if(!target||target.hp<=0||!hostile(owner,target.owner))return;
+  function applyUnitDamage(target,amount,owner,impact={}) {
+    if(!target||target.hp<=0||!hostile(owner,target.owner))return false;
     const before=target.men;
     target.hp=Math.max(0,target.hp-amount);target.men=target.hp>0?Math.max(1,Math.ceil(UNIT_TYPES[target.type].men*target.hp/target.maxHp)):0;
     target.lastDamage=state.t;
     if(target.owner==='player')state.stats.casualties+=before-target.men;
     else if(owner==='player')state.stats.enemyCasualties+=before-target.men;
-    effect('hit',target.x,target.z,undefined,undefined,{life:.42,owner,intensity:amount});
+    effect('hit',target.x,target.z,undefined,undefined,{life:.42,owner,intensity:amount,...impact,targetKind:'squad',targetId:target.id,impact:{x:target.x,z:target.z}});
     if(target.hp<=0) {
       if(target.owner==='player'){state.stats.lost++;log('loss','Χάθηκε απόσπασμα',UNIT_TYPES[target.type].name);}
       else if(owner==='player'){state.stats.kills++;dirty=true;}
-      target.activity='fallen';target.path=[];
+      target.activity='fallen';target.path=[];cancelAttack(target);
     }
+    return true;
   }
-  function applyFortDamage(regionId,amount,owner) {
+  function applyFortDamage(regionId,amount,owner,impact={}) {
     const r=state.regions[regionId];
-    if(!r||r.fortHp<=0||!hostile(owner,r.owner))return;
+    if(!r||r.fortHp<=0||!hostile(owner,r.owner))return false;
     const before=r.fortHp;r.fortHp=Math.max(0,r.fortHp-amount);r.lastAttack=state.t;
     if(r.fortHp===0&&before>0) {
       r.breached=true;dirty=true;
       if(owner==='player')state.stats.breached++;
       log(r.owner==='player'?'warning':'siege',`Ρήγμα στα τείχη · ${REGION_BY_ID[regionId].name}`,'Τα τείχη έπεσαν. Πεζικό πρέπει να κρατήσει την πύλη για να καταλάβει την περιοχή.');
-      const p=gatePoint(REGION_BY_ID[regionId]);effect('hit',p.x,p.z,undefined,undefined,{life:2.4,intensity:220,owner});
+      const [a,b]=[FORT_POLYGONS[regionId][2],FORT_POLYGONS[regionId][3]],p={x:(a.x+b.x)/2,z:(a.z+b.z)/2};
+      effect('hit',p.x,p.z,undefined,undefined,{life:2.4,intensity:220,owner,...impact,targetKind:'region',targetId:regionId,breach:true,impact:{...p}});
     }
+    return true;
   }
   function rangeFor(s) {return UNIT_TYPES[s.type].range;}
   // Arrows can clear a wall; a blade or spear cannot strike through a house.
-  function contactClear(s,target) {
+  function contactClear(s,target,navigationState=state) {
     const def=UNIT_TYPES[s.type];
-    return def.role==='ranged'||s.type==='trebuchet'||isWorldSegmentWalkable(state,s,target,.12);
+    return def.role==='ranged'||s.type==='trebuchet'||isWorldSegmentWalkable(navigationState,s,target,.12);
   }
   function damageFor(s,target,structure=false) {
     const def=UNIT_TYPES[s.type];
@@ -1137,21 +1187,58 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     if(s.type==='trebuchet'&&dist(s,target)<15)amount*=.28;
     return Math.max(2,amount-armor);
   }
-  function launchAttack(s,target,isFort=false) {
-    if(s.attackClock>EPS)return;
-    const def=UNIT_TYPES[s.type],r=isFort?REGION_BY_ID[target.id]:null,aim=isFort?fortAim(r,s):target;
-    if(dist(s,aim)>rangeFor(s)+.45||(!isFort&&!contactClear(s,target)))return;
-    s.activity='attack';s.attackClock=def.cooldown;s.lastAttack=state.t;s.heading=Math.atan2(aim.x-s.x,aim.z-s.z);
-    const amount=damageFor(s,target,isFort);
-    if(def.role==='ranged'||s.type==='trebuchet') {
-      effect(s.type==='trebuchet'?'stone':'arrow',s.x,s.z,aim.x,aim.z,{
-        life:clamp(dist(s,aim)/(s.type==='trebuchet'?31:65),.23,2.4),owner:s.owner,
-        damage:amount,targetId:target.id,targetKind:isFort?'region':'squad',sourceId:s.id
-      });
-    } else {
-      if(isFort){applyFortDamage(target.id,amount,s.owner);effect('hit',aim.x,aim.z,undefined,undefined,{life:.5,owner:s.owner,intensity:amount});}
-      else applyUnitDamage(target,amount,s.owner);
+  function strikeAim(s,target,isFort=false,navigationState=state) {
+    if(!target||s.hp<=0||!combatHostile(navigationState,s.owner,target.owner)||(isFort?target.fortHp:target.hp)<=0)return null;
+    const aim=isFort?fortAim(REGION_BY_ID[target.id],s,navigationState):{x:target.x,z:target.z};
+    if(dist(s,aim)>rangeFor(s)+.45)return null;
+    const def=UNIT_TYPES[s.type];
+    if(def.role!=='ranged'&&s.type!=='trebuchet') {
+      if(!isFort&&!contactClear(s,target,navigationState))return null;
+      if(isFort) {
+        // Stop just outside the struck surface. The weapon can touch its wall,
+        // but cannot pass another wall, building, river or newly placed site.
+        const length=dist(s,aim),offset=Math.min(.22,length);
+        const contact=length?{x:aim.x+(s.x-aim.x)*offset/length,z:aim.z+(s.z-aim.z)*offset/length}:aim;
+        if(!isWorldSegmentWalkable(navigationState,s,contact,.12))return null;
+      }
     }
+    return {x:aim.x,z:aim.z};
+  }
+  function launchAttack(s,target,isFort=false) {
+    const aim=strikeAim(s,target,isFort),kind=isFort?'region':'squad',def=UNIT_TYPES[s.type];
+    if(!aim){cancelAttack(s);return false;}
+    if(s.attackCycle&&(s.attackCycle.targetId!==target.id||s.attackCycle.targetKind!==kind))cancelAttack(s);
+    if(!s.attackCycle) {
+      if(s.attackClock>EPS)return false;
+      s.attackCycle={version:1,id:uid('attack'),targetId:target.id,targetKind:kind,
+        startedAt:state.t,releaseAt:state.t+COMBAT_TIMING[s.type].windup,endsAt:state.t+def.cooldown,
+        releasedAt:null,impactAt:null,projectileId:null,aim};
+      s.attackClock=def.cooldown;
+    }
+    const cycle=s.attackCycle;
+    s.activity=isFort?'siege':'attack';s.heading=Math.atan2(aim.x-s.x,aim.z-s.z);
+    if(cycle.releasedAt!==null)return true;
+    cycle.aim=aim;
+    if(state.t+EPS<cycle.releaseAt)return true;
+    // The release flag is written before damage/effects. No renderer, repeated
+    // substep, save round trip or changed order can release this strike twice.
+    cycle.releasedAt=state.t;s.lastAttack=state.t;
+    const amount=damageFor(s,target,isFort),metadata={sourceId:s.id,sourceType:s.type,attackId:cycle.id};
+    if(def.role==='ranged'||s.type==='trebuchet') {
+      const projectile=effect(s.type==='trebuchet'?'stone':'arrow',s.x,s.z,aim.x,aim.z,{
+        life:clamp(dist(s,aim)/(s.type==='trebuchet'?31:65),.23,2.4),owner:s.owner,
+        damage:amount,targetId:target.id,targetKind:kind,...metadata
+      });
+      cycle.projectileId=projectile.id;
+    } else {
+      const hit=isFort?applyFortDamage(target.id,amount,s.owner,metadata):applyUnitDamage(target,amount,s.owner,metadata);
+      if(hit) {
+        cycle.impactAt=state.t;
+        if(isFort)effect('hit',aim.x,aim.z,undefined,undefined,{life:.5,owner:s.owner,intensity:amount,
+          ...metadata,targetKind:kind,targetId:target.id,impact:{...aim}});
+      }
+    }
+    return true;
   }
   function updateEffects(dt) {
     const impacts=[];
@@ -1165,12 +1252,18 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     }
     state.effects=state.effects.filter(e=>e.age<e.life);
     for(const e of impacts) {
-      if(e.targetKind==='region')applyFortDamage(e.targetId,e.damage,e.owner);
-      else applyUnitDamage(state.squads.find(s=>s.id===e.targetId),e.damage,e.owner);
-      if(e.type==='stone')effect('hit',e.tx,e.tz,undefined,undefined,{life:1.1,owner:e.owner,intensity:e.damage});
+      const metadata={sourceId:e.sourceId,sourceType:e.sourceType,attackId:e.attackId};
+      const hit=e.targetKind==='region'?applyFortDamage(e.targetId,e.damage,e.owner,metadata):
+        applyUnitDamage(state.squads.find(s=>s.id===e.targetId),e.damage,e.owner,metadata);
+      if(!hit)continue;
+      const cycle=state.squads.find(s=>s.id===e.sourceId)?.attackCycle;
+      if(cycle&&e.attackId&&cycle.id===e.attackId&&cycle.projectileId===e.id)cycle.impactAt=state.t;
+      if(e.targetKind==='region')effect('hit',e.tx,e.tz,undefined,undefined,{life:e.type==='stone'?1.1:.42,owner:e.owner,intensity:e.damage,
+        ...metadata,targetKind:'region',targetId:e.targetId,impact:{x:e.tx,z:e.tz}});
     }
   }
   function moveAlong(s,dt) {
+    cancelAttack(s);
     if(!s.path?.length){s.activity='idle';return false;}
     const def=UNIT_TYPES[s.type];
     let speed=def.speed*(s.formation==='column'?1.15:s.formation==='wedge'?1.03:1);
@@ -1211,14 +1304,16 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   function engage(s,target,dt,mayChase=true) {
     s.engagedId=target.id;
     if(dist(s,target)<=rangeFor(s)+.4&&contactClear(s,target)){s.path=[];s.activity='attack';s.heading=Math.atan2(target.x-s.x,target.z-s.z);launchAttack(s,target);return true;}
+    cancelAttack(s);
     if(mayChase){chase(s,target);moveAlong(s,dt);return true;}
-    return false;
+    s.activity='idle';return false;
   }
   function updateSquads(dt) {
     for(const s of state.squads) {
       if(s.hp<=0)continue;
       const previousEngagement=s.engagedId;
       s.attackClock=Math.max(0,(s.attackClock||0)-dt);s.engagedId=null;
+      if(s.attackCycle&&state.t+EPS>=s.attackCycle.endsAt)cancelAttack(s);
       const order=s.order,def=UNIT_TYPES[s.type];
       if(order.type==='attackMove') {
         const enemy=enemyNear(s,def.role==='siege'?Math.min(def.range,12):Math.min(def.range+8,38));
@@ -1252,15 +1347,16 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         if(immediate&&(def.role!=='siege'||dist(s,immediate)<7)){engage(s,immediate,dt,true);continue;}
         if(control.fortHp>0) {
           const aim=fortAim(r,s);
-          if(dist(s,aim)<=def.range+.4){s.activity='siege';launchAttack(s,control,true);}
+          if(dist(s,aim)<=def.range+.4){s.activity='siege';s.path=[];if(!strikeAim(s,control,true)){cancelAttack(s);s.activity='blocked';}else launchAttack(s,control,true);}
           else {const p=standOff(r,s,def.range);if(p)chase(s,p);moveAlong(s,dt);}
         } else if(infantry(s)) {
+          cancelAttack(s);
           const gate=gatePoint(r);
           if(dist(s,gate)>10){chase(s,gate);moveAlong(s,dt);}
           else{s.activity='capture';s.path=[];}
         } else {
           const enemy=enemyNear(s,def.range+14);
-          if(enemy)engage(s,enemy,dt,s.stance==='aggressive');else{s.activity='guard';s.path=[];}
+          if(enemy)engage(s,enemy,dt,s.stance==='aggressive');else{cancelAttack(s);s.activity='guard';s.path=[];}
         }
         continue;
       }
@@ -1269,7 +1365,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         const enemy=enemyNear(s,def.range+(s.stance==='aggressive'?25:7),anchor,def.range+leash);
         if(enemy)engage(s,enemy,dt,dist(s,anchor)<leash);
         else {
-          s.activity='idle';
+          cancelAttack(s);s.activity='idle';
           if(dist(s,anchor)>5){chase(s,anchor);moveAlong(s,dt);}
         }
       }
@@ -1287,6 +1383,10 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         if(squadWalkable(b,pb)&&clearSegment(b,pb,b)){b.x=pb.x;b.z=pb.z;}
       }
     }
+    // A later squad's strike or crowd separation can invalidate preparation in
+    // this same tick. Clear it now so saves/UI never retain a pending ghost hit.
+    for(const s of state.squads)if(s.attackCycle&&s.attackCycle.releasedAt===null&&
+      !strikeAim(s,cycleTarget(state,s.attackCycle),s.attackCycle.targetKind==='region'))cancelAttack(s);
     state.squads=state.squads.filter(s=>s.hp>0);
   }
   function updateFortresses(dt) {
@@ -1302,7 +1402,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         if(target) {
           const aim=fortAim(meta,target),damage=(meta.kind==='castle'?24:meta.kind==='town'?14:16)*(1+(r.buildings.walls||0)*.13)*(1+.1*techLevel('masonry',r.owner));
           const armor=UNIT_TYPES[target.type].armor;
-          effect('arrow',aim.x,aim.z,target.x,target.z,{life:clamp(near/64,.25,1.1),owner:r.owner,damage:Math.max(3,damage-armor*.7),targetId:target.id,targetKind:'squad',sourceId:r.id});
+          effect('arrow',aim.x,aim.z,target.x,target.z,{life:clamp(near/64,.25,1.1),owner:r.owner,damage:Math.max(3,damage-armor*.7),targetId:target.id,targetKind:'squad',sourceId:r.id,sourceType:'fortress'});
           r.attackClock=meta.kind==='castle'?2.5:3.25;r.lastAttack=state.t;
         }
       }
@@ -1591,6 +1691,52 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     const reserved=s.nodes.reduce((sum,node)=>sum+node.workers,0)+s.jobs.reduce((sum,job)=>sum+job.workers,0)+s.returningCrews.length;
     if(reserved>Math.floor(s.population*.5))throw new Error('Οι αναθέσεις και οι επιστροφές ξεπερνούν τους διαθέσιμους εργάτες.');
   }
+  function validateAttackCycles(s) {
+    const ids=new Set([...s.squads,...s.jobs,...s.structures].map(item=>item.id));
+    const safeId=value=>typeof value==='string'&&value.length>0&&value.length<=80&&!['__proto__','constructor','prototype'].includes(value);
+    const projectiles=new Map();
+    for(const effect of s.effects) {
+      if(effect.attackId===undefined)continue; // Existing saves have unlinked arrows.
+      if(!safeId(effect.attackId)||!safeId(effect.id)||!safeId(effect.sourceId)||!has(UNIT_TYPES,effect.sourceType)||
+        !safeId(effect.targetId)||!['region','squad'].includes(effect.targetKind)||
+        (effect.targetKind==='region'&&!has(REGION_BY_ID,effect.targetId))||
+        (effect.type==='hit'&&(!finite(effect.impact?.x)||!finite(effect.impact?.z))))throw new Error('Το αρχείο έχει μη έγκυρο συμβάν επίθεσης.');
+      if(!effect.damage)continue;
+      if(!['arrow','stone'].includes(effect.type)||effect.age>=effect.life||projectiles.has(effect.attackId))throw new Error('Το αρχείο περιέχει επαναλαμβανόμενο βλήμα επίθεσης.');
+      projectiles.set(effect.attackId,effect);
+    }
+    for(const squad of s.squads) {
+      if(squad.attackCycle===undefined){squad.attackCycle=null;continue;}
+      const cycle=squad.attackCycle;if(cycle===null)continue;
+      const timing=COMBAT_TIMING[squad.type],duration=UNIT_TYPES[squad.type].cooldown,projectile=UNIT_TYPES[squad.type].role==='ranged'||squad.type==='trebuchet';
+      if(!cycle||cycle.version!==1||!safeId(cycle.id)||ids.has(cycle.id)||!safeId(cycle.targetId)||
+        !['squad','region'].includes(cycle.targetKind)||(cycle.targetKind==='region'&&!has(REGION_BY_ID,cycle.targetId))||
+        !finite(cycle.startedAt)||cycle.startedAt<0||cycle.startedAt>s.t+EPS||!finite(cycle.releaseAt)||!finite(cycle.endsAt)||
+        Math.abs(cycle.releaseAt-cycle.startedAt-timing.windup)>1e-6||Math.abs(cycle.endsAt-cycle.startedAt-duration)>1e-6||
+        !finite(cycle.aim?.x)||!finite(cycle.aim?.z)||!inBounds(cycle.aim)||
+        (cycle.releasedAt!==null&&(!finite(cycle.releasedAt)||cycle.releasedAt<cycle.releaseAt-EPS||cycle.releasedAt>s.t+EPS||cycle.releasedAt>=cycle.endsAt))||
+        (cycle.impactAt!==null&&(!finite(cycle.impactAt)||cycle.releasedAt===null||cycle.impactAt<cycle.releasedAt-EPS||cycle.impactAt>s.t+EPS))||
+        (cycle.projectileId!==null&&!safeId(cycle.projectileId)))throw new Error('Το αρχείο έχει μη έγκυρο κύκλο επίθεσης.');
+      ids.add(cycle.id);
+      if(cycle.releasedAt===null) {
+        if(cycle.impactAt!==null||cycle.projectileId!==null||projectiles.has(cycle.id))throw new Error('Η επίθεση δεν μπορεί να χτυπήσει πριν από την εκτέλεσή της.');
+      } else if(projectile) {
+        if(cycle.projectileId===null)throw new Error('Η εκτελεσμένη βολή δεν έχει ταυτότητα βλήματος.');
+        const effect=projectiles.get(cycle.id);
+        if(effect&&(effect.id!==cycle.projectileId||effect.sourceId!==squad.id||effect.sourceType!==squad.type||
+          effect.targetId!==cycle.targetId||effect.targetKind!==cycle.targetKind||effect.owner!==squad.owner||cycle.impactAt!==null))throw new Error('Το βλήμα δεν αντιστοιχεί στην επίθεσή του.');
+      } else if(cycle.projectileId!==null||cycle.impactAt!==cycle.releasedAt||projectiles.has(cycle.id))throw new Error('Το χτύπημα επαφής δεν αντιστοιχεί στην επίθεσή του.');
+      if(cycle.endsAt<=s.t+EPS){squad.attackCycle=null;continue;}
+      if(Math.abs(squad.attackClock-Math.max(0,cycle.endsAt-s.t))>1e-5)throw new Error('Ο χρόνος επαναφοράς της επίθεσης δεν είναι έγκυρος.');
+      // A target may die or change allegiance after this squad's last update.
+      // Cancel stale preparation on the candidate; never create replacement fire.
+      const target=cycleTarget(s,cycle),orderedId=squad.order.regionId||squad.order.targetId;
+      const mismatchedOrder=['attack','capture'].includes(squad.order.type)&&orderedId!==cycle.targetId&&
+        (cycle.targetKind==='region'||!has(REGION_BY_ID,orderedId));
+      if(cycle.releasedAt===null&&(['move','retreat'].includes(squad.order.type)||mismatchedOrder||
+        !strikeAim(squad,target,cycle.targetKind==='region',s)))squad.attackCycle=null;
+    }
+  }
   function validateSave(text) {
     if(typeof text!=='string'||text.length>2500000)throw new Error('Το αρχείο εκστρατείας δεν έχει έγκυρο μέγεθος.');
     let envelope;try{envelope=JSON.parse(text);}catch{throw new Error('Το αρχείο δεν περιέχει έγκυρη αποθηκευμένη εκστρατεία.');}
@@ -1658,6 +1804,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     s.day=Math.floor(s.t/600)+1;s.lastHungerNotice=finite(s.lastHungerNotice)?s.lastHungerNotice:-1000;s.lastWageNotice=finite(s.lastWageNotice)?s.lastWageNotice:-1000;
     validateStructures(s);
     validateConstructionCrews(s);
+    validateAttackCycles(s);
     return s;
   }
   function exportSave() {
@@ -1705,7 +1852,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       if(!walkable(squad,squad)) {
         const safe=nearestGround(squad,squad);
         if(safe){squad.x=safe.x;squad.z=safe.z;}
-        squad.path=[];squad.repathAt=0;
+        cancelAttack(squad);squad.path=[];squad.repathAt=0;
       }
       if(!walkable(squad.anchor,squad))squad.anchor=nearestGround(squad.anchor,squad)||{x:squad.x,z:squad.z};
       if(['move','retreat','hold'].includes(squad.order.type)&&finite(squad.order.x)&&!walkable(squad.order,squad)) {

@@ -314,6 +314,151 @@ if(globalThis.__qa){
   assert(dock.querySelector('.army-order-caption').dataset.orderStatus==='blocked'&&row.textContent.includes('εμπόδιο'),'explicit blocked state is hidden');assert(!dock.querySelector('.army-route-distance'),'blocked army has a fake route distance');
   callbacks.onBoxSelect([squad.id,own[1].id],{});dock=document.querySelector('#selection-deck');assert(dock.querySelector('.army-order-caption').dataset.orderStatus==='mixed','mixed blocked/holding selection is flattened into one misleading order');assert(dock.textContent.includes('με εμπόδιο')&&dock.textContent.includes('κρατούν θέση'),'mixed activity counts missing');
  });
+
+ // 2.7 siege guidance is exercised through the real app event dispatcher and
+ // engine. Camera rendering remains mocked; inspection must never issue orders.
+ const {getSiegeReadout}=await import('file://'+root+'feouda-siege.js');
+ const {UNIT_TYPES}=await import('file://'+root+'feouda-data.js');
+ const siegePanel=()=>document.querySelector('#panel-body .siege-guide');
+ const ownArmy=()=>game.state.squads.filter(unit=>unit.owner==='player'&&unit.hp>0);
+ const militarySnapshot=()=>JSON.stringify({t:game.state.t,resources:game.state.resources,jobs:game.state.jobs,regions:game.state.regions,
+  squads:game.state.squads.map(({id,hp,x,z,owner,order,path,anchor,attackCycle})=>({id,hp,x,z,owner,order,path,anchor,attackCycle}))});
+ const inspectFort=async id=>{callbacks.onSelect({kind:'region',id},{});await panel('realm');assert(siegePanel(),'fortress guide is absent');};
+ const selectedOnly=(actual,expected)=>assert(JSON.stringify([...actual].sort())===JSON.stringify([...expected].sort()),'command or selection includes unintended squads',JSON.stringify({actual,expected}));
+
+ await check('Enemy fortress has three illustrated stages and positive HP never pretends the fort is breached',async()=>{
+  fresh();const before=militarySnapshot(),count=calls.length;await inspectFort('firwood');await click('#selection-deck '+action('siege-inspect','firwood'));
+  let guide=siegePanel();assert(guide.dataset.siegeStage==='breach','initial siege stage is wrong');assert(guide.querySelectorAll('.siege-steps > li').length===3,'missing three-stage plan');
+  assert(guide.querySelectorAll('.siege-step-icon svg').length===3,'stage icons are absent');for(const title of ['Ρίξε τα τείχη','Καθάρισε την πύλη','Κράτησε και κατάλαβε'])assert(guide.textContent.includes(title),'missing stage '+title);
+  assert(guide.querySelectorAll('[aria-current="step"]').length===1,'current stage is ambiguous');assert(guide.querySelector('[data-capture-block="fortified"]'),'0 HP capture requirement absent');
+  assert(guide.querySelector(action('siege-order','breach')).disabled,'unselected army can attack');assert(!guide.querySelector(action('siege-order','capture')),'capture action offered before a breach');
+  assert(calls.length===count&&militarySnapshot()===before,'inspection changed the campaign');
+  game.state.regions.firwood.fortHp=.4;render(true);guide=siegePanel();assert(guide.dataset.siegeStage==='breach'&&guide.querySelector('[data-capture-block="fortified"]'),'a physically open gate claims full breach');
+  assert(guide.querySelector('.siege-health strong').textContent.trim().startsWith('1'),'positive fortress HP rounds down to a misleading zero');
+ });
+
+ await check('Machine and infantry selectors choose living suitable troops and focus without spending or ordering',async()=>{
+  fresh();const foot=ownArmy().filter(unit=>UNIT_TYPES[unit.type].role==='infantry'),ram=ownArmy().find(unit=>unit.type==='ram');foot.at(-1).hp=0;
+  const deadRam={...structuredClone(ram),id:'qa-dead-ram',hp:0,men:0};game.state.squads.push(deadRam);
+  await inspectFort('firwood');const before=militarySnapshot(),count=calls.length;
+  await click('#panel-body '+action('siege-select','siege'));selectedOnly(view.armyIds,[ram.id]);assert(view.panel==='realm'&&view.regionId==='firwood'&&view.panelOpen,'selecting engines loses fort context');
+  let focus=worldCalls.filter(call=>call[0]==='focus').at(-1)?.[1];assert(focus.x===ram.x&&focus.z===ram.z,'engine selection focuses an invented position');
+  await click('#panel-body '+action('siege-select','infantry'));selectedOnly(view.armyIds,foot.filter(unit=>unit.hp>0).map(unit=>unit.id));
+  assert(calls.length===count&&militarySnapshot()===before,'force selection spent resources, advanced time or issued orders');
+  await click(action('army-command','move'));await panel('realm');assert(view.command==='move','fixture lost pending target mode');await click('#panel-body '+action('siege-select','siege'));
+  assert(view.command===null&&!view.placement,'force selection retains old targeting');assert(calls.length===count&&militarySnapshot()===before,'clearing old target mode executed it');
+ });
+
+ await check('Siege force selection clears a stale construction preview without placing or spending',async()=>{
+  fresh();await panel('build');await click(action('build','houses'));assert(view.placement,'preview fixture missing');
+  // Model the same retained-preview state that a resource jump may leave while
+  // exposing a different contextual menu. The next actual click is the picker.
+  Object.assign(view,{panel:'realm',panelOpen:true,regionId:'firwood',selection:{kind:'region',id:'firwood'}});render(true);
+  const before=militarySnapshot(),count=calls.length;await click('#panel-body '+action('siege-select','siege'));
+  assert(!view.placement&&!view.command,'picker kept the construction ghost');assert(worldCalls.filter(call=>call[0]==='clearPlacement').length>0,'renderer was not told to clear preview');
+  assert(calls.length===count&&militarySnapshot()===before,'picker confirmed or changed a construction project');
+ });
+
+ await check('Gate focus uses the shared physical gate and keeps orders, selection and resources unchanged',async()=>{
+  fresh();await inspectFort('firwood');await click('#panel-body '+action('siege-select','infantry'));const selected=[...view.armyIds],before=militarySnapshot(),count=calls.length;
+  await click(action('army-command','move'));await panel('realm');await click('#panel-body '+action('siege-focus-gate','firwood'));
+  const gate=game.getNavigation().fortGate('firwood'),focus=worldCalls.filter(call=>call[0]==='focus').at(-1)?.[1];
+  assert(focus.x===gate.x&&focus.z===gate.z,'camera focuses fortress centre instead of its real gate');selectedOnly(view.armyIds,selected);assert(view.command===null,'gate focus kept pending movement');
+  assert(calls.length===count&&militarySnapshot()===before,'gate inspection changed military orders or resources');
+ });
+
+ await check('Explicit breach sends only currently selected siege engines and leaves every other squad alone',async()=>{
+  fresh();const own=ownArmy(),ram=own.find(unit=>unit.type==='ram'),archer=own.find(unit=>unit.type==='archer'),foot=own.find(unit=>unit.type==='spear');
+  callbacks.onBoxSelect([ram.id,archer.id,foot.id],{});await inspectFort('firwood');const before=bank(),count=calls.length,other=JSON.stringify(game.state.squads.filter(unit=>unit.id!==ram.id).map(unit=>[unit.id,unit.order]));
+  const button=siegePanel().querySelector(action('siege-order','breach'));assert(!button.disabled,'selected engine cannot receive explicit breach');await click(button);
+  const call=calls.at(-1);assert(calls.length===count+1&&call.action==='order'&&call.payload.type==='attack'&&call.payload.regionId==='firwood'&&call.result.ok,'breach did not issue exactly one real attack');
+  selectedOnly(call.payload.ids,[ram.id]);assert(JSON.stringify(game.state.squads.filter(unit=>unit.id!==ram.id).map(unit=>[unit.id,unit.order]))===other,'breach ordered unselected or unsuitable troops');expectSpend(before,{});
+  assert(ram.order.type==='attack'&&ram.order.regionId==='firwood','engine order was not stored');
+ });
+
+ await check('Unsuitable or absent selection cannot silently recruit the whole army for a siege',async()=>{
+  fresh();await inspectFort('firwood');await click('#panel-body '+action('siege-select','infantry'));const before=militarySnapshot(),count=calls.length,button=siegePanel().querySelector(action('siege-order','breach'));
+  assert(button.disabled,'infantry-only selection can invoke engine-specific breach');await click(button);assert(calls.length===count&&militarySnapshot()===before,'disabled breach ordered troops');
+  game.state.regions.firwood.fortHp=0;game.state.squads=game.state.squads.filter(unit=>unit.owner==='player');const ram=ownArmy().find(unit=>unit.type==='ram');callbacks.onBoxSelect([ram.id],{});render(true);
+  const capture=siegePanel().querySelector(action('siege-order','capture'));assert(capture?.disabled,'siege-only selection can capture');const next=calls.length;await click(capture);assert(calls.length===next,'disabled capture auto-selected infantry');
+ });
+
+ await check('Secure gate attacks the actual nearest hostile using only the selected combat escort',async()=>{
+  fresh();const own=ownArmy(),ram=own.find(unit=>unit.type==='ram'),archer=own.find(unit=>unit.type==='archer'),foot=own.find(unit=>unit.type==='spear');
+  const enemies=game.state.squads.filter(unit=>unit.owner==='red').slice(0,2),gate=game.getNavigation().fortGate('firwood');game.state.squads=[...own,...enemies];game.state.regions.firwood.fortHp=0;
+  enemies.forEach((unit,i)=>Object.assign(unit,{x:gate.x+14+i*5,z:gate.z,anchor:{x:gate.x+14+i*5,z:gate.z},path:[],order:{type:'hold'}}));
+  callbacks.onBoxSelect([ram.id,archer.id,foot.id],{});await inspectFort('firwood');assert(siegePanel().dataset.siegeStage==='secure','enemy gate is shown as clear');
+  const before=bank(),count=calls.length,others=JSON.stringify(game.state.squads.filter(unit=>![archer.id,foot.id].includes(unit.id)).map(unit=>[unit.id,unit.order]));await click('#panel-body '+action('siege-order','secure'));
+  const call=calls.at(-1);assert(calls.length===count+1&&call.payload.type==='attack'&&call.payload.targetId===enemies[0].id&&call.result.ok,'secure action did not attack the current nearest gate opponent');
+  selectedOnly(call.payload.ids,[archer.id,foot.id]);assert(JSON.stringify(game.state.squads.filter(unit=>![archer.id,foot.id].includes(unit.id)).map(unit=>[unit.id,unit.order]))===others,'secure action redirected engines or unselected troops');expectSpend(before,{});
+ });
+
+ await check('Capture requires an infantry order at a breached gate and distinguishes paused from real progress',async()=>{
+  fresh();const own=ownArmy(),foot=own.find(unit=>unit.type==='spear'),archer=own.find(unit=>unit.type==='archer'),ram=own.find(unit=>unit.type==='ram'),gate=game.getNavigation().fortGate('firwood');
+  game.state.squads=own;game.state.regions.firwood.fortHp=0;Object.assign(foot,{...gate,anchor:{...gate},order:{type:'hold',...gate},path:[]});
+  callbacks.onBoxSelect([foot.id,archer.id,ram.id],{});await inspectFort('firwood');assert(siegePanel().querySelector('[data-capture-block="order"]'),'mere infantry presence claims active capture');
+  const before=bank(),count=calls.length;await click('#panel-body '+action('siege-order','capture'));const call=calls.at(-1);
+  assert(calls.length===count+1&&call.payload.type==='capture'&&call.payload.regionId==='firwood'&&call.result.ok,'capture did not issue its one explicit engine order');selectedOnly(call.payload.ids,[foot.id]);expectSpend(before,{});
+  assert(siegePanel().querySelector('[data-capture-block="paused"]'),'prepared capture does not explain the paused simulation');game.step(1);render(true);assert(game.state.regions.firwood.capture===0,'paused capture progresses');
+  game.setPaused(false);game.step(.25);render(true);const state=game.state.regions.firwood;
+  assert(state.capture>0&&siegePanel().querySelector('[data-capture-block="ready"]'),'real ordered infantry cannot advance capture');
+  assert(siegePanel().querySelector('.siege-capture-progress > b').textContent===Math.floor(state.capture)+'%','displayed capture differs from simulation');
+ });
+
+ await check('Disconnected frontier explains the prerequisite and neighbour inspection cancels targeting without orders',async()=>{
+  fresh();game.state.squads=ownArmy();game.state.regions.ironhold.fortHp=0;await inspectFort('ironhold');await click('#panel-body '+action('siege-select','infantry'));
+  let guide=siegePanel();assert(guide.querySelector('[data-capture-block="frontier"]')&&guide.querySelector('.siege-frontier.disconnected'),'missing real frontier restriction');assert(guide.querySelector(action('siege-order','capture')).disabled,'disconnected capture enabled');
+  assert(guide.querySelectorAll('.siege-neighbors '+action('siege-inspect')).length===2,'no concrete adjacent fiefs to inspect');const before=militarySnapshot(),count=calls.length;
+  await click(action('army-command','move'));await panel('realm');assert(view.command==='move','test needs pending movement');await click('#panel-body '+action('siege-inspect','pass'));
+  assert(view.regionId==='pass'&&view.panel==='realm'&&!view.command,'neighbor inspection executed or kept old targeting');assert(worldCalls.filter(call=>call[0]==='focus').at(-1)?.[1]==='pass','wrong neighboring fort focus');
+  assert(calls.length===count&&militarySnapshot()===before,'neighbor inspection spent resources, advanced time or issued movement');
+ });
+
+ await check('A contested gate names the obstruction and never presents decaying capture as advancing',async()=>{
+  fresh();const own=ownArmy(),foot=own.find(unit=>unit.type==='spear'),enemy=game.state.squads.find(unit=>unit.owner==='red'&&unit.type==='archer'),gate=game.getNavigation().fortGate('firwood'),region=game.state.regions.firwood;
+  game.state.squads=[...own,enemy];region.fortHp=0;region.captureOwner='player';region.capture=42;
+  Object.assign(foot,{...gate,anchor:{...gate},path:[],order:{type:'capture',regionId:'firwood',targetId:'firwood'}});Object.assign(enemy,{x:gate.x+20,z:gate.z,anchor:{x:gate.x+20,z:gate.z},path:[],order:{type:'hold'}});
+  await inspectFort('firwood');let guide=siegePanel();assert(guide.dataset.siegeStage==='secure'&&guide.querySelector('[data-capture-block="contested"]'),'nearby enemy does not visibly contest gate');assert(!guide.querySelector('.siege-capture-progress').textContent.includes('Η κατάληψη προχωρά'),'contested capture claims progress');
+  game.setPaused(false);game.step(.25);render(true);guide=siegePanel();assert(region.capture<42,'engine contest fixture did not stop capture');assert(guide.querySelector('.siege-capture-progress > b').textContent===Math.floor(region.capture)+'%','contested percentage is fabricated');
+ });
+
+ await check('Inspecting and selecting during a truce do not cancel it; explicit attack does',async()=>{
+  fresh();game.state.ai.truce.red=game.state.t+180;await inspectFort('pass');const before=militarySnapshot(),count=calls.length;
+  assert(siegePanel().querySelector('.siege-truce')?.textContent.includes('θα την ακυρώσει'),'treaty consequence missing');await click('#panel-body '+action('siege-select','siege'));await click('#panel-body '+action('siege-focus-gate','pass'));
+  assert(calls.length===count&&militarySnapshot()===before&&game.state.ai.truce.red>game.state.t,'inspection or selection ended a treaty');
+  await click('#panel-body '+action('siege-order','breach'));const call=calls.at(-1);assert(call.payload.type==='attack'&&call.result.ok&&game.state.ai.truce.red===0,'explicit player attack did not follow treaty rule');
+ });
+
+ await check('Owned defence reports observed threats and camera inspection never issues a hidden defence order',async()=>{
+  fresh();const own=ownArmy(),enemies=game.state.squads.filter(unit=>unit.owner==='red').slice(0,3);game.state.squads=[...own,...enemies];
+  Object.assign(enemies[0],{x:-90,z:0,order:{type:'hold'},path:[],activity:'idle'});Object.assign(enemies[1],{x:-205,z:-130,order:{type:'attack',regionId:'home',targetId:'home'},path:[],activity:'march'});Object.assign(enemies[2],{x:210,z:150,order:{type:'hold'},path:[],activity:'idle'});
+  const before=militarySnapshot(),count=calls.length;await inspectFort('home');const guide=siegePanel();assert(guide.dataset.siegeStage==='defend','owned fort shows an attack plan');
+  assert(guide.querySelector('.defence-counts b').textContent==='2','defence invents or misses observed threats');assert(guide.querySelectorAll('.siege-threat').length===2,'threat list and count differ');
+  assert(guide.textContent.includes('Κοντά στο οχυρό')&&guide.textContent.includes('Προχωρά προς το οχυρό'),'observed nearby and approaching threats are conflated');assert(!guide.querySelector(action('siege-focus-threat',enemies[2].id)),'unrelated distant enemy is presented as current threat');
+  await click('#panel-body '+action('siege-focus-threat',enemies[0].id));let focus=worldCalls.filter(call=>call[0]==='focus').at(-1)?.[1];assert(focus.x===enemies[0].x&&focus.z===enemies[0].z,'threat focus uses a fabricated position');
+  const expected=getSiegeReadout(game.state,'home').defence.defenders.ids;await click('#panel-body '+action('siege-select','defenders'));selectedOnly(view.armyIds,expected);
+  assert(calls.length===count&&militarySnapshot()===before,'defence inspection or selection silently changed army orders');
+ });
+
+ await check('An explicit defence order uses only currently selected non-siege troops',async()=>{
+  fresh();const own=ownArmy(),foot=own.find(unit=>unit.type==='spear'),archer=own.find(unit=>unit.type==='archer'),ram=own.find(unit=>unit.type==='ram');callbacks.onBoxSelect([foot.id,archer.id,ram.id],{});await inspectFort('home');
+  const before=bank(),count=calls.length,others=JSON.stringify(game.state.squads.filter(unit=>![foot.id,archer.id].includes(unit.id)).map(unit=>[unit.id,unit.order]));await click('#panel-body '+action('siege-order','defend'));
+  const call=calls.at(-1);assert(calls.length===count+1&&call.payload.type==='hold'&&call.payload.regionId==='home'&&call.result.ok,'defence action did not create one real hold-at-fort order');selectedOnly(call.payload.ids,[foot.id,archer.id]);
+  assert(JSON.stringify(game.state.squads.filter(unit=>![foot.id,archer.id].includes(unit.id)).map(unit=>[unit.id,unit.order]))===others,'defence silently redirected engines or other forces');expectSpend(before,{});
+ });
+
+ await check('A threat that disappeared before its focus click cannot become a hidden order or stale camera target',async()=>{
+  fresh();const own=ownArmy(),enemy=game.state.squads.find(unit=>unit.owner==='red');game.state.squads=[...own,enemy];Object.assign(enemy,{x:-90,z:0,order:{type:'hold'},path:[]});await inspectFort('home');
+  const button=siegePanel().querySelector(action('siege-focus-threat',enemy.id));assert(button,'threat fixture missing');game.state.squads=own;const before=militarySnapshot(),count=calls.length,focusCalls=worldCalls.filter(call=>call[0]==='focus').length;
+  await click(button);assert(calls.length===count&&militarySnapshot()===before,'stale threat click changed gameplay');assert(worldCalls.filter(call=>call[0]==='focus').length===focusCalls,'stale threat click focused a nonexistent squad');
+ });
+
+ await check('Missing siege forces expose recruitment and clear disabled actions instead of automatic selection',async()=>{
+  fresh();game.state.squads=game.state.squads.filter(unit=>unit.owner!=='player');await inspectFort('firwood');const before=militarySnapshot(),count=calls.length,guide=siegePanel();
+  assert(guide.querySelector(action('siege-select','siege')).disabled&&guide.querySelector(action('siege-select','infantry')).disabled,'missing force selection is enabled');assert(guide.querySelector(action('recruit-panel')),'missing army has no recruitment route');
+  assert(guide.querySelector(action('siege-order','breach')).disabled,'no-army breach is enabled');await click(guide.querySelector(action('recruit-panel')));
+  assert(view.panel==='army'&&view.armyTab==='train','recruitment route does not open unit cards');assert(calls.length===count&&militarySnapshot()===before,'recruitment navigation trained or ordered without confirmation');
+ });
  fresh();
 
 }

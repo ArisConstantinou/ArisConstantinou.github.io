@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.js';
+import {createFortWallDamage,setFortWallDamage,createFortRubble,setFortRubble,FORT_GATE_OPEN_RATIO} from './feouda-siege-presentation.js?v=2.7.0';
 
 const boxGeo=new THREE.BoxGeometry(1,1,1),cylGeo=new THREE.CylinderGeometry(1,1,1,12),sphereGeo=new THREE.SphereGeometry(1,10,7);
 for(const geometry of[boxGeo,cylGeo,sphereGeo])geometry.userData.sharedPrimitive=true;
@@ -23,21 +24,39 @@ export function createHouse(m,variant=0,{large=false,ruin=false}={}){const g=new
 function fitFootprint(model,width,depth){model.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(model),size=b.getSize(new THREE.Vector3()),center=b.getCenter(new THREE.Vector3()),scale=Math.min(width/size.x,depth/size.z,1);model.position.x-=center.x;model.position.z-=center.z;const wrapper=new THREE.Group();wrapper.add(model);wrapper.scale.setScalar(scale);return wrapper;}
 function flag(g,m,x,y,z,owner='player',size=1){const f=new THREE.Group();f.userData.dynamic=true;cylinder(f,m.darkWood,0,3*size,0,.075*size,6*size);const geo=new THREE.PlaneGeometry(2.6*size,1.55*size,5,2);const pos=geo.attributes.position;for(let i=0;i<pos.count;i++)pos.setZ(i,Math.sin(pos.getX(i)*2.2)*.18*size);geo.computeVertexNormals();const cloth=new THREE.Mesh(geo,m.flags[owner]||m.flagNeutral);cloth.position.set(1.34*size,4.85*size,0);cloth.userData.banner=true;cloth.castShadow=true;f.add(cloth);const emblem=new THREE.Mesh(new THREE.PlaneGeometry(.12*size,.86*size),m.paleStone);emblem.position.set(1.25*size,4.85*size,.21*size);f.add(emblem);const bar=emblem.clone();bar.geometry=new THREE.PlaneGeometry(.65*size,.12*size);f.add(bar);f.position.set(x,y,z);g.add(f);return f;}
 function arrowSlit(g,m,x,y,z,rotation=0){box(g,m.window,x,y,z,.22,1.25,.12,rotation);}
+function gateDoor(g,m){
+ const gate=new THREE.Group();gate.name='Iron bound timber gate';gate.userData.gate=true;gate.userData.dynamic=true;gate.userData.damageStages=[];
+ for(let stage=0;stage<4;stage++){
+  const layer=new THREE.Group();layer.name=`Gate condition ${stage}`;
+  // A solid inner leaf stays in place until the navigation gate opens. The
+  // outer boards can splinter without presenting a false passage to a player.
+  box(layer,m.darkWood,0,2.0,.015,4.2,4,.22);
+  for(let i=0;i<9;i++){
+   const x=(i-4)*.46,loss=stage*((i*7)%5)*.10,h=4.12-loss,board=box(layer,i%3===0?m.wood:m.darkWood,x,h/2+.08,-.135,.435,h,.16);board.rotation.z=stage>1?(i%2?1:-1)*.009*stage:0;
+   if(stage&&i%2===0){const slash=box(layer,m.window,x+.03,2.5-loss,-.225,.035,.85+stage*.16,.008);slash.rotation.z=(i%3-.8)*.22;}
+  }
+  for(const side of[-1,1])for(const y of[.65,2.0,3.43]){const band=box(layer,m.darkIron,side*1.02,y,-.242,1.97,.17,.055);if(stage>1&&y===2)band.rotation.z=side*stage*.045;for(const x of[side*.31,side*1.74]){const rivet=cylinder(layer,m.iron,x,y,-.284,.038,.036,6);rivet.rotation.x=Math.PI/2;}}
+  for(const side of[-1,1]){const ring=new THREE.Mesh(new THREE.TorusGeometry(.11,.023,5,10),m.darkIron);ring.position.set(side*.27,1.8,-.305);layer.add(ring);}
+  mergeStatic(layer);gate.add(layer);gate.userData.damageStages.push(layer);
+ }
+ const fallen=new THREE.Group();fallen.name='Broken gate boards beside passage';fallen.userData.dynamic=true;fallen.userData.gateRubble=true;
+ for(const side of[-1,1])for(let i=0;i<3;i++)box(fallen,m.darkWood,side*(2.55+i*.15),.06+i*.016,-.3,.31,.055,1.7-i*.21,side*(.15+i*.21));mergeStatic(fallen);fallen.visible=false;g.add(gate,fallen);return gate;
+}
 function roundTower(g,m,x,z,r,h,owner,variant,assets=null){const detailed=assets?.createModule('modular_fort_01_tower_round',{width:(r+1.1)*2,height:h+1.8,depth:(r+1.1)*2});if(detailed){detailed.position.set(x,0,z);g.add(detailed);if(variant%3===0)flag(g,m,x,h+1.5,z,owner,.64);return detailed;}const t=new THREE.Group();cylinder(t,m.darkStone,0,.8,0,r+1.1,1.6,16);cylinder(t,m.stone,0,h/2,0,r,h,16);cylinder(t,m.paleStone,0,h-1,0,r+.32,.7,16);cylinder(t,m.stone,0,h+.14,0,r+.38,.72,16);cylinder(t,m.darkStone,0,h+.58,0,r-.3,.15,16);for(let i=0;i<12;i++){const a=i*Math.PI/6;box(t,m.paleStone,Math.cos(a)*(r+.1),h+1.1,Math.sin(a)*(r+.1),.94,1.32,1.05,-a);}for(let i=0;i<8;i++){const a=i*Math.PI/4;box(t,m.window,Math.cos(a)*(r+.02),h*.58,Math.sin(a)*(r+.02),.17,1.5,.2,-a);}if(variant%3===0)flag(t,m,0,h+.5,0,owner,.64);t.position.set(x,0,z);g.add(t);return t;}
 function wall(g,m,a,b,h,{gate=false,damaged=false,assets=null}={}){const dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz),yaw=-Math.atan2(dz,dx),w=new THREE.Group(),thick=1.9;w.position.set((a[0]+b[0])/2,0,(a[1]+b[1])/2);w.rotation.y=yaw;
  const solidModule=assets?.createModule('modular_fort_01_wall_thin_straight_01',{width:2.2,height:h+1.4,depth:gate?1:len});
  if(solidModule){
-  if(gate){const span=9.523,arch=assets.createModule('modular_fort_01_wall_thin_gate_01',{width:2.2,height:h+1.4,depth:span});if(arch){arch.rotation.y=Math.PI/2;w.add(arch);}for(const side of[-1,1]){const part=assets.createModule('modular_fort_01_wall_thin_straight_04',{width:2.2,height:h+1.4,depth:(len-span)/2+.02});part.rotation.y=Math.PI/2;part.position.x=side*(len+span)/4;w.add(part);}const port=box(w,m.darkWood,0,2,0,4.2,4,.36);port.userData.gate=true;port.userData.dynamic=true;for(let x=-1.7;x<2;x+=.56){const iron=box(w,m.darkIron,x,2.7,.3,.1,5.2,.13);iron.userData.dynamic=true;iron.userData.gate=true;}box(w,m.darkWood,0,.14,3,4.3,.26,5.6);
+  if(gate){const span=9.523,arch=assets.createModule('modular_fort_01_wall_thin_gate_01',{width:2.2,height:h+1.4,depth:span});if(arch){arch.rotation.y=Math.PI/2;w.add(arch);}for(const side of[-1,1]){const part=assets.createModule('modular_fort_01_wall_thin_straight_04',{width:2.2,height:h+1.4,depth:(len-span)/2+.02});part.rotation.y=Math.PI/2;part.position.x=side*(len+span)/4;w.add(part);}gateDoor(w,m);box(w,m.darkWood,0,.14,3,4.3,.26,5.6);
   }else{solidModule.rotation.y=Math.PI/2;w.add(solidModule);}g.add(w);return w;
  }
- if(gate){for(const s of[-1,1])box(w,m.stone,s*(len+4.5)/4,h/2,0,(len-4.5)/2,h,thick);box(w,m.stone,0,h-.9,0,5,1.8,thick);for(let i=0;i<8;i++){const a=Math.PI*(i+.5)/8;const voussoir=box(w,m.paleStone,Math.cos(a)*2.47,3.9+Math.sin(a)*2.47,0,.94,.63,2.15);voussoir.rotation.z=a-Math.PI/2;}const port=box(w,m.darkWood,0,2,0,4.2,4,.36);port.userData.gate=true;port.userData.dynamic=true;for(let x=-1.7;x<2;x+=.56){const iron=box(w,m.darkIron,x,2.7,.3,.1,5.2,.13);iron.userData.dynamic=true;iron.userData.gate=true;}box(w,m.darkWood,0,.14,3,4.3,.26,5.6);
+ if(gate){for(const s of[-1,1])box(w,m.stone,s*(len+4.5)/4,h/2,0,(len-4.5)/2,h,thick);box(w,m.stone,0,h-.9,0,5,1.8,thick);for(let i=0;i<8;i++){const a=Math.PI*(i+.5)/8;const voussoir=box(w,m.paleStone,Math.cos(a)*2.47,3.9+Math.sin(a)*2.47,0,.94,.63,2.15);voussoir.rotation.z=a-Math.PI/2;}gateDoor(w,m);box(w,m.darkWood,0,.14,3,4.3,.26,5.6);
  }else{box(w,m.stone,0,h/2,0,len,h,thick);box(w,m.darkStone,0,.75,0,len+.1,1.5,thick+.34);}
  box(w,m.paleStone,0,h-.55,.05,len,.4,thick+.22);box(w,m.darkStone,0,h-.12,-.72,len,.25,2.5);const n=Math.max(2,Math.floor(len/1.85));for(let i=0;i<n;i++)box(w,m.paleStone,(i+.5)*len/n-len/2,h+.7,0,.91,1.45,thick+.16);
  if(!gate)for(let x=-len/2+3;x<len/2-1;x+=4.8)arrowSlit(w,m,x,h*.61,thick/2+.04);g.add(w);return w;}
-export function createFortress(region,m,assets=null){if(region.owner==='red')m={...m,stone:m.darkStone,paleStone:m.stone,roof:m.darkRoof};else if(region.owner==='gold')m={...m,stone:m.paleStone,darkRoof:m.roof};const g=new THREE.Group();g.userData.owner=region.owner;g.userData.kind=region.kind;g.userData.banners=[];g.userData.wallChunks=[];g.userData.buildingNodes={};const v=region.id.split('').reduce((a,c)=>a+c.charCodeAt(0),0),isCastle=region.kind==='castle',town=region.kind==='town',r=isCastle?18:town?12:9,h=isCastle?8.4:town?5.8:5.1;
+export function createFortress(region,m,assets=null){if(region.owner==='red')m={...m,stone:m.darkStone,paleStone:m.stone,roof:m.darkRoof};else if(region.owner==='gold')m={...m,stone:m.paleStone,darkRoof:m.roof};const g=new THREE.Group();g.userData.owner=region.owner;g.userData.kind=region.kind;g.userData.banners=[];g.userData.wallChunks=[];g.userData.damageWalls=[];g.userData.buildingNodes={};const v=region.id.split('').reduce((a,c)=>a+c.charCodeAt(0),0),isCastle=region.kind==='castle',town=region.kind==='town',r=isCastle?18:town?12:9,h=isCastle?8.4:town?5.8:5.1;
  cylinder(g,m.darkStone,0,-1.9,0,r*1.32,4.1,12);const court=new THREE.Mesh(new THREE.CylinderGeometry(r*1.12,r*1.29,1.25,12),m.dirt);court.position.y=.25;court.receiveShadow=true;g.add(court);
  const pts=isCastle?(region.owner==='red'?[[-r,-r],[r*.72,-r*1.09],[r,r*.84],[-r*.91,r*.95]]:region.owner==='gold'?[[-r*.9,-r],[r*.97,-r*.73],[r*.82,r],[-r,r*.74]]:[[-r,-r*.82],[r*.82,-r],[r,r*.8],[-r*.87,r]]):[[-r,-r],[r,-r],[r,r],[-r,r]];
- for(let i=0;i<pts.length;i++){const chunk=new THREE.Group();chunk.userData.dynamic=true;const w=wall(chunk,m,pts[i],pts[(i+1)%pts.length],h,{gate:i===2,assets});mergeStatic(w);g.add(chunk);g.userData.wallChunks.push(chunk);roundTower(g,m,...pts[i],isCastle?3.2:2.2,h+(isCastle?4.3:3),region.owner,v+i,assets);}
+ for(let i=0;i<pts.length;i++){const chunk=new THREE.Group();chunk.userData.dynamic=true;const w=wall(chunk,m,pts[i],pts[(i+1)%pts.length],h,{gate:i===2,assets});mergeStatic(w);createFortWallDamage(w,m,{height:h,length:Math.hypot(pts[(i+1)%pts.length][0]-pts[i][0],pts[(i+1)%pts.length][1]-pts[i][1]),index:i,seed:v+i*17,gate:i===2});g.add(chunk);g.userData.wallChunks.push(chunk);g.userData.damageWalls.push(w);roundTower(g,m,...pts[i],isCastle?3.2:2.2,h+(isCastle?4.3:3),region.owner,v+i,assets);}
  const detailedKeep=assets?.createModule('modular_fort_01_tower_round',{width:isCastle?11.4:5.9,height:isCastle?23:13,depth:isCastle?10.2:5.9});
  if(isCastle&&detailedKeep){detailedKeep.position.set(0,0,-4);g.add(detailedKeep);box(g,m.stone,-3,1.1,2,4.3,2.2,2.4);flag(g,m,3.6,22,-1,region.owner,.8);const hall=assets.create('building','houses',{width:7.8,depth:9.5,height:9},v)||createHouse(m,v%5,{large:true});hall.position.set(-9,1.05,3.1);hall.rotation.y=Math.PI/2;g.add(hall);const stable=assets.create('building','houses',{width:6.4,depth:6.6,height:7},v+1)||createHouse(m,1);stable.position.set(8.8,.95,4);g.add(stable);
  }else if(!isCastle&&detailedKeep){if(town){const hall=assets.create('building','houses',{width:8.5,depth:9.5,height:9},v)||createHouse(m,v%4,{large:true});hall.position.set(0,.85,-2);g.add(hall);}else{detailedKeep.position.set(0,0,-4);g.add(detailedKeep);}flag(g,m,r*.56,h+3,-r*.72,region.owner,.83);
@@ -49,9 +68,9 @@ export function createFortress(region,m,assets=null){if(region.owner==='red')m={
  // Exterior buildings are persistent player-placed structures, rendered by the world.
 
  flag(g,m,pts[2][0],h+5,pts[2][1],region.owner,.82);
- const rubble=new THREE.Group();rubble.userData.dynamic=true;for(let i=0;i<18;i++){const a=i*2.399,d=3+i%5;const rock=box(rubble,m.darkStone,Math.cos(a)*d,1+Math.sin(i)*.4,r+Math.sin(a)*3,1.1+(i%3)*.3,.7+(i%2)*.4,1.2,i);rock.rotation.x=i*.37;}rubble.visible=false;g.add(rubble);g.userData.rubble=rubble;mergeStatic(g);g.traverse(o=>{if(o.userData.banner)g.userData.banners.push(o);});return g;
+ const rubble=createFortRubble(g.userData.damageWalls,m,v);setFortRubble(rubble,1);g.add(rubble);g.userData.rubble=rubble;mergeStatic(g);g.traverse(o=>{if(o.userData.banner)g.userData.banners.push(o);});return g;
 }
-export function setFortressState(g,state,m){if(!state)return;for(const f of g.userData.banners)f.material=m.flags[state.owner]||m.flagNeutral;const ratio=state.fortHp/state.maxFortHp;g.userData.rubble.visible=ratio<.47;g.userData.wallChunks.forEach((w,i)=>{w.visible=ratio>(i===2?.035:i===1?.17:0);});g.traverse(o=>{if(o.userData.gate)o.visible=ratio>.16;});}
+export function setFortressState(g,state,m){if(!state)return;for(const f of g.userData.banners)f.material=m.flags[state.owner]||m.flagNeutral;const ratio=Math.max(0,Math.min(1,state.fortHp/state.maxFortHp));setFortRubble(g.userData.rubble,ratio);for(const wall of g.userData.damageWalls)setFortWallDamage(wall,ratio);g.userData.fortDamage={ratio,stage:ratio>.80?'intact':ratio>.55?'chipped':ratio>.30?'battered':ratio>0?'ruined':'breached',gateOpen:ratio<=FORT_GATE_OPEN_RATIO};}
 // Compact, distinct silhouettes remain readable if detailed GLBs cannot load.
 // These are compatibility models; the full renderer uses the authored buildings.
 function createSpecialistBuilding(type,m){
@@ -131,7 +150,8 @@ export function soldierGeometries(){
  return {
  torso:build((g,m)=>{box(g,m,0,1.3,0,.62,.76,.38);box(g,m,0,.96,0,.65,.22,.43);}),
  armor:build((g,m)=>{box(g,m,0,1.44,-.015,.64,.44,.41);sphere(g,m,-.37,1.6,0,.18,.16,.23);sphere(g,m,.37,1.6,0,.18,.16,.23);}),
- head:build((g,m)=>{sphere(g,m,0,1.94,0,.22,.26,.21);sphere(g,m,-.4,1.02,.14,.11,.12,.1);sphere(g,m,.4,1.02,.14,.11,.12,.1);}),
+ head:build((g,m)=>{sphere(g,m,0,1.94,0,.22,.26,.21);}),
+ hand:build((g,m)=>{sphere(g,m,0,0,0,.11,.12,.10);}),
  helmet:build((g,m)=>{sphere(g,m,0,2.065,-.015,.247,.195,.245);cylinder(g,m,0,1.99,0,.25,.06);box(g,m,0,1.88,.225,.06,.29,.08);}),
  leg:new THREE.CylinderGeometry(.115,.095,.83,6),foot:new THREE.BoxGeometry(.21,.2,.38),arm:new THREE.CylinderGeometry(.11,.12,.63,6),
  shield:build((g,m)=>{const geo=new THREE.CylinderGeometry(.4,.38,.1,8);const s=new THREE.Mesh(geo,m);s.rotation.x=Math.PI/2;s.position.set(-.44,1.2,.37);g.add(s);sphere(g,m,-.44,1.2,.43,.12,.12,.06);}),

@@ -1,4 +1,4 @@
-import {REGIONS, UNIT_TYPES, BUILDINGS, TECHS, RESOURCE_NAMES} from './feouda-data.js?v=2.6.0';
+import {REGIONS, UNIT_TYPES, BUILDINGS, TECHS, RESOURCE_NAMES} from './feouda-data.js?v=2.7.0';
 
 // Presentation only. These functions return navigation, never command permission.
 // The engine's canCommand()/command() remains authoritative for every action.
