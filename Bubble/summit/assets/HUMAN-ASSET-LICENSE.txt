@@ -1,0 +1,5 @@
+Human meshes, skin, clothing, hair and eyes are derived from MakeHuman Community system assets released under CC0 1.0 Universal.
+https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html
+Generator: https://github.com/makehumancommunity/mpfb2
+Generator code is GPL; output assets are CC0 under the asset exception. Generator is not part of the game runtime.
+These are fictional demonstration residents. They do not represent identified people or verified historical clothing of Moutoullas.
