@@ -23,28 +23,55 @@ export function makeBody(id,point,kind='racer'){
  bag:[3,2,1],alive:true,cooldown:0,groundTime:0,phase:Math.random()*5,step:0,finish:false,respawn:0,stun:0,shotFlash:0};
 }
 export function inflate(a,recipe='balanced',quality=1){
- const recipes={balanced:{lift:102,life:58,integrity:100},light:{lift:99,life:66,integrity:75},strong:{lift:118,life:56,integrity:130}};
+ const recipes={balanced:{lift:102,life:105,integrity:160},light:{lift:99,life:120,integrity:135},strong:{lift:118,life:95,integrity:210}};
  const p=recipes[recipe]||recipes.balanced;
  a.balloon={lift:p.lift,life:p.life*(.90+.10*clamp(quality,0,1)),maxLife:p.life,integrity:p.integrity,maxIntegrity:p.integrity,r:2.45,recipe};
- a.grounded=false;a.vy=5;a.groundTime=0;
+ a.grounded=false;a.vy=3;a.groundTime=0;a.balloon.exhausted=0;a.lastBalloonEvent='';a.contactCooldown=0;a.controlUp=0;
 }
-export function gumHit(a,amount=7,balloonHit=false){
+export function gumHit(a,amount=2.5,balloonHit=false){
  if(!a.alive)return; a.gum=clamp(a.gum+amount,0,150);a.hp=Math.max(0,a.hp-(balloonHit?3:10));a.shotFlash=.25;
- if(a.balloon){a.balloon.integrity=Math.max(0,a.balloon.integrity-(balloonHit?20:4));if(a.balloon.integrity<=0)a.balloon=null;}
+ if(a.balloon){const damage=balloonHit?(amount>3?24:8):(amount>3?6:2);a.balloon.integrity=Math.max(0,a.balloon.integrity-damage);if(a.balloon.integrity<=0){a.balloon=null;a.lastBalloonEvent='ΖΗΜΙΑ ΜΕΜΒΡΑΝΗΣ';}}
  if(!a.balloon&&a.grounded)a.stun=Math.min(.45,a.stun+.12);
+}
+// Fictional flight controller. Intact reserves now absorb small loads/damage;
+// visible additional gum still causes drift and overload causes sustained sinking.
+export function flightState(a,control=0,windY=0){
+ const b=a.balloon;if(!b)return{command:control,target:-38,reserve:0,sink:0,load:0};
+ const integrity=clamp(b.integrity/b.maxIntegrity,0,1),fade=clamp((b.exhausted||0)/12,0,1);
+ const lift=b.lift*(.88+.12*integrity),reserve=lift-a.mass-a.gum;
+ const overload=Math.max(0,-reserve),sink=a.gum*.015+overload*.20+fade*6;
+ const climb=6*clamp(1-a.gum/160,.45,1)*(1-fade*.85);
+ let target=(control>=0?control*climb:control*4.5)-sink+windY*.12;
+ // Only commanded, controlled descents slow near the floor. Heavy overload
+// and a failed envelope are not given a hidden parachute.
+ if(control<0&&a.clearance<9&&overload<3&&fade===0)target=Math.max(target,-2.2-sink);
+ return {command:control,target:clamp(target,-16,7),reserve,sink,load:overload};
 }
 export function verticalAcceleration(a,control=0,windY=0){
  if(!a.balloon)return -18;
- const b=a.balloon,total=a.mass+a.gum,lift=b.lift*clamp(b.integrity/b.maxIntegrity,.25,1);
- // Neutral regulator cancels the empty-suit lift, not the additional attached gum.
- const regulation=a.mass-b.lift;
- return (lift+regulation-total)/(total||1)*18+control*10.5-a.vy*.82+windY;
+ return clamp((flightState(a,control,windY).target-a.vy)*3,-12,12);
+}
+export function envelopeBlocked(a,x,y,z,world){
+ if(!a.balloon)return false;const r=a.balloon.r,cx=x+Math.sin(a.yaw)*.45,cz=z+Math.cos(a.yaw)*.45,cy=y+1.95+r;
+ if(world.blocked(cx,cy-r,cz,r*.85,r*2))return true;
+ for(const [dx,dz] of [[0,0],[r*.8,0],[-r*.8,0],[0,r*.8],[0,-r*.8]]){
+  const bottom=cy-Math.sqrt(Math.max(0,r*r-dx*dx-dz*dz));
+  if(world.height(cx+dx,cz+dz)>bottom+.02)return true;
+ }return false;
+}
+function contactDamage(a,speed){
+ // One velocity-dependent impact, not three stacking damage sources each frame.
+ if(!a.balloon||speed<3||a.contactCooldown>0)return;
+ a.balloon.integrity=Math.max(0,a.balloon.integrity-Math.min(18,(speed-3)*1.2));
+ a.contactCooldown=.9;a.lastBalloonEvent='ΠΡΟΣΚΡΟΥΣΗ';
 }
 export function advanceBody(a,desired,world,dt,time){
- if(!a.alive)return;
+ if(!a.alive||!Number.isFinite(dt)||dt<=0)return;
+ dt=Math.min(dt,.05);a.contactCooldown=Math.max(0,(a.contactCooldown||0)-dt);a.envelopeContact=false;
+ a.clearance=Math.max(0,a.y-world.support(a.x,a.y,a.z));
  const before={x:a.x,y:a.y,z:a.z},flight=!!a.balloon&&!a.grounded;
- let vertical=desired.up||0;
- if(a.balloon){a.balloon.life-=dt*(1+Math.max(0,vertical)*.17);if(a.balloon.life<=0||a.balloon.integrity<=0){a.balloon=null;vertical=0;}}
+ let vertical=clamp(desired.up||0,-1,1);a.controlUp=vertical;
+ if(a.balloon){const b=a.balloon;b.life=Math.max(0,b.life-dt*(1+Math.max(0,vertical)*.05));if(b.life===0)b.exhausted=(b.exhausted||0)+dt;if(b.integrity<=0||(b.exhausted||0)>=12){a.lastBalloonEvent=b.integrity<=0?'ΖΗΜΙΑ ΜΕΜΒΡΑΝΗΣ':'ΕΞΑΝΤΛΗΣΗ';a.balloon=null;vertical=0;}}
  const heading=desired.yaw??a.yaw,dx=Math.sin(heading),dz=Math.cos(heading),rx=-Math.cos(heading),rz=Math.sin(heading);
  let mx=(desired.forward||0)*dx+(desired.side||0)*rx,mz=(desired.forward||0)*dz+(desired.side||0)*rz;
  const mag=Math.hypot(mx,mz);if(mag>1){mx/=mag;mz/=mag;}
@@ -66,7 +93,7 @@ export function advanceBody(a,desired,world,dt,time){
    if(a.grounded&&rise>.50){a[v]=0;continue;}
    if(!a.grounded&&rise>.30){a[v]*=-.15;continue;}
    if(world.blocked(nx,floor,nz,a.radius,a.height)){a[v]=0;continue;}
-   if(a.balloon&&world.blocked(nx,a.y+1.95,nz,a.balloon.r*.75,a.balloon.r*1.8)){a[v]*=-.08;a.balloon.integrity=Math.max(0,a.balloon.integrity-step*14);continue;}
+   if(a.balloon&&envelopeBlocked(a,nx,a.y,nz,world)){a.envelopeContact=true;contactDamage(a,Math.abs(a[v]));a[v]=0;continue;}
    a[axis]=axis==='x'?nx:nz;if(a.grounded&&ground>a.y)a.y=ground+.015;
   }
   const floor=world.support(a.x,a.y,a.z),newY=a.y+a.vy*step;
@@ -74,17 +101,11 @@ export function advanceBody(a,desired,world,dt,time){
    if(!a.grounded){const impact=-a.vy;if(impact>9)a.hp=Math.max(0,a.hp-(impact-9)*5.5);a.landed=true;}
    a.y=floor+.015;a.vy=0;a.grounded=true;
   }else if(a.vy>0){
-   if(world.blocked(a.x,newY,a.z,a.radius,a.height)){a.vy=0;}else{a.y=newY;a.grounded=false;}
+   if(world.blocked(a.x,newY,a.z,a.radius,a.height)||envelopeBlocked(a,a.x,newY,a.z,world)){a.envelopeContact=!!a.balloon;contactDamage(a,Math.abs(a.vy));a.vy=0;}else{a.y=newY;a.grounded=false;}
   }else{a.y=newY;if(a.y-floor>.06)a.grounded=false;}
  }
- if(a.balloon){const b=a.balloon,cy=a.y+1.65+b.r;
-  // The envelope meets the same terrain and physical objects as everything else.
-  let touching=false;for(const [x,z]of[[a.x,a.z],[a.x+b.r*.85,a.z],[a.x-b.r*.85,a.z],[a.x,a.z+b.r*.85],[a.x,a.z-b.r*.85]])if(world.height(x,z)>cy-b.r*.60)touching=true;
-  if(world.blocked(a.x,cy-b.r,a.z,b.r*.7,b.r*1.8))touching=true;
-  if(touching){b.integrity-=dt*12;a.vx*=.95;a.vz*=.95;}
- }
  a.groundTime=a.grounded?a.groundTime+dt:0;
- if(a.grounded&&a.balloon&&a.groundTime>.45)a.balloon=null;
+ if(a.grounded&&a.balloon&&a.groundTime>.8){a.balloon=null;a.lastBalloonEvent='ΠΡΟΣΓΕΙΩΣΗ';}
  a.stun=Math.max(0,a.stun-dt);a.shotFlash=Math.max(0,a.shotFlash-dt);a.cooldown=Math.max(0,a.cooldown-dt);
  if(a.reload>0){a.reload=Math.max(0,a.reload-dt);if(a.reload===0)a.ammo=64;}
  if(a.y<0||a.hp<=0){a.alive=false;a.respawn=5;a.balloon=null;}

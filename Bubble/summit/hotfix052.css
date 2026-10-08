@@ -1,0 +1,5 @@
+/* Readouts distinguish actual vertical rate from the command. */
+#pilotStatus{position:absolute;left:calc(200px + var(--sl));top:calc(248px + var(--st));width:360px;padding:10px 13px;background:#152f3ce3;border:1px solid #a7e2d052;border-radius:10px;line-height:1.4;pointer-events:none}
+#pilotStatus>*{display:block}#pilotCommand{font-size:11px;color:#b9f3e4;letter-spacing:.5px}#pilotReason{font-size:10px;margin:5px 0;color:#e1ebe8}#localThreat{font-size:9px;color:#edcf99}#pilotStatus.warning{border-color:#efadc4}#pilotStatus.warning #pilotReason{color:#ffcadb}#upBtn.active,#downBtn.active{background:#4e7979;border:2px solid #befff2;box-shadow:0 0 12px #adeedd66}
+@media(max-width:600px){#pilotStatus{left:143px;right:11px;top:calc(227px + var(--st));width:auto;padding:8px}#pilotCommand{font-size:9px}#pilotReason{font-size:9px}#localThreat{font-size:8px}}
+@media(orientation:landscape) and (max-height:550px){#pilotStatus{left:50%;right:auto;transform:translateX(-50%);top:calc(158px + var(--st));width:300px;padding:7px 10px}#pilotCommand{font-size:9px}#pilotReason{font-size:9px;margin:3px 0}#localThreat{font-size:8px}}

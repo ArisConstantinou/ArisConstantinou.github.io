@@ -1,51 +1,39 @@
-# Bubble Skyward — Summit 0.5.1
+# Bubble Skyward — Summit 0.5.2
 
-Play: https://arisconstantinou.github.io/Bubble/?v=0.5.1
+Play: https://arisconstantinou.github.io/Bubble/?v=0.5.2
 
-A new playable mountain-flight prototype for Aris, replacing the castle entry point without deleting the old game. This is **not a finished AAA release**. The previous castle remains at `../castle.html`, with its source and local character save untouched. Changes are confined to `Bubble/`; Village and Plan Editor are independent.
+Hotfix over the actually published Summit 0.5.1. The separately supplied 1.0 ZIP is not used. Map, humans, materials, castle archive and other repository projects remain unchanged.
 
-## Flight instruments
+## What was corrected
 
-The main HUD shows **horizontal ground speed in km/h**, **ascent in m/s**, **descent in m/s**, and **horizontal distance to the centre of the NEXT required landing plateau**, switching from metres to kilometres above 1,000 m. This is not distance along a computed route or straight-line 3D distance. The active ascent/descent panel highlights; the opposite direction reads zero. Grounded height corrections do not register as climbing.
+Mobile ascent/descent previously toggled on touch release, rather than working while held. They now start immediately on press, return to neutral on release, and remain independent of each other and both joysticks. Holding both produces neutral. Cancellation, menus and recovery clear held state and indicators. CTRL + A no longer blocks lateral movement while descending on desktop. Existing text-selection/clipboard restrictions and inner-aim/outer-fire ring remain.
 
-Readings use collision-limited body displacement divided by simulation time, not the keyboard command or a decorative animation. Additional displays show clearance over the terrain immediately below, signed height difference to the landing site, added gum mass, remaining balloon life, membrane integrity, nominal lift margin, ammunition and reload time. The target marker and map advance when an intermediate seal is collected.
+Vertical flight now has a bounded velocity controller: an intact unloaded envelope approaches +6 m/s on ascent and -4.5 m/s on descent, with acceleration/braking capped at 12 m/s². Releasing brakes toward neutral instead of leaving an ascent/descent toggle active. Normal commanded descents below 9 m terrain clearance are limited toward -2.2 m/s for landing. Substantial extra gum still produces sinking and can overwhelm ascent. There is no invulnerability or automatic rescue for an overloaded or destroyed balloon. This remains fictional flight physics, not real chewing-gum buoyancy.
 
-## A complete first route
+Balanced / light / strong recipes now last 105 / 120 / 95 seconds, with a 5% consumption increase while ascending. At exhaustion a 12-second visibly warned deflation reserve progressively increases sinking before the envelope disappears. It does not suddenly pop at the endurance countdown reaching zero. Required landing seals still prevent skipping straight to the finish.
 
-Mix a recipe in the preparation interface, chew, inflate and launch. The three preparation actions consume 3 resin / 2 fibre / 1 lift-gas unit once; cancelling returns reserved ingredients. The preparation interface is simplified, not a hand-simulated cooking system or a facial animation sequence.
+Balanced / light / strong integrity is 160 / 135 / 210. A normal membrane hit costs 8 integrity (formerly 20 against 100 on balanced); a charged membrane hit costs 24. With no other damage, a balanced balloon therefore takes 20 normal membrane hits to burst, rather than 5. Attached mass per normal / charged hit is 2.5 / 10 kg. Small damage/load no longer cancels the entire lift reserve. HUD reserve and the controller use the same effective-lift formula.
 
-Fly to Pine Ridge, Stone Gates and Frozen Saddle, collect each seal on foot, obtain materials from chests or defeated opponents, and craft another balloon. Finish by landing on the final plateau after all three seals. The balloon has finite endurance (56–66 seconds depending on recipe, with ascent consuming it faster); checkpoint order also prevents winning by flying directly to the last site. The first route contains four flight legs through a bounded 2,800 by 3,150 metre procedural terrain.
+Collision damage is velocity-dependent and cooldown-limited, not stacked once per axis/substep plus continuous rubbing damage. Merely touching an obstacle at rest does not drain integrity. Solid collision is retained, including the envelope meeting an overhead obstacle. Existing geometry uses approximate game collision volumes, not pixel-exact per-leaf or per-pose collision.
 
-There is one player, six competing AI racers and nine locally stationed guards (groups of two, three and four). Racers can fight one another and the guards. Guards engage visible racers only inside their local territory/range, not the entire map. This is single-player with AI, **not network multiplayer**.
+## AI is close-range, not map-wide
 
-Normal gum hits add 7 kg; a charged hit adds 23 kg. Weight changes the flight acceleration and horizontal speed, while membrane hits also reduce integrity. Additional gum makes the same balloon descend faster; it is not just a status bar. An expired or burst balloon stops providing lift and the character falls. The physical constants, compressed supply and lift gas are fictional game rules, not real-world chewing-gum physics.
+Guard target acquisition and firing are both limited to 38 m in 3D, a maximum 24 m height difference, and a 60 m home territory with a limited leash. Rival racers engage within 50 m and a 30 m height difference. Initial detection has a facing cone, line-of-sight check and 1.15-second reaction delay. Loss of range or line of sight clears tracking immediately. NPC shooting intervals are slower, slightly staggered, and have small aim variation rather than perfectly accurate instantaneous salvos.
 
-Heavy impacts can defeat a racer, which returns to its last checkpoint; player recovery adds a 25-second penalty. Defeated guards remain down. Chests can be looted once per character. This prototype provides recovery materials so an unlucky fall does not permanently strand the run.
+Already-launched projectiles also have total travelled-distance limits: guard 45 m, rival 58 m, player 90 m. A projectile fired near the cutoff may still travel slightly farther; moving beyond acquisition range is not a magical shield from an existing nearby shot. Shots do not travel hundreds of metres after the shooter loses the target. A 12-second opening combat delay and 85 m starting sanctuary prevent an immediate spawn attack by the racers; the sanctuary is shared by AI racers, not exclusive to the player.
 
-## Controls
+## Feedback and controls
 
-Desktop: WASD / arrows move; Space ascends while airborne and jumps on foot; Ctrl descends; Q/E lean/strafe; Shift sprints on foot. C switches FPS/top view. Left mouse holds normal shooting; right mouse holds then releases a charged shot. R reloads, B opens preparation, F collects nearby loot/seals, H removes attached gum on the ground, M opens the route map, Escape pauses. The mouse wheel adjusts the top-view camera distance. Desktop input indicators do not capture clicks or generate actions.
+New pilot status separates input command (ascend / descend / neutral) from measured vertical speed. It explains overload, collision, low endurance, emergency reserve and membrane failure. Nearby enemy targeting displays a question-mark warning, the enemy name and current 3D distance. Received hits display who fired and their current distance.
 
-Mobile: left joystick moves only. The right inner disc aims without firing, and its outer ring fires without releasing the thumb. Each finger has independent ownership. Tap the ascent/descent button to maintain that command; tap the same button again to return to neutral. The separate charge, preparation, collect and clean controls are near the joysticks. The desktop input panels are hidden in touch mode. Text selection/context and clipboard actions inside the game document are suppressed; browser chrome is not controlled by the game.
+Desktop: WASD / arrows move, Space ascends or jumps, Ctrl descends, Q/E lean/strafe, Shift sprints, C switches FPS/top view, left mouse fires, right mouse holds/releases a charged shot. R reloads, B mixes, F collects, H cleans gum on the ground, M maps, Escape pauses. In touch mode HOLD ↑ or ↓; do not tap and wait for a toggle. Release returns to neutral. Other controls are unchanged.
 
-## Geometry, people and limitations
+Flight readouts retain horizontal speed in km/h, ascent/descent in m/s, clearance over terrain and horizontal distance to the centre of the next required landing. New races remain in memory; refreshing restarts the race and does not clear the old castle character save.
 
-People are textured, skinned GLB human models with 53-bone skeletons, clothing, hair and eyes. They are not assembled primitive boxes or spheres. Current motion is procedural skeletal posing rather than a library of polished motion-capture clips. A mouth-level gum connection supports the balloon visual. Gumcaster geometry and material reservoir are modelled in code.
+## Assets and verification
 
-The terrain uses a triangle mesh, with collision heights interpolated from the same triangle layout. Outpost structures, rocks and tree trunks have collision bounds. Body movement uses short substeps, collision checks and body separation; projectiles test the first world/character contact. Balloon-envelope obstruction is approximated. These are game-oriented collision bounds, not a guarantee of pixel-exact collisions for every leaf, hair strand or pose. Complex navigation, animation, materials and performance need further iteration. There is no full soft-body chewing-gum simulation or physically simulated architectural destruction.
+The existing self-hosted skinned human GLBs, fir meshes, photographic textures and Three.js runtime are unchanged. Licences remain in assets/HUMAN-ASSET-LICENSE.txt, assets/SURFACE-LICENSE.txt and vendor/LICENSE.txt. This hotfix does not claim new AAA graphics or motion-capture animation.
 
-The new run is in memory only. Refreshing starts a new race. It does not clear or migrate the old castle character save. No analytics, accounts, ads, service worker, remote runtime CDN or network telemetry is added.
+Actual local regression run: 32/32 numerical/control/combat-rule checks and 43/43 browser integration checks (75 total). Browser tests exercised real production modules and renderer with only import/resource URLs rebased to local blobs. They cover immediate multi-touch ascent/descent, release/cancel, independent motion/fire ring, CTRL+A, overload and HUD feedback, real NPC range/reaction, finite projectiles, all four landing legs, FPS and desktop/touch UI. Viewports: 1440x900, 430x744, 430x932, 932x430, 375x667. Continuous mobile rendering was also checked after viewport changes.
 
-## Assets and licences
-
-Assets are self-hosted copies of already present repository assets. `assets/HUMAN-ASSET-LICENSE.txt` documents the MakeHuman CC0 human outputs; `assets/SURFACE-LICENSE.txt` documents the photographic surface sources. Ground/rock/wood textures and the modified fir-tree model originate from Poly Haven CC0 assets (`forest_ground_04`, `fir_tree_01` and the surfaces identified in the licence/source files). Three.js and its loaders/utilities retain the MIT licence in `vendor/LICENSE.txt`. The character assets are generic fictional people, not portraits of Aris or real identifiable subjects.
-
-## Verification and reproduction
-
-Serve the repository root with `python3 -m http.server 8080`, then open `/Bubble/`. No build step or npm runtime dependency is needed. WebGL2 and ES modules/import maps are required.
-
-`tests/qa.py` and `tests/harness.py` are the offline integration harness. Install Python Playwright and Chromium, then run `xvfb-run -a python3 Bubble/summit/tests/qa.py` on Linux. `SUMMIT_ROOT`, `SUMMIT_REPORTS` and `CHROMIUM` can override paths. The harness loads the production logic and real renderer with only resource/import URLs rebased to local blob URLs. It does not mock the simulation. The debug interface is enabled only by `?test=1` or the explicit test flag.
-
-Final source passed **42/42 integration checks**: numerical flight readings, weight-dependent descent, finite endurance, projectile/structure collision, mix/chew/inflate, ordered checkpoints, materials, valid finish, each of the four flight legs, FPS, map, pause and two-thumb controls. Layouts checked include 430×744, 430×932, 932×430 and 375×667. Full results and exact source hashes are in `tests/verified-0.5.1.json`. A separate continuous-render check produced the mobile flight screenshot without a lost WebGL context.
-
-Tests used **Chromium 144 / SwiftShader under Xvfb**, including synthetic touch. They do **not** establish physical iPhone/Safari compatibility, frame rate or final game balance. Screenshots are captured from the actual renderer in controlled test scenes, not generated concept art.
+Environment: Chromium / SwiftShader under Xvfb, touch emulation. Not tested on physical iPhone/Safari; these results do not establish real-device frame rate or eliminate the need for playtesting. The older tests/verified-0.5.1.json describes the previous version, not the retuned values. Current source hashes and verification summary are in tests/hotfix-0.5.2.json.

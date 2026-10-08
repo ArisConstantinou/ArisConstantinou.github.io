@@ -1,0 +1,19 @@
+{
+  "version": "0.5.2",
+  "baseline_commit": "151bd587cf49ef6f84cf7f854baa275761a8e6a1",
+  "scope": "Published Summit flight, controls and local combat; not the alternate 1.0 ZIP",
+  "logic": {"passed": 32, "total": 32},
+  "browser": {"passed": 43, "total": 43},
+  "environment": "Chromium / SwiftShader under Xvfb, production JS with local resource URL rebasing; emulated touch, not physical iPhone or Safari",
+  "viewports": [[1440,900],[430,744],[430,932],[932,430],[375,667]],
+  "coverage": ["bounded ascent/descent and braking", "CTRL+A during descent", "touch press/release/cancel/opposite holds", "independent movement and firing ring", "balloon hit endurance", "load-dependent sink", "warned exhaustion reserve", "collision without continuous idle damage", "all four flight legs", "3D guard/racer range", "NPC reaction delay and question-mark feedback", "projectile travelled-distance cutoff", "required checkpoint preservation", "FPS", "desktop/touch HUD", "continuous mobile renderer"],
+  "source_blobs": {
+    "index.html": "4438bc428cc212d81682ef2dc29435899522b91a",
+    "summit/game.js": "61674ccbd2590daeee86853678103f09925a9e1c",
+    "summit/physics.js": "f8504aeca04674d1da60d21df6184f6570adafb2",
+    "summit/input.js": "a0640bc6063cb14bf2f7a7cf960071125ad403ba",
+    "summit/combat052.js": "30579ce2eba26ab310ca5d110037d475a4eeba30",
+    "summit/feedback052.js": "9c3ec90a718c1f72fa232f2f6692abf7074fb0ca",
+    "summit/hotfix052.css": "44c1b17b0cbc5ce1b20e540a28a97cf826d51edb"
+  }
+}
