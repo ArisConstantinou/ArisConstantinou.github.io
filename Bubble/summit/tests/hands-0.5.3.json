@@ -1,0 +1,24 @@
+{
+  "version": "0.5.3",
+  "base_commit": "3c450a9dc2795040a3435faa33bed7997abf17b1",
+  "passed": 132,
+  "total": 132,
+  "suites": [
+    {"name":"Direct manipulation browser checks", "passed":44, "total":44, "report":"browser053.json"},
+    {"name":"Gum mixing and profile rules", "passed":13, "total":13, "report":"logic053.json"},
+    {"name":"Retained flight/combat rules", "passed":32, "total":32, "report":"flight052-regression.json"},
+    {"name":"Flight and controls browser regression with physical preparation", "passed":43, "total":43, "report":"flight-regression-browser.json"}
+  ],
+  "environment": "Chromium, SwiftShader, Linux/Xvfb. Actual modules and renderer with imports/resource URLs rebased to local blobs. DOM pointer and CDP touch events; not physical iPhone or Safari.",
+  "viewports": [[1440,900],[430,932],[430,744],[375,667],[932,430]],
+  "continuous_mobile_render": {"context_lost":false,"page_errors":[],"state":"choose"},
+  "notes": "The final direct-manipulation suite was rerun after the last camera-framing adjustment. Older recipe-wizard regression steps were replaced with actual drag-to-mouth and pull-to-inflate gestures. Flight/combat modules were not modified.",
+  "runtime_source_blobs": {
+    "Bubble/index.html": "c13b55dfae7ae5035b89752feebdc852b7d595d6",
+    "Bubble/summit/gum053.js": "bcdf2c21198e356de20d149ab0b4e3d8e172c045",
+    "Bubble/summit/game.js": "7d986e8fdcdfe8e473b02d40d4cdaf22363845ad",
+    "Bubble/summit/actors.js": "d69c5a2d9e56c8a94baffe85986c5de0768de449",
+    "Bubble/summit/hands053.css": "b79aaada7cd5e1dfbd349972950b7a1335636d8f"
+  },
+  "unchanged_base_files": ["physics.js","input.js","world.js","combat052.js","feedback052.js","style.css","hotfix052.css"]
+}

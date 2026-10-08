@@ -1,39 +1,48 @@
-# Bubble Skyward — Summit 0.5.2
+# Bubble Skyward — Summit 0.5.3
 
-Play: https://arisconstantinou.github.io/Bubble/?v=0.5.2
+Play: https://arisconstantinou.github.io/Bubble/?v=0.5.3
 
-Hotfix over the actually published Summit 0.5.1. The separately supplied 1.0 ZIP is not used. Map, humans, materials, castle archive and other repository projects remain unchanged.
+## Pick the gum, not a recipe button
 
-## What was corrected
+This release replaces the old three-button preparation wizard with a close-up 3D scene using the player's existing skinned human character and a portable table of six gum pieces. The hand, gum and mouth are visible together. Preparation uses a front-facing close-up, not first-person hands; the flying/ground game still has FPS and top view.
 
-Mobile ascent/descent previously toggled on touch release, rather than working while held. They now start immediately on press, return to neutral on release, and remain independent of each other and both joysticks. Holding both produces neutral. Cancellation, menus and recovery clear held state and indicators. CTRL + A no longer blocks lateral movement while descending on desktop. Existing text-selection/clipboard restrictions and inner-aim/outer-fire ring remain.
+Click/touch a gum to take it in the hand. Hold and drag that piece to the character's lips and release. Moving it around first lets you inspect it or put it back on the table. The arm is posed with two-bone inverse kinematics, and the existing thumb/index finger bones follow a grasp target; the candy stays with the hand, not as a floating screen icon.
 
-Vertical flight now has a bounded velocity controller: an intact unloaded envelope approaches +6 m/s on ascent and -4.5 m/s on descent, with acceleration/braking capped at 12 m/s². Releasing brakes toward neutral instead of leaving an ascent/descent toggle active. Normal commanded descents below 9 m terrain clearance are limited toward -2.2 m/s for landing. Substantial extra gum still produces sinking and can overwhelm ascent. There is no invulnerability or automatic rescue for an overloaded or destroyed balloon. This remains fictional flight physics, not real chewing-gum buoyancy.
+After insertion there is a short automatic chewing animation, using a local lower-face morph and a small head motion. This is not a separate command button, manual control of individual chewing cycles, or a recording of the real player's mouth. No microphone or camera is requested.
 
-Balanced / light / strong recipes now last 105 / 120 / 95 seconds, with a 5% consumption increase while ascending. At exhaustion a 12-second visibly warned deflation reserve progressively increases sinking before the envelope disappears. It does not suddenly pop at the endurance countdown reaching zero. Required landing seals still prevent skipping straight to the finish.
+When the small bubble appears at the lips, touch/click it and drag outwards to grow it. A timer alone does not inflate or launch. Releasing a partial bubble leaves it partially inflated; grab again to continue. Releasing a fully grown bubble launches into the existing mountain game.
 
-Balanced / light / strong integrity is 160 / 135 / 210. A normal membrane hit costs 8 integrity (formerly 20 against 100 on balanced); a charged membrane hit costs 24. With no other damage, a balanced balloon therefore takes 20 normal membrane hits to burst, rather than 5. Attached mass per normal / charged hit is 2.5 / 10 kg. Small damage/load no longer cancels the entire lift reserve. HUD reserve and the controller use the same effective-lift formula.
+B / the mobile TΣIXΛEΣ control opens this scene again on the ground. Escape / the close control cancels it. Start, navigation and close controls still exist, but there are no mix, insert, chew or inflate action buttons inside preparation. The entire single-player race pauses during preparation, and the screen says so.
 
-Collision damage is velocity-dependent and cooldown-limited, not stacked once per axis/substep plus continuous rubbing damage. Merely touching an obstacle at rest does not drain integrity. Solid collision is retained, including the envelope meeting an overhead obstacle. Existing geometry uses approximate game collision volumes, not pixel-exact per-leaf or per-pose collision.
+## Six flavours, with visible colour
 
-## AI is close-range, not map-wide
+| Gum | Colour | Existing flight profile |
+|---|---|---|
+| ΜΟΥΡΟ / berry | Purple | Strong: 95 s, 210 integrity |
+| ΜΕΝΤΑ / mint | Green | Light: 120 s, 135 integrity |
+| ΦΡΑΟΥΛΑ / strawberry | Pink | Balanced: 105 s, 160 integrity |
+| ΠΟΡΤΟΚΑΛΙ / orange | Orange | Strong: 95 s, 210 integrity |
+| ΠΑΓΟΜΕΝΗ ΜΕΝΤΑ / ice mint | Cyan | Balanced: 105 s, 160 integrity |
+| ΛΕΜΟΝΙ / lemon | Yellow | Light: 120 s, 135 integrity |
 
-Guard target acquisition and firing are both limited to 38 m in 3D, a maximum 24 m height difference, and a 60 m home territory with a limited leash. Rival racers engage within 50 m and a 30 m height difference. Initial detection has a facing cone, line-of-sight check and 1.15-second reaction delay. Loss of range or line of sight clears tracking immediately. NPC shooting intervals are slower, slightly staggered, and have small aim variation rather than perfectly accurate instantaneous salvos.
+Drag one piece onto another on the table to combine up to three. The pieces merge into one larger piece, with a blended colour and averaged profile properties, not cumulative unlimited bonuses. Then pick up the mixture and place it in the mouth in the same way.
 
-Already-launched projectiles also have total travelled-distance limits: guard 45 m, rival 58 m, player 90 m. A projectile fired near the cutoff may still travel slightly farther; moving beyond acquisition range is not a magical shield from an existing nearby shot. Shots do not travel hundreds of metres after the shooter loses the target. A 12-second opening combat delay and 85 m starting sanctuary prevent an immediate spawn attack by the racers; the sanctuary is shared by AI racers, not exclusive to the player.
+The selected or mixed colour is carried into the airborne balloon, the character's gun reservoir, the FPS reservoir, the player's fired gum and its world-impact marks. It is not just the colour of a menu selection. Existing generic attached-weight patches on enemies retain their earlier visual system.
 
-## Feedback and controls
+One flight recipe (3 resin, 2 fibre, 1 lift gas) is reserved on mouth insertion, not on every pick-up or every selected colour. Cancelling before launch refunds that reservation once. The three-piece mix does not silently charge three recipes. Existing material collection and flight progression are unchanged.
 
-New pilot status separates input command (ascend / descend / neutral) from measured vertical speed. It explains overload, collision, low endurance, emergency reserve and membrane failure. Nearby enemy targeting displays a question-mark warning, the enemy name and current 3D distance. Received hits display who fired and their current distance.
+## Kept from the published 0.5.2
 
-Desktop: WASD / arrows move, Space ascends or jumps, Ctrl descends, Q/E lean/strafe, Shift sprints, C switches FPS/top view, left mouse fires, right mouse holds/releases a charged shot. R reloads, B mixes, F collects, H cleans gum on the ground, M maps, Escape pauses. In touch mode HOLD ↑ or ↓; do not tap and wait for a toggle. Release returns to neutral. Other controls are unchanged.
+The actual physics.js, input.js, world.js, combat052.js, feedback052.js, style.css and hotfix052.css files are byte-for-byte unchanged. The flight controller, hold/release ascent/descent, stronger envelopes, local AI acquisition and finite projectile travel are not replaced by the alternate 1.0 draft. Preparation input is isolated from the normal two-thumb router and does not inject movement or shots when returning to play.
 
-Flight readouts retain horizontal speed in km/h, ascent/descent in m/s, clearance over terrain and horizontal distance to the centre of the next required landing. New races remain in memory; refreshing restarts the race and does not clear the old castle character save.
+Read [the retained flight and combat notes](FLIGHT-0.5.2.md) for speeds, range limits, balloon endurance, recovery, controls and asset licences. The original castle, character save and all non-Bubble repository projects remain untouched.
 
-## Assets and verification
+## Verification and limitations
 
-The existing self-hosted skinned human GLBs, fir meshes, photographic textures and Three.js runtime are unchanged. Licences remain in assets/HUMAN-ASSET-LICENSE.txt, assets/SURFACE-LICENSE.txt and vendor/LICENSE.txt. This hotfix does not claim new AAA graphics or motion-capture animation.
+Actual local runs passed 44/44 direct-manipulation browser checks, 13/13 mix/profile checks, the retained 32/32 flight/combat rule checks and 43/43 flight/browser regression checks: 132 assertions in total. The former recipe-button steps in the browser regression were replaced with the actual gum-to-mouth and bubble-pull gestures. Tests cover all six flavour launches, mixing, partial inflation, cost/refund, FPS shot colour, real human bone use, cancelled touches, event isolation, all four flight legs and desktop/touch layouts. The final 44-check suite was repeated after the last camera-framing adjustment.
 
-Actual local regression run: 32/32 numerical/control/combat-rule checks and 43/43 browser integration checks (75 total). Browser tests exercised real production modules and renderer with only import/resource URLs rebased to local blobs. They cover immediate multi-touch ascent/descent, release/cancel, independent motion/fire ring, CTRL+A, overload and HUD feedback, real NPC range/reaction, finite projectiles, all four landing legs, FPS and desktop/touch UI. Viewports: 1440x900, 430x744, 430x932, 932x430, 375x667. Continuous mobile rendering was also checked after viewport changes.
+Browser tests used the production logic and real renderer with only imports/resource locations rebased to local blob URLs. Environment: Chromium with SwiftShader under Linux/Xvfb; synthetic pointer/touch events, not a physical iPhone or Safari. Viewports included 1440x900, 430x932, 430x744, 375x667 and 932x430. A separate continuous-render mobile check retained an active WebGL context with no page exceptions. These checks do not establish real-device frame rate or polished animation quality.
 
-Environment: Chromium / SwiftShader under Xvfb, touch emulation. Not tested on physical iPhone/Safari; these results do not establish real-device frame rate or eliminate the need for playtesting. The older tests/verified-0.5.1.json describes the previous version, not the retuned values. Current source hashes and verification summary are in tests/hotfix-0.5.2.json.
+The grasp and face motion are game approximations, not motion capture, full soft-body chewing gum, per-finger collision or anatomical chewing simulation. The selected bubble is made with a drag gesture, not actual blowing into a microphone. Asset licences are unchanged in assets/HUMAN-ASSET-LICENSE.txt, assets/SURFACE-LICENSE.txt and vendor/LICENSE.txt.
+
+The runtime source blob hashes and test summary are recorded in tests/hands-0.5.3.json. Old versioned reports describe the older revisions, not the new interaction.

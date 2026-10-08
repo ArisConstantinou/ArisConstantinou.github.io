@@ -1,0 +1,20 @@
+/* The preparation scene is the game canvas, not a panel of action buttons. */
+body.hands-open #hud{visibility:hidden;pointer-events:none}
+body.hands-open #hud button,body.hands-open #hud [data-stick]{pointer-events:none}
+body.hands-open #game{cursor:grab;touch-action:none}
+body.hands-open #vignette{background:linear-gradient(180deg,#10233066,transparent 30%,transparent 77%,#10202aa6)}
+.hands-overlay{position:fixed;inset:0;pointer-events:none;z-index:15;color:#eef5ef}
+.hands-heading{position:absolute;left:calc(28px + var(--sl));top:calc(27px + var(--st));max-width:370px;text-shadow:0 2px 12px #071522}
+.hands-heading h2{font-size:26px;margin:9px 0 6px;max-width:340px;line-height:1.15}
+.hands-heading p{font-size:12px;line-height:1.6;margin:0 0 7px;color:#f0f3df}
+.hands-heading small{font-size:10px;color:#d2e2dc}
+.hands-close{pointer-events:auto;position:absolute;right:calc(20px + var(--sr));top:calc(20px + var(--st));width:52px;height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;background:#172c39b3;font-size:25px}
+.hands-close small{font-size:8px;letter-spacing:1px}
+.hands-guidance{position:absolute;bottom:calc(23px + var(--sb));left:50%;transform:translateX(-50%);width:max-content;max-width:88%;text-align:center;border:1px solid #dcece026;background:#142632da;border-radius:12px;padding:13px 23px;box-shadow:0 6px 24px #14202866}
+.hands-guidance strong{font-size:14px;font-weight:650;display:block;line-height:1.5}
+.hands-guidance span{display:block;font-size:10px;color:#bcd0d2;margin-top:5px;line-height:1.4}
+#gumMouthHint{position:absolute;width:45px;height:45px;border:1px dashed #f0ebbd99;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 18px #18232722}
+#gumMouthHint.near{border:2px solid #a7edd0;box-shadow:0 0 15px #8be6c15c}
+#gumFlavorLabel{margin-top:4px;max-width:235px;letter-spacing:.3px!important;font-size:9px!important}
+@media(max-width:600px){.hands-heading{left:16px;top:calc(18px + var(--st));max-width:calc(100vw - 90px)}.hands-heading h2{font-size:19px;max-width:280px}.hands-heading p{font-size:10px;max-width:270px}.hands-heading small{font-size:8px}.hands-heading .eyebrow{font-size:8px}.hands-guidance{bottom:calc(16px + var(--sb));padding:10px 12px;max-width:94%;width:94%}.hands-guidance strong{font-size:12px}.hands-guidance span{font-size:9px}.hands-close{right:12px;top:calc(14px + var(--st));width:45px;height:47px}.hands-close small{display:none}}
+@media(orientation:landscape) and (max-height:550px){.hands-heading{left:calc(16px + var(--sl));top:12px;max-width:230px}.hands-heading h2{font-size:18px}.hands-heading p{font-size:10px;max-width:230px}.hands-heading small{font-size:8px}.hands-guidance{bottom:calc(8px + var(--sb));padding:7px 14px;max-width:85%}.hands-guidance strong{font-size:11px}.hands-guidance span{font-size:9px;margin-top:2px}}

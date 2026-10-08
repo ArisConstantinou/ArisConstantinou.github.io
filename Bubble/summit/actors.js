@@ -33,6 +33,7 @@ function pointBone(p,name,direction){const b=p.bones[name];if(!b)return;b.update
 export function posePerson(p,a,time,dt,fps=false,near=true){
  p.root.position.set(a.x,a.y,a.z);p.root.rotation.set(0,a.yaw,a.balloon?a.bank:0);p.root.visible=a.alive;p.model.visible=!fps&&near;p.gun.visible=!fps&&near;
  const show=!!a.balloon;p.balloon.visible=p.tail.visible=show;
+ const gumColor=a.balloon?.color??a.gumMix?.color??p.color;p.balloon.material.color.setHex(gumColor);p.gun.userData.tank.material.color.setHex(gumColor);
  if(show){const r=a.balloon.r;p.balloon.scale.set(r*(1+Math.sin(time*1.8)*.006),r,r);p.balloon.position.set(0,1.70+r+.3,.45);p.tail.position.set(0,2.08,.43);p.tail.scale.set(1,.79,1);p.balloon.material.opacity=fps?.14:.78;}
  if(!a.alive||!near)return;
  for(const [name,b]of Object.entries(p.bones)){b.quaternion.copy(p.rest[name].q);b.position.copy(p.rest[name].p);}p.model.updateMatrixWorld(true);
