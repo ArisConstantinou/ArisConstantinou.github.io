@@ -1,8 +1,12 @@
-# Bubble Skyward — Summit 0.5.3
+# Bubble Skyward — Summit 0.5.4
 
-Play: https://arisconstantinou.github.io/Bubble/?v=0.5.3
+Play: https://arisconstantinou.github.io/Bubble/?v=0.5.4
 
-## Pick the gum, not a recipe button
+## Keyboard hotfix 0.5.4
+
+Desktop descent is now **X**; ascent/jump remains **Space**. Hold X together with WASD to descend and steer without holding Ctrl. Release X to return to neutral vertical input. Ctrl, Command and Alt shortcuts are not interpreted as game actions; they also cancel held desktop input to prevent stuck movement or an unintended shot. Browser/OS shortcuts themselves remain under browser/OS control. Touch altitude and ring aiming are unchanged. See [current controls and verification](KEYBOARD-0.5.4.md).
+
+## Pick the gum, not a recipe button (retained from 0.5.3)
 
 This release replaces the old three-button preparation wizard with a close-up 3D scene using the player's existing skinned human character and a portable table of six gum pieces. The hand, gum and mouth are visible together. Preparation uses a front-facing close-up, not first-person hands; the flying/ground game still has FPS and top view.
 
@@ -33,11 +37,11 @@ One flight recipe (3 resin, 2 fibre, 1 lift gas) is reserved on mouth insertion,
 
 ## Kept from the published 0.5.2
 
-The actual physics.js, input.js, world.js, combat052.js, feedback052.js, style.css and hotfix052.css files are byte-for-byte unchanged. The flight controller, hold/release ascent/descent, stronger envelopes, local AI acquisition and finite projectile travel are not replaced by the alternate 1.0 draft. Preparation input is isolated from the normal two-thumb router and does not inject movement or shots when returning to play.
+The actual physics.js, world.js, combat052.js, feedback052.js, style.css and hotfix052.css files are byte-for-byte unchanged. The keyboard portion of input.js has the 0.5.4 browser-safe change above; its touch routing is unchanged. The flight controller, hold/release ascent/descent, stronger envelopes, local AI acquisition and finite projectile travel are not replaced by the alternate 1.0 draft. Preparation input is isolated from the normal two-thumb router and does not inject movement or shots when returning to play.
 
 Read [the retained flight and combat notes](FLIGHT-0.5.2.md) for speeds, range limits, balloon endurance, recovery, controls and asset licences. The original castle, character save and all non-Bubble repository projects remain untouched.
 
-## Verification and limitations
+## Earlier 0.5.3 verification and limitations
 
 Actual local runs passed 44/44 direct-manipulation browser checks, 13/13 mix/profile checks, the retained 32/32 flight/combat rule checks and 43/43 flight/browser regression checks: 132 assertions in total. The former recipe-button steps in the browser regression were replaced with the actual gum-to-mouth and bubble-pull gestures. Tests cover all six flavour launches, mixing, partial inflation, cost/refund, FPS shot colour, real human bone use, cancelled touches, event isolation, all four flight legs and desktop/touch layouts. The final 44-check suite was repeated after the last camera-framing adjustment.
 

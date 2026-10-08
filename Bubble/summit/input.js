@@ -4,7 +4,24 @@ const prevent=e=>{if(e.cancelable)e.preventDefault();};
 export class Input{
  constructor(canvas,game){this.canvas=canvas;this.game=game;this.keys=new Set;this.move=[0,0];this.aim=[0,0];this.ring=false;this.mouse=[0,0];this.mouseActive=false;this.left=false;this.right=false;this.up=0;this.owners=new Map;this.slots=new Set;this.touch=matchMedia('(pointer:coarse)').matches;this.lastTouch=0;this.mode(this.touch);
   for(const type of['selectstart','contextmenu','dragstart','copy','cut','paste'])document.addEventListener(type,prevent,{capture:true,passive:false});document.addEventListener('selectionchange',()=>{const s=getSelection();if(s?.rangeCount)s.removeAllRanges();});
-  window.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['a','c','x','v'].includes(e.key.toLowerCase())){prevent(e);if(!game.playing())return;}if(e.target.matches('input,select,textarea'))return;this.mode(false);if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab'].includes(e.code))prevent(e);this.keys.add(e.code);if(e.repeat)return;const map={KeyC:'camera',KeyM:'map',Escape:'pause',KeyR:'reload',KeyB:'craft',KeyF:'collect',KeyH:'clean'};if(map[e.code])game.action(map[e.code]);if(e.code==='Space'&&game.player?.grounded)game.action('jump');});
+  window.addEventListener('keydown',e=>{
+   // Ctrl/Command/Alt belong to the browser, not to flight or game actions.
+   // Cancel held desktop input first; shortcuts must not also move/reload/fire.
+   if(e.ctrlKey||e.metaKey||e.altKey||/^(Control|Meta|Alt)/.test(e.code)){
+    this.keys.clear();this.left=this.right=false;game.chargeRelease(true);return;
+   }
+   if(e.isComposing||e.target?.closest?.('input,select,textarea,[contenteditable]:not([contenteditable="false"])'))return;
+   const map={KeyC:'camera',KeyM:'map',Escape:'pause',KeyR:'reload',KeyB:'craft',KeyF:'collect',KeyH:'clean'};
+   const movement=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','KeyX','KeyQ','KeyE','ShiftLeft','ShiftRight'];
+   if(!game.running||(!map[e.code]&&!movement.includes(e.code)))return;
+   this.mode(false);
+   // Space/arrow defaults (including focused-button activation) are suppressed
+   // only for active play. Tab and unrelated browser keys are left alone.
+   if(game.playing()){prevent(e);this.keys.add(e.code);}
+   if(e.repeat)return;
+   if(map[e.code])game.action(map[e.code]);
+   if(e.code==='Space'&&game.playing()&&game.player?.grounded)game.action('jump');
+  });
   window.addEventListener('keyup',e=>this.keys.delete(e.code));
   document.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||performance.now()-this.lastTouch<600)return;this.mode(false);if(e.target!==canvas||!game.playing())return;this.mouse=[e.clientX,e.clientY];this.mouseActive=true;if(e.button===0)this.left=true;if(e.button===2)this.right=true;if(game.fps&&!document.pointerLockElement)try{canvas.requestPointerLock()?.catch(()=>{});}catch{};prevent(e);});
   document.addEventListener('pointermove',e=>{if(e.pointerType==='touch'||performance.now()-this.lastTouch<600)return;this.mouse=[e.clientX,e.clientY];this.mouseActive=true;if(document.pointerLockElement===canvas&&game.fps&&game.playing())game.look(-e.movementX*.0025,-e.movementY*.0025);if(e.buttons===0){this.left=false;if(this.right){this.right=false;game.chargeRelease(true);}}});
