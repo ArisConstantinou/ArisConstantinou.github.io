@@ -1,11 +1,13 @@
 import * as THREE from './vendor/three.module.js';
-import {MAP,REGIONS,RESOURCE_NODES,FACTIONS,BRIDGES,UNIT_TYPES,BUILDINGS,heightAt,riverX,regionAt} from './feouda-data.js?v=2.5.0';
-import {BUILDING_FOOTPRINTS,PLACEMENT_ROADS,UNIT_CLEARANCE,isWorldPointWalkable,isWorldSegmentWalkable} from './feouda-engine.js?v=2.5.0';
-import {createAssetLibrary} from './feouda-assets.js?v=2.5.0';
-import {createSoftwareRenderer} from './feouda-software.js?v=2.5.0';
-import {createMaterials} from './feouda-materials.js?v=2.5.0';
-import {paintTerrain,createConstructionSite,setConstructionProgress,createForestMaterial} from './feouda-environment.js?v=2.5.0';
-import {createFortress,setFortressState,createHouse,createBuilding,createBridge,createSiege,createResource,soldierGeometries,box,cylinder,mergeStatic} from './feouda-models.js?v=2.5.0';
+import {MAP,REGIONS,RESOURCE_NODES,FACTIONS,BRIDGES,UNIT_TYPES,BUILDINGS,heightAt,riverX,regionAt} from './feouda-data.js?v=2.6.0';
+import {BUILDING_FOOTPRINTS,PLACEMENT_ROADS,UNIT_CLEARANCE,CONSTRUCTION_CREW_SPEED,CONSTRUCTION_CREW_CLEARANCE,getConstructionProgress,isWorldPointWalkable,isWorldSegmentWalkable} from './feouda-engine.js?v=2.6.0';
+import {getSquadOrderReadout} from './feouda-orders.js?v=2.6.0';
+import {createAssetLibrary} from './feouda-assets.js?v=2.6.0';
+import {createSoftwareRenderer} from './feouda-software.js?v=2.6.0';
+import {createMaterials} from './feouda-materials.js?v=2.6.0';
+import {paintTerrain,createForestMaterial} from './feouda-environment.js?v=2.6.0';
+import {createConstructionSite,setConstructionProgress} from './feouda-construction.js?v=2.6.0';
+import {createFortress,setFortressState,createHouse,createBuilding,createBridge,createSiege,createResource,soldierGeometries,box,cylinder,mergeStatic} from './feouda-models.js?v=2.6.0';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),mix=(a,b,t)=>a+(b-a)*t;
 const random=seed=>()=>{seed=Math.imul(seed^seed>>>15,1|seed);seed^=seed+Math.imul(seed^seed>>>7,61|seed);return((seed^seed>>>14)>>>0)/4294967296;};
@@ -74,11 +76,54 @@ export function createBattlefield(canvas,callbacks={}){
  }
  function clearGroup(g){for(const a of[...g.children]){a.traverse(o=>o.userData.disposeAnimation?.());a.removeFromParent();a.geometry?.dispose();if(a.material?.userData?.transient)a.material.dispose();}}
  function circlePoints(x,z,r){const points=[];for(let i=0;i<=80;i++){const a=i*Math.PI/40,px=x+Math.cos(a)*r,pz=z+Math.sin(a)*r;points.push(new THREE.Vector3(px,walkHeight(px,pz)+.27,pz));}return points;}
- function drawSelection(){clearGroup(selectionGroup);clearGroup(ordersGroup);if(!selection||!state)return;let items=[];if(selection.kind==='army'||selection.kind==='squad'){const ids=selection.ids||[selection.id];items=state.squads.filter(s=>ids.includes(s.id)).map(s=>({...s,r:s.type==='cavalry'?5.6:4.2}));}else if(selection.kind==='region'){const r=REGIONS.find(r=>r.id===selection.id);if(r)items=[{...r,r:r.kind==='castle'?25:r.kind==='town'?19:15}];}else if(selection.kind==='structure'){const st=state.structures?.find(a=>a.id===selection.id);if(st){const f=BUILDING_FOOTPRINTS[st.type];items=[{...st,r:Math.max(f?.width||8,f?.depth||8)*.66}];}}else{const n=state.nodes.find(n=>n.id===selection.id);if(n)items=[{...n,r:6.3}];}for(const a of items){const mat=new THREE.LineBasicMaterial({color:'#e4d3a3',transparent:true,opacity:.94,depthWrite:false});mat.userData.transient=true;if(a.type&&a.hp){
- const machine=a.type==='ram'||a.type==='trebuchet';
- if(machine)selectionGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(circlePoints(a.x,a.z,4.8)),mat));
- else for(let i=0;i<Math.min(a.men||1,12);i++){const at=actorPositions.get('squad:'+a.id+':'+i);if(at)selectionGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(circlePoints(at.x,at.z,a.type==='cavalry'?1.48:.63)),mat));}
-}else selectionGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(circlePoints(a.x,a.z,a.r)),mat));if(a.order&&a.order.type!=='hold'){let dest=a.order;if(dest.targetId){dest=state.squads.find(s=>s.id===dest.targetId)||REGIONS.find(r=>r.id===dest.targetId)||dest;}if(dest.regionId)dest=REGIONS.find(r=>r.id===dest.regionId)||dest;if(Number.isFinite(dest.x)&&Number.isFinite(dest.z)){const path=a.path?.length?[{x:a.x,z:a.z},...a.path]:[{x:a.x,z:a.z},{x:dest.x,z:dest.z}],p=path.map(v=>new THREE.Vector3(v.x,heightAt(v.x,v.z)+.35,v.z));const mm=new THREE.LineDashedMaterial({color:a.order.type==='attack'?'#d58365':'#ddd5b9',dashSize:1.9,gapSize:1.4,transparent:true,opacity:.64,depthWrite:false});mm.userData.transient=true;const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(p),mm);line.computeLineDistances();ordersGroup.add(line);}}}}
+ function routeLine(points,color='#ddd5b9',opacity=.76){
+  if(!Array.isArray(points)||points.length<2)return;
+  const grounded=[];
+  // Densify only along the real saved route, so lines follow slopes and bridge
+  // decks without creating an unwalkable shortcut between start and target.
+  for(let i=1;i<points.length;i++){
+   const a=points[i-1],b=points[i];if(![a?.x,a?.z,b?.x,b?.z].every(Number.isFinite))return;
+   const steps=Math.max(1,Math.ceil(distance(a,b)/1.7));
+   for(let j=i===1?0:1;j<=steps;j++){const t=j/steps,x=mix(a.x,b.x,t),z=mix(a.z,b.z,t);grounded.push(new THREE.Vector3(x,walkHeight(x,z)+.34,z));}
+  }
+  const material=new THREE.LineDashedMaterial({color,dashSize:1.35,gapSize:.85,transparent:true,opacity,depthWrite:false});material.userData.transient=true;
+  const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(grounded),material);line.name='Actual navigation route';line.computeLineDistances();ordersGroup.add(line);
+ }
+ function orderMarker(point,{blocked=false,hostile=false,work=false}={}){
+  if(!point||![point.x,point.z].every(Number.isFinite))return;
+  const color=blocked?'#eeae62':hostile?'#d78b72':work?'#d6bd78':'#d7dec0',radius=blocked?2.05:hostile?3.2:2.25,material=new THREE.LineBasicMaterial({color,transparent:true,opacity:.94,depthWrite:false});material.userData.transient=true;
+  const ring=new THREE.Line(new THREE.BufferGeometry().setFromPoints(circlePoints(point.x,point.z,radius)),material);ring.name=blocked?'Blocked order':hostile?'Attack target':'Order destination';ordersGroup.add(ring);
+  if(blocked){const points=[];for(const [a,b]of[[[-1,-1],[1,1]],[[-1,1],[1,-1]]])for(const p of[a,b]){const x=point.x+p[0]*1.05,z=point.z+p[1]*1.05;points.push(new THREE.Vector3(x,walkHeight(x,z)+.4,z));}ordersGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(points),material));}
+  else{const points=[];for(let i=0;i<4;i++){const a=i*Math.PI*.5;for(const r of[radius+1,radius+.35]){const x=point.x+Math.cos(a)*r,z=point.z+Math.sin(a)*r;points.push(new THREE.Vector3(x,walkHeight(x,z)+.32,z));}}ordersGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(points),material));}
+ }
+ function drawSelection(){
+  clearGroup(selectionGroup);clearGroup(ordersGroup);if(!selection||!state)return;let items=[];
+  if(selection.kind==='army'||selection.kind==='squad'){const ids=selection.ids||[selection.id];items=state.squads.filter(s=>ids.includes(s.id)).map(s=>({...s,r:s.type==='cavalry'?5.6:4.2}));}
+  else if(selection.kind==='region'){const r=REGIONS.find(r=>r.id===selection.id);if(r)items=[{...r,r:r.kind==='castle'?25:r.kind==='town'?19:15}];}
+  else if(selection.kind==='structure'){const st=state.structures?.find(a=>a.id===selection.id);if(st){const f=BUILDING_FOOTPRINTS[st.type];items=[{...st,r:Math.max(f?.width||8,f?.depth||8)*.66}];}}
+  else{const n=state.nodes.find(n=>n.id===selection.id);if(n)items=[{...n,r:6.3}];}
+  for(const item of items){
+   const material=new THREE.LineBasicMaterial({color:'#e4d3a3',transparent:true,opacity:.94,depthWrite:false});material.userData.transient=true;
+   if(item.type&&item.hp){
+    const machine=item.type==='ram'||item.type==='trebuchet';
+    if(machine)selectionGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(circlePoints(item.x,item.z,4.8)),material));
+    else for(let i=0;i<Math.min(item.men||1,12);i++){const at=actorPositions.get('squad:'+item.id+':'+i);if(at)selectionGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(circlePoints(at.x,at.z,item.type==='cavalry'?1.48:.63)),material));}
+    const order=getSquadOrderReadout(state,item),hostile=['attack','attackMove','siege','capture'].includes(order.orderType)||['engaging','sieging','capturing'].includes(order.status);
+    routeLine(order.routePoints,hostile?'#d58d76':'#ddd5b9');
+    if(order.status==='blocked')orderMarker(item,{blocked:true});
+    else if(order.destination&&order.routePoints.length)orderMarker(order.destination,{hostile});
+    // A target marker is an intention, not a route through an intervening wall.
+    if(hostile&&order.target&&['squad','region'].includes(order.target.kind))orderMarker(order.target,{hostile:true});
+   }else selectionGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(circlePoints(item.x,item.z,item.r)),material));
+  }
+  if(selection.kind==='structure'){
+   const job=state.jobs?.find(job=>job.structureId===selection.id),crews=[...(job?.construction?.crew||[]),...(state.returningCrews||[]).filter(worker=>worker.structureId===selection.id)];
+   for(const worker of crews){
+    if(['travel','return'].includes(worker.phase)&&worker.path?.length)routeLine([{x:worker.x,z:worker.z},...worker.path],'#c9b47b',.44);
+    if(worker.phase==='blocked')orderMarker(worker,{blocked:true,work:true});
+   }
+  }
+ }
  function removeTarget(target){const i=pickers.indexOf(target);if(i>=0)pickers.splice(i,1);}
  function disposeModel(model){if(!model)return;model.removeFromParent();model.traverse(o=>{o.userData.disposeAnimation?.();if(o.geometry&&!o.userData.sharedAsset&&!o.geometry.userData?.sharedPrimitive)o.geometry.dispose();});}
  const vegetationOriginals=new Map([...nature.trees,nature.rocks].map(m=>[m,new Float32Array(m.instanceMatrix.array)]));
@@ -122,8 +167,8 @@ export function createBattlefield(canvas,callbacks={}){
  }
 
  function refreshStructures(){if(!state)return;for(const r of REGIONS){let fort=forts.get(r.id);if(fort.userData.assetRevision!==assetRevision&&assets.has('fortress',r.kind)){disposeModel(fort);fort=createFortress(r,materials,assets);fort.position.set(r.x,heightAt(r.x,r.z),r.z);fort.userData.assetRevision=assetRevision;scene.add(fort);forts.set(r.id,fort);}setFortressState(fort,state.regions[r.id],materials);}for(const line of [...territories,...politicalFills])line.material.color.set(factionColor(state.regions[line.userData.regionId]?.owner));
- const alive=new Set;for(const st of state.structures||[]){if(!BUILDING_FOOTPRINTS[st.type])continue;alive.add(st.id);const fp=BUILDING_FOOTPRINTS[st.type],signature=[st.type,st.status,st.level,st.x,st.z,st.rotation,st.baseY,st.terrainMin,assetRevision].join(':');let group=growth.get(st.id);if(!group||group.userData.signature!==signature){if(group)disposeModel(group);group=new THREE.Group();group.position.set(st.x,Number.isFinite(st.baseY)?st.baseY:heightAt(st.x,st.z),st.z);group.rotation.y=st.rotation||0;group.userData.signature=signature;group.userData.structureId=st.id;const rise=Math.max(.15,group.position.y-(st.terrainMin??group.position.y)+.15);box(group,materials.darkStone,0,-rise/2+.06,0,fp.width-.4,rise,fp.depth-.4);const model=buildModel(st.type,st.variant||0);group.userData.model=model;if(st.status==='building'||st.status==='upgrading'){const site=createConstructionSite(st.type,materials,fp,model,{upgrading:st.status==='upgrading'});group.add(site);group.userData.scaffold=site;}else group.add(model);scene.add(group);growth.set(st.id,group);}
- if(group.userData.scaffold){const job=state.jobs.find(j=>j.id===st.jobId),progress=job?clamp(1-job.remaining/job.duration,0,1):.1;setConstructionProgress(group.userData.scaffold,progress);}
+ const alive=new Set;for(const st of state.structures||[]){if(!BUILDING_FOOTPRINTS[st.type])continue;alive.add(st.id);const fp=BUILDING_FOOTPRINTS[st.type],signature=[st.type,st.status,st.level,st.x,st.z,st.rotation,st.baseY,st.terrainMin,assetRevision].join(':');let group=growth.get(st.id);if(!group||group.userData.signature!==signature){if(group)disposeModel(group);group=new THREE.Group();group.position.set(st.x,Number.isFinite(st.baseY)?st.baseY:heightAt(st.x,st.z),st.z);group.rotation.y=st.rotation||0;group.userData.signature=signature;group.userData.structureId=st.id;const rise=Math.max(.15,group.position.y-(st.terrainMin??group.position.y)+.15);group.userData.foundation=box(group,materials.darkStone,0,-rise/2+.06,0,fp.width-.4,rise,fp.depth-.4);const model=buildModel(st.type,st.variant||0);group.userData.model=model;if(st.status==='building'||st.status==='upgrading'){const site=createConstructionSite(st.type,materials,fp,model,{upgrading:st.status==='upgrading'});group.add(site);group.userData.scaffold=site;}else group.add(model);scene.add(group);growth.set(st.id,group);}
+ if(group.userData.scaffold){const job=state.jobs.find(j=>j.id===st.jobId),info=getConstructionProgress(state,job),progress=info?.progress||0;setConstructionProgress(group.userData.scaffold,progress,info||{});group.userData.foundation.visible=st.status==='upgrading'||progress>=.04;}
  let target=structureTargets.get(st.id);if(!target){target=targetMesh('structure',st.id,st.x,st.z,Math.max(fp.width,fp.depth)*.43,3);structureTargets.set(st.id,target);}target.position.set(st.x,(Number.isFinite(st.baseY)?st.baseY:heightAt(st.x,st.z))+2.8,st.z);target.scale.set(Math.max(fp.width,fp.depth)*.43,4,Math.max(fp.width,fp.depth)*.43);target.updateMatrixWorld(true);
  }for(const [id,group]of growth)if(!alive.has(id)){disposeModel(group);growth.delete(id);const target=structureTargets.get(id);if(target){removeTarget(target);structureTargets.delete(id);}}clearVegetation();}
  const ghostMat=new THREE.MeshStandardMaterial({color:'#86c891',emissive:'#275836',emissiveIntensity:.35,roughness:.9,transparent:true,opacity:.38,depthWrite:false});const ghostOutline=new THREE.LineBasicMaterial({color:'#b8e7b4',transparent:true,opacity:.95,depthWrite:false});const ghostFill=new THREE.MeshBasicMaterial({color:'#7abd89',transparent:true,opacity:.12,depthWrite:false,side:THREE.DoubleSide});
@@ -212,14 +257,22 @@ export function createBattlefield(canvas,callbacks={}){
   return mounted?'mounted':'humanoid';
  }
  function soldier(key,x,z,yaw,owner,type,phase,walking,scale=1,anchor=null,attacking=false,task={}){
-  const prior=actorPositions.get(key),maxSpeed=type==='civilian'?(anchor?(UNIT_TYPES[anchor.type]?.speed||1.2)*1.35:1.38):(UNIT_TYPES[type]?.speed||4.5)*1.35;
-  const point=safeActorPoint(key,x,z,anchor,type==='cavalry'?UNIT_CLEARANCE.cavalry:UNIT_CLEARANCE.spear,maxSpeed);if(!point)return;x=point.x;z=point.z;
+  const prior=actorPositions.get(key),maxSpeed=task.authoritative?CONSTRUCTION_CREW_SPEED:type==='civilian'?(anchor?(UNIT_TYPES[anchor.type]?.speed||1.2)*1.35:1.38):(UNIT_TYPES[type]?.speed||4.5)*1.35;
+  let point;
+  if(task.authoritative){
+   // Engine crews already passed the same point and segment collision checks.
+   // Do not reroute or clamp their displacement as if they were decorative
+   // formation followers; that would separate the rig from its real work state.
+   point={x,z};if(!isWorldPointWalkable(state,point,CONSTRUCTION_CREW_CLEARANCE))return;
+   actorPositions.set(key,point);activeActors.add(key);
+  }else point=safeActorPoint(key,x,z,anchor,type==='cavalry'?UNIT_CLEARANCE.cavalry:UNIT_CLEARANCE.spear,maxSpeed);
+  if(!point)return;x=point.x;z=point.z;
   let motion=actorMotions.get(key);if(!motion){motion={distance:0,speed:0,yaw,phase:stableVariant(key)*.017};actorMotions.set(key,motion);}
   const travelled=prior?distance(prior,point):0,physicalStep=actorDelta>0&&travelled>0&&travelled<=actorDelta*maxSpeed*1.05;
-  if(physicalStep)motion.distance+=travelled;
-  const speed=physicalStep?travelled/actorDelta:0;motion.speed=mix(motion.speed,speed,actorDelta>0?1-Math.exp(-actorDelta*12):0);
-  const moving=physicalStep&&speed>.08;
-  const facing=moving?Math.atan2(x-prior.x,z-prior.z):yaw;
+  if(task.authoritative&&Number.isFinite(task.travelled))motion.distance=Math.max(0,task.travelled);else if(physicalStep)motion.distance+=travelled;
+  const moving=task.authoritative?!!task.travelling&&!state.paused:physicalStep&&travelled/actorDelta>.08;
+  const speed=task.authoritative?(moving?CONSTRUCTION_CREW_SPEED:0):physicalStep?travelled/actorDelta:0;motion.speed=mix(motion.speed,speed,actorDelta>0?1-Math.exp(-actorDelta*12):0);
+  const facing=moving&&prior&&travelled>.00001?Math.atan2(x-prior.x,z-prior.z):yaw;
   if(actorDelta>0)motion.yaw=turnToward(motion.yaw,facing,actorDelta*(type==='cavalry'?3.2:5));
   phase=motion.distance/(type==='cavalry'?1.47:1.38)*Math.PI*2+motion.phase;
   Object.assign(motion,{work:task.work||null,tool:task.tool||task.work||null,actionTime:anchor&&Number.isFinite(anchor.lastAttack)&&anchor.lastAttack>=0?Math.max(0,state.t-anchor.lastAttack):undefined,actionDuration:UNIT_TYPES[anchor?.type]?.cooldown});
@@ -257,11 +310,14 @@ export function createBattlefield(canvas,callbacks={}){
   const x=n.x+Math.cos(a)*r,z=n.z+Math.sin(a)*r,rest=Math.floor((time+stableVariant(key)*.1)/9)%7===0;
   soldier(key,x,z,Math.atan2(n.x-x,n.z-z),n.owner||state.regions[n.regionId]?.owner||'neutral','civilian',i,false,1,null,false,{work:rest?null:n.type,tool:n.type});
  }}
- for(const st of state.structures||[]){if(!['building','upgrading'].includes(st.status))continue;const fp=BUILDING_FOOTPRINTS[st.type],job=state.jobs.find(j=>j.id===st.jobId),c=Math.cos(st.rotation||0),sn=Math.sin(st.rotation||0);
-  for(let i=0;i<Math.min(job?.workers||2,3);i++){
-   const lx=(i%2?1:-1)*(fp.width/2+1.05),lz=(i-1)*fp.depth*.26,x=st.x+c*lx+sn*lz,z=st.z-sn*lx+c*lz;
-   soldier('builder:'+st.id+':'+i,x,z,Math.atan2(st.x-x,st.z-z),'player','civilian',i,false,1,null,false,{work:job?.blocked?null:'build',tool:'build'});
-  }
+ // A worker's engine coordinates persist from the settlement to the work
+ // station and back. Rendering neither spawns a crew at the site nor makes up a
+ // walking route, and its stride follows the distance the simulation travelled.
+ const constructionCrews=[...state.jobs.flatMap(job=>job.construction?.crew||[]),...(state.returningCrews||[])];
+ for(const worker of constructionCrews){
+  if(!Number.isFinite(worker.x)||!Number.isFinite(worker.z))continue;
+  const travelling=['travel','return'].includes(worker.phase),working=worker.phase==='work';
+  soldier('builder:'+worker.id,worker.x,worker.z,worker.heading||0,'player','civilian',0,travelling,1,null,false,{authoritative:true,travelled:worker.travelled,travelling,work:working?'build':null,tool:'build'});
  }
  for(const r of REGIONS){if(state.regions[r.id]?.owner!=='player')continue;for(let i=0;i<2;i++){
   const key='citizen:'+r.id+':'+i;let route=civilianRoutes.get(key);
@@ -334,7 +390,7 @@ export function createBattlefield(canvas,callbacks={}){
  function label(text,x,y,{small=false,color='#9eac9a',kind,id,sub,health}={}){if(x<18||x>width-18||y<5||y>height-12)return;ctx.font=`${small?'600 11':'600 13'}px Inter, system-ui, sans-serif`;const w=ctx.measureText(text).width+22,h=sub?40:25;const left=x-w/2,top=y-h;ctx.fillStyle='rgba(17,23,22,.79)';ctx.beginPath();ctx.roundRect(left,top,w,h,3);ctx.fill();ctx.fillStyle=color;ctx.fillRect(left,top,2,h);ctx.fillStyle='#ece7d9';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,x,top+13);if(sub){ctx.font='11px Inter,system-ui,sans-serif';ctx.fillStyle='#c0c4b3';ctx.fillText(sub,x,top+30);}if(Number.isFinite(health)){ctx.fillStyle='rgba(10,14,13,.9)';ctx.fillRect(left+4,top+h+3,w-8,3);ctx.fillStyle=color;ctx.fillRect(left+4,top+h+3,(w-8)*health,3);}if(kind)labelBoxes.push({x:left,y:top,w,h:h+6,kind,id});}
  function drawOverlay(){ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);ctx.clearRect(0,0,width,height);labelBoxes=[];if(!state)return;const mobile=width<700;
  for(const r of REGIONS){const s=state.regions[r.id];if(!s)continue;const selected=selection?.kind==='region'&&selection.id===r.id,distanceToView=Math.hypot(r.x-view.x,r.z-view.z);if(mobile&&distanceToView>view.distance*.8&&!selected)continue;const p=screenPoint(r.x,heightAt(r.x,r.z)+(r.kind==='castle'?29:21),r.z);if(!p.visible)continue;label(r.name,p.x,p.y,{color:factionColor(s.owner),kind:'region',id:r.id,health:s.fortHp/s.maxFortHp,sub:selected?(s.owner==='player'?'ΤΟ ΦΕΟΥΔΟ ΣΟΥ':FACTIONS[s.owner]?.shortName):null});}
- if(selection?.kind==='structure'){const st=state.structures?.find(a=>a.id===selection.id);if(st){const p=screenPoint(st.x,(st.baseY??heightAt(st.x,st.z))+10,st.z);if(p.visible)label(BUILDINGS[st.type]?.name||st.type,p.x,p.y,{kind:'structure',id:st.id,color:factionColor(state.regions[st.regionId]?.owner),sub:st.status==='building'?'ΕΡΓΟΤΑΞΙΟ':`ΒΑΘΜΙΔΑ ${st.level}`});}}
+ if(selection?.kind==='structure'){const st=state.structures?.find(a=>a.id===selection.id);if(st){const p=screenPoint(st.x,(st.baseY??heightAt(st.x,st.z))+10,st.z);if(p.visible){const construction=growth.get(st.id)?.userData.scaffold?.userData,sub=construction?`${construction.constructionStageLabel} · ${Math.min(99,Math.floor(construction.constructionProgress*100))}%`:`ΒΑΘΜΙΔΑ ${st.level}`;label(BUILDINGS[st.type]?.name||st.type,p.x,p.y,{kind:'structure',id:st.id,color:factionColor(state.regions[st.regionId]?.owner),sub,health:construction?.constructionProgress});}}}
  for(const s of state.squads){const isSelected=selection?.id===s.id||selection?.ids?.includes(s.id),p=screenPoint(s.x,walkHeight(s.x,s.z)+(s.type==='trebuchet'?8:5.2),s.z);if(!p.visible||p.x<0||p.x>width||p.y<0||p.y>height)continue;const w=isSelected?66:32;ctx.fillStyle='rgba(12,19,17,.78)';ctx.fillRect(p.x-w/2,p.y,w,5);ctx.fillStyle=factionColor(s.owner);ctx.fillRect(p.x-w/2+1,p.y+1,(w-2)*clamp(s.hp/s.maxHp,0,1),3);if(isSelected){ctx.fillStyle='#f0e9d5';ctx.font='600 12px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.fillText(UNIT_TYPES[s.type]?.name||s.type,p.x,p.y-8);}else if(view.distance>250){ctx.beginPath();ctx.arc(p.x,p.y+10,4,0,Math.PI*2);ctx.fillStyle=factionColor(s.owner);ctx.fill();}labelBoxes.push({x:p.x-17,y:p.y-7,w:34,h:22,kind:'squad',id:s.id});}
  if(mapMode==='resources'||selection?.kind==='node'){for(const n of state.nodes){if(mapMode!=='resources'&&n.id!==selection.id)continue;const p=screenPoint(n.x,heightAt(n.x,n.z)+5,n.z);if(p.visible)label(({wood:'ΞΥΛΕΙΑ',food:'ΤΡΟΦΙΜΑ',stone:'ΠΕΤΡΑ',iron:'ΣΙΔΗΡΟΣ'})[n.type],p.x,p.y,{small:true,kind:'node',id:n.id,color:'#b6a770',sub:n.workers?`${n.workers} εργάτες`:undefined});}}
  if(boxSelect){const x=Math.min(boxSelect.x0,boxSelect.x1),y=Math.min(boxSelect.y0,boxSelect.y1),w=Math.abs(boxSelect.x1-boxSelect.x0),h=Math.abs(boxSelect.y1-boxSelect.y0);ctx.strokeStyle='#d9cca9';ctx.fillStyle='rgba(201,183,140,.12)';ctx.lineWidth=1;ctx.fillRect(x,y,w,h);ctx.strokeRect(x+.5,y+.5,w,h);}
@@ -385,7 +441,7 @@ export function createBattlefield(canvas,callbacks={}){
  setQuality(q){quality=q;renderer.setQuality?.(q);renderer.shadowMap.enabled=q!=='low';scene.fog.density=q==='low'?.002:.00165;resize();},
  setInsets(next){insets={...insets,...next};},
  setInputEnabled(value){inputEnabled=!!value;if(!value){blur();boxSelect=null;}},
- getDebugState(){return{ready,frame,renderer:renderMode==='software'?'three-software':'three-webgl',software:renderer.info.software||null,camera:{...view},desired:{...desired},viewport:{width,height},selection,placement:placement?{...placement}:null,structures:[...growth.keys()],workshops:[...growth].filter(([,group])=>group.userData.model?.userData.animationInfo).map(([id,group])=>({id,assetId:group.userData.model.userData.assetId,waterPowered:group.userData.model.userData.waterPowered,operating:group.userData.model.userData.operating,animation:group.userData.model.userData.animationState?.()})),mapMode,inputEnabled,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,treeCount:nature.treeCount,detailedTreeCount:[...treeBuckets.values()].reduce((sum,b)=>sum+b.count,0),treeLods:[...treeBuckets].map(([type,b])=>({type,count:b.count})),assets:assets.getStats(),detailedActors:actors.size,visibleDetailedActors:detailFrameCount,mountedActors:[...actors].filter(([,actor])=>actor.mount?.visible).map(([id,actor])=>({id,assetId:actor.mount.userData.assetId,seat:actor.mountSeat?.toArray(),animation:actor.mount.userData.animationState?.(),gait:actor.mount.userData.gait,travel:actor.mount.userData.travel})),actorBudget:quality==='low'?64:112,siegeModels:[...sieges].map(([id,model])=>({id,assetId:model.userData.assetId||null,phase:model.userData.firingPhase,animation:model.userData.animationState?.()})),projectiles:[...effectModels].filter(([,model])=>model.userData.launch).map(([id,model])=>({id,assetId:model.userData.projectileAsset||null,launch:model.userData.launch,position:model.position.toArray()})),actorPositions:[...actorPositions].map(([id,p])=>({id,...p})),actorMotion:[...actorMotions].map(([id,m])=>({id,...m,clip:actors.get(id)?.motionState?.()})),fortresses:forts.size,labels:labelBoxes.map(l=>({...l})),squads:state?.squads.map(s=>({id:s.id,type:s.type,x:s.x,z:s.z,y:walkHeight(s.x,s.z),screen:screenPoint(s.x,walkHeight(s.x,s.z)+1,s.z)}))||[]};},
+ getDebugState(){return{ready,frame,renderer:renderMode==='software'?'three-software':'three-webgl',software:renderer.info.software||null,camera:{...view},desired:{...desired},viewport:{width,height},selection,placement:placement?{...placement}:null,structures:[...growth.keys()],constructionSites:[...growth].filter(([,g])=>g.userData.scaffold).map(([id,g])=>{const data=g.userData.scaffold.userData;return{id,progress:data.constructionProgress,phase:data.constructionPhase,stage:data.constructionStage,label:data.constructionStageLabel,courses:data.courses.filter(c=>c.visible).length,roofSections:data.roofSections.filter(c=>c.visible).length,supplies:data.supplies.filter(c=>c.visible).length,arrived:data.crewArrived,assigned:data.crewAssigned};}),orderRoutes:ordersGroup.children.filter(o=>o.name==='Actual navigation route').map(o=>({points:o.geometry.attributes.position.count})),workshops:[...growth].filter(([,group])=>group.userData.model?.userData.animationInfo).map(([id,group])=>({id,assetId:group.userData.model.userData.assetId,waterPowered:group.userData.model.userData.waterPowered,operating:group.userData.model.userData.operating,animation:group.userData.model.userData.animationState?.()})),mapMode,inputEnabled,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,treeCount:nature.treeCount,detailedTreeCount:[...treeBuckets.values()].reduce((sum,b)=>sum+b.count,0),treeLods:[...treeBuckets].map(([type,b])=>({type,count:b.count})),assets:assets.getStats(),detailedActors:actors.size,visibleDetailedActors:detailFrameCount,mountedActors:[...actors].filter(([,actor])=>actor.mount?.visible).map(([id,actor])=>({id,assetId:actor.mount.userData.assetId,seat:actor.mountSeat?.toArray(),animation:actor.mount.userData.animationState?.(),gait:actor.mount.userData.gait,travel:actor.mount.userData.travel})),actorBudget:quality==='low'?64:112,siegeModels:[...sieges].map(([id,model])=>({id,assetId:model.userData.assetId||null,phase:model.userData.firingPhase,animation:model.userData.animationState?.()})),projectiles:[...effectModels].filter(([,model])=>model.userData.launch).map(([id,model])=>({id,assetId:model.userData.projectileAsset||null,launch:model.userData.launch,position:model.position.toArray()})),actorPositions:[...actorPositions].map(([id,p])=>({id,...p})),actorMotion:[...actorMotions].map(([id,m])=>({id,...m,clip:actors.get(id)?.motionState?.()})),fortresses:forts.size,labels:labelBoxes.map(l=>({...l})),squads:state?.squads.map(s=>({id:s.id,type:s.type,x:s.x,z:s.z,y:walkHeight(s.x,s.z),screen:screenPoint(s.x,walkHeight(s.x,s.z)+1,s.z)}))||[]};},
  destroy(){disposed=true;cancelAnimationFrame(raf);resizeObserver?.disconnect();for(const [name,fn]of[['pointerdown',pointerDown],['pointermove',pointerMove],['pointerup',pointerUp],['pointercancel',blur],['contextmenu',contextmenu],['wheel',wheel]])canvas.removeEventListener(name,fn);window.removeEventListener('keydown',keyDown);window.removeEventListener('keyup',keyUp);window.removeEventListener('blur',blur);window.removeEventListener('resize',resize);overlay.remove();scene.traverse(o=>{if(o.geometry&&!o.isInstancedMesh)o.geometry.dispose();});for(const actor of actors.values())actor.dispose();actors.clear();const forestMats=new Set();for(const bucket of treeBuckets.values())for(const mesh of bucket.meshes)for(const mat of Array.isArray(mesh.material)?mesh.material:[mesh.material])forestMats.add(mat);for(const mat of forestMats)mat.userData.disposeForestMaterial?.();assets.dispose();materials.dispose();renderer.dispose();}
  };
 }

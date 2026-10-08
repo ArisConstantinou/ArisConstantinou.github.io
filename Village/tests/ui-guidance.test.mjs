@@ -130,7 +130,7 @@ if(globalThis.__qa){
   callbacks.onSelect({kind:'region',id:'home'},{});await panel('build');await click(action('build-tab','civil'));const image=document.querySelector('[data-building-thumbnail="houses"]'),frame=image.parentElement;assert(image.getAttribute('loading')==='lazy'&&image.getAttribute('alt')==='','thumbnail should be decorative and deferred');const file=root+image.getAttribute('src').replace('./','');assert((await fs.stat(file)).size>0,'model thumbnail absent');image.dispatchEvent(new window.Event('load',{bubbles:true}));assert(frame.classList.contains('image-ready'),'loaded photograph never replaces placeholder');render(true);assert(document.querySelector('[data-building-thumbnail="houses"]')===image&&frame.classList.contains('image-ready'),'tick lost thumbnail loading state');const failed=document.querySelector('[data-building-thumbnail="mine"]');failed.dispatchEvent(new window.Event('error',{bubbles:true}));assert(failed.parentElement.classList.contains('image-failed')&&failed.parentElement.querySelector('svg'),'failed image has no illustration fallback');render(true);assert(document.querySelector('[data-building-thumbnail="mine"]')===failed&&failed.parentElement.classList.contains('image-failed'),'failed fallback state not retained');
  });
 
- const fresh=()=>{if(view.modal)document.querySelector('[data-action="close-modal"]')?.click();game.reset();game.setPaused(true);Object.assign(view,{started:true,panel:'realm',panelOpen:true,selection:{kind:'region',id:'home'},regionId:'home',armyIds:[],command:null,armyTab:'troops',buildTab:'civil',buildType:'houses',resourceFilter:'all',guideOpen:false,guideStep:null,guideDone:{},requirementsOpen:{},helpTopic:'menus',modal:null});render(true);};
+ const fresh=()=>{if(view.modal)document.querySelector('[data-action="close-modal"]')?.click();game.reset();game.setPaused(true);Object.assign(view,{started:true,panel:'realm',panelOpen:true,selection:{kind:'region',id:'home'},regionId:'home',armyIds:[],command:null,placement:null,armyTab:'troops',buildTab:'civil',buildType:'houses',resourceFilter:'all',guideOpen:false,guideStep:null,guideDone:{},requirementsOpen:{},worksitesOpen:true,helpTopic:'menus',modal:null});render(true);};
  const adviceIn=(parent,kind)=>[...parent.querySelectorAll('[data-action="advice"]')].find(el=>JSON.parse(el.dataset.value).kind===kind);
  const setRegion=async(id,kind='training')=>{const select=document.getElementById(kind+'-region-select');assert(select,'region selector missing');for(const option of select.options)option.toggleAttribute('selected',option.value===id);select.dispatchEvent(new window.Event('change',{bubbles:true}));await Promise.resolve();};
  await check('Worker cards show the exact engine output and explicit allocation labels',async()=>{
@@ -189,6 +189,132 @@ if(globalThis.__qa){
   fresh();await panel('build');await click(action('build','houses'));const before=bank();assert(view.placement,'placement fixture absent');await click('#help-button');await click(action('help-panel','economy'));assert(!view.placement&&!view.command&&view.panel==='economy','help leaves hidden placement active');expectSpend(before,{});
   await panel('build');await click(action('build','houses'));await click('#help-button');await click(action('help-topic','start'));await click(action('help-jump','move'));assert(!view.placement&&view.command==='move','move lesson still routes ground clicks to a ghost');expectSpend(before,{});
  });
+
+ // 2.6 integration scenarios run the actual simulation. Rendering remains the
+ // sole mocked boundary, so crew travel and return cannot be skipped by a timer.
+ const {getConstructionProgress}=await import('file://'+root+'feouda-engine.js');
+ const {getSquadOrderReadout}=await import('file://'+root+'feouda-orders.js');
+ const construct=async(type='houses')=>{
+  await panel('build');await click(action('build',type));assert(view.placement?.quote.ok,'construction fixture has no legal preview');
+  callbacks.onPlacementPick({x:view.placement.x,z:view.placement.z});await click(action('placement-confirm'));
+  const job=game.state.jobs.find(j=>j.kind==='build'&&j.type===type);assert(job?.construction?.crew?.length===4,'new project has no physical four-person crew');
+  return {job,site:game.state.structures.find(st=>st.id===job.structureId)};
+ };
+ const advanceUntil=(predicate,label,limit=180)=>{
+  game.setPaused(false);let elapsed=0;
+  while(!predicate()&&elapsed<limit){game.step(.25);elapsed+=.25;}
+  assert(predicate(),'Timed out waiting for '+label,`${elapsed} simulation seconds`);render(true);return elapsed;
+ };
+ const inspectJob=async job=>{await panel('build');await click('#panel-body '+action('build-inspect',job.type));return document.querySelector(`.inspector-job[data-ui-key="job:${job.id}"]`);};
+
+ await check('Construction preview separates work time from crew travel and confirmed work begins at zero',async()=>{
+  fresh();await panel('build');const before=bank();await click(action('build','houses'));
+  const explanation=document.querySelector('.placement-meta').textContent;assert(explanation.includes('χτίσιμο')&&explanation.includes('μετάβαση 4 χτιστών'),'preview suggests construction starts immediately');expectSpend(before,{});
+  callbacks.onPlacementPick({x:view.placement.x,z:view.placement.z});await click(action('placement-confirm'));
+  const job=game.state.jobs.find(j=>j.kind==='build'&&j.type==='houses'),readout=document.querySelector('#selection-deck .construction-readout');
+  assert(job.construction.crew.every(worker=>worker.phase==='travel'),'new builders appeared working at the site');assert(job.remaining===job.duration,'construction advanced before anybody walked');
+  assert(readout.querySelector('.construction-topline > b').textContent==='0%','new site starts with fabricated progress');assert(readout.querySelector('.construction-crew').textContent.includes('0 / 4'),'arrival count does not match crew');
+  const queue=document.querySelector('#build-queue '+action('job-detail',job.id));assert(queue.querySelector('.stat-pair > b').textContent==='0%','queue treats remaining work as an arrival countdown');
+ });
+
+ await check('Construction panel explains paused work, arrival count and the four build stages',async()=>{
+  fresh();const {job}=await construct(),inspector=await inspectJob(job),snapshot=JSON.stringify(job.construction.crew),remaining=job.remaining;
+  assert(inspector.querySelector('.construction-readout').dataset.constructionPhase==='paused','paused project appears active');
+  assert(inspector.querySelectorAll('.construction-stages li').length===4,'construction stages missing');assert(inspector.querySelectorAll('.construction-stages [aria-current="step"]').length===1,'current stage is ambiguous');
+  const caption=inspector.querySelector('.construction-caption').textContent;assert(caption.includes('Εργασία που απομένει')&&caption.includes('Η μετάβαση προσθέτει χρόνο'),'work time confused with arrival/completion');
+  game.step(1);render(true);assert(job.remaining===remaining&&JSON.stringify(job.construction.crew)===snapshot,'pause moves builders or construction');
+ });
+
+ await check('Real traveling builders become working builders and advance all visible stages',async()=>{
+  fresh();const {job}=await construct();await panel('economy');
+  let activity=document.querySelector('.workforce-activity');assert(activity?.textContent.includes('Πηγαίνουν σε έργο'),'traveling workers are not explained');
+  assert(activity.querySelector('b').textContent==='4','traveling workforce count differs from reservation');
+  advanceUntil(()=>getConstructionProgress(game.state,job).crewReady>0&&job.remaining<job.duration,'builders to reach and work at the site');
+  await panel('economy');activity=document.querySelector('.workforce-activity');assert(activity.textContent.includes('Χτίζουν'),'arrived builders still look like traveling workers');
+  for(const threshold of [.22,.62,.87]){
+   advanceUntil(()=>getConstructionProgress(game.state,job).progress>=threshold,`construction progress ${threshold}`);
+   const inspector=await inspectJob(job),progress=getConstructionProgress(game.state,job),current=inspector.querySelector('.construction-stages [aria-current="step"]');
+   assert(current?.textContent.includes(progress.stageTitle),'highlighted build stage differs from completed work');
+   assert(inspector.querySelector('.construction-topline > strong').textContent===progress.stageTitle,'active project phase is unclear');
+   assert(inspector.querySelectorAll('.construction-stages .done').length===progress.stages.findIndex(stage=>stage.id===progress.stage),'completed construction stages incorrect');
+  }
+ });
+
+ await check('Unfinished construction cannot show 100 percent in its panel, tile, dock or queue',async()=>{
+  fresh();const {job}=await construct();advanceUntil(()=>getConstructionProgress(game.state,job).crewReady===4,'full crew to arrive');game.setPaused(true);const remaining=job.remaining;
+  try{
+   job.remaining=job.duration*.004;render(true);await inspectJob(job);
+   const readouts=[...document.querySelectorAll('.construction-topline > b')],queue=document.querySelector('#build-queue '+action('job-detail',job.id)+' .stat-pair > b'),tile=document.querySelector('[data-building-type="houses"] .tile-state');
+   assert(readouts.length>=2&&readouts.every(el=>el.textContent==='99%'),'unfinished readout rounds up to completion');assert(queue.textContent==='99%','unfinished queue rounds up to completion');assert(tile.textContent.includes('99%')&&!tile.textContent.includes('100%'),'unfinished build tile rounds up to completion');
+   assert(game.state.jobs.includes(job),'boundary fixture unexpectedly finished');
+  }finally{job.remaining=remaining;render(true);}
+ });
+
+ await check('Worksite overview collapse survives repaint, focus and menu navigation',async()=>{
+  fresh();const {job,site}=await construct();await panel('build');const button=document.querySelector(action('worksites-toggle'));button.focus();await click(button);
+  assert(button.getAttribute('aria-expanded')==='false'&&document.getElementById('worksites-list').hidden,'worksites toggle does not collapse');
+  render(true);assert(document.querySelector(action('worksites-toggle'))===button&&document.activeElement===button,'worksite refresh detaches the focused toggle');assert(document.getElementById('worksites-list').hidden,'refresh reopens worksite list');
+  await panel('economy');await panel('build');assert(document.querySelector(action('worksites-toggle')).getAttribute('aria-expanded')==='false','menu navigation resets worksite preference');
+  await click(action('worksites-toggle'));const before=bank(),orders=JSON.stringify(game.state.squads.map(s=>s.order)),count=calls.length;await click('.worksite-card '+action('job-detail',job.id));
+  assert(view.selection.kind==='structure'&&view.selection.id===site.id,'worksite overview selects the wrong structure');assert(calls.length===count&&orders===JSON.stringify(game.state.squads.map(s=>s.order)),'worksite inspection issued a gameplay order');expectSpend(before,{});
+ });
+
+ await check('Finished construction keeps returning builders reserved and explains their release',async()=>{
+  fresh();const {job,site}=await construct(),crewIds=new Set(job.construction.crew.map(worker=>worker.id));
+  advanceUntil(()=>!game.state.jobs.includes(job),'construction to finish with actual crew work');game.setPaused(true);await panel('economy');
+  const returning=game.state.returningCrews;assert(site.status==='ready'&&returning.length>0,'workers disappeared when construction finished');assert(returning.every(worker=>crewIds.has(worker.id)),'returning crew was replaced');
+  assert(game.state.busyWorkers===returning.length,'returning builders were released early');
+  const activity=document.querySelector('.workforce-activity');assert(activity?.textContent.includes('Επιστρέφουν')&&activity.textContent.includes('ελευθερώνονται όταν επιστρέψουν'),'return journey not explained');
+  assert(document.querySelector('.assignment-summary').textContent.includes('Σε έργα / επιστροφή'),'busy total conceals returning workers');
+  await panel('build');assert(document.querySelector('.crew-return')?.textContent.includes('Θα είναι διαθέσιμοι μόλις φτάσουν'),'build menu omits release condition');assert(!document.querySelector('#build-queue '+action('job-detail',job.id)),'completed construction remains in active queue');
+  advanceUntil(()=>game.state.returningCrews.length===0,'the actual crew to return');await panel('economy');
+  assert(game.state.busyWorkers===0&&!document.querySelector(action('focus-returning')),'returned crew stays reserved or selectable');assert(game.state.availableWorkers===game.state.workforce-game.state.assignedWorkers,'workers were not released at their destination');
+ });
+
+ await check('Focus returning builders cancels a preview and targeting without spending or issuing orders',async()=>{
+  fresh();const {job}=await construct();advanceUntil(()=>!game.state.jobs.includes(job),'construction to finish');game.setPaused(true);
+  await panel('build');await click(action('build','farm'));assert(view.placement,'secondary preview unavailable');await click('#resource-bar '+action('resource','wood'));
+  assert(view.panel==='economy'&&view.placement,'fixture must expose resource navigation during preview');
+  const crew=game.state.returningCrews[0],before=bank(),orders=JSON.stringify(game.state.squads.map(s=>s.order)),count=calls.length,crewState=JSON.stringify(game.state.returningCrews);
+  await click('#panel-body '+action('focus-returning'));const focus=worldCalls.filter(c=>c[0]==='focus').at(-1)?.[1];
+  assert(!view.placement&&!view.command&&!view.panelOpen,'crew focus leaves an old placement or targeting mode');assert(focus?.x===crew.x&&focus?.z===crew.z,'camera did not focus the actual returning crew');expectSpend(before,{});
+  assert(calls.length===count&&orders===JSON.stringify(game.state.squads.map(s=>s.order))&&crewState===JSON.stringify(game.state.returningCrews),'camera focus changed game state');
+  const squad=game.state.squads.find(s=>s.owner==='player');callbacks.onSelect({kind:'squad',id:squad.id},{});await click(action('army-command','move'));await click('#resource-bar '+action('resource','wood'));await click('#panel-body '+action('focus-returning'));
+  assert(!view.command&&calls.length===count,'crew focus issued or left a military order');expectSpend(before,{});
+ });
+
+ await check('Selected army and roster show actual movement distance and preserve paused intent',async()=>{
+  fresh();const squad=game.state.squads.find(s=>s.owner==='player'&&s.type==='spear');callbacks.onSelect({kind:'squad',id:squad.id},{});await click(action('army-command','move'));callbacks.onGround({x:-110,z:75});
+  assert(calls.at(-1).result.ok,'movement fixture rejected');await panel('army');await click(action('army-tab','troops'));
+  let readout=getSquadOrderReadout(game.state,squad),row=document.querySelector('#panel-body '+action('select-squad',squad.id)),dock=document.querySelector('#selection-deck');
+  assert(row.querySelector('.army-task').dataset.orderStatus==='marching'&&dock.querySelector('.army-order-caption').dataset.orderStatus==='marching','live movement is labelled as hold or idle');
+  assert(row.textContent.includes('Παύση')&&dock.textContent.includes('Παύση'),'paused movement intention is ambiguous');
+  assert(row.querySelector('.army-route-distance')&&dock.querySelector('.army-route-distance'),'remaining path distance not displayed in roster and dock');
+  const expectedDistance=readout.remainingDistance.toLocaleString('el-CY',{maximumFractionDigits:0})+' μ.';
+  assert(row.querySelector('.army-route-distance').textContent.startsWith(expectedDistance)&&dock.querySelector('.army-route-distance').textContent.startsWith(expectedDistance),'displayed distance differs from the actual remaining route');
+  const beforeDistance=readout.remainingDistance,beforeText=dock.querySelector('.army-route-distance').textContent;advanceUntil(()=>getSquadOrderReadout(game.state,squad).remainingDistance<beforeDistance-8,'army to travel along its real route',20);
+  dock=document.querySelector('#selection-deck');assert(dock.querySelector('.army-route-distance').textContent!==beforeText,'remaining distance display does not update with movement');
+  const routeText=dock.querySelector('.army-route-distance').textContent;assert(/μ\.|μέτρ/.test(routeText),'path distance lacks a clear metre unit');assert(!/άφιξη|δευτ|δ$/.test(routeText),'path distance became a fabricated arrival countdown');
+ });
+
+ await check('Selected attack-move shows its real opponent during battle and removes the approach distance',async()=>{
+  fresh();const squad=game.state.squads.find(s=>s.owner==='player'&&s.type==='archer'),enemy=game.state.squads.find(s=>s.owner==='red'&&s.type==='spear');
+  Object.assign(squad,{x:-110,z:70,anchor:{x:-110,z:70}});Object.assign(enemy,{x:-95,z:70,anchor:{x:-95,z:70}});game.state.squads=[squad,enemy];
+  callbacks.onSelect({kind:'squad',id:squad.id},{});await click(action('army-command','attack'));callbacks.onGround({x:-100,z:120});assert(calls.at(-1).result.ok,'attack-move fixture rejected');
+  advanceUntil(()=>squad.activity==='attack'&&squad.engagedId===enemy.id,'archer to engage its actual opponent',5);await panel('army');await click(action('army-tab','troops'));
+  const dock=document.querySelector('#selection-deck'),row=document.querySelector('#panel-body '+action('select-squad',squad.id)),target=getSquadOrderReadout(game.state,squad).target;
+  assert(dock.querySelector('.army-order-caption').dataset.orderStatus==='engaging'&&row.querySelector('.army-task').dataset.orderStatus==='engaging','actual battle does not update status');
+  assert(dock.textContent.includes(target.name)&&row.textContent.includes(target.name),'real enemy target name missing');assert(!dock.querySelector('.army-route-distance')&&!row.querySelector('.army-route-distance'),'stale approach distance remains while firing');
+ });
+
+ await check('Blocked and mixed army activity stays explicit without a fabricated distance',async()=>{
+  fresh();const own=game.state.squads.filter(s=>s.owner==='player'),squad=own[0];
+  squad.activity='blocked';squad.path=[];squad.order={type:'move',x:-110,z:75};callbacks.onSelect({kind:'squad',id:squad.id},{});await panel('army');await click(action('army-tab','troops'));
+  let dock=document.querySelector('#selection-deck'),row=document.querySelector('#panel-body '+action('select-squad',squad.id));
+  assert(dock.querySelector('.army-order-caption').dataset.orderStatus==='blocked'&&row.textContent.includes('εμπόδιο'),'explicit blocked state is hidden');assert(!dock.querySelector('.army-route-distance'),'blocked army has a fake route distance');
+  callbacks.onBoxSelect([squad.id,own[1].id],{});dock=document.querySelector('#selection-deck');assert(dock.querySelector('.army-order-caption').dataset.orderStatus==='mixed','mixed blocked/holding selection is flattened into one misleading order');assert(dock.textContent.includes('με εμπόδιο')&&dock.textContent.includes('κρατούν θέση'),'mixed activity counts missing');
+ });
+ fresh();
 
 }
 await Promise.resolve();

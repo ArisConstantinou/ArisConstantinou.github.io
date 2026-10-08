@@ -1,0 +1,182 @@
+/* Construction and orders are read directly from the simulation. */
+.worksite-overview {
+  margin: 0 0 18px;
+  border: 1px solid #b39b6060;
+  background: #0c1e246e;
+}
+.worksite-toggle {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 12px;
+  color: #e7d5ab;
+  font-size: 15px;
+  text-align: left;
+}
+.worksite-toggle > span { flex: 1; }
+.worksite-toggle b {
+  margin-left: 7px;
+  padding: 2px 7px;
+  border: 1px solid #c2a5666b;
+  color: #f0d294;
+  font-size: 14px;
+}
+.worksite-card { padding: 14px 12px; border-top: 1px solid #a38f5745; }
+.worksite-card h3 { margin: 0 0 12px; color: #ead8af; font: 400 21px/1.35 var(--display); }
+.worksite-card > button,
+.crew-return > button,
+.inspector-job > button,
+.workforce-activity > button {
+  min-height: 46px;
+  margin-top: 11px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: normal;
+}
+.construction-readout { min-width: 0; }
+.construction-topline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 9px;
+  color: #d6c796;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.construction-topline strong { font-size: inherit; font-weight: 600; }
+.construction-topline > b { flex-shrink: 0; color: #edcd85; font-variant-numeric: tabular-nums; }
+.construction-readout .meter { height: 6px; }
+.construction-readout .construction-crew {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px 6px;
+  margin: 9px 0 5px;
+  color: #d0d9c9;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.construction-crew svg { width: 19px; height: 19px; color: #c2ac75; }
+.construction-readout .construction-caption {
+  margin: 8px 0 0;
+  color: #b7c6bd;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.construction-readout[data-construction-phase="travel"] .construction-topline { color: #a7c9d7; }
+.construction-readout[data-construction-phase="blocked"] .construction-topline { color: #edb58b; }
+.construction-readout[data-construction-phase="paused"] .construction-topline { color: #c9c4b3; }
+.construction-stages {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+.construction-stages li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 46px;
+  padding: 8px;
+  border: 1px solid #7187784d;
+  background: #0d1b2145;
+  color: #a8b7af;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.construction-stages li > span {
+  display: grid;
+  place-items: center;
+  flex: 0 0 23px;
+  height: 23px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 12px;
+}
+.construction-stages li.current { border-color: #d2ac68; background: #a3874233; color: #efd49b; }
+.construction-stages li.done { border-color: #96af7a75; background: #66875924; color: #bad6a5; }
+.crew-return { padding: 12px; border-top: 1px solid #a18e5452; }
+.crew-return p,
+.workforce-activity p { margin: 0; color: #c2d0c0; font-size: 14px; line-height: 1.6; }
+.crew-return b { color: #d9dfca; }
+.workforce-activity { padding: 12px; margin-bottom: 14px; border: 1px solid #829c8152; background: #26413628; }
+.workforce-activity h3 { margin: 0 0 10px; color: #dddbbe; font-size: 15px; font-weight: 600; line-height: 1.45; }
+.workforce-activity > div { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px 8px; }
+.workforce-activity > div > span { display: flex; gap: 7px; align-items: baseline; font-size: 14px; line-height: 1.45; color: #b6c8b8; }
+.workforce-activity > div b { color: #e0d5aa; font-size: 18px; font-variant-numeric: tabular-nums; }
+.workforce-activity > p { margin-top: 12px; }
+.army-task { display: block; margin: 7px 0 8px; }
+.army-info .army-task > b {
+  display: block;
+  margin: 0 0 3px;
+  font: 600 14px/1.4 var(--ui);
+  color: #c5d6c3;
+}
+.army-info .army-task > small {
+  display: block;
+  color: #b9c9bf;
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: normal;
+}
+.army-task > b::before,
+.army-order-caption::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 6px 2px 0;
+  border-radius: 50%;
+  background: currentColor;
+}
+.army-row { align-items: start; }
+.army-row .count { align-self: center; }
+.army-task[data-order-status="marching"] > b,
+.army-order-caption[data-order-status="marching"] { color: #a3cfde; }
+.army-task:is([data-order-status="engaging"], [data-order-status="sieging"]) > b,
+.army-order-caption:is([data-order-status="engaging"], [data-order-status="sieging"]) { color: #ecad93; }
+.army-task[data-order-status="capturing"] > b,
+.army-order-caption[data-order-status="capturing"] { color: #bcd891; }
+.army-task:is([data-order-status="blocked"], [data-order-status="retreating"]) > b,
+.army-order-caption:is([data-order-status="blocked"], [data-order-status="retreating"]) { color: #e4c58f; }
+.army-selection .deck-info .army-order-caption {
+  margin: 8px 0 3px;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.army-selection .deck-info .army-order-detail {
+  margin: 0;
+  color: #bfcfc3;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.army-route-distance { display: block; color: #a9cbd2; font-variant-numeric: tabular-nums; }
+.army-selection .deck-info .army-order-detail .army-route-distance { margin-top: 3px; font-size: 13px; }
+.selection-deck .construction-topline { margin-top: 7px; }
+.selection-deck .construction-crew { margin-bottom: 0; }
+.selection-deck .construction-crew svg { display: none; }
+.selection-deck .construction-readout .meter { width: 100%; max-width: none; }
+.selection-deck .construction-readout .job-blocked { max-width: 300px; font-size: 13px; line-height: 1.4; }
+.placement-meta { line-height: 1.5; }
+
+@media (max-width: 780px) {
+  .worksite-card { padding: 12px 10px; }
+  .worksite-card h3 { font-size: 20px; }
+  .construction-stages { gap: 6px; }
+  .construction-stages li { padding: 7px 6px; gap: 5px; }
+  .construction-stages li > span { flex-basis: 20px; height: 20px; }
+  .army-info .army-task > small { font-size: 14px; }
+  .army-selection .deck-info .army-order-caption { font-size: 14px; margin-top: 5px; }
+  .army-selection .deck-info .army-order-detail { font-size: 13px; line-height: 1.4; }
+  .selection-deck .construction-topline { gap: 5px; font-size: 13px; line-height: 1.4; }
+  .selection-deck .construction-crew { font-size: 13px; gap: 2px 4px; }
+  .selection-deck .construction-readout .job-blocked { font-size: 12px; }
+  .placement-meta { font-size: 12px; }
+}

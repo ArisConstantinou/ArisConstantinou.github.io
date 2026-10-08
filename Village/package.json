@@ -1,10 +1,10 @@
 {
   "name": "feouda-1280",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/feouda.test.mjs tests/economy-readout.test.mjs tests/advisor.test.mjs",
+    "test": "node --test tests/feouda.test.mjs tests/economy-readout.test.mjs tests/advisor.test.mjs tests/construction-crews.test.mjs tests/orders-readout.test.mjs",
     "test:ui": "node tests/ui-guidance.test.mjs && node tests/ui-guidance.test.mjs mobile"
   },
   "devDependencies": {

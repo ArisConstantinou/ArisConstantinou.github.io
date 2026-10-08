@@ -1,4 +1,4 @@
-import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.5.0';
+import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.6.0';
 
 // Simulation uses world-space positions. Orders, arrows and siege stones travel
 // through the same world the player sees; elapsed wall-clock time never fights wars.
@@ -65,6 +65,54 @@ export const BUILDING_FOOTPRINTS=BUILD_FOOTPRINTS;
 // Squads may compress their visual formation at a bottleneck. The moving centre
 // still reserves the full chassis of an engine, rather than a zero-size point.
 export const UNIT_CLEARANCE=Object.freeze({spear:.8,sword:.8,archer:.8,cavalry:1.6,ram:4.8,trebuchet:4.8});
+export const CONSTRUCTION_CREW_CLEARANCE=.8;
+export const CONSTRUCTION_CREW_SPEED=2.4;
+const CONSTRUCTION_STAGES=['foundation','walls','roof','finish'];
+const CONSTRUCTION_STAGE_TITLES={
+  default:['Θεμέλια','Τοιχοποιία','Στέγη και δάπεδα','Τελειώματα'],
+  farm:['Προετοιμασία εδάφους','Διαμόρφωση χωραφιού','Φύτευση και περίφραξη','Τελειώματα'],
+  quarry:['Προετοιμασία εδάφους','Άνοιγμα πετρώματος','Εγκατάσταση εξοπλισμού','Τελειώματα'],
+  mine:['Προετοιμασία εδάφους','Διάνοιξη στοάς','Υποστυλώσεις και εξοπλισμός','Τελειώματα'],
+  well:['Εκσκαφή','Πέτρινα τοιχώματα','Στέγαστρο και ανέμη','Τελειώματα']
+};
+function constructionWorkers(s) {
+  return [...(s.jobs||[]).flatMap(job=>Array.isArray(job.construction?.crew)?job.construction.crew:[]),...(s.returningCrews||[])];
+}
+function remainingCrewDistance(worker) {
+  if(worker.phase==='work')return 0;
+  if(!worker.path?.length)return worker.target&&dist(worker,worker.target)<=EPS?0:null;
+  let distance=0,previous=worker;
+  for(const point of worker.path){distance+=dist(previous,point);previous=point;}
+  return worker.target&&dist(previous,worker.target)<.05?distance:null;
+}
+/** Read-only, simulation-time construction state. The displayed work rate is
+ * the same fraction used by updateJobs; an unavailable route has no invented ETA. */
+export function getConstructionProgress(s,jobOrId) {
+  const job=typeof jobOrId==='string'?s?.jobs?.find(j=>j.id===jobOrId):jobOrId;
+  if(job?.kind!=='build'||!has(BUILD_FOOTPRINTS,job.type)||!finite(job.duration)||job.duration<=0||!finite(job.remaining))return null;
+  const crew=Array.isArray(job.construction?.crew)?job.construction.crew:[],crewTotal=job.workers||4;
+  const crewReady=crew.filter(worker=>worker.phase==='work').length;
+  const progress=clamp(1-job.remaining/job.duration,0,1),stageIndex=progress+EPS<.2?0:progress+EPS<.6?1:progress+EPS<.85?2:3;
+  const blocked=crew.some(worker=>worker.phase==='blocked'),distances=crew.map(remainingCrewDistance);
+  const known=crew.length===crewTotal&&distances.every(distance=>finite(distance));
+  let estimatedSeconds=null;
+  if(known&&!blocked) {
+    const arrivals=distances.map(distance=>distance/CONSTRUCTION_CREW_SPEED).sort((a,b)=>a-b);
+    let work=job.remaining*crewTotal;
+    for(let i=0;i<arrivals.length;i++) {
+      const current=arrivals[i],next=arrivals[i+1]??Infinity,capacity=(next-current)*(i+1);
+      if(work<=capacity){estimatedSeconds=current+work/(i+1);break;}work-=capacity;
+    }
+  }
+  const phase=progress>=1?'complete':s?.paused?'paused':crewReady>0?'work':blocked?'blocked':'travel';
+  const thresholds=[0,.2,.6,.85,1],titles=CONSTRUCTION_STAGE_TITLES[job.type]||CONSTRUCTION_STAGE_TITLES.default;
+  return {phase,stage:CONSTRUCTION_STAGES[stageIndex],stageTitle:(CONSTRUCTION_STAGE_TITLES[job.type]||CONSTRUCTION_STAGE_TITLES.default)[stageIndex],
+    stages:CONSTRUCTION_STAGES.map((id,i)=>({id,title:titles[i],start:thresholds[i],end:thresholds[i+1]})),
+    progress,crewReady,crewTotal,arrived:crewReady,assigned:crewTotal,workRate:crewReady/crewTotal,
+    remainingWorkSeconds:Math.max(0,job.remaining),remainingTravelDistance:known?distances.reduce((sum,n)=>sum+n,0):null,
+    travelledDistance:crew.reduce((sum,worker)=>sum+(finite(worker.travelled)?worker.travelled:0),0),estimatedSeconds,
+    blockedReason:job.blockedReason||(blocked?'Δεν υπάρχει ελεύθερη διαδρομή προς το εργοτάξιο.':null)};
+}
 export const FORT_POLYGONS=Object.freeze(Object.fromEntries(REGIONS.map(r=>{
   const d=r.kind==='castle'?18:r.kind==='town'?12:9;
   const points=r.kind!=='castle'?[[-d,-d],[d,-d],[d,d],[-d,d]]:
@@ -275,6 +323,8 @@ function validatePlacement(s,payload,{allowForeign=false,ignoreId=null,ignoreUni
     if(distance>1&&Math.abs(heightAt(points[i].x,points[i].z)-heightAt(points[j].x,points[j].z))/distance>.38)return bad('Η κλίση του εδάφους είναι μεγάλη. Μετακίνησε το κτίριο σε πιο ομαλό σημείο.');
   }
   if(!ignoreUnits&&(s.squads||[]).some(unit=>unit.hp>0&&pointInsideRect(unit,placement,Math.max(3,UNIT_CLEARANCE[unit.type])+.4)))return bad('Απομάκρυνε πρώτα τα στρατεύματα από το οικόπεδο.');
+  if(!ignoreUnits&&constructionWorkers(s).some(worker=>pointInsideRect(worker,placement,CONSTRUCTION_CREW_CLEARANCE+.3)||
+    (worker.phase!=='return'&&worker.structureId!==ignoreId&&worker.target&&pointInsideRect(worker.target,placement,CONSTRUCTION_CREW_CLEARANCE+.3))))return bad('Οι εργάτες ή οι θέσεις εργασίας τους χρειάζονται ελεύθερη πρόσβαση. Περίμενε να περάσουν ή διάλεξε άλλο οικόπεδο.');
   return {ok:true,placement};
 }
 function findPlacement(s,type,regionId,rotation=0,preferred=null) {
@@ -378,7 +428,7 @@ function newCampaign() {
     population:78, housing:96, morale:73, prosperity:34,
     workforce:39, availableWorkers:11, busyWorkers:0, assignedWorkers:28,
     armyCapacity:66, armyUsed:0, income:0, upkeep:0, foodBalance:0,
-    regions, nodes, squads:[], jobs:[], techs:Object.fromEntries(Object.keys(TECHS).map(k=>[k,0])),
+    regions, nodes, squads:[], jobs:[], returningCrews:[], techs:Object.fromEntries(Object.keys(TECHS).map(k=>[k,0])),
     effects:[], log:[],
     missions:[
       {id:'supply',title:'Η γη μάς θρέφει',description:'Συγκέντρωσε 350 πόρους με τους εργάτες σου.',progress:0,target:350,done:false,reward:{money:90,wood:50}},
@@ -434,9 +484,9 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   function walkable(p,unit=.65) {return isWorldPointWalkable(state,p,unit);}
   function squadWalkable(s,p) {return walkable(p,s);}
   function clearSegment(a,b,unit=.65) {return isWorldSegmentWalkable(state,a,b,unit);}
-  function nearestGround(p,unit=.65) {
+  function nearestGround(p,unit=.65,navigationState=state) {
     if(!finite(p?.x)||!finite(p?.z))return null;
-    const options=navigationOptions(unit),obstacles=worldObstacles(state),test=q=>pointWalkable(q,options,obstacles);
+    const options=navigationOptions(unit),obstacles=worldObstacles(navigationState),test=q=>pointWalkable(q,options,obstacles);
     const margin=4+options.terrainRadius,start={x:clamp(p.x,MAP.minX+margin,MAP.maxX-margin),z:clamp(p.z,MAP.minZ+margin,MAP.maxZ-margin)};
     if(test(start))return start;
     for(let radius=.8;radius<=90;radius+=1.2)for(let i=0;i<32;i++) {
@@ -456,8 +506,8 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   }
   // A* on dry ground includes the two bridge decks. Segment smoothing retains
   // the actual safe crossing, so soldiers cannot shortcut through the river.
-  function findPath(start,end,unit=.65) {
-    const options=navigationOptions(unit),obstacles=worldObstacles(state);
+  function findPath(start,end,unit=.65,navigationState=state) {
+    const options=navigationOptions(unit),obstacles=worldObstacles(navigationState);
     const isOpen=p=>pointWalkable(p,options,obstacles),isClear=(a,b)=>segmentWalkable(a,b,options,obstacles);
     if(!isOpen(start)||!isOpen(end))return null;
     if(isClear(start,end))return [{...end}];
@@ -472,7 +522,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       // A 4.5 m gate must remain a graph portal even when the regular grid
       // does not happen to have a sample down its centre.
       if(options.radius<2)for(const r of REGIONS) {
-        if(state.regions[r.id].fortHp/state.regions[r.id].maxFortHp>.16)continue;
+        if(navigationState.regions[r.id].fortHp/navigationState.regions[r.id].maxFortHp>.16)continue;
         const [a,b]=[FORT_POLYGONS[r.id][2],FORT_POLYGONS[r.id][3]],dx=b.x-a.x,dz=b.z-a.z,length=Math.hypot(dx,dz);
         const cx=(a.x+b.x)/2,cz=(a.z+b.z)/2,tangent=((p.x-cx)*dx+(p.z-cz)*dz)/length;
         const normal=(-(p.x-cx)*dz+(p.z-cz)*dx)/length;
@@ -562,6 +612,132 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     const clearance=Math.max(UNIT_CLEARANCE[s.type]+.3,range*.8);
     return nearestGround({x:aim.x+dx/d*clearance,z:aim.z+dz/d*clearance},s);
   }
+  function perimeterPoints(structure,padding=1.8) {
+    const fp=BUILD_FOOTPRINTS[structure.type],c=Math.cos(structure.rotation),sn=Math.sin(structure.rotation),out=[];
+    for(const offset of [0,-.32,.32])for(let side=0;side<4;side++) {
+      const x=side===1?fp.width/2+padding:side===3?-fp.width/2-padding:fp.width*offset;
+      const z=side===0?fp.depth/2+padding:side===2?-fp.depth/2-padding:fp.depth*offset;
+      out.push({x:structure.x+x*c+z*sn,z:structure.z-x*sn+z*c});
+    }
+    return out;
+  }
+  function crewOriginCandidates(s,regionId,near,ignoreStructureId=null) {
+    if(s.regions[regionId]?.owner!=='player')return [];
+    const meta=REGION_BY_ID[regionId],existing=s.structures.filter(structure=>structure.regionId===regionId&&structure.status==='ready'&&structure.id!==ignoreStructureId)
+      .sort((a,b)=>(a.type==='houses'?0:1)-(b.type==='houses'?0:1)||dist(a,near)-dist(b,near));
+    const candidates=existing.slice(0,5).flatMap(structure=>perimeterPoints(structure,2.2).sort((a,b)=>dist(a,near)-dist(b,near)));
+    const gate=gatePoint(meta);
+    for(const radius of [0,2.2,4.4,7])for(let i=0;i<(radius?8:1);i++)candidates.push({x:gate.x+Math.cos(i*Math.PI/4)*radius,z:gate.z+Math.sin(i*Math.PI/4)*radius});
+    return candidates.filter(point=>inPolygon(point,meta.polygon)&&isWorldPointWalkable(s,point,CONSTRUCTION_CREW_CLEARANCE)&&
+      !s.squads.some(squad=>squad.hp>0&&dist(squad,point)<CONSTRUCTION_CREW_CLEARANCE+UNIT_CLEARANCE[squad.type]+.15));
+  }
+  function workPositionCandidates(s,structure) {
+    return [...perimeterPoints(structure),...perimeterPoints(structure,3.2)].filter(point=>
+      inPolygon(point,REGION_BY_ID[structure.regionId].polygon)&&isWorldPointWalkable(s,point,CONSTRUCTION_CREW_CLEARANCE));
+  }
+  function prepareConstructionCrew(s,structure,{legacy=false}={}) {
+    const points=workPositionCandidates(s,structure),origins=crewOriginCandidates(s,structure.regionId,structure,structure.id),plan=[];
+    const occupied=constructionWorkers(s);
+    for(let i=0;i<4;i++) {
+      let chosen=null;
+      for(const target of points) {
+        if(plan.some(worker=>dist(worker.target,target)<CONSTRUCTION_CREW_CLEARANCE*2+.15)||
+          occupied.some(worker=>dist(worker,target)<CONSTRUCTION_CREW_CLEARANCE*2+.15))continue;
+        if(legacy){chosen={origin:{...target},target:{...target},x:target.x,z:target.z,path:[],phase:'work'};break;}
+        for(const origin of origins) {
+          if(dist(origin,target)<2||plan.some(worker=>dist(worker,origin)<CONSTRUCTION_CREW_CLEARANCE*2+.15)||
+            occupied.some(worker=>dist(worker,origin)<CONSTRUCTION_CREW_CLEARANCE*2+.15))continue;
+          const path=findPath(origin,target,CONSTRUCTION_CREW_CLEARANCE,s);
+          if(path){chosen={origin:{...origin},target:{...target},x:origin.x,z:origin.z,path,phase:'travel'};break;}
+        }
+        if(chosen)break;
+      }
+      if(!chosen)return null;
+      plan.push({...chosen,heading:Math.atan2(chosen.target.x-chosen.x,chosen.target.z-chosen.z),travelled:0,repathAt:0});
+    }
+    return plan;
+  }
+  function attachConstructionCrew(s,job,plan,legacy=false) {
+    job.construction={version:1,legacy,crew:plan.map(worker=>({...worker,id:`crew-${++s.nextId}`,jobId:job.id,structureId:job.structureId,regionId:job.regionId}))};
+  }
+  function planReturn(worker) {
+    const regions=ownedRegions('player').sort((a,b)=>(a.id===worker.regionId?0:1)-(b.id===worker.regionId?0:1)||dist(a,worker)-dist(b,worker));
+    for(const region of regions) {
+      const candidates=crewOriginCandidates(state,region.id,worker);
+      if(region.id===worker.regionId&&inPolygon(worker.origin,region.polygon)&&walkable(worker.origin,CONSTRUCTION_CREW_CLEARANCE))candidates.unshift(worker.origin);
+      for(const target of candidates) {
+        const path=findPath(worker,target,CONSTRUCTION_CREW_CLEARANCE);
+        if(path){worker.target={...target};worker.path=path;worker.returnRegionId=region.id;worker.phase='return';worker.repathAt=state.t+1.5;return true;}
+      }
+    }
+    worker.target=null;worker.path=[];worker.returnRegionId=null;worker.phase='blocked';worker.repathAt=state.t+3;return false;
+  }
+  function releaseConstructionCrew(job) {
+    for(const worker of job.construction?.crew||[]) {
+      planReturn(worker);
+      state.returningCrews.push(worker);
+    }
+    if(job.construction)job.construction.crew=[];
+  }
+  // Each worker follows authoritative world points, with a swept collision
+  // check on every actual movement. New obstacles stop and replan a route;
+  // only old-save recovery may relocate a worker out of invalid geometry.
+  function moveConstructionWorker(worker,dt,{returning=false,structure=null}={}) {
+    const radius=CONSTRUCTION_CREW_CLEARANCE;
+    if(returning&&(!worker.target||state.regions[worker.returnRegionId]?.owner!=='player'||!walkable(worker.target,radius))) {
+      if(state.t>=worker.repathAt||state.regions[worker.returnRegionId]?.owner!=='player')planReturn(worker);
+    }
+    if(!returning&&(!worker.target||!walkable(worker.target,radius))) {
+      const used=constructionWorkers(state).filter(other=>other.id!==worker.id&&other.phase!=='return');
+      const target=workPositionCandidates(state,structure).find(point=>!used.some(other=>other.target&&dist(other.target,point)<radius*2+.15)&&findPath(worker,point,radius));
+      worker.target=target?{...target}:null;worker.path=[];worker.repathAt=0;
+    }
+    if(!worker.target){worker.phase='blocked';return 0;}
+    if(dist(worker,worker.target)<=EPS) {
+      worker.phase=returning?'return':'work';
+      if(structure)worker.heading=Math.atan2(structure.x-worker.x,structure.z-worker.z);
+      return returning?0:dt;
+    }
+    if(!worker.path.length&&state.t>=worker.repathAt) {
+      worker.path=findPath(worker,worker.target,radius)||[];worker.repathAt=state.t+1.5;
+      if(!worker.path.length&&returning)planReturn(worker);
+    }
+    if(!worker.path.length){worker.phase='blocked';return 0;}
+    worker.phase=returning?'return':'travel';
+    let movement=CONSTRUCTION_CREW_SPEED*dt,moved=0;
+    while(worker.path.length&&movement>EPS) {
+      const point=worker.path[0],distance=dist(worker,point);
+      if(distance<=EPS){worker.path.shift();continue;}
+      const travel=Math.min(distance,movement),next={x:worker.x+(point.x-worker.x)*travel/distance,z:worker.z+(point.z-worker.z)*travel/distance};
+      if(!walkable(next,radius)||!clearSegment(worker,next,radius)){worker.path=[];worker.repathAt=state.t+.1;worker.phase='blocked';break;}
+      worker.heading=Math.atan2(next.x-worker.x,next.z-worker.z);worker.x=next.x;worker.z=next.z;
+      worker.travelled+=travel;movement-=travel;moved+=travel;
+      if(travel>=distance-EPS)worker.path.shift();
+    }
+    if(dist(worker,worker.target)<=EPS) {
+      worker.phase=returning?'return':'work';
+      if(structure)worker.heading=Math.atan2(structure.x-worker.x,structure.z-worker.z);
+      return returning?0:Math.max(0,dt-moved/CONSTRUCTION_CREW_SPEED);
+    }
+    return 0;
+  }
+  function updateConstructionCrew(job,dt) {
+    const structure=state.structures.find(site=>site.id===job.structureId);
+    if(!structure)return 0;
+    let work=0;
+    for(const worker of job.construction.crew)work+=moveConstructionWorker(worker,dt,{structure});
+    job.blocked=job.construction.crew.every(worker=>worker.phase==='blocked');
+    job.blockedReason=job.construction.crew.some(worker=>worker.phase==='blocked')?'Η διαδρομή κάποιων εργατών έχει αποκλειστεί. Οι υπόλοιποι συνεχίζουν αν έχουν φτάσει.':null;
+    return work/job.workers;
+  }
+  function updateReturningCrews(dt) {
+    const previous=state.returningCrews.length;
+    state.returningCrews=state.returningCrews.filter(worker=>{
+      moveConstructionWorker(worker,dt,{returning:true});
+      return !(worker.target&&state.regions[worker.returnRegionId]?.owner==='player'&&dist(worker,worker.target)<=EPS);
+    });
+    if(state.returningCrews.length!==previous)recomputeEconomy();
+  }
   function homeFor(owner,from=null) {
     const regions=ownedRegions(owner);
     return regions.sort((a,b)=>(a.kind==='castle'?-70:0)+(from?dist(a,from):0)-(b.kind==='castle'?-70:0)-(from?dist(b,from):0))[0]||null;
@@ -595,8 +771,15 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     state.housing=60+buildingTotal('houses')*12+Math.max(0,ours.length-3)*5;
     state.workforce=Math.floor(state.population*.5);
     state.assignedWorkers=state.nodes.reduce((sum,n)=>sum+n.workers,0);
-    state.busyWorkers=state.jobs.reduce((sum,j)=>sum+(j.workers||0),0);
+    state.returningWorkers=state.returningCrews.length;
+    state.busyWorkers=state.jobs.reduce((sum,j)=>sum+(j.workers||0),0)+state.returningWorkers;
     state.availableWorkers=Math.max(0,state.workforce-state.assignedWorkers-state.busyWorkers);
+    const activeCrews=state.jobs.flatMap(job=>job.construction?.crew||[]);
+    state.workerActivity={gathering:state.assignedWorkers,traveling:activeCrews.filter(worker=>worker.phase==='travel').length,
+      working:activeCrews.filter(worker=>worker.phase==='work').length,blocked:activeCrews.filter(worker=>worker.phase==='blocked').length,
+      returning:state.returningWorkers,returningBlocked:state.returningCrews.filter(worker=>worker.phase==='blocked').length,
+      researching:state.jobs.filter(job=>job.kind==='research').reduce((sum,job)=>sum+job.workers,0),
+      fortification:state.jobs.filter(job=>job.kind==='build'&&!job.construction).reduce((sum,job)=>sum+job.workers,0),available:state.availableWorkers};
     state.armyCapacity=52+buildingTotal('barracks')*14+techLevel('logistics')*18+Math.max(0,ours.length-3)*5;
     state.armyUsed=state.squads.filter(player).reduce((sum,s)=>sum+UNIT_TYPES[s.type].men,0)+state.jobs.filter(j=>j.kind==='train').reduce((sum,j)=>sum+UNIT_TYPES[j.type].men,0);
     state.income=(ours.length*.17+state.population*.012*(.5+state.morale/200))*(1+buildingTotal('market')*.14);
@@ -808,6 +991,13 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   function command(action,payload={}) {
     const v=validateCommand(action,payload);if(!v.ok)return {ok:false,message:v.message};
     if(action==='build'&&v.requiresPlacement)return fail('Διάλεξε πρώτα τη θέση του κτιρίου στον χάρτη και επιβεβαίωσε την κατασκευή.');
+    let constructionPlan=null;
+    if(action==='build'&&has(BUILD_FOOTPRINTS,payload.type)) {
+      const proposed=v.structure||{id:'construction-preview',type:payload.type,regionId:v.r.id,...v.placement,status:'building'};
+      const plannedState=v.structure?state:{...state,structures:[...state.structures,proposed]};
+      constructionPlan=prepareConstructionCrew(plannedState,proposed);
+      if(!constructionPlan)return fail('Δεν βρέθηκαν τέσσερις ασφαλείς διαδρομές εργατών προς το εργοτάξιο. Διάλεξε άλλη θέση ή άνοιξε την πρόσβαση.');
+    }
     let message='Η εντολή δόθηκε.',details={};
     if(action==='assignWorkers') {
       v.node.workers+=v.delta;
@@ -828,6 +1018,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
           state.structures.push(structure);
         }
         Object.assign(job,{structureId:structure.id,x:structure.x,z:structure.z,rotation:structure.rotation,targetLevel:v.targetLevel});
+        attachConstructionCrew(state,job,constructionPlan);
         refreshRoutesForStructure(structure);
         details.structureId=structure.id;
       }
@@ -884,6 +1075,13 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       let previous=s,blocked=false;
       for(const point of s.path||[]){if(segmentHitsRect(previous,point,rect,UNIT_CLEARANCE[s.type])){blocked=true;break;}previous=point;}
       if(blocked){s.path=[];s.repathAt=0;}
+    }
+    for(const worker of constructionWorkers(state)) {
+      let previous=worker;
+      for(const point of worker.path) {
+        if(segmentHitsRect(previous,point,rect,CONSTRUCTION_CREW_CLEARANCE)){worker.path=[];worker.repathAt=0;worker.phase='blocked';break;}
+        previous=point;
+      }
     }
   }
   function applyUnitDamage(target,amount,owner) {
@@ -1143,12 +1341,14 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     const lostJobs=state.jobs.filter(j=>j.regionId===id);state.jobs=state.jobs.filter(j=>j.regionId!==id);
     for(const structure of state.structures)if(structure.regionId===id&&structure.status==='upgrading'){structure.status='ready';structure.jobId=null;}
     state.structures=state.structures.filter(structure=>structure.regionId!==id||structure.status!=='building');
+    for(const job of lostJobs)releaseConstructionCrew(job);
+    for(const worker of state.returningCrews)if(worker.returnRegionId===id)planReturn(worker);
     if(owner==='player') {
       state.stats.captured++;state.morale=clamp(state.morale+4,0,100);
       log('capture',`${REGION_BY_ID[id].name}: δικό σου φέουδο`,'Οι σημαίες άλλαξαν. Ανάθεσε εργάτες στους πόρους και επισκεύασε τα τείχη πριν από αντεπίθεση.');
     } else if(previous==='player') {
       state.morale=clamp(state.morale-9,0,100);
-      log('warning',`Χάθηκε περιοχή · ${REGION_BY_ID[id].name}`,lostJobs.length?'Τα έργα εγκαταλείφθηκαν και οι εργάτες επέστρεψαν.':'Ανασύνταξε τον στρατό και προστάτεψε τις υπόλοιπες περιοχές.');
+      log('warning',`Χάθηκε περιοχή · ${REGION_BY_ID[id].name}`,lostJobs.length?'Τα έργα εγκαταλείφθηκαν. Τα συνεργεία επιστρέφουν σε ασφαλές φέουδο.':'Ανασύνταξε τον στρατό και προστάτεψε τις υπόλοιπες περιοχές.');
     } else log('war',`Κατάληψη · ${REGION_BY_ID[id].name}`,`Η αντίπαλη ηγεμονία ${FACTIONS[owner].shortName} επεκτείνει τα σύνορά της.`);
     const p=REGION_BY_ID[id];effect('capture',p.x,p.z,undefined,undefined,{life:3,owner});
     recomputeEconomy();dirty=true;
@@ -1222,12 +1422,14 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   function fortChangeIsSafe(regionId,hp,maxHp) {
     const fort=state.regions[regionId],oldRatio=fort.fortHp/fort.maxFortHp,newRatio=hp/maxHp;
     const restored=FORT_SOLIDS[regionId].filter(shape=>oldRatio<=shape.minRatio&&newRatio>shape.minRatio);
-    return !state.squads.some(squad=>squad.hp>0&&restored.some(shape=>obstacleContains(squad,shape,UNIT_CLEARANCE[squad.type]+.1)));
+    return !state.squads.some(squad=>squad.hp>0&&restored.some(shape=>obstacleContains(squad,shape,UNIT_CLEARANCE[squad.type]+.1)))&&
+      !constructionWorkers(state).some(worker=>restored.some(shape=>obstacleContains(worker,shape,CONSTRUCTION_CREW_CLEARANCE+.1)));
   }
   function updateJobs(dt) {
     const busy=new Set(),completed=[];
     for(const j of state.jobs) {
-      if(state.regions[j.regionId]?.owner!=='player'){completed.push(j.id);continue;}
+      if(state.regions[j.regionId]?.owner!=='player'){releaseConstructionCrew(j);completed.push(j.id);continue;}
+      const workDt=j.construction?updateConstructionCrew(j,dt):dt;
       if(j.kind==='train') {
         const facility=`${j.regionId}-${UNIT_TYPES[j.type].requires}`;
         if(busy.has(facility)){j.waiting=true;continue;}busy.add(facility);j.waiting=false;
@@ -1242,10 +1444,10 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         }
         r.fortHp=Math.min(r.maxFortHp,r.fortHp+amount);j.applied=(j.applied||0)+amount;r.breached=r.fortHp<=0;
       }
-      j.remaining=Math.max(0,j.remaining-dt);
-      if(j.remaining<=EPS&&finishJob(j)!==false)completed.push(j.id);
+      j.remaining=Math.max(0,j.remaining-workDt);
+      if(j.remaining<=EPS&&finishJob(j)!==false){releaseConstructionCrew(j);completed.push(j.id);}
     }
-    if(completed.length)state.jobs=state.jobs.filter(j=>!completed.includes(j.id));
+    if(completed.length){state.jobs=state.jobs.filter(j=>!completed.includes(j.id));recomputeEconomy();}
   }
   function aiOrder(s,type,region) {
     const def=UNIT_TYPES[s.type],p=state.regions[region.id].fortHp>0?standOff(region,s,def.range):nearestGround(gatePoint(region),s);
@@ -1313,7 +1515,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     state.t+=dt;state.day=Math.floor(state.t/600)+1;
     economyElapsed+=dt;missionsElapsed+=dt;
     if(economyElapsed>=.75){recomputeEconomy();economyElapsed=0;}
-    updateEconomy(dt);updateJobs(dt);updateAI(dt);updateEffects(dt);updateSquads(dt);updateFortresses(dt);
+    updateEconomy(dt);updateReturningCrews(dt);updateJobs(dt);updateAI(dt);updateEffects(dt);updateSquads(dt);updateFortresses(dt);
     if(missionsElapsed>=1){updateMissions();missionsElapsed=0;}
   }
   function step(realSeconds) {
@@ -1328,6 +1530,66 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     if(noticeElapsed>=.5){noticeElapsed=0;recomputeEconomy();notify();}
     if(saveElapsed>=12){saveElapsed=0;save();}
     return state;
+  }
+  function validateConstructionCrews(s) {
+    if(s.returningCrews===undefined)s.returningCrews=[];
+    if(!Array.isArray(s.returningCrews)||s.returningCrews.length>Math.floor(s.population*.5))throw new Error('Το αρχείο έχει μη έγκυρα συνεργεία επιστροφής.');
+    const ids=new Set([...s.squads,...s.jobs,...s.structures].map(item=>item.id));
+    const inspectWorker=(worker,job=null)=>{
+      if(!worker||typeof worker.id!=='string'||worker.id.length>80||ids.has(worker.id)||typeof worker.jobId!=='string'||
+        typeof worker.structureId!=='string'||!has(REGION_BY_ID,worker.regionId)||!terrainWalkable(worker)||
+        !finite(worker.heading)||!finite(worker.travelled)||worker.travelled<0||worker.travelled>1e9||
+        !finite(worker.repathAt)||worker.repathAt<0||!worker.origin||!terrainWalkable(worker.origin)||
+        (worker.target!==null&&(!worker.target||!terrainWalkable(worker.target)))||
+        !Array.isArray(worker.path)||worker.path.length>1000||worker.path.some(point=>!terrainWalkable(point))||
+        !(job?['travel','work','blocked']:['return','blocked']).includes(worker.phase))throw new Error('Το αρχείο έχει μη έγκυρο εργάτη κατασκευής.');
+      ids.add(worker.id);
+      if(worker.phase!=='blocked'&&!worker.target)throw new Error('Ο εργάτης δεν έχει έγκυρο προορισμό.');
+      if(worker.path.length&&(!worker.target||dist(worker.path.at(-1),worker.target)>.001))throw new Error('Η διαδρομή του εργάτη δεν φτάνει στον προορισμό του.');
+      if(worker.phase==='work'&&dist(worker,worker.target)>.001)throw new Error('Ο εργάτης δεν έχει φτάσει στη θέση εργασίας του.');
+      if(job) {
+        if(worker.jobId!==job.id||worker.structureId!==job.structureId||worker.regionId!==job.regionId)throw new Error('Το συνεργείο δεν αντιστοιχεί στο εργοτάξιό του.');
+        const structure=s.structures.find(site=>site.id===job.structureId);
+        if(worker.target&&![...perimeterPoints(structure),...perimeterPoints(structure,3.2)].some(point=>dist(point,worker.target)<.001))throw new Error('Η θέση εργασίας δεν βρίσκεται στην περίμετρο του εργοταξίου.');
+      } else if(worker.returnRegionId!==null&&!has(REGION_BY_ID,worker.returnRegionId))throw new Error('Το συνεργείο επιστρέφει σε άγνωστο φέουδο.');
+      if(!job&&worker.phase==='return'&&(!worker.returnRegionId||!inPolygon(worker.target,REGION_BY_ID[worker.returnRegionId].polygon)))throw new Error('Ο προορισμός επιστροφής δεν βρίσκεται στο σωστό φέουδο.');
+      worker.repathAt=Math.min(worker.repathAt,s.t+3);
+      // A legitimate saved route can become unsafe after a geometry update.
+      // Repair it on the candidate before import commits any campaign changes.
+      if(!isWorldPointWalkable(s,worker,CONSTRUCTION_CREW_CLEARANCE)) {
+        const safe=nearestGround(worker,CONSTRUCTION_CREW_CLEARANCE,s);
+        if(!safe)throw new Error('Δεν βρέθηκε ασφαλής θέση για αποθηκευμένο εργάτη.');
+        worker.x=safe.x;worker.z=safe.z;worker.path=[];worker.phase='blocked';worker.repathAt=0;
+      }
+      if(job&&(!worker.target||!isWorldPointWalkable(s,worker.target,CONSTRUCTION_CREW_CLEARANCE))) {
+        const structure=s.structures.find(site=>site.id===job.structureId),taken=job.construction.crew.filter(other=>other!==worker);
+        const target=workPositionCandidates(s,structure).find(point=>!taken.some(other=>other.target&&dist(other.target,point)<CONSTRUCTION_CREW_CLEARANCE*2+.15)&&findPath(worker,point,CONSTRUCTION_CREW_CLEARANCE,s));
+        worker.target=target?{...target}:null;worker.path=[];worker.phase='blocked';worker.repathAt=0;
+      }
+      let previous=worker;
+      for(const point of worker.path) {
+        if(!isWorldSegmentWalkable(s,previous,point,CONSTRUCTION_CREW_CLEARANCE)){worker.path=[];worker.phase='blocked';worker.repathAt=0;break;}
+        previous=point;
+      }
+    };
+    for(const job of s.jobs) {
+      if(job.kind!=='build'||!has(BUILD_FOOTPRINTS,job.type)) {
+        if(job.construction!==undefined)throw new Error('Αυτό το έργο δεν μπορεί να έχει συνεργείο εργοταξίου.');
+        continue;
+      }
+      if(job.workers!==4)throw new Error('Κάθε εργοτάξιο χρειάζεται τέσσερις δεσμευμένους εργάτες.');
+      if(job.construction===undefined) {
+        const structure=s.structures.find(site=>site.id===job.structureId),plan=prepareConstructionCrew(s,structure,{legacy:true});
+        if(!plan)throw new Error('Δεν βρέθηκαν ασφαλείς θέσεις για το παλιό εργοτάξιο.');
+        attachConstructionCrew(s,job,plan,true);
+      }
+      if(!job.construction||job.construction.version!==1||typeof job.construction.legacy!=='boolean'||
+        !Array.isArray(job.construction.crew)||job.construction.crew.length!==4)throw new Error('Το αρχείο έχει μη έγκυρο συνεργείο εργοταξίου.');
+      for(const worker of job.construction.crew)inspectWorker(worker,job);
+    }
+    for(const worker of s.returningCrews)inspectWorker(worker);
+    const reserved=s.nodes.reduce((sum,node)=>sum+node.workers,0)+s.jobs.reduce((sum,job)=>sum+job.workers,0)+s.returningCrews.length;
+    if(reserved>Math.floor(s.population*.5))throw new Error('Οι αναθέσεις και οι επιστροφές ξεπερνούν τους διαθέσιμους εργάτες.');
   }
   function validateSave(text) {
     if(typeof text!=='string'||text.length>2500000)throw new Error('Το αρχείο εκστρατείας δεν έχει έγκυρο μέγεθος.');
@@ -1395,6 +1657,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     s.growth=finite(s.growth)?clamp(s.growth,0,32):0;
     s.day=Math.floor(s.t/600)+1;s.lastHungerNotice=finite(s.lastHungerNotice)?s.lastHungerNotice:-1000;s.lastWageNotice=finite(s.lastWageNotice)?s.lastWageNotice:-1000;
     validateStructures(s);
+    validateConstructionCrews(s);
     return s;
   }
   function exportSave() {

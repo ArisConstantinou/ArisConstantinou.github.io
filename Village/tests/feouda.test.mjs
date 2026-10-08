@@ -6,6 +6,7 @@ const cases=[];
 const test=(name,fn)=>cases.push({name,fn});
 const close=(a,b,eps=1e-6)=>assert.ok(Math.abs(a-b)<eps,`${a} ≠ ${b}`);
 const advance=(game,seconds)=>{for(let elapsed=0;elapsed<seconds;elapsed+=.5)game.step(Math.min(.5,seconds-elapsed));};
+const advanceUntil=(game,predicate,label,limit=240)=>{for(let elapsed=0;elapsed<limit&&!predicate();elapsed+=.5)game.step(.5);assert.ok(predicate(),label+' must complete through actual simulation');};
 const own=game=>game.state.squads.filter(s=>s.owner==='player');
 const quiet=()=>{
   const game=createGame();
@@ -122,13 +123,16 @@ test('build preview gives effective level cost even when supplies are insufficie
 
 test('construction reserves four civilians and physically changes building level/housing',()=>{
   const game=quiet(),before=game.state.availableWorkers,housing=game.state.housing;
-  assert.equal(game.command('build',plot(game,'houses','quarry')).ok,true);
+  const result=game.command('build',plot(game,'houses','quarry'));assert.equal(result.ok,true);
   assert.equal(game.state.availableWorkers,before-4);
   assert.equal(game.state.regions.quarry.buildings.houses||0,0);
-  advance(game,36);
+  const job=game.state.jobs.find(j=>j.id===result.jobId);assert.equal(job.construction.crew.length,4);close(job.remaining,job.duration);
+  advanceUntil(game,()=>!game.state.jobs.some(j=>j.id===result.jobId),'Construction after the crew arrives');
   assert.equal(game.state.regions.quarry.buildings.houses,1);
   assert.equal(game.state.housing,housing+12);
   assert.equal(game.state.stats.built,1);
+  assert.equal(game.state.busyWorkers,game.state.returningCrews.length,'Returning people remain reserved');
+  advanceUntil(game,()=>!game.state.returningCrews.length,'Crew return to the settlement');
   assert.equal(game.state.busyWorkers,0);
 });
 
@@ -441,7 +445,8 @@ test('a confirmed rotated plot charges once and completes at the identical saved
   for(const [key,cost]of Object.entries(quote.cost))close(game.state.resources[key],before[key]-cost);
   const after={...game.state.resources};assert.equal(game.command('build',p).ok,false);assert.deepEqual(game.state.resources,after);
   assert.equal(game.getNavigation().isWalkable(structure),false);
-  advance(game,quote.duration+.2);
+  close(job.duration,quote.duration);
+  advanceUntil(game,()=>structure.status==='ready','Construction at the confirmed plot');
   assert.equal(structure.status,'ready');assert.equal(structure.level,1);assert.equal(structure.jobId,null);
   assert.equal(structure.x,p.x);assert.equal(structure.z,p.z);close(structure.rotation,p.rotation);
   assert.equal(game.state.regions.home.buildings.houses,3);
@@ -454,7 +459,7 @@ test('existing-building upgrades keep their plot and reject an attempted relocat
   assert.equal(quote.ok,true);assert.equal(quote.requiresPlacement,false);assert.equal(quote.targetLevel,2);
   const before={...game.state.resources};assert.equal(game.command('build',{...payload,x:structure.x+1}).ok,false);assert.deepEqual(game.state.resources,before);
   assert.equal(game.command('build',payload).ok,true);assert.equal(structure.status,'upgrading');
-  advance(game,quote.duration+.1);
+  advanceUntil(game,()=>structure.status==='ready','Upgrade after the crew arrives');
   assert.equal(structure.level,2);assert.equal(structure.status,'ready');assert.equal(game.state.structures.length,count);
   assert.deepEqual({x:structure.x,z:structure.z,rotation:structure.rotation},location);assert.equal(game.state.regions.home.buildings.houses,3);
 });
@@ -502,8 +507,8 @@ test('farmland reserves a building plot while remaining passable to soldiers',()
 test('a legacy campaign gains plots without losing elapsed time, money, building levels or unfinished work',()=>{
   const original=quiet(),p=plot(original,'houses','quarry');
   assert.equal(original.command('build',p).ok,true);advance(original,7);
-  const legacy=JSON.parse(original.exportSave());delete legacy.state.structures;
-  for(const job of legacy.state.jobs)for(const key of ['structureId','x','z','rotation','targetLevel'])delete job[key];
+  const legacy=JSON.parse(original.exportSave());delete legacy.state.structures;delete legacy.state.returningCrews;
+  for(const job of legacy.state.jobs)for(const key of ['structureId','x','z','rotation','targetLevel','construction'])delete job[key];
   const resources={...legacy.state.resources},remaining=legacy.state.jobs[0].remaining,t=legacy.state.t;
   const levels=REGIONS.map(r=>({...legacy.state.regions[r.id].buildings}));
   const storage=new MemoryStorage({[SAVE_KEY]:JSON.stringify(legacy)}),restored=createGame({storage});
