@@ -1,11 +1,11 @@
 # FEΟUDA 1280 shared implementation contract
 
-Target: transform this existing GitHub Pages game into a playable medieval real-time strategy campaign, with actual Three.js 3D rendering, castles, armies, sieges, territory capture, villagers and resource economy. Greek UI; Cypriot pounds (CY£), fictional map in 1280. No Moutoullas branding. Preserve old browser save keys; use `feouda-1280-v1`. Version 2.4.2. Do not change or publish any `chronicle/` files. Root handles integration, versioning, PWA and publishing.
+Target: transform this existing GitHub Pages game into a playable medieval real-time strategy campaign, with actual Three.js 3D rendering, castles, armies, sieges, territory capture, villagers and resource economy. Greek UI; Cypriot pounds (CY£), fictional map in 1280. No Moutoullas branding. Preserve old browser save keys; use `feouda-1280-v1`. Version 2.5.0. Do not change or publish any `chronicle/` files. Root handles integration, versioning, PWA and publishing.
 
 ## Files / ownership
-- Root owns `feouda-data.js`, UI `app.js`, `style.css`, `index.html`, PWA and staging. Root supplies vendored Three.js `vendor/three.module.js`.
-- Engine agent owns `feouda-engine.js` and `tests/feouda.test.mjs` only.
-- 3D agent owns `feouda-world.js` and additional `feouda-models.js` / `feouda-materials.js` if needed. Do not alter shared data silently.
+- Root owns `dist/feouda-data.js`, UI `dist/app.js`, `dist/style.css`, `dist/index.html`, PWA and staging. Root supplies vendored Three.js `dist/vendor/three.module.js`.
+- Engine agent owns `dist/feouda-engine.js` and `tests/feouda.test.mjs` only.
+- 3D agent owns `dist/feouda-world.js` and additional `dist/feouda-models.js` / `dist/feouda-materials.js` if needed. Do not alter shared data silently.
 
 ## Data module
 Exports `FACTIONS` dictionary; `REGIONS` array; `RESOURCE_NODES` array; `UNIT_TYPES`, `BUILDINGS`, `TECHS` dictionaries; `MAP`, `BRIDGES`; `heightAt(x,z)`, `riverX(z)`, `regionAt(x,z)`.
@@ -159,8 +159,20 @@ Groups and guide progress use `feouda-control-groups-v1` and `feouda-guide-v24-p
 
 [RTS-RESEARCH.md](RTS-RESEARCH.md) links the primary Age of Empires, Xbox, animation-director and technical-artist references used for these decisions. Apply interaction and presentation principles while retaining this game's own interface and licensed assets.
 
-The DOM integration harness has passed 32 scenarios at desktop dimensions and 32 at mobile dimensions, using the actual app and simulation with a mocked renderer boundary. It verifies functional state transitions, construction costs and placement, selection/groups, contextual training, guide progress, image fallback, stable UI nodes and save/import flows. Engine tests separately cover movement, collision and battle behavior, including attack-move engagement and route resumption. These checks are not live WebGL rendering benchmarks. Do not claim AAA production quality, a certified frame rate, physical iOS testing or verified GPU performance without corresponding device evidence. The compatibility renderer remains a simpler representation of the same campaign.
+The DOM integration harness has passed 47 scenarios at desktop dimensions and 47 at mobile dimensions, using the actual app and simulation with a mocked renderer boundary. It verifies functional state transitions, construction costs and placement, selection/groups, contextual training, guide progress, image fallback, stable UI nodes and save/import flows. Engine tests separately cover movement, collision and battle behavior, including attack-move engagement and route resumption. These checks are not live WebGL rendering benchmarks. Do not claim AAA production quality, a certified frame rate, physical iOS testing or verified GPU performance without corresponding device evidence. The compatibility renderer remains a simpler representation of the same campaign.
 
 Building explanations are revealed only by an explicit detail-button activation. Pointer hover and keyboard focus must not change the inspector or scroll the construction list. Repeating the detail action for the selected type must still bring its explanation into view.
 
 Revealing a building explanation must complete synchronously; animated smooth scrolling is interrupted by the periodic panel scroll-position preservation.
+
+
+## Actionable guidance, version 2.5
+
+- `getNodeProduction(state,node)` is a read-only engine export returning `{perWorkerPerMinute,totalPerMinute,maxWorkers,active,buildingType,buildingLevel}`. Its shared internal calculation also powers aggregate economy and actual gathering. Values are gross per simulation minute; food consumption and passive farm supply are separate. An owned usable zero-worker node quotes prospective per-worker yield, but no current production. Preserve all balance coefficients and ownership/exhaustion gates.
+- `feouda-advisor.js` exports pure `getTrainingRequirements`, `getMissionGuidance` and `getCampaignAdvice`. They return Greek explanations and navigation descriptors, never authorization or commands. Actual assignment/training/building still requires the engine's command validation. Compound victory is nine owned regions AND prosperity at least 65.
+- Both construction and training expose a labelled owned-region selector. All subsequent quotes, previews and commands use that selected region. Prerequisite navigation preserves the intended type/region and reveals an already running job when present.
+- Training queues label active, paused, waiting and spatially blocked work. Waiting is derived from preceding jobs in the same region and required facility, so a paused newly queued second squad never looks active. A second building of the same type does not imply an extra parallel training lane.
+- Help navigation and tutorial actions cancel old placement/targeting modes before opening the new context. Navigation must not charge resources, create work, advance missions or order military action. Explicit selection/assignment/order/confirmation continues to define real tutorial completion. Returning from help preserves deliberate tactical pause.
+- Completed tutorial steps can be revisited; a visible return restores current campaign advice. Exhausted first resource nodes, missing spear squads and unusable selected training regions must not trap the first-step guide.
+- `feouda-guidance.css` loads after the established stylesheet, keeps the mobile help entry visible, and uses readable single-column recruitment on narrow phones. Training disclosure state and focus survive periodic DOM reconciliation. Inspector reveal remains immediate and explicit.
+- `npm test` includes 56 engine scenarios and 36 pure guidance/readout cases. `npm run test:ui` executes 47 DOM interaction scenarios at desktop dimensions and 47 at mobile dimensions with the renderer boundary replaced. Live UI inspection complements these tests; this does not establish physical iOS or GPU performance.

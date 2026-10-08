@@ -1,4 +1,4 @@
-import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.4.2';
+import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.5.0';
 
 // Simulation uses world-space positions. Orders, arrows and siege stones travel
 // through the same world the player sees; elapsed wall-clock time never fights wars.
@@ -27,6 +27,32 @@ const infantry = s => UNIT_TYPES[s.type]?.role === 'infantry';
 const player = s => s.owner === 'player' && s.hp > 0;
 const rounded = n => Math.round(n * 100) / 100;
 const fail = message => ({ok:false, message});
+
+// One source for production quotes and actual gathering. Rates use simulation
+// seconds; pause/speed do not change them. Exhaustion caps the actual transfer.
+function nodeProductionRates(state,node) {
+  const buildingType=has(NODE_BUILDING,node?.type)?NODE_BUILDING[node.type]:null;
+  const region=state?.regions&&has(state.regions,node?.regionId)?state.regions[node.regionId]:null;
+  const rawLevel=buildingType?(region?.buildings?.[buildingType]??0):0;
+  const buildingLevel=Number.isInteger(rawLevel)&&rawLevel>=0&&rawLevel<=BUILDINGS[buildingType]?.max?rawLevel:0;
+  const agriculture=node?.type==='food'?(state?.techs?.agriculture??0):0;
+  const usable=buildingType!==null&&region?.owner==='player'&&finite(node.amount)&&node.amount>0&&
+    finite(state?.morale)&&state.morale>=0&&state.morale<=100&&buildingLevel===rawLevel&&
+    Number.isInteger(agriculture)&&agriculture>=0&&agriculture<=TECHS.agriculture.max;
+  const perWorkerPerSecond=usable?GATHER_RATE[node.type]*(1+.25*buildingLevel)*(1+.2*agriculture)*(.6+state.morale*.0055):0;
+  const workers=Number.isInteger(node?.workers)&&node.workers>0&&node.workers<=MAX_WORKERS_PER_NODE?node.workers:0;
+  const totalPerSecond=perWorkerPerSecond*workers;
+  return {perWorkerPerSecond,totalPerSecond,active:totalPerSecond>0,buildingType,buildingLevel};
+}
+
+/** Gross node production per simulation minute, excluding passive farms and
+ * food consumption. Unassigned usable nodes retain a prospective worker rate.
+ * Inactive/invalid nodes return zero totals without changing campaign state. */
+export function getNodeProduction(state,node) {
+  const rates=nodeProductionRates(state,node);
+  return {perWorkerPerMinute:rates.perWorkerPerSecond*60,totalPerMinute:rates.totalPerSecond*60,
+    maxWorkers:MAX_WORKERS_PER_NODE,active:rates.active,buildingType:rates.buildingType,buildingLevel:rates.buildingLevel};
+}
 
 // World-metre rectangles include roof overhangs and the .78 model scale.
 // Walls improve the existing fort and therefore never reserve a new plot.
@@ -577,10 +603,8 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     state.upkeep=state.squads.filter(player).reduce((sum,s)=>sum+UNIT_TYPES[s.type].men*.012+(UNIT_TYPES[s.type].role==='siege'?.025:0),0)*(1-techLevel('logistics')*.08);
     state.gatherRates={food:0,wood:0,stone:0,iron:0};
     for(const n of state.nodes) {
-      if(!n.workers||n.amount<=0||state.regions[n.regionId].owner!=='player')continue;
-      const level=state.regions[n.regionId].buildings[NODE_BUILDING[n.type]]||0;
-      const mult=(1+.25*level)*(1+(n.type==='food'?.2*techLevel('agriculture'):0))*(.6+state.morale*.0055);
-      state.gatherRates[n.type]+=n.workers*GATHER_RATE[n.type]*mult;
+      const production=nodeProductionRates(state,n);
+      if(production.active)state.gatherRates[n.type]+=production.totalPerSecond;
     }
     state.foodConsumption=state.population*.0035+state.squads.filter(player).reduce((sum,s)=>sum+UNIT_TYPES[s.type].men*.0045,0);
     state.foodBalance=state.gatherRates.food+buildingTotal('farm')*.06-state.foodConsumption;
@@ -1135,10 +1159,9 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     let foodGathered=buildingTotal('farm')*.06*dt;
     rs.food+=foodGathered;
     for(const n of state.nodes) {
-      if(!n.workers||n.amount<=0||state.regions[n.regionId].owner!=='player')continue;
-      const building=state.regions[n.regionId].buildings[NODE_BUILDING[n.type]]||0;
-      const rate=n.workers*GATHER_RATE[n.type]*(1+.25*building)*(1+(n.type==='food'?.2*techLevel('agriculture'):0))*(.6+state.morale*.0055);
-      const amount=Math.min(n.amount,rate*dt);n.amount-=amount;rs[n.type]+=amount;state.stats.gathered+=amount;
+      const production=nodeProductionRates(state,n);
+      if(!production.active)continue;
+      const amount=Math.min(n.amount,production.totalPerSecond*dt);n.amount-=amount;rs[n.type]+=amount;state.stats.gathered+=amount;
       if(n.amount<=EPS){n.amount=0;n.workers=0;log('economy','Μια πηγή εξαντλήθηκε','Οι εργάτες είναι ξανά διαθέσιμοι. Ανάθεσέ τους σε άλλη πηγή.');}
     }
     rs.food=Math.max(0,rs.food-state.foodConsumption*dt);

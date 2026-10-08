@@ -1,1 +1,14 @@
-{"name":"feouda-1280","version":"2.4.2","private":true,"type":"module","scripts":{"test":"node tests/feouda.test.mjs"}}
+{
+  "name": "feouda-1280",
+  "version": "2.5.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/feouda.test.mjs tests/economy-readout.test.mjs tests/advisor.test.mjs",
+    "test:ui": "node tests/ui-guidance.test.mjs && node tests/ui-guidance.test.mjs mobile"
+  },
+  "devDependencies": {
+    "linkedom": "0.18.13",
+    "@napi-rs/canvas": "0.1.100"
+  }
+}

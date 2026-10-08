@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import {box,cylinder,mergeStatic} from './feouda-models.js?v=2.4.2';
+import {box,cylinder,mergeStatic} from './feouda-models.js?v=2.5.0';
 
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const smooth=(a,b,v)=>{const t=clamp((v-a)/(b-a));return t*t*(3-2*t);};
