@@ -1,11 +1,11 @@
 import * as THREE from './vendor/three.module.js';
-import {MAP,REGIONS,RESOURCE_NODES,FACTIONS,BRIDGES,UNIT_TYPES,BUILDINGS,heightAt,riverX,regionAt} from './feouda-data.js?v=2.4.0';
-import {BUILDING_FOOTPRINTS,PLACEMENT_ROADS,UNIT_CLEARANCE,isWorldPointWalkable,isWorldSegmentWalkable} from './feouda-engine.js?v=2.4.0';
-import {createAssetLibrary} from './feouda-assets.js?v=2.4.0';
-import {createSoftwareRenderer} from './feouda-software.js?v=2.4.0';
-import {createMaterials} from './feouda-materials.js?v=2.4.0';
-import {paintTerrain,createConstructionSite,setConstructionProgress,createForestMaterial} from './feouda-environment.js?v=2.4.0';
-import {createFortress,setFortressState,createHouse,createBuilding,createBridge,createSiege,createResource,soldierGeometries,box,cylinder,mergeStatic} from './feouda-models.js?v=2.4.0';
+import {MAP,REGIONS,RESOURCE_NODES,FACTIONS,BRIDGES,UNIT_TYPES,BUILDINGS,heightAt,riverX,regionAt} from './feouda-data.js?v=2.4.1';
+import {BUILDING_FOOTPRINTS,PLACEMENT_ROADS,UNIT_CLEARANCE,isWorldPointWalkable,isWorldSegmentWalkable} from './feouda-engine.js?v=2.4.1';
+import {createAssetLibrary} from './feouda-assets.js?v=2.4.1';
+import {createSoftwareRenderer} from './feouda-software.js?v=2.4.1';
+import {createMaterials} from './feouda-materials.js?v=2.4.1';
+import {paintTerrain,createConstructionSite,setConstructionProgress,createForestMaterial} from './feouda-environment.js?v=2.4.1';
+import {createFortress,setFortressState,createHouse,createBuilding,createBridge,createSiege,createResource,soldierGeometries,box,cylinder,mergeStatic} from './feouda-models.js?v=2.4.1';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),mix=(a,b,t)=>a+(b-a)*t;
 const random=seed=>()=>{seed=Math.imul(seed^seed>>>15,1|seed);seed^=seed+Math.imul(seed^seed>>>7,61|seed);return((seed^seed>>>14)>>>0)/4294967296;};

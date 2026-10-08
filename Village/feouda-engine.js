@@ -1,4 +1,4 @@
-import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.4.0';
+import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.4.1';
 
 // Simulation uses world-space positions. Orders, arrows and siege stones travel
 // through the same world the player sees; elapsed wall-clock time never fights wars.

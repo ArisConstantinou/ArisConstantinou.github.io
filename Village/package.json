@@ -1,1 +1,1 @@
-{"name":"feouda-1280","version":"2.4.0","private":true,"type":"module","scripts":{"test":"node tests/feouda.test.mjs"}}
+{"name":"feouda-1280","version":"2.4.1","private":true,"type":"module","scripts":{"test":"node tests/feouda.test.mjs"}}
