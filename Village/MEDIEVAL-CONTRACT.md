@@ -1,6 +1,6 @@
 # FEΟUDA 1280 shared implementation contract
 
-Target: transform this existing GitHub Pages game into a playable medieval real-time strategy campaign, with actual Three.js 3D rendering, castles, armies, sieges, territory capture, villagers and resource economy. Greek UI; Cypriot pounds (CY£), fictional map in 1280. No Moutoullas branding. Preserve old browser save keys; use `feouda-1280-v1`. Version 2.3.0. Do not change or publish any `chronicle/` files. Root handles UI/CSS/index/PWA/publishing.
+Target: transform this existing GitHub Pages game into a playable medieval real-time strategy campaign, with actual Three.js 3D rendering, castles, armies, sieges, territory capture, villagers and resource economy. Greek UI; Cypriot pounds (CY£), fictional map in 1280. No Moutoullas branding. Preserve old browser save keys; use `feouda-1280-v1`. Version 2.4.0. Do not change or publish any `chronicle/` files. Root handles integration, versioning, PWA and publishing.
 
 ## Files / ownership
 - Root owns `feouda-data.js`, UI `app.js`, `style.css`, `index.html`, PWA and staging. Root supplies vendored Three.js `vendor/three.module.js`.
@@ -33,7 +33,7 @@ Commands:
 - `train {type,regionId}` reserves resources/army capacity, queue, completion spawns squad.
 - `build {type,regionId,x?,z?,rotation?,structureId?}` owned region only; a new normal building requires a confirmed map position. See the spatial construction contract below. Walls remain at the fortress.
 - `research {type}` costs/time, tech applies battle/economy improvement.
-- `order {ids:[friendly squad IDs],type:'move'|'attack'|'capture'|'hold'|'retreat',x?,z?,targetId?,regionId?}`. Validate finite coordinates, reachable ground and own unit IDs. Attack may target hostile squad ID or region ID. Plan paths over one of two bridges when river banks differ. Capture requires frontier ownership adjacency and infantry after fortress breach. No remote instant damage/capture.
+- `order {ids:[friendly squad IDs],type:'move'|'attackMove'|'attack'|'capture'|'hold'|'retreat',x?,z?,targetId?,regionId?}`. Validate finite coordinates, reachable ground and own unit IDs. Attack may target hostile squad ID or region ID. `attackMove` retains its finite ground destination, engages encountered enemies, reacquires when appropriate and resumes the original route after combat. Preserve this order through save/import validation. Plan paths over one of two bridges when river banks differ. Capture requires frontier ownership adjacency and infantry after fortress breach. No remote instant damage/capture.
 - `formation {ids,formation:'line'|'column'|'wedge'}` affects spacing/movement/combat.
 - `stance {ids,stance:'aggressive'|'defensive'}` affects engagement/pursuit; hold defends current ground.
 - `trade {resource,type:'buy'|'sell',amount}` costs checked.
@@ -95,9 +95,10 @@ fortGate(regionId); // accessible approach outside the actual gate
 Unit arguments may be a squad object, a unit type string or a numeric radius. The engine's own commands always use the selected unit's clearance. When loading an old save, unsafe old paths are cleared and any unit stored inside a newly solid building is moved to nearby legal ground before the campaign resumes; no elapsed time is simulated.
 
 ## Renderer API
-`createBattlefield(canvas,{onSelect(selection),onGround(point,event),onContext(point,selection),onBoxSelect(ids),onReady?,onError?})` returns:
-`setState(state)`, `setSelection({kind:'region'|'node'|'squad'|'army',id?,ids?})`, `focus({x,z}|regionId)`, `home()`, `zoom(delta)`, `setMapMode('terrain'|'political'|'resources')`, `setQuality('low'|'high')`, `setInsets({left,right,top,bottom})`, `getDebugState()`, `destroy()`.
-`selection` callback payload `{kind:'region'|'node'|'squad',id}`. Ground point `{x,z}`. `event` lightweight `{shiftKey,button}`. Desktop left click selects, click ground issues only if UI command mode armed; right-click issues contextual order. Drag left on ground pans by default; Shift-drag box selection. Wheel zoom; Q/E orbit; WASD pan. Mobile one-finger pan, tap select/order, pinch zoom; all tactical commands also exposed by root UI. Do not trap pointer or keyboard after modals. Add `setInputEnabled(bool)`.
+`createBattlefield(canvas,{onSelect(selection,event),onGround(point,event),onContext(point,selection),onBoxSelect(ids,event),onPlacementHover(point),onPlacementPick(point),onReady?,onError?,onAssetStatus?})` returns:
+`setState(state)`, `setSelection({kind:'region'|'node'|'structure'|'squad'|'army',id?,ids?})`, `setPlacement(preview)`, `clearPlacement()`, `focus({x,z}|regionId)`, `home()`, `zoom(delta)`, `setMapMode('terrain'|'political'|'resources')`, `setQuality('low'|'high')`, `setInsets({left,right,top,bottom})`, `setInputEnabled(bool)`, `getDebugState()`, `destroy()`.
+
+`selection` callback payload is `{kind:'region'|'node'|'structure'|'squad',id}`. Ground point is `{x,z}`. Pointer events carry lightweight modifier/button data. `onBoxSelect` receives `{shiftKey,additive,doubleClick?}`. Desktop left click selects; left drag creates a selection rectangle; Shift adds rectangle hits or toggles a clicked squad. Double click or Ctrl-click on a friendly squad selects visible friendly squads of that type. Hit testing includes visible formation members while callback IDs remain squad IDs. Ground clicks issue orders only if a UI command mode is armed. Right click issues contextual orders; middle/right drag pans without also issuing an order. Wheel zooms, Q/E orbits and WASD pans, with the app intercepting A for attack targeting when an army is selected. Mobile retains one-finger pan, tap selection/order and pinch zoom. Construction mode routes ground input to its preview and confirmation callbacks. Disable world input during modals and release pointer/keyboard state cleanly on exit.
 Renderer is real 3D terrain, shadows, stone material, detailed castle walls/gates/crenellations, timber trebuchets and rams, soldiers/horses/banners, visible missiles and battle dust, trees/resource clusters, distant hills/atmosphere. Show different fortresses/settlements, not identical clones. Keep targets aligned with data positions; troop feet at same heightAt ground; broken fortress walls visually change. Resource workers/settlement growth visible. Stable performant static caches/instancing. No pretend photographic AAA claims.
 
 ## Shared balance/experience
@@ -125,3 +126,37 @@ Five further local GLBs map directly to `barracks`, `stable`, `archery`, `quarry
 - The courtyard stable retains its existing geometry inside the fixed 6.4×6.6 m envelope. The detailed open-map stable has a larger human-scale layout; do not shrink its doorways to fit that courtyard blocker.
 - Compatibility rendering has five distinct simplified silhouettes: stone barracks, open stalls, target range, working quarry and timber mine entrance. Their geometry uses the same centering, grounding and fitting rules.
 - Public source revisions, creators, licences and adaptations are recorded in `military-buildings-sources.json` and `specialist-sites-sources.json`. Every released GLB and provenance file is included in the versioned offline cache.
+
+## RTS interaction and visual behavior, version 2.4
+
+### Readable, actionable command interface
+
+- Main navigation states the action and purpose in Greek. Resource amounts, army controls and construction cards must remain legible at the default UI size. Construction cards include a distinct image, practical benefit, complete resource costs, duration and availability. The separate detail action remains usable when construction is gated and shows the specific reason.
+- Twelve building thumbnails in `assets/ui/buildings/` are rendered from the actual shipped GLBs. Each retains a local illustrated placeholder until its image loads and on image failure. Provenance is recorded in `assets/ui/buildings/sources.json`; these are model previews, not concept art or borrowed Age of Empires UI assets.
+- Selecting a completed owned production building exposes only its matching training types: barracks → spear/sword, archery → archer, stable → cavalry, siege → ram/trebuchet. Validate the selected structure and existing economy gates again when the command is executed. Pending construction does not enable training.
+- Reconcile dynamic UI nodes by stable keys. A timer/resource refresh must preserve the actual button, focus and pointer target, including image load state. Normal simulation updates must not replace the complete panel with new HTML every half-second.
+- Preserve the map construction sequence: choose a card, preview legal ground, rotate with R by 90 degrees, confirm with the on-screen action or Enter, cancel with Escape. Preview never spends resources. Native keyboard activation of focused UI buttons remains intact. Placement input takes precedence over military hotkeys.
+
+### Guidance and selection state
+
+The collapsible `Τι κάνω τώρα;` guide opens when `feouda-guide-v24-seen` is absent, including for existing campaign saves. Steps link to relevant controls and highlight the next applicable action. Completion is recorded only after a successful positive worker assignment, confirmed new spatial construction, nonempty friendly army selection, successful `move`/`attackMove` order, or successful entry into the training queue. Clicking a guide button, opening a panel, arming a command or previewing a plot is not completion. Mobile task buttons collapse the guide before opening the relevant controls.
+
+The app owns selection and control groups. Selection must visibly show the chosen squads, unit types, men, health and current orders. Shift-click toggles one squad; additive box selection merges IDs without duplicates. A mobile multiple-selection toggle supports equivalent tap behavior. Per-type selection buttons are available in the army interface.
+
+Groups 1–9 use Ctrl/Meta + number to replace, Ctrl/Meta + Shift + number to append, number to recall and Shift + number to merge into the current selection. A second quick recall focuses the camera on the mean position of the surviving selected squads. On-screen group assignment works without a keyboard. Remove dead or invalid IDs before use. B opens construction and F focuses selected troops.
+
+Groups and guide progress use `feouda-control-groups-v1` and `feouda-guide-v24-progress`; they are separate from schema-1 campaign exports and are cleared on campaign reset/import. This release does not convert squad simulation into individually controlled soldiers or give workers independent click-to-move orders.
+
+### Animation, construction and terrain
+
+- Human motion is supplied as local authored clips retargeted to the shipped human skeletons. `assets/models/human-motion.json` and its binary companion describe the runtime data and licence. Record source attribution and adaptations with the asset provenance; do not describe this as a new motion-capture session or as animation obtained from Age of Empires.
+- Actual collision-checked displacement drives locomotion phase and facing. Blend transitions between rest, walking/running and action states. Combat motion follows the engine attack cycle; work poses match assigned tasks. Tactical pause must stop simulation-driven gait, work and combat. Keep visible formation members outside the shared obstacle geometry throughout turns and stops.
+- Resource workers occupy stable task positions around their resource. Builders occupy stable positions outside the reserved plot and face their work. Resource assignment must not render workers circling the node while performing a walking loop. Decorative residents use legal, collision-checked route segments with stationary intervals.
+- `feouda-environment.js` owns construction staging. Reveal fixed-scale slices of the completed architecture with foundations, supplies and scaffolding according to the real linked job progress. Never vertically squash or stretch the complete building to represent completion. Upgrades keep the existing completed model visible. Visual progress does not shrink or remove the reserved collision footprint, move the plot or change job cost/duration.
+- Terrain blends meadow, soil, rock and woodland according to slope, elevation, settlements, resource areas, road shoulders and river banks. New local photographic soil/rock layers are documented in `assets/medieval/terrain-sources.json`. Distant foliage uses alpha-coverage-preserving mipmaps. These are rendering changes; resource quantities, region ownership and pathfinding remain engine responsibilities.
+
+### Evidence and limits
+
+[RTS-RESEARCH.md](RTS-RESEARCH.md) links the primary Age of Empires, Xbox, animation-director and technical-artist references used for these decisions. Apply interaction and presentation principles while retaining this game's own interface and licensed assets.
+
+The DOM integration harness has passed 31 scenarios at desktop dimensions and 31 at mobile dimensions, using the actual app and simulation with a mocked renderer boundary. It verifies functional state transitions, construction costs and placement, selection/groups, contextual training, guide progress, image fallback, stable UI nodes and save/import flows. Engine tests separately cover movement, collision and battle behavior, including attack-move engagement and route resumption. These checks are not live WebGL rendering benchmarks. Do not claim AAA production quality, a certified frame rate, physical iOS testing or verified GPU performance without corresponding device evidence. The compatibility renderer remains a simpler representation of the same campaign.

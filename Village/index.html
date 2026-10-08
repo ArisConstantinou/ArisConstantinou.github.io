@@ -2,11 +2,11 @@
 <html lang="el">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="application-version" content="2.3.0"><meta name="theme-color" content="#12191d">
+<meta name="application-version" content="2.4.0"><meta name="theme-color" content="#12191d">
 <meta name="description" content="Φέουδα 1280. Μεσαιωνική στρατηγική σε πραγματικό 3D: ανάπτυξε τους οικισμούς σου, οχύρωσε τα κάστρα και οδήγησε τον στρατό σου σε μάχες και πολιορκίες.">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Φέουδα 1280">
 <title>ΦΕΟΥΔΑ · 1280 — Το χρονικό των στεμμάτων</title>
-<link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="./apple-touch-icon.png"><link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./style.css?v=2.3.0">
+<link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="./apple-touch-icon.png"><link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./style.css?v=2.4.0">
 </head>
 <body>
 <main id="game-shell">
@@ -20,6 +20,7 @@
 <section id="resource-bar" class="resource-bar" aria-label="Ταμείο και πόροι"></section>
 <nav class="left-rail" id="left-rail" aria-label="Διοίκηση ηγεμονίας"></nav>
 <section class="map-heading" id="map-heading"></section>
+<aside id="tactical-guide" class="tactical-guide" aria-label="Οδηγός πρώτων ενεργειών" hidden><header id="guide-heading"></header><div id="guide-body"></div></aside>
 <div class="map-switch" id="map-switch" aria-label="Προβολή χάρτη"><button data-action="map-mode" data-value="terrain" class="active">ΤΟΠΟΣ</button><button data-action="map-mode" data-value="political">ΣΥΝΟΡΑ</button><button data-action="map-mode" data-value="resources">ΠΟΡΟΙ</button></div>
 <aside id="side-panel" class="side-panel" aria-label="Συμβούλιο"><header id="panel-header"></header><div id="panel-body"></div></aside>
 <div id="command-hint" class="command-hint" hidden></div>
@@ -35,7 +36,7 @@
 <div id="modal-root"></div>
 <input id="import-file" type="file" accept="application/json,.json" hidden>
 </main>
-<noscript>Το Φέουδα 1280 χρειάζεται JavaScript και WebGL 2.</noscript>
-<script type="module" src="./app.js?v=2.3.0"></script>
+<noscript>Το Φέουδα 1280 χρειάζεται JavaScript.</noscript>
+<script type="module" src="./app.js?v=2.4.0"></script>
 </body>
 </html>

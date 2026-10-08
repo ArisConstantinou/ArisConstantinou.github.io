@@ -1,0 +1,92 @@
+{
+  "purpose": "Local photographic terrain layers and construction soil for ΦΕΟΥΔΑ · 1280",
+  "retrieved": "2026-10-08",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "publisherLicense": "https://polyhaven.com/license",
+  "assets": [
+    {
+      "id": "brown_mud_02",
+      "title": "Brown Mud 02",
+      "author": "Rob Tuytel",
+      "source": "https://polyhaven.com/a/brown_mud_02",
+      "maps": [
+        {
+          "file": "soil_color_1k.jpg",
+          "asset": "brown_mud_02",
+          "map": "color",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_mud_02/brown_mud_02_diff_1k.jpg",
+          "bytes": 527741,
+          "sha256": "058b6f12493305ec6b47cb5ea77f013c9e7e58216b34af3700a3d3d7d821732d"
+        },
+        {
+          "file": "soil_normal_1k.jpg",
+          "asset": "brown_mud_02",
+          "map": "normal",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_mud_02/brown_mud_02_nor_gl_1k.jpg",
+          "bytes": 1397011,
+          "sha256": "9ca6f68d25599c98ba5e594df221f5653d93faceda1ba26a0babb1143e8c615f"
+        },
+        {
+          "file": "soil_roughness_1k.jpg",
+          "asset": "brown_mud_02",
+          "map": "roughness",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_mud_02/brown_mud_02_rough_1k.jpg",
+          "bytes": 422119,
+          "sha256": "c6d5891f090554c8f51172b2c4056f490ab1ed1a69127f1f876f9d58c46f0f23"
+        }
+      ]
+    },
+    {
+      "id": "rocky_terrain_02",
+      "title": "Rocky Terrain 02",
+      "author": "Amal Kumar",
+      "source": "https://polyhaven.com/a/rocky_terrain_02",
+      "maps": [
+        {
+          "file": "terrain_rock_color_1k.jpg",
+          "asset": "rocky_terrain_02",
+          "map": "color",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocky_terrain_02/rocky_terrain_02_diff_1k.jpg",
+          "bytes": 843188,
+          "sha256": "d570c10b1d5302f4fde9e0e94f4cbab0d5e112fc3fe2b3b91c38a98bd3ddaf4b"
+        },
+        {
+          "file": "terrain_rock_normal_1k.jpg",
+          "asset": "rocky_terrain_02",
+          "map": "normal",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocky_terrain_02/rocky_terrain_02_nor_gl_1k.jpg",
+          "bytes": 993692,
+          "sha256": "f4f9d9671c660f4e509e96d5da3091887dfd557e1353e313fa2d1dc789499ffd"
+        },
+        {
+          "file": "terrain_rock_roughness_1k.jpg",
+          "asset": "rocky_terrain_02",
+          "map": "roughness",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocky_terrain_02/rocky_terrain_02_rough_1k.jpg",
+          "bytes": 437094,
+          "sha256": "8652ee05de206888eb77f84df7c8080f6ffef27afadb7917127726570b66c45d"
+        }
+      ]
+    }
+  ],
+  "implementationNotes": [
+    "Files copied from the original 1K JPEG downloads without image alteration.",
+    "Surface blending uses the existing landscape coordinates, slope, settlement and resource positions; no terrain height or collision changes.",
+    "Aerial rocky ground is mapped at broad landscape scale and mixed with finer meadow and soil detail.",
+    "Construction geometry is authored in code; progress reveals fixed clipped courses of the existing completed model without scaling it.",
+    "Original source models and licenses remain in assets/models/*-sources.json."
+  ],
+  "designReferences": [
+    {
+      "url": "https://www.timwangtechart.com/age-of-empires-iv",
+      "author": "Tim Yu-Ting Wang, Age of Empires IV technical artist",
+      "relevance": "Primary account of staged building construction/destruction and maintaining readable building silhouettes within performance budgets."
+    },
+    {
+      "url": "https://www.ageofempires.com/games/age-of-empires-iv/",
+      "image": "https://cdn.ageofempires.com/aoe/wp-content/uploads/2017/08/bg-age4-splash-gameplay-right-4k-scaled.webp",
+      "relevance": "Official gameplay image visually inspected: distinct dry meadow, worn paths, cultivated borders and clear ground around formations."
+    }
+  ]
+}

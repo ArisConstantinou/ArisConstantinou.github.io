@@ -1,4 +1,4 @@
-import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.3.0';
+import { FACTIONS, REGIONS, RESOURCE_NODES, UNIT_TYPES, BUILDINGS, TECHS, MAP, BRIDGES, heightAt, riverX, regionAt } from './feouda-data.js?v=2.4.0';
 
 // Simulation uses world-space positions. Orders, arrows and siege stones travel
 // through the same world the player sees; elapsed wall-clock time never fights wars.
@@ -12,7 +12,7 @@ const NODE_BUILDING = {food:'farm', wood:'lumberyard', stone:'quarry', iron:'min
 const PRICES = {food:{buy:1.6,sell:.85}, wood:{buy:2.1,sell:1.1}, stone:{buy:2.7,sell:1.45}, iron:{buy:4.8,sell:2.6}};
 const FORMATIONS = ['line', 'column', 'wedge'];
 const STANCES = ['aggressive', 'defensive'];
-const ORDER_TYPES = ['move', 'attack', 'capture', 'hold', 'retreat'];
+const ORDER_TYPES = ['move', 'attackMove', 'attack', 'capture', 'hold', 'retreat'];
 const EPS = 1e-7;
 const GRID = 6;
 const MAX_SQUADS = 150;
@@ -550,7 +550,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     for(let turn=0;turn<12 && state.squads.some(s=>dist(s,p)<5);turn++) p=nearestGround({x:p.x+Math.cos(turn*1.6)*5,z:p.z+Math.sin(turn*1.6)*5},type)||p;
     const hp=def.hp*(1+techLevel('steel',owner)*.05);
     const s={id:uid('squad'),owner,type,x:p.x,z:p.z,hp,maxHp:hp,men:def.men,
-      order:{type:'hold',x:p.x,z:p.z},stance:owner==='player'?'defensive':'aggressive',formation:'line',attackClock:.25+index*.18,
+      order:{type:'hold',x:p.x,z:p.z},stance:owner==='player'?'defensive':'aggressive',formation:'line',attackClock:.25+index*.18,lastAttack:-1000,
       path:[],heading:owner==='player'?Math.PI/2:-Math.PI/2,activity:'idle',engagedId:null,
       anchor:{...p},repathAt:0,charge:0,lastDamage:-1000,homeRegion:regionId};
     state.squads.push(s);dirty=true;return s;
@@ -705,7 +705,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
         if(!target&&!region)return fail('Επίλεξε εχθρικό απόσπασμα ή οχυρό.');
         if((target?.owner||state.regions[region.id]?.owner)==='player')return fail('Δεν μπορείς να επιτεθείς στις δικές σου δυνάμεις.');
       }
-      if(type==='move') {
+      if(type==='move'||type==='attackMove') {
         point={x:payload.x,z:payload.z};
         if(!inBounds(point))return fail('Επίλεξε σημείο μέσα στον χάρτη.');
         if(!terrainWalkable(point))return fail('Το ποτάμι διασχίζεται μόνο από τις δύο γέφυρες. Διάλεξε στεριά.');
@@ -816,7 +816,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       const faction=v.target?.owner||(v.region&&state.regions[v.region.id].owner);
       if(['attack','capture'].includes(payload.type))cancelTruce(faction);
       for(const {s,path,destination} of prep.prepared)issueOrder(s,payload.type,{point:destination,region:v.region,target:v.target,path});
-      const labels={move:'Κίνηση προς το σημείο',attack:'Επίθεση στον στόχο',capture:'Πολιορκία και κατάληψη',hold:'Άμυνα θέσης',retreat:'Υποχώρηση σε φιλικό οχυρό'};
+      const labels={move:'Κίνηση προς το σημείο',attackMove:'Πορεία με εμπλοκή εχθρών',attack:'Επίθεση στον στόχο',capture:'Πολιορκία και κατάληψη',hold:'Άμυνα θέσης',retreat:'Υποχώρηση σε φιλικό οχυρό'};
       message=`${labels[payload.type]} · ${v.squads.length} αποσπάσματα.`;
     } else if(action==='formation') {
       for(const s of v.squads)s.formation=payload.formation;
@@ -854,7 +854,7 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       if(s.order.type==='hold'&&s.anchor&&pointInsideRect(s.anchor,rect,UNIT_CLEARANCE[s.type])) {
         const safe=nearestReachableGround(s,s.anchor,s);if(safe){s.anchor={...safe};s.order.x=safe.x;s.order.z=safe.z;}
       }
-      if(['move','retreat'].includes(s.order.type)&&finite(s.order.x)&&pointInsideRect(s.order,rect,UNIT_CLEARANCE[s.type])) {
+      if(['move','attackMove','retreat'].includes(s.order.type)&&finite(s.order.x)&&pointInsideRect(s.order,rect,UNIT_CLEARANCE[s.type])) {
         const safe=nearestReachableGround(s,s.order,s);if(safe){s.order.x=safe.x;s.order.z=safe.z;}
       }
       let previous=s,blocked=false;
@@ -888,6 +888,11 @@ export function createGame({storage, now=()=>Date.now()}={}) {
     }
   }
   function rangeFor(s) {return UNIT_TYPES[s.type].range;}
+  // Arrows can clear a wall; a blade or spear cannot strike through a house.
+  function contactClear(s,target) {
+    const def=UNIT_TYPES[s.type];
+    return def.role==='ranged'||s.type==='trebuchet'||isWorldSegmentWalkable(state,s,target,.12);
+  }
   function damageFor(s,target,structure=false) {
     const def=UNIT_TYPES[s.type];
     let amount=def.damage*Math.max(.2,s.hp/s.maxHp)*(1+.15*techLevel('steel',s.owner));
@@ -913,8 +918,8 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   function launchAttack(s,target,isFort=false) {
     if(s.attackClock>EPS)return;
     const def=UNIT_TYPES[s.type],r=isFort?REGION_BY_ID[target.id]:null,aim=isFort?fortAim(r,s):target;
-    if(dist(s,aim)>rangeFor(s)+.45)return;
-    s.activity='attack';s.attackClock=def.cooldown;s.heading=Math.atan2(aim.x-s.x,aim.z-s.z);
+    if(dist(s,aim)>rangeFor(s)+.45||(!isFort&&!contactClear(s,target)))return;
+    s.activity='attack';s.attackClock=def.cooldown;s.lastAttack=state.t;s.heading=Math.atan2(aim.x-s.x,aim.z-s.z);
     const amount=damageFor(s,target,isFort);
     if(def.role==='ranged'||s.type==='trebuchet') {
       effect(s.type==='trebuchet'?'stone':'arrow',s.x,s.z,aim.x,aim.z,{
@@ -983,15 +988,27 @@ export function createGame({storage, now=()=>Date.now()}={}) {
   }
   function engage(s,target,dt,mayChase=true) {
     s.engagedId=target.id;
-    if(dist(s,target)<=rangeFor(s)+.4){s.path=[];s.activity='attack';launchAttack(s,target);return true;}
+    if(dist(s,target)<=rangeFor(s)+.4&&contactClear(s,target)){s.path=[];s.activity='attack';s.heading=Math.atan2(target.x-s.x,target.z-s.z);launchAttack(s,target);return true;}
     if(mayChase){chase(s,target);moveAlong(s,dt);return true;}
     return false;
   }
   function updateSquads(dt) {
     for(const s of state.squads) {
       if(s.hp<=0)continue;
+      const previousEngagement=s.engagedId;
       s.attackClock=Math.max(0,(s.attackClock||0)-dt);s.engagedId=null;
       const order=s.order,def=UNIT_TYPES[s.type];
+      if(order.type==='attackMove') {
+        const enemy=enemyNear(s,def.role==='siege'?Math.min(def.range,12):Math.min(def.range+8,38));
+        if(enemy){engage(s,enemy,dt,true);continue;}
+        // A chase path ends at the opponent. Resume the original ground order
+        // after that opponent dies, retreats out of sight or becomes friendly.
+        if(previousEngagement){s.path=[];s.repathAt=0;}
+        if(!s.path.length&&finite(order.x)&&dist(s,order)>2)chase(s,order);
+        moveAlong(s,dt);
+        if(!s.path.length&&finite(order.x)&&dist(s,order)<3)issueOrder(s,'hold',{point:{x:s.x,z:s.z}});
+        continue;
+      }
       if(order.type==='move'||order.type==='retreat') {
         if(!s.path.length&&finite(order.x)&&dist(s,order)>2)chase(s,{x:order.x,z:order.z});
         moveAlong(s,dt);
@@ -1310,8 +1327,9 @@ export function createGame({storage, now=()=>Date.now()}={}) {
       ids.add(u.id);u.men=Math.ceil(UNIT_TYPES[u.type].men*u.hp/u.maxHp);
       if(!Array.isArray(u.path)||u.path.length>1000||u.path.some(p=>!terrainWalkable(p)))throw new Error('Το αρχείο έχει μη έγκυρες διαδρομές.');
       if(!u.anchor||!inBounds(u.anchor))u.anchor={x:u.x,z:u.z};
-      for(const key of ['attackClock','heading','repathAt','charge','lastDamage'])if(!finite(u[key]))u[key]=key==='lastDamage'?-1000:0;
+      for(const key of ['attackClock','heading','repathAt','charge','lastDamage','lastAttack'])if(!finite(u[key]))u[key]=key==='lastDamage'||key==='lastAttack'?-1000:0;
       if(u.order.x!==undefined&&(!finite(u.order.x)||!finite(u.order.z)))throw new Error('Το αρχείο έχει μη έγκυρους στόχους.');
+      if(u.order.type==='attackMove'&&!inBounds(u.order))throw new Error('Η πορεία με εμπλοκή χρειάζεται έγκυρο σημείο προορισμού.');
       if(u.order.regionId!==undefined&&!has(REGION_BY_ID,u.order.regionId))throw new Error('Το αρχείο έχει άγνωστη περιοχή στόχου.');
       if(u.order.targetId!==undefined&&(typeof u.order.targetId!=='string'||['__proto__','constructor','prototype'].includes(u.order.targetId)))throw new Error('Το αρχείο έχει μη έγκυρο στόχο.');
     }

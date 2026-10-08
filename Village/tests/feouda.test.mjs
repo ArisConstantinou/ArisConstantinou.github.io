@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {createGame,SAVE_KEY,BUILDING_FOOTPRINTS,UNIT_CLEARANCE,FORT_POLYGONS,isWorldSegmentWalkable} from '../feouda-engine.js';
+import {createGame,SAVE_KEY,BUILDING_FOOTPRINTS,UNIT_CLEARANCE,FORT_POLYGONS,isWorldSegmentWalkable,isWorldPointWalkable,worldObstacles} from '../feouda-engine.js';
 import {UNIT_TYPES,BUILDINGS,REGIONS,BRIDGES,RESOURCE_NODES,riverX} from '../feouda-data.js';
 
 const cases=[];
@@ -655,6 +655,56 @@ test('every troop and siege type crosses both bridge decks with its physical cle
   }
 });
 
+
+
+test('attack-move engages an encountered enemy and resumes its original destination',()=>{
+  const {game,a,b}=duel('sword','archer',{x:-130,z:75},{x:-113,z:75});
+  b.hp=8;b.men=1;b.attackClock=10000;
+  const destination={x:-90,z:75};
+  assert.equal(game.command('order',{ids:[a.id],type:'attackMove',...destination}).ok,true);
+  let engaged=false,attacked=false;
+  for(let i=0;i<500;i++){
+    const before={x:a.x,z:a.z};game.step(.1);
+    assert.ok(isWorldSegmentWalkable(game.state,before,a,a.type));
+    if(a.engagedId===b.id)engaged=true;
+    if(a.lastAttack>=0)attacked=true;
+    if(!game.state.squads.includes(b)&&a.order.type==='hold')break;
+  }
+  assert.ok(engaged,'The army must actually acquire the encountered opponent');
+  assert.ok(attacked,'The real strike must record animation timing');
+  assert.equal(game.state.squads.includes(b),false);
+  assert.equal(a.order.type,'hold');
+  assert.ok(Math.hypot(a.x-destination.x,a.z-destination.z)<3);
+});
+
+test('attack-move validates its ground destination and survives save/load',()=>{
+  const game=quiet(),a=solo(game,'spear');
+  assert.equal(game.command('order',{ids:[a.id],type:'attackMove',x:NaN,z:12}).ok,false);
+  assert.equal(game.command('order',{ids:[a.id],type:'attackMove',x:1e6,z:12}).ok,false);
+  assert.equal(game.command('order',{ids:[a.id],type:'attackMove',x:-105,z:75}).ok,true);
+  const storage=new MemoryStorage();const snapshot=game.exportSave();
+  storage.setItem(SAVE_KEY,snapshot);const loaded=createGame({storage});
+  assert.equal(loaded.loaded,true);assert.equal(loaded.state.squads[0].order.type,'attackMove');
+  assert.equal(loaded.state.squads[0].order.x,-105);
+});
+
+test('melee contact cannot damage a unit through a solid castle curtain',()=>{
+  const game=quiet(),a=own(game).find(s=>s.type==='spear'),b=game.state.squads.find(s=>s.owner==='red');
+  Object.assign(b,{type:'spear',hp:330,maxHp:330,men:6});game.state.squads=[a,b];
+  let placed=false;
+  for(const wall of worldObstacles(game.state).filter(o=>o.part==='wall'&&o.regionId==='home')){
+    const nx=Math.sin(wall.rotation||0),nz=Math.cos(wall.rotation||0);
+    const p={x:wall.x+nx*2.3,z:wall.z+nz*2.3},q={x:wall.x-nx*2.3,z:wall.z-nz*2.3};
+    if(!isWorldPointWalkable(game.state,p,.8)||!isWorldPointWalkable(game.state,q,.8))continue;
+    for(const [s,at] of [[a,p],[b,q]])Object.assign(s,at,{anchor:{...at},order:{type:'hold',...at},path:[],attackClock:0,stance:'defensive'});
+    assert.equal(isWorldSegmentWalkable(game.state,p,q,.12),false);placed=true;break;
+  }
+  assert.ok(placed,'A legal pair of opposing points on a solid wall must exist');
+  const hpA=a.hp,hpB=b.hp;game.step(.05);
+  assert.equal(a.hp,hpA);assert.equal(b.hp,hpB);
+  assert.ok(a.lastAttack<0);assert.ok(b.lastAttack<0);
+  assert.notEqual(a.activity,'attack');
+});
 
 let passed=0;
 for(const {name,fn} of cases) {

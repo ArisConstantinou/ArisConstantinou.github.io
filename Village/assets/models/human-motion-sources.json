@@ -1,0 +1,361 @@
+{
+  "schema": 1,
+  "title": "Authored human motion for FEΟUDA 1280",
+  "license": "CC-BY-SA-3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+  "attribution": "Human motion adapted from 0 A.D. by Wildfire Games and the 0 A.D. artists, licensed CC BY-SA 3.0. Retargeting, palm grip morphs, equipment fitting and compact data conversion were made for FEΟUDA 1280.",
+  "sourceProject": "0 A.D.",
+  "sourceCreators": "Wildfire Games and contributing 0 A.D. artists",
+  "sourceProjectUrl": "https://play0ad.com/",
+  "sourceLicenseEvidence": "https://play0ad.com/new-release-0-a-d-alpha-26-zhuangzi/",
+  "sourceRepository": "https://github.com/0ad/0ad",
+  "sourceRevision": "61a3b9507d974084e6badb88a0826bd89a6d5b8b",
+  "sourceClipCount": 27,
+  "changes": [
+    "Retargeted authored Collada performances to the existing CC0 infantry and villager rigs by source world bone directions and measured target rest orientations. No Age of Empires assets are included.",
+    "Preserved target bone lengths, skin weights, mesh shapes and texture identity. Only applicable role clips are included per rig.",
+    "Sampled quaternion and root-position tracks at 30 Hz, normalized quaternion signs and packed quaternions as signed 16-bit values.",
+    "Grounded sole contact against deformed boot vertices. Authored running retains a bounded airborne interval; runtime support probes correct transition penetration.",
+    "Calibrated locomotion stride from the backward velocity of planted feet. Runtime gait phase uses distance actually travelled and a stable per-unit phase; idle and work remain independent of walking.",
+    "Derived relaxed/closed palm morphs from the original hand-weighted mesh vertices. Existing rigs have no articulated finger bones. These local morphs close the fingers without adding replacement hand geometry.",
+    "Fitted +Y equipment shafts through measured palm grips; two-handed axe, pick and hoe actions are fitted through both closed palms. Fitted the bow action prop orientation at full draw.",
+    "Kept the existing authored horse and trebuchet models, action interfaces and collision envelopes unchanged.",
+    "Aligned the bow fire marker to normalized clip phase 0.46 after actual pose inspection. Mirrored the local bow curve to the corrected grip, and bounded palm-driven string travel to 0.65 m during pose blending."
+  ],
+  "models": {
+    "armoured-infantry": {
+      "mesh": "unit-infantry.glb",
+      "meshLicense": "CC0-1.0",
+      "meshProvenance": "units-sources.json",
+      "clips": [
+        "idle",
+        "spear_idle",
+        "spear_walk",
+        "spear_attack",
+        "sword_idle",
+        "sword_walk",
+        "sword_attack",
+        "sword_attack_b",
+        "spear_run",
+        "sword_run",
+        "rider_idle",
+        "rider_walk",
+        "rider_attack"
+      ],
+      "retargetedFrames": 648,
+      "verificationFrames": 645,
+      "maxBoneLengthError": 0,
+      "minimumSkinnedSurfaceY": -0.001329939567834827,
+      "maxTwoHandShaftErrorMetres": 0,
+      "locomotionBounds": {
+        "spear_walk": {
+          "heightMetres": 1.9,
+          "bodyRadiusMetres": 0.7407793199069986,
+          "minimumSurfaceY": -0.001329939567834827
+        },
+        "sword_walk": {
+          "heightMetres": 1.9,
+          "bodyRadiusMetres": 0.70189809920045,
+          "minimumSurfaceY": -0.0009846380679545447
+        },
+        "spear_run": {
+          "heightMetres": 1.9,
+          "bodyRadiusMetres": 0.7830710295459244,
+          "minimumSurfaceY": 0.0017911808617048879
+        },
+        "sword_run": {
+          "heightMetres": 1.9,
+          "bodyRadiusMetres": 0.7135015330489828,
+          "minimumSurfaceY": 0.0017903789758627385
+        }
+      }
+    },
+    "villager": {
+      "mesh": "unit-worker.glb",
+      "meshLicense": "CC0-1.0",
+      "meshProvenance": "units-sources.json",
+      "clips": [
+        "idle",
+        "walk",
+        "jog",
+        "build",
+        "wood",
+        "stone",
+        "food",
+        "archer_idle",
+        "archer_walk",
+        "archer_attack",
+        "archer_run",
+        "tool_idle",
+        "tool_walk",
+        "food_idle",
+        "food_walk"
+      ],
+      "retargetedFrames": 845,
+      "verificationFrames": 834,
+      "maxBoneLengthError": 0,
+      "minimumSkinnedSurfaceY": -0.00041736715727287536,
+      "maxTwoHandShaftErrorMetres": 0.0042097882428274265,
+      "locomotionBounds": {
+        "walk": {
+          "heightMetres": 1.74,
+          "bodyRadiusMetres": 0.554384538512753,
+          "minimumSurfaceY": -0.00041736715727287536
+        },
+        "jog": {
+          "heightMetres": 1.74,
+          "bodyRadiusMetres": 0.5706748736631824,
+          "minimumSurfaceY": 0.0003185197863270552
+        },
+        "archer_walk": {
+          "heightMetres": 1.74,
+          "bodyRadiusMetres": 0.6944604317639491,
+          "minimumSurfaceY": -0.00020664898267317705
+        },
+        "archer_run": {
+          "heightMetres": 1.74,
+          "bodyRadiusMetres": 0.7030864941745185,
+          "minimumSurfaceY": 0.0014893115074958855
+        },
+        "tool_walk": {
+          "heightMetres": 1.74,
+          "bodyRadiusMetres": 0.5211808739537571,
+          "minimumSurfaceY": -0.00037026160691305474
+        },
+        "food_walk": {
+          "heightMetres": 1.74,
+          "bodyRadiusMetres": 0.5209635384778111,
+          "minimumSurfaceY": -0.00037026160691305474
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "human-motion.bin": {
+      "bytes": 393528,
+      "sha256": "18aa93e1ab1198bce45bd49340fe183e99ecc441a85f8a171ab150ff605a332a"
+    },
+    "human-motion.json": {
+      "bytes": 13257,
+      "sha256": "e84abf69fc1838e7858f2bbcb1647fb95664c27aebc95e49b306032735ed07c2"
+    }
+  },
+  "verification": {
+    "method": "Actual vendored Three.js GLTFLoader, AnimationMixer and deformed mesh vertices at production normalization; deterministic source-pose and integrated update checks. Standalone CPU Blender renders use the actual evaluated game meshes and equipment.",
+    "sampledFrames": 1479,
+    "assertions": 114009,
+    "errors": 0,
+    "motionStates": {
+      "civilian": {
+        "movingClip": "walk",
+        "stride": 1.2143366581197583,
+        "gaitPhase": 0.6837659209751177,
+        "stationaryClip": "idle",
+        "pauseInvariant": true,
+        "clockIndependent": true
+      },
+      "spear": {
+        "movingClip": "spear_run",
+        "stride": 2.5114909017901486,
+        "gaitPhase": 0.08633108903320696,
+        "stationaryClip": "spear_idle",
+        "pauseInvariant": true,
+        "clockIndependent": true
+      },
+      "sword": {
+        "movingClip": "sword_run",
+        "stride": 2.5114889016261674,
+        "gaitPhase": 0.08633556020999755,
+        "stationaryClip": "sword_idle",
+        "pauseInvariant": true,
+        "clockIndependent": true
+      },
+      "archer": {
+        "movingClip": "archer_run",
+        "stride": 2.257738605717295,
+        "gaitPhase": 0.717323048091048,
+        "stationaryClip": "archer_idle",
+        "pauseInvariant": true,
+        "clockIndependent": true
+      },
+      "cavalry": {
+        "movingClip": "rider_walk",
+        "stride": 1.4742558652285267,
+        "gaitPhase": 0.03628308343193787,
+        "stationaryClip": "rider_idle",
+        "pauseInvariant": true,
+        "clockIndependent": true
+      }
+    },
+    "limits": [
+      "Motion uses existing RTS character meshes, not newly scanned characters. Hands use morphs rather than an articulated finger skeleton.",
+      "Airborne running phases intentionally place both feet briefly above the ground. Attack reaches are larger than walking body clearance.",
+      "The broadest source poses are retained only on compatible rigs; armoured infantry does not receive civilian kneeling/tool clips.",
+      "The isolated pose verification is a CPU evaluation/render, not a physical GPU performance benchmark."
+    ]
+  },
+  "sources": {
+    "idle": {
+      "path": "art/animation/biped/citizen/idle_relax_m.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/citizen/idle_relax_m.dae",
+      "sha256": "2165d335c512b656fd696a0fc52b60a7c9ef990c6903711fa83ff926c41bf1a7",
+      "bytes": 1301607
+    },
+    "walk": {
+      "path": "art/animation/biped/citizen/walk_relax_m.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/citizen/walk_relax_m.dae",
+      "sha256": "45e39259780aab388506495d6564a49a0b84fbd0a6e35228326b9cd38e190b1d",
+      "bytes": 1042890
+    },
+    "jog": {
+      "path": "art/animation/biped/citizen/jog_m.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/citizen/jog_m.dae",
+      "sha256": "97609f7ca15ce206b91f1bb5b56e3b83cf0d0d25c024c838162383f129ee3931",
+      "bytes": 797929
+    },
+    "build": {
+      "path": "art/animation/biped/citizen/build.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/citizen/build.dae",
+      "sha256": "f05c74d89ca076ebbb3c50837e18f4dbc4cbbbb53388d50f24d27ce4e4b4d162",
+      "bytes": 710838
+    },
+    "wood": {
+      "path": "art/animation/biped/gatherer/gather_wood.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/gatherer/gather_wood.dae",
+      "sha256": "ab6cb5f61b1adf287c17bcfbf58de427d93fec1549fba505c1e364b9fba2269d",
+      "bytes": 1357986
+    },
+    "stone": {
+      "path": "art/animation/biped/gatherer/gather_mine.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/gatherer/gather_mine.dae",
+      "sha256": "39ce3347086a086be36201f254e0ed4e3f786f996d3554306b85fd8f577d98a2",
+      "bytes": 1515301
+    },
+    "food": {
+      "path": "art/animation/biped/gatherer/farming.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/gatherer/farming.dae",
+      "sha256": "83b9c44a4a6426007a1cb5617f2a021feb4bc9df8585da163c52da1dfc3a83f8",
+      "bytes": 1376157
+    },
+    "spear_idle": {
+      "path": "art/animation/biped/infantry/spearman/idle_relax_shield_01.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/spearman/idle_relax_shield_01.dae",
+      "sha256": "f8bf2e368fca8803ed20cf4a4b71519c4ba40702ac70388156af498fba0efe3e",
+      "bytes": 1434901
+    },
+    "spear_walk": {
+      "path": "art/animation/biped/infantry/spearman/walk_relax_shield.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/spearman/walk_relax_shield.dae",
+      "sha256": "792223c781d20d22563338deec8a66714d85477fa03ee32d36f251cfa50808f2",
+      "bytes": 1063605
+    },
+    "spear_attack": {
+      "path": "art/animation/biped/infantry/spearman/attack_melee_01.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/spearman/attack_melee_01.dae",
+      "sha256": "a7831d5f62f7265a0e27d136a33b8d68814ce89cc0067f87fc1c441531f1509a",
+      "bytes": 968696
+    },
+    "sword_idle": {
+      "path": "art/animation/biped/infantry/swordsman/idle_relax_shield_01.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/swordsman/idle_relax_shield_01.dae",
+      "sha256": "2b302dc90c707a211c4c517653d86bb04e94246e7eee93ff20ab9e92c8f1c3b5",
+      "bytes": 1457865
+    },
+    "sword_walk": {
+      "path": "art/animation/biped/infantry/swordsman/walk_relax_shield.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/swordsman/walk_relax_shield.dae",
+      "sha256": "a8b9ab35ac7cfe32d75524b72d440022500fb36129950c5da933f24ba162c873",
+      "bytes": 1141056
+    },
+    "sword_attack": {
+      "path": "art/animation/biped/infantry/swordsman/attack_melee_shield_01.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/swordsman/attack_melee_shield_01.dae",
+      "sha256": "752ba49975601518ce9c46673e2adfa014e234deebba6718b521da272320a87a",
+      "bytes": 914509
+    },
+    "sword_attack_b": {
+      "path": "art/animation/biped/infantry/swordsman/attack_melee_shield_02.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/swordsman/attack_melee_shield_02.dae",
+      "sha256": "4d4343609d9222b6ee35ec0b16761de420fd1bedf0bac1cf18525e0635cfb466",
+      "bytes": 913564
+    },
+    "archer_idle": {
+      "path": "art/animation/biped/infantry/archer/idle_relax_01.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/archer/idle_relax_01.dae",
+      "sha256": "e0e9e1e81f05a700fbd93718fffe158b0ff2c8caa326b818226533be2c0bd038",
+      "bytes": 1428372
+    },
+    "archer_walk": {
+      "path": "art/animation/biped/infantry/archer/walk_relax.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/archer/walk_relax.dae",
+      "sha256": "944d81d6572be64c607d90d053b9801b1c96cac72f1fa7b4864207e5666558a7",
+      "bytes": 1020369
+    },
+    "archer_attack": {
+      "path": "art/animation/biped/infantry/archer/attack_ranged.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/archer/attack_ranged.dae",
+      "sha256": "c1f901a9338889b7104ba65855c9555d99b81e3094f7a680d25596bc701f4caf",
+      "bytes": 1570490
+    },
+    "spear_run": {
+      "path": "art/animation/biped/infantry/spearman/run_relax_shield.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/spearman/run_relax_shield.dae",
+      "sha256": "0b62753daac3876a49158adb2c48fd9c5f1d0d4bcf588e4464133e061e6ec5d7",
+      "bytes": 724844
+    },
+    "sword_run": {
+      "path": "art/animation/biped/infantry/swordsman/run_relax_shield.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/swordsman/run_relax_shield.dae",
+      "sha256": "b1fa46755a0c0ba0df4a73d1ab5ddd70c7fd1d4f787c4cf72a5fb45e93f5e331",
+      "bytes": 742710
+    },
+    "archer_run": {
+      "path": "art/animation/biped/infantry/archer/run_ready.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/infantry/archer/run_ready.dae",
+      "sha256": "27997380f1f974c3daf5f830b63d789dcd45b6bd2f7c94591e4595c02fe08d5e",
+      "bytes": 732784
+    },
+    "rider_idle": {
+      "path": "art/animation/biped/rider/cavalry/spearman/idle_shield_relax_shoulder_01.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/rider/cavalry/spearman/idle_shield_relax_shoulder_01.dae",
+      "sha256": "14948986833ac43045355b807168f5ae0f881f965d5b08ebab8c7acfa449bfb7",
+      "bytes": 1309675
+    },
+    "rider_walk": {
+      "path": "art/animation/biped/rider/cavalry/spearman/trot_shield_relax.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/rider/cavalry/spearman/trot_shield_relax.dae",
+      "sha256": "b077e99cef110688fb13882e40eff080c0b7cf665a9b846ab6503d8de4f2d8e2",
+      "bytes": 732164
+    },
+    "rider_attack": {
+      "path": "art/animation/biped/rider/cavalry/spearman/attack_melee_shield_01.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/rider/cavalry/spearman/attack_melee_shield_01.dae",
+      "sha256": "f350cd45174e3197631195bcae53dd01c80ebb078c3788dd44510d541d2efeec",
+      "bytes": 1021691
+    },
+    "tool_idle": {
+      "path": "art/animation/biped/gatherer/idle_axe_01.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/gatherer/idle_axe_01.dae",
+      "sha256": "eccc2309e2a89ad4b62ee050157c346f50b9f094aea6dfb3ee0d2ba421c8647a",
+      "bytes": 1356312
+    },
+    "tool_walk": {
+      "path": "art/animation/biped/gatherer/walk_axe.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/gatherer/walk_axe.dae",
+      "sha256": "29d16003e00c859536dcac904206b99096b8896d7228da1f39eff419b4f8e8a2",
+      "bytes": 1050063
+    },
+    "food_idle": {
+      "path": "art/animation/biped/gatherer/idle_hoe_01.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/gatherer/idle_hoe_01.dae",
+      "sha256": "9d7c92a8abb776f8f31edcf8f495297bae9f34230ae075e8f27518c5ae1681cc",
+      "bytes": 1350447
+    },
+    "food_walk": {
+      "path": "art/animation/biped/gatherer/walk_hoe.dae",
+      "url": "https://raw.githubusercontent.com/0ad/0ad/61a3b9507d974084e6badb88a0826bd89a6d5b8b/binaries/data/mods/public/art/animation/biped/gatherer/walk_hoe.dae",
+      "sha256": "287dd216fcbf8ee3d8179c1b0961ce9fb08a20e391e15bd0bbdf8d3d4e693715",
+      "bytes": 1042376
+    }
+  }
+}

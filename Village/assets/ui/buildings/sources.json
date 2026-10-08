@@ -1,0 +1,150 @@
+{
+  "images": [
+    {
+      "type": "houses",
+      "image": "houses.webp",
+      "source": "building-thatched-house.glb",
+      "source_sha256": "ddb878af92e803c035a5aa5884fb1e4046753f0a6a871bf97f5334cddbd5f542",
+      "license": "CC0-1.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "Spiral / Spiral Softworks",
+      "provenance": "../../models/scenery-sources.json",
+      "image_sha256": "5b27c9653479e9d48385705545efc8587ec0daa6509d8f80ecb17a1d3ed7af4a",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "type": "granary",
+      "image": "granary.webp",
+      "source": "building-thatched-house.glb",
+      "source_sha256": "ddb878af92e803c035a5aa5884fb1e4046753f0a6a871bf97f5334cddbd5f542",
+      "license": "CC0-1.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "Spiral / Spiral Softworks",
+      "provenance": "../../models/scenery-sources.json",
+      "image_sha256": "aef0ce786786fced42ba0cdfc281b65615a2a911104404e61100ef3dd15134e6",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "type": "lumberyard",
+      "image": "lumberyard.webp",
+      "source": "building-sawmill.glb",
+      "source_sha256": "499461efa5744fa46eb3dfec06f842b2e5683fda96cbcd00649befec66af18f8",
+      "license": "CC0-1.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "Daniel Andersson (Daniel74)",
+      "provenance": "../../models/buildings-sources.json",
+      "image_sha256": "c2857826f1d4bc39b37505781d62c5cbf62de6cc61ced7c03eff7039cbef9251",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "type": "quarry",
+      "image": "quarry.webp",
+      "source": "building-quarry.glb",
+      "source_sha256": "6d0cba4928b58a05c62e571c8590f4a0aeaaae686d0e0b3ca5c4585d2982b196",
+      "license": "CC0-1.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "Rico Cilliers / Poly Haven; Daniel Andersson; Dario Barresi, Dimitrios Savva, Rob Tuytel",
+      "provenance": "../../models/specialist-sites-sources.json",
+      "image_sha256": "d12ebedeffe5b0da8e56bfa4c9bb2ad61ad0dcabe1287e767066c645baa27bef",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "type": "mine",
+      "image": "mine.webp",
+      "source": "building-mine.glb",
+      "source_sha256": "e21d5a6c5d3dc194afc5cf5e65e049f1e6a0ac0b4dba94baa43f479a33c0d7da",
+      "license": "CC0-1.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "Rico Cilliers / Poly Haven; Daniel Andersson; Dario Barresi, Dimitrios Savva, Rob Tuytel",
+      "provenance": "../../models/specialist-sites-sources.json",
+      "image_sha256": "a11fedc04b0129861929409f761388b48b9f79c79fd5f8b7832d4bb09ea7eaf7",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "type": "market",
+      "image": "market.webp",
+      "source": "building-tradehall.glb",
+      "source_sha256": "53ee32f996d6a907e9968569ab19fd1df773d362945f057dc7538cfb2bced574",
+      "license": "CC0-1.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "Daniel Andersson (Daniel74)",
+      "provenance": "../../models/buildings-sources.json",
+      "image_sha256": "a0eabdc3721e9c6c8c3b482fb01d795713573dd1a5d01d7609002d8f3a41abbb",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "type": "barracks",
+      "image": "barracks.webp",
+      "source": "building-barracks.glb",
+      "source_sha256": "d4e25be3888dca02641780a0f662a093463fd0e6ff54f034642cd85a59b017f3",
+      "license": "CC-BY-SA-3.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "The Council of Modders, Fallen Empire Studio, Scion Development; Wildfire Games",
+      "provenance": "../../models/military-buildings-sources.json",
+      "image_sha256": "46bad2b39456ffc700e2c037864a10140fe1bd8eda52c859459718c852518d7f",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/"
+    },
+    {
+      "type": "archery",
+      "image": "archery.webp",
+      "source": "building-archery.glb",
+      "source_sha256": "06b6aec73f6929c87f24e3c2845950ec8624ce1b68484e9b5b4537f97d53ddac",
+      "license": "CC-BY-SA-3.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "The Council of Modders; Fallen Empire Studio; Scion Development; Wildfire Games",
+      "provenance": "../../models/specialist-sites-sources.json",
+      "image_sha256": "3706835a063f52ec2b64675a9ed769ba84d55075067fd585b71d1af16117918a",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/"
+    },
+    {
+      "type": "stable",
+      "image": "stable.webp",
+      "source": "building-stable.glb",
+      "source_sha256": "868b05782f967538276bbf460b08fd562db5a5ea2318dd589f4012df75435181",
+      "license": "CC-BY-SA-3.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "The Council of Modders, Fallen Empire Studio, Scion Development; Wildfire Games",
+      "provenance": "../../models/military-buildings-sources.json",
+      "image_sha256": "aecb9761f20e40a3a5dbd12edc3f21dcb47a92e994ae8180efd08b513d59040b",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/"
+    },
+    {
+      "type": "siege",
+      "image": "siege.webp",
+      "source": "building-blacksmith.glb",
+      "source_sha256": "6cd4071a87b53e5aba867662c050b7869ddb734e93c1be4c20a9f76a2413bfac",
+      "license": "CC0-1.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "Daniel Andersson (Daniel74)",
+      "provenance": "../../models/buildings-sources.json",
+      "image_sha256": "b58161888a9bd83ba4d1ab12ef05682b3b88cdbdff8ce80ebfe219af55356a38",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "type": "well",
+      "image": "well.webp",
+      "source": "building-well.glb",
+      "source_sha256": "02491b2b173c53cdb7d6a26317ecc2c2581f14485aad638e857f0470223b1f3e",
+      "license": "CC0-1.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "Daniel Andersson (Daniel74)",
+      "provenance": "../../models/buildings-sources.json",
+      "image_sha256": "120456c5336b8dae32ecbe590cc1e8de6bfbff5d625ed2b6067eab6436b6fac7",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "type": "infirmary",
+      "image": "infirmary.webp",
+      "source": "building-chapel.glb",
+      "source_sha256": "3873f8129b3668b60a937a5443ecc58ab10215e317cf5f2f4ba1a9b9a06a4c98",
+      "license": "CC0-1.0",
+      "method": "CPU render of the shipped model, fitted to its real game footprint, no generated concept imagery.",
+      "authors": "Daniel Andersson (Daniel74)",
+      "provenance": "../../models/buildings-sources.json",
+      "image_sha256": "4f5be72bd7886ff1ade86687fa2bed658ee53001671095be828f8414dd713173",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  ],
+  "credits": "See linked source model provenance files in assets/models for creators, licenses and modifications. Thumbnails inherit each model license.",
+  "modification": "Orthographic render with neutral lighting, transparent backdrop, game footprint fit, and WebP compression. No underlying geometry changes."
+}

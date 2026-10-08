@@ -2,15 +2,15 @@
   "assets": [
     {
       "file": "tree-fir.glb",
-      "title": "Fir Tree01 \u2014 tree C",
+      "title": "Fir Tree01 — tree C, photographic branch crown",
       "author": "Rico Cilliers (model), Rob Tuytel (photographs)",
       "source": "https://polyhaven.com/a/fir_tree_01",
       "license": "CC0-1.0",
       "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
       "retrieved": "2026-10-07",
-      "sha256": "aadb11052d266796b4e7f584fa9832ddf4855c80c313ac8c5867d2718b47df93",
-      "bytes": 3588336,
-      "triangles": 29231,
+      "sha256": "f0a0aaf2c9db3351d38f8c4cf9e2aa628ed23824cc5609e0497940515dff8282",
+      "bytes": 1887112,
+      "triangles": 4221,
       "materials": 4,
       "maps": 6,
       "sourceDimensions": [
@@ -28,32 +28,41 @@
         "KHR_texture_transform"
       ],
       "modifications": [
-        "Extracted the single C tree from the original Poly Haven mesh collection (source505,494triangles).",
-        "Preserved bark,twig and trunk geometry, original vertex colour, normal, albedo and ARM materials.",
-        "Reduced geometry to29,231triangles with glTF Transform4.5.1 and0.3% error bound; quantized vertex attributes for web delivery.",
-        "Pruned unused mesh data and materials; recoded1K texture maps to WebP90 quality without resizing.",
-        "Packed original twig diffuse plus original twig alpha into RGBA; enabled alpha masking at0.38 with double-sided leaves.",
-        "Original C-trunk primitive lacked TEXCOORD_0 despite textured material: added continuous cylindrical UVs with wrapped seam vertices.",
-        "Unavailable trunk B diffuse and ARM files were substituted with already downloaded trunk A diffuse/ARM in extracted source. These materials are unused by tree C and were pruned from final file.",
-        "No Draco or meshopt decoder is required."
+        "Extracted tree C from the Poly Haven source collection; the original trunk, bark and dead-branch primitives retain their prior byte-for-byte vertex data and textures.",
+        "Retained the previous quantized trunk/bark geometry and 1K WebP textures. The old highly reduced twig primitive rendered as bare sticks even with alpha masking disabled.",
+        "Rebuilt only the foliage crown with 339 crossed photographic branch cards (678 triangles), sampling the correct regions of the existing photographed twig diffuse/normal/ARM/alpha atlas.",
+        "Used an irregular whorled branch arrangement. The source minimum/maximum bounds and node transforms are preserved so runtime normalization keeps the original world height, centre and collider relationship.",
+        "Original photographic twig diffuse plus alpha remain packed as RGBA; double-sided alpha masking uses cutoff 0.32. Runtime alpha-coverage mipmaps keep small leaves visible at RTS zoom distances.",
+        "Original C-trunk primitive lacked TEXCOORD_0: retained the previously added continuous cylindrical UVs with wrapped seam vertices.",
+        "Pruned unused old twig buffers; no Draco or meshopt decoder is required."
       ],
       "validation": {
-        "tool": "glTF Transform4.5.1 / Khronos glTF Validator",
+        "tool": "Khronos glTF Validator and actual vendored Three.js GLTFLoader",
         "errors": 0,
-        "warning": "PBR normal maps use runtime-generated tangent space in Three.js."
+        "warnings": 4,
+        "warning": "Four original materials use Three.js runtime-generated tangent space for normal maps.",
+        "visualCheck": "Native OpenGL ES 3.2 rendered the old and rebuilt tree at 350, 190, 100, 50 and 25 px. New crown visibly retains its leafy silhouette."
+      },
+      "updated": "2026-10-08",
+      "previousSha256": "aadb11052d266796b4e7f584fa9832ddf4855c80c313ac8c5867d2718b47df93",
+      "authoredCrown": {
+        "cards": 339,
+        "triangles": 678,
+        "sourcePhotographsPreserved": true,
+        "referenceBoundsPreserved": true
       }
     },
     {
       "file": "tree-fir-lod.glb",
-      "title": "Fir Tree01 \u2014 tree C, distant LOD",
+      "title": "Fir Tree01 — tree C, photographic branch crown (distant LOD)",
       "author": "Rico Cilliers (model), Rob Tuytel (photographs)",
       "source": "https://polyhaven.com/a/fir_tree_01",
       "license": "CC0-1.0",
       "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
       "retrieved": "2026-10-07",
-      "sha256": "c44f43af8cfb4f7fa9083a2a76366700f8eb8dda3d42eaa7f9419fed658463eb",
-      "bytes": 1951908,
-      "triangles": 8005,
+      "sha256": "e02e5c14a2214bfac87911b7af491cce1a8a9e592cd3271302eb5a722b62e0db",
+      "bytes": 1513700,
+      "triangles": 1274,
       "materials": 4,
       "maps": 6,
       "sourceDimensions": [
@@ -71,20 +80,28 @@
         "KHR_texture_transform"
       ],
       "modifications": [
-        "Extracted the single C tree from the original Poly Haven mesh collection (source505,494triangles).",
-        "Preserved bark,twig and trunk geometry, original vertex colour, normal, albedo and ARM materials.",
-        "Reduced geometry to29,231triangles with glTF Transform4.5.1 and0.3% error bound; quantized vertex attributes for web delivery.",
-        "Pruned unused mesh data and materials; recoded1K texture maps to WebP90 quality without resizing.",
-        "Packed original twig diffuse plus original twig alpha into RGBA; enabled alpha masking at0.38 with double-sided leaves.",
-        "Original C-trunk primitive lacked TEXCOORD_0 despite textured material: added continuous cylindrical UVs with wrapped seam vertices.",
-        "Unavailable trunk B diffuse and ARM files were substituted with already downloaded trunk A diffuse/ARM in extracted source. These materials are unused by tree C and were pruned from final file.",
-        "No Draco or meshopt decoder is required.",
-        "Derived a distant LOD from optimized main tree with0.8% error bound; retains same1K texture maps and alpha masking."
+        "Extracted tree C from the Poly Haven source collection; the original trunk, bark and dead-branch primitives retain their prior byte-for-byte vertex data and textures.",
+        "Retained the previous quantized trunk/bark geometry and 1K WebP textures. The old highly reduced twig primitive rendered as bare sticks even with alpha masking disabled.",
+        "Rebuilt only the foliage crown with 143 crossed photographic branch cards (286 triangles), sampling the correct regions of the existing photographed twig diffuse/normal/ARM/alpha atlas.",
+        "Used an irregular whorled branch arrangement. The source minimum/maximum bounds and node transforms are preserved so runtime normalization keeps the original world height, centre and collider relationship.",
+        "Original photographic twig diffuse plus alpha remain packed as RGBA; double-sided alpha masking uses cutoff 0.32. Runtime alpha-coverage mipmaps keep small leaves visible at RTS zoom distances.",
+        "Original C-trunk primitive lacked TEXCOORD_0: retained the previously added continuous cylindrical UVs with wrapped seam vertices.",
+        "Pruned unused old twig buffers; no Draco or meshopt decoder is required."
       ],
       "validation": {
-        "tool": "glTF Transform4.5.1 / Khronos glTF Validator",
+        "tool": "Khronos glTF Validator and actual vendored Three.js GLTFLoader",
         "errors": 0,
-        "warning": "PBR normal maps use runtime-generated tangent space in Three.js."
+        "warnings": 4,
+        "warning": "Four original materials use Three.js runtime-generated tangent space for normal maps.",
+        "visualCheck": "Native OpenGL ES 3.2 rendered the old and rebuilt tree at 350, 190, 100, 50 and 25 px. New crown visibly retains its leafy silhouette."
+      },
+      "updated": "2026-10-08",
+      "previousSha256": "c44f43af8cfb4f7fa9083a2a76366700f8eb8dda3d42eaa7f9419fed658463eb",
+      "authoredCrown": {
+        "cards": 143,
+        "triangles": 286,
+        "sourcePhotographsPreserved": true,
+        "referenceBoundsPreserved": true
       }
     }
   ]
