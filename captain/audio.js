@@ -1,4 +1,4 @@
-import {readVoices} from "./voice-store140.js?v=140";
+import {readVoices,VOICE_LINES} from "./voice-store140.js?v=140";
 // Sea and engine effects plus real vocal recordings. No TTS.
 // Call start() directly from the Play / sound-button gesture (also on iOS).
 export function createAudio() {
@@ -98,7 +98,7 @@ export function createAudio() {
       if (enabled && active && context.state === 'suspended') context.resume().catch(() => {});
     }
     if (!enabled) {
-      
+      try{window.speechSynthesis?.cancel();}catch{}
       currentUtterance = null;
     }
   }
@@ -155,8 +155,23 @@ export function createAudio() {
   }
   // No synthetic fallback: missing Greek performances remain captions.
   const voiceBuffers=new Map(),effectBuffers=new Map();let voiceLoad=null,voiceSource=null,voicePriority=-1,voicePlayed=0,voiceFailures=0,lastHuman=-100,lastKind=null;
-  function speak(){return false;}
-  function stopVoice(){const old=voiceSource;voiceSource=null;voicePriority=-1;try{old?.stop();}catch{}}
+  let fallbackUtterance=null,lastFallback=-100;
+  function speak(text,urgent=false){
+    if(!enabled||!active||!('speechSynthesis' in window)||!text)return false;
+    const now=performance.now()/1000;
+    if(now-lastFallback<(urgent?1.8:3.5))return false;
+    try{
+      const synth=window.speechSynthesis;
+      if(urgent)synth.cancel();else if(synth.speaking)return false;
+      const u=new SpeechSynthesisUtterance(text);
+      const greek=synth.getVoices().filter(v=>/^el([-_]|$)/i.test(v.lang));
+      u.voice=greek.find(v=>v.localService)||greek[0]||null;
+      u.lang='el-GR';u.rate=urgent?1.16:.93;u.pitch=urgent?1.25:.96;u.volume=1;
+      u.onend=u.onerror=()=>{if(fallbackUtterance===u)fallbackUtterance=null;};
+      fallbackUtterance=u;lastFallback=now;synth.speak(u);return true;
+    }catch{return false;}
+  }
+  function stopVoice(){try{window.speechSynthesis?.cancel();}catch{} fallbackUtterance=null;const old=voiceSource;voiceSource=null;voicePriority=-1;try{old?.stop();}catch{}}
   async function loadVoices(force=false){
    if(!context)return false;if(voiceLoad&&!force)return voiceLoad;
    voiceLoad=(async()=>{
@@ -172,14 +187,19 @@ export function createAudio() {
     if(context.currentTime-lastHuman<(fear?5:14))return false;
     buffer=effectBuffers.get(fear?'scream':'hiccup');kind='human-nonverbal';
    }
-   if(!buffer||voiceSource&&priority<=voicePriority)return false;stopVoice();
+   if(!buffer){
+     const line=VOICE_LINES[id]?.[0];
+     if(line&&speak(line,priority>=2))return Math.max(2.4,Math.min(5.8,line.length*.085));
+     return false;
+   }
+   if(voiceSource&&priority<=voicePriority)return false;stopVoice();
    const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;gain.gain.value=kind==='recorded-dialogue'?.92:.54;
    const spatial=context.createStereoPanner?context.createStereoPanner():null;
    if(spatial){spatial.pan.value=clamp(pan,-.65,.65);source.connect(spatial);spatial.connect(gain);}else source.connect(gain);
    gain.connect(master);voiceSource=source;voicePriority=priority;voicePlayed++;lastKind=kind;if(kind==='human-nonverbal')lastHuman=context.currentTime;liveEffects.add(source);
    source.onended=()=>{if(voiceSource===source){voiceSource=null;voicePriority=-1;}liveEffects.delete(source);source.disconnect();spatial?.disconnect();gain.disconnect();};source.start();return buffer.duration;
   }
-  const voiceStatus=()=>({engine:'human-recordings-only',dialogueLoaded:voiceBuffers.size,effectsLoaded:effectBuffers.size,loaded:voiceBuffers.size+effectBuffers.size,failed:voiceFailures,played:voicePlayed,active:!!voiceSource,lastKind,missingGreekDialogue:voiceBuffers.size===0});
+  const voiceStatus=()=>({engine:'human-recordings-with-Greek-TTS-fallback',dialogueLoaded:voiceBuffers.size,effectsLoaded:effectBuffers.size,loaded:voiceBuffers.size+effectBuffers.size,failed:voiceFailures,played:voicePlayed,active:!!voiceSource,lastKind,missingGreekDialogue:voiceBuffers.size===0,greekSpeechFallback:typeof window!=='undefined'&&'speechSynthesis' in window});
   if(typeof window!=='undefined'){window.addEventListener('focus',()=>{if(context){voiceBuffers.clear();loadVoices(true);}});try{const changes=new BroadcastChannel('last-call-voices');changes.onmessage=()=>{if(context){voiceBuffers.clear();loadVoices(true);}};}catch{}}
   function update(state = {}) {
     lastState = state;
