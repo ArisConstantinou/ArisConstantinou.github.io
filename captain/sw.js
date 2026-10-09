@@ -1,4 +1,4 @@
-const VERSION='140',CACHE='last-call-1.4.0',ROOT=new URL('./',self.location);
+const VERSION='141',CACHE='last-call-1.4.1',ROOT=new URL('./',self.location);
 const CORE=['index.html','style.css','helm140.css','dialogue130.css','main.js','simulation.js','world.js','ship.js','passengers.js','audio.js','helm140.js','dialogue130.js','icon.svg','manifest.webmanifest','credits.html','voice-store140.js','voices.html','voices140.js','vendor/three.module.js','vendor/three.core.js','vendor/addons/loaders/GLTFLoader.js','vendor/addons/utils/SkeletonUtils.js','vendor/addons/utils/BufferGeometryUtils.js'];
 const versioned=p=>/\.(js|css)$/.test(p)&&!p.startsWith('vendor/')?p+'?v='+VERSION:p;
 self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);await Promise.all(CORE.map(async path=>{const url=new URL(versioned(path),ROOT),r=await fetch(url,{cache:'reload'});if(!r.ok||r.redirected)throw new Error('Incomplete release '+path);await cache.put(url,r);}));await self.skipWaiting();})()));
