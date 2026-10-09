@@ -1,0 +1,51 @@
+name: Captain audio 1.5 signal verification
+on:
+  push:
+    branches: [captain-audio-150]
+    paths: ['captain/tools/apply150.py','captain/tools/voice-engine150.txt','captain/tools/qa150.py','captain/sound-panel150.js','.github/workflows/captain-audio150.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: captain-audio-150
+  cancel-in-progress: true
+jobs:
+  sound:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply guarded sound-only migration
+        run: |
+          python captain/tools/apply150.py
+          for f in captain/*150.js; do node --check "$f"; done
+      - name: Install Chromium and WebKit
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium webkit
+      - name: Verify actual audio signals and gameplay
+        run: python captain/tools/qa150.py
+      - name: Save tested files on staging branch only
+        run: |
+          mkdir -p captain/tests
+          cp /tmp/captain150-qa/results.json captain/tests/audio150.json
+          git config user.name 'Captain audio validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/
+          if ! git diff --cached --quiet; then
+            git commit -m 'Captain 1.5 audio: all Greek clips measured in Chromium/WebKit; verified game sound and direct wheel'
+            git push origin HEAD:captain-audio-150
+          fi
+      - name: Collect sources and evidence
+        if: always()
+        run: |
+          mkdir -p /tmp/captain150-bundle
+          cp -R captain /tmp/captain150-bundle/
+          if [ -d /tmp/captain150-qa ]; then cp -R /tmp/captain150-qa /tmp/captain150-bundle/qa; fi
+          git rev-parse HEAD > /tmp/captain150-bundle/commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain150-audio-signals
+          path: /tmp/captain150-bundle
+          retention-days: 7
