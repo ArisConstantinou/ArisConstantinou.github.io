@@ -5,6 +5,7 @@ import { createPassengers } from './passengers.js?v=140';
 import { createAudio } from './audio.js?v=142';
 import { createHelm } from './helm140.js?v=140';
 import { createDialogue } from './dialogue130.js?v=140';
+import { createWalkMode } from './walk160.js?v=160';
 import { newVoyage, advance, useAction, voyageScore, clamp, KNOTS } from './simulation.js?v=140';
 
 const $=id=>document.getElementById(id);
@@ -14,7 +15,7 @@ const saveStore=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value)
 let mildMotion=readStore('lc-motion',matchMedia('(prefers-reduced-motion:reduce)').matches);
 let soundEnabled=readStore('lc-sound',true), quality=readStore('lc-quality',0), difficulty=0;
 let state=newVoyage(),playing=false,paused=false,ready=false,cameraMode=1,people=null;
-let renderer,world,ship,fx,renderTarget,scene,camera,audio,helm,dialogue;
+let renderer,world,ship,fx,renderTarget,scene,camera,audio,helm,dialogue,walk;
 let renderedFrames=0,sceneDrawCalls=0,sceneTriangles=0;
 let lastFrame=performance.now(),previewTime=0,toastTime=0,radioTime=18,lastHud=0,lastHelp=-20,lastStrike=0;
 let drag=null,lookYaw=0,lookPitch=0,targetLookYaw=0,targetLookPitch=0,lastLook=0,accum=0;
@@ -102,7 +103,7 @@ function startGame(){
   if(!ready)return;
   const audioReady=audio.start();audio.setEnabled(soundEnabled);
   state=newVoyage(difficulty);input.throttle=.55;input.turn=0;keys.clear();touchTurn.left=touchTurn.right=false;
-  helm?.reset();dialogue?.reset();setThrottle(.55);
+  helm?.reset();dialogue?.reset();walk?.reset();setThrottle(.55);
   people.reset();ship.group.position.set(0,0,0);ship.group.rotation.set(0,0,0);ship.group.updateMatrixWorld(true);
   playing=true;paused=false;cameraMode=1;lookYaw=lookPitch=targetLookYaw=targetLookPitch=0;
   $('intro').classList.add('hidden');$('hud').classList.remove('hidden');$('pauseScreen').classList.add('hidden');$('resultScreen').classList.add('hidden');
@@ -116,7 +117,7 @@ function startGame(){
 }
 function finish(won){
   if(!playing)return;
-  playing=false;paused=false;state.ended=true;state.won=won;helm?.reset();dialogue?.reset();
+  walk?.reset();playing=false;paused=false;state.ended=true;state.won=won;helm?.reset();dialogue?.reset();
   const stats=people.getStats(),safe=stats.onboard+stats.rescued;
   state.score=voyageScore(state,stats);
   const best=Math.max(readStore('lc-best',0),state.score);saveStore('lc-best',best);
@@ -138,7 +139,7 @@ function setPaused(value){
 }
 function setThrottle(v){input.throttle=clamp(Number.isFinite(v)?v:0,-.35,1);$('throttle').value=Math.round(input.throttle*100);helm?.syncLever(input.throttle);}
 function syncCameraControls(){$('hud').classList.toggle('in-bridge',cameraMode===1);helm?.reset();drag=null;input.turn=0;}
-function cycleCamera(){cameraMode=(cameraMode+1)%3;targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;$('cameraName').textContent=cameraLabels[cameraMode];toast(['Εξωτερική κάμερα · σύρε για περιστροφή','Γέφυρα · το ποτήρι και το τιμόνι είναι μπροστά σου','Κατάστρωμα · οι επιβάτες είναι δίπλα σου'][cameraMode]);syncCameraControls();updateCamera(1,true);}
+function cycleCamera(){if(walk?.active){toast('Επέστρεψε στη γέφυρα για τις κάμερες.');return;}cameraMode=(cameraMode+1)%3;targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;$('cameraName').textContent=cameraLabels[cameraMode];toast(['Εξωτερική κάμερα · σύρε για περιστροφή','Γέφυρα · το ποτήρι και το τιμόνι είναι μπροστά σου','Κατάστρωμα · οι επιβάτες είναι δίπλα σου'][cameraMode]);syncCameraControls();updateCamera(1,true);}
 function action(name){
   if(!playing||paused)return;
   const result=useAction(state,name);
@@ -179,6 +180,7 @@ function updateCamera(dt,snap=false){
     cameraTarget.copy(cameraPosition).addScaledVector(direction,100);
     camera.up.copy(up).applyQuaternion(ship.group.quaternion);camera.fov=(cameraMode===1?73:68)+intox*Math.sin(time*.8)*2;
   }
+  if(walk?.active){walk.updateCamera(dt);return;}
   if(cameraMode!==0&&(playing||state.ended))camera.position.copy(cameraPosition);
   else camera.position.lerp(cameraPosition,snap?1:1-Math.exp(-dt*3.8));
   camera.lookAt(cameraTarget);camera.rotateZ(sway);camera.updateProjectionMatrix();camera.updateMatrixWorld();
@@ -306,10 +308,12 @@ function setupControls(){
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing)setPaused(true);});
   $('sea').addEventListener('pointerdown',event=>{
     if(!playing||paused)return;
+    if(walk?.active)return;
     if(helm?.beginWheel(event,$('sea'),pickWheel(event)))return;
     if(drag)return;drag={id:event.pointerId,x:event.clientX,y:event.clientY};$('sea').setPointerCapture(event.pointerId);
   });
   $('sea').addEventListener('pointermove',event=>{
+    if(walk?.active)return;
     if(helm?.moveWheel(event))return;
     if(!drag||drag.id!==event.pointerId)return;
     targetLookYaw=clamp(targetLookYaw-(event.clientX-drag.x)*.0046,cameraMode===0?-Math.PI:-1.3,cameraMode===0?Math.PI:1.3);
@@ -326,15 +330,16 @@ function frame(now){
   const dt=Math.min((now-lastFrame)/1000,.05);lastFrame=now;
   if(paused){audio?.update({...state,playing:false});return;}
   if(playing){
-    input.turn=helm?.turn ?? ((keys.has('KeyD')||keys.has('ArrowRight')||touchTurn.right)?1:0)-((keys.has('KeyA')||keys.has('ArrowLeft')||touchTurn.left)?1:0);
-    if(keys.has('KeyW')||keys.has('ArrowUp'))setThrottle(input.throttle+dt*.4);
-    if(keys.has('KeyS')||keys.has('ArrowDown'))setThrottle(input.throttle-dt*.4);
+    input.turn=walk?.active?0:helm?.turn ?? ((keys.has('KeyD')||keys.has('ArrowRight')||touchTurn.right)?1:0)-((keys.has('KeyA')||keys.has('ArrowLeft')||touchTurn.left)?1:0);
+    if(!walk?.active&&(keys.has('KeyW')||keys.has('ArrowUp')))setThrottle(input.throttle+dt*.4);
+    if(!walk?.active&&(keys.has('KeyS')||keys.has('ArrowDown')))setThrottle(input.throttle-dt*.4);
     accum+=dt;
     while(accum>=1/60){advance(state,1/60,input,world.obstacles,world.sampleHeight,world.safeHarbor,gameplayEvent);accum-=1/60;}
     ship.group.position.set(state.x,state.y,state.z);ship.group.rotation.set(state.pitch,state.heading,state.roll,'YXZ');ship.group.updateMatrixWorld(true);
     world.update(state.time,dt,{shipPosition:ship.group.position,heading:state.heading,speed:state.speed,storm:state.storm});
     people?.update(state.time,dt,{panic:state.panic,danger:state.danger,roll:state.roll,speed:state.speed,shipPosition:ship.group.position,heading:state.heading,playing:true,waterHeight:world.sampleHeight});
     ship.update(state.time,dt,{...state,damage:100-state.hull,wheelDemand:helm?.visualRudder});
+    walk?.update(dt,state.time,state.intox,keys);
     dialogue?.update(state,dt);
     if(!drag&&!helm?.busy&&state.time-lastLook>6){targetLookYaw*=Math.exp(-dt*.32);targetLookPitch*=Math.exp(-dt*.32);}
     if(world.lightningStrike!==lastStrike){lastStrike=world.lightningStrike;audio?.thunder();}
@@ -373,14 +378,15 @@ async function init(){
     fx=makePost();renderTarget=fx.rt;resize();audio=createAudio();audio.setEnabled(soundEnabled);setupControls();
     helm=createHelm({hud:$('hud'),setThrottle,getState:()=>({throttle:input.throttle,speed:state.speed,rudder:state.rudder}),canControl:()=>playing&&!paused,recenter:()=>{targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;updateCamera(1,true);}});
     dialogue=createDialogue({hud:$('hud'),audio,camera,ship,getPeople:()=>people,getView:()=>cameraMode});
+    walk=createWalkMode({ship,camera,hud:$('hud'),getPeople:()=>people,getState:()=>state,onMessage:toast,onDialogue:(id,line)=>{radioMessage('Επιβάτης '+(id+1)+': '+line);}});
     $('loadProgress').firstElementChild.style.width='60%';$('loadStatus').textContent='Φόρτωση ανθρώπινων μοντέλων και κινήσεων…';
     updateCamera(1,true);requestAnimationFrame(frame);
     people=await createPassengers(ship.group,ship.deckZones,scene,{mobile,onEvent:passengerEvent});
     ready=true;$('start').disabled=false;$('startText').textContent='ΑΝΑΛΑΒΕ ΤΟ ΤΙΜΟΝΙ';$('loadProgress').firstElementChild.style.width='100%';
     $('loadStatus').textContent=mobile?'Έτοιμο. Παίζεται με αφή — δοκίμασε και οριζόντια οθόνη.':'Έτοιμο. Ταξίδι περίπου 6–8 λεπτών. Εσύ επιλέγεις πότε θα πιεις.';
-    window.__lastCall={getState:()=>({version:'1.4.0',ready,playing,paused,camera:cameraLabels[cameraMode],frames:renderedFrames,time:state.time,hull:state.hull,intox:state.intox,panic:state.panic,speed:state.speed,rudder:state.rudder,throttle:input.throttle,turn:input.turn,heading:state.heading,x:state.x,z:state.z,collisions:state.collisions,danger:state.danger,distance:state.distance,people:people.getStats(),wheelAngle:ship.wheel.rotation.z,look:{yaw:lookYaw,pitch:lookPitch},controls:helm.inspect(),dialogue:dialogue.inspect(),voices:audio.voiceStatus(),drawCalls:sceneDrawCalls,triangles:sceneTriangles})};
+    window.__lastCall={getState:()=>({version:'1.4.0',ready,playing,paused,camera:cameraLabels[cameraMode],frames:renderedFrames,time:state.time,hull:state.hull,intox:state.intox,panic:state.panic,speed:state.speed,rudder:state.rudder,throttle:input.throttle,turn:input.turn,heading:state.heading,x:state.x,z:state.z,collisions:state.collisions,danger:state.danger,distance:state.distance,people:people.getStats(),wheelAngle:ship.wheel.rotation.z,look:{yaw:lookYaw,pitch:lookPitch},controls:helm.inspect(),dialogue:dialogue.inspect(),voices:audio.voiceStatus(),walk:walk?.inspect(),drawCalls:sceneDrawCalls,triangles:sceneTriangles})};
     if(window.__CAPTAIN_TEST__||new URLSearchParams(location.search).has('test'))window.__lastCall.test={
-      restart:startGame,
+      restart:startGame,walk:()=>walk?.enter(),returnHelm:()=>walk?.exit(),
       setState:values=>{for(const k of ['x','z','heading','time','speed','intox','panic','hull'])if(Number.isFinite(values[k]))state[k]=values[k];},
       camera:mode=>{cameraMode=mode;$('cameraName').textContent=cameraLabels[cameraMode];syncCameraControls();targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;updateCamera(1,true);},
       obstacles:()=>world.obstacles.map(o=>({x:o.x,z:o.z,radius:o.radius,id:o.id,type:o.type})),
