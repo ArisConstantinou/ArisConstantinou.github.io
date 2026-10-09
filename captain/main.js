@@ -101,7 +101,7 @@ function startGame(){
   people.reset();ship.group.position.set(0,0,0);ship.group.rotation.set(0,0,0);ship.group.updateMatrixWorld(true);
   playing=true;paused=false;cameraMode=1;lookYaw=lookPitch=targetLookYaw=targetLookPitch=0;
   $('intro').classList.add('hidden');$('hud').classList.remove('hidden');$('pauseScreen').classList.add('hidden');$('resultScreen').classList.add('hidden');
-  $('cameraName').textContent=cameraLabels[cameraMode];$('throttle').value=55;
+  $('cameraName').textContent=cameraLabels[cameraMode];$('throttle').value=55;syncCameraControls();
   const briefing='Καπετάνιε, το λιμάνι είναι 3,8 χιλιόμετρα βόρεια. Κοίτα το ραντάρ και κράτα το πλοίο μακριά από τους πάγους.';
   radioMessage(briefing);
   Promise.resolve(audioReady).then(()=>{if(playing&&!paused)audio.speak(briefing,true);});
@@ -131,7 +131,8 @@ function setPaused(value){
   $('pauseScreen').classList.toggle('hidden',!paused);
   if(!paused){lastFrame=performance.now();audio.start();}else audio.stop();
 }
-function setThrottle(v){input.throttle=clamp(v,-.35,1);$('throttle').value=Math.round(input.throttle*100);}
+function setThrottle(v){input.throttle=clamp(v,-.35,1);$('throttle').value=Math.round(input.throttle*100);$('bridgeThrottle').value=Math.round(input.throttle*100);}
+function syncCameraControls(){$('hud').classList.toggle('in-bridge',cameraMode===1);}
 function cycleCamera(){cameraMode=(cameraMode+1)%3;targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;$('cameraName').textContent=cameraLabels[cameraMode];toast(['Εξωτερική κάμερα · σύρε για περιστροφή','Γέφυρα · το ποτήρι και το τιμόνι είναι μπροστά σου','Κατάστρωμα · οι επιβάτες είναι δίπλα σου'][cameraMode]);updateCamera(1,true);}
 let lastBanter=-20,lastCrewWarning=-20;
 const drunkLines=[
@@ -267,6 +268,11 @@ function setupControls(){
   $('pause').addEventListener('click',()=>setPaused(true));$('resume').addEventListener('click',()=>setPaused(false));$('camera').addEventListener('click',cycleCamera);
   for(const name of ['drink','horn','announce','rescue'])$(name).addEventListener('click',()=>action(name));
   $('throttle').addEventListener('input',e=>setThrottle(Number(e.target.value)/100));
+  $('bridgeThrottle').addEventListener('input',e=>setThrottle(Number(e.target.value)/100));
+  const steer=$('bridgeSteer');let steerId=null,steerX=0;
+  steer.addEventListener('pointerdown',e=>{e.preventDefault();steerId=e.pointerId;steerX=e.clientX;steer.setPointerCapture(e.pointerId);});
+  steer.addEventListener('pointermove',e=>{if(e.pointerId!==steerId)return;const dx=e.clientX-steerX;input.turn=clamp(dx/65,-1,1);steer.style.setProperty('--turn',input.turn);});
+  for(const ev of ['pointerup','pointercancel','lostpointercapture'])steer.addEventListener(ev,()=>{steerId=null;input.turn=0;steer.style.setProperty('--turn',0);});
   $('throttleDown').addEventListener('click',()=>setThrottle(input.throttle-.15));$('throttleUp').addEventListener('click',()=>setThrottle(input.throttle+.15));
   $('engineAhead').addEventListener('click',()=>setThrottle(Math.max(.35,input.throttle+.25)));
   $('engineReverse').addEventListener('click',()=>setThrottle(Math.min(-.18,input.throttle-.2)));
@@ -313,7 +319,7 @@ function frame(now){
   const dt=Math.min((now-lastFrame)/1000,.05);lastFrame=now;
   if(paused){audio?.update({...state,playing:false});return;}
   if(playing){
-    input.turn=((keys.has('KeyD')||keys.has('ArrowRight')||touchTurn.right)?1:0)-((keys.has('KeyA')||keys.has('ArrowLeft')||touchTurn.left)?1:0);
+    if(steerId===null)input.turn=((keys.has('KeyD')||keys.has('ArrowRight')||touchTurn.right)?1:0)-((keys.has('KeyA')||keys.has('ArrowLeft')||touchTurn.left)?1:0);
     if(keys.has('KeyW')||keys.has('ArrowUp'))setThrottle(input.throttle+dt*.4);
     if(keys.has('KeyS')||keys.has('ArrowDown'))setThrottle(input.throttle-dt*.4);
     accum+=dt;
