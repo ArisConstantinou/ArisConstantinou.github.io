@@ -154,7 +154,7 @@ export function createAudio() {
     tone('sine', 43, 24, .055, 3.4, .1);
   }
   // No synthetic fallback: missing Greek performances remain captions.
-  const voiceBuffers=new Map(),effectBuffers=new Map();let voiceLoad=null,voiceSource=null,voicePriority=-1,voicePlayed=0,voiceFailures=0,lastHuman=-100,lastKind=null;
+  const voiceBuffers=new Map(),fallbackBuffers=new Map(),effectBuffers=new Map();let voiceLoad=null,voiceSource=null,voicePriority=-1,voicePlayed=0,voiceFailures=0,lastHuman=-100,lastKind=null;
   let fallbackUtterance=null,lastFallback=-100;
   function speak(text,urgent=false){
     if(!enabled||!active||!('speechSynthesis' in window)||!text)return false;
@@ -176,6 +176,14 @@ export function createAudio() {
    if(!context)return false;if(voiceLoad&&!force)return voiceLoad;
    voiceLoad=(async()=>{
     try{const clips=await readVoices();for(const clip of clips){try{voiceBuffers.set(clip.id,await context.decodeAudioData(await clip.blob.arrayBuffer()));}catch{voiceFailures++;}}}catch{}
+    await Promise.all(Object.keys(VOICE_LINES).map(async id=>{
+      if(fallbackBuffers.has(id))return;
+      try{
+        const res=await fetch(new URL('./assets/voices130/'+id+'.mp3',import.meta.url),{cache:'force-cache'});
+        if(!res.ok)throw Error('Missing spoken audio');
+        fallbackBuffers.set(id,await context.decodeAudioData(await res.arrayBuffer()));
+      }catch{voiceFailures++;}
+    }));
     await Promise.all(['scream','hiccup'].map(async id=>{if(effectBuffers.has(id))return;try{const r=await fetch(new URL('./assets/human140/'+id+'.mp3',import.meta.url));if(!r.ok)throw Error('Missing human sound');effectBuffers.set(id,await context.decodeAudioData(await r.arrayBuffer()));}catch{voiceFailures++;}}));return true;
    })();return voiceLoad;
   }
@@ -188,18 +196,21 @@ export function createAudio() {
     buffer=effectBuffers.get(fear?'scream':'hiccup');kind='human-nonverbal';
    }
    if(!buffer){
+     buffer=fallbackBuffers.get(id);if(buffer)kind='pre-rendered-synthetic-Greek';
+   }
+   if(!buffer){
      const line=VOICE_LINES[id]?.[0];
      if(line&&speak(line,priority>=2))return Math.max(2.4,Math.min(5.8,line.length*.085));
      return false;
    }
    if(voiceSource&&priority<=voicePriority)return false;stopVoice();
-   const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;gain.gain.value=kind==='recorded-dialogue'?.92:.54;
+   const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;gain.gain.value=kind==='recorded-dialogue'?.92:kind==='pre-rendered-synthetic-Greek'?.85:.54;
    const spatial=context.createStereoPanner?context.createStereoPanner():null;
    if(spatial){spatial.pan.value=clamp(pan,-.65,.65);source.connect(spatial);spatial.connect(gain);}else source.connect(gain);
    gain.connect(master);voiceSource=source;voicePriority=priority;voicePlayed++;lastKind=kind;if(kind==='human-nonverbal')lastHuman=context.currentTime;liveEffects.add(source);
    source.onended=()=>{if(voiceSource===source){voiceSource=null;voicePriority=-1;}liveEffects.delete(source);source.disconnect();spatial?.disconnect();gain.disconnect();};source.start();return buffer.duration;
   }
-  const voiceStatus=()=>({engine:'human-recordings-with-Greek-TTS-fallback',dialogueLoaded:voiceBuffers.size,effectsLoaded:effectBuffers.size,loaded:voiceBuffers.size+effectBuffers.size,failed:voiceFailures,played:voicePlayed,active:!!voiceSource,lastKind,missingGreekDialogue:voiceBuffers.size===0,greekSpeechFallback:typeof window!=='undefined'&&'speechSynthesis' in window});
+  const voiceStatus=()=>({engine:'recorded-human-then-prerendered-Greek-then-TTS',dialogueLoaded:voiceBuffers.size,effectsLoaded:effectBuffers.size,preRenderedGreekLoaded:fallbackBuffers.size,loaded:voiceBuffers.size+fallbackBuffers.size+effectBuffers.size,failed:voiceFailures,played:voicePlayed,active:!!voiceSource,lastKind,missingGreekDialogue:voiceBuffers.size===0,greekSpeechFallback:typeof window!=='undefined'&&'speechSynthesis' in window});
   if(typeof window!=='undefined'){window.addEventListener('focus',()=>{if(context){voiceBuffers.clear();loadVoices(true);}});try{const changes=new BroadcastChannel('last-call-voices');changes.onmessage=()=>{if(context){voiceBuffers.clear();loadVoices(true);}};}catch{}}
   function update(state = {}) {
     lastState = state;
