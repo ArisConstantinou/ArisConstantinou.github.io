@@ -25,12 +25,25 @@ jobs:
           python captain/tools/finish_chapter.py
           for f in captain/*180.js; do node --check "$f"; done
           node --test captain/tests/chaos180.test.mjs
-      - name: Install test browser
+      - name: Prepare provisioned Chrome
+        timeout-minutes: 3
         run: |
-          pip install -q playwright
-          python -m playwright install --with-deps chromium
+          python -m pip install -q --timeout 30 --retries 2 playwright
+          CHROME=$(command -v google-chrome || command -v chromium || true)
+          if [ -n "$CHROME" ]; then
+            echo "CAPTAIN_CHROME=$CHROME" >> "$GITHUB_ENV"
+          else
+            timeout 150 python -m playwright install chromium
+          fi
       - name: Test real controls and story
         run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('captain/tools/qa180.py')
+          s='import os\n'+p.read_text()
+          s=s.replace('pw.chromium.launch(headless=True,','pw.chromium.launch(executable_path=os.environ.get("CAPTAIN_CHROME"),headless=True,')
+          p.write_text(s)
+          PY
           python -m http.server 8765 --bind 127.0.0.1 >/tmp/captain180-http.log 2>&1 &
           timeout 480 python captain/tools/qa180.py
       - name: Save validated chapter on staging branch only
