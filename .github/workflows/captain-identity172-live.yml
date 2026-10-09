@@ -1,0 +1,50 @@
+name: Captain 1.7.2 public identity verification
+on:
+  push:
+    branches: [captain-identity-172]
+    paths: ['.github/workflows/captain-identity172-live.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm published files match tested source
+        run: |
+          python - <<'PY'
+          import urllib.request,time,hashlib,pathlib,json
+          base='https://arisconstantinou.github.io/captain/'
+          for attempt in range(15):
+            try:
+              request=urllib.request.Request(base+'release.json?verify=172',headers={'Cache-Control':'no-cache'})
+              if json.load(urllib.request.urlopen(request,timeout=20)).get('version')=='1.7.2':break
+            except Exception as error:print(error)
+            time.sleep(8)
+          else:raise RuntimeError('Version 1.7.2 has not reached the public page')
+          files=['index.html','main172.js','characters172.js','actors172.js','passengers172.js','chaos172.js','identity172.js','identity172.css','sw.js','assets/civilian172/male.glb','assets/civilian172/female.glb']
+          results=[]
+          for name in files:
+            data=urllib.request.urlopen(base+name+'?verify=172',timeout=40).read()
+            expected=(pathlib.Path('captain')/name).read_bytes()
+            assert hashlib.sha256(data).digest()==hashlib.sha256(expected).digest(),name+' differs from tested source'
+            results.append({'file':name,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'matches':True})
+          out=pathlib.Path('/tmp/captain172-qa');out.mkdir(exist_ok=True);(out/'public-bytes.json').write_text(json.dumps(results,indent=2))
+          print('Public release bytes match the verified source')
+          PY
+      - name: Install browser
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Test actual public game
+        env:
+          CAPTAIN_BASE: https://arisconstantinou.github.io/captain/
+        run: python captain/tools/qa172.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain172-public-identity
+          path: /tmp/captain172-qa
+          retention-days: 7
