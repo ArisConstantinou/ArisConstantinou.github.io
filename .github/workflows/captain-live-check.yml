@@ -1,0 +1,86 @@
+name: Captain public release verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/captain-live-check.yml']
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare browser
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Verify public files and interactive game
+        run: |
+          mkdir -p /tmp/captain-public
+          python - <<'PY'
+          import hashlib,json,pathlib,time,urllib.request,traceback
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('/tmp/captain-public');base='https://arisconstantinou.github.io/captain/'
+          result={'url':base,'checks':[],'errors':[]}
+          def record(name,condition,detail=None):
+              result['checks'].append({'name':name,'pass':bool(condition),'detail':detail})
+              print(('PASS ' if condition else 'FAIL ')+name,flush=True)
+          try:
+              matched=False
+              for attempt in range(24):
+                  try:
+                      pairs={}
+                      for name in ['index.html','main.js','helm130.js','helm130.css','audio.js','simulation.js']:
+                          req=urllib.request.Request(base+name+'?v=130&verify='+str(int(time.time())),headers={'Cache-Control':'no-cache'})
+                          remote=urllib.request.urlopen(req,timeout=15).read()
+                          pairs[name]=hashlib.sha256(remote).hexdigest()==hashlib.sha256(pathlib.Path('captain',name).read_bytes()).hexdigest()
+                      matched=all(pairs.values())
+                      if matched:break
+                  except Exception:pass
+                  time.sleep(5)
+              record('Public release bytes match verified source',matched,pairs if matched else None)
+              assert matched,'GitHub Pages has not published the verified files yet'
+              with sync_playwright() as p:
+                  browser=p.chromium.launch(args=['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
+                  context=browser.new_context(viewport={'width':430,'height':744},is_mobile=True,has_touch=True,device_scale_factor=1)
+                  page=context.new_page();page.on('pageerror',lambda error:result['errors'].append(str(error)))
+                  page.goto(base+'?v=130&test=1',wait_until='domcontentloaded',timeout=60000)
+                  page.wait_for_function('window.__lastCall?.getState().ready',timeout=90000)
+                  page.locator('#start').click()
+                  def state():return page.evaluate('window.__lastCall.getState()')
+                  def frames():
+                      target=state()['frames']+4
+                      page.wait_for_function('(n)=>window.__lastCall.getState().frames>=n',arg=target,timeout=30000)
+                  frames();record('Published game starts and renders',state()['playing'] and state()['version']=='1.3.0')
+                  record('Version badge visible',page.locator('#releaseBadge').inner_text()=='v1.3.0')
+                  record('No half-screen panel',not page.locator('.controls-bottom').is_visible())
+                  session=context.new_cdp_session(page)
+                  r=page.locator('#helmLeft').bounding_box();x=r['x']+r['width']/2;y=r['y']+r['height']/2
+                  session.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'id':1,'x':x,'y':y}]});frames()
+                  record('Public cabin hold-to-steer works',state()['turn']<-.4)
+                  session.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]});frames();record('Release clears steering',state()['turn']==0)
+                  r=page.locator('#engineLever').bounding_box();x=r['x']+r['width']/2;y=r['y']+r['height']-2
+                  session.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'id':2,'x':x,'y':y}]});frames()
+                  session.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]});frames();record('Public lever engages and holds reverse',state()['throttle']<-.3)
+                  page.locator('#leverNeutral').click();frames();record('Neutral button returns lever to zero',state()['throttle']==0)
+                  page.wait_for_function('window.__lastCall.getState().voices.loaded===18',timeout=45000)
+                  page.evaluate("window.__lastCall.test.say('rock')");frames();record('Public original voice clips play',state()['voices']['played']>0 and state()['voices']['loaded']==18,state()['voices'])
+                  page.evaluate('window.__lastCall.test.restart()');frames();page.screenshot(path=str(out/'public-bridge.png'))
+                  page.locator('#camera').click();page.locator('#camera').click();frames();record('External view uses compact pad',state()['controls']['mode']==0 and page.locator('#helmPad').is_visible())
+                  page.screenshot(path=str(out/'public-external.png'))
+                  page.locator('#camera').click();page.set_viewport_size({'width':932,'height':430});frames();record('Landscape keeps wheel and lever accessible',page.locator('#helmLeft').is_visible() and page.locator('#engineLever').is_visible());page.screenshot(path=str(out/'public-landscape.png'))
+                  result['state']=state();record('No public runtime errors',not result['errors'],result['errors']);browser.close()
+          except Exception:
+              result['exception']=traceback.format_exc();record('Public verification completed',False,result['exception'])
+          finally:
+              result['passed']=all(c['pass'] for c in result['checks']);(out/'public-results.json').write_text(json.dumps(result,ensure_ascii=False,indent=2));print(json.dumps(result,ensure_ascii=False,indent=2))
+          assert result['passed'],'Public release checks failed'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain130-public-verification
+          path: /tmp/captain-public
+          retention-days: 3
