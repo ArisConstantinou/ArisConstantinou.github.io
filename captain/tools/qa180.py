@@ -3,7 +3,7 @@ import json,sys,traceback
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 OUT=Path('/tmp/captain180-qa');OUT.mkdir(exist_ok=True)
-report={'timing':'Native browser key events; deterministic 60 Hz controller substeps; real rendered frames. Not a GPU performance benchmark.','checks':[],'errors':[],'version':'1.8.0'}
+report={'timing':'Native browser key events; deterministic 60 Hz controller substeps; actual WebGL-rendered current state. Not a GPU performance benchmark.','checks':[],'errors':[],'version':'1.8.0'}
 def check(name,value,detail=None):
  report['checks'].append({'name':name,'pass':bool(value),'detail':detail});print(('PASS' if value else 'FAIL'),name,flush=True)
 def advance(p,seconds):
@@ -37,7 +37,8 @@ with sync_playwright() as pw:
    place(p,-5,0,0);actor(p,0,x=-5,z=1.3,hp=250,stun=8,status='wander',down=0,attack=0);advance(p,0.18)
    old=story(p)['actors'][0]['hp'];p.keyboard.press('Numpad'+str(key));advance(p,.17 if key==1 else .36 if key==4 else .40)
    if key==1:snap(p,str(OUT/'slap.png'))
-   if key==4:snap(p,str(OUT/'kick.png'))
+   if key==4:
+    snap(p,str(OUT/'kick.png'));limbs=story(p)['hands'];check('Actual kick renders the foot in view',limbs['footVisible'] and abs(limbs['rightFoot'][0])<1 and abs(limbs['rightFoot'][1])<1,limbs)
    s=story(p);check('NumPad '+str(key)+' activates its action',s['actors'][0]['hp']<old if key<5 else s['statistics']['spits']>0,s['statistics'])
    advance(p,0.6)
   place(p,-5,0,0);actor(p,0,x=-5,z=5,stun=10,status='wander',attack=0);old=story(p)['actors'][0]['hp'];p.keyboard.press('3');advance(p,0.65);check('No melee damage outside reach',story(p)['actors'][0]['hp']==old)

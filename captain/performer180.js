@@ -75,5 +75,5 @@ export function createHands(template,camera){
   for(const l of legs)l.visible=kick>.05;if(kick>.05)twoBone(a.bones,'right',camera.localToWorld(V(.16,-.7+kick*.33,-.3-kick*.8)),camera.localToWorld(V(.36,-.74,-.48)),true);
   root.updateWorldMatrix(true,true);for(const m of arms)m.skeleton.update();
  }
- return {root,held,update,inspect:()=>({arms:arms.length,triangles:arms.reduce((n,m)=>n+m.geometry.index.count/3,0),legTriangles:legs.reduce((n,m)=>n+m.geometry.index.count/3,0)})};
+ return {root,held,update,inspect:()=>({rightHand:a.bones.get('righthand')?.getWorldPosition(V()).project(camera).toArray(),rightFoot:a.bones.get('rightfoot')?.getWorldPosition(V()).project(camera).toArray(),footVisible:legs.some(l=>l.visible),arms:arms.length,triangles:arms.reduce((n,m)=>n+m.geometry.index.count/3,0),legTriangles:legs.reduce((n,m)=>n+m.geometry.index.count/3,0)})};
 }

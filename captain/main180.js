@@ -402,7 +402,7 @@ async function init(){
       setState:values=>{for(const k of ['x','z','heading','time','speed','intox','panic','hull'])if(Number.isFinite(values[k]))state[k]=values[k];},
       camera:mode=>{cameraMode=mode;$('cameraName').textContent=cameraLabels[cameraMode];syncCameraControls();targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;updateCamera(1,true);},
       obstacles:()=>world.obstacles.map(o=>({x:o.x,z:o.z,radius:o.radius,id:o.id,type:o.type})),
-      capture:value=>{captureFrame=Boolean(value);}, story:()=>chaos, audio:()=>audio, say:id=>dialogue.say(id,state),anchor:wheelAnchor,look:(yaw,pitch=0)=>{targetLookYaw=lookYaw=yaw;targetLookPitch=lookPitch=pitch;lastLook=state.time;updateCamera(1,true);},
+      capture:value=>{captureFrame=Boolean(value);if(value){chaos?.updateCamera(0);renderer.setRenderTarget(renderTarget);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(fx.scene,fx.camera);}}, story:()=>chaos, audio:()=>audio, say:id=>dialogue.say(id,state),anchor:wheelAnchor,look:(yaw,pitch=0)=>{targetLookYaw=lookYaw=yaw;targetLookPitch=lookPitch=pitch;lastLook=state.time;updateCamera(1,true);},
       step:seconds=>{for(let i=0;i<seconds*60;i++)advance(state,1/60,input,chaos?.roaming?[]:world.obstacles,world.sampleHeight,world.safeHarbor,gameplayEvent);}
     };
     if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});}

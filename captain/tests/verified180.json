@@ -1,5 +1,5 @@
 {
-  "timing": "Native browser key events; deterministic 60 Hz controller substeps; real rendered frames. Not a GPU performance benchmark.",
+  "timing": "Native browser key events; deterministic 60 Hz controller substeps; actual WebGL-rendered current state. Not a GPU performance benchmark.",
   "checks": [
     {
       "name": "Story begins at the existing helm",
@@ -25,6 +25,17 @@
       "name": "Textured rigged FPS limbs exist",
       "pass": true,
       "detail": {
+        "rightHand": [
+          0.47047667585224273,
+          -0.7378849266070638,
+          0.5785742064645449
+        ],
+        "rightFoot": [
+          -0.2663098938294337,
+          13.194367582417247,
+          2.523150910390218
+        ],
+        "footVisible": false,
         "arms": 2,
         "triangles": 2896,
         "legTriangles": 1244
@@ -81,6 +92,26 @@
       }
     },
     {
+      "name": "Actual kick renders the foot in view",
+      "pass": true,
+      "detail": {
+        "rightHand": [
+          0.4704767277182335,
+          -0.737884919947681,
+          0.5785741961480894
+        ],
+        "rightFoot": [
+          0.1392677721917518,
+          -0.7034181726411903,
+          0.7576503096910524
+        ],
+        "footVisible": true,
+        "arms": 2,
+        "triangles": 2896,
+        "legTriangles": 1244
+      }
+    },
+    {
       "name": "NumPad 4 activates its action",
       "pass": true,
       "detail": {
@@ -118,7 +149,7 @@
     {
       "name": "Block key releases and NPC can retaliate",
       "pass": true,
-      "detail": 90
+      "detail": 84
     },
     {
       "name": "Window breaks and awards chaos",
