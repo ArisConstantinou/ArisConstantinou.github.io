@@ -1,0 +1,1410 @@
+{
+  "version": "1.5.0",
+  "url": "http://127.0.0.1:8765/captain/",
+  "checks": [
+    {
+      "name": "chromium loads 18 spoken MP3s and 2 effects",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "chromium rock accepted as speech",
+      "pass": true,
+      "detail": 5.279977324263038
+    },
+    {
+      "name": "chromium rock produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00011039748991390661,
+            "peak": 0.0003405949391890317
+          },
+          "output": {
+            "rms": 0.007933213036511198,
+            "peak": 0.01920168474316597
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium ice accepted as speech",
+      "pass": true,
+      "detail": 3.6959863945578233
+    },
+    {
+      "name": "chromium ice produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00010159930798519879,
+            "peak": 0.0003416176768951118
+          },
+          "output": {
+            "rms": 0.007152372271612588,
+            "peak": 0.0190604068338871
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium brace accepted as speech",
+      "pass": true,
+      "detail": 3.191995464852608
+    },
+    {
+      "name": "chromium brace produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00010188930017217402,
+            "peak": 0.0003272238827776164
+          },
+          "output": {
+            "rms": 0.005191278029820424,
+            "peak": 0.013879405334591866
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium rail accepted as speech",
+      "pass": true,
+      "detail": 2.3519954648526076
+    },
+    {
+      "name": "chromium rail produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00011574861307359862,
+            "peak": 0.0003489928785711527
+          },
+          "output": {
+            "rms": 0.004397867426862213,
+            "peak": 0.012591881677508354
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium panic accepted as speech",
+      "pass": true,
+      "detail": 4.511995464852608
+    },
+    {
+      "name": "chromium panic produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00016164419579603988,
+            "peak": 0.002332650125026703
+          },
+          "output": {
+            "rms": 0.0036765250835448836,
+            "peak": 0.011195526458323002
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium jackets accepted as speech",
+      "pass": true,
+      "detail": 1.9439909297052154
+    },
+    {
+      "name": "chromium jackets produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00016026570712913613,
+            "peak": 0.0023274077102541924
+          },
+          "output": {
+            "rms": 0.003315403453093867,
+            "peak": 0.012000463902950287
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium water accepted as speech",
+      "pass": true,
+      "detail": 4.487981859410431
+    },
+    {
+      "name": "chromium water produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00016080518047330975,
+            "peak": 0.0023447745479643345
+          },
+          "output": {
+            "rms": 0.0030605213176617603,
+            "peak": 0.008914726786315441
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium safe accepted as speech",
+      "pass": true,
+      "detail": 3.36
+    },
+    {
+      "name": "chromium safe produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.0001608015634256504,
+            "peak": 0.002349193673580885
+          },
+          "output": {
+            "rms": 0.002669600104050779,
+            "peak": 0.010450762696564198
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium rescued accepted as speech",
+      "pass": true,
+      "detail": 3.455986394557823
+    },
+    {
+      "name": "chromium rescued produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.000133278337248074,
+            "peak": 0.0004151244356762618
+          },
+          "output": {
+            "rms": 0.0031747231771457013,
+            "peak": 0.008915970101952553
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium captain1 accepted as speech",
+      "pass": true,
+      "detail": 5.807981859410431
+    },
+    {
+      "name": "chromium captain1 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00010655174332869636,
+            "peak": 0.00034619623329490423
+          },
+          "output": {
+            "rms": 0.0023758905315069217,
+            "peak": 0.007435395382344723
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium captain2 accepted as speech",
+      "pass": true,
+      "detail": 4.199977324263038
+    },
+    {
+      "name": "chromium captain2 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00010209650207366439,
+            "peak": 0.00039682339411228895
+          },
+          "output": {
+            "rms": 0.003109158306787786,
+            "peak": 0.009425784461200237
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium captain3 accepted as speech",
+      "pass": true,
+      "detail": 3.263990929705215
+    },
+    {
+      "name": "chromium captain3 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.000107414802131452,
+            "peak": 0.0003679961373563856
+          },
+          "output": {
+            "rms": 0.0025747563447619504,
+            "peak": 0.008713524788618088
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium captain4 accepted as speech",
+      "pass": true,
+      "detail": 2.9519954648526077
+    },
+    {
+      "name": "chromium captain4 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00010497047922849852,
+            "peak": 0.0003344995202496648
+          },
+          "output": {
+            "rms": 0.002362420596905602,
+            "peak": 0.006730453111231327
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium captain5 accepted as speech",
+      "pass": true,
+      "detail": 3.4079818594104307
+    },
+    {
+      "name": "chromium captain5 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00010431974987395146,
+            "peak": 0.0003645301330834627
+          },
+          "output": {
+            "rms": 0.0019234930828912003,
+            "peak": 0.006165246944874525
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium captain6 accepted as speech",
+      "pass": true,
+      "detail": 6.503990929705216
+    },
+    {
+      "name": "chromium captain6 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00010042028128774779,
+            "peak": 0.00039347229176200926
+          },
+          "output": {
+            "rms": 0.001971160831713056,
+            "peak": 0.007058521267026663
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium reply accepted as speech",
+      "pass": true,
+      "detail": 4.2719954648526075
+    },
+    {
+      "name": "chromium reply produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00010473451410462705,
+            "peak": 0.0003735065401997417
+          },
+          "output": {
+            "rms": 0.0017542350801285794,
+            "peak": 0.006034213583916426
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium calm accepted as speech",
+      "pass": true,
+      "detail": 4.463990929705216
+    },
+    {
+      "name": "chromium calm produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00012119706422241926,
+            "peak": 0.00035568641033023596
+          },
+          "output": {
+            "rms": 0.0017122659924749173,
+            "peak": 0.00544977281242609
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium hum accepted as speech",
+      "pass": true,
+      "detail": 5.447981859410431
+    },
+    {
+      "name": "chromium hum produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.0001134321214900623,
+            "peak": 0.0003616799658630043
+          },
+          "output": {
+            "rms": 0.0017642613683000188,
+            "peak": 0.005858878139406443
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium mute clears voice and queued dialogue",
+      "pass": true,
+      "detail": {
+        "voice": {
+          "rms": 0,
+          "peak": 0
+        },
+        "output": {
+          "rms": 1.9214639726886733e-07,
+          "peak": 7.441096272486902e-07
+        }
+      }
+    },
+    {
+      "name": "chromium after unmute captain2 accepted as speech",
+      "pass": true,
+      "detail": 4.199977324263038
+    },
+    {
+      "name": "chromium after unmute captain2 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00010209650207366439,
+            "peak": 0.00039682339411228895
+          },
+          "output": {
+            "rms": 0.002484939108628354,
+            "peak": 0.006539454218000174
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium stopped context refuses speech",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "chromium after resume calm accepted as speech",
+      "pass": true,
+      "detail": 4.463990929705216
+    },
+    {
+      "name": "chromium after resume calm produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00012119706422241926,
+            "peak": 0.00035568641033023596
+          },
+          "output": {
+            "rms": 0.0023886075423826827,
+            "peak": 0.0077209086157381535
+          }
+        }
+      }
+    },
+    {
+      "name": "chromium horn produces output",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "chromium thunder produces output",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "chromium cold-loading warning survives asset loading",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "chromium blocked storage rock accepted as speech",
+      "pass": true,
+      "detail": 5.279977324263038
+    },
+    {
+      "name": "chromium blocked storage rock produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00011039748991390661,
+            "peak": 0.0003405949391890317
+          },
+          "output": {
+            "rms": 0.008689621619196352,
+            "peak": 0.030173812061548233
+          }
+        }
+      }
+    },
+    {
+      "name": "Old v142 bug reproduced despite 18 MP3s loaded",
+      "pass": true,
+      "detail": [
+        {
+          "id": "rock",
+          "result": false
+        },
+        {
+          "id": "ice",
+          "result": false
+        },
+        {
+          "id": "calm",
+          "result": false
+        },
+        {
+          "id": "captain1",
+          "result": false
+        },
+        {
+          "id": "captain2",
+          "result": false
+        }
+      ]
+    },
+    {
+      "name": "webkit loads 18 spoken MP3s and 2 effects",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "webkit rock accepted as speech",
+      "pass": true,
+      "detail": 5.279977324263038
+    },
+    {
+      "name": "webkit rock produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.0001100961062571494,
+            "peak": 0.0003526628715917468
+          },
+          "output": {
+            "rms": 0.008958379084049761,
+            "peak": 0.02318543568253517
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit ice accepted as speech",
+      "pass": true,
+      "detail": 3.695963718820862
+    },
+    {
+      "name": "webkit ice produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.0001096907396684119,
+            "peak": 0.00033617738517932594
+          },
+          "output": {
+            "rms": 0.005933576790607532,
+            "peak": 0.018773024901747704
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit brace accepted as speech",
+      "pass": true,
+      "detail": 3.1919727891156464
+    },
+    {
+      "name": "webkit brace produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00010976838751871811,
+            "peak": 0.0003251375164836645
+          },
+          "output": {
+            "rms": 0.004510614776913513,
+            "peak": 0.014623389579355717
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit rail accepted as speech",
+      "pass": true,
+      "detail": 2.351972789115646
+    },
+    {
+      "name": "webkit rail produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00010315833795960358,
+            "peak": 0.00034406245686113834
+          },
+          "output": {
+            "rms": 0.005292081907844102,
+            "peak": 0.015946200117468834
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit panic accepted as speech",
+      "pass": true,
+      "detail": 4.511972789115647
+    },
+    {
+      "name": "webkit panic produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00016214757792827185,
+            "peak": 0.0023611763026565313
+          },
+          "output": {
+            "rms": 0.0031630430757819397,
+            "peak": 0.01315534021705389
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit jackets accepted as speech",
+      "pass": true,
+      "detail": 1.943968253968254
+    },
+    {
+      "name": "webkit jackets produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.0001610411846455154,
+            "peak": 0.0023629905190318823
+          },
+          "output": {
+            "rms": 0.0038429425454620586,
+            "peak": 0.011820090003311634
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit water accepted as speech",
+      "pass": true,
+      "detail": 4.487959183673469
+    },
+    {
+      "name": "webkit water produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00016132327303380406,
+            "peak": 0.0023817955516278744
+          },
+          "output": {
+            "rms": 0.0036121577114174358,
+            "peak": 0.009417499415576458
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit safe accepted as speech",
+      "pass": true,
+      "detail": 3.3599773242630384
+    },
+    {
+      "name": "webkit safe produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00016148155370393353,
+            "peak": 0.0024034299422055483
+          },
+          "output": {
+            "rms": 0.003082487601947157,
+            "peak": 0.009911776520311832
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit rescued accepted as speech",
+      "pass": true,
+      "detail": 3.4559637188208616
+    },
+    {
+      "name": "webkit rescued produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.0001247454574821599,
+            "peak": 0.0003458242572378367
+          },
+          "output": {
+            "rms": 0.003297377954833573,
+            "peak": 0.00969037413597107
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit captain1 accepted as speech",
+      "pass": true,
+      "detail": 5.80795918367347
+    },
+    {
+      "name": "webkit captain1 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00011246552926286247,
+            "peak": 0.00034698034869506955
+          },
+          "output": {
+            "rms": 0.0033472072994269963,
+            "peak": 0.010953650809824467
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit captain2 accepted as speech",
+      "pass": true,
+      "detail": 4.199977324263038
+    },
+    {
+      "name": "webkit captain2 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00012010821014159845,
+            "peak": 0.00038303135079331696
+          },
+          "output": {
+            "rms": 0.0024551494579750223,
+            "peak": 0.0066488925367593765
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit captain3 accepted as speech",
+      "pass": true,
+      "detail": 3.263968253968254
+    },
+    {
+      "name": "webkit captain3 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00011502836759012095,
+            "peak": 0.000368004955817014
+          },
+          "output": {
+            "rms": 0.002706772539178653,
+            "peak": 0.010016732849180698
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit captain4 accepted as speech",
+      "pass": true,
+      "detail": 2.951972789115646
+    },
+    {
+      "name": "webkit captain4 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00011063219389229489,
+            "peak": 0.0003577777824830264
+          },
+          "output": {
+            "rms": 0.0021064652425044432,
+            "peak": 0.006951471325010061
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit captain5 accepted as speech",
+      "pass": true,
+      "detail": 3.4079591836734693
+    },
+    {
+      "name": "webkit captain5 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00011289463670740383,
+            "peak": 0.0003724027774296701
+          },
+          "output": {
+            "rms": 0.0019389322395265318,
+            "peak": 0.006703387480229139
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit captain6 accepted as speech",
+      "pass": true,
+      "detail": 6.503968253968254
+    },
+    {
+      "name": "webkit captain6 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00013217719982976922,
+            "peak": 0.0004183007695246488
+          },
+          "output": {
+            "rms": 0.0018429159905201287,
+            "peak": 0.006570992060005665
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit reply accepted as speech",
+      "pass": true,
+      "detail": 4.2719727891156465
+    },
+    {
+      "name": "webkit reply produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00012442081261241576,
+            "peak": 0.0003802930295933038
+          },
+          "output": {
+            "rms": 0.0016351935401135015,
+            "peak": 0.004769030958414078
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit calm accepted as speech",
+      "pass": true,
+      "detail": 4.463968253968254
+    },
+    {
+      "name": "webkit calm produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.0001159568798548041,
+            "peak": 0.000347407185472548
+          },
+          "output": {
+            "rms": 0.0017059520765983526,
+            "peak": 0.00536633376032114
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit hum accepted as speech",
+      "pass": true,
+      "detail": 5.447959183673469
+    },
+    {
+      "name": "webkit hum produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00011736175987319287,
+            "peak": 0.0003578065079636872
+          },
+          "output": {
+            "rms": 0.0017765670902150663,
+            "peak": 0.006085734348744154
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit mute clears voice and queued dialogue",
+      "pass": true,
+      "detail": {
+        "voice": {
+          "rms": 0,
+          "peak": 0
+        },
+        "output": {
+          "rms": 2.1139131326090736e-07,
+          "peak": 5.814164865114435e-07
+        }
+      }
+    },
+    {
+      "name": "webkit after unmute captain2 accepted as speech",
+      "pass": true,
+      "detail": 4.199977324263038
+    },
+    {
+      "name": "webkit after unmute captain2 produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00011805109621206262,
+            "peak": 0.0003646380209829658
+          },
+          "output": {
+            "rms": 0.0025847268282151075,
+            "peak": 0.00838723685592413
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit stopped context refuses speech",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "webkit after resume calm accepted as speech",
+      "pass": true,
+      "detail": 4.463968253968254
+    },
+    {
+      "name": "webkit after resume calm produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.00011201518736586943,
+            "peak": 0.0003524191852193326
+          },
+          "output": {
+            "rms": 0.00257461053613446,
+            "peak": 0.008640197105705738
+          }
+        }
+      }
+    },
+    {
+      "name": "webkit horn produces output",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "webkit thunder produces output",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "webkit cold-loading warning survives asset loading",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "webkit blocked storage rock accepted as speech",
+      "pass": true,
+      "detail": 5.279977324263038
+    },
+    {
+      "name": "webkit blocked storage rock produces nonzero voice AND destination signal",
+      "pass": true,
+      "detail": {
+        "kind": "bundled-synthetic-Greek",
+        "signal": {
+          "voice": {
+            "rms": 0.0001100961062571494,
+            "peak": 0.0003526628715917468
+          },
+          "output": {
+            "rms": 0.008182815217350052,
+            "peak": 0.021329058334231377
+          }
+        }
+      }
+    },
+    {
+      "name": "Actual game starts with spoken Greek crew greeting",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Version 1.5 visible and actual game advances",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Whisky action actually speaks captain line",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Predicted danger actually speaks before impact",
+      "pass": true,
+      "detail": {
+        "hull": 100,
+        "danger": {
+          "id": "hazard-1",
+          "type": "ice",
+          "x": -170,
+          "z": 470,
+          "radius": 55.01981016855034,
+          "clearance": 71.22101184832462,
+          "tti": 6.019355294821219,
+          "risk": 0.7382889002251645,
+          "astern": false
+        }
+      }
+    },
+    {
+      "name": "Direct wheel remains functional",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Pause sound test produces passenger speech",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No runtime exceptions in either audio engine or game",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "engines": [
+    "chromium",
+    "webkit"
+  ],
+  "oldReproduction": [
+    {
+      "id": "rock",
+      "result": false
+    },
+    {
+      "id": "ice",
+      "result": false
+    },
+    {
+      "id": "calm",
+      "result": false
+    },
+    {
+      "id": "captain1",
+      "result": false
+    },
+    {
+      "id": "captain2",
+      "result": false
+    }
+  ],
+  "final": {
+    "version": "1.5.0",
+    "ready": true,
+    "playing": true,
+    "paused": false,
+    "camera": "ΓΕΦΥΡΑ",
+    "frames": 106,
+    "time": 2.199999999999997,
+    "hull": 100,
+    "intox": 0,
+    "panic": 5.7470000000000425,
+    "speed": 0.9679999999999989,
+    "rudder": 0.1322149142513088,
+    "throttle": 0.55,
+    "turn": 0,
+    "heading": -0.0014782443031055785,
+    "x": 0.3375470140378168,
+    "z": 1.0728662823386692,
+    "collisions": 0,
+    "danger": null,
+    "distance": 3798.9271487137353,
+    "people": {
+      "total": 24,
+      "onboard": 24,
+      "inWater": 0,
+      "rescued": 0,
+      "lost": 0,
+      "ready": true,
+      "modelCount": 2,
+      "inWaterPositions": []
+    },
+    "wheelAngle": 0.3489069387778096,
+    "look": {
+      "yaw": 0,
+      "pitch": 0
+    },
+    "controls": {
+      "turn": 0,
+      "steering": false,
+      "kind": null,
+      "lever": false,
+      "mode": 1,
+      "layout": {
+        "x": 368,
+        "y": 348.96,
+        "w": 48,
+        "h": 184
+      },
+      "anchor": {
+        "x": 185.16029635710174,
+        "y": 520.2480738523599,
+        "minX": 87.14597053982322,
+        "maxX": 282.65269847587916,
+        "minY": 425.42486104219614,
+        "maxY": 609.445846955056,
+        "points": [
+          {
+            "x": 91.72987021821395,
+            "y": 488.367717596223
+          },
+          {
+            "x": 102.86459648082723,
+            "y": 466.3858875640932
+          },
+          {
+            "x": 119.89101110098657,
+            "y": 447.8700909980836
+          },
+          {
+            "x": 141.67150014872726,
+            "y": 434.23332944250683
+          },
+          {
+            "x": 166.65884754608115,
+            "y": 426.5465584529365
+          },
+          {
+            "x": 193.0179559621868,
+            "y": 425.42486104219614
+          },
+          {
+            "x": 218.78817072058465,
+            "y": 430.95868405355833
+          },
+          {
+            "x": 242.06405484503097,
+            "y": 442.703520882158
+          },
+          {
+            "x": 261.16771749702593,
+            "y": 459.7301100421794
+          },
+          {
+            "x": 274.7880432588447,
+            "y": 480.72522970115546
+          },
+          {
+            "x": 282.0705209977416,
+            "y": 504.1243647165741
+          },
+          {
+            "x": 282.65269847587916,
+            "y": 528.2543333739181
+          },
+          {
+            "x": 276.6507886218166,
+            "y": 551.4664853269308
+          },
+          {
+            "x": 264.6098118776484,
+            "y": 572.247444559624
+          },
+          {
+            "x": 247.43190778704857,
+            "y": 589.3018961318439
+          },
+          {
+            "x": 226.29579182141657,
+            "y": 601.6083191804262
+          },
+          {
+            "x": 202.57635874985002,
+            "y": 608.4525953014753
+          },
+          {
+            "x": 177.76879676748362,
+            "y": 609.445846955056
+          },
+          {
+            "x": 153.4175143724689,
+            "y": 604.5321294928799
+          },
+          {
+            "x": 131.04740910614387,
+            "y": 593.9894182433901
+          },
+          {
+            "x": 112.09384211365483,
+            "y": 578.4244067331026
+          },
+          {
+            "x": 97.82822108197192,
+            "y": 558.7586034574833
+          },
+          {
+            "x": 89.27830064051065,
+            "y": 536.2007085307499
+          },
+          {
+            "x": 87.14597053982322,
+            "y": 512.1989529745335
+          }
+        ],
+        "radius": 97.75336396802797,
+        "visible": true
+      },
+      "usedWheel": true
+    },
+    "dialogue": {
+      "bubbles": 0,
+      "pending": 0,
+      "history": [
+        {
+          "id": "calm",
+          "time": 0,
+          "person": 0,
+          "clip": true,
+          "priority": 1
+        },
+        {
+          "id": "captain1",
+          "time": 0.9333333333333346,
+          "person": "captain",
+          "clip": true,
+          "priority": 0
+        },
+        {
+          "id": "ice",
+          "time": 1.0833333333333344,
+          "person": 4,
+          "clip": true,
+          "priority": 2
+        },
+        {
+          "id": "calm",
+          "time": 0,
+          "person": 8,
+          "clip": true,
+          "priority": 1
+        }
+      ]
+    },
+    "voices": {
+      "version": "1.5.0",
+      "engine": "MP3-WebAudio",
+      "contextState": "running",
+      "enabled": true,
+      "active": true,
+      "loading": false,
+      "dialogueLoaded": 0,
+      "preRenderedGreekLoaded": 18,
+      "effectsLoaded": 2,
+      "loaded": 20,
+      "expected": 20,
+      "failed": 0,
+      "errors": {},
+      "played": 5,
+      "speaking": null,
+      "lastClip": {
+        "id": "panic",
+        "kind": "bundled-synthetic-Greek"
+      },
+      "queued": [],
+      "volumes": {
+        "voices": 0.95,
+        "environment": 0.7,
+        "effects": 0.85
+      },
+      "signal": {
+        "voice": {
+          "rms": 0,
+          "peak": 0
+        },
+        "output": {
+          "rms": 0.035866598790542645,
+          "peak": 0.13680362701416016
+        }
+      },
+      "history": [
+        {
+          "type": "context",
+          "id": "running",
+          "detail": "",
+          "time": 3109
+        },
+        {
+          "type": "started",
+          "id": "calm",
+          "detail": "bundled-synthetic-Greek",
+          "time": 3138
+        },
+        {
+          "type": "stopped",
+          "id": "calm",
+          "detail": "",
+          "time": 3444
+        },
+        {
+          "type": "started",
+          "id": "captain1",
+          "detail": "bundled-synthetic-Greek",
+          "time": 12945
+        },
+        {
+          "type": "stopped",
+          "id": "captain1",
+          "detail": "",
+          "time": 13552
+        },
+        {
+          "type": "started",
+          "id": "ice",
+          "detail": "bundled-synthetic-Greek",
+          "time": 14097
+        },
+        {
+          "type": "stopped",
+          "id": "ice",
+          "detail": "",
+          "time": 16045
+        },
+        {
+          "type": "started",
+          "id": "calm",
+          "detail": "bundled-synthetic-Greek",
+          "time": 16053
+        },
+        {
+          "type": "ended",
+          "id": "calm",
+          "detail": "",
+          "time": 20516
+        },
+        {
+          "type": "started",
+          "id": "panic",
+          "detail": "bundled-synthetic-Greek",
+          "time": 34847
+        },
+        {
+          "type": "ended",
+          "id": "panic",
+          "detail": "",
+          "time": 39365
+        }
+      ]
+    },
+    "drawCalls": 118,
+    "triangles": 699254
+  },
+  "passed": true
+}
