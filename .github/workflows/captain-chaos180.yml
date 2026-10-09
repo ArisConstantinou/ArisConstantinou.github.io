@@ -2,7 +2,7 @@ name: Captain chaos chapter review
 on:
   push:
     branches: [captain-chaos-180]
-    paths: ['.github/workflows/captain-chaos180.yml','captain/*180*','captain/tools/*180*']
+    paths: ['.github/workflows/captain-chaos180.yml','captain/*180*','captain/tools/*180*','captain/tools/refine_chapter.py']
   workflow_dispatch:
 permissions:
   contents: write
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,8 +20,10 @@ jobs:
       - name: Build isolated chapter
         run: |
           python captain/tools/apply180.py
-          if [ -f captain/tools/polish180.py ]; then python captain/tools/polish180.py; fi
+          python captain/tools/polish180.py
+          python captain/tools/refine_chapter.py
           for f in captain/*180.js; do node --check "$f"; done
+          node --test captain/tests/chaos180.test.mjs
       - name: Install test browser
         run: |
           pip install -q playwright
@@ -29,7 +31,7 @@ jobs:
       - name: Test real controls and story
         run: |
           python -m http.server 8765 --bind 127.0.0.1 >/tmp/captain180-http.log 2>&1 &
-          python captain/tools/qa180.py
+          timeout 660 python captain/tools/qa180.py
       - name: Save validated chapter on staging branch only
         run: |
           mkdir -p captain/tests
