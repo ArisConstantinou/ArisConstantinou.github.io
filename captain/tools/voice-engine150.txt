@@ -1,0 +1,128 @@
+  // Spoken lines are always selected BEFORE nonverbal effects. Custom human
+  // recordings override the bundled synthetic Greek MP3s, never the reverse.
+  const IDS=Object.keys(VOICE_LINES), EFFECTS=['scream','hiccup'];
+  const bundled=new Map(),recordings=new Map(),effectBuffers=new Map(),raw=new Map(),failed=new Map();
+  const waiting=[],events=[];let voiceLoad=null,customLoading=null,currentVoice=null,voicePlayed=0;
+  let loadFinished=false,loadEpoch=0,pumpTimer=null,nextHuman=10,session=0,lastClip=null;
+  const volumes={voices:.95,environment:.7,effects:.85};
+  try{const saved=JSON.parse(localStorage.getItem('lc-audio-mix150')||'{}');for(const key of Object.keys(volumes))if(Number.isFinite(saved[key]))volumes[key]=clamp(saved[key],0,1);}catch{}
+  function note(type,id,detail=''){
+    events.push({type,id,detail,time:Math.round(performance.now())});if(events.length>40)events.shift();
+  }
+  function issue(id,error){const message=String(error?.message||error);failed.set(id,message);note('error',id,message);}
+  function deadline(promise,ms,label){return new Promise((resolve,reject)=>{const t=setTimeout(()=>reject(new Error(label)),ms);Promise.resolve(promise).then(v=>{clearTimeout(t);resolve(v);},e=>{clearTimeout(t);reject(e);});});}
+  function urlFor(id){return new URL(`./assets/${EFFECTS.includes(id)?'human140':'voices130'}/${id}.mp3?audio=150`,import.meta.url);}
+  function fetchClip(id,retry=false){
+    if(raw.has(id)&&!retry)return raw.get(id);
+    const promise=(async()=>{
+      for(let attempt=0;attempt<2;attempt++){
+        const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),8000);
+        try{const r=await fetch(urlFor(id),{signal:ctrl.signal,cache:attempt||retry?'reload':'default'});if(!r.ok)throw new Error(`HTTP ${r.status}: ${id}`);const bytes=await r.arrayBuffer();if(bytes.byteLength<200)throw new Error(`Empty audio: ${id}`);return bytes;}
+        catch(e){if(attempt===1)throw e;}finally{clearTimeout(timer);}
+      }
+    })();raw.set(id,promise);promise.catch(()=>{if(raw.get(id)===promise)raw.delete(id);});return promise;
+  }
+  function preload(){return Promise.allSettled([...IDS,...EFFECTS].map(id=>fetchClip(id)));}
+  async function decode(bytes,id){
+    const b=await deadline(context.decodeAudioData(bytes.slice(0)),8000,`Decode timeout: ${id}`);
+    if(!Number.isFinite(b.duration)||b.duration<=.01||b.duration>30)throw new Error(`Invalid duration: ${id}`);
+    const data=b.getChannelData(0);let peak=0;for(let i=0;i<data.length;i+=8)peak=Math.max(peak,Math.abs(data[i]));
+    if(!Number.isFinite(peak)||peak<.0001)throw new Error(`Silent recording: ${id}`);
+    return b;
+  }
+  function loadCustom(force=false){
+    if(customLoading&&!force)return customLoading;
+    const epoch=++loadEpoch;
+    customLoading=(async()=>{
+      try{
+        // A blocked/private IndexedDB must NEVER block the included MP3s.
+        const clips=await deadline(readVoices(),1800,'Local recordings storage unavailable');
+        const replacements=new Map();
+        await Promise.all(clips.filter(c=>IDS.includes(c.id)).map(async c=>{try{replacements.set(c.id,await decode(await c.blob.arrayBuffer(),c.id));}catch(e){issue('local:'+c.id,e);}}));
+        if(epoch===loadEpoch){recordings.clear();for(const [id,b] of replacements)recordings.set(id,b);}
+      }catch(e){note('optional-storage','local',String(e.message));}
+    })();return customLoading;
+  }
+  async function loadVoices(force=false){
+    if(!context)return false;if(voiceLoad&&!force)return voiceLoad;
+    loadFinished=false;loadCustom(force);
+    voiceLoad=Promise.allSettled([...IDS,...EFFECTS].map(async id=>{
+      const target=EFFECTS.includes(id)?effectBuffers:bundled;
+      if(target.has(id))return;
+      try{target.set(id,await decode(await fetchClip(id,force),id));failed.delete(id);pump();}
+      catch(e){issue(id,e);}
+    })).then(()=>{loadFinished=true;pump();return bundled.size===IDS.length;});
+    return voiceLoad;
+  }
+  function getClip(id){return recordings.has(id)?{buffer:recordings.get(id),kind:'human-recording'}:bundled.has(id)?{buffer:bundled.get(id),kind:'bundled-synthetic-Greek'}:null;}
+  function endVoice(reason='stopped'){
+    const old=currentVoice;currentVoice=null;
+    if(old){note(reason,old.id);try{old.source.stop();}catch{}old.cleanup();}
+  }
+  function stopVoice(){waiting.length=0;clearTimeout(pumpTimer);pumpTimer=null;endVoice();}
+  function schedulePump(){if(!pumpTimer&&waiting.length)pumpTimer=setTimeout(()=>{pumpTimer=null;pump();},120);}
+  function playEntry(entry){
+    const clip=getClip(entry.id);if(!clip||!canPlay())return false;
+    try{
+      const source=context.createBufferSource(),gain=context.createGain();source.buffer=clip.buffer;
+      // No pitch/rate changes: do not damage pronunciation or call this acting.
+      gain.gain.value=1;
+      const spatial=context.createStereoPanner?context.createStereoPanner():null;
+      if(spatial){spatial.pan.value=clamp(numeric(entry.pan,0),-.6,.6);source.connect(spatial);spatial.connect(gain);}else source.connect(gain);
+      gain.connect(voiceBus);
+      const record={...entry,source,kind:clip.kind,cleanup:()=>{source.disconnect();spatial?.disconnect();gain.disconnect();liveEffects.delete(source);}};
+      source.onended=()=>{record.cleanup();if(currentVoice===record){currentVoice=null;note('ended',entry.id);pump();}};
+      source.start();currentVoice=record;liveEffects.add(source);voicePlayed++;lastClip={id:entry.id,kind:clip.kind};note('started',entry.id,clip.kind);
+      return clip.buffer.duration;
+    }catch(e){issue(entry.id,e);return false;}
+  }
+  function pump(){
+    if(!enabled||!active){waiting.length=0;return;}
+    for(let i=waiting.length-1;i>=0;i--)if(waiting[i].expires<Date.now()){note('expired',waiting[i].id);waiting.splice(i,1);}
+    if(currentVoice||!canPlay()){schedulePump();return;}
+    waiting.sort((a,b)=>b.priority-a.priority||a.order-b.order);
+    const i=waiting.findIndex(e=>getClip(e.id));
+    if(i>=0)playEntry(waiting.splice(i,1)[0]);
+    schedulePump();
+  }
+  function voice(id,{priority=1,pan=0}={}){
+    if(!IDS.includes(id)||!enabled||!active)return false;
+    if(currentVoice?.id===id||waiting.some(e=>e.id===id))return false;
+    const entry={id,priority:numeric(priority,1),pan:numeric(pan,0),order:performance.now(),expires:Date.now()+12000};
+    if(currentVoice&&entry.priority>currentVoice.priority&&entry.priority>=3)endVoice('interrupted');
+    const clip=getClip(id);
+    if(!currentVoice&&clip&&canPlay())return playEntry(entry);
+    if(waiting.length>=4){const low=waiting.findIndex(e=>e.priority<entry.priority);if(low<0)return false;waiting.splice(low,1);}
+    waiting.push(entry);note('queued',id);if(!voiceLoad)loadVoices();schedulePump();
+    return clip?.buffer.duration||3.5;
+  }
+  function speak(text,urgent=false){
+    // Legacy end-of-voyage callers map to files; no browser TTS dependency.
+    const found=IDS.find(id=>VOICE_LINES[id][0]===text);
+    return voice(found||(/Φτάσαμε|ασφαλές/.test(text)?'safe':'water'),{priority:urgent?3:1});
+  }
+  function vocalEffect(id){
+    if(!canPlay()||currentVoice||waiting.length||!effectBuffers.has(id))return false;
+    try{const source=context.createBufferSource(),g=context.createGain();source.buffer=effectBuffers.get(id);g.gain.value=.52;source.connect(g);g.connect(effectsBus);source.start();liveEffects.add(source);note('effect',id);source.onended=()=>{liveEffects.delete(source);source.disconnect();g.disconnect();};return source.buffer.duration;}catch(e){issue(id,e);return false;}
+  }
+  function levels(analyser){
+    if(!analyser)return {rms:0,peak:0};const data=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(data);let sum=0,peak=0;for(const x of data){sum+=x*x;peak=Math.max(peak,Math.abs(x));}return {rms:Math.sqrt(sum/data.length),peak};
+  }
+  function setVolume(key,value){
+    if(!Object.hasOwn(volumes,key))return;volumes[key]=clamp(numeric(value,.7),0,1);
+    try{localStorage.setItem('lc-audio-mix150',JSON.stringify(volumes));}catch{}
+    if(context){ramp(voiceBus.gain,volumes.voices,.03);ramp(effectsBus.gain,volumes.effects,.03);ramp(ambientBus.gain,volumes.environment,.1);}
+  }
+  function recover(){
+    if(!enabled||!active||!context||context.state==='running')return;
+    try{context.resume().then(()=>{note('resumed','context');pump();}).catch(e=>issue('resume',e));}catch(e){issue('resume',e);}
+  }
+  const voiceStatus=()=>({version:'1.5.0',engine:'MP3-WebAudio',contextState:context?.state||'not-started',enabled,active,
+    loading:!!voiceLoad&&!loadFinished,dialogueLoaded:recordings.size,preRenderedGreekLoaded:bundled.size,effectsLoaded:effectBuffers.size,
+    loaded:bundled.size+effectBuffers.size,expected:20,failed:failed.size,errors:Object.fromEntries(failed),played:voicePlayed,
+    speaking:currentVoice?.id||null,lastClip,queued:waiting.map(e=>e.id),volumes:{...volumes},signal:{voice:levels(voiceMeter),output:levels(outputMeter)},history:events.slice(-16)});
+  if(typeof window!=='undefined'){
+    window.addEventListener('pointerup',recover,{passive:true});window.addEventListener('keydown',recover,{passive:true});
+    window.addEventListener('focus',()=>{recover();if(context)loadCustom(true);});
+    try{const c=new BroadcastChannel('last-call-voices');c.onmessage=()=>{if(context)loadCustom(true);};}catch{}
+  }
