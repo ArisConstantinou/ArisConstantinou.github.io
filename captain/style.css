@@ -69,3 +69,5 @@ html,body,#game,#hud,#hud *{-webkit-user-select:none!important;user-select:none!
 #walkMode.walking #walkHint{display:block;position:absolute;bottom:33px;left:20%;right:20%;text-align:center;font-size:11px;color:#e8f8ff;text-shadow:0 2px 8px black}
 #hud:has(#walkMode.walking) .controls-bottom,#hud:has(#walkMode.walking) #helm140,#hud:has(#walkMode.walking) .right-instruments,#hud:has(#walkMode.walking) .collision-warning{display:none!important}
 @media(max-width:700px){#walkMode .walk-top{top:69px}#walkToggle{padding:9px 12px;font-size:10px}#walkMode.walking #walkPad{bottom:85px;left:18px}#walkMode.walking #walkInteract{right:15px;bottom:117px}}
+
+#walkDrink{display:none}#walkMode.walking #walkDrink{display:block;position:absolute;right:24px;bottom:188px;padding:13px 20px;border-radius:24px;background:#724626ed;border-color:#e8bb8e;font-size:12px}@media(max-width:700px){#walkMode.walking #walkDrink{right:15px;bottom:190px}}
