@@ -1,5 +1,6 @@
 {
-  "version": "1.5.0",
-  "controls": "Unchanged direct-wheel 1.4 controls",
-  "audio": "Bundled Greek MP3 speech before human nonverbal effects; custom human overrides; independent loading; measured signal diagnostics. Included Greek speech is synthetic."
+  "version": "1.7.1",
+  "chapter": "UTTER CHAOS: helm, deck combat, security, cell",
+  "controls": "Desktop WASD key guide with held-key feedback; touch joystick on mobile",
+  "scope": "Existing captain/ game only. Stealth escape not included."
 }
