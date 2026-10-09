@@ -5,15 +5,17 @@ export function createWalkMode({ship,camera,hud,getPeople,getState,onMessage,onD
  const root=document.createElement('div');root.id='walkMode';root.innerHTML='<div class="walk-top"><button id="walkToggle">🚶 ΒΓΕΣ ΣΤΟ ΚΑΤΑΣΤΡΩΜΑ</button><span id="walkStatus"></span></div><div id="walkPad"><div id="walkStick"></div></div><button id="walkInteract">ΜΙΛΑ</button><div id="walkHint"></div>';
  hud.append(root);
  const toggle=root.querySelector('#walkToggle'),pad=root.querySelector('#walkPad'),stick=root.querySelector('#walkStick'),interact=root.querySelector('#walkInteract'),hint=root.querySelector('#walkHint'),status=root.querySelector('#walkStatus');
- let active=false,avatar=null,joystick={x:0,y:0},pointer=null,near=null,cooldown=0,steps=0;
+ let active=false,avatar=null,mixer=null,actions={},motion='',joystick={x:0,y:0},pointer=null,near=null,cooldown=0,steps=0;
  const p=new THREE.Vector3(-10.45,zone.y,-27),v=new THREE.Vector3(),cameraPos=new THREE.Vector3(),target=new THREE.Vector3();
  const phrases=['Καπετάνιε, όλα καλά στη γέφυρα;','Είναι ασφαλές να ταξιδεύουμε έτσι;','Πού είναι το εστιατόριο;','Τι όμορφη θέα!','Καπετάνιε, προσέχετε τα κύματα!','Νομίζω ότι το πλοίο γέρνει!'];
  function makeAvatar(){
   const speaker=getPeople()?.getSpeakers().find(s=>s.status==='onboard');
   if(!speaker)return;
-  avatar=cloneSkeleton(speaker.group);avatar.name='Playable captain';
+  avatar=new THREE.Group();const model=cloneSkeleton(speaker.model);avatar.add(model);avatar.name='Playable captain';
+  mixer=new THREE.AnimationMixer(model);actions={};for(const name of ['idle','walk'])if(speaker.clips?.[name])actions[name]=mixer.clipAction(speaker.clips[name]);
   avatar.traverse(o=>{if(o.isMesh){o.castShadow=true;o.frustumCulled=false;}});
-  avatar.position.copy(p);avatar.rotation.y=0;ship.group.add(avatar);
+  const desired=v.lengthSq()>.02?'walk':'idle';if(desired!==motion&&actions[desired]){actions[motion]?.fadeOut(.18);actions[desired].reset().fadeIn(.18).play();motion=desired;}mixer?.update(dt);
+  avatar.position.copy(p);avatar.rotation.y=0;ship.group.add(avatar);if(actions.idle){actions.idle.play();motion='idle';}
  }
  function enter(){
   if(!avatar)makeAvatar();
