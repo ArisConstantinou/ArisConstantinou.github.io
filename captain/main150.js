@@ -379,7 +379,7 @@ async function init(){
     fx=makePost();renderTarget=fx.rt;resize();audio=createAudio();audio.setEnabled(soundEnabled);setupControls();
     helm=createHelm({hud:$('hud'),setThrottle,getState:()=>({throttle:input.throttle,speed:state.speed,rudder:state.rudder}),canControl:()=>playing&&!paused,recenter:()=>{targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;updateCamera(1,true);}});
     dialogue=createDialogue({hud:$('hud'),audio,camera,ship,getPeople:()=>people,getView:()=>cameraMode});
-    walk=createWalkMode({ship,camera,hud:$('hud'),getPeople:()=>people,getState:()=>state,onMessage:toast,onDialogue:(id,line)=>radioMessage('Επιβάτης '+(id+1)+': '+line)});
+    walk=createWalkMode({ship,camera,hud:$('hud'),getPeople:()=>people,getState:()=>state,onMessage:toast,onDialogue:(id,line)=>radioMessage('Επιβάτης '+(id+1)+': '+line),onDrink:()=>action('drink')});
     installSoundPanel({audio,enable:()=>{soundEnabled=true;saveStore('lc-sound',true);audio.setEnabled(true);updateSettings();}});audio.preload();$('releaseBadge').textContent='v1.6.0';
     $('loadProgress').firstElementChild.style.width='60%';$('loadStatus').textContent='Φόρτωση ανθρώπινων μοντέλων και κινήσεων…';
     updateCamera(1,true);requestAnimationFrame(frame);
