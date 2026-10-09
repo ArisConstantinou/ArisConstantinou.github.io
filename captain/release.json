@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0",
-  "controls": "Direct rendered wheel grip; independent engine lever; no floating arrows",
-  "audio": "No machine speech. Human nonverbal recordings plus optional local recordings. Human Greek spoken lines are not bundled."
+  "version": "1.5.0",
+  "controls": "Unchanged direct-wheel 1.4 controls",
+  "audio": "Bundled Greek MP3 speech before human nonverbal effects; custom human overrides; independent loading; measured signal diagnostics. Included Greek speech is synthetic."
 }
