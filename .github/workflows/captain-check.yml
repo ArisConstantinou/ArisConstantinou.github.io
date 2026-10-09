@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['captain/tools/refit130.py']
+    paths: ['captain/tools/refit130.py', 'captain/tools/polish130.py', '.github/workflows/captain-check.yml']
 permissions:
   contents: write
 jobs:
@@ -17,6 +17,7 @@ jobs:
       - name: Apply reviewed refit
         run: |
           python captain/tools/refit130.py
+          python captain/tools/polish130.py
           for f in captain/*.js; do node --check "$f"; done
       - name: Prepare browser
         run: |
@@ -41,7 +42,7 @@ jobs:
           git config user.name 'Captain verified build'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add captain/audio.js captain/dialogue130.css captain/dialogue130.js captain/helm130.css captain/helm130.js captain/index.html captain/main.js captain/passengers.js captain/release.json captain/ship.js captain/simulation.js captain/style.css captain/sw.js captain/tools/qa130.py captain/tests/verified130.json
-          git commit -m 'Captain 1.3.0: tested wheel touch controls, compact views, predictive warnings and recorded synthetic dialogue'
+          git commit -m 'Captain 1.3.0: tested wheel touch controls, compact views, predictive warnings and original synthetic voice clips'
           git rebase origin/main
           git push origin HEAD:main
           git rev-parse HEAD > /tmp/captain-qa/verified-commit.txt
