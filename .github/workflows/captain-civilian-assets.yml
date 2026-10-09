@@ -1,0 +1,24 @@
+name: Captain civilian source assets
+on:
+  push:
+    branches: [captain-identity-172]
+    paths: ['.github/workflows/captain-civilian-assets.yml']
+permissions:
+  contents: read
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch human model data and CC0 license
+        run: |
+          mkdir -p /tmp/captain-civilian
+          curl --fail --location --retry 2 'https://raw.githubusercontent.com/NafisRayan/Animate-Rigged-Humanoid-No-Blender/main/test/human_male.glb' --output /tmp/captain-civilian/human_male.glb
+          curl --fail --location --retry 2 'https://raw.githubusercontent.com/NafisRayan/Animate-Rigged-Humanoid-No-Blender/main/test/human_female.glb' --output /tmp/captain-civilian/human_female.glb
+          curl --fail --location --retry 2 'https://raw.githubusercontent.com/NafisRayan/Animate-Rigged-Humanoid-No-Blender/main/Universal%20Base%20Characters%5BStandard%5D/Universal%20Base%20Characters%5BStandard%5D/License_Standard.txt' --output /tmp/captain-civilian/License_Standard.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: captain-civilian-sources
+          path: /tmp/captain-civilian
+          retention-days: 7
