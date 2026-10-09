@@ -1,0 +1,59 @@
+/* LAST CALL 1.4.0: independent compact controls, no bottom panel. */
+html,body,#game,#hud,#hud *{-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important}
+#hud .controls-bottom,#hud .bridge-controls{display:none!important}
+#helm140{position:absolute;inset:0;pointer-events:none;z-index:6}
+#helm140 button,#helm140 [role=slider]{pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent}
+#helmPad{position:absolute;left:max(16px,env(safe-area-inset-left));bottom:calc(72px + env(safe-area-inset-bottom));width:112px;height:62px;border-radius:32px;background:#061a2680;border:1px solid #afd9df66;backdrop-filter:blur(3px)}
+#helmPad .pad-rail{position:absolute;left:18px;right:18px;top:26px;height:2px;background:#b0d6d577}
+#helmPad .pad-rail:before,#helmPad .pad-rail:after{content:'';position:absolute;width:6px;height:6px;top:-3px;border:solid #a6d6d9;border-width:0 0 2px 2px;transform:rotate(45deg)}
+#helmPad .pad-rail:after{right:0;transform:rotate(225deg)}
+#helmThumb{position:absolute;left:39px;top:11px;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#ebf7ef,#6b929d);border:2px solid #b0d6d5;box-shadow:0 3px 8px #0006}
+#helmPad small{position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:7px;letter-spacing:1.4px;color:#c5dddd}
+#helm140[data-view=bridge].wheel-visible #helmPad{display:none}
+#leverShell{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:calc(82px + env(safe-area-inset-bottom));width:52px;height:174px;border-radius:24px;background:#071c268a;box-shadow:0 3px 12px #0004;border:1px solid #b6d1d342;backdrop-filter:blur(4px)}
+#helm140[data-view=bridge] #leverShell{bottom:27%}
+#engineLever{position:absolute;top:30px;left:5px;width:42px;height:112px;cursor:ns-resize}
+.lever-track{position:absolute;left:18px;top:0;bottom:0;width:6px;border-radius:4px;background:linear-gradient(#6bb69b 0 46%,#e5dfc1 46% 54%,#c5866c 54%);box-shadow:inset 0 0 3px #0009}
+.lever-zero{position:absolute;top:50%;height:1px;background:#ebd69a;left:4px;right:4px}
+#leverGrip{position:absolute;top:22.5%;left:6px;width:30px;height:22px;transform:translateY(-50%);border-radius:6px;border:1px solid #f7df9f;background:linear-gradient(#f8e4b1,#b18d56);box-shadow:0 2px 7px #0009;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px}
+#leverGrip i{height:1px;width:16px;background:#57482c70}
+#engineLever.held #leverGrip{border-color:white;box-shadow:0 0 15px #f8d18777}
+.lever-ahead,.lever-astern{position:absolute;left:0;right:0;text-align:center;font-size:7px;letter-spacing:.45px;font-weight:700;color:#d0e8dc}
+.lever-ahead{top:8px}.lever-astern{bottom:16px;color:#edd3c4}
+#helm140 #leverNeutral{position:absolute;left:-33px;top:calc(50% - 16px);width:36px;height:36px;border-radius:50%;border:1px solid #c0d2d366;background:#0a2435a6;color:#e9dcc2;font-size:11px;box-shadow:0 3px 8px #0004}
+#helm140 #leverNeutral.selected{border-color:#f1dba2;background:#795f35d9}
+#leverPower{position:absolute;bottom:1px;left:0;right:0;text-align:center;font-size:8px;color:#fff;font-variant-numeric:tabular-nums}
+#helmActions{position:absolute;bottom:max(9px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;gap:7px;pointer-events:none}
+#helm140 #helmActions .action{width:44px;min-width:44px;height:46px;min-height:0;flex:none;border-radius:14px;background:#092534b3!important;border:1px solid #bddbdb55;gap:2px;padding:3px;box-shadow:0 3px 12px #0003;backdrop-filter:blur(4px)}
+#helm140 #helmActions .action.drink{background:#714c2bab!important;border-color:#ffd49470}
+#helm140 #helmActions .action-symbol{font-size:19px;line-height:21px}
+#helm140 #helmActions .action b{font-size:7px;letter-spacing:0}
+#helm140 #helmActions .action small{display:none}
+#helm140 .helm-status{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);font-size:8px;text-shadow:0 2px 7px #000;display:flex;align-items:baseline;gap:5px;padding:4px 9px;background:#061b287a;border-radius:10px;white-space:nowrap;color:#d7ebea}
+#helmSpeed{font-size:25px;font-weight:500;font-variant-numeric:tabular-nums}
+#helmDirection{font-size:6px;letter-spacing:.4px;color:#ffd7a0}
+#helmRudder{font-size:9px;color:#abd6d6}
+#helm140 #recenterHelm{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));left:max(16px,env(safe-area-inset-left));width:40px;height:40px;background:#0a253699;border:1px solid #d1dddd44;border-radius:50%;font-size:23px;color:#d3e7e5}
+#releaseBadge{position:absolute;bottom:calc(15px + env(safe-area-inset-bottom));right:max(16px,env(safe-area-inset-right));font-size:8px;color:#cae1e0aa;letter-spacing:.5px}
+#hud .radio-message{bottom:31%;max-width:min(340px,70vw);opacity:0;transition:opacity .4s;pointer-events:none}
+#hud .look-hint{display:none}
+#hud .collision-warning{top:34%;max-width:72%;padding:7px 10px}
+#hud .toast{top:66px;font-size:10px}
+@media(orientation:portrait){#hud .left-instruments{top:76px;left:14px;width:155px}#hud .voyage>b{font-size:23px}#hud .voyage #mission{display:none}#hud .condition-panel{padding:6px 9px 1px 0;margin-top:8px}#hud .condition{margin-bottom:7px;width:115px;font-size:6px;gap:4px}#hud .passenger-readout{padding-top:2px}#hud .right-instruments{top:75px;right:11px}#hud .weather-tag{display:none}#hud .radar-wrap{width:95px;height:108px}#hud #radar{width:95px;height:95px}#hud .game-brand b{font-size:15px}#hud .icon-button{height:34px;min-width:34px}#hud .collision-warning{top:34%;width:max-content;max-width:78%}}
+@media(orientation:landscape) and (max-height:600px){#leverShell{height:142px;bottom:calc(60px + env(safe-area-inset-bottom))}#helm140[data-view=bridge] #leverShell{bottom:65px}#engineLever{top:25px;height:84px}#helmPad{bottom:65px}#helm140 .helm-status{bottom:61px}#hud .condition-panel{margin-top:3px}#hud .condition{margin-bottom:5px}#hud .radio-message{bottom:auto;top:30%;width:280px;max-width:40vw}#hud .collision-warning{top:18%;max-width:43%}}
+@media(prefers-reduced-motion:reduce){#helm140 *{transition:none!important}}
+#wheelHint{position:absolute;transform:translateX(-50%);font-size:8px;letter-spacing:.55px;text-shadow:0 2px 5px #000;color:#e9d4a3;pointer-events:none;white-space:nowrap}
+#wheelTouchDot{display:none;position:absolute;transform:translate(-50%,-50%);width:18px;height:18px;border:2px solid #ffdda5;border-radius:50%;background:#ffcc7822;box-shadow:0 0 12px #f5c26888;pointer-events:none}
+#helm140.gripping #wheelTouchDot{display:block}
+#helm140 #leverShell{width:48px;right:auto!important;bottom:auto!important;border-radius:20px;background:#081e2877;backdrop-filter:none;box-shadow:0 2px 9px #0004;pointer-events:none}
+#helm140 #engineLever{left:1px;top:23px;width:44px;height:calc(100% - 82px)}
+#helm140 .lever-track{left:19px;width:5px}
+#helm140 #leverGrip{left:7px}
+#helm140 .lever-ahead{top:7px;font-size:6px}
+#helm140 .lever-astern{bottom:46px;font-size:6px}
+#helm140 .lever-foot{position:absolute;bottom:1px;height:42px;left:1px;right:1px;display:flex;flex-direction:column;align-items:center}
+#helm140 #leverNeutral{position:static!important;left:auto;top:auto;min-width:44px;width:44px;height:30px;min-height:30px;border-radius:12px;font-size:10px;box-shadow:none}
+#helm140 #leverPower{font-size:7px;position:static;line-height:10px}
+#helm140 #helmActions .action{width:46px;min-width:46px;height:46px}
+#hud.in-bridge .radio-message{top:39%;bottom:auto;max-width:66vw;background:#081c27b3;padding:8px 10px;font-size:9px}
+#hud .person-bubble{max-width:230px}

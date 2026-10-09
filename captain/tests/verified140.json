@@ -1,0 +1,820 @@
+{
+  "version": "1.4.0",
+  "url": "http://127.0.0.1:8765/captain/",
+  "checks": [
+    {
+      "name": "Version 1.4 and actual 3D geometry render",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Floating bridge arrows removed",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Half-screen panel stays removed",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Wheel touch hits canvas rather than UI overlay",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Rendered wheel touch captures steering",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Clockwise drag steers starboard",
+      "pass": true,
+      "detail": 0.8604964775725654
+    },
+    {
+      "name": "Visible wheel rotation follows finger demand",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Hold keeps helm demand",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Wheel drag does not drag camera",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Independent wheel and engine fingers",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Physical midpoint is neutral",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Drag down commands reverse",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Releasing lever retains wheel and power",
+      "pass": true,
+      "detail": {
+        "turn": 0.8604964775725654,
+        "steering": true,
+        "kind": "wheel",
+        "lever": false,
+        "mode": 1,
+        "layout": {
+          "x": 368,
+          "y": 348.96,
+          "w": 48,
+          "h": 184
+        },
+        "anchor": {
+          "x": 185.1602963571018,
+          "y": 520.2480738523611,
+          "minX": 87.80575656202356,
+          "maxX": 283.02579020550985,
+          "minY": 425.4103993000615,
+          "maxY": 609.4586435780706,
+          "points": [
+            {
+              "x": 249.12335120596376,
+              "y": 447.9765674011842
+            },
+            {
+              "x": 266.4825017469137,
+              "y": 466.5198835661303
+            },
+            {
+              "x": 278.01265116852386,
+              "y": 488.5191791191901
+            },
+            {
+              "x": 283.02579020550985,
+              "y": 512.3569684522116
+            },
+            {
+              "x": 281.3263653341003,
+              "y": 536.3543997600374
+            },
+            {
+              "x": 273.18384830179593,
+              "y": 558.8978781278105
+            },
+            {
+              "x": 259.2738035609781,
+              "y": 578.5405291655353
+            },
+            {
+              "x": 240.60189018553342,
+              "y": 594.0753990258245
+            },
+            {
+              "x": 218.42259072707853,
+              "y": 604.5829638574553
+            },
+            {
+              "x": 194.16008782235556,
+              "y": 609.4586435780706
+            },
+            {
+              "x": 169.33415648957424,
+              "y": 608.4266342251228
+            },
+            {
+              "x": 145.49026103750583,
+              "y": 601.5450643183445
+            },
+            {
+              "x": 124.13079959861403,
+              "y": 589.2049690337301
+            },
+            {
+              "x": 106.64385171178812,
+              "y": 572.1225460002871
+            },
+            {
+              "x": 94.22690251031227,
+              "y": 551.3212338918067
+            },
+            {
+              "x": 87.80575656202356,
+              "y": 528.0979799274877
+            },
+            {
+              "x": 87.95290896203892,
+              "y": 503.96734325087243
+            },
+            {
+              "x": 94.81430725017934,
+              "y": 480.5785227048625
+            },
+            {
+              "x": 108.05748318812486,
+              "y": 459.60444139264104
+            },
+            {
+              "x": 126.85579711445554,
+              "y": 442.6084367599753
+            },
+            {
+              "x": 149.9214089209353,
+              "y": 430.9016306162177
+            },
+            {
+              "x": 175.59282810031848,
+              "y": 425.4103993000615
+            },
+            {
+              "x": 201.97242869973894,
+              "y": 426.57585566276504
+            },
+            {
+              "x": 227.09793032760288,
+              "y": 434.3040256154891
+            }
+          ],
+          "radius": 97.61001682174314,
+          "visible": true
+        },
+        "usedWheel": true
+      }
+    },
+    {
+      "name": "Releasing wheel clears command",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "N returns power to zero",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Angle wrap avoids rudder snap",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Counterclockwise drag steers port",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Cancelled touch cannot stick rudder",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 430x744, look 0",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 185.99551589506643,
+          "y": 507.54467408856425,
+          "minX": 91.46708139678158,
+          "maxX": 280.1253651176078,
+          "minY": 415.79755115948285,
+          "maxY": 593.8392190063097,
+          "visible": true
+        },
+        "lever": {
+          "x": 368,
+          "y": 348.953125,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 430x744, look 0",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 430x744, look -0.4",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": -24.189582261203455,
+          "y": 518.7777693413582,
+          "minX": -151.92061735832638,
+          "maxX": 83.91707086907671,
+          "minY": 416.4778772253196,
+          "maxY": 616.7594013113624,
+          "visible": false
+        },
+        "lever": {
+          "x": 368,
+          "y": 348.953125,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 430x744, look -0.4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 430x744, look 0.4",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 383.82282569173896,
+          "y": 519.6640669316042,
+          "minX": 286.19567840131964,
+          "maxX": 498.9220691238265,
+          "minY": 421.7549385578009,
+          "maxY": 613.8040999150977,
+          "visible": true
+        },
+        "lever": {
+          "x": 368,
+          "y": 215.75,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 430x744, look 0.4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 430x744, look -0.7",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": -247.55925253260654,
+          "y": 561.2561262024537,
+          "minX": -464.9781713009223,
+          "maxX": -93.97783219104336,
+          "minY": 434.3771908088297,
+          "maxY": 692.4077218704685,
+          "visible": false
+        },
+        "lever": {
+          "x": 368,
+          "y": 348.953125,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 430x744, look -0.7",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 430x744, look 0.7",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 570.0392788328556,
+          "y": 546.6930058225628,
+          "minX": 444.3307109717212,
+          "maxX": 741.4221395158389,
+          "minY": 432.26468556384157,
+          "maxY": 664.0642712442493,
+          "visible": false
+        },
+        "lever": {
+          "x": 368,
+          "y": 348.953125,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 430x744, look 0.7",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 375x650, look 0",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 158.44611349409553,
+          "y": 462.89370420410387,
+          "minX": 72.70628282931052,
+          "maxX": 243.88706993566336,
+          "minY": 380.0023380928837,
+          "maxY": 540.8677468573911,
+          "visible": true
+        },
+        "lever": {
+          "x": 313,
+          "y": 293.5,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 375x650, look 0",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 375x650, look -0.4",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": -32.183029975052676,
+          "y": 490.1602111912028,
+          "minX": -149.45956146201965,
+          "maxX": 66.72166349943399,
+          "minY": 397.0341653346576,
+          "maxY": 581.318782785627,
+          "visible": false
+        },
+        "lever": {
+          "x": 313,
+          "y": 293.5,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 375x650, look -0.4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 375x650, look 0.4",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 340.9418520288884,
+          "y": 462.99701533270127,
+          "minX": 252.63827481068168,
+          "maxX": 444.7779731526433,
+          "minY": 375.1493010048717,
+          "maxY": 546.3740711881395,
+          "visible": true
+        },
+        "lever": {
+          "x": 313,
+          "y": 169.140625,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 375x650, look 0.4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 375x650, look -0.7",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": -233.335311930461,
+          "y": 538.5054897854869,
+          "minX": -432.73109348497485,
+          "maxX": -93.24520833560209,
+          "minY": 420.1292943019863,
+          "maxY": 663.9992886974694,
+          "visible": false
+        },
+        "lever": {
+          "x": 313,
+          "y": 293.5,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 375x650, look -0.7",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 375x650, look 0.7",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 515.1720171247479,
+          "y": 481.0127334773705,
+          "minX": 401.02711089438907,
+          "maxX": 670.9938168422426,
+          "minY": 377.1357090913469,
+          "maxY": 585.7229130212673,
+          "visible": false
+        },
+        "lever": {
+          "x": 313,
+          "y": 293.5,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 375x650, look 0.7",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 932x430, look 0",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 443.3431540712743,
+          "y": 255.6910461456875,
+          "minX": 370.5552565146596,
+          "maxX": 516.4949045948869,
+          "minY": 182.32838173789597,
+          "maxY": 323.6577285008613,
+          "visible": true
+        },
+        "lever": {
+          "x": 870,
+          "y": 163.6875,
+          "width": 48,
+          "height": 158
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 932x430, look 0",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 932x430, look -0.4",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 312.48674016872945,
+          "y": 262.34098842742077,
+          "minX": 210.34824525160505,
+          "maxX": 395.33661608278055,
+          "minY": 179.95838740728593,
+          "maxY": 339.729921917899,
+          "visible": true
+        },
+        "lever": {
+          "x": 870,
+          "y": 163.6875,
+          "width": 48,
+          "height": 158
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 932x430, look -0.4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 932x430, look 0.4",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 567.9733564807383,
+          "y": 259.2722597476341,
+          "minX": 494.6109734262327,
+          "maxX": 658.0405368305292,
+          "minY": 182.4813741489222,
+          "maxY": 331.9416508881042,
+          "visible": true
+        },
+        "lever": {
+          "x": 870,
+          "y": 163.6875,
+          "width": 48,
+          "height": 158
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 932x430, look 0.4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 932x430, look -0.7",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 175.35989783865864,
+          "y": 276.03795595849516,
+          "minX": -4.40136945718856,
+          "maxX": 290.3862818447231,
+          "minY": 173.86496163938313,
+          "maxY": 376.2843206696642,
+          "visible": true
+        },
+        "lever": {
+          "x": 870,
+          "y": 163.6875,
+          "width": 48,
+          "height": 158
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 932x430, look -0.7",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 932x430, look 0.7",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 683.3533906147921,
+          "y": 273.2631892489411,
+          "minX": 590.6218737935264,
+          "maxX": 819.6638806383888,
+          "minY": 182.95789315600953,
+          "maxY": 361.92058174223905,
+          "visible": true
+        },
+        "lever": {
+          "x": 870,
+          "y": 163.6875,
+          "width": 48,
+          "height": 158
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 932x430, look 0.7",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 1280x800, look 0",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 600.3710666246128,
+          "y": 569.8059340893216,
+          "minX": 468.502381585597,
+          "maxX": 731.4125175422196,
+          "minY": 441.6981146042332,
+          "maxY": 688.5482608872883,
+          "visible": true
+        },
+        "lever": {
+          "x": 1218,
+          "y": 382,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 1280x800, look 0",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 1280x800, look -0.4",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 361.85203851355925,
+          "y": 586.4293914620168,
+          "minX": 178.32147516982934,
+          "maxX": 510.3771592133901,
+          "minY": 443.88261544964405,
+          "maxY": 722.3408607142396,
+          "visible": true
+        },
+        "lever": {
+          "x": 1218,
+          "y": 382,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 1280x800, look -0.4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 1280x800, look 0.4",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 816.3403945990981,
+          "y": 574.1964743971291,
+          "minX": 685.4081598833804,
+          "maxX": 975.6189836990187,
+          "minY": 440.3844078952664,
+          "maxY": 702.5423992665674,
+          "visible": true
+        },
+        "lever": {
+          "x": 1218,
+          "y": 382,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 1280x800, look 0.4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 1280x800, look -0.7",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 109.50206789340967,
+          "y": 629.7929092777528,
+          "minX": -215.81157950972042,
+          "maxX": 318.7405274648788,
+          "minY": 451.9163555782912,
+          "maxY": 816.7419441800529,
+          "visible": true
+        },
+        "lever": {
+          "x": 1218,
+          "y": 382,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 1280x800, look -0.7",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lever clears wheel 1280x800, look 0.7",
+      "pass": true,
+      "detail": {
+        "wheel": {
+          "x": 1011.9977052751709,
+          "y": 593.8640984178973,
+          "minX": 851.55800005322,
+          "maxX": 1245.7129037911973,
+          "minY": 440.4176193143087,
+          "maxY": 752.4236742835687,
+          "visible": true
+        },
+        "lever": {
+          "x": 1218,
+          "y": 234.40625,
+          "width": 48,
+          "height": 184
+        }
+      }
+    },
+    {
+      "name": "Neutral stays inside shell 1280x800, look 0.7",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "External view uses compact pad",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "External pad still works",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Changing camera releases wheel",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Actions remain accessible",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No machine voice assets requested",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Two actual human vocal assets decoded",
+      "pass": true,
+      "detail": {
+        "engine": "human-recordings-only",
+        "dialogueLoaded": 0,
+        "effectsLoaded": 2,
+        "loaded": 2,
+        "failed": 0,
+        "played": 0,
+        "active": false,
+        "lastKind": null,
+        "missingGreekDialogue": true
+      }
+    },
+    {
+      "name": "Human vocal recording plays",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Missing spoken Greek is reported honestly",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Selection disabled on canvas",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Pause releases gestures",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Recording import persists in IndexedDB",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Game loads locally imported audio without TTS",
+      "pass": true,
+      "detail": null
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "bridge-430x744.png",
+    "bridge-375x650.png",
+    "bridge-932x430.png",
+    "bridge-1280x800.png"
+  ],
+  "passed": true
+}

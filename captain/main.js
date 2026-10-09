@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { createWorld } from './world.js?v=130';
-import { createShip } from './ship.js?v=130';
-import { createPassengers } from './passengers.js?v=130';
-import { createAudio } from './audio.js?v=130';
-import { createHelm } from './helm130.js?v=130';
-import { createDialogue } from './dialogue130.js?v=130';
-import { newVoyage, advance, useAction, voyageScore, clamp, KNOTS } from './simulation.js?v=130';
+import { createWorld } from './world.js?v=140';
+import { createShip } from './ship.js?v=140';
+import { createPassengers } from './passengers.js?v=140';
+import { createAudio } from './audio.js?v=140';
+import { createHelm } from './helm140.js?v=140';
+import { createDialogue } from './dialogue130.js?v=140';
+import { newVoyage, advance, useAction, voyageScore, clamp, KNOTS } from './simulation.js?v=140';
 
 const $=id=>document.getElementById(id);
 const mobile=matchMedia('(pointer:coarse)').matches;
@@ -15,7 +15,7 @@ let mildMotion=readStore('lc-motion',matchMedia('(prefers-reduced-motion:reduce)
 let soundEnabled=readStore('lc-sound',true), quality=readStore('lc-quality',0), difficulty=0;
 let state=newVoyage(),playing=false,paused=false,ready=false,cameraMode=1,people=null;
 let renderer,world,ship,fx,renderTarget,scene,camera,audio,helm,dialogue;
-let renderedFrames=0;
+let renderedFrames=0,sceneDrawCalls=0,sceneTriangles=0;
 let lastFrame=performance.now(),previewTime=0,toastTime=0,radioTime=18,lastHud=0,lastHelp=-20,lastStrike=0;
 let drag=null,lookYaw=0,lookPitch=0,targetLookYaw=0,targetLookPitch=0,lastLook=0,accum=0;
 const keys=new Set(),input={turn:0,throttle:.55},touchTurn={left:false,right:false};
@@ -110,7 +110,7 @@ function startGame(){
   const briefing='Λιμάνι: 3,8 km βόρεια. Πρόσεχε το ραντάρ.';
   radioMessage(briefing);
   Promise.resolve(audioReady).then(()=>audio.loadVoices()).catch(()=>{});
-  toast(mobile?'Κράτα τα βέλη του τιμονιού και σύρε. Μοχλός δεξιά: πάνω / μέση / κάτω.':'A / D: τιμόνι · W / S: μηχανές · C: κάμερα · E: ουίσκι');
+  toast(mobile?'Πιάσε το ίδιο το τιμόνι και γύρισέ το κυκλικά. Μοχλός: πάνω / μέση / κάτω.':'A / D: τιμόνι · W / S: μηχανές · C: κάμερα · E: ουίσκι');
   lastFrame=performance.now();lastHelp=-20;lastHud=-1;lastLook=0;lastStrike=world.lightningStrike;accum=0;radioTime=5;
   updateCamera(1,true);
 }
@@ -171,8 +171,8 @@ function updateCamera(dt,snap=false){
     offset.set(0,10,43).applyAxisAngle(up,state.heading);cameraTarget.copy(ship.group.position).add(offset);
     camera.up.set(sway*.5,1,sway*.2);camera.fov=innerHeight>innerWidth?65:58;
   } else {
-    const local=cameraMode===1?ship.bridgeCameraPosition:new THREE.Vector3(10.22,11.73,-22);
-    offset.copy(local);offset.x+=Math.sin(time*1.24)*intox*.21;offset.y+=Math.sin(time*1.93)*intox*.12;
+    const local=cameraMode===1?bridgeFraming():new THREE.Vector3(10.22,11.73,-22);
+    offset.copy(local);offset.x+=Math.sin(time*1.24)*intox*.06;offset.y+=Math.sin(time*1.93)*intox*.045;
     cameraPosition.copy(offset);ship.group.localToWorld(cameraPosition);
     let baseYaw=cameraMode===2?.16:0;
     const direction=new THREE.Vector3(0,0,1).applyEuler(new THREE.Euler(lookPitch+(cameraMode===1?.028:0),lookYaw+baseYaw,0,'YXZ')).applyQuaternion(ship.group.quaternion);
@@ -184,11 +184,32 @@ function updateCamera(dt,snap=false){
   camera.lookAt(cameraTarget);camera.rotateZ(sway);camera.updateProjectionMatrix();camera.updateMatrixWorld();
 }
 
+function bridgeFraming(){
+ const w=innerWidth,h=innerHeight,focal=h*.5/Math.tan(THREE.MathUtils.degToRad(73*.5));
+ const radius=Math.min(w*.23,h*.165,150),distance=focal*.55/radius;
+ const targetX=w*(w<h?.43:.47),targetY=Math.min(h*.72,h-91-radius);
+ const center=ship.wheel.position.clone().add(ship.bridgeGroup.position);
+ return center.add(new THREE.Vector3((targetX-w*.5)*distance/focal,(targetY-h*.5)*distance/focal,-distance));
+}
 function wheelAnchor(){
  if(!ship?.wheel||!camera)return null;
- const center=ship.wheel.getWorldPosition(new THREE.Vector3()),rim=new THREE.Vector3(.54,0,0);ship.wheel.localToWorld(rim);
- const c=center.project(camera),r=rim.project(camera);
- return {x:(c.x*.5+.5)*innerWidth,y:(-.5*c.y+.5)*innerHeight,radius:Math.hypot((r.x-c.x)*innerWidth*.5,(r.y-c.y)*innerHeight*.5),visible:c.z>0&&c.z<1&&Math.abs(c.x)<1&&Math.abs(c.y)<1};
+ const c=ship.wheel.getWorldPosition(new THREE.Vector3()).project(camera),points=[];
+ const x=(c.x*.5+.5)*innerWidth,y=(-c.y*.5+.5)*innerHeight;
+ for(let i=0;i<24;i++){const a=i*Math.PI/12,p=new THREE.Vector3(Math.cos(a)*.55,Math.sin(a)*.55,0);ship.wheel.localToWorld(p);p.project(camera);points.push({x:(p.x*.5+.5)*innerWidth,y:(-.5*p.y+.5)*innerHeight});}
+ const minX=Math.min(...points.map(p=>p.x)),maxX=Math.max(...points.map(p=>p.x)),minY=Math.min(...points.map(p=>p.y)),maxY=Math.max(...points.map(p=>p.y));
+ return {x,y,minX,maxX,minY,maxY,points,radius:Math.max(maxX-minX,maxY-minY)/2,visible:c.z>0&&c.z<1&&x>0&&x<innerWidth&&y>40&&y<innerHeight-60};
+}
+const wheelRay=new THREE.Raycaster();
+function pickWheel(event){
+ if(cameraMode!==1)return null;const a=wheelAnchor();if(!a?.visible)return null;
+ wheelRay.setFromCamera(new THREE.Vector2(event.clientX/innerWidth*2-1,1-event.clientY/innerHeight*2),camera);
+ if(wheelRay.intersectObject(ship.wheel,true).length)return a;
+ // The spaces between the spokes also belong to the wheel silhouette.
+ let inside=false;const pts=a.points;
+ for(let i=0,j=pts.length-1;i<pts.length;j=i++){
+  const p=pts[i],q=pts[j];if((p.y>event.clientY)!==(q.y>event.clientY)&&event.clientX<(q.x-p.x)*(event.clientY-p.y)/(q.y-p.y)+p.x)inside=!inside;
+ }
+ return inside?a:null;
 }
 function drawRadar(stats){
   if(!radar)return;
@@ -284,15 +305,19 @@ function setupControls(){
   window.addEventListener('blur',()=>{keys.clear();touchTurn.left=touchTurn.right=false;if(playing)setPaused(true);});
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing)setPaused(true);});
   $('sea').addEventListener('pointerdown',event=>{
-    if(!playing||paused)return;drag={id:event.pointerId,x:event.clientX,y:event.clientY};$('sea').setPointerCapture(event.pointerId);
+    if(!playing||paused)return;
+    if(helm?.beginWheel(event,$('sea'),pickWheel(event)))return;
+    if(drag)return;drag={id:event.pointerId,x:event.clientX,y:event.clientY};$('sea').setPointerCapture(event.pointerId);
   });
   $('sea').addEventListener('pointermove',event=>{
+    if(helm?.moveWheel(event))return;
     if(!drag||drag.id!==event.pointerId)return;
     targetLookYaw=clamp(targetLookYaw-(event.clientX-drag.x)*.0046,cameraMode===0?-Math.PI:-1.3,cameraMode===0?Math.PI:1.3);
     targetLookPitch=clamp(targetLookPitch+(event.clientY-drag.y)*.0035,-.42,.48);
     drag.x=event.clientX;drag.y=event.clientY;lastLook=state.time;
   });
-  for(const type of ['pointerup','pointercancel'])$('sea').addEventListener(type,()=>drag=null);
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])$('sea').addEventListener(type,event=>{helm?.endWheel(event);if(drag?.id===event.pointerId)drag=null;});
+  for(const type of ['contextmenu','selectstart','dragstart'])$('sea').addEventListener(type,e=>e.preventDefault());
   window.addEventListener('resize',resize);$('sea').addEventListener('webglcontextlost',event=>{event.preventDefault();setPaused(true);fatal('Η συσκευή διέκοψε τα 3D γραφικά. Κλείσε άλλες βαριές εφαρμογές και πάτησε «Δοκίμασε ξανά».');});
 }
 function frame(now){
@@ -309,7 +334,7 @@ function frame(now){
     ship.group.position.set(state.x,state.y,state.z);ship.group.rotation.set(state.pitch,state.heading,state.roll,'YXZ');ship.group.updateMatrixWorld(true);
     world.update(state.time,dt,{shipPosition:ship.group.position,heading:state.heading,speed:state.speed,storm:state.storm});
     people?.update(state.time,dt,{panic:state.panic,danger:state.danger,roll:state.roll,speed:state.speed,shipPosition:ship.group.position,heading:state.heading,playing:true,waterHeight:world.sampleHeight});
-    ship.update(state.time,dt,{...state,damage:100-state.hull});
+    ship.update(state.time,dt,{...state,damage:100-state.hull,wheelDemand:helm?.visualRudder});
     dialogue?.update(state,dt);
     if(!drag&&!helm?.busy&&state.time-lastLook>6){targetLookYaw*=Math.exp(-dt*.32);targetLookPitch*=Math.exp(-dt*.32);}
     if(world.lightningStrike!==lastStrike){lastStrike=world.lightningStrike;audio?.thunder();}
@@ -330,7 +355,7 @@ function frame(now){
   audio?.update({...state,damage:100-state.hull,playing:playing&&!paused});
   fx.material.uniforms.uTime.value=playing?state.time:previewTime;
   fx.material.uniforms.uIntox.value=(state.intox/100)*(mildMotion?.22:1);fx.material.uniforms.uImpact.value=state.impact;
-  renderer.setRenderTarget(renderTarget);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(fx.scene,fx.camera);
+  renderer.setRenderTarget(renderTarget);renderer.render(scene,camera);sceneDrawCalls=renderer.info.render.calls;sceneTriangles=renderer.info.render.triangles;renderer.setRenderTarget(null);renderer.render(fx.scene,fx.camera);
 }
 async function init(){
   try{
@@ -353,13 +378,13 @@ async function init(){
     people=await createPassengers(ship.group,ship.deckZones,scene,{mobile,onEvent:passengerEvent});
     ready=true;$('start').disabled=false;$('startText').textContent='ΑΝΑΛΑΒΕ ΤΟ ΤΙΜΟΝΙ';$('loadProgress').firstElementChild.style.width='100%';
     $('loadStatus').textContent=mobile?'Έτοιμο. Παίζεται με αφή — δοκίμασε και οριζόντια οθόνη.':'Έτοιμο. Ταξίδι περίπου 6–8 λεπτών. Εσύ επιλέγεις πότε θα πιεις.';
-    window.__lastCall={getState:()=>({version:'1.3.0',ready,playing,paused,camera:cameraLabels[cameraMode],frames:renderedFrames,time:state.time,hull:state.hull,intox:state.intox,panic:state.panic,speed:state.speed,rudder:state.rudder,throttle:input.throttle,turn:input.turn,heading:state.heading,x:state.x,z:state.z,collisions:state.collisions,danger:state.danger,distance:state.distance,people:people.getStats(),controls:helm.inspect(),dialogue:dialogue.inspect(),voices:audio.voiceStatus(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles})};
+    window.__lastCall={getState:()=>({version:'1.4.0',ready,playing,paused,camera:cameraLabels[cameraMode],frames:renderedFrames,time:state.time,hull:state.hull,intox:state.intox,panic:state.panic,speed:state.speed,rudder:state.rudder,throttle:input.throttle,turn:input.turn,heading:state.heading,x:state.x,z:state.z,collisions:state.collisions,danger:state.danger,distance:state.distance,people:people.getStats(),wheelAngle:ship.wheel.rotation.z,look:{yaw:lookYaw,pitch:lookPitch},controls:helm.inspect(),dialogue:dialogue.inspect(),voices:audio.voiceStatus(),drawCalls:sceneDrawCalls,triangles:sceneTriangles})};
     if(window.__CAPTAIN_TEST__||new URLSearchParams(location.search).has('test'))window.__lastCall.test={
       restart:startGame,
       setState:values=>{for(const k of ['x','z','heading','time','speed','intox','panic','hull'])if(Number.isFinite(values[k]))state[k]=values[k];},
       camera:mode=>{cameraMode=mode;$('cameraName').textContent=cameraLabels[cameraMode];syncCameraControls();targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;updateCamera(1,true);},
       obstacles:()=>world.obstacles.map(o=>({x:o.x,z:o.z,radius:o.radius,id:o.id,type:o.type})),
-      say:id=>dialogue.say(id,state),anchor:wheelAnchor,
+      say:id=>dialogue.say(id,state),anchor:wheelAnchor,look:(yaw,pitch=0)=>{targetLookYaw=lookYaw=yaw;targetLookPitch=lookPitch=pitch;lastLook=state.time;updateCamera(1,true);},
       step:seconds=>{for(let i=0;i<seconds*60;i++)advance(state,1/60,input,world.obstacles,world.sampleHeight,world.safeHarbor,gameplayEvent);}
     };
     if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});}
