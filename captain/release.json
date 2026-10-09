@@ -1,5 +1,1 @@
-{
-  "version": "1.5.0",
-  "controls": "Unchanged direct-wheel 1.4 controls",
-  "audio": "Bundled Greek MP3 speech before human nonverbal effects; custom human overrides; independent loading; measured signal diagnostics. Included Greek speech is synthetic."
-}
+{"version":"1.8.0","chapter":"One Bad Shift","audio":"Existing synthetic Greek clips; new combat effects. No new natural speech.","transitions":"Compact authored spaces connected by chapter transitions, not a fully walkable ship interior."}

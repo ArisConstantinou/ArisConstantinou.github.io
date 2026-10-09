@@ -16,7 +16,7 @@ export function buildChaosWorld(ship){
   const a=mesh(new THREE.PlaneGeometry(width,width/4),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}),parent,x,y,z);a.rotation.y=Math.PI;return a;
  }
  function area(id,y,z,bounds){const root=new THREE.Group();root.position.set(0,y,z);group.add(root);root.visible=false;areas[id]={id,root,bounds,walls:[],props:[]};return areas[id];}
- function solid(a,x,z,w,d,h=2.7,m=M.white,y=h/2){box(a.root,w,h,d,m,x,y,z);const c={x,z,w,d};a.walls.push(c);return c;}
+ function solid(a,x,z,w,d,h=2.7,m=M.white,y=h/2){box(a.root,w,h,d,m,x,y,z);const c={x,z,w,d,h};a.walls.push(c);return c;}
  function prop(a,kind,name,x,z,y=0){const root=new THREE.Group();root.position.set(x,y,z);a.root.add(root);const p={id:serial++,area:a.id,kind,name,root,home:V(x,y,z),hp:kind==='glass'?18:kind==='bottle'?8:kind==='table'?45:25,initialHP:0,radius:kind==='table'?.65:kind==='chair'?.4:.14,held:false,broken:false,velocity:V(),flying:false,hitActor:false};p.initialHP=p.hp;root.userData.chaosProp=p;
   if(kind==='table'){cylinder(root,.68,.09,M.wood,0,.82);cylinder(root,.07,.70,M.metal,0,.43);cylinder(root,.38,.055,M.metal,0,.055);}
   if(kind==='chair'){box(root,.51,.11,.52,M.fabric,0,.48,0);box(root,.52,.60,.085,M.fabric,0,.80,.22);for(const sx of [-.21,.21])for(const sz of [-.2,.2])cylinder(root,.026,.46,M.metal,sx,.23,sz);}

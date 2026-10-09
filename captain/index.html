@@ -10,9 +10,10 @@
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./style.css?v=161">
+<link rel="stylesheet" href="./chaos180.css?v=180">
   <link rel="stylesheet" href="./helm140.css?v=140">
 <link rel="stylesheet" href="./dialogue130.css?v=140">
-<meta name="captain-build" content="1.6.0">
+<meta name="captain-build" content="1.8.0">
 <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
 </head>
 <body>
@@ -22,11 +23,12 @@
     <section id="intro" class="screen">
       <div class="intro-top"><span class="brand-mark">LC<span> / </span>01</span><span class="edition">NORTH ATLANTIC · 02:47</span><button class="tiny-button" id="introSound" aria-label="Ενεργοποίηση ή απενεργοποίηση ήχου">Ήχος: ΝΑΙ</button></div>
       <div class="intro-copy">
-        <div class="eyebrow"><span class="status-dot"></span> STORM SURVIVAL</div>
+        <div class="eyebrow"><span class="status-dot"></span> ONE BAD SHIFT · CHAOS STORY</div>
         <h1>LAST<br><span>CALL.</span></h1>
-        <p class="tagline">Ένα μεγάλο πλοίο.<br>Μια κακή ιδέα για άλλο ένα ποτό.</p>
+        <p class="tagline">Μία γουλιά. Ένα ολόκληρο πλοίο.<br>Μία πολύ κακή βάρδια.</p>
         <p class="intro-description">Πάρε το τιμόνι του <b>AURORA</b>. Πέρασε ανάμεσα σε βράχια και παγόβουνα, κράτα τους επιβάτες ψύχραιμους και φτάσε στο λιμάνι. Το ουίσκι δίπλα σου κάνει τα πάντα πιο δύσκολα.</p>
         <div class="start-options"><button id="difficulty" class="option-button">Φουρτούνα <b>ΚΑΝΟΝΙΚΗ</b> <span>↗</span></button><button id="introMotion" class="option-button">Κάμερα <b>ΚΙΝΗΜΑΤΟΓΡΑΦΙΚΗ</b> <span>↗</span></button></div>
+        <button id="startChaos180" disabled>▶ ONE BAD SHIFT — ΠΑΙΞΕ ΤΗΝ ΙΣΤΟΡΙΑ</button>
         <button id="start" class="primary-button" disabled><span id="startText">ΠΡΟΕΤΟΙΜΑΣΙΑ ΠΛΟΙΟΥ</span><span>→</span></button>
         <div id="loadProgress"><span></span></div><p id="loadStatus" class="loading-copy" role="status">Φόρτωση θάλασσας, πλοίου και επιβατών…</p>
         <div class="intro-help"><span><b>A D / ← →</b> Τιμόνι</span><span><b>W S / ↑ ↓</b> Μηχανές</span><span><b>C</b> Κάμερα</span><span><b>E</b> Ουίσκι</span></div>
@@ -66,6 +68,6 @@
     <section id="errorScreen" class="modal-backdrop hidden"><div class="modal"><h2>Δεν φορτώθηκε η γέφυρα.</h2><p id="errorText"></p><button class="primary-button" onclick="location.reload()">ΔΟΚΙΜΑΣΕ ΞΑΝΑ ↻</button></div></section>
   </main>
   <noscript>Το παιχνίδι χρειάζεται JavaScript και WebGL2. Άνοιξέ το σε σύγχρονο Safari, Chrome ή Edge.</noscript>
-  <script type="module" src="./main150.js?v=161"></script>
+  <script type="module" src="./main180.js?v=180"></script>
 </body>
 </html>

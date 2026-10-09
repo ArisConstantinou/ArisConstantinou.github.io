@@ -38,7 +38,7 @@ export function aimActor(actor,target,punch=0){
 }
 // FPS limbs are cut from the existing textured, skinned human asset. No box hands.
 export function createHands(template,camera){
- const a=actorFrom(template),root=a.root;root.name='Captain first-person rig';camera.add(root);root.position.set(0,-1.57,.07);root.rotation.y=Math.PI;
+ const a=actorFrom(template),root=a.root;root.name='Captain first-person rig';camera.add(root);root.position.set(0,-1.4,-.12);root.scale.setScalar(.9);root.rotation.y=Math.PI;
  const arms=[],legs=[];
  const meshes=[];a.model.traverse(m=>{if(m.isMesh)meshes.push(m);});
  for(const mesh of meshes){
@@ -49,23 +49,23 @@ export function createHands(template,camera){
    for(let i=0;i<count;i+=3){const tri=[0,1,2].map(j=>index?index.getX(i+j):i+j);if(tri.every(v=>{let weight=0;for(let k=0;k<4;k++)if(test(names[si.getComponent(v,k)]||''))weight+=sw.getComponent(v,k);return weight>.5;}))out.push(...tri);}
    const geom=g.clone();geom.setIndex(out);geom.clearGroups();return geom;
   }
-  const material=Array.isArray(mesh.material)?mesh.material[0].clone():mesh.material.clone();material.depthTest=false;material.depthWrite=false;material.side=THREE.DoubleSide;
-  mesh.material=material;mesh.geometry=extract(n=>/^(left|right)(arm|forearm|hand)/.test(n));mesh.renderOrder=950;arms.push(mesh);
+  const material=Array.isArray(mesh.material)?mesh.material[0].clone():mesh.material.clone();material.depthTest=true;material.depthWrite=true;material.side=THREE.FrontSide;
+  mesh.material=material;mesh.geometry=extract(n=>/^(left|right)(forearm|hand)/.test(n));mesh.renderOrder=950;arms.push(mesh);
   const leg=mesh.clone();leg.geometry=extract(n=>/^right(upleg|leg|foot|toe)/.test(n));leg.skeleton=mesh.skeleton;leg.material=material;leg.renderOrder=951;leg.visible=false;mesh.parent.add(leg);legs.push(leg);
  }
  const held=new THREE.Group();camera.add(held);held.position.set(.25,-.4,-.7);
  function update(time,attack,block,walk,drink){
-  if(!root.visible)return;a.pose('idle',0);root.position.y=-1.57+Math.sin(time*8)*Math.min(.009,walk*.009);
-  const left=V(-.30,-.37,-.55),right=V(.30,-.30,-.55);let kick=0,closed=block;
+  if(!root.visible)return;a.pose('idle',0);root.position.y=-1.4+Math.sin(time*8)*Math.min(.009,walk*.009);
+  const left=V(-.32,-.30,-.68),right=V(.32,-.30,-.68);let kick=0,closed=block;
   const n=attack?Math.min(1,attack.t/attack.duration):0;
-  if(attack){const h=Math.sin(Math.PI*Math.min(1,n/.55));
+  if(attack){const h=attack.t<=attack.contact?Math.sin(attack.t/attack.contact*Math.PI/2):Math.cos(Math.min(1,(attack.t-attack.contact)/(attack.duration-attack.contact))*Math.PI/2);
    if(attack.key===1){right.set(.50-h*.73,-.18+h*.12,-.45-h*.43);}
    if(attack.key===2){right.set(.68-h*1.02,-.14+h*.1,-.25-h*.64);}
    if(attack.key===3){right.set(.27-h*.18,-.19,-.38-h*.69);closed=true;}
    if(attack.key===4)kick=h;
   }
   if(block){left.set(-.16,-.05,-.4);right.set(.16,-.04,-.4);}
-  if(drink>0)right.set(.13,-.06,-.33);
+  if(drink>0)right.set(.24,-.26,-.51);
   root.updateWorldMatrix(true,true);
   for(const [side,target,sign]of [['left',left,-1],['right',right,1]]){
    twoBone(a.bones,side,camera.localToWorld(target),camera.localToWorld(V(sign*.52,-.52,-.22)));

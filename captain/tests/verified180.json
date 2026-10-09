@@ -1,0 +1,265 @@
+{
+  "timing": "Native browser key events; deterministic 60 Hz controller substeps; real rendered frames. Not a GPU performance benchmark.",
+  "checks": [
+    {
+      "name": "Story begins at the existing helm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "One sip creates pending gradual intoxication",
+      "pass": true,
+      "detail": 5.059999999999988
+    },
+    {
+      "name": "Second bridge sip is blocked",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Story enters the on-ship lounge",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Textured rigged FPS limbs exist",
+      "pass": true,
+      "detail": {
+        "arms": 2,
+        "triangles": 2896,
+        "legTriangles": 1244
+      }
+    },
+    {
+      "name": "W moves through the authored lounge",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "NumPad 1 activates its action",
+      "pass": true,
+      "detail": {
+        "hits": 1,
+        "slaps": 1,
+        "punches": 0,
+        "kicks": 0,
+        "spits": 0,
+        "broken": 0,
+        "thrown": 0,
+        "guards": 0,
+        "boats": 0
+      }
+    },
+    {
+      "name": "NumPad 2 activates its action",
+      "pass": true,
+      "detail": {
+        "hits": 2,
+        "slaps": 2,
+        "punches": 0,
+        "kicks": 0,
+        "spits": 0,
+        "broken": 0,
+        "thrown": 0,
+        "guards": 0,
+        "boats": 0
+      }
+    },
+    {
+      "name": "NumPad 3 activates its action",
+      "pass": true,
+      "detail": {
+        "hits": 3,
+        "slaps": 2,
+        "punches": 1,
+        "kicks": 0,
+        "spits": 0,
+        "broken": 0,
+        "thrown": 0,
+        "guards": 0,
+        "boats": 0
+      }
+    },
+    {
+      "name": "NumPad 4 activates its action",
+      "pass": true,
+      "detail": {
+        "hits": 4,
+        "slaps": 2,
+        "punches": 1,
+        "kicks": 1,
+        "spits": 0,
+        "broken": 0,
+        "thrown": 0,
+        "guards": 0,
+        "boats": 0
+      }
+    },
+    {
+      "name": "NumPad 5 activates its action",
+      "pass": true,
+      "detail": {
+        "hits": 4,
+        "slaps": 2,
+        "punches": 1,
+        "kicks": 1,
+        "spits": 1,
+        "broken": 0,
+        "thrown": 0,
+        "guards": 0,
+        "boats": 0
+      }
+    },
+    {
+      "name": "No melee damage outside reach",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Block key releases and NPC can retaliate",
+      "pass": true,
+      "detail": 90
+    },
+    {
+      "name": "Window breaks and awards chaos",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Lifeboat scripted release is recorded",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Object can be picked up",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Thrown object leaves hand",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All five attack types counted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Arrest opens chapter transition",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Wake-up phase is sober top-down",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Low vent blocks standing character",
+      "pass": true,
+      "detail": -2.150000000000001
+    },
+    {
+      "name": "Crouching opens low passage",
+      "pass": true,
+      "detail": {
+        "x": -0.8500000000000044,
+        "y": 0,
+        "z": -5.3
+      }
+    },
+    {
+      "name": "All nine keypad controls fit portrait",
+      "pass": true,
+      "detail": [
+        {
+          "key": "1",
+          "x": 287,
+          "y": 610,
+          "w": 62,
+          "h": 67
+        },
+        {
+          "key": "2",
+          "x": 354,
+          "y": 610,
+          "w": 62,
+          "h": 67
+        },
+        {
+          "key": "3",
+          "x": 287,
+          "y": 682,
+          "w": 62,
+          "h": 67
+        },
+        {
+          "key": "4",
+          "x": 354,
+          "y": 682,
+          "w": 62,
+          "h": 67
+        },
+        {
+          "key": "5",
+          "x": 153,
+          "y": 754,
+          "w": 62,
+          "h": 51
+        },
+        {
+          "key": "6",
+          "x": 220,
+          "y": 754,
+          "w": 62,
+          "h": 51
+        },
+        {
+          "key": "7",
+          "x": 287,
+          "y": 754,
+          "w": 62,
+          "h": 51
+        },
+        {
+          "key": "8",
+          "x": 354,
+          "y": 754,
+          "w": 62,
+          "h": 51
+        },
+        {
+          "key": "9",
+          "x": 220,
+          "y": 698,
+          "w": 62,
+          "h": 51
+        }
+      ]
+    },
+    {
+      "name": "Final bridge has four guards",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Reclaiming bridge restores original helm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Pause freezes chapter and rejects actions",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No uncaught browser errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "version": "1.8.0",
+  "passed": true
+}
