@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import {clone as cloneSkeleton} from 'three/addons/utils/SkeletonUtils.js';
-export function createWalkMode({ship,camera,hud,getPeople,getState,onMessage,onDialogue}){
+export function createWalkMode({ship,camera,hud,getPeople,getState,onMessage,onDialogue,onDrink}){
  const zone=ship.deckZones.find(z=>z.name==='port-promenade');
- const root=document.createElement('div');root.id='walkMode';root.innerHTML='<div class="walk-top"><button id="walkToggle">🚶 ΒΓΕΣ ΣΤΟ ΚΑΤΑΣΤΡΩΜΑ</button><span id="walkStatus"></span></div><div id="walkPad"><div id="walkStick"></div></div><button id="walkInteract">ΜΙΛΑ</button><div id="walkHint"></div>';
+ const root=document.createElement('div');root.id='walkMode';root.innerHTML='<div class="walk-top"><button id="walkToggle">🚶 ΒΓΕΣ ΣΤΟ ΚΑΤΑΣΤΡΩΜΑ</button><span id="walkStatus"></span></div><div id="walkPad"><div id="walkStick"></div></div><button id="walkInteract">ΜΙΛΑ</button><button id="walkDrink">🥃 ΠΙΕ</button><div id="walkHint"></div>';
  hud.append(root);
+ const drink=root.querySelector('#walkDrink');drink.addEventListener('click',()=>{if(active)onDrink();});
  const toggle=root.querySelector('#walkToggle'),pad=root.querySelector('#walkPad'),stick=root.querySelector('#walkStick'),interact=root.querySelector('#walkInteract'),hint=root.querySelector('#walkHint'),status=root.querySelector('#walkStatus');
  let active=false,avatar=null,mixer=null,actions={},motion='',joystick={x:0,y:0},pointer=null,near=null,cooldown=0,steps=0;
  const p=new THREE.Vector3(-10.45,zone.y,-27),v=new THREE.Vector3(),cameraPos=new THREE.Vector3(),target=new THREE.Vector3();
