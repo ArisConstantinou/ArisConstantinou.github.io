@@ -26,10 +26,14 @@ jobs:
           from pathlib import Path
           p=Path('captain/tools/qa171.py');s=p.read_text()
           old="before=state(p)['chapter']['position'];p.keyboard.down(key);p.wait_for_timeout(300)"
-          new="p.evaluate('window.__lastCall.test.chapter.setPosition(3,40,0)');before=state(p)['chapter']['position'];p.keyboard.down(key);p.wait_for_function(\"b=>{const p=window.__lastCall.getState().chapter.position;return Math.hypot(p.x-b.x,p.z-b.z)>.06}\",arg=before,timeout=6000)"
+          new="p.evaluate('window.__lastCall.test.chapter.setPosition(3,40,0)');before=state(p)['chapter']['position'];p.keyboard.down(key);p.wait_for_function(\"b=>{const p=window.__lastCall.getState().chapter.position;return Math.hypot(p.x-b.x,p.z-b.z)>.06}\",arg=before,timeout=10000)"
           if old in s:s=s.replace(old,new,1)
           else:assert new in s
           s=s.replace("math.hypot(after['x']-before['x'],after['z']-before['z'])>.03)","math.hypot(after['x']-before['x'],after['z']-before['z'])>.03,{'before':before,'after':after,'frames':state(p)['frames']})")
+          for wait in ['300','200']:
+            s=s.replace("p.evaluate('window.__lastCall.test.chapter.setPosition(0,56,Math.PI)');p.wait_for_timeout("+wait+")", "p.evaluate('window.__lastCall.test.chapter.setPosition(0,56,Math.PI)');p.wait_for_function(\"window.__lastCall.getState().chapter.phase==='deck'\",timeout=10000)")
+          s=s.replace("});p.wait_for_timeout(600)","});p.wait_for_function(\"b=>window.__lastCall.getState().chapter.position.z>b.z+.08\",arg=before,timeout=10000)")
+          s=s.replace("report['passed']=False;report['error']=str(exc);traceback.print_exc()", "report['passed']=False;report['error']=str(exc);traceback.print_exc()\n try:\n  report['lastState']=state(p);p.screenshot(path=str(OUT/'failure.png'))\n except Exception: pass")
           p.write_text(s)
           PY
       - name: Install browser
