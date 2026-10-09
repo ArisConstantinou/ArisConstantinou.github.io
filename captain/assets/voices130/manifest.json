@@ -1,0 +1,114 @@
+{
+  "version": "1.3.0",
+  "origin": "Original fictional game dialogue; stock neural synthetic voices; no performer cloning or borrowed video audio.",
+  "clips": {
+    "rock": {
+      "file": "rock.mp3",
+      "text": "Βράχια μπροστά! Στρίψε! Στρίψε!",
+      "role": "crew",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "ice": {
+      "file": "ice.mp3",
+      "text": "Παγόβουνο! Όλοι κρατηθείτε!",
+      "role": "crew",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "brace": {
+      "file": "brace.mp3",
+      "text": "Κρατηθείτε! Τώρα!",
+      "role": "crew",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "rail": {
+      "file": "rail.mp3",
+      "text": "Μακριά από τα κάγκελα!",
+      "role": "crew",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "panic": {
+      "file": "panic.mp3",
+      "text": "Όχι, όχι, όχι! Θα πέσουμε πάνω!",
+      "role": "passenger",
+      "voice": "el-GR-AthinaNeural"
+    },
+    "jackets": {
+      "file": "jackets.mp3",
+      "text": "Φέρτε τα σωσίβια!",
+      "role": "passenger",
+      "voice": "el-GR-AthinaNeural"
+    },
+    "water": {
+      "file": "water.mp3",
+      "text": "Βοήθεια! Εδώ! Είμαι εδώ!",
+      "role": "passenger",
+      "voice": "el-GR-AthinaNeural"
+    },
+    "safe": {
+      "file": "safe.mp3",
+      "text": "Το περάσαμε... Το περάσαμε!",
+      "role": "passenger",
+      "voice": "el-GR-AthinaNeural"
+    },
+    "rescued": {
+      "file": "rescued.mp3",
+      "text": "Τον έχουμε! Είναι ασφαλής!",
+      "role": "crew",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "captain1": {
+      "file": "captain1.mp3",
+      "text": "Εεε... Μια γουλίτσα μόνο.",
+      "role": "captain",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "captain2": {
+      "file": "captain2.mp3",
+      "text": "Καλά πάμε... Εγώ το έχω.",
+      "role": "captain",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "captain3": {
+      "file": "captain3.mp3",
+      "text": "Μισό... γιατί βλέπω δύο παγόβουνα;",
+      "role": "captain",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "captain4": {
+      "file": "captain4.mp3",
+      "text": "Ποιος πάρκαρε νησί μπροστά μας;",
+      "role": "captain",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "captain5": {
+      "file": "captain5.mp3",
+      "text": "Εγώ δεν κουνιέμαι... η καρέκλα φταίει!",
+      "role": "captain",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "captain6": {
+      "file": "captain6.mp3",
+      "text": "Στρίβει; Στρίβει; Ε, στρίβει!",
+      "role": "captain",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "reply": {
+      "file": "reply.mp3",
+      "text": "Το είδα! Το είδα... περίπου.",
+      "role": "captain",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "calm": {
+      "file": "calm.mp3",
+      "text": "Παιδιά, κρατηθείτε. Είμαστε μαζί σας.",
+      "role": "crew",
+      "voice": "el-GR-NestorasNeural"
+    },
+    "hum": {
+      "file": "hum.mp3",
+      "text": "Μμμμ... λα, λα λα... λα...",
+      "role": "captain",
+      "voice": "el-GR-NestorasNeural"
+    }
+  }
+}
