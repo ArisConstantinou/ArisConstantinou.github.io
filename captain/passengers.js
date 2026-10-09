@@ -539,7 +539,7 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
   }
 
   reset();
-  function getSpeakers(){return people.map(p=>({id:p.id,group:p.group,height:p.height,crew:p.isCrew,status:p.status,panic:p.personalPanic}));}
+  function getSpeakers(){return people.map(p=>({id:p.id,group:p.group,height:p.height,crew:p.isCrew,status:p.status,panic:p.personalPanic,model:p.model,clips:{idle:p.actions.idle?.getClip(),walk:p.actions.walk?.getClip()}}));}
   function react(id,kind='warning',duration=3){const p=people.find(p=>p.id===id);if(p){p.alertUntil=lastTime+duration;p.reactKind=kind;p.wait=0;}}
   return {update,reset,getStats,getSpeakers,react,jumpOne,rescueNear,ready:true};
 }
