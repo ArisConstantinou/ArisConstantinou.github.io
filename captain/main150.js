@@ -2,7 +2,7 @@ import { installSoundPanel } from './sound-panel150.js?v=150';
 import * as THREE from 'three';
 import { createWorld } from './world.js?v=140';
 import { createShip } from './ship.js?v=140';
-import { createPassengers } from './passengers.js?v=140';
+import { createPassengers } from './passengers.js?v=160';
 import { createAudio } from './audio150.js?v=150';
 import { createHelm } from './helm140.js?v=140';
 import { createDialogue } from './dialogue150.js?v=150';
