@@ -84,12 +84,7 @@ export function createAudio() {
       if (!initialized && !build()) return false;
       // Resume is initiated synchronously while the browser still sees a gesture.
       const resume = context.state === 'suspended' ? context.resume() : Promise.resolve();
-      if (!speechPrimed && synth() && window.SpeechSynthesisUtterance) {
-        speechPrimed = true;
-        const silent = new window.SpeechSynthesisUtterance(' ');
-        silent.volume = 0; silent.lang = 'el-GR'; synth().speak(silent);
-      }
-      await resume;
+      await resume;loadVoices();
       ramp(master.gain, .68, .3);
       nextCry = context.currentTime + 10;
       return true;
@@ -157,28 +152,24 @@ export function createAudio() {
     oneShotNoise(3.2, .13, 480, 50, .22);
     tone('sine', 43, 24, .055, 3.4, .1);
   }
-  function speak(text, urgent = false) {
-    const speech = synth();
-    if (!canPlay() || !speechPrimed || !speech || !window.SpeechSynthesisUtterance || !text) return false;
-    try {
-      if (speech.speaking || speech.pending) {
-        if (!urgent) return false;
-        speech.cancel();
-      }
-      const utterance = new window.SpeechSynthesisUtterance(String(text));
-      const voices = speech.getVoices();
-      const greekVoice = voices.find(v => v.lang.toLowerCase() === 'el-gr') || voices.find(v => v.lang.toLowerCase().startsWith('el'));
-      if (greekVoice) utterance.voice = greekVoice;
-      utterance.lang = 'el-GR'; utterance.rate = urgent ? 1.13 : .97;
-      utterance.pitch = urgent ? 1.16 : .89; utterance.volume = urgent ? .76 : .62;
-      currentUtterance = utterance;
-      const finished = () => { if (currentUtterance === utterance) currentUtterance = null; };
-      utterance.onend = finished; utterance.onerror = finished;
-      speech.speak(utterance);
-      nextCry = Math.max(nextCry, context.currentTime + (urgent ? 7 : 11));
-      return true;
-    } catch (_) { return false; }
+  // Short pre-rendered voice assets replace browser speech synthesis.
+  const voiceIds=['rock','ice','brace','rail','panic','jackets','water','safe','rescued','captain1','captain2','captain3','captain4','captain5','captain6','reply','calm','hum'];
+  const voiceBuffers=new Map();let voiceLoad=null,voiceSource=null,voicePriority=-1,voicePlayed=0,voiceFailures=0;
+  const voiceBase=new URL('./assets/voices130/',import.meta.url);
+  function speak(){return false;}
+  function stopVoice(){const old=voiceSource;voiceSource=null;voicePriority=-1;try{old?.stop();}catch{}}
+  async function loadVoices(){
+   if(!context)return false;if(voiceLoad)return voiceLoad;
+   voiceLoad=Promise.all(voiceIds.map(async id=>{try{const r=await fetch(new URL(id+'.mp3',voiceBase));if(!r.ok)throw new Error('Voice unavailable');const bytes=await r.arrayBuffer(),buffer=await context.decodeAudioData(bytes);voiceBuffers.set(id,buffer);}catch{voiceFailures++;}})).then(()=>voiceBuffers.size>0);return voiceLoad;
   }
+  function voice(id,{priority=1,pan=0}={}){
+   if(!canPlay())return false;const buffer=voiceBuffers.get(id);if(!buffer)return false;if(voiceSource&&priority<=voicePriority)return false;stopVoice();
+   const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;gain.gain.value=.92;const spatial=context.createStereoPanner?context.createStereoPanner():null;
+   if(spatial){spatial.pan.value=clamp(pan,-.65,.65);source.connect(spatial);spatial.connect(gain);}else source.connect(gain);
+   gain.connect(master);voiceSource=source;voicePriority=priority;voicePlayed++;liveEffects.add(source);
+   source.onended=()=>{if(voiceSource===source){voiceSource=null;voicePriority=-1;}liveEffects.delete(source);source.disconnect();spatial?.disconnect();gain.disconnect();};source.start();return buffer.duration;
+  }
+  const voiceStatus=()=>({engine:'prerendered-neural',loaded:voiceBuffers.size,failed:voiceFailures,played:voicePlayed,active:!!voiceSource});
   function update(state = {}) {
     lastState = state;
     if (!initialized || !context) return;
@@ -191,30 +182,24 @@ export function createAudio() {
     ramp(engineMid.frequency, 58 + speed * 46.5, .5);
     ramp(engineHigh.frequency, 116 + speed * 92, .5);
     ramp(engineBus.gain, playing ? .028 + speed * .105 : .009, .65);
+    const duck=voiceSource?.buffer ? .3 : 1;
     const gust = .8 + .2 * Math.sin(now * .23) + .08 * Math.sin(now * .071);
     ramp(windFilter.frequency, 650 + storm * 1600 + gust * 190, .65);
-    ramp(windGain.gain, (playing ? .095 + storm * .15 : .025) * gust, .8);
-    ramp(rainGain.gain, playing ? .016 + storm * .057 : .006, .8);
-    ramp(seaGain.gain, playing ? .13 + storm * .14 : .025, .85);
+    ramp(windGain.gain, (playing ? .095 + storm * .15 : .025) * gust * duck, .8);
+    ramp(rainGain.gain, (playing ? .016 + storm * .057 : .006)*duck, .8);
+    ramp(seaGain.gain, (playing ? .13 + storm * .14 : .025)*duck, .85);
     const warning = playing && (panic > 83 || numeric(state.damage) > 62);
     const pulse = warning && now % 2.1 < .16;
     ramp(alarmGain.gain, pulse ? .016 : 0, .015);
-    if (playing && panic > 43 && canPlay() && now > nextCry) {
-      const cries = panic > 76
-        ? ['Βοήθεια! Κρατηθείτε από τα κάγκελα!', 'Καπετάνιε! Πρόσεχε τα βράχια!', 'Τα σωσίβια! Φέρτε τα σωσίβια!']
-        : ['Καπετάνιε, πρόσεχε!', 'Βοήθεια! Το πλοίο γέρνει!', 'Κρατηθείτε! Έρχεται μεγάλο κύμα!'];
-      const index = Math.floor(now * .13) % cries.length;
-      speak(cries[index]);
-      nextCry = now + 13 - panic * .045;
-    }
   }
+
   function stop() {
-    active = false;
+    active = false;stopVoice();
     if (context) ramp(master.gain, 0, .18);
     for (const source of liveEffects) { try { source.stop(); } catch (_) {} }
     liveEffects.clear();
     try { synth()?.cancel(); } catch (_) {}
     currentUtterance = null;
   }
-  return { start, setEnabled, get enabled() { return enabled; }, update, horn, collision, thunder, speak, stop };
+  return { start, setEnabled, get enabled() { return enabled; }, update, horn, collision, thunder, speak, voice, loadVoices, stopVoice, voiceStatus, stop };
 }

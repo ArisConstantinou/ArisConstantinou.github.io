@@ -326,7 +326,8 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
     const bones = bonesOf(model);
     const gestureBones = ['leftarm', 'rightarm', 'leftforearm', 'rightforearm', 'spine2', 'head'].map((n) => bones.map.get(n)).filter(Boolean);
     const p = {
-      id: i, group, model, mixer, actions, bones, gestureBones,
+      id: i, group, model, mixer, actions, bones, gestureBones, isCrew,
+      seenAt:null,alertUntil:0,reactKind:null,personalPanic:0,
       gestureBase: gestureBones.map((b) => b.quaternion.clone()),
       height, zone, ring, vest, target: new THREE.Vector3(),
       velocity: new THREE.Vector3(), status: 'onboard', waterAge: 0,
@@ -348,7 +349,7 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
     );
     p.group.rotation.set(0, random() * Math.PI * 2, 0);
     p.status = rescued ? 'rescued' : 'onboard';
-    p.waterAge = 0;
+    p.waterAge = 0;p.seenAt=null;p.alertUntil=0;p.personalPanic=0;
     p.group.visible = true;
     p.ring.visible = false;
     p.vest.visible = rescued;
@@ -438,6 +439,11 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
       }
     }
     for (const p of people) {
+      const danger=lastState.danger;
+      if(active&&danger?.risk>.04){if(p.seenAt===null)p.seenAt=time;}else p.seenAt=null;
+      const noticed=p.seenAt!==null&&time-p.seenAt>(p.isCrew?.15:.4+(p.id%5)*.19);
+      const personalPanic=Math.max(panic,noticed?danger.risk*92:0);p.personalPanic=personalPanic;
+      if(noticed&&p.wait>0)p.wait=Math.min(p.wait,.25);
       const onDeck = p.status === 'onboard' || p.status === 'rescued';
       let walking = false;
       if (onDeck && active) {
@@ -445,10 +451,10 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
         const dx = p.target.x - p.group.position.x, dz = p.target.z - p.group.position.z;
         const distance = Math.hypot(dx, dz);
         if (distance < 0.25) {
-          if (p.wait <= 0) pickTarget(p, panic);
+          if (p.wait <= 0) pickTarget(p, personalPanic);
         } else if (p.wait <= 0) {
           walking = true;
-          const velocity = p.stepSpeed * (panic > 48 && p.status !== 'rescued' ? 1.95 : 1);
+          const velocity = p.stepSpeed * (personalPanic > 48 && p.status !== 'rescued' ? 1.95 : 1);
           const move = Math.min(distance, velocity * step);
           let nx = p.group.position.x + dx / distance * move;
           let nz = p.group.position.z + dz / distance * move;
@@ -474,7 +480,7 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
         p.group.position.y = p.zone.y;
         p.group.rotation.z = clamp(-(lastState.roll || 0) * 0.28, -0.14, 0.14);
       }
-      if (onDeck) setMotion(p, walking ? (panic > 48 && p.status !== 'rescued' ? 'run' : 'walk') : 'idle');
+      if (onDeck) setMotion(p, walking ? (personalPanic > 48 && p.status !== 'rescued' ? 'run' : 'walk') : 'idle');
       if (p.status === 'jumping' && active) {
         p.velocity.y -= 9.81 * step;
         p.group.position.addScaledVector(p.velocity, step);
@@ -521,7 +527,8 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
         p.gestureBase.forEach((q, k) => p.gestureBones[k].quaternion.copy(q));
       }
       const afloat = !onDeck;
-      const alarm = active && p.status === 'onboard' ? clamp((panic - 42) / 48, 0, 1) : 0;
+      const alarm = active && p.status === 'onboard' ? clamp((personalPanic - 35) / 48, 0, 1) : 0;
+      if(onDeck&&noticed&&danger&&time<p.alertUntil){p.group.updateWorldMatrix(true,true);const direction=p.group.worldToLocal(new THREE.Vector3(danger.x,p.group.getWorldPosition(new THREE.Vector3()).y+2,danger.z)).normalize();aimArm(p,'right',direction,.7);}
       if (afloat || alarm > 0.03) {
         p.group.updateWorldMatrix(true, true);
         const waving = Math.sin(time * 3.5 + p.phase) * 0.12;
@@ -532,5 +539,7 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
   }
 
   reset();
-  return { update, reset, getStats, jumpOne, rescueNear, ready: true };
+  function getSpeakers(){return people.map(p=>({id:p.id,group:p.group,height:p.height,crew:p.isCrew,status:p.status,panic:p.personalPanic}));}
+  function react(id,kind='warning',duration=3){const p=people.find(p=>p.id===id);if(p){p.alertUntil=lastTime+duration;p.reactKind=kind;p.wait=0;}}
+  return {update,reset,getStats,getSpeakers,react,jumpOne,rescueNear,ready:true};
 }

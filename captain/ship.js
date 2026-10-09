@@ -500,7 +500,7 @@ export function createShip() {
 
   // Bring the helm close to the glazing so the bow is visible below the horizon.
   bridgeGroup.position.z=3.6;
-  const bridgeCameraPosition=new THREE.Vector3(0,20.42,46.25);
+  const bridgeCameraPosition=new THREE.Vector3(0,20.48,45.55);
   const bridgeLookTarget=new THREE.Vector3(0,19.30,85);
   const deckZones=[
     {name:'port-promenade',minX:-11.2,maxX:-9.75,minZ:-36,maxZ:30,y:9.9},

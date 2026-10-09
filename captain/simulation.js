@@ -8,7 +8,7 @@ export function newVoyage(difficulty=0){
     roll:0,pitch:0,storm:difficulty?1:.73,difficulty,time:0,drinks:0,collisions:0,
     collisionCooldown:0,drinkCooldown:0,hornCooldown:0,announceCooldown:0,rescueCooldown:0,
     drinkAnim:0,impact:0,nearest:null,distance:3800,progress:0,ended:false,won:false,
-    nearMisses:0,passed:new Set(),lastWarning:0,focus:0,score:0};
+    nearMisses:0,passed:new Set(),lastWarning:0,focus:0,score:0,danger:null};
 }
 export function hullContact(s,obstacle){
   // A capsule runs along the whole hull, preventing its bow/stern passing through terrain.
@@ -101,8 +101,9 @@ export function advance(s,dt,input,obstacles,sampleHeight,harbor,onEvent=()=>{})
     const motionPanic=Math.max(0,Math.abs(s.roll)-.068)*3.5;
     const drinkPanic=Math.max(0,s.intox-43)*.0045;
     const speedPanic=Math.max(0,s.speed-12)*.017;
-    const settle=s.focus>0?.43:s.speed<6?.115:.045;
-    s.panic=clamp(s.panic+(motionPanic+drinkPanic+speedPanic-settle)*h,0,100);
+    const anticipation=(s.danger?.risk||0)*(1.6+Math.abs(s.speed)*.12);
+    const settle=s.focus>0?.43:Math.abs(s.speed)<6?.115:.045;
+    s.panic=clamp(s.panic+(motionPanic+drinkPanic+speedPanic+anticipation-settle)*h,0,100);
     if(s.hull<20)s.hull=Math.max(0,s.hull-h*.075);
     s.distance=Math.hypot(harbor.x-s.x,harbor.z-s.z);
     s.progress=clamp(s.z/harbor.z,0,1);
@@ -122,9 +123,22 @@ export function advance(s,dt,input,obstacles,sampleHeight,harbor,onEvent=()=>{})
       if(lateral<o.radius+65&&lateral>o.radius+12){s.nearMisses++;onEvent({type:'nearMiss'});}
     }
   }
-  s.nearest=nearest;
+  s.danger=predictDanger(s,obstacles);
+  s.nearest=s.danger||nearest;
 }
 export function voyageScore(s,stats){
   const safe=(stats.onboard||0)+(stats.rescued||0);
   return Math.max(0,Math.round(s.progress*1200+safe*100+(stats.rescued||0)*120+s.hull*7+s.nearMisses*70+s.drinks*45-(stats.lost||0)*200-s.collisions*80+(s.won?Math.max(0,700-s.time):0)));
+}
+
+// Predict swept-hull danger, including astern travel; ignore rocks behind us.
+export function predictDanger(s,obstacles){
+ const speed=Math.abs(s.speed),sign=s.speed<-.15?-1:1;if(speed<.6)return null;
+ const fx=Math.sin(s.heading)*sign,fz=Math.cos(s.heading)*sign;let best=null;
+ for(const o of obstacles){const dx=o.x-s.x,dz=o.z-s.z,forward=dx*fx+dz*fz,lateral=Math.abs(dx*fz-dz*fx),r=o.radius+16,reach=sign>0?62:55;
+  if(forward<=0||lateral>r)continue;
+  const clearance=forward-Math.sqrt(Math.max(0,r*r-lateral*lateral))-reach,tti=Math.max(0,clearance)/speed;
+  if(clearance>Math.max(140,speed*20)||tti>23)continue;
+  const risk=clamp(1-tti/23,0,1);if(!best||tti<best.tti)best={id:o.id,type:o.type,x:o.x,z:o.z,radius:o.radius,clearance,tti,risk,astern:sign<0};
+ }return best;
 }

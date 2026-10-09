@@ -73,7 +73,7 @@ with sync_playwright() as p:
   page.evaluate("document.getElementById('toast').classList.add('hidden');document.getElementById('radio').style.opacity='0'")
   page.screenshot(path=str(OUT/'bridge-portrait.png'));report['devices'].append({'name':'phone-portrait','viewport':[430,744],'state':state(page)})
   page.evaluate('window.__lastCall.test.camera(0)');frames(page,6);page.screenshot(path=str(OUT/'external-portrait.png'))
-  page.evaluate('window.__lastCall.test.camera(2)');frames(page,6);page.evaluate("window.__lastCall.test.say('calm')");frames(page);page.screenshot(path=str(OUT/'deck-dialogue.png'))
+  page.evaluate('window.__lastCall.test.camera(2)');frames(page,6);page.evaluate("window.__lastCall.test.say('panic')");frames(page);page.screenshot(path=str(OUT/'deck-dialogue.png'))
   report['bubble_rendering']=page.locator('.person-bubble').evaluate_all('(els)=>els.map(e=>({person:e.dataset.person,anchored:e.dataset.anchored}))')
   page.set_viewport_size({'width':932,'height':430});page.evaluate('window.__lastCall.test.camera(1)');frames(page,6);page.screenshot(path=str(OUT/'bridge-landscape.png'))
   check('Landscape actions and lever visible',page.locator('#drink').is_visible() and page.locator('#engineLever').is_visible())

@@ -1,0 +1,512 @@
+{
+  "version": "1.3.0",
+  "url": "http://127.0.0.1:8765/captain/",
+  "checks": [
+    {
+      "name": "Frame loop runs after Start",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "Release marker visible",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Old half-screen panel removed",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Cabin arrows and actions accessible",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Arrows follow projected wheel",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Hold without moving steers left",
+      "pass": true,
+      "details": -0.58
+    },
+    {
+      "name": "Outward slide increases steering",
+      "pass": true,
+      "details": -1
+    },
+    {
+      "name": "Two fingers independently steer and power",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Lever middle is neutral",
+      "pass": true,
+      "details": 0
+    },
+    {
+      "name": "Lower half engages reverse",
+      "pass": true,
+      "details": -0.33749999999999997
+    },
+    {
+      "name": "Power stays latched after release",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Wheel release clears steering",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Reverse actually moves ship backward",
+      "pass": true,
+      "details": -3.3749999999999996
+    },
+    {
+      "name": "Camera change clears held input",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Deck has compact pad and actions",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "External controls use correct mode",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "External sliding pad steers right",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Whisky action remains accessible outside",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Touch controls cover under 15 percent",
+      "pass": true,
+      "details": 0.071
+    },
+    {
+      "name": "Text selection disabled",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "All 18 voice files decoded",
+      "pass": true,
+      "details": {
+        "engine": "prerendered-neural",
+        "loaded": 18,
+        "failed": 0,
+        "played": 0,
+        "active": false
+      }
+    },
+    {
+      "name": "Danger detected before impact",
+      "pass": true,
+      "details": {
+        "danger": {
+          "id": "hazard-2",
+          "type": "ice",
+          "x": 215,
+          "z": 655,
+          "radius": 68.04093337820294,
+          "clearance": 85.51224003747248,
+          "tti": 7.36920372608347,
+          "risk": 0.6795998379963708,
+          "astern": false
+        },
+        "hull": 100,
+        "collisions": 0
+      }
+    },
+    {
+      "name": "Passenger warning before impact",
+      "pass": true,
+      "details": {
+        "bubbles": 1,
+        "pending": 1,
+        "history": [
+          {
+            "id": "ice",
+            "time": 0.21666666666666665,
+            "person": 0,
+            "clip": true,
+            "priority": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "Actual voice playback started",
+      "pass": true,
+      "details": {
+        "engine": "prerendered-neural",
+        "loaded": 18,
+        "failed": 0,
+        "played": 1,
+        "active": false
+      }
+    },
+    {
+      "name": "Warning belongs to a specific person",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Landscape actions and lever visible",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Small-phone controls stay in viewport",
+      "pass": true,
+      "details": [
+        {
+          "id": "helmLeft",
+          "x": 26.703125,
+          "y": 462.28125,
+          "w": 52,
+          "h": 56
+        },
+        {
+          "id": "helmRight",
+          "x": 296.28125,
+          "y": 462.28125,
+          "w": 52,
+          "h": 56
+        },
+        {
+          "id": "engineLever",
+          "x": 315,
+          "y": 331.5,
+          "w": 42,
+          "h": 112
+        },
+        {
+          "id": "leverNeutral",
+          "x": 277,
+          "y": 371.5,
+          "w": 36,
+          "h": 36
+        },
+        {
+          "id": "drink",
+          "x": 89,
+          "y": 595,
+          "w": 44,
+          "h": 46
+        },
+        {
+          "id": "horn",
+          "x": 140,
+          "y": 595,
+          "w": 44,
+          "h": 46
+        },
+        {
+          "id": "announce",
+          "x": 191,
+          "y": 595,
+          "w": 44,
+          "h": 46
+        },
+        {
+          "id": "rescue",
+          "x": 242,
+          "y": 595,
+          "w": 44,
+          "h": 46
+        },
+        {
+          "id": "recenterHelm",
+          "x": 16,
+          "y": 598,
+          "w": 40,
+          "h": 40
+        }
+      ]
+    },
+    {
+      "name": "Pause clears gesture state",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Resume restores frame loop",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "No uncaught phone browser errors",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "Desktop A steers left",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Desktop Space selects neutral",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Desktop camera switch works",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "No uncaught desktop errors",
+      "pass": true,
+      "details": []
+    }
+  ],
+  "devices": [
+    {
+      "name": "phone-portrait",
+      "viewport": [
+        430,
+        744
+      ],
+      "state": {
+        "version": "1.3.0",
+        "ready": true,
+        "playing": true,
+        "paused": false,
+        "camera": "ΓΕΦΥΡΑ",
+        "frames": 159,
+        "time": 0.8666666666666677,
+        "hull": 100,
+        "intox": 0,
+        "panic": 5.90033333333335,
+        "speed": 0.3813333333333337,
+        "rudder": 0,
+        "throttle": 0.55,
+        "turn": 0,
+        "heading": 0,
+        "x": 0.12921474492129095,
+        "z": 0.16842222222222225,
+        "collisions": 0,
+        "danger": null,
+        "distance": 3799.831579974776,
+        "people": {
+          "total": 24,
+          "onboard": 24,
+          "inWater": 0,
+          "rescued": 0,
+          "lost": 0,
+          "ready": true,
+          "modelCount": 2,
+          "inWaterPositions": []
+        },
+        "controls": {
+          "turn": 0,
+          "steering": false,
+          "lever": false,
+          "mode": 1,
+          "layout": {
+            "x": 215,
+            "y": 561.1966908809061,
+            "radius": 151.08992711178945,
+            "left": 63.91007288821055,
+            "right": 366.08992711178945,
+            "projected": true
+          }
+        },
+        "dialogue": {
+          "bubbles": 0,
+          "pending": 0,
+          "history": [
+            {
+              "id": "ice",
+              "time": 0.21666666666666665,
+              "person": 0,
+              "clip": true,
+              "priority": 2
+            }
+          ]
+        },
+        "voices": {
+          "engine": "prerendered-neural",
+          "loaded": 18,
+          "failed": 0,
+          "played": 1,
+          "active": false
+        },
+        "drawCalls": 1,
+        "triangles": 2
+      }
+    },
+    {
+      "name": "phone-landscape",
+      "viewport": [
+        932,
+        430
+      ],
+      "state": {
+        "version": "1.3.0",
+        "ready": true,
+        "playing": true,
+        "paused": false,
+        "camera": "ΓΕΦΥΡΑ",
+        "frames": 222,
+        "time": 3.866666666666658,
+        "hull": 100,
+        "intox": 0,
+        "panic": 5.555333333333408,
+        "speed": 1.7013333333333398,
+        "rudder": 0,
+        "throttle": 0.55,
+        "turn": 0,
+        "heading": 0,
+        "x": 0.6167278348414124,
+        "z": 3.303422222222227,
+        "collisions": 0,
+        "danger": null,
+        "distance": 3796.6966278677983,
+        "people": {
+          "total": 24,
+          "onboard": 24,
+          "inWater": 0,
+          "rescued": 0,
+          "lost": 0,
+          "ready": true,
+          "modelCount": 2,
+          "inWaterPositions": []
+        },
+        "controls": {
+          "turn": 0,
+          "steering": false,
+          "lever": false,
+          "mode": 1,
+          "layout": {
+            "x": 466,
+            "y": 318,
+            "radius": 96.60842561568475,
+            "left": 369.3915743843153,
+            "right": 562.6084256156847,
+            "projected": true
+          }
+        },
+        "dialogue": {
+          "bubbles": 1,
+          "pending": 0,
+          "history": [
+            {
+              "id": "ice",
+              "time": 0.21666666666666665,
+              "person": 0,
+              "clip": true,
+              "priority": 2
+            },
+            {
+              "id": "panic",
+              "time": 2.0499999999999976,
+              "person": 5,
+              "clip": true,
+              "priority": 1
+            }
+          ]
+        },
+        "voices": {
+          "engine": "prerendered-neural",
+          "loaded": 18,
+          "failed": 0,
+          "played": 2,
+          "active": false
+        },
+        "drawCalls": 1,
+        "triangles": 2
+      }
+    },
+    {
+      "name": "desktop",
+      "viewport": [
+        1280,
+        800
+      ],
+      "state": {
+        "version": "1.3.0",
+        "ready": true,
+        "playing": true,
+        "paused": false,
+        "camera": "ΚΑΤΑΣΤΡΩΜΑ",
+        "frames": 53,
+        "time": 1.4333333333333331,
+        "hull": 100,
+        "intox": 0,
+        "panic": 5.835166666666694,
+        "speed": 0,
+        "rudder": -0.025581796549470095,
+        "throttle": 0,
+        "turn": 0,
+        "heading": 8.084559464902597e-05,
+        "x": 0.21654320334518043,
+        "z": 0.0717999999397591,
+        "collisions": 0,
+        "danger": null,
+        "distance": 3799.9282061700396,
+        "people": {
+          "total": 24,
+          "onboard": 24,
+          "inWater": 0,
+          "rescued": 0,
+          "lost": 0,
+          "ready": true,
+          "modelCount": 2,
+          "inWaterPositions": []
+        },
+        "controls": {
+          "turn": 0,
+          "steering": false,
+          "lever": false,
+          "mode": 2,
+          "layout": {
+            "x": 640,
+            "y": 603.4373020224805,
+            "radius": 154.6175867530065,
+            "left": 485.3824132469935,
+            "right": 794.6175867530064,
+            "projected": true
+          }
+        },
+        "dialogue": {
+          "bubbles": 0,
+          "pending": 0,
+          "history": []
+        },
+        "voices": {
+          "engine": "prerendered-neural",
+          "loaded": 18,
+          "failed": 0,
+          "played": 0,
+          "active": false
+        },
+        "drawCalls": 1,
+        "triangles": 2
+      }
+    }
+  ],
+  "bubble_rendering": [
+    {
+      "person": "5",
+      "anchored": "false"
+    }
+  ],
+  "errors": [],
+  "passed": true
+}
