@@ -1,0 +1,68 @@
+name: Captain identity 1.7.2 validation
+on:
+  push:
+    branches: [captain-identity-172]
+    paths: ['.github/workflows/captain-identity172.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: captain-identity172
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare the reviewed identity-only code
+        run: |
+          python captain/tools/refit172.py
+          for f in captain/*172.js; do node --check "$f"; done
+          node --test captain/tests/chaos170.test.mjs
+      - name: Fetch licensed model data
+        run: |
+          mkdir -p /tmp/civilian172/hair
+          ROOT='https://raw.githubusercontent.com/NafisRayan/Animate-Rigged-Humanoid-No-Blender/5821923af517ac5fdc82505faa92a0d575fc1b1a'
+          curl --fail --location --retry 2 "$ROOT/test/human_male.glb" --output /tmp/civilian172/human_male.glb
+          curl --fail --location --retry 2 "$ROOT/test/human_female.glb" --output /tmp/civilian172/human_female.glb
+          BASE="$ROOT/Universal%20Base%20Characters%5BStandard%5D/Universal%20Base%20Characters%5BStandard%5D"
+          curl --fail --location --retry 2 "$BASE/License_Standard.txt" --output /tmp/civilian172/License_Standard.txt
+          HAIR="$BASE/Hairstyles/Origin%20at%200/glTF%20%28Godot%29"
+          for NAME in Hair_Buzzed Hair_SimpleParted Hair_Long Hair_Buns Hair_Beard; do
+            curl --fail --location --retry 2 "$HAIR/$NAME.gltf" --output "/tmp/civilian172/hair/$NAME.gltf"
+            curl --fail --location --retry 2 "$HAIR/$NAME.bin" --output "/tmp/civilian172/hair/$NAME.bin"
+          done
+          for NAME in T_Hair_1_BaseColor.png T_Hair_1_Normal.png T_Hair_2_BaseColor.png T_Hair_2_Normal.png; do
+            curl --fail --location --retry 2 "$HAIR/$NAME" --output "/tmp/civilian172/hair/$NAME"
+          done
+      - name: Pack bounded-size game assets and prepare browser
+        run: |
+          python -m pip install -q Pillow playwright
+          python captain/tools/pack_characters172.py /tmp/civilian172 captain/assets/civilian172
+          python -m playwright install --with-deps chromium
+      - name: Exercise actual rendering, input and chapter progression
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/captain172-http.log 2>&1 &
+          python captain/tools/qa172.py
+      - name: Commit verified game to staging only
+        run: |
+          cp /tmp/captain172-qa/results.json captain/tests/verified172.json
+          git config user.name 'Captain identity validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/
+          git commit -m 'Captain 1.7.2 validated: human captain, relaxed FPS limbs, navy security, mixed adult passengers'
+          git push origin HEAD:captain-identity-172
+      - name: Collect evidence and tested files
+        if: always()
+        run: |
+          mkdir -p /tmp/captain172-bundle
+          cp -R captain /tmp/captain172-bundle/captain
+          if [ -d /tmp/captain172-qa ]; then cp -R /tmp/captain172-qa /tmp/captain172-bundle/qa; fi
+          git rev-parse HEAD > /tmp/captain172-bundle/commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain172-identity-verified
+          path: /tmp/captain172-bundle
+          retention-days: 7
