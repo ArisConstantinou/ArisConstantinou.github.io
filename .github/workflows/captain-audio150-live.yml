@@ -41,22 +41,25 @@ jobs:
                   page=c.new_page();page.on('pageerror',lambda e:r['errors'].append(str(e)))
                   url=base+'?v=150&test=1'
                   def state():return page.evaluate('__lastCall.getState()')
+                  def clear_voice():
+                      page.evaluate('__lastCall.test.audio().stopVoice()');page.wait_for_timeout(150)
                   def speech(id):
                       page.wait_for_function("(id)=>{const s=__lastCall.getState().voices;if(s.lastClip?.id===id&&s.signal.voice.rms>.01&&s.signal.output.rms>.002){window.evidence=s;return true;}return false;}",arg=id,timeout=25000)
                       s=page.evaluate('window.evidence');check('Public spoken '+id+' reaches audible signal level',True,{'clip':s['lastClip'],'signal':s['signal'],'context':s['contextState']})
                   page.goto(url,wait_until='domcontentloaded');page.wait_for_function('window.__lastCall?.getState().ready',timeout=90000)
                   page.click('#start');speech('calm');check('Public version badge',page.locator('#releaseBadge').inner_text()=='v1.5.0')
-                  page.evaluate('__lastCall.test.audio().stopVoice()');page.click('#drink');speech('captain1')
-                  page.evaluate("__lastCall.test.audio().stopVoice();__lastCall.test.say('rock')");speech('rock')
-                  page.evaluate("__lastCall.test.audio().stopVoice();__lastCall.test.say('panic')");speech('panic')
+                  clear_voice();page.click('#drink');speech('captain1')
+                  clear_voice();page.evaluate("__lastCall.test.say('rock')");speech('rock')
+                  clear_voice();page.evaluate("__lastCall.test.say('panic')");speech('panic')
                   page.click('#sound');page.wait_for_timeout(700);s=state()['voices'];check('Public mute silences all channels',not s['enabled'] and s['signal']['output']['rms']<.0001,s['signal'])
                   page.click('#sound');page.evaluate("__lastCall.test.say('water')");speech('water')
                   page.click('#pause');page.locator('[data-clip=captain1]').click();speech('captain1')
-                  # Isolate each effect: zero ambient and voice channels first.
+                  # Respect the 0.1-second smoothing time constant: wait until the
+                  # baseline is actually quiet rather than assuming 350 ms is enough.
                   for method in ['horn','collision','thunder','scream','hiccup']:
                       page.evaluate("async()=>{const a=__lastCall.test.audio();a.stop();a.setVolume('voices',0);a.setVolume('environment',0);a.setVolume('effects',.85);await a.start();}")
-                      page.wait_for_timeout(350)
-                      check('Quiet baseline before '+method,state()['voices']['signal']['output']['rms']<.0001)
+                      page.wait_for_function('__lastCall.getState().voices.signal.output.rms<.0001',timeout=4000)
+                      check('Quiet baseline before '+method,True,state()['voices']['signal'])
                       page.evaluate("m=>{const a=__lastCall.test.audio();if(m==='scream'||m==='hiccup')a.vocalEffect(m);else a[m]();}",method)
                       page.wait_for_function("()=>{const s=__lastCall.getState().voices;if(s.signal.output.rms>.003){window.effectEvidence=s.signal;return true;}return false;}",timeout=8000)
                       check('Isolated '+method+' produces audible output',True,page.evaluate('effectEvidence'))
@@ -64,7 +67,6 @@ jobs:
                   page.wait_for_function('__lastCall.getState().voices.signal.output.rms>.001',timeout=10000);check('Environment has separate audible output',True)
                   page.evaluate("const a=__lastCall.test.audio();a.setVolume('voices',.95);a.setVolume('effects',.85)")
                   page.screenshot(path=str(out/'sound-menu.png'));page.click('#resume')
-                  # Warm the active service worker once, then verify offline speech.
                   page.evaluate('navigator.serviceWorker.ready');page.reload(wait_until='domcontentloaded');page.wait_for_function('window.__lastCall?.getState().ready',timeout=90000);page.click('#start');speech('calm')
                   page.wait_for_function('__lastCall.getState().voices.loaded===20',timeout=20000)
                   c.set_offline(True);page.reload(wait_until='domcontentloaded');page.wait_for_function('window.__lastCall?.getState().ready',timeout=90000);page.click('#start');speech('calm');check('Cached game and Greek speech work offline',True)
