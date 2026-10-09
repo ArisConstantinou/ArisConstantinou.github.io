@@ -14,7 +14,6 @@ export function createWalkMode({ship,camera,hud,getPeople,getState,onMessage,onD
   avatar=new THREE.Group();const model=cloneSkeleton(speaker.model);avatar.add(model);avatar.name='Playable captain';
   mixer=new THREE.AnimationMixer(model);actions={};for(const name of ['idle','walk'])if(speaker.clips?.[name])actions[name]=mixer.clipAction(speaker.clips[name]);
   avatar.traverse(o=>{if(o.isMesh){o.castShadow=true;o.frustumCulled=false;}});
-  const desired=v.lengthSq()>.02?'walk':'idle';if(desired!==motion&&actions[desired]){actions[motion]?.fadeOut(.18);actions[desired].reset().fadeIn(.18).play();motion=desired;}mixer?.update(dt);
   avatar.position.copy(p);avatar.rotation.y=0;ship.group.add(avatar);if(actions.idle){actions.idle.play();motion='idle';}
  }
  function enter(){
