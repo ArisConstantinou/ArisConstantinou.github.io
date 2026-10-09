@@ -1,0 +1,23 @@
+name: Captain chaos chapter review
+on:
+  push:
+    branches: [captain-chaos-180]
+    paths: ['.github/workflows/captain-chaos180.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p /tmp/captain-chaos-source
+          cp -R captain /tmp/captain-chaos-source/
+          git rev-parse HEAD > /tmp/captain-chaos-source/commit.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: captain-chaos-source
+          path: /tmp/captain-chaos-source
+          retention-days: 7
