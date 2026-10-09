@@ -1,0 +1,53 @@
+name: Captain 1.4 direct wheel validation
+on:
+  push:
+    branches: [captain-wheel-140]
+    paths: ['.github/workflows/captain-wheel140.yml','captain/tools/**','captain/helm140.js','captain/voice-store140.js','captain/voices140.js','captain/voices.html']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: captain-wheel-140
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply readable guarded migration
+        run: |
+          python captain/tools/refit140.py
+          for f in captain/*.js; do node --check "$f"; done
+      - name: Fetch licensed human nonverbal recordings
+        run: python captain/tools/human140.py
+      - name: Install real browser
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Test physical wheel, touch, layout and audio import
+        run: python captain/tools/qa140.py
+      - name: Save tested sources to staging branch only
+        run: |
+          mkdir -p captain/tests
+          cp /tmp/captain140-qa/results.json captain/tests/verified140.json
+          git config user.name 'Captain validated build'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/
+          if ! git diff --cached --quiet; then
+            git commit -m 'Captain 1.4: verified direct wheel and non-overlapping throttle; no machine speech'
+            git push origin HEAD:captain-wheel-140
+          fi
+      - name: Gather rendered evidence and source
+        if: always()
+        run: |
+          mkdir -p /tmp/captain140-bundle
+          cp -R captain /tmp/captain140-bundle/
+          if [ -d /tmp/captain140-qa ]; then cp -R /tmp/captain140-qa /tmp/captain140-bundle/qa; fi
+          git rev-parse HEAD > /tmp/captain140-bundle/commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain140-wheel-validation
+          path: /tmp/captain140-bundle
+          retention-days: 7
