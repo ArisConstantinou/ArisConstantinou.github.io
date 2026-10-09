@@ -1,0 +1,593 @@
+{
+  "version": "1.7.2",
+  "url": "http://127.0.0.1:8765/captain/",
+  "environment": "Chromium with software GPU; desktop and emulated touch mobile, not a physical iPhone",
+  "checks": [
+    {
+      "name": "desktop: new release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: sip and exit enters chapter",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: real skinned first-person limbs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: dedicated captain model",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: visible version badge",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: four male and three female guests",
+      "pass": true,
+      "detail": [
+        "male",
+        "female",
+        "male",
+        "female",
+        "male",
+        "female",
+        "male"
+      ]
+    },
+    {
+      "name": "desktop: bartender staff model",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: eight different clothing and hair profiles",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: no old soldier or Michelle requested",
+      "pass": true,
+      "detail": [
+        "http://127.0.0.1:8765/captain/assets/civilian172/male.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/female.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/Hair_Buzzed.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/Hair_SimpleParted.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/Hair_Long.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/Hair_Buns.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/Hair_Beard.glb"
+      ]
+    },
+    {
+      "name": "desktop: idle wrists lowered beside waist",
+      "pass": true,
+      "detail": {
+        "leftarm": {
+          "local": [
+            0.2016147716654358,
+            1.4059178005970774,
+            -0.017487560262161143
+          ],
+          "screen": [
+            3.361399992096341,
+            0.2970148574565072,
+            1.169411109719155
+          ]
+        },
+        "leftforearm": {
+          "local": [
+            0.3491744858100199,
+            1.1714098751135114,
+            -0.04379228532328484
+          ],
+          "screen": [
+            3.7575349937712814,
+            0.601833685665058,
+            1.1849567857892334
+          ]
+        },
+        "lefthand": {
+          "local": [
+            0.26314337528714177,
+            0.9426461353735756,
+            0.07891823270558974
+          ],
+          "screen": [
+            3.6709620270937062,
+            0.8798370527300197,
+            1.186489418361596
+          ]
+        },
+        "rightarm": {
+          "local": [
+            -0.17738958162405807,
+            1.415359836792039,
+            -0.13930202697952868
+          ],
+          "screen": [
+            2.478870550210906,
+            0.2179861752764741,
+            1.1287729240908089
+          ]
+        },
+        "rightforearm": {
+          "local": [
+            -0.29932103802325033,
+            1.1884341571146566,
+            -0.03945625906386852
+          ],
+          "screen": [
+            2.3447071930239733,
+            0.39645120933571226,
+            1.126058570968707
+          ]
+        },
+        "righthand": {
+          "local": [
+            -0.26536630917621823,
+            0.9441785986919593,
+            0.07623814289180332
+          ],
+          "screen": [
+            2.460503906078588,
+            0.6327774363545908,
+            1.1344029425035715
+          ]
+        }
+      }
+    },
+    {
+      "name": "desktop: captain panel shows actual full body",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: captain inspection pauses game",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: full body has relaxed idle arms",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: captain panel fits screen",
+      "pass": true,
+      "detail": {
+        "x": 242.5,
+        "y": 125,
+        "width": 880,
+        "height": 650
+      }
+    },
+    {
+      "name": "desktop: inspection returns to gameplay",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop joystick absent",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop WASD visible",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All four labelled keycaps",
+      "pass": true,
+      "detail": [
+        "WΜΠΡΟΣΤΑ",
+        "AΑΡΙΣΤΕΡΑ",
+        "SΠΙΣΩ",
+        "DΔΕΞΙΑ"
+      ]
+    },
+    {
+      "name": "KeyW held feedback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyW moves captain",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyW release clears highlight",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyA held feedback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyA moves captain",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyA release clears highlight",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyS held feedback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyS moves captain",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyS release clears highlight",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyD held feedback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyD moves captain",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyD release clears highlight",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walking does not accelerate ship",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Pause clears held-key highlights",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Deck phase activates",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop 932x430 keeps WASD",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop 600x900 keeps WASD",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Key 1 starts slap",
+      "pass": true,
+      "detail": {
+        "kind": "slap",
+        "t": 0,
+        "landed": false
+      }
+    },
+    {
+      "name": "slap: finite human joints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Key 2 starts heavy",
+      "pass": true,
+      "detail": {
+        "kind": "heavy",
+        "t": 0,
+        "landed": false
+      }
+    },
+    {
+      "name": "heavy: finite human joints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Key 3 starts punch",
+      "pass": true,
+      "detail": {
+        "kind": "punch",
+        "t": 0,
+        "landed": false
+      }
+    },
+    {
+      "name": "punch: finite human joints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Key 4 starts kick",
+      "pass": true,
+      "detail": {
+        "kind": "kick",
+        "t": 0,
+        "landed": false
+      }
+    },
+    {
+      "name": "kick: finite human joints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Numpad6 blocks",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Window still breaks",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Security actor spawns",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All guards have ship security profiles",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Male and female security crew",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Arrest hides keyboard guide",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Chapter still ends in cell",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Replay resets to helm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All 18 speech files retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: no uncaught errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "mobile: new release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: sip and exit enters chapter",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: real skinned first-person limbs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: dedicated captain model",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: visible version badge",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: four male and three female guests",
+      "pass": true,
+      "detail": [
+        "male",
+        "female",
+        "male",
+        "female",
+        "male",
+        "female",
+        "male"
+      ]
+    },
+    {
+      "name": "mobile: bartender staff model",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: eight different clothing and hair profiles",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: no old soldier or Michelle requested",
+      "pass": true,
+      "detail": [
+        "http://127.0.0.1:8765/captain/assets/civilian172/male.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/female.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/Hair_Buzzed.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/Hair_SimpleParted.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/Hair_Long.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/Hair_Buns.glb",
+        "http://127.0.0.1:8765/captain/assets/civilian172/Hair_Beard.glb"
+      ]
+    },
+    {
+      "name": "mobile: idle wrists lowered beside waist",
+      "pass": true,
+      "detail": {
+        "leftarm": {
+          "local": [
+            0.20192486348283456,
+            1.405413154961522,
+            -0.01753338556027728
+          ],
+          "screen": [
+            31.895829101477403,
+            20.065540935129732,
+            12.406865990672754
+          ]
+        },
+        "leftforearm": {
+          "local": [
+            0.3497160721864452,
+            1.1710774876617691,
+            -0.044101031200519
+          ],
+          "screen": [
+            21.962602558199613,
+            14.777892631561825,
+            5.535068577818471
+          ]
+        },
+        "lefthand": {
+          "local": [
+            0.2631585874584679,
+            0.9426931538697794,
+            0.07892415776277062
+          ],
+          "screen": [
+            -9.236875843082332,
+            -11.961584356136171,
+            -1.5340805819418286
+          ]
+        },
+        "rightarm": {
+          "local": [
+            -0.17712443517736887,
+            1.41579411562941,
+            -0.13914198494488517
+          ],
+          "screen": [
+            -3.523846038545663,
+            2.4335809463117646,
+            2.437394995747688
+          ]
+        },
+        "rightforearm": {
+          "local": [
+            -0.29860567482790623,
+            1.188620853946862,
+            -0.03937652066321817
+          ],
+          "screen": [
+            -20.991617909126802,
+            15.984361387615092,
+            6.07919841842784
+          ]
+        },
+        "righthand": {
+          "local": [
+            -0.26535601128094966,
+            0.9442586594744498,
+            0.07626031817736845
+          ],
+          "screen": [
+            9.6301108325628,
+            -12.35466335641381,
+            -1.6225985232104407
+          ]
+        }
+      }
+    },
+    {
+      "name": "mobile: captain panel shows actual full body",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: captain inspection pauses game",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: full body has relaxed idle arms",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: captain panel fits screen",
+      "pass": true,
+      "detail": {
+        "x": 12.90625,
+        "y": 56,
+        "width": 404.1875,
+        "height": 820
+      }
+    },
+    {
+      "name": "mobile: inspection returns to gameplay",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Phone retains touch joystick",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Phone hides WASD guide",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch gesture moves captain",
+      "pass": true,
+      "detail": [
+        {
+          "x": 3.0009297929302186,
+          "y": 18.43,
+          "z": 40
+        },
+        {
+          "x": 3.0057576456045774,
+          "y": 18.43,
+          "z": 40.447636261599996
+        }
+      ]
+    },
+    {
+      "name": "Phone numbered combat buttons remain visible",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: no uncaught errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "passed": true
+}

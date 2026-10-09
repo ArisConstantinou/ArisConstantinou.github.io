@@ -51,6 +51,7 @@ export function createActor(template,parent,{fps=false,guard=false,id=0}={}){
  function hand(side,xyz,elbow,openness=0){solveArm(side,point(...xyz),point(...elbow));}
  function setFingers(amount){for(const [n,b]of fingers){b.quaternion.copy(open.get(n));if(closed.has(n))b.quaternion.slerp(closed.get(n),amount);}}
  function tick(dt,{speed=0,attack=null,block=false,flinch=0,drunk=0,down=0,time=0,held=false,drinking=0,sitting=false}={}){
+  dt=Math.max(0,Math.min(.1,Number.isFinite(dt)?dt:0));
   // Restore every overlayed joint, including all finger joints, before advancing animation.
   for(const [n,bq]of bases)bones.get(n).quaternion.copy(bq);
   const wanted=sitting&&actions.sit?'sit':speed>.15?'walk':'idle';

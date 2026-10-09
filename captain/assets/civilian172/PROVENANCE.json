@@ -1,0 +1,46 @@
+{
+  "author": "Quaternius",
+  "license": "CC0 1.0",
+  "authorPage": "https://quaternius.com/packs/universalbasecharacters.html",
+  "animationAuthorPage": "https://quaternius.com/packs/universalanimationlibrary.html",
+  "sourceMirror": "https://github.com/NafisRayan/Animate-Rigged-Humanoid-No-Blender/tree/main/test",
+  "modifications": "Only required animations retained; texture sizes reduced; geometry, weights and bind pose preserved. Clothing and role identities are added in characters172.js.",
+  "assets": [
+    {
+      "file": "male.glb",
+      "bytes": 3008204,
+      "sha256": "11e6c033f61abb38b64f795cbf019f8c772238dcde4b272bec965ac9f792660c",
+      "sourceSha256": "853d0a785345afadc3ed423bd3bb72144debe00cd0bb52c258e00387ab40f162",
+      "clips": [
+        "A_TPose",
+        "Hit_Chest",
+        "Hit_Head",
+        "Idle_Loop",
+        "Jog_Fwd_Loop",
+        "Punch_Cross",
+        "Punch_Jab",
+        "Sitting_Idle_Loop",
+        "Walk_Loop",
+        "Consume"
+      ]
+    },
+    {
+      "file": "female.glb",
+      "bytes": 3020068,
+      "sha256": "74e4d69e0a629a587398329a815fdd4fc38cb41f89ba18d03aa68e9806572589",
+      "sourceSha256": "04a968344dc3675e4f15bebfcbbd062b79b28d6b3d64cd8074d9759dd76076ac",
+      "clips": [
+        "A_TPose",
+        "Hit_Chest",
+        "Hit_Head",
+        "Idle_Loop",
+        "Jog_Fwd_Loop",
+        "Punch_Cross",
+        "Punch_Jab",
+        "Sitting_Idle_Loop",
+        "Walk_Loop",
+        "Consume"
+      ]
+    }
+  ]
+}
