@@ -1,0 +1,26 @@
+name: Captain reference inspection
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/captain-reference.yml']
+permissions:
+  contents: read
+jobs:
+  reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Read public reference
+        run: |
+          mkdir -p reference
+          python -m pip install -q yt-dlp
+          timeout 100s python -m yt_dlp --no-playlist --max-filesize 20M --socket-timeout 15 --retries 1 --write-info-json --write-description --write-subs --sub-langs 'el,en' --write-thumbnail -f 'best[height<=480]/best' -o 'reference/video.%(ext)s' 'https://www.youtube.com/watch?v=9yhSBpqm4LE' > reference/inspection.log 2>&1 || true
+          if [ -f reference/video.mp4 ]; then
+            ffmpeg -loglevel error -i reference/video.mp4 -vf 'fps=1/8,scale=480:-1' reference/frame-%03d.jpg
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: captain-reference
+          path: reference
+          retention-days: 1

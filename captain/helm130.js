@@ -1,55 +1,43 @@
-// Pointer-captured analogue helm. No keyboard events or frame-loop globals.
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const arrow=(left)=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${left?'M15 5l-7 7 7 7':'M9 5l7 7-7 7'}"/></svg>`;
-export function createHelm({hud,input,setThrottle,active,recenter}) {
-  const root=document.createElement('div');root.id='compactHelm';
-  root.innerHTML=`<div class="lc-wheel" hidden><button class="lc-arrow lc-port" aria-label="Αριστερά: κράτησε και σύρε">${arrow(true)}</button><div class="lc-wheel-hit" role="slider" tabindex="0" aria-label="Τιμόνι: σύρε αριστερά ή δεξιά" aria-valuemin="-35" aria-valuemax="35" aria-valuenow="0"></div><button class="lc-arrow lc-starboard" aria-label="Δεξιά: κράτησε και σύρε">${arrow(false)}</button><output class="lc-wheel-angle">0°</output></div>
-  <div class="lc-pad"><span class="lc-control-caption">ΤΙΜΟΝΙ</span><div class="lc-pad-track" role="slider" tabindex="0" aria-label="Τιμόνι: σύρε αριστερά ή δεξιά" aria-valuemin="-35" aria-valuemax="35" aria-valuenow="0">${arrow(true)}<i class="lc-puck"><span></span></i>${arrow(false)}</div><button class="lc-recenter" hidden>Στο τιμόνι ↗</button></div>
-  <div class="lc-engine"><output class="lc-power">ΠΡΟΣΩ 55%</output><span class="lc-ahead">ΠΡΟΣΩ</span><div class="lc-lever" role="slider" tabindex="0" aria-label="Μοχλός μηχανών: πάνω πρόσω, κέντρο κράτει, κάτω ανάποδα" aria-orientation="vertical" aria-valuemin="-35" aria-valuemax="100" aria-valuenow="55"><div class="lc-lever-rail"></div><span class="lc-zero">0</span><i class="lc-lever-grip"><span></span></i></div><span class="lc-astern">ΑΝΑΠΟΔΑ</span><button class="lc-neutral" aria-label="Μηχανές κράτει">ΚΡΑΤΕΙ</button></div>
-  <div class="lc-dock"><div class="lc-speed"></div><div class="lc-actions"></div><small class="lc-version">1.3.0 · TOUCH HELM</small></div>`;
-  hud.append(root);document.getElementById('announce').querySelector('b').textContent='ΜΙΛΑ';
-  const $=s=>root.querySelector(s),wheel=$('.lc-wheel'),hit=$('.lc-wheel-hit'),pad=$('.lc-pad'),padTrack=$('.lc-pad-track'),lever=$('.lc-lever'),grip=$('.lc-lever-grip');
-  for(const id of ['drink','horn','announce','rescue']){const el=document.getElementById(id);if(el)$('.lc-actions').append(el);}
-  const speed=document.querySelector('.speed-readout');if(speed)$('.lc-speed').append(speed);
-  let held=null,enginePointer=null,turn=0,mode=-1,wheelX=0,wheelY=0,radius=65;
-  const captures=new Map();
-  function capture(el,e){try{el.setPointerCapture(e.pointerId);captures.set(e.pointerId,el);}catch{}}
-  function paintTurn(value){turn=clamp(value,-1,1);root.style.setProperty('--helm-turn',turn);root.classList.toggle('lc-steering',held!==null);for(const el of [hit,padTrack])el.setAttribute('aria-valuenow',String(Math.round(turn*35)));}
-  function endSteer(e){if(!held||(e&&e.pointerId!==held.id))return;const id=held.id;held=null;paintTurn(0);release(id);}
-  function release(id){const el=captures.get(id);captures.delete(id);try{if(el?.hasPointerCapture(id))el.releasePointerCapture(id);}catch{}}
-  function beginSteer(e,kind,side=0){
-    if(!active()||held||(e.pointerType==='mouse'&&e.button!==0))return;
-    e.preventDefault();e.stopPropagation();
-    const rect=padTrack.getBoundingClientRect();
-    held={id:e.pointerId,x:e.clientX,y:e.clientY,base:side*.72,kind,range:kind==='pad'?rect.width*.38:Math.max(65,radius)};
-    if(kind==='pad'){held.x=rect.left+rect.width/2;held.base=0;}
-    capture(e.currentTarget,e);paintTurn(held.base+(e.clientX-held.x)/held.range);
-  }
-  function moveSteer(e){if(!held||e.pointerId!==held.id)return;e.preventDefault();paintTurn(held.base+(e.clientX-held.x)/held.range);}
-  for(const [el,kind,side] of [[hit,'wheel',0],[$('.lc-port'),'arrow',-1],[$('.lc-starboard'),'arrow',1],[padTrack,'pad',0]]){
-    el.addEventListener('pointerdown',e=>beginSteer(e,kind,side));el.addEventListener('pointermove',moveSteer);
-    for(const event of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(event,endSteer);
-    el.addEventListener('keydown',e=>{if(!active())return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();held={id:-1};paintTurn(e.key==='ArrowLeft'?-1:1);}});
-    el.addEventListener('keyup',()=>endSteer());el.addEventListener('blur',()=>{if(held?.id===-1)endSteer();});
-  }
-  function throttleAt(e){const rect=lever.getBoundingClientRect(),travel=rect.height/2-15;let value=clamp((rect.top+rect.height/2-e.clientY)/travel,-1,1);if(Math.abs(value)<.085)value=0;setThrottle(value<0?value*.35:value);paintPower();}
-  function paintPower(){const value=clamp(input.throttle,-.35,1),normal=value<0?value/.35:value;grip.style.top=`calc(50% - ${normal} * (50% - 15px))`;lever.setAttribute('aria-valuenow',String(Math.round(value*100)));const label=value===0?'ΚΡΑΤΕΙ':`${value>0?'ΠΡΟΣΩ':'ΑΝΑΠΟΔΑ'} ${Math.round(Math.abs(value)*100)}%`;$ ('.lc-power').textContent=label;lever.setAttribute('aria-valuetext',label);root.dataset.power=value>0?'ahead':value<0?'astern':'neutral';}
-  lever.addEventListener('pointerdown',e=>{if(!active()||enginePointer!==null||(e.pointerType==='mouse'&&e.button!==0))return;e.preventDefault();e.stopPropagation();enginePointer=e.pointerId;capture(lever,e);root.classList.add('lc-engine-held');throttleAt(e);});
-  lever.addEventListener('pointermove',e=>{if(e.pointerId===enginePointer){e.preventDefault();throttleAt(e);}});
-  function endEngine(e){if(enginePointer===null||(e&&e.pointerId!==enginePointer))return;const id=enginePointer;enginePointer=null;root.classList.remove('lc-engine-held');release(id);}
-  for(const event of ['pointerup','pointercancel','lostpointercapture'])lever.addEventListener(event,endEngine);
-  lever.addEventListener('keydown',e=>{if(!active())return;let delta=0;if(e.key==='ArrowUp')delta=.1;if(e.key==='ArrowDown')delta=-.1;if(delta||e.key==='Home'){e.preventDefault();e.stopPropagation();setThrottle(e.key==='Home'?0:input.throttle+delta);paintPower();}});
-  $('.lc-neutral').addEventListener('click',()=>{if(active()){setThrottle(0);paintPower();}});$('.lc-recenter').addEventListener('click',recenter);
-  function reset(){endSteer();endEngine();paintTurn(0);}
-  window.addEventListener('blur',reset);window.addEventListener('resize',reset);window.addEventListener('orientationchange',reset);document.addEventListener('visibilitychange',()=>{if(document.hidden)reset();});
-  root.addEventListener('contextmenu',e=>e.preventDefault());root.addEventListener('selectstart',e=>e.preventDefault());
-  function update({cameraMode,anchor,rudder=0}) {
-    if(mode!==cameraMode){reset();mode=cameraMode;root.dataset.camera=String(mode);}
-    const immersive=mode===1&&anchor?.visible;
-    root.dataset.immersive=String(!!immersive);wheel.hidden=!immersive;pad.hidden=immersive;$('.lc-recenter').hidden=mode!==1||immersive;
-    if(immersive&&held===null){wheelX=anchor.x;wheelY=anchor.y;radius=anchor.r;wheel.style.left=wheelX+'px';wheel.style.top=wheelY+'px';root.style.setProperty('--wheel-y',wheelY+'px');wheel.style.setProperty('--wheel-radius',radius+'px');}
-    $('.lc-wheel-angle').textContent=`${Math.round(rudder*35)}°`;
-    paintPower();
-  }
-  return {update,reset,get active(){return held!==null;},get turn(){return turn;},get debug(){return {version:'1.3.0',mode,turn,steering:held!==null,engine:enginePointer!==null,wheelVisible:!wheel.hidden,wheel:{x:wheelX,y:wheelY,r:radius},throttle:input.throttle};}};
+// LAST CALL 1.3.0: CSS-pixel controls with independent pointer ownership.
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+export function leverValue(y,top,height){const v=1-2*clamp((y-top)/height,0,1);return Math.abs(v)<.065?0:v<0?v*.35:v;}
+export function createHelm({hud,setThrottle,getState,canControl,recenter}){
+ const root=document.createElement('section');root.id='helm130';root.setAttribute('aria-label','Χειρισμός πλοίου');
+ root.innerHTML=`<button id="helmLeft" class="wheel-arrow" aria-label="Τιμόνι αριστερά: κράτα και σύρε"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M20 6 10 16l10 10"/></svg></button><button id="helmRight" class="wheel-arrow" aria-label="Τιμόνι δεξιά: κράτα και σύρε"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m12 6 10 10-10 10"/></svg></button><div id="helmPad" role="slider" tabindex="0" aria-label="Τιμόνι: σύρε αριστερά ή δεξιά" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0"><span class="pad-rail"></span><span id="helmThumb"></span><small>ΤΙΜΟΝΙ</small></div><div id="leverShell"><span class="lever-ahead">ΠΡΟΣΩ</span><div id="engineLever" role="slider" tabindex="0" aria-orientation="vertical" aria-label="Μοχλός: πάνω πρόσω, μέση κράτει, κάτω ανάποδα" aria-valuemin="-35" aria-valuemax="100" aria-valuenow="55"><i class="lever-track"></i><i class="lever-zero"></i><span id="leverGrip"><i></i><i></i><i></i></span></div><span class="lever-astern">ΑΝΑΠΟΔΑ</span><button id="leverNeutral" aria-label="Μηχανές κράτει">N</button><output id="leverPower">55%</output></div><div class="helm-status"><b id="helmSpeed">0.0</b><span>kn</span><small id="helmDirection">ΠΡΟΣΩ</small><output id="helmRudder">0°</output></div><div id="helmActions" aria-label="Ενέργειες"></div><button id="recenterHelm" aria-label="Κοίτα ξανά μπροστά" title="Κοίτα μπροστά">⌖</button><span id="releaseBadge">v1.3.0</span>`;
+ hud.append(root);const $=id=>root.querySelector('#'+id);
+ for(const id of ['drink','horn','announce','rescue'])$('helmActions').append(document.getElementById(id));
+ const left=$('helmLeft'),right=$('helmRight'),pad=$('helmPad'),thumb=$('helmThumb'),lever=$('engineLever'),grip=$('leverGrip');
+ let steering=null,leverPointer=null,turn=0,mode=-1,lastLayout=null;
+ const captures=new Map();
+ const grab=(el,e)=>{e.preventDefault();e.stopPropagation();try{el.setPointerCapture(e.pointerId);captures.set(e.pointerId,el);}catch{}};
+ const release=id=>{const el=captures.get(id);captures.delete(id);try{if(el?.hasPointerCapture(id))el.releasePointerCapture(id);}catch{}};
+ function showTurn(v){turn=clamp(v,-1,1);thumb.style.transform=`translateX(${turn*36}px)`;pad.setAttribute('aria-valuenow',String(Math.round(turn*100)));left.classList.toggle('held',turn<-.01);right.classList.toggle('held',turn>.01);}
+ function stopSteer(e){if(!steering||(e&&e.pointerId!==steering.id))return;const id=steering.id;steering=null;showTurn(0);release(id);}
+ function begin(e,el,side){if(!canControl()||steering)return;grab(el,e);const r=pad.getBoundingClientRect();const initial=side===0?clamp((e.clientX-r.left-r.width/2)/36,-1,1):side*.58;steering={id:e.pointerId,startX:e.clientX,start:initial,kind:side===0?'pad':'arrow'};showTurn(initial);}
+ for(const [el,side] of [[left,-1],[right,1],[pad,0]]){
+  el.addEventListener('pointerdown',e=>begin(e,el,side));
+  el.addEventListener('pointermove',e=>{if(!steering||e.pointerId!==steering.id)return;e.preventDefault();showTurn(steering.start+(e.clientX-steering.startX)/(steering.kind==='pad'?36:72));});
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(type,stopSteer);
+  el.addEventListener('keydown',e=>{if(canControl()&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();e.stopPropagation();showTurn(e.key==='ArrowLeft'?-1:1);steering={id:-1,kind:'keyboard'};}});
+  el.addEventListener('keyup',e=>{if(['ArrowLeft','ArrowRight'].includes(e.key)){e.stopPropagation();stopSteer();}});
+  el.addEventListener('blur',()=>{if(steering?.kind==='keyboard')stopSteer();});
+ }
+ function syncLever(value){const v=clamp(value,-.35,1),norm=v<0?v/.35:v;grip.style.top=`${(1-norm)*50}%`;lever.setAttribute('aria-valuenow',String(Math.round(v*100)));lever.setAttribute('aria-valuetext',v===0?'Κράτει':`${v<0?'Ανάποδα':'Πρόσω'} ${Math.round(Math.abs(v)*100)}%`);$('leverPower').textContent=`${v>0?'+':''}${Math.round(v*100)}%`;$('leverShell').dataset.gear=v<-.01?'astern':v>.01?'ahead':'neutral';$('leverNeutral').classList.toggle('selected',v===0);}
+ function changeLever(e){const r=lever.getBoundingClientRect(),v=leverValue(e.clientY,r.top,r.height);setThrottle(v);syncLever(v);}
+ lever.addEventListener('pointerdown',e=>{if(!canControl()||leverPointer!==null)return;grab(lever,e);leverPointer=e.pointerId;lever.classList.add('held');changeLever(e);});
+ lever.addEventListener('pointermove',e=>{if(e.pointerId!==leverPointer)return;e.preventDefault();changeLever(e);});
+ const endLever=e=>{if(e.pointerId!==leverPointer)return;const id=leverPointer;leverPointer=null;lever.classList.remove('held');release(id);};
+ for(const type of ['pointerup','pointercancel','lostpointercapture'])lever.addEventListener(type,endLever);
+ lever.addEventListener('keydown',e=>{let v=getState().throttle;if(e.key==='ArrowUp')v+=.05;else if(e.key==='ArrowDown')v-=.05;else if(e.key==='Home')v=-.35;else if(e.key==='End')v=1;else return;e.preventDefault();e.stopPropagation();setThrottle(clamp(v,-.35,1));syncLever(clamp(v,-.35,1));});
+ $('leverNeutral').addEventListener('click',()=>{if(canControl()){setThrottle(0);syncLever(0);}});$('recenterHelm').addEventListener('click',recenter);
+ function reset(){stopSteer();const id=leverPointer;leverPointer=null;lever.classList.remove('held');if(id!==null)release(id);showTurn(0);}
+ window.addEventListener('blur',reset);window.addEventListener('pagehide',reset);window.addEventListener('resize',reset);document.addEventListener('visibilitychange',()=>{if(document.hidden)reset();});
+ for(const type of ['contextmenu','selectstart','dragstart'])root.addEventListener(type,e=>e.preventDefault());
+ function place(el,x,y){el.style.left=x+'px';el.style.top=y+'px';}
+ function update(cameraMode,anchor){
+  if(mode!==cameraMode){reset();mode=cameraMode;root.dataset.view=mode===1?'bridge':mode===0?'external':'deck';}
+  const s=getState();syncLever(s.throttle);$('helmSpeed').textContent=(Math.abs(s.speed)*1.94384449).toFixed(1);$('helmDirection').textContent=s.throttle<-.01?'ΑΝΑΠΟΔΑ':s.throttle>.01?'ΠΡΟΣΩ':'ΚΡΑΤΕΙ';$('helmRudder').textContent=Math.round(s.rudder*35)+'°';
+  if(mode===1&&!steering){const w=hud.clientWidth,h=hud.clientHeight,valid=anchor&&Number.isFinite(anchor.x)&&anchor.visible;root.classList.toggle('wheel-offscreen',!valid);const x=valid?clamp(anchor.x,76,w-76):w*.45,y=valid?clamp(anchor.y,Math.min(230,h*.45),h-112):h-132,radius=valid?clamp(anchor.radius+22,57,Math.min(w*.37,190)):57,lx=clamp(x-radius,30,w-94),rx=clamp(x+radius,94,w-30);place(left,lx,y);place(right,rx,y);lastLayout={x,y,radius,left:lx,right:rx,projected:!!valid};}
+ }
+ return {update,reset,syncLever,get turn(){return steering?turn:null;},get busy(){return steering!==null||leverPointer!==null;},inspect:()=>({turn,steering:steering!==null,lever:leverPointer!==null,mode,layout:lastLayout})};
 }

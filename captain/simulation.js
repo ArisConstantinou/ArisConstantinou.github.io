@@ -114,13 +114,8 @@ export function advance(s,dt,input,obstacles,sampleHeight,harbor,onEvent=()=>{})
   for(const o of obstacles){
     const dx=o.x-s.x,dz=o.z-s.z,forward=dx*fx+dz*fz,lateral=Math.abs(dx*fz-dz*fx);
     const clearance=Math.hypot(dx,dz)-o.radius-70;
-    const direction=s.speed<-.15?-1:1;
-    const ahead=forward*direction;
-    const hitRadius=o.radius+13.3;
-    const entry=ahead-62-Math.sqrt(Math.max(0,hitRadius*hitRadius-lateral*lateral));
-    const ttc=lateral<hitRadius&&Math.abs(s.speed)>.5?Math.max(0,entry)/Math.abs(s.speed):Infinity;
-    if(ahead>0&&lateral<o.radius+36&&clearance<Math.max(140,Math.abs(s.speed)*24)){
-      if(!nearest||ttc<nearest.ttc||ttc===nearest.ttc&&clearance<nearest.clearance)nearest={...o,clearance,ttc,reverse:direction<0};
+    if(forward>0&&lateral<o.radius+36&&clearance<Math.max(135,s.speed*15)){
+      if(!nearest||clearance<nearest.clearance)nearest={...o,clearance};
     }
     if(forward<-o.radius-70&&!s.passed.has(o.id)){
       s.passed.add(o.id);
@@ -128,10 +123,6 @@ export function advance(s,dt,input,obstacles,sampleHeight,harbor,onEvent=()=>{})
     }
   }
   s.nearest=nearest;
-  if(nearest?.ttc<24){
-    const target=nearest.ttc<6?88:nearest.ttc<12?68:42;
-    if(s.panic<target)s.panic=Math.min(target,s.panic+dt*(nearest.ttc<6?5.0:2.1));
-  }
 }
 export function voyageScore(s,stats){
   const safe=(stats.onboard||0)+(stats.rescued||0);

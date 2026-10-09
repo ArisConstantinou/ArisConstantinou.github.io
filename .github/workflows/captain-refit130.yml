@@ -1,8 +1,7 @@
-name: Captain refit 1.3 real browser check
+name: Captain integrated refit browser validation
 on:
   push:
     branches: [captain-refit-130]
-  workflow_dispatch:
 permissions:
   contents: write
 jobs:
@@ -11,30 +10,39 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Restore checksum-verified refit
-        run: python .refit130/restore.py
-      - name: Syntax checks
-        run: for f in captain/*.js; do node --check "$f"; done
-      - name: Install browser test dependency
+      - name: Apply latest reviewed Captain integration
+        run: |
+          python captain/tools/refit130.py
+          for f in captain/*.js; do node --check "$f"; done
+      - name: Prepare real browser
         run: |
           python -m pip install playwright==1.55.0
           python -m playwright install --with-deps chromium
-      - name: Exercise real WebGL and touch controls
-        run: python .refit130/qa.py
-      - name: Save tested sources on staging branch only
+      - name: Validate actual renderer, touch and recorded voice clips
         run: |
+          python -m http.server 8765 --bind 127.0.0.1 > /tmp/captain-http.log 2>&1 &
+          python captain/tools/qa130.py
+      - name: Save verified integration on staging branch only
+        run: |
+          mkdir -p captain/tests
+          cp /tmp/captain-qa/results.json captain/tests/verified130.json
           git config user.name 'Captain validation'
           git config user.email 'captain-tests@users.noreply.github.com'
           git add captain/
           if ! git diff --cached --quiet; then
-            git commit -m 'Captain 1.3.0: validated compact touch helm and situational dialogue'
+            git commit -m 'Validate latest integrated Captain refit without replacing concurrent voices or modules'
             git push origin HEAD:captain-refit-130
           fi
-      - name: Browser screenshots and test report
+      - name: Assemble actual tested source and screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        run: |
+          mkdir -p /tmp/captain-integrated
+          cp -R captain /tmp/captain-integrated/captain
+          if [ -d /tmp/captain-qa ]; then cp -R /tmp/captain-qa /tmp/captain-integrated/qa; fi
+          if [ -f /tmp/captain-http.log ]; then cp /tmp/captain-http.log /tmp/captain-integrated/http.log; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: captain-refit130-browser
-          path: .qa130/
-          include-hidden-files: true
+          name: captain-integrated-real-browser
+          path: /tmp/captain-integrated/
           retention-days: 7

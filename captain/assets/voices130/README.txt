@@ -1,0 +1,1 @@
+Original LAST CALL fictional dialogue. Pre-rendered stock Greek neural TTS using edge-tts. Synthetic voices, not recordings of actors, not voice cloning, and not audio from the supplied A.M.A.N reference. The hum clip is synthetic vocalization, not an actor singing. Runtime is fully static.
