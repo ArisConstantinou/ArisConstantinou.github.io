@@ -1,0 +1,55 @@
+name: Captain 1.7.1 desktop and touch verification
+on:
+  push:
+    branches: [captain-publish-171]
+    paths: ['.github/workflows/captain-publish171.yml','captain/tools/assemble171.py','captain/tools/qa171.py','captain/movement-ui171.js','captain/movement-ui171.css']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: captain-publish-171
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Assemble Captain only
+        run: |
+          python captain/tools/assemble171.py
+          for f in captain/*170.js captain/*171.js; do node --check "$f"; done
+          node --test captain/tests/chaos170.test.mjs
+      - name: Install browser
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Test actual desktop and touch game
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/captain171-http.log 2>&1 &
+          python captain/tools/qa171.py
+      - name: Save verified release to preparation branch only
+        run: |
+          cp /tmp/captain171-qa/results.json captain/tests/verified171.json
+          git config user.name 'Captain release validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/
+          if ! git diff --cached --quiet; then
+            git commit -m 'Captain 1.7.1 verified: playable chaos chapter and desktop WASD UI'
+            git push origin HEAD:captain-publish-171
+          fi
+      - name: Collect exact source and rendered evidence
+        if: always()
+        run: |
+          mkdir -p /tmp/captain171-bundle
+          cp -R captain /tmp/captain171-bundle/
+          if [ -d /tmp/captain171-qa ]; then cp -R /tmp/captain171-qa /tmp/captain171-bundle/qa; fi
+          git rev-parse HEAD > /tmp/captain171-bundle/commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain171-verified-build
+          path: /tmp/captain171-bundle
+          retention-days: 7
