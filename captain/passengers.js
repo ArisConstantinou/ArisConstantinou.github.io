@@ -326,7 +326,7 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
     const bones = bonesOf(model);
     const gestureBones = ['leftarm', 'rightarm', 'leftforearm', 'rightforearm', 'spine2', 'head'].map((n) => bones.map.get(n)).filter(Boolean);
     const p = {
-      id: i, group, model, mixer, actions, bones, gestureBones,
+      id: i, crew: isCrew, alertUntil: 0, speechPosition: new THREE.Vector3(), group, model, mixer, actions, bones, gestureBones,
       gestureBase: gestureBones.map((b) => b.quaternion.clone()),
       height, zone, ring, vest, target: new THREE.Vector3(),
       velocity: new THREE.Vector3(), status: 'onboard', waterAge: 0,
@@ -348,7 +348,7 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
     );
     p.group.rotation.set(0, random() * Math.PI * 2, 0);
     p.status = rescued ? 'rescued' : 'onboard';
-    p.waterAge = 0;
+    p.waterAge = 0;p.alertUntil=0;
     p.group.visible = true;
     p.ring.visible = false;
     p.vest.visible = rescued;
@@ -438,6 +438,7 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
       }
     }
     for (const p of people) {
+      const personalPanic=p.alertUntil>time?Math.max(panic,58):panic;
       const onDeck = p.status === 'onboard' || p.status === 'rescued';
       let walking = false;
       if (onDeck && active) {
@@ -448,7 +449,7 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
           if (p.wait <= 0) pickTarget(p, panic);
         } else if (p.wait <= 0) {
           walking = true;
-          const velocity = p.stepSpeed * (panic > 48 && p.status !== 'rescued' ? 1.95 : 1);
+          const velocity = p.stepSpeed * (personalPanic > 48 && p.status !== 'rescued' ? 1.95 : 1);
           const move = Math.min(distance, velocity * step);
           let nx = p.group.position.x + dx / distance * move;
           let nz = p.group.position.z + dz / distance * move;
@@ -474,7 +475,7 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
         p.group.position.y = p.zone.y;
         p.group.rotation.z = clamp(-(lastState.roll || 0) * 0.28, -0.14, 0.14);
       }
-      if (onDeck) setMotion(p, walking ? (panic > 48 && p.status !== 'rescued' ? 'run' : 'walk') : 'idle');
+      if (onDeck) setMotion(p, walking ? (personalPanic > 48 && p.status !== 'rescued' ? 'run' : 'walk') : 'idle');
       if (p.status === 'jumping' && active) {
         p.velocity.y -= 9.81 * step;
         p.group.position.addScaledVector(p.velocity, step);
@@ -521,7 +522,7 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
         p.gestureBase.forEach((q, k) => p.gestureBones[k].quaternion.copy(q));
       }
       const afloat = !onDeck;
-      const alarm = active && p.status === 'onboard' ? clamp((panic - 42) / 48, 0, 1) : 0;
+      const alarm = active && p.status === 'onboard' ? clamp((personalPanic - 42) / 48, 0, 1) : 0;
       if (afloat || alarm > 0.03) {
         p.group.updateWorldMatrix(true, true);
         const waving = Math.sin(time * 3.5 + p.phase) * 0.12;
@@ -531,6 +532,18 @@ export async function createPassengers(shipGroup, deckZones, scene, { mobile = f
     }
   }
 
+  function getSpeakers(){
+    return people.filter(p=>p.group.visible&&p.status!=='lost').map(p=>{
+      const head=p.bones.map.get('head');
+      if(head)head.getWorldPosition(p.speechPosition);else p.group.getWorldPosition(p.speechPosition).y+=p.height;
+      p.speechPosition.y+=.20;
+      return {id:p.id,crew:p.crew,position:p.speechPosition,status:p.status};
+    });
+  }
+  function alert(time){
+    // Nearby lookouts react immediately; the rest hear the call over 1.5 seconds.
+    for(const p of people){if(p.status==='onboard'){p.alertUntil=time+8;p.wait=Math.min(p.wait,(p.id%4)*.5);}}
+  }
   reset();
-  return { update, reset, getStats, jumpOne, rescueNear, ready: true };
+  return {getSpeakers,alert, update, reset, getStats, jumpOne, rescueNear, ready: true };
 }

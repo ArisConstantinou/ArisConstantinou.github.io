@@ -1,0 +1,82 @@
+/* A transparent, fingertip-sized control layer, never a full-width console. */
+html,body,#game,#game *{-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent}
+#hud .controls-bottom,#hud .bridge-controls{display:none!important}
+#compactHelm{position:absolute;inset:0;pointer-events:none;z-index:6;--helm-turn:0;--pad-bottom:82px}
+#compactHelm [hidden]{display:none!important}
+#compactHelm button,#compactHelm [role=slider]{pointer-events:auto;touch-action:none;user-select:none}
+#compactHelm button{font:inherit;box-sizing:border-box;cursor:pointer}
+#compactHelm svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+#compactHelm .lc-wheel{position:absolute;width:0;height:0;--wheel-radius:65px}
+#compactHelm .lc-arrow{position:absolute;top:0;transform:translate(-50%,-50%);width:46px;height:50px;display:grid;place-items:center;padding:0;border:1px solid #c0e7eb99;border-radius:50%;background:#062332a6;color:#d7f4ff;box-shadow:0 2px 12px #0005;z-index:2}
+#compactHelm .lc-port{left:calc(-1 * var(--wheel-radius) - 23px)}
+#compactHelm .lc-starboard{left:calc(var(--wheel-radius) + 23px)}
+#compactHelm .lc-wheel-hit{position:absolute;left:0;top:0;transform:translate(-50%,-50%);width:calc(2 * var(--wheel-radius));height:calc(2 * var(--wheel-radius));border-radius:50%;background:transparent;outline-offset:5px}
+#compactHelm.lc-steering .lc-wheel-hit{box-shadow:inset 0 0 0 1px #92ead76b}
+#compactHelm.lc-steering .lc-arrow{border-color:#ffd394;color:#ffd394}
+#compactHelm .lc-wheel-angle{position:absolute;top:calc(-1 * var(--wheel-radius) - 17px);left:0;transform:translateX(-50%);font-size:10px;color:#f5d393;background:#061c2580;padding:3px 7px;border-radius:12px;white-space:nowrap;pointer-events:none}
+#compactHelm .lc-pad{position:absolute;left:max(16px,env(safe-area-inset-left));bottom:var(--pad-bottom);width:110px}
+#compactHelm .lc-control-caption{display:block;font-size:8px;letter-spacing:1.8px;color:#d9edf4;text-shadow:0 1px 5px #000;text-align:center;margin-bottom:7px}
+#compactHelm .lc-pad-track{height:64px;border-radius:34px;border:1px solid #a3d7e58a;background:#062333a8;display:flex;align-items:center;justify-content:space-between;padding:0 7px;position:relative;box-shadow:0 3px 12px #0004}
+#compactHelm .lc-pad-track svg{width:18px;opacity:.7}
+#compactHelm .lc-puck{position:absolute;left:50%;top:50%;width:36px;height:36px;transform:translate(calc(-50% + var(--helm-turn)*33px),-50%);border-radius:50%;border:1px solid #c9eef0;background:#2a6278e8;box-shadow:0 1px 7px #0006;display:grid;place-items:center;pointer-events:none}
+#compactHelm .lc-puck span{width:14px;height:14px;border:2px solid #dff0e6;border-radius:50%}
+#compactHelm .lc-recenter{margin-top:5px;padding:5px 8px;background:#0a2c3bcc;border-radius:12px;color:#c9eee5;font-size:9px;border:1px solid #92c8d666;min-height:32px;width:100%}
+#compactHelm .lc-engine{position:absolute;right:max(13px,env(safe-area-inset-right));bottom:var(--pad-bottom);width:54px;display:flex;align-items:center;flex-direction:column;gap:3px}
+#compactHelm .lc-engine>span{font-size:7px;font-weight:700;letter-spacing:.7px;text-shadow:0 1px 5px #000;pointer-events:none}
+#compactHelm .lc-ahead{color:#b0f1d8}#compactHelm .lc-astern{color:#ffccb8}
+#compactHelm .lc-power{font-size:8px;white-space:nowrap;color:#f9e5c0;margin-bottom:3px;text-shadow:0 1px 5px #000}
+#compactHelm .lc-lever{height:122px;width:46px;position:relative;border-radius:19px;border:1px solid #b7d3d26b;background:#092837a8;box-shadow:0 2px 12px #0005}
+#compactHelm .lc-lever-rail{position:absolute;top:15px;bottom:15px;width:5px;left:calc(50% - 2.5px);border-radius:5px;background:linear-gradient(#88e4c1 0 48%,#e9ebd0 48% 52%,#d7937d 52% 100%);opacity:.8}
+#compactHelm .lc-zero{position:absolute;left:-9px;top:50%;transform:translateY(-50%);font-size:8px;color:#e6edde}
+#compactHelm .lc-zero:after{content:'';position:absolute;left:11px;top:50%;width:39px;height:1px;background:#e6edde69}
+#compactHelm .lc-lever-grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:26px;width:34px;border:1px solid #fff0d2;background:linear-gradient(#f2dfb3,#a89471);box-shadow:0 3px 7px #0009;border-radius:6px;display:grid;place-items:center;pointer-events:none}
+#compactHelm .lc-lever-grip span{height:5px;width:16px;border-top:1px solid #594d39;border-bottom:1px solid #594d39}
+#compactHelm.lc-engine-held .lc-lever{border-color:#ffd99b}
+#compactHelm .lc-neutral{font-size:8px;letter-spacing:.5px;padding:0;width:54px;height:32px;border-radius:9px;border:1px solid #c2d7d375;background:#08212dd9;color:#eaf4e9;margin-top:3px}
+#compactHelm .lc-dock{position:absolute;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);width:210px;pointer-events:none}
+#compactHelm .lc-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+#compactHelm .action{width:48px;min-width:0;height:47px;border-radius:12px;gap:2px;border:1px solid #bddde355;background:#092432bf;padding:3px;box-shadow:0 2px 9px #0004}
+#compactHelm .action.drink{background:#604126c9;border-color:#e4b27688}
+#compactHelm .action .action-symbol{font-size:19px;line-height:20px}
+#compactHelm .action b{font-size:6px;letter-spacing:0;line-height:9px}
+#compactHelm .action small{display:none}
+#compactHelm .lc-speed{margin:0 auto 6px;width:max-content;max-width:100%;padding:4px 10px;border-radius:14px;background:#041c28a3}
+#compactHelm .speed-readout{position:relative!important;inset:auto!important;transform:none!important;display:flex!important;align-items:baseline;margin:0!important;padding:0!important;background:none!important;gap:5px;white-space:nowrap}
+#compactHelm .speed-readout>b{font-size:23px;min-width:36px;font-weight:500;letter-spacing:-.8px}
+#compactHelm .speed-readout>span{font-size:6px;letter-spacing:1px}
+#compactHelm .speed-readout>small{position:static;font-size:6px;color:#f5d398;max-width:64px;white-space:normal;line-height:8px}
+#compactHelm .lc-version{display:block;text-align:center;font-size:6px;letter-spacing:1px;color:#bdd9dfb3;margin-top:3px;text-shadow:0 1px 4px #000}
+#hud .radio-message{bottom:265px;opacity:0;pointer-events:none;max-width:min(340px,65vw);padding:7px 10px;border-radius:5px}
+#hud .look-hint{display:none}
+#hud #characterSpeech{display:none!important}
+.lc-dialogue{position:absolute;z-index:5;max-width:170px;padding:7px 10px;border:1px solid #f5e0b075;border-radius:11px;background:#f7efdfed;color:#162d36;font-size:11px;line-height:1.35;transform:translate(-50%,-100%);pointer-events:none;box-shadow:0 2px 9px #0005}
+.lc-dialogue:after{content:'';position:absolute;top:100%;left:50%;border:6px solid transparent;border-top-color:#f7efdfed;margin-left:-6px}
+.lc-dialogue b{font-size:7px;display:block;color:#667876;letter-spacing:.8px;margin-bottom:3px}
+@media(orientation:portrait){
+ #hud .left-instruments{top:75px;width:145px}
+ #hud .right-instruments{top:75px}
+ #hud .condition-panel{margin-top:7px;padding-top:8px;background:linear-gradient(90deg,#07172290,transparent)}
+ #hud .condition{margin-bottom:7px;width:108px;gap:4px}
+ #hud .voyage>b{font-size:24px}#hud #mission{font-size:7px;width:138px}
+ #hud .collision-warning{top:37%;padding:6px 12px}
+ #hud .toast{font-size:10px;padding:7px 10px}
+}
+@media(orientation:landscape) and (max-height:600px){
+ #compactHelm{--pad-bottom:max(20px,env(safe-area-inset-bottom))}
+ #compactHelm .lc-engine{right:max(22px,env(safe-area-inset-right))}
+ #compactHelm .lc-lever{height:100px}
+ #compactHelm .lc-dock{bottom:max(12px,env(safe-area-inset-bottom));width:210px}
+ #compactHelm .lc-arrow{width:44px;height:46px}
+ #hud .radio-message{bottom:115px}
+ #hud .left-instruments{top:53px}
+ #hud #mission{display:none}
+}
+@media(min-width:1100px) and (min-height:601px){#compactHelm{--pad-bottom:28px}#compactHelm .lc-pad{left:35px}#compactHelm .lc-engine{right:35px}#compactHelm .lc-dock{bottom:24px}}
+
+#hud .radio-message{display:none!important}
+.lc-dialogue.lc-offscreen:after{display:none}
+.lc-dialogue.lc-offscreen{border-radius:8px;background:#082735ed;color:#e8eee4;font-size:11px;max-width:240px}
+.lc-dialogue.lc-offscreen b{color:#ebc08b}
+#compactHelm .action b{font-size:7px}
+
+@media(orientation:portrait){#compactHelm[data-immersive=true] .lc-engine{bottom:calc(100% - var(--wheel-y) + 36px)}}

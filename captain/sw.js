@@ -1,13 +1,9 @@
-const CACHE='last-call-1.1.1';
-const ASSETS=['./','./index.html','./main.js','./simulation.js','./world.js','./ship.js','./passengers.js','./audio.js','./style.css','./icon.svg','./manifest.webmanifest','./credits.html','./vendor/three.module.js','./vendor/three.core.js','./vendor/addons/loaders/GLTFLoader.js','./vendor/addons/utils/SkeletonUtils.js','./vendor/addons/utils/BufferGeometryUtils.js','./assets/people/Michelle.glb','./assets/people/Soldier.glb'];
-self.addEventListener('install',event=>event.waitUntil((async()=>{
-  const cache=await caches.open(CACHE);
-  await Promise.all(ASSETS.map(async path=>{try{const request=new Request(new URL(path,self.location),{credentials:'same-origin'});const response=await fetch(request);if(response.ok&&!response.redirected)await cache.put(request,response);}catch{}}));
-  await self.skipWaiting();
-})()));
-self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const key of await caches.keys())if(key.startsWith('last-call-')&&key!==CACHE)await caches.delete(key);await self.clients.claim();})()));
-self.addEventListener('fetch',event=>{
-  const url=new URL(event.request.url);if(event.request.method!=='GET'||url.origin!==self.location.origin)return;
-  if(!ASSETS.some(path=>new URL(path,self.location).pathname===url.pathname))return;
-  event.respondWith((async()=>{const cache=await caches.open(CACHE);if(event.request.mode==='navigate'){try{const response=await fetch(event.request);if(response.ok&&!response.redirected)await cache.put(event.request,response.clone());return response;}catch{return (await cache.match(event.request))||(await cache.match(new URL('./index.html',self.location)));}}try{const fresh=await fetch(event.request,{cache:'no-store'});if(fresh.ok){await cache.put(event.request,fresh.clone());return fresh;}}catch{}return (await cache.match(event.request))||Response.error();})());
-});
+const VERSION='1.3.0',CACHE='last-call-'+VERSION;
+const BASE=new URL('./',self.location).pathname;
+const FILES=['./','./index.html','./main.js?v=130','./simulation.js?v=130','./passengers.js?v=130','./audio.js?v=130','./style.css?v=130','./helm130.js','./helm130.css','./reactions130.js','./world.js','./ship.js','./icon.svg','./manifest.webmanifest','./credits.html','./vendor/three.module.js','./vendor/three.core.js','./vendor/addons/loaders/GLTFLoader.js','./vendor/addons/utils/SkeletonUtils.js','./vendor/addons/utils/BufferGeometryUtils.js','./assets/people/Michelle.glb','./assets/people/Soldier.glb'];
+self.addEventListener('install',e=>e.waitUntil((async()=>{const c=await caches.open(CACHE);await Promise.all(FILES.map(async f=>{try{const req=new Request(new URL(f,self.location),{cache:'reload'}),r=await fetch(req);if(r.ok&&!r.redirected)await c.put(req,r);}catch{}}));await self.skipWaiting();})()));
+self.addEventListener('activate',e=>e.waitUntil((async()=>{for(const k of await caches.keys())if(k.startsWith('last-call-')&&k!==CACHE)await caches.delete(k);await self.clients.claim();})()));
+self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==self.location.origin||!u.pathname.startsWith(BASE))return;
+e.respondWith((async()=>{const c=await caches.open(CACHE),immutable=/\.(glb|png|jpg|webp)$/.test(u.pathname)||u.pathname.includes('/vendor/');
+if(immutable){const hit=await c.match(e.request);if(hit)return hit;}
+try{const fresh=await fetch(e.request,{cache:'no-cache'});if(fresh.ok&&!fresh.redirected){c.put(e.request,fresh.clone());return fresh;}const hit=await c.match(e.request);return hit||fresh;}catch{const hit=await c.match(e.request);if(hit)return hit;if(e.request.mode==='navigate')return await c.match(new URL('./index.html',self.location))||Response.error();return Response.error();}})());});

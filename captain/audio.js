@@ -199,7 +199,7 @@ export function createAudio() {
     const warning = playing && (panic > 83 || numeric(state.damage) > 62);
     const pulse = warning && now % 2.1 < .16;
     ramp(alarmGain.gain, pulse ? .016 : 0, .015);
-    if (playing && panic > 43 && canPlay() && now > nextCry) {
+    if (state.narration === true && playing && panic > 43 && canPlay() && now > nextCry) {
       const cries = panic > 76
         ? ['Βοήθεια! Κρατηθείτε από τα κάγκελα!', 'Καπετάνιε! Πρόσεχε τα βράχια!', 'Τα σωσίβια! Φέρτε τα σωσίβια!']
         : ['Καπετάνιε, πρόσεχε!', 'Βοήθεια! Το πλοίο γέρνει!', 'Κρατηθείτε! Έρχεται μεγάλο κύμα!'];

@@ -1,9 +1,11 @@
 import * as THREE from 'three';
+import { createHelm } from './helm130.js';
+import { createReactions } from './reactions130.js';
 import { createWorld } from './world.js';
 import { createShip } from './ship.js';
-import { createPassengers } from './passengers.js';
-import { createAudio } from './audio.js';
-import { newVoyage, advance, useAction, voyageScore, clamp, KNOTS } from './simulation.js';
+import { createPassengers } from './passengers.js?v=130';
+import { createAudio } from './audio.js?v=130';
+import { newVoyage, advance, useAction, voyageScore, clamp, KNOTS } from './simulation.js?v=130';
 
 const $=id=>document.getElementById(id);
 const mobile=matchMedia('(pointer:coarse)').matches;
@@ -12,7 +14,9 @@ const saveStore=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value)
 let mildMotion=readStore('lc-motion',matchMedia('(prefers-reduced-motion:reduce)').matches);
 let soundEnabled=readStore('lc-sound',true), quality=readStore('lc-quality',0), difficulty=0;
 let state=newVoyage(),playing=false,paused=false,ready=false,cameraMode=1,people=null;
-let renderer,world,ship,fx,renderTarget,scene,camera,audio;
+let renderer,world,ship,fx,renderTarget,scene,camera,audio,helm,reactions;
+let narration=readStore('lc-narration',false);
+const wheelCenter=new THREE.Vector3(),wheelEdge=new THREE.Vector3(),wheelWorld=new THREE.Vector3();
 let lastFrame=performance.now(),previewTime=0,toastTime=0,radioTime=18,lastHud=0,lastHelp=-20,lastStrike=0;
 let drag=null,lookYaw=0,lookPitch=0,targetLookYaw=0,targetLookPitch=0,lastLook=0,accum=0;
 const keys=new Set(),input={turn:0,throttle:.55},touchTurn={left:false,right:false};
@@ -29,9 +33,10 @@ function fatal(message){
 function toast(message){$('toast').textContent=message;$('toast').classList.remove('hidden');toastTime=3.8;}
 function radioMessage(message,speak=false,urgent=false){
   $('radioText').textContent=message;$('radio').style.opacity='1';radioTime=9;
-  if(speak)audio?.speak(message,urgent);
+  if(speak&&narration)audio?.speak(message,urgent);
 }
 function updateSettings(){
+  if($('voiceSetting'))$('voiceSetting').textContent=`Συνθετική ανάγνωση διαλόγων: ${narration?'ΝΑΙ':'ΟΧΙ'}`;
   $('introSound').textContent=`Ήχος: ${soundEnabled?'ΝΑΙ':'ΟΧΙ'}`;
   $('sound').style.opacity=soundEnabled?'1':'.45';
   $('introMotion').innerHTML=`Κάμερα <b>${mildMotion?'ΗΠΙΑ':'ΚΙΝΗΜΑΤΟΓΡΑΦΙΚΗ'}</b> <span>↗</span>`;
@@ -78,6 +83,7 @@ function makePost(){
 }
 function gameplayEvent(event){
   if(event.type==='collision'){
+    reactions?.event(event,state);
     audio?.collision();
     radioMessage(event.obstacle.type==='ice'?'Πρόσκρουση σε πάγο! Ζημιά στο κύτος. Κράτει και όπισθεν!':'Πρόσκρουση! Κράτει τις μηχανές και βάλε όπισθεν!',true,true);
     if(state.panic>68&&people){people.jumpOne();}
@@ -88,6 +94,7 @@ function gameplayEvent(event){
 }
 function passengerEvent(event){
   if(event.type==='jump'){
+    reactions?.event(event,state);
     state.panic=clamp(state.panic+2,0,100);
     if(state.time-lastHelp>2.5){radioMessage('Βοήθεια! Άνθρωπος στη θάλασσα! Μείωσε ταχύτητα και ρίξε σωσίβια.',true,true);lastHelp=state.time;}
   }
@@ -98,20 +105,20 @@ function startGame(){
   if(!ready)return;
   const audioReady=audio.start();audio.setEnabled(soundEnabled);
   state=newVoyage(difficulty);input.throttle=.55;input.turn=0;keys.clear();touchTurn.left=touchTurn.right=false;
-  people.reset();ship.group.position.set(0,0,0);ship.group.rotation.set(0,0,0);ship.group.updateMatrixWorld(true);
+  helm?.reset();reactions?.clear();people.reset();ship.group.position.set(0,0,0);ship.group.rotation.set(0,0,0);ship.group.updateMatrixWorld(true);
   playing=true;paused=false;cameraMode=1;lookYaw=lookPitch=targetLookYaw=targetLookPitch=0;
   $('intro').classList.add('hidden');$('hud').classList.remove('hidden');$('pauseScreen').classList.add('hidden');$('resultScreen').classList.add('hidden');
   $('cameraName').textContent=cameraLabels[cameraMode];$('throttle').value=55;syncCameraControls();
   const briefing='Καπετάνιε, το λιμάνι είναι 3,8 χιλιόμετρα βόρεια. Κοίτα το ραντάρ και κράτα το πλοίο μακριά από τους πάγους.';
   radioMessage(briefing);
-  Promise.resolve(audioReady).then(()=>{if(playing&&!paused)audio.speak(briefing,true);});
-  toast(mobile?'Στρίψε με τα βέλη. Μηχανές δεξιά. Πάτησε ◉ για να δεις ολόκληρο το πλοίο.':'A / D: τιμόνι · W / S: μηχανές · C: κάμερα · E: ουίσκι');
+  Promise.resolve(audioReady).then(()=>{if(playing&&!paused&&narration)audio.speak(briefing,true);});
+  toast(mobile?'Κράτα βέλος ή σύρε το τιμόνι. Δεξιά: σύρε τον μοχλό πάνω / κάτω.':'A / D: τιμόνι · W / S: μηχανές · C: κάμερα · E: ουίσκι');
   lastFrame=performance.now();lastHelp=-20;lastHud=-1;lastLook=0;lastStrike=world.lightningStrike;accum=0;radioTime=15;
   updateCamera(1,true);
 }
 function finish(won){
   if(!playing)return;
-  playing=false;paused=false;state.ended=true;state.won=won;
+  playing=false;paused=false;state.ended=true;state.won=won;helm?.reset();reactions?.clear();
   const stats=people.getStats(),safe=stats.onboard+stats.rescued;
   state.score=voyageScore(state,stats);
   const best=Math.max(readStore('lc-best',0),state.score);saveStore('lc-best',best);
@@ -122,49 +129,25 @@ function finish(won){
   $('resultDrinks').textContent=state.drinks;$('resultTime').textContent=formatTime(state.time);
   $('bestScore').textContent=`Καλύτερη επίδοση: ${best.toLocaleString('el-GR')} · Συγκρούσεις: ${state.collisions} · Εκτός εμβέλειας: ${stats.lost}`;
   $('resultScreen').classList.remove('hidden');$('warning').classList.add('hidden');
-  audio?.speak(won?'Φτάσαμε! Το λιμάνι είναι ασφαλές.':'Mayday. Χρειαζόμαστε βοήθεια.',true);
+  if(narration)audio?.speak(won?'Φτάσαμε! Το λιμάνι είναι ασφαλές.':'Mayday. Χρειαζόμαστε βοήθεια.',true);
 }
 function formatTime(t){return `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;}
 function setPaused(value){
   if(!playing)return;
-  paused=value;keys.clear();touchTurn.left=touchTurn.right=false;
+  paused=value;keys.clear();touchTurn.left=touchTurn.right=false;helm?.reset();
   $('pauseScreen').classList.toggle('hidden',!paused);
   if(!paused){lastFrame=performance.now();audio.start();}else audio.stop();
 }
 function setThrottle(v){input.throttle=clamp(v,-.35,1);$('throttle').value=Math.round(input.throttle*100);$('bridgeThrottle').value=Math.round(input.throttle*100);}
-function syncCameraControls(){$('hud').classList.toggle('in-bridge',cameraMode===1);}
-function cycleCamera(){cameraMode=(cameraMode+1)%3;targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;$('cameraName').textContent=cameraLabels[cameraMode];toast(['Εξωτερική κάμερα · σύρε για περιστροφή','Γέφυρα · το ποτήρι και το τιμόνι είναι μπροστά σου','Κατάστρωμα · οι επιβάτες είναι δίπλα σου'][cameraMode]);updateCamera(1,true);}
-let lastBanter=-20,lastCrewWarning=-20;
-const drunkLines=[
- 'Ένα ποτηράκι για το καλό του ταξιδιού!',
- 'Ωωω, τι ωραία που κουνάει η θάλασσα! Χικ!',
- 'Το τιμόνι πάει μόνο του, παιδιά!',
- 'Στου γιαλού τα βοτσαλάκια… λα λα λα!',
- 'Εγώ δεν είμαι μεθυσμένος! Το παγόβουνο χορεύει!',
- 'Ωωω, καράβι μου, παλιό μου καράβι… λα λα λα!',
- 'Ποιος έβαλε δύο φάρους εκεί που ήταν ένας; Χικ!'
-];
-function captainBanter(){
- const level=Math.min(drunkLines.length-1,Math.max(0,Math.floor(state.intox/16)));
- const line=drunkLines[Math.min(level,Math.floor(state.drinks*1.2))];
- showCharacterBubble(line,true);
- if(state.time-lastBanter>3){audio?.speak(line,false);lastBanter=state.time;}
-}
-function showCharacterBubble(line,captain=false){
- let bubble=$('characterSpeech');
- if(!bubble){bubble=document.createElement('div');bubble.id='characterSpeech';$('hud').append(bubble);}
- bubble.textContent=(captain?'🥃 ΚΑΠΕΤΑΝΙΟΣ: ':'🗣️ ΕΠΙΒΑΤΗΣ: ')+line;
- bubble.classList.add('visible');
- clearTimeout(showCharacterBubble.timer);
- showCharacterBubble.timer=setTimeout(()=>bubble.classList.remove('visible'),4300);
-}
+function syncCameraControls(){$('hud').classList.toggle('in-bridge',cameraMode===1);helm?.reset();}
+function cycleCamera(){cameraMode=(cameraMode+1)%3;targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;$('cameraName').textContent=cameraLabels[cameraMode];toast(['Εξωτερική κάμερα · σύρε για περιστροφή','Γέφυρα · το ποτήρι και το τιμόνι είναι μπροστά σου','Κατάστρωμα · οι επιβάτες είναι δίπλα σου'][cameraMode]);syncCameraControls();updateCamera(1,true);}
 function action(name){
   if(!playing||paused)return;
   const result=useAction(state,name);
   if(!result.ok){if(result.message)toast(result.message);return;}
-  if(name==='drink'){captainBanter();}
+  if(name==='drink')reactions?.drink(state);
   if(name==='horn'){audio.horn();toast('Κόρνα ομίχλης · κρατήστε τις θέσεις σας');}
-  if(name==='announce'){radioMessage(result.message,true);toast('Ανακοίνωση στο κατάστρωμα · μειώθηκε ο πανικός');}
+  if(name==='announce'){reactions?.say(state.intox>60?'Ψυχραιμία! Το πλήρωμα… ξέρει. Ρωτήστε το πλήρωμα!':result.message,state,{captain:true});toast('Ανακοίνωση στο κατάστρωμα · μειώθηκε ο πανικός');}
   if(name==='rescue'){
     const rescued=people.rescueNear(ship.group.position,110);
     if(rescued){state.rescueCooldown=3;state.panic=clamp(state.panic-7,0,100);toast(`Περισυλλογή: ${rescued} ${rescued===1?'άτομο':'άτομα'} ασφαλή στο πλοίο!`);radioMessage('Τους έχουμε! Συνεχίζουμε για το λιμάνι.',true);}
@@ -191,7 +174,7 @@ function updateCamera(dt,snap=false){
     camera.up.set(sway*.5,1,sway*.2);camera.fov=innerHeight>innerWidth?65:58;
   } else {
     const local=cameraMode===1?ship.bridgeCameraPosition:new THREE.Vector3(10.22,11.73,-22);
-    offset.copy(local);offset.x+=Math.sin(time*1.24)*intox*.21;offset.y+=Math.sin(time*1.93)*intox*.12;
+    offset.copy(local);if(cameraMode===1){offset.z-=1.10;offset.y-=.08;}offset.x+=Math.sin(time*1.24)*intox*.21;offset.y+=Math.sin(time*1.93)*intox*.12;
     cameraPosition.copy(offset);ship.group.localToWorld(cameraPosition);
     let baseYaw=cameraMode===2?.16:0;
     const direction=new THREE.Vector3(0,0,1).applyEuler(new THREE.Euler(lookPitch+(cameraMode===1?.028:0),lookYaw+baseYaw,0,'YXZ')).applyQuaternion(ship.group.quaternion);
@@ -201,6 +184,18 @@ function updateCamera(dt,snap=false){
   if(cameraMode!==0&&(playing||state.ended))camera.position.copy(cameraPosition);
   else camera.position.lerp(cameraPosition,snap?1:1-Math.exp(-dt*3.8));
   camera.lookAt(cameraTarget);camera.rotateZ(sway);camera.updateProjectionMatrix();camera.updateMatrixWorld();
+}
+
+function updateHelm(){
+  let anchor=null;
+  if(cameraMode===1&&ship?.wheel){
+    ship.wheel.getWorldPosition(wheelWorld);wheelCenter.copy(wheelWorld).project(camera);
+    wheelEdge.setFromMatrixColumn(camera.matrixWorld,0).multiplyScalar(.52).add(wheelWorld).project(camera);
+    const x=(wheelCenter.x*.5+.5)*innerWidth,y=(-wheelCenter.y*.5+.5)*innerHeight;
+    const r=Math.abs(wheelEdge.x-wheelCenter.x)*innerWidth*.5;
+    anchor={x,y,r,visible:wheelCenter.z>0&&wheelCenter.z<1&&x-r-48>4&&x+r+48<innerWidth-4&&y>80&&y<innerHeight-115&&r>20};
+  }
+  helm?.update({cameraMode,anchor,rudder:state.rudder});
 }
 
 function drawRadar(stats){
@@ -254,7 +249,7 @@ function updateHud(){
   const offCourse=Math.abs(state.x)>650||Math.cos(state.heading)<-.15;
   $('mission').textContent=state.distance<400?'Είσοδος λιμανιού · μείωσε κάτω από 12 knots':offCourse?'Στρίψε προς το πράσινο βέλος του ραντάρ':'Κράτα βόρεια πορεία · απόφυγε τα εμπόδια';
   if(state.nearest){
-    $('warning').classList.remove('hidden');$('warningTitle').textContent=state.nearest.type==='ice'?'ΠΑΓΟΒΟΥΝΟ ΣΤΗΝ ΠΛΩΡΗ':'ΒΡΑΧΙΑ ΣΤΗΝ ΠΛΩΡΗ';
+    $('warning').classList.remove('hidden');$('warningTitle').textContent=(state.nearest.type==='ice'?'ΠΑΓΟΒΟΥΝΟ':'ΒΡΑΧΙΑ')+(state.nearest.reverse?' ΣΤΗΝ ΠΡΥΜΝΗ':' ΣΤΗΝ ΠΛΩΡΗ');
     $('warningDetail').textContent=`${Math.max(0,Math.round(state.nearest.clearance))} m · μείωσε ταχύτητα και στρίψε`;
   }else if(stats.inWater){$('warning').classList.remove('hidden');$('warningTitle').textContent='ΑΝΘΡΩΠΟΣ ΣΤΗ ΘΑΛΑΣΣΑ';$('warningDetail').textContent='Έως 6 knots · πλησίασε και πάτησε ΣΩΣΙΒΙΑ';}
   else $('warning').classList.add('hidden');
@@ -268,11 +263,6 @@ function setupControls(){
   $('pause').addEventListener('click',()=>setPaused(true));$('resume').addEventListener('click',()=>setPaused(false));$('camera').addEventListener('click',cycleCamera);
   for(const name of ['drink','horn','announce','rescue'])$(name).addEventListener('click',()=>action(name));
   $('throttle').addEventListener('input',e=>setThrottle(Number(e.target.value)/100));
-  $('bridgeThrottle').addEventListener('input',e=>setThrottle(Number(e.target.value)/100));
-  const steer=$('bridgeSteer');let steerId=null,steerX=0;
-  steer.addEventListener('pointerdown',e=>{e.preventDefault();steerId=e.pointerId;steerX=e.clientX;steer.setPointerCapture(e.pointerId);});
-  steer.addEventListener('pointermove',e=>{if(e.pointerId!==steerId)return;const dx=e.clientX-steerX;input.turn=clamp(dx/65,-1,1);steer.style.setProperty('--turn',input.turn);});
-  for(const ev of ['pointerup','pointercancel','lostpointercapture'])steer.addEventListener(ev,()=>{steerId=null;input.turn=0;steer.style.setProperty('--turn',0);});
   $('throttleDown').addEventListener('click',()=>setThrottle(input.throttle-.15));$('throttleUp').addEventListener('click',()=>setThrottle(input.throttle+.15));
   $('engineAhead').addEventListener('click',()=>setThrottle(Math.max(.35,input.throttle+.25)));
   $('engineReverse').addEventListener('click',()=>setThrottle(Math.min(-.18,input.throttle-.2)));
@@ -319,7 +309,7 @@ function frame(now){
   const dt=Math.min((now-lastFrame)/1000,.05);lastFrame=now;
   if(paused){audio?.update({...state,playing:false});return;}
   if(playing){
-    if(steerId===null)input.turn=((keys.has('KeyD')||keys.has('ArrowRight')||touchTurn.right)?1:0)-((keys.has('KeyA')||keys.has('ArrowLeft')||touchTurn.left)?1:0);
+    input.turn=helm?.active?helm.turn:((keys.has('KeyD')||keys.has('ArrowRight')||touchTurn.right)?1:0)-((keys.has('KeyA')||keys.has('ArrowLeft')||touchTurn.left)?1:0);
     if(keys.has('KeyW')||keys.has('ArrowUp'))setThrottle(input.throttle+dt*.4);
     if(keys.has('KeyS')||keys.has('ArrowDown'))setThrottle(input.throttle-dt*.4);
     accum+=dt;
@@ -328,11 +318,9 @@ function frame(now){
     world.update(state.time,dt,{shipPosition:ship.group.position,heading:state.heading,speed:state.speed,storm:state.storm});
     people?.update(state.time,dt,{panic:state.panic,roll:state.roll,speed:state.speed,shipPosition:ship.group.position,heading:state.heading,playing:true,waterHeight:world.sampleHeight});
     ship.update(state.time,dt,{...state,damage:100-state.hull});
-    if(state.nearest&&state.nearest.clearance<170&&state.time-lastCrewWarning>10){const line=state.nearest.type==='ice'?'Παγόβουνο μπροστά! Όλοι κρατηθείτε!':'ΒΡΑΧΙΑ ΜΠΡΟΣΤΑ! Φύγετε από τα κάγκελα!';showCharacterBubble(line);audio?.speak(line,true);state.panic=clamp(state.panic+5,0,100);lastCrewWarning=state.time;}
-    if(state.panic>48&&state.time-lastHelp>13){showCharacterBubble('Βοήθεια! Το πλοίο θα χτυπήσει!');radioMessage(['Βοήθεια! Κρατηθείτε από τα κιγκλιδώματα!','Καπετάνιε! Ο κόσμος πανικοβάλλεται!','Βοήθεια! Στρέψε το πλοίο μακριά από τα βράχια!'][Math.floor(state.time/19)%3],true,true);lastHelp=state.time;}
     if(!drag&&state.time-lastLook>6){targetLookYaw*=Math.exp(-dt*.32);targetLookPitch*=Math.exp(-dt*.32);}
     if(world.lightningStrike!==lastStrike){lastStrike=world.lightningStrike;audio?.thunder();}
-    toastTime-=dt;if(toastTime<0)$('toast').classList.add('hidden');radioTime-=dt;$('radio').style.opacity=radioTime<0?'.2':'1';
+    toastTime-=dt;if(toastTime<0)$('toast').classList.add('hidden');radioTime-=dt;$('radio').style.opacity=radioTime<0?'0':'1';
     if(state.time-lastHud>.1){updateHud();lastHud=state.time;}
     $('impact').style.opacity=String(state.impact*.65);
   }else{
@@ -344,7 +332,7 @@ function frame(now){
       ship.update(previewTime,dt,{rudder:0,throttle:.55,damage:0,panic:0});
     }
   }
-  updateCamera(dt);audio?.update({...state,damage:100-state.hull,playing:playing&&!paused});
+  updateCamera(dt);updateHelm();if(playing)reactions?.update(state,dt,camera,cameraMode);audio?.update({...state,damage:100-state.hull,playing:playing&&!paused,narration});
   fx.material.uniforms.uTime.value=playing?state.time:previewTime;
   fx.material.uniforms.uIntox.value=(state.intox/100)*(mildMotion?.22:1);fx.material.uniforms.uImpact.value=state.impact;
   renderer.setRenderTarget(renderTarget);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(fx.scene,fx.camera);
@@ -365,11 +353,14 @@ async function init(){
     fx=makePost();renderTarget=fx.rt;resize();audio=createAudio();audio.setEnabled(soundEnabled);setupControls();
     $('loadProgress').firstElementChild.style.width='60%';$('loadStatus').textContent='Φόρτωση ανθρώπινων μοντέλων και κινήσεων…';
     updateCamera(1,true);requestAnimationFrame(frame);
+    helm=createHelm({hud:$('hud'),input,setThrottle,active:()=>playing&&!paused,recenter:()=>{targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;updateCamera(1,true);}});
+    $('voiceSetting').addEventListener('click',()=>{narration=!narration;saveStore('lc-narration',narration);if(!narration)window.speechSynthesis?.cancel();updateSettings();});
     people=await createPassengers(ship.group,ship.deckZones,scene,{mobile,onEvent:passengerEvent});
+    reactions=createReactions({hud:$('hud'),people,ship,audio,narration:()=>narration});
     ready=true;$('start').disabled=false;$('startText').textContent='ΑΝΑΛΑΒΕ ΤΟ ΤΙΜΟΝΙ';$('loadProgress').firstElementChild.style.width='100%';
     $('loadStatus').textContent=mobile?'Έτοιμο. Παίζεται με αφή — δοκίμασε και οριζόντια οθόνη.':'Έτοιμο. Ταξίδι περίπου 6–8 λεπτών. Εσύ επιλέγεις πότε θα πιεις.';
-    window.__lastCall={getState:()=>({ready,playing,paused,camera:cameraLabels[cameraMode],hull:state.hull,intox:state.intox,panic:state.panic,speed:state.speed,distance:state.distance,people:people.getStats(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles})};
-    if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+    window.__lastCall={getState:()=>({version:'1.3.0',time:state.time,input:{...input},helm:helm?.debug,dialogue:reactions?.debug,narration,heading:state.heading,ready,playing,paused,camera:cameraLabels[cameraMode],hull:state.hull,intox:state.intox,panic:state.panic,speed:state.speed,distance:state.distance,people:people.getStats(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles})};
+    if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});}
     // Keep the bounded shadow camera with the moving vessel without lighting the whole fjord.
     scene.onBeforeRender=()=>{moon.position.set(state.x-150,state.y+240,state.z+160);moon.target.position.set(state.x,state.y,state.z);moon.target.updateMatrixWorld();};
   }catch(error){fatal(`Δεν μπόρεσαν να φορτωθούν τα 3D γραφικά ή οι επιβάτες. ${error.message||error}. Χρειάζεται Safari, Chrome ή Edge με WebGL2.`);}
