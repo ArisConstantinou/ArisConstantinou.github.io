@@ -1,0 +1,23 @@
+/* Desktop WASD replaces the touch joystick in every on-foot chapter state. */
+#keyboardMovement{display:none;position:absolute;left:28px;bottom:32px;width:156px;color:#f4ead9;text-align:center;pointer-events:none;text-shadow:0 2px 7px #000}
+#keyboardMovement .movement-title{display:block;font-size:10px;font-weight:800;letter-spacing:2px;margin-bottom:6px}
+.movement-key-grid{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px);gap:5px;justify-content:center}
+#keyboardMovement kbd{font-family:system-ui,sans-serif}
+.movement-key-grid>kbd{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;border:1px solid #e4bf8199;border-bottom:3px solid #987146;background:linear-gradient(#1e3945ef,#0e2430f2);border-radius:7px;font-size:23px;font-weight:800;line-height:1;box-shadow:0 4px 10px #0006;transition:background .07s,transform .07s,color .07s}
+.movement-key-grid>kbd[data-code="KeyW"]{grid-column:2;grid-row:1}
+.movement-key-grid>kbd[data-code="KeyA"]{grid-column:1;grid-row:2}
+.movement-key-grid>kbd[data-code="KeyS"]{grid-column:2;grid-row:2}
+.movement-key-grid>kbd[data-code="KeyD"]{grid-column:3;grid-row:2}
+.movement-key-grid small{font-size:6px;letter-spacing:.15px;margin-top:3px}
+#keyboardMovement .pressed{color:#13242e;background:#f0c881;border-color:#ffe4b0;transform:translateY(2px);text-shadow:none}
+.movement-run{display:flex;justify-content:center;align-items:center;gap:7px;margin-top:9px;font-size:8px;font-weight:700;letter-spacing:.6px}
+.movement-run>kbd{background:#102632df;border:1px solid #ba9d71;border-radius:4px;padding:5px 7px;font-size:9px;font-weight:800}
+#chaos170[data-control-scheme="keyboard"] #chaosMove{display:none!important}
+#chaos170[data-control-scheme="keyboard"][data-phase="descend"] #keyboardMovement,
+#chaos170[data-control-scheme="keyboard"][data-phase="deck"] #keyboardMovement,
+#chaos170[data-control-scheme="keyboard"][data-phase="security"] #keyboardMovement{display:block}
+#chaos170[data-control-scheme="touch"] #keyboardMovement{display:none!important}
+#chaos170[data-control-scheme="keyboard"] .foot-bars{left:211px}
+@media(hover:hover) and (pointer:fine){#chaos170:not([data-control-scheme="touch"]) #chaosMove{display:none!important}}
+@media(max-width:700px){#keyboardMovement{left:14px;bottom:94px;width:140px}.movement-key-grid{grid-template-columns:repeat(3,42px);grid-template-rows:repeat(2,42px);gap:4px}.movement-key-grid>kbd{font-size:21px}#chaos170[data-control-scheme="keyboard"] .foot-bars{left:20px;bottom:245px}.movement-run{margin-top:6px}}
+@media(orientation:landscape) and (max-height:540px) and (min-width:701px){#keyboardMovement{left:18px;bottom:30px;width:142px}.movement-key-grid{grid-template-columns:repeat(3,42px);grid-template-rows:repeat(2,40px);gap:4px}.movement-key-grid>kbd{font-size:21px}#chaos170[data-control-scheme="keyboard"] .foot-bars{left:184px}}

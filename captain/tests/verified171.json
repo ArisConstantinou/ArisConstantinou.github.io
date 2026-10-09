@@ -1,0 +1,303 @@
+{
+  "version": "1.7.1",
+  "url": "http://127.0.0.1:8765/captain/",
+  "environment": "Chromium with SwiftShader; desktop and emulated mobile (not a physical iPhone)",
+  "checks": [
+    {
+      "name": "desktop: new release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: sip and exit enters real chapter",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: real animated first-person limbs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop joystick absent",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop WASD guide visible",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All four labelled keycaps",
+      "pass": true,
+      "detail": [
+        "WΜΠΡΟΣΤΑ",
+        "AΑΡΙΣΤΕΡΑ",
+        "SΠΙΣΩ",
+        "DΔΕΞΙΑ"
+      ]
+    },
+    {
+      "name": "KeyW held feedback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyW actually moves character",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 3,
+          "y": 18.43,
+          "z": 40
+        },
+        "after": {
+          "x": 2.999982830526359,
+          "y": 18.43,
+          "z": 40.224331102512636
+        },
+        "frames": 23
+      }
+    },
+    {
+      "name": "KeyW clears on release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyA held feedback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyA actually moves character",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 3,
+          "y": 18.43,
+          "z": 40
+        },
+        "after": {
+          "x": 3.269202183360002,
+          "y": 18.43,
+          "z": 40
+        },
+        "frames": 25
+      }
+    },
+    {
+      "name": "KeyA clears on release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyS held feedback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyS actually moves character",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 3,
+          "y": 18.43,
+          "z": 40
+        },
+        "after": {
+          "x": 2.999759397552262,
+          "y": 18.43,
+          "z": 39.775879360616806
+        },
+        "frames": 27
+      }
+    },
+    {
+      "name": "KeyS clears on release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyD held feedback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyD actually moves character",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 3,
+          "y": 18.43,
+          "z": 40
+        },
+        "after": {
+          "x": 2.7754228966028998,
+          "y": 18.43,
+          "z": 40
+        },
+        "frames": 30
+      }
+    },
+    {
+      "name": "KeyD clears on release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walking does not accelerate ship",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Pause clears held-key highlights",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Deck phase activates",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop 932x430 keeps WASD",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop 600x900 keeps WASD",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Key 1 starts slap",
+      "pass": true,
+      "detail": {
+        "kind": "slap",
+        "t": 0,
+        "landed": false
+      }
+    },
+    {
+      "name": "Key 2 starts heavy",
+      "pass": true,
+      "detail": {
+        "kind": "heavy",
+        "t": 0,
+        "landed": false
+      }
+    },
+    {
+      "name": "Key 3 starts punch",
+      "pass": true,
+      "detail": {
+        "kind": "punch",
+        "t": 0,
+        "landed": false
+      }
+    },
+    {
+      "name": "Key 4 starts kick",
+      "pass": true,
+      "detail": {
+        "kind": "kick",
+        "t": 0,
+        "landed": false
+      }
+    },
+    {
+      "name": "Numpad6 blocks",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Window can break in the chapter",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Security actors exist",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Arrest hides keyboard guide",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Chapter completes in cell",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Replay resets to helm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Existing speech assets retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: no uncaught browser errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "mobile: new release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: sip and exit enters real chapter",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: real animated first-person limbs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Phone keeps touch joystick",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Phone hides WASD guide",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch gesture moves player",
+      "pass": true,
+      "detail": [
+        {
+          "x": 3,
+          "y": 18.43,
+          "z": 40
+        },
+        {
+          "x": 2.9985130376459552,
+          "y": 18.43,
+          "z": 40.41871596507303
+        }
+      ]
+    },
+    {
+      "name": "Phone numbered combat controls visible",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mobile: no uncaught browser errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "passed": true
+}
