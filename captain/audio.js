@@ -85,7 +85,7 @@ export function createAudio() {
       if (!initialized && !build()) return false;
       // Resume is initiated synchronously while the browser still sees a gesture.
       const resume = context.state === 'suspended' ? context.resume() : Promise.resolve();
-      await resume;loadVoices();
+      await resume;loadVoices().then(()=>{if(active&&enabled&&voicePlayed===0)voice('captain1',{priority:0});}).catch(()=>{});
       ramp(master.gain, .68, .3);
       nextCry = context.currentTime + 10;
       return true;
