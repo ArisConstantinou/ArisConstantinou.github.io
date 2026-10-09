@@ -1,0 +1,22 @@
+{
+  "scream": {
+    "title": "WomanScream.wav",
+    "author": "Archeos",
+    "source": "https://freesound.org/people/Archeos/sounds/261419/",
+    "preview": "https://cdn.freesound.org/previews/261/261419_2826150-hq.mp3",
+    "license": "CC0 1.0",
+    "origin": "human nonverbal recording",
+    "processing": "mono; loudness normalized; maximum 3 seconds",
+    "sha256": "a866be1ffc4143f6b50c0b6e9d4e1ad2b3488af62e3adf7afd28b806fde41f0a"
+  },
+  "hiccup": {
+    "title": "Adult Male Hiccup",
+    "author": "Hephaestus",
+    "source": "https://freesound.org/people/Hephaestus/sounds/250140/",
+    "preview": "https://cdn.freesound.org/previews/250/250140_3258707-hq.mp3",
+    "license": "CC0 1.0",
+    "origin": "human nonverbal recording",
+    "processing": "mono; loudness normalized; maximum 3 seconds",
+    "sha256": "c4f97b5798255cd7ed269bd315f5058bed7f57a5f20f2c62820fe4b8e45cc19a"
+  }
+}

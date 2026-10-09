@@ -22,17 +22,17 @@ export function createHelm({hud,setThrottle,getState,canControl,recenter}){
  hud.append(root);const $=id=>root.querySelector('#'+id);
  for(const id of ['drink','horn','announce','rescue'])$('helmActions').append(document.getElementById(id));
  const pad=$('helmPad'),thumb=$('helmThumb'),lever=$('engineLever'),grip=$('leverGrip'),shell=$('leverShell'),dot=$('wheelTouchDot');
- let steering=null,leverPointer=null,turn=0,mode=-1,anchor=null,layout=null,usedWheel=false;
+ let steering=null,leverPointer=null,turn=0,mode=-1,anchor=null,layout=null,usedWheel=false,displayRudder=null,visualTime=performance.now();
  const captures=new Map();
  function grab(el,e){e.preventDefault();e.stopPropagation();try{el.setPointerCapture(e.pointerId);captures.set(e.pointerId,el);}catch{}}
  function release(id){const el=captures.get(id);captures.delete(id);try{if(el?.hasPointerCapture(id))el.releasePointerCapture(id);}catch{}}
  function showTurn(v){turn=clamp(v,-1,1);thumb.style.transform=`translateX(${turn*36}px)`;pad.setAttribute('aria-valuenow',String(Math.round(turn*100)));}
- function stopSteer(e){if(!steering||(e&&e.pointerId!==steering.id))return;const id=steering.id;steering=null;showTurn(0);release(id);root.classList.remove('gripping');}
+ function stopSteer(e){if(!steering||(e&&e.pointerId!==steering.id))return;const id=steering.id;if(steering.kind==='wheel')displayRudder=turn;steering=null;showTurn(0);release(id);root.classList.remove('gripping');}
  function beginWheel(e,canvas,hit){
   if(!canControl()||mode!==1||steering||!hit?.visible)return false;
   grab(canvas,e);const a=Math.atan2(e.clientY-hit.y,e.clientX-hit.x);
   steering={id:e.pointerId,kind:'wheel',cx:hit.x,cy:hit.y,angle:a,x:e.clientX,y:e.clientY};
-  showTurn(getState().rudder||0);usedWheel=true;root.classList.add('gripping');moveDot(e);return true;
+  showTurn(displayRudder??(getState().rudder||0));usedWheel=true;root.classList.add('gripping');moveDot(e);return true;
  }
  function moveDot(e){dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';}
  function moveWheel(e){
@@ -54,16 +54,18 @@ export function createHelm({hud,setThrottle,getState,canControl,recenter}){
  for(const type of ['pointerup','pointercancel','lostpointercapture'])lever.addEventListener(type,endLever);
  lever.addEventListener('keydown',e=>{if(!canControl())return;let v=getState().throttle;if(e.key==='ArrowUp')v+=.05;else if(e.key==='ArrowDown')v-=.05;else if(e.key==='Home')v=-.35;else if(e.key==='End')v=1;else return;e.preventDefault();e.stopPropagation();setThrottle(clamp(v,-.35,1));syncLever(clamp(v,-.35,1));});
  $('leverNeutral').addEventListener('click',()=>{if(canControl()){setThrottle(0);syncLever(0);}});$('recenterHelm').addEventListener('click',()=>{reset();recenter();});
- function reset(){stopSteer();const id=leverPointer;leverPointer=null;lever.classList.remove('held');if(id!==null)release(id);showTurn(0);}
+ function reset(){stopSteer();displayRudder=null;const id=leverPointer;leverPointer=null;lever.classList.remove('held');if(id!==null)release(id);showTurn(0);}
  window.addEventListener('blur',reset);window.addEventListener('pagehide',reset);window.addEventListener('resize',reset);document.addEventListener('visibilitychange',()=>{if(document.hidden)reset();});
  for(const type of ['contextmenu','selectstart','dragstart'])root.addEventListener(type,e=>e.preventDefault());
  function update(cameraMode,a){
   if(mode!==cameraMode){reset();mode=cameraMode;root.dataset.view=mode===1?'bridge':mode===0?'external':'deck';}
-  anchor=a;const s=getState();syncLever(s.throttle);$('helmSpeed').textContent=(Math.abs(s.speed)*1.94384449).toFixed(1);$('helmDirection').textContent=s.throttle<-.01?'ΑΝΑΠΟΔΑ':s.throttle>.01?'ΠΡΟΣΩ':'ΚΡΑΤΕΙ';$('helmRudder').textContent=Math.round(s.rudder*35)+'°';
+  anchor=a;const s=getState(),now=performance.now(),dt=Math.min(.08,Math.max(0,(now-visualTime)/1000));visualTime=now;
+  if(steering?.kind==='wheel')displayRudder=turn;else if(displayRudder!==null){displayRudder+=(s.rudder-displayRudder)*(1-Math.exp(-dt*4));if(Math.abs(displayRudder-s.rudder)<.001)displayRudder=null;}
+  syncLever(s.throttle);$('helmSpeed').textContent=(Math.abs(s.speed)*1.94384449).toFixed(1);$('helmDirection').textContent=s.throttle<-.01?'ΑΝΑΠΟΔΑ':s.throttle>.01?'ΠΡΟΣΩ':'ΚΡΑΤΕΙ';$('helmRudder').textContent=Math.round(s.rudder*35)+'°';
   const valid=mode===1&&a?.visible;root.classList.toggle('wheel-visible',!!valid);
   const hint=$('wheelHint');hint.style.display=valid&&!usedWheel?'block':'none';
   if(valid){hint.style.left=clamp(a.x,110,hud.clientWidth-110)+'px';hint.style.top=clamp(a.maxY+12,90,hud.clientHeight-105)+'px';}
   if(leverPointer===null){layout=leverLayout(hud.clientWidth,hud.clientHeight,valid?a:null);Object.assign(shell.style,{left:layout.x+'px',top:layout.y+'px',height:layout.h+'px'});}
  }
- return {update,reset,syncLever,beginWheel,moveWheel,endWheel:stopSteer,get turn(){return steering?turn:null;},get visualRudder(){return steering?.kind==='wheel'?turn:null;},get busy(){return steering!==null||leverPointer!==null;},inspect:()=>({turn,steering:!!steering,kind:steering?.kind||null,lever:leverPointer!==null,mode,layout,anchor,usedWheel})};
+ return {update,reset,syncLever,beginWheel,moveWheel,endWheel:stopSteer,get turn(){return steering?turn:null;},get visualRudder(){return steering?.kind==='wheel'?turn:displayRudder;},get busy(){return steering!==null||leverPointer!==null;},inspect:()=>({turn,steering:!!steering,kind:steering?.kind||null,lever:leverPointer!==null,mode,layout,anchor,usedWheel})};
 }

@@ -1,1 +1,5 @@
-{"version":"1.3.0","controls":"projected-wheel-arrows-and-latched-neutral-centered-lever","voices":"18 original pre-rendered Greek synthetic clips","browserSpeechSynthesis":false,"referenceVideo":"A.M.A.N - Jack Daniels: title located, playback not accessible, no audio copied"}
+{
+  "version": "1.4.0",
+  "controls": "Direct rendered wheel grip; independent engine lever; no floating arrows",
+  "audio": "No machine speech. Human nonverbal recordings plus optional local recordings. Human Greek spoken lines are not bundled."
+}

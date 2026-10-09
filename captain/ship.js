@@ -548,7 +548,7 @@ export function createShip() {
   updateScreens(0,{throttle:0,damage:0,panic:0,rudder:0});
   function update(time,dt,state={}) {
     if(time<lastScreen)lastScreen=-100;
-    wheel.rotation.z=(Number(state.rudder)||0)*Math.PI*.84;
+    wheel.rotation.z=(Number.isFinite(state.wheelDemand)?state.wheelDemand:(Number(state.rudder)||0))*Math.PI*.84;
     for(const lever of levers)lever.rotation.x=-(Number(state.throttle)||0)*.72+.25;
     const drink=THREE.MathUtils.clamp(Number(state.drinkAnim)||0,0,1);
     const lift=Math.sin(drink*Math.PI);

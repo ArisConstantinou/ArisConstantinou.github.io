@@ -40,7 +40,7 @@ with sync_playwright() as p:
   touch('touchStart',[(1,x,y),(2,lx,top)]);frames();check('Independent wheel and engine fingers',state()['controls']['steering'] and state()['controls']['lever'] and state()['throttle']>.9)
   touch('touchMove',[(1,x,y),(2,lx,mid)]);frames();check('Physical midpoint is neutral',state()['throttle']==0)
   touch('touchMove',[(1,x,y),(2,lx,bottom)]);frames();check('Drag down commands reverse',state()['throttle']<-.3)
-  touch('touchEnd',[(1,x,y)]);frames();check('Releasing lever retains wheel and power',state()['controls']['steering'] and state()['throttle']<-.3)
+  touch('touchEnd',[(2,lx,bottom)]);frames();check('Releasing lever retains wheel and power',state()['controls']['steering'] and not state()['controls']['lever'] and state()['throttle']<-.3,state()['controls'])
   touch('touchEnd',[]);frames();check('Releasing wheel clears command',state()['turn']==0 and not state()['controls']['steering'])
   page.locator('#leverNeutral').click();frames();check('N returns power to zero',state()['throttle']==0)
   a=anchor();r=a['radius']*.65;x=a['x']-r;y=a['y']+1;touch('touchStart',[(3,x,y)]);frames();old=state()['turn'];touch('touchMove',[(3,x,y-2)]);frames();check('Angle wrap avoids rudder snap',abs(state()['turn']-old)<.1)
@@ -77,6 +77,8 @@ with sync_playwright() as p:
   report['screenshots']=screenshots;report['passed']=True
  except Exception:
   report['passed']=False;report['exception']=traceback.format_exc();print(report['exception'],flush=True)
+  try:report['failureState']=state()
+  except:pass
   try:page.screenshot(path=str(OUT/'failure.png'))
   except:pass
  finally:

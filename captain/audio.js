@@ -1,4 +1,5 @@
-// Entirely local soundscape. No recordings, streaming, or network requests.
+import {readVoices} from "./voice-store140.js?v=140";
+// Sea and engine effects plus real vocal recordings. No TTS.
 // Call start() directly from the Play / sound-button gesture (also on iOS).
 export function createAudio() {
   let context = null;
@@ -11,11 +12,11 @@ export function createAudio() {
   let currentUtterance = null;
   let lastHorn = -100, lastImpact = -100, nextCry = 12;
   let lastState = { playing: false, storm: .7, speed: 0, panic: 0 };
-  let speechPrimed = false;
+
   const liveEffects = new Set();
   const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
   const numeric = (x, fallback = 0) => Number.isFinite(Number(x)) ? Number(x) : fallback;
-  const synth = () => typeof window !== 'undefined' ? window.speechSynthesis : null;
+
 
   function ramp(param, value, seconds = .25) {
     if (!context || !param) return;
@@ -97,7 +98,7 @@ export function createAudio() {
       if (enabled && active && context.state === 'suspended') context.resume().catch(() => {});
     }
     if (!enabled) {
-      try { synth()?.cancel(); } catch (_) {}
+      
       currentUtterance = null;
     }
   }
@@ -152,24 +153,34 @@ export function createAudio() {
     oneShotNoise(3.2, .13, 480, 50, .22);
     tone('sine', 43, 24, .055, 3.4, .1);
   }
-  // Short pre-rendered voice assets replace browser speech synthesis.
-  const voiceIds=['rock','ice','brace','rail','panic','jackets','water','safe','rescued','captain1','captain2','captain3','captain4','captain5','captain6','reply','calm','hum'];
-  const voiceBuffers=new Map();let voiceLoad=null,voiceSource=null,voicePriority=-1,voicePlayed=0,voiceFailures=0;
-  const voiceBase=new URL('./assets/voices130/',import.meta.url);
+  // No synthetic fallback: missing Greek performances remain captions.
+  const voiceBuffers=new Map(),effectBuffers=new Map();let voiceLoad=null,voiceSource=null,voicePriority=-1,voicePlayed=0,voiceFailures=0,lastHuman=-100,lastKind=null;
   function speak(){return false;}
   function stopVoice(){const old=voiceSource;voiceSource=null;voicePriority=-1;try{old?.stop();}catch{}}
-  async function loadVoices(){
-   if(!context)return false;if(voiceLoad)return voiceLoad;
-   voiceLoad=Promise.all(voiceIds.map(async id=>{try{const r=await fetch(new URL(id+'.mp3',voiceBase));if(!r.ok)throw new Error('Voice unavailable');const bytes=await r.arrayBuffer(),buffer=await context.decodeAudioData(bytes);voiceBuffers.set(id,buffer);}catch{voiceFailures++;}})).then(()=>voiceBuffers.size>0);return voiceLoad;
+  async function loadVoices(force=false){
+   if(!context)return false;if(voiceLoad&&!force)return voiceLoad;
+   voiceLoad=(async()=>{
+    try{const clips=await readVoices();for(const clip of clips){try{voiceBuffers.set(clip.id,await context.decodeAudioData(await clip.blob.arrayBuffer()));}catch{voiceFailures++;}}}catch{}
+    await Promise.all(['scream','hiccup'].map(async id=>{if(effectBuffers.has(id))return;try{const r=await fetch(new URL('./assets/human140/'+id+'.mp3',import.meta.url));if(!r.ok)throw Error('Missing human sound');effectBuffers.set(id,await context.decodeAudioData(await r.arrayBuffer()));}catch{voiceFailures++;}}));return true;
+   })();return voiceLoad;
   }
   function voice(id,{priority=1,pan=0}={}){
-   if(!canPlay())return false;const buffer=voiceBuffers.get(id);if(!buffer)return false;if(voiceSource&&priority<=voicePriority)return false;stopVoice();
-   const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;gain.gain.value=.92;const spatial=context.createStereoPanner?context.createStereoPanner():null;
+   if(!canPlay())return false;let buffer=voiceBuffers.get(id),kind='recorded-dialogue';
+   if(!buffer){
+    const fear=['panic','brace','water'].includes(id),hiccup=/^captain[3-6]$/.test(id);
+    if(!fear&&!hiccup)return false;
+    if(context.currentTime-lastHuman<(fear?5:14))return false;
+    buffer=effectBuffers.get(fear?'scream':'hiccup');kind='human-nonverbal';
+   }
+   if(!buffer||voiceSource&&priority<=voicePriority)return false;stopVoice();
+   const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;gain.gain.value=kind==='recorded-dialogue'?.92:.54;
+   const spatial=context.createStereoPanner?context.createStereoPanner():null;
    if(spatial){spatial.pan.value=clamp(pan,-.65,.65);source.connect(spatial);spatial.connect(gain);}else source.connect(gain);
-   gain.connect(master);voiceSource=source;voicePriority=priority;voicePlayed++;liveEffects.add(source);
+   gain.connect(master);voiceSource=source;voicePriority=priority;voicePlayed++;lastKind=kind;if(kind==='human-nonverbal')lastHuman=context.currentTime;liveEffects.add(source);
    source.onended=()=>{if(voiceSource===source){voiceSource=null;voicePriority=-1;}liveEffects.delete(source);source.disconnect();spatial?.disconnect();gain.disconnect();};source.start();return buffer.duration;
   }
-  const voiceStatus=()=>({engine:'prerendered-neural',loaded:voiceBuffers.size,failed:voiceFailures,played:voicePlayed,active:!!voiceSource});
+  const voiceStatus=()=>({engine:'human-recordings-only',dialogueLoaded:voiceBuffers.size,effectsLoaded:effectBuffers.size,loaded:voiceBuffers.size+effectBuffers.size,failed:voiceFailures,played:voicePlayed,active:!!voiceSource,lastKind,missingGreekDialogue:voiceBuffers.size===0});
+  if(typeof window!=='undefined'){window.addEventListener('focus',()=>{if(context){voiceBuffers.clear();loadVoices(true);}});try{const changes=new BroadcastChannel('last-call-voices');changes.onmessage=()=>{if(context){voiceBuffers.clear();loadVoices(true);}};}catch{}}
   function update(state = {}) {
     lastState = state;
     if (!initialized || !context) return;
@@ -198,7 +209,7 @@ export function createAudio() {
     if (context) ramp(master.gain, 0, .18);
     for (const source of liveEffects) { try { source.stop(); } catch (_) {} }
     liveEffects.clear();
-    try { synth()?.cancel(); } catch (_) {}
+    
     currentUtterance = null;
   }
   return { start, setEnabled, get enabled() { return enabled; }, update, horn, collision, thunder, speak, voice, loadVoices, stopVoice, voiceStatus, stop };
