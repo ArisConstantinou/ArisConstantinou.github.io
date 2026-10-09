@@ -18,6 +18,7 @@ jobs:
       - name: Apply readable guarded migration
         run: |
           python captain/tools/refit140.py
+          python captain/tools/polish140.py
           for f in captain/*.js; do node --check "$f"; done
       - name: Fetch licensed human nonverbal recordings
         run: |
