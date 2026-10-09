@@ -1,0 +1,46 @@
+name: Captain 1.6 walk smoke
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/captain-walk160.yml','captain/walk160.js','captain/main150.js']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: |
+          node --check captain/main150.js
+          node --check captain/walk160.js
+          node --check captain/passengers.js
+      - name: Install browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Run game and deck walk
+        run: |
+          python -m http.server 8765 >/tmp/captain-http.log 2>&1 &
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+            browser=p.chromium.launch(headless=True,args=['--use-gl=angle','--use-angle=swiftshader','--enable-webgl'])
+            page=browser.new_page(viewport={'width':430,'height':932},is_mobile=True,has_touch=True)
+            errors=[]
+            page.on('pageerror',lambda e:errors.append(str(e)))
+            page.goto('http://127.0.0.1:8765/captain/?test=1',wait_until='domcontentloaded')
+            page.wait_for_function("window.__lastCall?.getState()?.ready===true",timeout=60000)
+            page.locator('#start').click()
+            page.locator('#walkToggle').click()
+            page.wait_for_timeout(500)
+            state=page.evaluate('window.__lastCall.getState()')
+            assert state['walk']['active'],state
+            assert not errors,errors
+            print('WALK MODE ACTIVE',state['walk'])
+            page.locator('#walkToggle').click()
+            assert not page.evaluate('window.__lastCall.getState().walk.active')
+            browser.close()
+          PY
