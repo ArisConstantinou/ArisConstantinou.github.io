@@ -1,0 +1,52 @@
+name: Captain 1.7.1 public release verification
+on:
+  push:
+    branches: [captain-publish-171]
+    paths: ['.github/workflows/captain-live171.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Chromium
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Confirm the live release matches the tested source
+        run: |
+          python - <<'PY'
+          import hashlib, json, time, urllib.request
+          from pathlib import Path
+          base='https://arisconstantinou.github.io/captain/'
+          for attempt in range(18):
+              try:
+                  with urllib.request.urlopen(base+'release.json?v=171&verify='+str(time.time_ns()),timeout=20) as r:
+                      release=json.load(r)
+                  if release.get('version')=='1.7.1': break
+              except Exception as exc: print(type(exc).__name__,str(exc),flush=True)
+              time.sleep(10)
+          else: raise SystemExit('Public release 1.7.1 did not become available')
+          records=[]
+          for name in ['index.html','main170.js','chaos170.js','movement-ui171.js','movement-ui171.css','sw.js']:
+              with urllib.request.urlopen(base+name+'?verify='+str(time.time_ns()),timeout=30) as r: data=r.read()
+              local=Path('captain',name).read_bytes()
+              assert data==local, 'Public content mismatch: '+name
+              records.append({'file':name,'matches':True,'sha256':hashlib.sha256(data).hexdigest()})
+          out=Path('/tmp/captain171-qa');out.mkdir(exist_ok=True)
+          (out/'public-files.json').write_text(json.dumps({'url':base,'version':'1.7.1','files':records},indent=2))
+          print('Public game files match tested source',flush=True)
+          PY
+      - name: Test the actual public game on desktop and touch mobile
+        env:
+          CAPTAIN_BASE: https://arisconstantinou.github.io/captain/
+        run: python captain/tools/qa171.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain171-public-verification
+          path: /tmp/captain171-qa
+          retention-days: 7
