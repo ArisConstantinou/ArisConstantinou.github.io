@@ -1,0 +1,26 @@
+{
+  "version": "0.7.0",
+  "passed": 103,
+  "total": 103,
+  "suites": [
+    {
+      "name": "ridge070",
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "name": "qa060 retained with harness070 / version assertion",
+      "passed": 68,
+      "total": 68
+    }
+  ],
+  "environment": "Chromium/SwiftShader under Linux Xvfb. Production logic and renderer, only import/asset URLs rebased to local blobs. Scripted flight control; native mouse/key events; emulated touch, not physical iPhone/Safari. Camp serialization/restoration uses explicit memory storage adapter in the opaque offline origin. Screenshots use controlled scenes.",
+  "runtime_blobs": {
+    "index.html": "3e4461ffef077b90d9a1cec4e34189a9aab25c97",
+    "summit/game.js": "dcc5d1967b0be523a33264e659e975ad7803058d",
+    "summit/ridge070.js": "8f0dfe18d177023119a2db06bd51da4ca31c006b",
+    "summit/scenery070.js": "1096ef829251701dacced35d836fbc064418b7f9",
+    "summit/save070.js": "f3c1fd5d55a1fcf1d0d3018660ad298e3035726b",
+    "summit/ridge070.css": "3bff8a444e73aa0163c5d7b1a68ed5ba1939d113"
+  }
+}

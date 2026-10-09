@@ -1,0 +1,22 @@
+/* Additional guidance without adding required flight buttons. */
+#ridgeHUD{position:absolute;inset:0;pointer-events:none}
+#pilotLesson{position:absolute;right:24px;top:90px;width:252px;padding:11px 14px;border:1px solid #a9dcca55;border-radius:10px;background:#162e37e8;box-shadow:0 8px 30px #071c2730}
+#pilotLesson small{display:block;font-size:8px;letter-spacing:1.5px;color:#aee1cc}
+#pilotLesson b{display:block;font-size:13px;color:#f0e5ce;margin:6px 0}
+#pilotLesson span{display:block;font-size:11px;line-height:1.4;color:#c6d8d8}
+#pilotLessonProgress{font-size:10px;letter-spacing:6px;color:#a2e3c8;margin-top:8px}
+#routeChoice{position:absolute;bottom:166px;left:50%;transform:translateX(-50%);width:432px;padding:12px 15px;background:#173035d9;border:1px solid #99cfb951;border-radius:10px}
+#routeChoice b{font-size:10px;letter-spacing:1.2px;display:block;color:#f3d9a8}
+#routeChoice span{font-size:11px;line-height:1.5;display:block;margin-top:4px;color:#d5e0d7}
+.gate-label{position:absolute;transform:translate(-50%,-100%);padding:5px 9px;background:#142f39c9;border-bottom:2px solid var(--gate);color:var(--gate);font-size:10px;font-weight:650;white-space:nowrap;border-radius:4px}
+#campSaveStatus{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);font-size:9px;color:#b8dbc9;text-shadow:0 1px 3px #10242b}
+#resumeCamp{background:#a9d9c6;margin-top:18px}#resumeDescription{margin:4px 0 12px}
+body.expedition.on-foot #routeChoice{bottom:237px}
+@media(max-width:1200px){#pilotLesson{display:none!important}#routeChoice{width:400px}}
+@media(max-width:600px){#routeChoice{display:none!important}.gate-label{font-size:8px;padding:4px 7px}#campSaveStatus{bottom:calc(4px + var(--sb));font-size:8px}#resumeCamp{font-size:11px}.welcome{padding:21px}.welcome .intro{font-size:11px}}
+@media(orientation:landscape) and (max-height:550px){#routeChoice{display:none!important}#campSaveStatus{left:50%;bottom:4px}.gate-label{font-size:8px}}
+
+body.expedition.on-foot #flightHUD,body.expedition.on-foot #flightLesson{display:none}
+@media(min-width:1151px){body.expedition.on-foot #contextCard{bottom:24px}body.expedition.on-foot #routeChoice{bottom:116px}}
+
+@media(min-width:1151px){body.expedition.in-flight #contextCard.quiet{display:none}}
