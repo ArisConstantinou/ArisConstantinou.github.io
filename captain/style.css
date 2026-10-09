@@ -38,3 +38,18 @@ html,body,#game,#hud,#hud *{-webkit-user-select:none!important;user-select:none!
 .radio-message{bottom:330px;max-width:calc(100% - 44px);pointer-events:none}
 .look-hint{display:none}
 }
+
+/* v1.2 compact immersive cockpit */
+.bridge-controls{display:none}
+@media(pointer:coarse){
+#hud.in-bridge .controls-bottom{display:none!important}
+#hud.in-bridge .bridge-controls{display:block;position:absolute;inset:0;pointer-events:none}
+#hud.in-bridge .bridge-steer{pointer-events:auto;touch-action:none;position:absolute;bottom:17%;left:18%;width:64%;height:72px;display:flex;align-items:center;justify-content:space-between;border-radius:40px;background:#07192399;border:1px solid #add7e27a;padding:0 12px;box-shadow:0 5px 25px #0007;transform:translateX(calc(var(--turn,0)*4px))}
+#hud.in-bridge .bridge-steer span{font-size:28px;color:#d8f5ff}#hud.in-bridge .bridge-steer b{font-size:9px;letter-spacing:1.5px;color:#d7e6ea}
+#hud.in-bridge .bridge-engine{pointer-events:auto;position:absolute;right:12px;bottom:26%;width:60px;height:190px;border-radius:12px;background:#081d2ad9;border:1px solid #8fb9c4a1;display:flex;align-items:center;flex-direction:column;justify-content:space-around;padding:8px 3px}
+.bridge-engine span{font-size:8px;color:#e5edf1;font-weight:800}
+#bridgeThrottle{appearance:slider-vertical;-webkit-appearance:slider-vertical;writing-mode:vertical-lr;direction:rtl;width:35px;height:125px;touch-action:none;accent-color:#e8b46f}
+#hud.in-bridge .radio-message{bottom:29%;max-width:55vw;left:40%}
+#hud.in-bridge .speed-readout{display:none}
+}
+@media(orientation:portrait) and (pointer:coarse){#hud.in-bridge .bridge-steer{bottom:12%;left:17%;width:65%;height:58px}#hud.in-bridge .bridge-engine{bottom:20%;height:175px}#hud.in-bridge .radio-message{bottom:32%}}
