@@ -1,6 +1,6 @@
 /* Close-range AI rules. The same 3D caps are enforced at acquisition AND fire.
  * A projectile has a finite travelled distance, independent of target selection. */
-import {ROUTE,distance} from './physics.js?v=0.5.2';
+import {ROUTE,distance} from './physics.js?v=0.6.0';
 export const COMBAT=Object.freeze({guardRange:38,racerRange:50,guardHeight:24,racerHeight:30,guardTerritory:60,guardProjectile:45,racerProjectile:58,playerProjectile:90,reaction:1.15,warmup:12});
 export const combatDistance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
 export function inCombatRange(a,b){

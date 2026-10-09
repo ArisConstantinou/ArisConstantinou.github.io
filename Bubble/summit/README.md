@@ -1,52 +1,53 @@
-# Bubble Skyward — Summit 0.5.4
+# Bubble Skyward — Expedition 0.6.0
 
-Play: https://arisconstantinou.github.io/Bubble/?v=0.5.4
+Play: https://arisconstantinou.github.io/Bubble/?v=0.6.0
 
-## Keyboard hotfix 0.5.4
+This update addresses Aris's reports that landing stops the playable loop, the interface does not explain what to do, and shooting gives little or no understandable impact. It updates the actual published Summit 0.5.4; it does not substitute the separately supplied 1.0 draft. The previous castle, its local character save, assets/licences and every non-Bubble project remain intact.
 
-Desktop descent is now **X**; ascent/jump remains **Space**. Hold X together with WASD to descend and steer without holding Ctrl. Release X to return to neutral vertical input. Ctrl, Command and Alt shortcuts are not interpreted as game actions; they also cancel held desktop input to prevent stuck movement or an unintended shot. Browser/OS shortcuts themselves remain under browser/OS control. Touch altitude and ring aiming are unchanged. See [current controls and verification](KEYBOARD-0.5.4.md).
+## Land, resupply, make another bubble
 
-## Pick the gum, not a recipe button (retained from 0.5.3)
+Land inside the next site's large illuminated circle. The required stop is registered automatically once the living character is grounded near the site's height and inside its capture radius; no unexplained seal button is required. The current goal then changes to supplies, not the following mountain.
 
-This release replaces the old three-button preparation wizard with a close-up 3D scene using the player's existing skinned human character and a portable table of six gum pieces. The hand, gum and mouth are visible together. Preparation uses a front-facing close-up, not first-person hands; the flying/ground game still has FPS and top view.
+Each landing site now has a central golden-trimmed supply crate and a physical sign. The golden marker shows the next supply point and its distance. Approach within 6 m and press F, or the existing mobile loot control. The crate supplies one complete recipe: 3 resin, 2 fibre and 1 lift gas, plus ammunition and healing. A visible counter reports ready gum sets. Individual material types are still used internally, without forcing the player to infer the recipe from three disconnected quantities. Crates have separate collection state for each racer, so an AI cannot remove the player's essential set. Repeat collection does not duplicate a set. Enemy drops now also contain a complete set.
 
-Click/touch a gum to take it in the hand. Hold and drag that piece to the character's lips and release. Moving it around first lets you inspect it or put it back on the table. The arm is posed with two-bone inverse kinematics, and the existing thumb/index finger bones follow a grasp target; the candy stays with the hand, not as a floating screen icon.
+After collection, the current task says to open the gum with B / TΣIXΛEΣ. This still opens the direct-manipulation scene: choose a coloured piece, hold it in the character's hand, drag it to the lips, then pull the small bubble outwards to grow it. It does not replace that interaction with a recipe wizard. No set available: the message points to the supply cache. A roof overhead: the instruction identifies insufficient clearance and points toward open ground.
 
-After insertion there is a short automatic chewing animation, using a local lower-face morph and a small head motion. This is not a separate command button, manual control of individual chewing cycles, or a recording of the real player's mouth. No microphone or camera is requested.
+The four-leg route still requires the three intermediate landings. The first AI reaching the final plateau no longer abruptly aborts the player's unfinished journey: its arrival is recorded, while the player can continue and finish with a rank.
 
-When the small bubble appears at the lips, touch/click it and drag outwards to grow it. A timer alone does not inflate or launch. Releasing a partial bubble leaves it partially inflated; grab again to continue. Releasing a fully grown bubble launches into the existing mountain game.
+## What a hit now means
 
-B / the mobile TΣIXΛEΣ control opens this scene again on the ground. Escape / the close control cancels it. Start, navigation and close controls still exist, but there are no mix, insert, chew or inflate action buttons inside preparation. The entire single-player race pauses during preparation, and the screen says so.
+The previous top-view aim assistance could select targets at 150–170 m although the player's projectile stopped at 90 m. The new assistance uses the projectile's 90 m reach and physical visibility. Direct pointer rays select the visible silhouette; nearby assistance can lead a moving opponent. FPS still uses its actual aim ray. Neither mode grants damage through terrain, structures or another first-contact object.
 
-## Six flavours, with visible colour
+The balloon hit centre now follows the same yaw, banking and mouth-offset transform as the rendered envelope. The clothed body uses overlapping hit volumes, rather than three separated tiny targets. A ray starting inside a hit volume reports immediate contact. A check between the body and muzzle prevents a muzzle already beyond a close wall from firing through it. The body volumes remain approximate, not per-triangle anatomical collision.
 
-| Gum | Colour | Existing flight profile |
-|---|---|---|
-| ΜΟΥΡΟ / berry | Purple | Strong: 95 s, 210 integrity |
-| ΜΕΝΤΑ / mint | Green | Light: 120 s, 135 integrity |
-| ΦΡΑΟΥΛΑ / strawberry | Pink | Balanced: 105 s, 160 integrity |
-| ΠΟΡΤΟΚΑΛΙ / orange | Orange | Strong: 95 s, 210 integrity |
-| ΠΑΓΟΜΕΝΗ ΜΕΝΤΑ / ice mint | Cyan | Balanced: 105 s, 160 integrity |
-| ΛΕΜΟΝΙ / lemon | Yellow | Light: 120 s, 135 integrity |
+Every confirmed projectile contact adds coloured attached gum and a short reaction. A membrane hit visibly deforms the envelope; a body hit staggers a grounded opponent. The aim marker flashes only on an actual hit. The interface reports added mass and lost membrane integrity or health. A target panel displays its health, membrane percentage, attached gum and downward speed when falling. These numbers come from the same target state used by the simulation, not invented effects.
 
-Drag one piece onto another on the table to combine up to three. The pieces merge into one larger piece, with a blended colour and averaged profile properties, not cumulative unlimited bonuses. Then pick up the mixture and place it in the mouth in the same way.
+Normal / charged hits add 2.5 / 10 kg and cost 8 / 24 membrane integrity on an envelope. The charged shot costs 16 ammunition units. The update increases the weight's sinking contribution and adds a short downward impulse (0.85 / 2.8 m/s) while retaining the stronger balloon recipes introduced in 0.5.2. A few ordinary shots do not automatically destroy every balloon. Visible trails and short splatter particles make hit versus miss easier to distinguish. Coloured patches attach to the actual struck surface. Walls still stop shots, and enemy fire remains local under the retained 38 m garrison / 50 m racer engagement rules.
 
-The selected or mixed colour is carried into the airborne balloon, the character's gun reservoir, the FPS reservoir, the player's fired gum and its world-impact marks. It is not just the colour of a menu selection. Existing generic attached-weight patches on enemies retain their earlier visual system.
+## Goals and challenges
 
-One flight recipe (3 resin, 2 fibre, 1 lift gas) is reserved on mouth insertion, not on every pick-up or every selected colour. Cancelling before launch refunds that reservation once. The three-piece mix does not silently charge three recipes. Existing material collection and flight progression are unchanged.
+A single current-task card explains the immediate action: fly, land, collect a full set, or make the next bubble. The route strip tracks completed stops. On the ground, irrelevant envelope readouts are hidden; when a supply cache is the immediate goal, the distance readout explicitly says supplies. Flight speed, ascent, descent and landing distance remain visible during flight.
 
-## Kept from the published 0.5.2
+K / the question-mark guide opens an in-game explanation of the whole route, gum preparation, landing, resupply, shooting and every binding. The single-player simulation pauses while it is open. Desktop keeps keyboard and mouse indicators where space permits; touch keeps independent movement and inner-aim/outer-fire controls near the thumbs.
 
-The actual physics.js, world.js, combat052.js, feedback052.js, style.css and hotfix052.css files are byte-for-byte unchanged. The keyboard portion of input.js has the 0.5.4 browser-safe change above; its touch routing is unchanged. The flight controller, hold/release ascent/descent, stronger envelopes, local AI acquisition and finite projectile travel are not replaced by the alternate 1.0 draft. Preparation input is isolated from the normal two-thumb router and does not inject movement or shots when returning to play.
+Eight optional green wind rings add small flying challenges. A real crossing through a ring gives up to 8 seconds of membrane life and 8 ammunition, once per ring; full supplies remain capped. Skipping them is permitted. The user can engage or avoid local guards, collect extra caches and drops, and continue the race after rival finishes. This is an initial set of route decisions, not a complete authored campaign or a claim that boredom has been objectively solved.
 
-Read [the retained flight and combat notes](FLIGHT-0.5.2.md) for speeds, range limits, balloon endurance, recovery, controls and asset licences. The original castle, character save and all non-Bubble repository projects remain untouched.
+## Visual and performance work — not an AAA claim
 
-## Earlier 0.5.3 verification and limitations
+Existing ground and rock normal maps are now used with the appropriate non-colour texture interpretation. Surface colour variation, exposure and lighting were adjusted, the on-foot camera is closer, and landing supplies are marked in the 3D scene. Forest instances are partitioned into spatial chunks with bounds and a device-dependent view distance instead of a single map-wide batch. Tree collision remains independent of visibility. These are improvements to the existing assets, not replacement photorealistic mountains or new motion-capture humans.
 
-Actual local runs passed 44/44 direct-manipulation browser checks, 13/13 mix/profile checks, the retained 32/32 flight/combat rule checks and 43/43 flight/browser regression checks: 132 assertions in total. The former recipe-button steps in the browser regression were replaced with the actual gum-to-mouth and bubble-pull gestures. Tests cover all six flavour launches, mixing, partial inflation, cost/refund, FPS shot colour, real human bone use, cancelled touches, event isolation, all four flight legs and desktop/touch layouts. The final 44-check suite was repeated after the last camera-framing adjustment.
+Human models, hands, facial motion and architecture still have prototype limitations. Collision is game-oriented and approximate; chewing gum is not a fully simulated soft body. The scene has not been performance-certified on a physical iPhone or Safari. No accounts, analytics, advertising or multiplayer were introduced. A live run is still in memory only; refreshing begins a new run, without clearing the archived castle's character save.
 
-Browser tests used the production logic and real renderer with only imports/resource locations rebased to local blob URLs. Environment: Chromium with SwiftShader under Linux/Xvfb; synthetic pointer/touch events, not a physical iPhone or Safari. Viewports included 1440x900, 430x932, 430x744, 375x667 and 932x430. A separate continuous-render mobile check retained an active WebGL context with no page exceptions. These checks do not establish real-device frame rate or polished animation quality.
+## Controls
 
-The grasp and face motion are game approximations, not motion capture, full soft-body chewing gum, per-finger collision or anatomical chewing simulation. The selected bubble is made with a drag gesture, not actual blowing into a microphone. Asset licences are unchanged in assets/HUMAN-ASSET-LICENSE.txt, assets/SURFACE-LICENSE.txt and vendor/LICENSE.txt.
+WASD / arrows move. Space ascends or jumps, X descends, release brakes toward neutral. Shift runs on the ground; Q/E lean/strafe. Left mouse holds normal shooting; right mouse holds/releases a charged shot. R reloads, B opens physical gum preparation, F collects, H cleans on the ground, C switches FPS/top view, M maps, Escape pauses, K opens the guide. Ctrl/Command/Alt remain browser controls, not flight modifiers.
 
-The runtime source blob hashes and test summary are recorded in tests/hands-0.5.3.json. Old versioned reports describe the older revisions, not the new interaction.
+Mobile: move with the left thumb, aim inside the right disc and shoot in its outer ring. Hold the separate ascent/descent controls; release returns to neutral. Use the existing TΣIXΛEΣ and loot controls for the contextual ground steps. The central mobile task banner is guidance, not another required third-finger button.
+
+## Verification and reproduction
+
+`tests/qa060.py` and `tests/harness060.py` exercise the real production renderer and simulation. The offline harness changes only asset/import locations to local blob URLs. Use Python Playwright, Chromium and Xvfb: `xvfb-run -a python3 Bubble/summit/tests/qa060.py`. Optional environment variables: SUMMIT_ROOT (the Bubble folder), SUMMIT_REPORTS and CHROMIUM.
+
+The regression suite covers the four flight legs in one continuous run, all three resupplies, four gum-to-mouth/inflation launches, ordered landing capture, duplicate protection, actual banked envelope hit geometry, normal and charged impacts, attached patches and state readouts, range limits, a muzzle-adjacent wall, X descent and modifier isolation, guide pause/resume, earned ring crossings and touch layouts. Flight steering is scripted using the normal body/world simulation; preparation gestures and supply actions use native mouse/key events. Controlled combat scenes are used for precise assertions and screenshots. These tests do not substitute for a player's judgement of fun or visual quality.
+
+Final outcomes and environment are recorded in `tests/verified-0.6.0.json`, with source hashes in `tests/source-0.6.0.json`. Older versioned reports apply to those older versions. Browser execution uses Chromium/SwiftShader under Linux/Xvfb with emulated touch, not a physical phone or Safari. A separate continuous mobile-render run retained its WebGL context across viewport changes. Asset licences remain in assets/HUMAN-ASSET-LICENSE.txt, assets/SURFACE-LICENSE.txt and vendor/LICENSE.txt.

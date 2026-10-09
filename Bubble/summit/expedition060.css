@@ -1,0 +1,63 @@
+/* Expedition 0.6: one current task, one contextual interaction, readable impacts. */
+body.expedition #hud .mission{display:none}
+body.expedition #vignette{background:linear-gradient(#10212c50,transparent 24%,transparent 75%,#0b1b2766)}
+#expeditionHUD{position:absolute;inset:0;pointer-events:none}
+#objectiveCard{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:480px;padding:15px 20px 11px;background:linear-gradient(115deg,#132a36ed,#142835cc);border-left:3px solid #91e9c7;border-radius:4px 14px 14px 4px;box-shadow:0 9px 35px #07192338}
+#objectiveStep{color:#a0e7cb;font-weight:750;font-size:10px;letter-spacing:1.7px}
+#objectiveTitle{font-size:22px;line-height:1.25;margin:7px 0;font-weight:600;letter-spacing:-.5px}
+#objectiveDetail{font-size:12px;line-height:1.5;color:#d5e3de;margin:0;min-height:18px}
+#routeProgress{display:flex;gap:5px;margin-top:12px}
+#routeProgress span{flex:1;border-top:2px solid #9cbbbe35;padding-top:5px;font-size:8px;letter-spacing:1.5px;color:#9bb3bd}
+#routeProgress span.done{border-color:#86dabc;color:#b4ead5}#routeProgress span.current{border-color:#e5b2dd;color:#f3d9ea}
+#pocketHUD{position:absolute;left:24px;top:115px;display:grid;gap:5px;font-size:9px;letter-spacing:.4px;text-shadow:0 2px 4px #031725}#pocketHUD strong{font-size:12px;color:#f5d993}
+#contextCard{position:absolute;bottom:139px;left:50%;transform:translateX(-50%);text-align:center;width:420px;background:#112d3bd9;padding:9px 12px;border:1px solid #dab88b55;border-radius:12px}
+#contextCard button{pointer-events:auto;min-height:46px;background:#efd7a5;color:#192c35;border:0;width:100%;font-size:12px;letter-spacing:.4px;border-radius:7px}
+#contextExplain{font-size:10px;margin:6px 0 0;color:#e6e2d0;line-height:1.35}
+#contextCard.quiet{background:none;border:0;padding:0;bottom:133px}#contextCard.quiet button{display:none}#contextCard.quiet p{font-size:10px;text-shadow:0 1px 4px #041b2f}
+#guideButton{pointer-events:auto;font-size:18px;min-width:44px;padding:6px 11px}#guideButton span{display:none}
+#guideScreen{z-index:50}#guideScreen .guide-panel{width:min(940px,96vw);padding:30px}#guideScreen .guide-intro{font-size:15px;max-width:800px;color:#e8dfcf}
+.guide-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 25px}.guide-grid article{border-top:1px solid #a0c9bd38;padding-top:12px}.guide-grid b{font-size:14px;color:#badfd1}.guide-grid p{font-size:12px;line-height:1.7;margin:7px 0}
+body.expedition #flightHUD{top:auto;bottom:24px;left:50%;right:auto;transform:translateX(-50%);gap:0;width:432px;display:grid;grid-template-columns:repeat(4,1fr);background:#142c39e3;border:1px solid #b1d4cc40;border-radius:12px;overflow:hidden}
+body.expedition .instrument,body.expedition .instrument.destination{width:auto;box-shadow:none;border:0;border-right:1px solid #b0cfcd28;border-radius:0;background:none;padding:12px 10px;backdrop-filter:none}
+body.expedition .instrument strong{font-size:28px}body.expedition .instrument label{font-size:7px;white-space:normal}
+body.expedition .instrument.active{background:#25524766}body.expedition .instrument.sink.active{background:#653c5066}
+body.expedition #envelope{left:24px;top:165px;width:176px;gap:8px}body.expedition .mini-stat{background:#142d3aab;border-radius:0 8px 8px 0}
+body.expedition #pilotStatus{left:24px;top:376px;width:220px;transform:none;border:0;background:none;padding:0}body.expedition #pilotStatus:not(.warning) #pilotReason{display:none}body.expedition #pilotCommand{font-size:10px}body.expedition #localThreat{margin-top:6px;font-size:10px}
+body.expedition #keyboardHUD,body.expedition #mouseHUD{background:#142a34b0;border-color:#b4d0ca25;opacity:.9}
+body.expedition #ammoPanel{bottom:190px;right:24px}body.expedition #materials{font-size:9px}
+#enemyCard{position:absolute;top:180px;right:24px;width:260px;background:#152935ed;border:1px solid #d08a9e70;border-radius:12px;padding:15px;box-shadow:0 10px 25px #11202930}
+#enemyTitle{font-size:11px;color:#e4c4da}#enemyState{font-size:15px;display:block;margin:8px 0 13px;color:#fff0c7}#enemyCard>div{display:flex;align-items:center;gap:5px;margin:8px 0}#enemyCard label{font-size:8px;width:54px;flex-shrink:0}#enemyCard meter{width:112px;height:11px;appearance:none;border:none;border-radius:4px;background:#364c56}#enemyCard meter::-webkit-meter-bar{background:#364c56;border:0}#enemyHP::-webkit-meter-optimum-value{background:#f3b189}#enemyBalloon::-webkit-meter-optimum-value{background:#bd90e1}#enemyCard>div>b{font-size:10px;min-width:34px;text-align:right}#enemyWeight{font-size:12px;color:#f0d79c;margin:12px 0 0}
+#hitConfirm{position:absolute;top:51%;left:50%;transform:translate(-50%,35px);text-align:center;padding:9px 15px;background:#142b37ee;border:1px solid #eeb2d8;border-radius:7px;white-space:nowrap;box-shadow:0 4px 18px #1b12244a}
+#hitConfirm b{display:block;font-size:11px;letter-spacing:.8px;color:#f5c3e2}#hitConfirm span{font-size:13px;display:block;margin-top:4px;color:#fff2d6}
+body.expedition #reticle.confirmed{border-color:#fff1c2;box-shadow:0 0 0 6px #fcd48b55}body.expedition #reticle.confirmed::after{content:'×';position:absolute;font-size:36px;top:-18px;left:-3px;color:#ffefc6}
+.enemy-tag{position:absolute;font-size:9px;white-space:nowrap;padding:5px 7px;transform:translate(-50%,-100%);background:#182735ce;border-radius:4px;color:#f2dde9;text-shadow:0 1px 2px #13232a;border-bottom:2px solid #bd93cb}.enemy-tag::after{content:'';position:absolute;left:0;bottom:-2px;height:2px;width:var(--hp);background:#f0ac8d}
+#flightLesson{position:absolute;bottom:118px;left:50%;transform:translateX(-50%);width:490px;text-align:center;font-size:10px;color:#d6e7e1;text-shadow:0 2px 4px #091b2b}body.expedition #toast{top:174px;max-width:570px;z-index:4;background:#17363de8;border-color:#b3d0bf55}
+body.expedition #targetMarker{background:#112a39db;border-color:#e9d19699;padding:7px 10px;box-shadow:0 2px 8px #16223350}
+body.expedition .welcome{background:linear-gradient(130deg,#172e39f0,#111f2ceb)}body.expedition header{z-index:3}
+@media(max-width:1150px){#objectiveCard{width:400px;top:20px;padding:13px 17px}#objectiveTitle{font-size:18px}#objectiveDetail{font-size:11px}body.expedition #keyboardHUD,body.expedition #mouseHUD{display:none}body.expedition #ammoPanel{bottom:24px;right:16px}body.expedition #envelope{width:148px}#enemyCard{width:220px}#enemyCard meter{width:92px}#enemyCard label{width:46px}body.expedition #pilotStatus{width:168px;top:375px}}
+@media(max-width:600px){
+ body.expedition header{left:11px;right:11px;top:calc(10px + var(--st))}.brand{width:139px}body.expedition nav button{min-width:40px;padding:6px;min-height:40px}
+ #objectiveCard{top:calc(97px + var(--st));width:auto;left:11px;right:11px;transform:none;padding:11px 12px 8px;background:#152d38e8}
+ #objectiveStep{font-size:8px;letter-spacing:1.3px}#objectiveTitle{font-size:17px;margin:5px 0}#objectiveDetail{font-size:10px;line-height:1.5;min-height:30px}#routeProgress{margin-top:7px}#routeProgress span{font-size:7px;padding-top:4px}
+ #pocketHUD{left:11px;top:calc(74px + var(--st));right:11px;display:flex;justify-content:space-between;font-size:8px}#pocketHUD strong{font-size:9px}
+ body.expedition #flightHUD{top:calc(241px + var(--st));bottom:auto;left:11px;right:11px;transform:none;width:auto}body.expedition .instrument{padding:8px 7px}body.expedition .instrument strong{font-size:22px;margin:4px 0}body.expedition .instrument small{font-size:7px}body.expedition .instrument label{font-size:6px}
+ body.expedition #envelope{top:calc(320px + var(--st));left:11px;right:11px;width:auto;display:flex;gap:5px}body.expedition .mini-stat{flex:1;padding:6px 8px;border:0;background:#142b388a;border-radius:6px}body.expedition .mini-stat b{font-size:16px;margin:2px 0}body.expedition .mini-stat span{font-size:7px}body.expedition .mini-stat small{font-size:6px}.mini-stat .bar{display:none}
+ body.expedition #pilotStatus{top:auto;bottom:calc(279px + var(--sb));left:11px;right:11px;width:auto;background:none}body.expedition #pilotCommand,body.expedition #pilotReason{display:none!important}body.expedition #pilotStatus.warning #pilotReason{display:block!important;background:#3a293bcc;padding:4px;border-radius:4px;font-size:8px;margin:0}body.expedition #localThreat{font-size:8px;color:#f3cd9f}
+ body.expedition #ammoPanel,html[data-input-mode=touch] body.expedition #ammoPanel{bottom:calc(226px + var(--sb));top:auto;right:13px;min-width:104px}body.expedition #ammoPanel>strong{font-size:21px}body.expedition #ammoPanel>small{font-size:7px}body.expedition #materials{display:none}#gumFlavorLabel{max-width:120px!important}
+ #contextCard{left:12px;transform:none;bottom:calc(224px + var(--sb));width:240px;max-width:58vw;padding:0;background:none;border:0;text-align:left}#contextCard button{font-size:10px;min-height:36px;padding:7px;background:#efddb7;pointer-events:none}#contextExplain{font-size:8px}#contextCard.quiet{bottom:calc(223px + var(--sb));width:200px}#contextCard.quiet p{font-size:8px;text-align:left}
+ #flightLesson{display:none}#enemyCard{top:calc(393px + var(--st));right:11px;width:207px;padding:9px}#enemyTitle{font-size:9px}#enemyState{font-size:12px;margin:4px 0}#enemyCard>div{margin:4px 0}#enemyCard meter{width:81px;height:8px}#enemyCard label{font-size:7px;width:48px}#enemyCard>div>b{font-size:8px}#enemyWeight{font-size:10px;margin:6px 0 0}
+ #hitConfirm{top:49%;padding:7px 10px;transform:translate(-50%,8px);max-width:92vw;white-space:normal;width:max-content}#hitConfirm b{font-size:8px}#hitConfirm span{font-size:11px}
+ body.expedition #toast{top:auto;bottom:calc(305px + var(--sb));max-width:94%;width:94%;font-size:10px;padding:8px}#guideScreen .guide-panel{padding:20px 18px}.guide-grid{grid-template-columns:1fr;gap:10px}.guide-grid p{font-size:12px}#guideScreen .guide-intro{font-size:13px}#guideScreen .eyebrow{font-size:8px}
+}
+@media(max-width:600px) and (max-height:790px){#objectiveCard{top:83px}#pocketHUD{top:65px}#objectiveDetail{min-height:25px}body.expedition #flightHUD{top:216px}body.expedition #envelope{top:291px}#enemyCard{top:362px;width:190px}#enemyCard label{width:43px}#enemyCard meter{width:71px}#enemyCard>div>b{min-width:28px}body.expedition #pilotStatus{bottom:264px}#hitConfirm{top:44%;left:43%}.brand #stateText{font-size:7px}body.expedition #toast{bottom:284px}}
+@media(orientation:landscape) and (max-height:550px){
+ #objectiveCard{top:10px;width:400px;padding:9px 12px}#objectiveTitle{font-size:16px;margin:4px 0}#objectiveDetail{font-size:9px;min-height:0}#routeProgress{margin-top:5px}#routeProgress span{font-size:7px}#objectiveStep{font-size:7px}
+ #pocketHUD{left:calc(14px + var(--sl));top:86px;font-size:7px}#pocketHUD strong{font-size:9px}body.expedition #envelope{display:none}body.expedition #pilotStatus{left:calc(14px + var(--sl));top:126px;bottom:auto;width:160px}body.expedition #pilotCommand{display:none}body.expedition #pilotReason,body.expedition #localThreat{font-size:7px}
+ body.expedition #flightHUD{top:122px;bottom:auto;left:50%;right:auto;transform:translateX(-50%);width:370px}body.expedition .instrument,body.expedition .instrument.destination{padding:7px 8px}body.expedition .instrument strong{font-size:21px;margin:3px 0}body.expedition .instrument label{font-size:6px}
+ #contextCard{left:50%;bottom:calc(29px + var(--sb));width:320px;padding:6px;transform:translateX(-50%)}#contextCard button{font-size:10px;min-height:37px}#contextCard p{font-size:8px}#contextCard.quiet{bottom:30px}#flightLesson{display:none}
+ body.expedition #ammoPanel,html[data-input-mode=touch] body.expedition #ammoPanel{bottom:calc(204px + var(--sb));right:calc(13px + var(--sr))}#enemyCard{top:194px;right:50%;transform:translateX(50%);width:215px;padding:9px}#enemyCard strong{font-size:12px;margin:5px 0}#enemyCard label{font-size:7px}#enemyCard>div{margin:3px 0}#enemyCard meter{width:88px}#enemyWeight{font-size:9px;margin:5px 0}body.expedition #toast{top:auto;bottom:calc(102px + var(--sb));font-size:9px;max-width:350px;width:39vw}#hitConfirm{top:53%;left:77%;max-width:200px;white-space:normal}#hitConfirm b{font-size:8px}#hitConfirm span{font-size:10px}
+}
+
+body.expedition.on-foot #envelope{display:none}body.expedition.on-foot #pilotStatus{top:165px}body.expedition.on-foot #pilotCommand{display:none}body.expedition.on-foot #pilotStatus.warning #pilotReason{display:none}@media(max-width:600px){body.expedition.on-foot #pilotStatus{top:auto;bottom:calc(279px + var(--sb));}body.expedition.on-foot #enemyCard{top:320px}}
+
+@media(max-width:600px){body.expedition .brand #stateText{display:none}body.expedition #pocketHUD{top:calc(74px + var(--st))} }

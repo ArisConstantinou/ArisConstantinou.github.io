@@ -11,7 +11,7 @@ export class Input{
     this.keys.clear();this.left=this.right=false;game.chargeRelease(true);return;
    }
    if(e.isComposing||e.target?.closest?.('input,select,textarea,[contenteditable]:not([contenteditable="false"])'))return;
-   const map={KeyC:'camera',KeyM:'map',Escape:'pause',KeyR:'reload',KeyB:'craft',KeyF:'collect',KeyH:'clean'};
+   const map={KeyC:'camera',KeyM:'map',Escape:'pause',KeyR:'reload',KeyB:'craft',KeyF:'collect',KeyH:'clean',KeyK:'help'};
    const movement=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','KeyX','KeyQ','KeyE','ShiftLeft','ShiftRight'];
    if(!game.running||(!map[e.code]&&!movement.includes(e.code)))return;
    this.mode(false);

@@ -1,7 +1,7 @@
 /* Physical preparation, not a recipe-button wizard. All gesture events are local
  * to this view. The normal flight/input/combat modules keep their 0.5.2 rules. */
 import * as T from 'three';
-import {clamp,inflate} from './physics.js?v=0.5.2';
+import {clamp,inflate} from './physics.js?v=0.6.0';
 export const FLAVOURS=Object.freeze([
  {id:'berry',name:'ΜΟΥΡΟ',color:0x9564eb,recipe:'strong',note:'Αντοχή · 95 s'},
  {id:'mint',name:'ΜΕΝΤΑ',color:0x5bd6a1,recipe:'light',note:'Εμβέλεια · 120 s'},

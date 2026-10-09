@@ -1,9 +1,7 @@
-# Bubble Skyward — Summit 0.5.4
+# Bubble Skyward — Expedition 0.6.0
 
-Play: https://arisconstantinou.github.io/Bubble/?v=0.5.4
+Play: https://arisconstantinou.github.io/Bubble/?v=0.6.0
 
-Choose a real 3D piece of coloured gum, hold it with the character's hand, drag it to the lips, then pull the small mouth bubble outwards to inflate it. The old mix/chew/inflate button wizard has been removed.
+A guided landing/resupply/relaunch loop and visible, collision-driven gum combat on the existing Summit route. Read [the current gameplay, controls, limits and verification](summit/README.md). The prior castle remains at [castle.html](castle.html), with its character save untouched.
 
-See [direct manipulation, colours, controls and limitations](summit/README.md). Flight handling, balloon durability and close-range AI retain the published 0.5.2 rules. The old castle and its saved character remain separate at [castle.html](castle.html).
-
-Desktop descent is now **X**, ascent remains **Space**. See [browser-safe keyboard notes](summit/KEYBOARD-0.5.4.md).
+This remains a prototype, not a finished AAA production. The alternate 1.0 draft was not substituted for the published game.

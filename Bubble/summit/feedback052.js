@@ -1,4 +1,4 @@
-import {flightState} from './physics.js?v=0.5.2';
+import {flightState} from './physics.js?v=0.6.0';
 import {threatLabel} from './combat052.js?v=0.5.2';
 export function pilotFeedback(game){
  const a=game.player,b=a.balloon,state=flightState(a,a.controlUp||0);

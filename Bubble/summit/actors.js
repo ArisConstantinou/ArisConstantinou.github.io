@@ -1,7 +1,7 @@
 import * as T from 'three';
 import {GLTFLoader} from './vendor/loaders/GLTFLoader.js';
 import {clone} from './vendor/utils/SkeletonUtils.js';
-import {clamp} from './physics.js';
+import {clamp} from './physics.js?v=0.6.0';
 const assets=new URL('./assets/',import.meta.url),Y=new T.Vector3(0,1,0);
 export async function loadPeople(){const loader=new GLTFLoader;return Promise.all(['human.glb','human-woman.glb'].map(p=>loader.loadAsync(new URL(p,assets).href)));}
 export function makeGun(){
@@ -37,7 +37,7 @@ export function posePerson(p,a,time,dt,fps=false,near=true){
  if(show){const r=a.balloon.r;p.balloon.scale.set(r*(1+Math.sin(time*1.8)*.006),r,r);p.balloon.position.set(0,1.70+r+.3,.45);p.tail.position.set(0,2.08,.43);p.tail.scale.set(1,.79,1);p.balloon.material.opacity=fps?.14:.78;}
  if(!a.alive||!near)return;
  for(const [name,b]of Object.entries(p.bones)){b.quaternion.copy(p.rest[name].q);b.position.copy(p.rest[name].p);}p.model.updateMatrixWorld(true);
- const walking=a.grounded&&Math.hypot(a.vx,a.vz)>.25,phase=a.step*2*Math.PI;
+ const walking=a.grounded&&Math.hypot(a.actualVx||0,a.actualVz||0)>.25,phase=a.step*2*Math.PI;
  for(const [side,sign]of[['l',1],['r',-1]]){
   const swing=walking?Math.sin(phase+(sign<0?Math.PI:0))*.32:0;
   pointBone(p,'thigh_'+side,new T.Vector3(sign*.02,-1,a.balloon?-.12:swing));
@@ -47,7 +47,7 @@ export function posePerson(p,a,time,dt,fps=false,near=true){
   else{pointBone(p,'upperarm_l',new T.Vector3(.11,-1,-swing*.6));pointBone(p,'lowerarm_l',new T.Vector3(.07,-1,.13));}
  }
  const head=p.bones.head;if(head)head.rotation.x+=clamp(-a.pitch*.25,-.18,.18);p.model.updateMatrixWorld(true);
- const hand=p.bones.hand_r.getWorldPosition(new T.Vector3());p.root.worldToLocal(hand);p.gun.position.copy(hand);p.gun.rotation.x=-a.pitch;
+ const hand=p.bones.hand_r.getWorldPosition(new T.Vector3());p.root.worldToLocal(hand);p.gun.position.copy(hand);p.gun.rotation.x=-a.pitch;if(a.aimPoint)p.gun.lookAt(new T.Vector3().copy(a.aimPoint));
  p.gun.userData.tank.scale.y=Math.max(.025,a.ammo/64);
  if(Math.floor(a.gum/5)!==p.shownGum){p.shownGum=Math.floor(a.gum/5);for(const m of p.patches.children){m.geometry.dispose();m.material.dispose();}p.patches.clear();for(let i=0;i<Math.min(22,p.shownGum);i++){const m=new T.Mesh(new T.SphereGeometry(.13,12,8),new T.MeshStandardMaterial({color:0xce86bd,roughness:.32}));const an=i*2.4,y=.35+(i%5)*.29;m.position.set(Math.sin(an)*.28,y,Math.cos(an)*.25);m.scale.set(1,.75,.6);p.patches.add(m);}}
  p.patches.visible=!fps;

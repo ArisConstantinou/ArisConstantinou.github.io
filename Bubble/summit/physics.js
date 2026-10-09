@@ -30,7 +30,7 @@ export function inflate(a,recipe='balanced',quality=1){
 }
 export function gumHit(a,amount=2.5,balloonHit=false){
  if(!a.alive)return; a.gum=clamp(a.gum+amount,0,150);a.hp=Math.max(0,a.hp-(balloonHit?3:10));a.shotFlash=.25;
- if(a.balloon){const damage=balloonHit?(amount>3?24:8):(amount>3?6:2);a.balloon.integrity=Math.max(0,a.balloon.integrity-damage);if(a.balloon.integrity<=0){a.balloon=null;a.lastBalloonEvent='ΖΗΜΙΑ ΜΕΜΒΡΑΝΗΣ';}}
+ if(a.balloon){a.vy=Math.max(-16,a.vy-(amount>3?2.8:.85));const damage=balloonHit?(amount>3?24:8):(amount>3?6:2);a.balloon.integrity=Math.max(0,a.balloon.integrity-damage);if(a.balloon.integrity<=0){a.balloon=null;a.lastBalloonEvent='ΖΗΜΙΑ ΜΕΜΒΡΑΝΗΣ';}}
  if(!a.balloon&&a.grounded)a.stun=Math.min(.45,a.stun+.12);
 }
 // Fictional flight controller. Intact reserves now absorb small loads/damage;
@@ -39,7 +39,7 @@ export function flightState(a,control=0,windY=0){
  const b=a.balloon;if(!b)return{command:control,target:-38,reserve:0,sink:0,load:0};
  const integrity=clamp(b.integrity/b.maxIntegrity,0,1),fade=clamp((b.exhausted||0)/12,0,1);
  const lift=b.lift*(.88+.12*integrity),reserve=lift-a.mass-a.gum;
- const overload=Math.max(0,-reserve),sink=a.gum*.015+overload*.20+fade*6;
+ const overload=Math.max(0,-reserve),sink=a.gum*.055+overload*.20+fade*6;
  const climb=6*clamp(1-a.gum/160,.45,1)*(1-fade*.85);
  let target=(control>=0?control*climb:control*4.5)-sink+windY*.12;
  // Only commanded, controlled descents slow near the floor. Heavy overload
@@ -123,6 +123,9 @@ export function separateBodies(list,world){
  }
 }
 export function raySphere(o,d,c,r,max){
- const x=o.x-c.x,y=o.y-c.y,z=o.z-c.z,b=x*d.x+y*d.y+z*d.z,q=b*b-(x*x+y*y+z*z-r*r);if(q<0)return null;let t=-b-Math.sqrt(q);if(t<0)t=-b+Math.sqrt(q);return t>=0&&t<=max?t:null;
+ const x=o.x-c.x,y=o.y-c.y,z=o.z-c.z,b=x*d.x+y*d.y+z*d.z,inside=x*x+y*y+z*z-r*r;if(inside<=0)return 0;const q=b*b-inside;if(q<0)return null;let t=-b-Math.sqrt(q);if(t<0)t=-b+Math.sqrt(q);return t>=0&&t<=max?t:null;
 }
 export function rayBox(o,d,b,max){let lo=0,hi=max;for(const k of['x','y','z']){if(Math.abs(d[k])<1e-8){if(o[k]<b.min[k]||o[k]>b.max[k])return null;continue;}let a=(b.min[k]-o[k])/d[k],c=(b.max[k]-o[k])/d[k];if(a>c)[a,c]=[c,a];lo=Math.max(lo,a);hi=Math.min(hi,c);if(lo>hi)return null;}return lo<=max?lo:null;}
+
+// Matches the parent Euler(0,yaw,bank) and the rendered envelope's local offset.
+export function balloonCenter(a){const h=(a.balloon?.r||2.45)+2,bank=a.balloon?(a.bank||0):0,lx=-Math.sin(bank)*h;return{x:a.x+Math.cos(a.yaw)*lx+Math.sin(a.yaw)*.45,y:a.y+Math.cos(bank)*h,z:a.z-Math.sin(a.yaw)*lx+Math.cos(a.yaw)*.45};}
