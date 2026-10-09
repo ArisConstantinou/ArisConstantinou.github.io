@@ -1,0 +1,84 @@
+name: Captain 1.5 public sound verification
+on:
+  push:
+    branches: [captain-audio-150]
+    paths: ['.github/workflows/captain-audio150-live.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Measure public sound
+        run: |
+          python - <<'PY'
+          import json,pathlib,time,urllib.request,hashlib,traceback
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('/tmp/captain150-live');out.mkdir(exist_ok=True)
+          base='https://arisconstantinou.github.io/captain/'
+          r={'version':'1.5.0','url':base,'checks':[],'errors':[]}
+          def check(name,ok,detail=None):
+              r['checks'].append({'name':name,'pass':bool(ok),'detail':detail});print(('PASS ' if ok else 'FAIL ')+name,flush=True);assert ok,name
+          try:
+              names=['index.html','main150.js','audio150.js','dialogue150.js','sound-panel150.js','sw.js']
+              for attempt in range(24):
+                  try:
+                      matches={name:hashlib.sha256(urllib.request.urlopen(base+name+'?audit='+str(time.time()),timeout=12).read()).hexdigest()==hashlib.sha256(pathlib.Path('captain',name).read_bytes()).hexdigest() for name in names}
+                      if all(matches.values()):break
+                  except Exception:matches={}
+                  time.sleep(4)
+              check('All public release files match tested source',len(matches)==len(names) and all(matches.values()),matches)
+              with sync_playwright() as p:
+                  b=p.chromium.launch(args=['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
+                  c=b.new_context(viewport={'width':430,'height':744},has_touch=True,is_mobile=True,device_scale_factor=1)
+                  page=c.new_page();page.on('pageerror',lambda e:r['errors'].append(str(e)))
+                  url=base+'?v=150&test=1'
+                  def state():return page.evaluate('__lastCall.getState()')
+                  def speech(id):
+                      page.wait_for_function("(id)=>{const s=__lastCall.getState().voices;if(s.lastClip?.id===id&&s.signal.voice.rms>.01&&s.signal.output.rms>.002){window.evidence=s;return true;}return false;}",arg=id,timeout=25000)
+                      s=page.evaluate('window.evidence');check('Public spoken '+id+' reaches audible signal level',True,{'clip':s['lastClip'],'signal':s['signal'],'context':s['contextState']})
+                  page.goto(url,wait_until='domcontentloaded');page.wait_for_function('window.__lastCall?.getState().ready',timeout=90000)
+                  page.click('#start');speech('calm');check('Public version badge',page.locator('#releaseBadge').inner_text()=='v1.5.0')
+                  page.evaluate('__lastCall.test.audio().stopVoice()');page.click('#drink');speech('captain1')
+                  page.evaluate("__lastCall.test.audio().stopVoice();__lastCall.test.say('rock')");speech('rock')
+                  page.evaluate("__lastCall.test.audio().stopVoice();__lastCall.test.say('panic')");speech('panic')
+                  page.click('#sound');page.wait_for_timeout(700);s=state()['voices'];check('Public mute silences all channels',not s['enabled'] and s['signal']['output']['rms']<.0001,s['signal'])
+                  page.click('#sound');page.evaluate("__lastCall.test.say('water')");speech('water')
+                  page.click('#pause');page.locator('[data-clip=captain1]').click();speech('captain1')
+                  # Isolate each effect: zero ambient and voice channels first.
+                  for method in ['horn','collision','thunder','scream','hiccup']:
+                      page.evaluate("async()=>{const a=__lastCall.test.audio();a.stop();a.setVolume('voices',0);a.setVolume('environment',0);a.setVolume('effects',.85);await a.start();}")
+                      page.wait_for_timeout(350)
+                      check('Quiet baseline before '+method,state()['voices']['signal']['output']['rms']<.0001)
+                      page.evaluate("m=>{const a=__lastCall.test.audio();if(m==='scream'||m==='hiccup')a.vocalEffect(m);else a[m]();}",method)
+                      page.wait_for_function("()=>{const s=__lastCall.getState().voices;if(s.signal.output.rms>.003){window.effectEvidence=s.signal;return true;}return false;}",timeout=8000)
+                      check('Isolated '+method+' produces audible output',True,page.evaluate('effectEvidence'))
+                  page.evaluate("async()=>{const a=__lastCall.test.audio();a.stop();await a.start();a.setVolume('effects',0);a.setVolume('environment',.7);}")
+                  page.wait_for_function('__lastCall.getState().voices.signal.output.rms>.001',timeout=10000);check('Environment has separate audible output',True)
+                  page.evaluate("const a=__lastCall.test.audio();a.setVolume('voices',.95);a.setVolume('effects',.85)")
+                  page.screenshot(path=str(out/'sound-menu.png'));page.click('#resume')
+                  # Warm the active service worker once, then verify offline speech.
+                  page.evaluate('navigator.serviceWorker.ready');page.reload(wait_until='domcontentloaded');page.wait_for_function('window.__lastCall?.getState().ready',timeout=90000);page.click('#start');speech('calm')
+                  page.wait_for_function('__lastCall.getState().voices.loaded===20',timeout=20000)
+                  c.set_offline(True);page.reload(wait_until='domcontentloaded');page.wait_for_function('window.__lastCall?.getState().ready',timeout=90000);page.click('#start');speech('calm');check('Cached game and Greek speech work offline',True)
+                  c.set_offline(False);check('No public runtime errors',not r['errors'],r['errors']);r['final']=state();page.screenshot(path=str(out/'game.png'));b.close()
+              r['passed']=True
+          except Exception:
+              r['passed']=False;r['exception']=traceback.format_exc();print(r['exception'],flush=True)
+          finally:
+              (out/'results.json').write_text(json.dumps(r,ensure_ascii=False,indent=2))
+          assert r['passed'],'Public sound verification failed'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain150-public-audio
+          path: /tmp/captain150-live
+          retention-days: 7
