@@ -20,7 +20,10 @@ jobs:
           python captain/tools/refit140.py
           for f in captain/*.js; do node --check "$f"; done
       - name: Fetch licensed human nonverbal recordings
-        run: python captain/tools/human140.py
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python captain/tools/human140.py
       - name: Install real browser
         run: |
           python -m pip install -q playwright
