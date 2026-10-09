@@ -1,0 +1,90 @@
+name: Captain 1.4 public verification
+on:
+  push:
+    branches: [captain-wheel-140]
+    paths: ['.github/workflows/captain-live140.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Verify public bytes and real touch gameplay
+        run: |
+          python - <<'PY'
+          import urllib.request,time,hashlib,pathlib,json,traceback,math
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('/tmp/captain140-public');out.mkdir(exist_ok=True)
+          base='https://arisconstantinou.github.io/captain/'
+          report={'version':'1.4.0','url':base,'checks':[],'errors':[]}
+          def check(name,ok,detail=None):
+              report['checks'].append({'name':name,'pass':bool(ok),'detail':detail});print(('PASS ' if ok else 'FAIL ')+name,flush=True);assert ok,name
+          try:
+              names=['index.html','main.js','helm140.js','helm140.css','audio.js','ship.js','voice-store140.js','voices.html','sw.js','assets/human140/scream.mp3','assets/human140/hiccup.mp3']
+              bad={}
+              for attempt in range(18):
+                  bad={}
+                  for name in names:
+                      try:
+                          req=urllib.request.Request(base+name+'?verify140='+str(time.time_ns()),headers={'Cache-Control':'no-cache'})
+                          data=urllib.request.urlopen(req,timeout=15).read()
+                          if hashlib.sha256(data).digest()!=hashlib.sha256(pathlib.Path('captain',name).read_bytes()).digest():bad[name]='hash mismatch'
+                      except Exception as exc:bad[name]=str(exc)
+                  if not bad:break
+                  time.sleep(5)
+              check('All 11 public files exactly match tested sources',not bad,bad)
+              with sync_playwright() as p:
+                  browser=p.chromium.launch(headless=True,args=['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
+                  ctx=browser.new_context(viewport={'width':430,'height':744},is_mobile=True,has_touch=True,device_scale_factor=1)
+                  page=ctx.new_page();requests=[];page.on('pageerror',lambda e:report['errors'].append(str(e)));page.on('request',lambda r:requests.append(r.url))
+                  page.goto(base+'?v=140&test=1',wait_until='domcontentloaded',timeout=60000);page.wait_for_function('window.__lastCall?.getState().ready',timeout=90000);page.locator('#start').click()
+                  def state():return page.evaluate('window.__lastCall.getState()')
+                  def frames(n=3):page.wait_for_function('(n)=>window.__lastCall.getState().frames>=n',arg=state()['frames']+n,timeout=30000)
+                  frames();check('Public game starts with real rendered geometry',state()['version']=='1.4.0' and state()['playing'] and state()['triangles']>10000)
+                  check('Visible release badge is v1.4.0',page.locator('#releaseBadge').inner_text()=='v1.4.0')
+                  check('No floating wheel arrows',page.locator('#helmLeft,#helmRight,.wheel-arrow').count()==0)
+                  check('No half-screen controls panel',not page.locator('.controls-bottom').is_visible())
+                  cdp=ctx.new_cdp_session(page)
+                  def touch(kind,pts):cdp.send('Input.dispatchTouchEvent',{'type':kind,'touchPoints':[{'id':i,'x':x,'y':y,'radiusX':3,'radiusY':3,'force':1} for i,x,y in pts]})
+                  a=page.evaluate('window.__lastCall.test.anchor()');r=a['radius']*.65;x=a['x'];y=a['y']-r
+                  check('Touch target is actual canvas wheel',page.evaluate('([x,y])=>document.elementFromPoint(x,y).id',[x,y])=='sea')
+                  touch('touchStart',[(1,x,y)]);frames();check('Touching wheel captures steering',state()['controls']['kind']=='wheel')
+                  for angle in [-1,-.5,0,.6]:
+                      x=a['x']+math.cos(angle)*r;y=a['y']+math.sin(angle)*r;touch('touchMove',[(1,x,y)]);frames(1)
+                  check('Circular wheel drag steers without moving camera',state()['turn']>.6 and abs(state()['look']['yaw'])<.001)
+                  lr=page.locator('#engineLever').bounding_box();lx=lr['x']+lr['width']/2;ly=lr['y']+lr['height']-2
+                  touch('touchStart',[(1,x,y),(2,lx,ly)]);frames();check('Wheel and reverse lever work with two fingers',state()['controls']['steering'] and state()['controls']['lever'] and state()['throttle']<-.3)
+                  touch('touchEnd',[(2,lx,ly)]);frames();check('Releasing engine finger does not release wheel',state()['controls']['steering'] and not state()['controls']['lever'] and state()['throttle']<-.3)
+                  touch('touchEnd',[]);frames();check('Wheel release clears steering',state()['turn']==0)
+                  page.locator('#leverNeutral').click();frames();check('N selects neutral',state()['throttle']==0)
+                  lr=page.locator('#leverShell').bounding_box();a=page.evaluate('window.__lastCall.test.anchor()')
+                  overlap=a['minX']<lr['x']+lr['width'] and a['maxX']>lr['x'] and a['minY']<lr['y']+lr['height'] and a['maxY']>lr['y']
+                  check('Throttle does not cover the rendered wheel',not overlap)
+                  page.wait_for_function('window.__lastCall.getState().voices.effectsLoaded===2',timeout=30000);page.evaluate("window.__lastCall.test.say('panic')");frames()
+                  check('Actual human vocal recording plays',state()['voices']['played']>0 and state()['voices']['lastKind']=='human-nonverbal',state()['voices'])
+                  check('Rejected machine-speech assets are not requested',not any('/voices130/' in u for u in requests))
+                  check('No bundled Greek speech is falsely reported',state()['voices']['missingGreekDialogue'] and state()['voices']['dialogueLoaded']==0)
+                  page.evaluate('window.__lastCall.test.restart()');frames();page.screenshot(path=str(out/'public-bridge.png'))
+                  page.evaluate('window.__lastCall.test.camera(0)');frames();check('Public exterior keeps compact controls',page.locator('#helmPad').is_visible());page.screenshot(path=str(out/'public-external.png'))
+                  page.set_viewport_size({'width':932,'height':430});page.evaluate('window.__lastCall.test.camera(1)');frames();check('Landscape wheel and lever remain accessible',state()['controls']['anchor']['visible'] and page.locator('#engineLever').is_visible());page.screenshot(path=str(out/'public-landscape.png'))
+                  check('No public runtime errors',not report['errors'],report['errors']);report['state']=state();browser.close()
+              report['passed']=True
+          except Exception:
+              report['passed']=False;report['exception']=traceback.format_exc();print(report['exception'],flush=True)
+          finally:
+              (out/'public-results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2));print('RESULT',report['passed'],len(report['checks']),flush=True)
+          assert report['passed'],'Public verification failed'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain140-public-verification
+          path: /tmp/captain140-public
+          retention-days: 7
