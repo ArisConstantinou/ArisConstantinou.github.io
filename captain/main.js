@@ -133,11 +133,35 @@ function setPaused(value){
 }
 function setThrottle(v){input.throttle=clamp(v,-.35,1);$('throttle').value=Math.round(input.throttle*100);}
 function cycleCamera(){cameraMode=(cameraMode+1)%3;targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;$('cameraName').textContent=cameraLabels[cameraMode];toast(['Εξωτερική κάμερα · σύρε για περιστροφή','Γέφυρα · το ποτήρι και το τιμόνι είναι μπροστά σου','Κατάστρωμα · οι επιβάτες είναι δίπλα σου'][cameraMode]);updateCamera(1,true);}
+let lastBanter=-20,lastCrewWarning=-20;
+const drunkLines=[
+ 'Ένα ποτηράκι για το καλό του ταξιδιού!',
+ 'Ωωω, τι ωραία που κουνάει η θάλασσα! Χικ!',
+ 'Το τιμόνι πάει μόνο του, παιδιά!',
+ 'Στου γιαλού τα βοτσαλάκια… λα λα λα!',
+ 'Εγώ δεν είμαι μεθυσμένος! Το παγόβουνο χορεύει!',
+ 'Ωωω, καράβι μου, παλιό μου καράβι… λα λα λα!',
+ 'Ποιος έβαλε δύο φάρους εκεί που ήταν ένας; Χικ!'
+];
+function captainBanter(){
+ const level=Math.min(drunkLines.length-1,Math.max(0,Math.floor(state.intox/16)));
+ const line=drunkLines[Math.min(level,Math.floor(state.drinks*1.2))];
+ showCharacterBubble(line,true);
+ if(state.time-lastBanter>3){audio?.speak(line,false);lastBanter=state.time;}
+}
+function showCharacterBubble(line,captain=false){
+ let bubble=$('characterSpeech');
+ if(!bubble){bubble=document.createElement('div');bubble.id='characterSpeech';$('hud').append(bubble);}
+ bubble.textContent=(captain?'🥃 ΚΑΠΕΤΑΝΙΟΣ: ':'🗣️ ΕΠΙΒΑΤΗΣ: ')+line;
+ bubble.classList.add('visible');
+ clearTimeout(showCharacterBubble.timer);
+ showCharacterBubble.timer=setTimeout(()=>bubble.classList.remove('visible'),4300);
+}
 function action(name){
   if(!playing||paused)return;
   const result=useAction(state,name);
   if(!result.ok){if(result.message)toast(result.message);return;}
-  if(name==='drink'){toast(result.message);if(state.intox>65)radioMessage('Καπετάνιε… τα βράχια δεν κάνουν στην άκρη.',true);}
+  if(name==='drink'){captainBanter();}
   if(name==='horn'){audio.horn();toast('Κόρνα ομίχλης · κρατήστε τις θέσεις σας');}
   if(name==='announce'){radioMessage(result.message,true);toast('Ανακοίνωση στο κατάστρωμα · μειώθηκε ο πανικός');}
   if(name==='rescue'){
@@ -244,6 +268,8 @@ function setupControls(){
   for(const name of ['drink','horn','announce','rescue'])$(name).addEventListener('click',()=>action(name));
   $('throttle').addEventListener('input',e=>setThrottle(Number(e.target.value)/100));
   $('throttleDown').addEventListener('click',()=>setThrottle(input.throttle-.15));$('throttleUp').addEventListener('click',()=>setThrottle(input.throttle+.15));
+  $('engineAhead').addEventListener('click',()=>setThrottle(Math.max(.35,input.throttle+.25)));
+  $('engineReverse').addEventListener('click',()=>setThrottle(Math.min(-.18,input.throttle-.2)));
   $('brake').addEventListener('click',()=>{setThrottle(0);toast('Μηχανές κράτει · το πλοίο επιβραδύνει σταδιακά');});
   const toggleAudio=()=>{soundEnabled=!soundEnabled;saveStore('lc-sound',soundEnabled);audio?.setEnabled(soundEnabled);if(soundEnabled)audio?.start();updateSettings();};
   $('sound').addEventListener('click',toggleAudio);$('introSound').addEventListener('click',toggleAudio);
@@ -296,7 +322,8 @@ function frame(now){
     world.update(state.time,dt,{shipPosition:ship.group.position,heading:state.heading,speed:state.speed,storm:state.storm});
     people?.update(state.time,dt,{panic:state.panic,roll:state.roll,speed:state.speed,shipPosition:ship.group.position,heading:state.heading,playing:true,waterHeight:world.sampleHeight});
     ship.update(state.time,dt,{...state,damage:100-state.hull});
-    if(state.panic>65&&state.time-lastHelp>19){radioMessage(['Βοήθεια! Κρατηθείτε από τα κιγκλιδώματα!','Καπετάνιε! Ο κόσμος πανικοβάλλεται!','Βοήθεια! Στρέψε το πλοίο μακριά από τα βράχια!'][Math.floor(state.time/19)%3],true,true);lastHelp=state.time;}
+    if(state.nearest&&state.nearest.clearance<170&&state.time-lastCrewWarning>10){const line=state.nearest.type==='ice'?'Παγόβουνο μπροστά! Όλοι κρατηθείτε!':'ΒΡΑΧΙΑ ΜΠΡΟΣΤΑ! Φύγετε από τα κάγκελα!';showCharacterBubble(line);audio?.speak(line,true);state.panic=clamp(state.panic+5,0,100);lastCrewWarning=state.time;}
+    if(state.panic>48&&state.time-lastHelp>13){showCharacterBubble('Βοήθεια! Το πλοίο θα χτυπήσει!');radioMessage(['Βοήθεια! Κρατηθείτε από τα κιγκλιδώματα!','Καπετάνιε! Ο κόσμος πανικοβάλλεται!','Βοήθεια! Στρέψε το πλοίο μακριά από τα βράχια!'][Math.floor(state.time/19)%3],true,true);lastHelp=state.time;}
     if(!drag&&state.time-lastLook>6){targetLookYaw*=Math.exp(-dt*.32);targetLookPitch*=Math.exp(-dt*.32);}
     if(world.lightningStrike!==lastStrike){lastStrike=world.lightningStrike;audio?.thunder();}
     toastTime-=dt;if(toastTime<0)$('toast').classList.add('hidden');radioTime-=dt;$('radio').style.opacity=radioTime<0?'.2':'1';
