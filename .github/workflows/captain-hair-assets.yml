@@ -1,0 +1,28 @@
+name: Captain hairstyle data
+on:
+  push:
+    branches: [captain-identity-172]
+    paths: ['.github/workflows/captain-hair-assets.yml']
+permissions:
+  contents: read
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch model data only
+        run: |
+          mkdir -p /tmp/captain-hair
+          BASE='https://raw.githubusercontent.com/NafisRayan/Animate-Rigged-Humanoid-No-Blender/main/Universal%20Base%20Characters%5BStandard%5D/Universal%20Base%20Characters%5BStandard%5D/Hairstyles/Origin%20at%200/glTF%20%28Godot%29'
+          for NAME in Hair_SimpleParted Hair_Buzzed Hair_Long Hair_Buns Hair_Beard; do
+            curl --fail --location --retry 2 "$BASE/$NAME.gltf" --output "/tmp/captain-hair/$NAME.gltf"
+            curl --fail --location --retry 2 "$BASE/$NAME.bin" --output "/tmp/captain-hair/$NAME.bin"
+          done
+          for NAME in T_Hair_1_BaseColor.png T_Hair_1_Normal.png T_Hair_2_BaseColor.png T_Hair_2_Normal.png; do
+            curl --fail --location --retry 2 "$BASE/$NAME" --output "/tmp/captain-hair/$NAME"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: captain-hairstyles
+          path: /tmp/captain-hair
+          retention-days: 7
