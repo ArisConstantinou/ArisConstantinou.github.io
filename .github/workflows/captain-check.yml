@@ -1,0 +1,26 @@
+name: Captain browser checks
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/captain-check.yml'
+      - 'captain/tools/refit130.py'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Snapshot Captain only
+        run: |
+          mkdir -p /tmp/captain-snapshot
+          cp -R captain /tmp/captain-snapshot/captain
+          git rev-parse HEAD > /tmp/captain-snapshot/commit.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: captain-source
+          path: /tmp/captain-snapshot
+          retention-days: 3
