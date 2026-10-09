@@ -53,3 +53,19 @@ html,body,#game,#hud,#hud *{-webkit-user-select:none!important;user-select:none!
 #hud.in-bridge .speed-readout{display:none}
 }
 @media(orientation:portrait) and (pointer:coarse){#hud.in-bridge .bridge-steer{bottom:12%;left:17%;width:65%;height:58px}#hud.in-bridge .bridge-engine{bottom:20%;height:175px}#hud.in-bridge .radio-message{bottom:32%}}
+
+/* Captain 1.6 — mobile third-person deck roam */
+#walkMode{position:absolute;inset:0;pointer-events:none;z-index:13}
+#walkMode button{pointer-events:auto;touch-action:none;-webkit-user-select:none;user-select:none;color:#fff;font-weight:800;border:1px solid #a2d7e58c;background:#0a2939e9;box-shadow:0 5px 20px #0008}
+#walkMode .walk-top{position:absolute;top:74px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px}
+#walkToggle{padding:12px 17px;border-radius:24px;font-size:11px;white-space:nowrap}
+#walkStatus{display:none;font-size:10px;letter-spacing:1.4px;background:#092533a8;padding:4px 10px;border-radius:10px}
+#walkPad,#walkInteract,#walkHint{display:none}
+#walkMode.walking #walkStatus{display:block}
+#walkMode.walking #walkPad{display:block;pointer-events:auto;touch-action:none;position:absolute;bottom:86px;left:24px;width:116px;height:116px;border-radius:100%;border:2px solid #b1e3e5aa;background:#12394aa9}
+#walkStick{position:absolute;width:52px;height:52px;left:30px;top:30px;border-radius:50%;background:#94d9e7c9;box-shadow:0 0 16px #0008}
+#walkMode.walking #walkInteract{display:block;position:absolute;bottom:113px;right:24px;padding:16px 18px;border-radius:24px;font-size:12px}
+#walkInteract:disabled{opacity:.55}
+#walkMode.walking #walkHint{display:block;position:absolute;bottom:33px;left:20%;right:20%;text-align:center;font-size:11px;color:#e8f8ff;text-shadow:0 2px 8px black}
+#hud:has(#walkMode.walking) .controls-bottom,#hud:has(#walkMode.walking) #helm140,#hud:has(#walkMode.walking) .right-instruments,#hud:has(#walkMode.walking) .collision-warning{display:none!important}
+@media(max-width:700px){#walkMode .walk-top{top:69px}#walkToggle{padding:9px 12px;font-size:10px}#walkMode.walking #walkPad{bottom:85px;left:18px}#walkMode.walking #walkInteract{right:15px;bottom:117px}}
