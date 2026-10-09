@@ -1,0 +1,40 @@
+name: Captain refit 1.3 real browser check
+on:
+  push:
+    branches: [captain-refit-130]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore checksum-verified refit
+        run: python .refit130/restore.py
+      - name: Syntax checks
+        run: for f in captain/*.js; do node --check "$f"; done
+      - name: Install browser test dependency
+        run: |
+          python -m pip install playwright==1.55.0
+          python -m playwright install --with-deps chromium
+      - name: Exercise real WebGL and touch controls
+        run: python .refit130/qa.py
+      - name: Save tested sources on staging branch only
+        run: |
+          git config user.name 'Captain validation'
+          git config user.email 'captain-tests@users.noreply.github.com'
+          git add captain/
+          if ! git diff --cached --quiet; then
+            git commit -m 'Captain 1.3.0: validated compact touch helm and situational dialogue'
+            git push origin HEAD:captain-refit-130
+          fi
+      - name: Browser screenshots and test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: captain-refit130-browser
+          path: .qa130/
+          include-hidden-files: true
+          retention-days: 7
