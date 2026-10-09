@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { createWorld } from './world.js?v=140';
 import { createShip } from './ship.js?v=140';
 import { createPassengers } from './passengers.js?v=140';
-import { createAudio } from './audio.js?v=140';
+import { createAudio } from './audio.js?v=141';
 import { createHelm } from './helm140.js?v=140';
 import { createDialogue } from './dialogue130.js?v=140';
 import { newVoyage, advance, useAction, voyageScore, clamp, KNOTS } from './simulation.js?v=140';
