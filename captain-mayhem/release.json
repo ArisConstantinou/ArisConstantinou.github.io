@@ -1,6 +1,6 @@
 {
   "mode": "MAYHEM",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "isolated": true,
   "baseline": "74dfd6488201d8aca51b391aa955b0e44a7efa46",
   "storyUnchanged": true,
@@ -11,5 +11,11 @@
     "Escapeable heat; recover without losing damage",
     "Separate save namespace; fixed relative touch camera",
     "Six connected decks; existing human rigs with improved run/hit transitions"
+  ],
+  "inputFix": [
+    "Owned left-stick gesture; neutral on release, cancellation, lost capture, pause and rotation",
+    "Native touch identifier fallback independent of other fingers",
+    "Radial dead zone; no world translation from idle drunken sway",
+    "Existing layout, right camera, actions, save namespaces and story retained"
   ]
 }
