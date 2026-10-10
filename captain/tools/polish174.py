@@ -6,8 +6,19 @@ s=s.replace("for(;d<range;d+=.2)if(!clearSight(n,{x:n.x+Math.sin(a)*d,z:n.z+Math
 s=s.replace('actor.model.rotation.x=-Math.PI/2','actor.model.rotation.x=Math.PI/2')
 if 'box(0,-.26,38,23,.18,34,mats.dark)' not in s:s=s.replace("function build(){if(built)return;built=true;", "function build(){if(built)return;built=true;box(0,-.26,38,23,.18,34,mats.dark);")
 s=s.replace("box(a.x,.56,a.z,.84,.05,.85,mats.steel)", "box(a.x,.56,a.z,.84,.05,.85,new T.MeshStandardMaterial({color:0x82a7aa,transparent:true,opacity:.18,depthWrite:false}))")
+if 'let sleepStarted=' not in s:s=s.replace(" function start(resume=null){build();", " let sleepStarted=0;\n function start(resume=null){sleepStarted=performance.now();build();")
+s=s.replace("if(timer>=2.2)wake()","if(timer>=2.2||performance.now()-sleepStarted>=2200)wake()")
+s=s.replace("function drawHUD(){if(!active)return;", "function drawHUD(){if(!active)return;root.querySelector('.chapter-goal>span').textContent='LAST CALL / ΚΕΦΑΛΑΙΟ 02';")
 p.write_text(s)
 p=r/'chaos174.js';s=p.read_text().replace("s.foot=phase==='escape';setPhase(phase);","s.foot=phase==='escape';if(phase!=='escape')resetInput();setPhase(phase);")
+p.write_text(s)
+p=r/'escape174.css';s=p.read_text()
+if '/* Input visibility across new phases */' not in s:s+='''\n/* Input visibility across new phases */
+#hud.escape-active #chaos170[data-phase="escape"][data-control-scheme="keyboard"] #keyboardMovement,#chaos170[data-phase="assault"][data-control-scheme="keyboard"] #keyboardMovement{display:block!important}
+#hud.escape-active #chaos170[data-phase="escape"][data-control-scheme="touch"] #chaosMove{display:block!important}
+#hud.escape-active #toast,#hud.escape-active .movement-run{display:none!important}
+#hud.escape-active #chaos170:not([data-phase="escape"]) #keyboardMovement,#hud.escape-active #chaos170:not([data-phase="escape"]) #chaosMove{display:none!important}
+'''
 p.write_text(s)
 p=r/'tools/qa174.py';s=p.read_text()
 s=s.replace("p.on('pageerror',lambda e:errors.append(str(e)))", "p.on('pageerror',lambda e:(errors.append(str(e)),print('BROWSER ERROR',str(e),flush=True)));report['browserErrors']=errors")
