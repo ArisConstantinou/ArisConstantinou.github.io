@@ -1,0 +1,55 @@
+/* Phase-specific, portrait-first HUD. Keyboard layouts remain unchanged. */
+#mobileCombatWheel[hidden],#helmStatus183[hidden]{display:none!important}
+#mobileCombatWheel{position:absolute;right:max(8px,env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));width:222px;height:222px;pointer-events:none;z-index:19;touch-action:none;user-select:none;-webkit-user-select:none}
+#combatOuterRing{position:absolute;inset:0;border:1px solid #d9c18a50;border-radius:50%;background:radial-gradient(circle,transparent 0 31%,#102b3652 33% 65%,transparent 67%);pointer-events:auto;touch-action:none}
+#combatRightStick{position:absolute;left:50%;top:50%;width:80px;height:80px;transform:translate(-50%,-50%);border:1px solid #aad1d4bc;border-radius:50%;background:#16333c6e;box-shadow:inset 0 0 0 6px #27495142;pointer-events:auto;touch-action:none;display:grid;place-items:center}
+#combatRightStick i{width:37px;height:37px;border-radius:50%;background:#cbd4bfbb;border:1px solid #eef5ded4;pointer-events:none}
+#combatRightStick small{position:absolute;bottom:5px;font-size:8px;letter-spacing:1px;color:#e5eee0;pointer-events:none}
+#mobileCombatWheel .ring-action{position:absolute;transform:translate(-50%,-50%);width:44px;height:44px;min-width:44px;min-height:44px;border:1px solid #d9be8885;border-radius:50%;padding:2px!important;background:#102d3bbd;color:#f8edd5;pointer-events:auto;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;box-shadow:none}
+#mobileCombatWheel .ring-action span{font-size:21px;line-height:23px}
+#mobileCombatWheel .ring-action small{font-size:7px;line-height:9px;font-weight:750;white-space:nowrap}
+#mobileCombatWheel .ring-action.chosen,#mobileCombatWheel .ring-action.executing{background:#916c34ef;border-color:#ffeab4;box-shadow:0 0 0 2px #eaca8470}
+#mobileCombatWheel .ring-action.unavailable{opacity:.45}
+#ringFeedback{position:absolute;top:calc(50% + 44px);left:50%;transform:translateX(-50%);color:#f5ddb0;font-size:9px;pointer-events:none;white-space:nowrap}
+#touchSensitivity183{display:none;padding:12px 0;color:#e5eedd;font-size:12px;gap:7px;text-align:left}
+#touchSensitivity183>span{display:flex;justify-content:space-between}#touchSensitivity183 input{width:100%;height:32px;touch-action:pan-x}#touchSensitivity183 small{font-size:10px;line-height:1.4}
+#helmStatus183{display:none}
+html[data-input-scheme=touch] #touchSensitivity183{display:grid}
+html[data-input-scheme=touch] #pauseScreen .modal{max-height:90dvh;overflow:auto}
+html[data-input-scheme=touch] #hud.chaos-story .hud-top{top:8px;left:10px;right:10px;padding:0;height:40px;pointer-events:none}
+html[data-input-scheme=touch] #hud.chaos-story .game-brand,html[data-input-scheme=touch] #hud.chaos-story .compass{display:none!important}
+html[data-input-scheme=touch] #hud.chaos-story .top-buttons{margin-left:auto;gap:5px;pointer-events:auto}
+html[data-input-scheme=touch] #hud.chaos-story .top-buttons .icon-button{width:40px;height:40px;min-width:40px;min-height:40px;padding:3px;font-size:21px;border-radius:9px;background:#10263096}
+html[data-input-scheme=touch] #hud.chaos-story .top-buttons .icon-button>span{display:none}
+html[data-input-scheme=touch] #hud.chaos-story.chaos-foot #camera{display:none!important}
+html[data-input-scheme=touch] #hud.chaos-story:not(.chaos-foot) .left-instruments,html[data-input-scheme=touch] #hud.chaos-story:not(.chaos-foot) .right-instruments,html[data-input-scheme=touch] #hud.chaos-story:not(.chaos-foot) #radio,html[data-input-scheme=touch] #hud.chaos-story:not(.chaos-foot) #lookHint{display:none!important}
+html[data-input-scheme=touch] #chaos170[data-phase=helm] #captainVitals{display:none!important}
+html[data-input-scheme=touch] #chaos170[data-phase=helm] #helmStatus183{position:absolute;display:flex;gap:13px;left:10px;top:12px;padding:7px 10px;background:#0b2634a0;border:1px solid #d4dedf30;border-radius:9px;font-size:11px;pointer-events:none}
+html[data-input-scheme=touch] #chaos170[data-phase=helm] .chapter-goal{left:10px;top:60px;bottom:auto;width:calc(100% - 20px);max-width:none;transform:none;padding:0;background:none;border:0;text-align:left;pointer-events:none}
+html[data-input-scheme=touch] #chaos170[data-phase=helm] .chapter-goal>span,html[data-input-scheme=touch] #chaos170[data-phase=helm] .chapter-goal>small{display:none!important}
+html[data-input-scheme=touch] #chaos170[data-phase=helm] .chapter-goal>strong{font-size:12px;font-weight:650;text-shadow:0 1px 4px #000;letter-spacing:.2px}
+html[data-input-scheme=touch] #chaos170[data-phase=helm] #leaveHelm{left:auto;right:12px;bottom:calc(104px + env(safe-area-inset-bottom));width:112px;max-width:112px;min-height:44px;height:44px;padding:6px 9px!important;transform:none;border-radius:12px;gap:5px;background:#805b2ca6}
+html[data-input-scheme=touch] #chaos170[data-phase=helm] #leaveHelm span{font-size:18px}html[data-input-scheme=touch] #chaos170[data-phase=helm] #leaveHelm strong{font-size:11px}
+html[data-input-scheme=touch] #hud.chaos-story:not(.chaos-foot) #toast{top:92px;bottom:auto;max-width:80%;font-size:11px;padding:7px;background:#102b36c0;pointer-events:none}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .combat-panel{display:none!important}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #captainVitals{left:10px;right:10px;top:55px;bottom:auto;height:40px;gap:6px}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .vital{padding:6px 8px;border-radius:9px;background:#0b2636bb;border-color:#9abcd644}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .vital-label{font-size:8px;gap:3px}html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .vital-label b{font-size:13px}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .vital-track{height:3px;margin:5px 0 0}html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .vital>small{display:none}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .chapter-goal{left:10px;top:103px;max-width:calc(100% - 20px);width:auto;min-height:0;padding:0 6px;border-left:2px solid #dbc085;background:none}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .chapter-goal>span,html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .chapter-goal>small{display:none}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .chapter-goal strong{font-size:12px;line-height:16px;text-shadow:0 1px 4px #000}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .chaos-score{top:13px;left:10px;right:auto;width:165px;display:flex;align-items:baseline;gap:8px;text-align:left}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .chaos-score>b{font-size:22px}html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .chaos-score>small{font-size:9px}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .chaos-score .heat-track,html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #chaosCombo,html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #chaosPolice{display:none}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #chaosMove{left:max(14px,env(safe-area-inset-left));bottom:calc(26px + env(safe-area-inset-bottom));width:84px;height:84px;z-index:20;background:#102c365c;box-shadow:none}
+html[data-input-scheme=touch] #hud.chaos-foot #chaosMove>i{width:36px;height:36px;left:23px;top:23px}html[data-input-scheme=touch] #hud.chaos-foot #chaosMove>span{bottom:-16px;font-size:8px}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #chaosUse{right:12px;bottom:calc(250px + env(safe-area-inset-bottom));width:150px;height:44px;min-height:44px;padding:5px 9px;border-radius:11px;background:#123747b0;z-index:18}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #chaosUse:disabled,html[data-input-scheme=touch] #hud.chaos-foot #chaos170[data-drinking=true] #chaosUse{visibility:hidden;pointer-events:none}
+html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #chaosUse strong{font-size:11px}html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #chaosUse small{font-size:9px}
+html[data-input-scheme=touch] #hud.chaos-foot #targetReadout{display:none}
+html[data-input-scheme=touch] #hud.chaos-foot #toast{top:135px;max-width:85%;font-size:11px;background:#123443b8;padding:6px 9px;pointer-events:none}
+html[data-input-scheme=touch] #hud.chaos-story #releaseBadge{font-size:8px;opacity:.6}
+html[data-input-scheme=keyboard] #mobileCombatWheel{display:none!important}
+@media(max-width:360px){#mobileCombatWheel{width:202px;height:202px;right:5px}#combatRightStick{width:74px;height:74px}html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #chaosMove{width:76px;height:76px;left:10px}html[data-input-scheme=touch] #hud.chaos-foot #chaosMove>i{left:19px;top:19px}html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #chaosUse{bottom:calc(229px + env(safe-area-inset-bottom))}}
+@media(orientation:landscape) and (max-height:550px){#mobileCombatWheel{width:202px;height:202px;bottom:calc(8px + env(safe-area-inset-bottom))}html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #captainVitals{right:auto;top:10px;left:145px;width:330px}html[data-input-scheme=touch] #hud.chaos-foot #chaos170 .chapter-goal{top:59px}html[data-input-scheme=touch] #hud.chaos-foot #chaos170 #chaosUse{right:222px;bottom:calc(22px + env(safe-area-inset-bottom))}html[data-input-scheme=touch] #hud.chaos-foot #toast{top:84px;max-width:55%}}
