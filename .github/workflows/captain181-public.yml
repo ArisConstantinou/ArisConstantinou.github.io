@@ -1,0 +1,49 @@
+name: Captain 181 public verification
+on:
+  push:
+    branches: [captain-fix-181]
+    paths: ['.github/workflows/captain181-public.yml']
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 8679786828f392224dcfc51dc09308bc8e4f11fe
+      - name: Verify exact tested files are live
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import urllib.request,time,hashlib
+          base='https://arisconstantinou.github.io/captain/'
+          files=['index.html','main181.js','chaos181.js','actors181.js','pose181.js','mouse181.js','ui181.js','escape181.js','escape-world181.js','escape-model181.js','controls181.css','sw.js']
+          for attempt in range(20):
+            try:
+              bad=[]
+              for name in files:
+                remote=urllib.request.urlopen(base+name+'?verify=181-public',timeout=15).read()
+                if hashlib.sha256(remote).digest()!=hashlib.sha256(Path('captain',name).read_bytes()).digest():bad.append(name)
+              if not bad:break
+              print('Waiting for Pages files:',bad,flush=True)
+            except Exception as e:print(str(e),flush=True)
+            time.sleep(8)
+          else:raise SystemExit('Public build mismatch')
+          print('Exact tested public build verified')
+          PY
+      - name: Prepare browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Play public build
+        env:
+          CAPTAIN_BASE: https://arisconstantinou.github.io/captain/
+        run: python captain/tools/qa181.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain181-public-tested
+          path: /tmp/captain181-qa/
+          retention-days: 7
