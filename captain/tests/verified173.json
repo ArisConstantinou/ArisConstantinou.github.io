@@ -1,0 +1,3365 @@
+{
+  "version": "1.7.3",
+  "url": "http://127.0.0.1:8765/captain/",
+  "environment": "Chromium; real mouse and emulated touch, not physical iPhone",
+  "checks": [
+    {
+      "name": "First sip and exit playable",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Release 1.7.3",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Health, drunk and custody displayed",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Drunk meter follows gradual absorption",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "430x832: touch only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "430x832: no visible keyboard hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "430x832: in viewport #chaosMove",
+      "pass": true,
+      "detail": {
+        "x": 20,
+        "y": 635,
+        "width": 104,
+        "height": 104
+      }
+    },
+    {
+      "name": "430x832: in viewport #chaosUse",
+      "pass": true,
+      "detail": {
+        "x": 270,
+        "y": 558,
+        "width": 148,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: touch size #chaosUse",
+      "pass": true,
+      "detail": {
+        "x": 270,
+        "y": 558,
+        "width": 148,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: in viewport #captainVitals",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 119,
+        "width": 406,
+        "height": 57.1875
+      }
+    },
+    {
+      "name": "430x832: in viewport [data-attack=\"slap\"]",
+      "pass": true,
+      "detail": {
+        "x": 270,
+        "y": 619,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "430x832: touch size [data-attack=\"slap\"]",
+      "pass": true,
+      "detail": {
+        "x": 270,
+        "y": 619,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "430x832: in viewport [data-attack=\"heavy\"]",
+      "pass": true,
+      "detail": {
+        "x": 347.5,
+        "y": 619,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "430x832: touch size [data-attack=\"heavy\"]",
+      "pass": true,
+      "detail": {
+        "x": 347.5,
+        "y": 619,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "430x832: in viewport [data-attack=\"punch\"]",
+      "pass": true,
+      "detail": {
+        "x": 270,
+        "y": 691,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "430x832: touch size [data-attack=\"punch\"]",
+      "pass": true,
+      "detail": {
+        "x": 270,
+        "y": 691,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "430x832: in viewport [data-attack=\"kick\"]",
+      "pass": true,
+      "detail": {
+        "x": 347.5,
+        "y": 691,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "430x832: touch size [data-attack=\"kick\"]",
+      "pass": true,
+      "detail": {
+        "x": 347.5,
+        "y": 691,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "430x832: in viewport [data-attack=\"spit\"]",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 768,
+        "width": 75.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: touch size [data-attack=\"spit\"]",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 768,
+        "width": 75.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: in viewport #chaosBlock",
+      "pass": true,
+      "detail": {
+        "x": 94.59375,
+        "y": 768,
+        "width": 75.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: touch size #chaosBlock",
+      "pass": true,
+      "detail": {
+        "x": 94.59375,
+        "y": 768,
+        "width": 75.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: in viewport #chaosGrab",
+      "pass": true,
+      "detail": {
+        "x": 177.1875,
+        "y": 768,
+        "width": 75.609375,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: touch size #chaosGrab",
+      "pass": true,
+      "detail": {
+        "x": 177.1875,
+        "y": 768,
+        "width": 75.609375,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: in viewport #chaosThrow",
+      "pass": true,
+      "detail": {
+        "x": 259.796875,
+        "y": 768,
+        "width": 75.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: touch size #chaosThrow",
+      "pass": true,
+      "detail": {
+        "x": 259.796875,
+        "y": 768,
+        "width": 75.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: in viewport #chaosDrink",
+      "pass": true,
+      "detail": {
+        "x": 342.390625,
+        "y": 768,
+        "width": 75.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: touch size #chaosDrink",
+      "pass": true,
+      "detail": {
+        "x": 342.390625,
+        "y": 768,
+        "width": 75.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "430x832: controls and meters do not overlap",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "390x744: touch only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "390x744: no visible keyboard hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "390x744: in viewport #chaosMove",
+      "pass": true,
+      "detail": {
+        "x": 20,
+        "y": 547,
+        "width": 104,
+        "height": 104
+      }
+    },
+    {
+      "name": "390x744: in viewport #chaosUse",
+      "pass": true,
+      "detail": {
+        "x": 230,
+        "y": 470,
+        "width": 148,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: touch size #chaosUse",
+      "pass": true,
+      "detail": {
+        "x": 230,
+        "y": 470,
+        "width": 148,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: in viewport #captainVitals",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 119,
+        "width": 366,
+        "height": 57.1875
+      }
+    },
+    {
+      "name": "390x744: in viewport [data-attack=\"slap\"]",
+      "pass": true,
+      "detail": {
+        "x": 230,
+        "y": 531,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "390x744: touch size [data-attack=\"slap\"]",
+      "pass": true,
+      "detail": {
+        "x": 230,
+        "y": 531,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "390x744: in viewport [data-attack=\"heavy\"]",
+      "pass": true,
+      "detail": {
+        "x": 307.5,
+        "y": 531,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "390x744: touch size [data-attack=\"heavy\"]",
+      "pass": true,
+      "detail": {
+        "x": 307.5,
+        "y": 531,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "390x744: in viewport [data-attack=\"punch\"]",
+      "pass": true,
+      "detail": {
+        "x": 230,
+        "y": 603,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "390x744: touch size [data-attack=\"punch\"]",
+      "pass": true,
+      "detail": {
+        "x": 230,
+        "y": 603,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "390x744: in viewport [data-attack=\"kick\"]",
+      "pass": true,
+      "detail": {
+        "x": 307.5,
+        "y": 603,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "390x744: touch size [data-attack=\"kick\"]",
+      "pass": true,
+      "detail": {
+        "x": 307.5,
+        "y": 603,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "390x744: in viewport [data-attack=\"spit\"]",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 680,
+        "width": 67.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: touch size [data-attack=\"spit\"]",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 680,
+        "width": 67.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: in viewport #chaosBlock",
+      "pass": true,
+      "detail": {
+        "x": 86.59375,
+        "y": 680,
+        "width": 67.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: touch size #chaosBlock",
+      "pass": true,
+      "detail": {
+        "x": 86.59375,
+        "y": 680,
+        "width": 67.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: in viewport #chaosGrab",
+      "pass": true,
+      "detail": {
+        "x": 161.1875,
+        "y": 680,
+        "width": 67.609375,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: touch size #chaosGrab",
+      "pass": true,
+      "detail": {
+        "x": 161.1875,
+        "y": 680,
+        "width": 67.609375,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: in viewport #chaosThrow",
+      "pass": true,
+      "detail": {
+        "x": 235.796875,
+        "y": 680,
+        "width": 67.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: touch size #chaosThrow",
+      "pass": true,
+      "detail": {
+        "x": 235.796875,
+        "y": 680,
+        "width": 67.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: in viewport #chaosDrink",
+      "pass": true,
+      "detail": {
+        "x": 310.390625,
+        "y": 680,
+        "width": 67.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: touch size #chaosDrink",
+      "pass": true,
+      "detail": {
+        "x": 310.390625,
+        "y": 680,
+        "width": 67.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "390x744: controls and meters do not overlap",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "320x568: touch only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568: no visible keyboard hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568: in viewport #chaosMove",
+      "pass": true,
+      "detail": {
+        "x": 20,
+        "y": 371,
+        "width": 104,
+        "height": 104
+      }
+    },
+    {
+      "name": "320x568: in viewport #chaosUse",
+      "pass": true,
+      "detail": {
+        "x": 168,
+        "y": 294,
+        "width": 140,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: touch size #chaosUse",
+      "pass": true,
+      "detail": {
+        "x": 168,
+        "y": 294,
+        "width": 140,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: in viewport #captainVitals",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 119,
+        "width": 296,
+        "height": 54.78125
+      }
+    },
+    {
+      "name": "320x568: in viewport [data-attack=\"slap\"]",
+      "pass": true,
+      "detail": {
+        "x": 168,
+        "y": 355,
+        "width": 66.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "320x568: touch size [data-attack=\"slap\"]",
+      "pass": true,
+      "detail": {
+        "x": 168,
+        "y": 355,
+        "width": 66.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "320x568: in viewport [data-attack=\"heavy\"]",
+      "pass": true,
+      "detail": {
+        "x": 241.5,
+        "y": 355,
+        "width": 66.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "320x568: touch size [data-attack=\"heavy\"]",
+      "pass": true,
+      "detail": {
+        "x": 241.5,
+        "y": 355,
+        "width": 66.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "320x568: in viewport [data-attack=\"punch\"]",
+      "pass": true,
+      "detail": {
+        "x": 168,
+        "y": 427,
+        "width": 66.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "320x568: touch size [data-attack=\"punch\"]",
+      "pass": true,
+      "detail": {
+        "x": 168,
+        "y": 427,
+        "width": 66.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "320x568: in viewport [data-attack=\"kick\"]",
+      "pass": true,
+      "detail": {
+        "x": 241.5,
+        "y": 427,
+        "width": 66.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "320x568: touch size [data-attack=\"kick\"]",
+      "pass": true,
+      "detail": {
+        "x": 241.5,
+        "y": 427,
+        "width": 66.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "320x568: in viewport [data-attack=\"spit\"]",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 504,
+        "width": 53.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: touch size [data-attack=\"spit\"]",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 504,
+        "width": 53.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: in viewport #chaosBlock",
+      "pass": true,
+      "detail": {
+        "x": 72.59375,
+        "y": 504,
+        "width": 53.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: touch size #chaosBlock",
+      "pass": true,
+      "detail": {
+        "x": 72.59375,
+        "y": 504,
+        "width": 53.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: in viewport #chaosGrab",
+      "pass": true,
+      "detail": {
+        "x": 133.1875,
+        "y": 504,
+        "width": 53.609375,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: touch size #chaosGrab",
+      "pass": true,
+      "detail": {
+        "x": 133.1875,
+        "y": 504,
+        "width": 53.609375,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: in viewport #chaosThrow",
+      "pass": true,
+      "detail": {
+        "x": 193.796875,
+        "y": 504,
+        "width": 53.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: touch size #chaosThrow",
+      "pass": true,
+      "detail": {
+        "x": 193.796875,
+        "y": 504,
+        "width": 53.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: in viewport #chaosDrink",
+      "pass": true,
+      "detail": {
+        "x": 254.390625,
+        "y": 504,
+        "width": 53.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: touch size #chaosDrink",
+      "pass": true,
+      "detail": {
+        "x": 254.390625,
+        "y": 504,
+        "width": 53.59375,
+        "height": 54
+      }
+    },
+    {
+      "name": "320x568: controls and meters do not overlap",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "932x430: touch only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430: no visible keyboard hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430: in viewport #chaosMove",
+      "pass": true,
+      "detail": {
+        "x": 20,
+        "y": 284,
+        "width": 104,
+        "height": 104
+      }
+    },
+    {
+      "name": "932x430: in viewport #chaosUse",
+      "pass": true,
+      "detail": {
+        "x": 754,
+        "y": 242,
+        "width": 166,
+        "height": 50
+      }
+    },
+    {
+      "name": "932x430: touch size #chaosUse",
+      "pass": true,
+      "detail": {
+        "x": 754,
+        "y": 242,
+        "width": 166,
+        "height": 50
+      }
+    },
+    {
+      "name": "932x430: in viewport #captainVitals",
+      "pass": true,
+      "detail": {
+        "x": 428.71875,
+        "y": 51,
+        "width": 383.28125,
+        "height": 52.78125
+      }
+    },
+    {
+      "name": "932x430: in viewport [data-attack=\"slap\"]",
+      "pass": true,
+      "detail": {
+        "x": 636,
+        "y": 300,
+        "width": 66.5,
+        "height": 61
+      }
+    },
+    {
+      "name": "932x430: touch size [data-attack=\"slap\"]",
+      "pass": true,
+      "detail": {
+        "x": 636,
+        "y": 300,
+        "width": 66.5,
+        "height": 61
+      }
+    },
+    {
+      "name": "932x430: in viewport [data-attack=\"heavy\"]",
+      "pass": true,
+      "detail": {
+        "x": 708.5,
+        "y": 300,
+        "width": 66.5,
+        "height": 61
+      }
+    },
+    {
+      "name": "932x430: touch size [data-attack=\"heavy\"]",
+      "pass": true,
+      "detail": {
+        "x": 708.5,
+        "y": 300,
+        "width": 66.5,
+        "height": 61
+      }
+    },
+    {
+      "name": "932x430: in viewport [data-attack=\"punch\"]",
+      "pass": true,
+      "detail": {
+        "x": 781,
+        "y": 300,
+        "width": 66.5,
+        "height": 61
+      }
+    },
+    {
+      "name": "932x430: touch size [data-attack=\"punch\"]",
+      "pass": true,
+      "detail": {
+        "x": 781,
+        "y": 300,
+        "width": 66.5,
+        "height": 61
+      }
+    },
+    {
+      "name": "932x430: in viewport [data-attack=\"kick\"]",
+      "pass": true,
+      "detail": {
+        "x": 853.5,
+        "y": 300,
+        "width": 66.5,
+        "height": 61
+      }
+    },
+    {
+      "name": "932x430: touch size [data-attack=\"kick\"]",
+      "pass": true,
+      "detail": {
+        "x": 853.5,
+        "y": 300,
+        "width": 66.5,
+        "height": 61
+      }
+    },
+    {
+      "name": "932x430: in viewport [data-attack=\"spit\"]",
+      "pass": true,
+      "detail": {
+        "x": 636,
+        "y": 371,
+        "width": 52,
+        "height": 49
+      }
+    },
+    {
+      "name": "932x430: touch size [data-attack=\"spit\"]",
+      "pass": true,
+      "detail": {
+        "x": 636,
+        "y": 371,
+        "width": 52,
+        "height": 49
+      }
+    },
+    {
+      "name": "932x430: in viewport #chaosBlock",
+      "pass": true,
+      "detail": {
+        "x": 694,
+        "y": 371,
+        "width": 52,
+        "height": 49
+      }
+    },
+    {
+      "name": "932x430: touch size #chaosBlock",
+      "pass": true,
+      "detail": {
+        "x": 694,
+        "y": 371,
+        "width": 52,
+        "height": 49
+      }
+    },
+    {
+      "name": "932x430: in viewport #chaosGrab",
+      "pass": true,
+      "detail": {
+        "x": 752,
+        "y": 371,
+        "width": 52,
+        "height": 49
+      }
+    },
+    {
+      "name": "932x430: touch size #chaosGrab",
+      "pass": true,
+      "detail": {
+        "x": 752,
+        "y": 371,
+        "width": 52,
+        "height": 49
+      }
+    },
+    {
+      "name": "932x430: in viewport #chaosThrow",
+      "pass": true,
+      "detail": {
+        "x": 810,
+        "y": 371,
+        "width": 52,
+        "height": 49
+      }
+    },
+    {
+      "name": "932x430: touch size #chaosThrow",
+      "pass": true,
+      "detail": {
+        "x": 810,
+        "y": 371,
+        "width": 52,
+        "height": 49
+      }
+    },
+    {
+      "name": "932x430: in viewport #chaosDrink",
+      "pass": true,
+      "detail": {
+        "x": 868,
+        "y": 371,
+        "width": 52,
+        "height": 49
+      }
+    },
+    {
+      "name": "932x430: touch size #chaosDrink",
+      "pass": true,
+      "detail": {
+        "x": 868,
+        "y": 371,
+        "width": 52,
+        "height": 49
+      }
+    },
+    {
+      "name": "932x430: controls and meters do not overlap",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "768x1024: touch only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "768x1024: no visible keyboard hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "768x1024: in viewport #chaosMove",
+      "pass": true,
+      "detail": {
+        "x": 20,
+        "y": 827,
+        "width": 104,
+        "height": 104
+      }
+    },
+    {
+      "name": "768x1024: in viewport #chaosUse",
+      "pass": true,
+      "detail": {
+        "x": 608,
+        "y": 750,
+        "width": 148,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: touch size #chaosUse",
+      "pass": true,
+      "detail": {
+        "x": 608,
+        "y": 750,
+        "width": 148,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: in viewport #captainVitals",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 119,
+        "width": 744,
+        "height": 57.1875
+      }
+    },
+    {
+      "name": "768x1024: in viewport [data-attack=\"slap\"]",
+      "pass": true,
+      "detail": {
+        "x": 608,
+        "y": 811,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "768x1024: touch size [data-attack=\"slap\"]",
+      "pass": true,
+      "detail": {
+        "x": 608,
+        "y": 811,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "768x1024: in viewport [data-attack=\"heavy\"]",
+      "pass": true,
+      "detail": {
+        "x": 685.5,
+        "y": 811,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "768x1024: touch size [data-attack=\"heavy\"]",
+      "pass": true,
+      "detail": {
+        "x": 685.5,
+        "y": 811,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "768x1024: in viewport [data-attack=\"punch\"]",
+      "pass": true,
+      "detail": {
+        "x": 608,
+        "y": 883,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "768x1024: touch size [data-attack=\"punch\"]",
+      "pass": true,
+      "detail": {
+        "x": 608,
+        "y": 883,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "768x1024: in viewport [data-attack=\"kick\"]",
+      "pass": true,
+      "detail": {
+        "x": 685.5,
+        "y": 883,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "768x1024: touch size [data-attack=\"kick\"]",
+      "pass": true,
+      "detail": {
+        "x": 685.5,
+        "y": 883,
+        "width": 70.5,
+        "height": 65
+      }
+    },
+    {
+      "name": "768x1024: in viewport [data-attack=\"spit\"]",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 960,
+        "width": 143.1875,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: touch size [data-attack=\"spit\"]",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 960,
+        "width": 143.1875,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: in viewport #chaosBlock",
+      "pass": true,
+      "detail": {
+        "x": 162.1875,
+        "y": 960,
+        "width": 143.203125,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: touch size #chaosBlock",
+      "pass": true,
+      "detail": {
+        "x": 162.1875,
+        "y": 960,
+        "width": 143.203125,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: in viewport #chaosGrab",
+      "pass": true,
+      "detail": {
+        "x": 312.390625,
+        "y": 960,
+        "width": 143.203125,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: touch size #chaosGrab",
+      "pass": true,
+      "detail": {
+        "x": 312.390625,
+        "y": 960,
+        "width": 143.203125,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: in viewport #chaosThrow",
+      "pass": true,
+      "detail": {
+        "x": 462.59375,
+        "y": 960,
+        "width": 143.203125,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: touch size #chaosThrow",
+      "pass": true,
+      "detail": {
+        "x": 462.59375,
+        "y": 960,
+        "width": 143.203125,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: in viewport #chaosDrink",
+      "pass": true,
+      "detail": {
+        "x": 612.796875,
+        "y": 960,
+        "width": 143.1875,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: touch size #chaosDrink",
+      "pass": true,
+      "detail": {
+        "x": 612.796875,
+        "y": 960,
+        "width": 143.1875,
+        "height": 54
+      }
+    },
+    {
+      "name": "768x1024: controls and meters do not overlap",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Context action offers real interaction",
+      "pass": true,
+      "detail": "💬\nΜΙΛΑ\nΕΛΕΝΗ · ΕΠΙΒΑΤΗΣ"
+    },
+    {
+      "name": "Touch interaction reaches passenger",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Context action is grab",
+      "pass": true,
+      "detail": "✊\nΠΑΡΕ\nΚΑΡΕΚΛΑ"
+    },
+    {
+      "name": "Touch grabs object",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Held object changes contextual action to throw",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch throws held object",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Two fingers: walk while blocking",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 2.998741130912966,
+          "y": 18.43,
+          "z": 40
+        },
+        "after": {
+          "x": 2.9943174815097393,
+          "y": 18.43,
+          "z": 40.18090494234997
+        },
+        "blockClass": "held",
+        "disabled": false,
+        "paused": false,
+        "modelBlock": false
+      }
+    },
+    {
+      "name": "Release clears block",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Real input breaks windscreen and starts alarm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "deck: AI arrest reaches physical cell",
+      "pass": true,
+      "detail": {
+        "controlScheme": "touch",
+        "phase": "cell",
+        "foot": false,
+        "time": 64.19476666666431,
+        "drinkCooldown": 2.4833333333333343,
+        "position": {
+          "x": -0.0005007387997057929,
+          "y": 10.1,
+          "z": 56
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "sips": 1,
+        "pendingAlcohol": 0,
+        "chaos": 90,
+        "health": 35,
+        "stamina": 100,
+        "heat": 33.75,
+        "hits": 0,
+        "broken": 1,
+        "thrown": 1,
+        "guardCount": 2,
+        "capture": 100,
+        "nearGuards": 2,
+        "securityAt": 54.01143333333155,
+        "alarmAt": 53.99476666666666,
+        "cellVisible": true,
+        "cellCaptainVisible": true,
+        "navigation": {
+          "nodes": 0
+        },
+        "attack": null,
+        "held": null,
+        "captain": {
+          "role": "captain",
+          "gender": "male",
+          "name": "ΚΑΠΕΤΑΝΙΟΣ",
+          "source": "civilian172",
+          "fps": true,
+          "restPose": "relaxed-idle",
+          "limbTriangles": 8115
+        },
+        "actors": [
+          {
+            "profile": {
+              "id": "guestM0",
+              "name": "ΑΝΤΩΝΗΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.8,
+              "shirt": 5608868,
+              "pants": 13680289,
+              "shoes": 4797735,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 6043942,
+              "long": false,
+              "width": 1.02,
+              "skin": 1.25
+            },
+            "id": 0,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": -3.381215333249255,
+            "z": 54.27631001759106
+          },
+          {
+            "profile": {
+              "id": "guestF0",
+              "name": "ΕΛΕΝΗ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.7,
+              "shirt": 10895945,
+              "pants": 2506072,
+              "shoes": 15787735,
+              "hair": "Hair_Long",
+              "hairColor": 5518368,
+              "long": false,
+              "width": 1.02,
+              "skin": 1.2
+            },
+            "id": 1,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": 0.29959269818105144,
+            "z": 55.248723128715525
+          },
+          {
+            "profile": {
+              "id": "guestM1",
+              "name": "ΜΑΡΙΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.76,
+              "shirt": 14794102,
+              "pants": 2638420,
+              "shoes": 14998217,
+              "hair": "Hair_Buzzed",
+              "hairColor": 3154458,
+              "beard": true,
+              "long": false,
+              "width": 1.1,
+              "skin": 0.85
+            },
+            "id": 2,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": 4.362610518198476,
+            "z": 55.19168750585065
+          },
+          {
+            "profile": {
+              "id": "guestF1",
+              "name": "ΜΑΡΙΑ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.66,
+              "shirt": 15591116,
+              "pants": 5993845,
+              "shoes": 7161397,
+              "hair": "Hair_Buns",
+              "hairColor": 2563352,
+              "long": true,
+              "width": 1.08,
+              "skin": 0.83
+            },
+            "id": 3,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": -5.298161109421263,
+            "z": 57.57086930877936
+          },
+          {
+            "profile": {
+              "id": "guestM2",
+              "name": "ΠΕΤΡΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.74,
+              "shirt": 15656920,
+              "pants": 6576976,
+              "shoes": 5911841,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 9605259,
+              "long": true,
+              "width": 1.13,
+              "skin": 1.18
+            },
+            "id": 4,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": 1.1165648537639623,
+            "z": 57.6365143880557
+          },
+          {
+            "profile": {
+              "id": "guestF2",
+              "name": "ΣΟΦΙΑ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.72,
+              "shirt": 3235428,
+              "pants": 13416597,
+              "shoes": 5847337,
+              "hair": "Hair_Long",
+              "hairColor": 10847043,
+              "long": true,
+              "width": 0.99,
+              "skin": 1.28
+            },
+            "id": 5,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": 2.986012582595158,
+            "z": 60.02189992446948
+          },
+          {
+            "profile": {
+              "id": "guestM3",
+              "name": "ΝΙΚΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.86,
+              "shirt": 3694211,
+              "pants": 9278860,
+              "shoes": 1517113,
+              "hair": "Hair_Buzzed",
+              "hairColor": 3876378,
+              "long": false,
+              "width": 0.94,
+              "skin": 0.9
+            },
+            "id": 6,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": -0.32516182196640947,
+            "z": 60.99875100511272
+          },
+          {
+            "profile": {
+              "id": "bartender",
+              "name": "ΜΠΑΡΜΑΝ · ΠΛΗΡΩΜΑ",
+              "role": "staff",
+              "gender": "male",
+              "height": 1.78,
+              "shirt": 15790046,
+              "pants": 1844786,
+              "shoes": 1514272,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 3942429,
+              "long": true,
+              "width": 0.99,
+              "skin": 1.13
+            },
+            "id": 7,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": -4.534767745343758,
+            "z": 54.20556711669166
+          },
+          {
+            "profile": {
+              "id": "securityM",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "male",
+              "height": 1.82,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buzzed",
+              "hairColor": 2630434,
+              "long": false,
+              "width": 1.01,
+              "skin": 1.05
+            },
+            "id": 8,
+            "health": 85,
+            "guard": true,
+            "state": "fight",
+            "y": 10.1,
+            "x": -0.05838394505244549,
+            "z": 54.79768892287757
+          },
+          {
+            "profile": {
+              "id": "securityM",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "male",
+              "height": 1.82,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buzzed",
+              "hairColor": 2630434,
+              "long": false,
+              "width": 1.01,
+              "skin": 1.05
+            },
+            "id": 9,
+            "health": 85,
+            "guard": true,
+            "state": "fight",
+            "y": 10.1,
+            "x": 1.0464875737977877,
+            "z": 55.56598576242442
+          }
+        ],
+        "limbTriangles": 8115
+      }
+    },
+    {
+      "name": "deck: captain is inside the visible jail",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "deck: custody meter is complete",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "deck: no controls or helm leaking through jail",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Proximity restraint visibly builds before arrest",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Replay resets health, custody and jail",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "touch: no uncaught runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "First sip and exit playable",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Release 1.7.3",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop still has WASD and numeric keys",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop WASD still moves character",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Real input breaks windscreen and starts alarm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "bridge: AI arrest reaches physical cell",
+      "pass": true,
+      "detail": {
+        "controlScheme": "keyboard",
+        "phase": "cell",
+        "foot": false,
+        "time": 71.81666666666388,
+        "drinkCooldown": 2.7,
+        "position": {
+          "x": 3.0037093104638317,
+          "y": 18.43,
+          "z": 40
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "sips": 1,
+        "pendingAlcohol": 0,
+        "chaos": 90,
+        "health": 35,
+        "stamina": 100,
+        "heat": 33.75,
+        "hits": 0,
+        "broken": 1,
+        "thrown": 0,
+        "guardCount": 4,
+        "capture": 100,
+        "nearGuards": 2,
+        "securityAt": 51.13333333333171,
+        "alarmAt": 51.11666666666667,
+        "cellVisible": true,
+        "cellCaptainVisible": true,
+        "navigation": {
+          "nodes": 1729
+        },
+        "attack": null,
+        "held": null,
+        "captain": {
+          "role": "captain",
+          "gender": "male",
+          "name": "ΚΑΠΕΤΑΝΙΟΣ",
+          "source": "civilian172",
+          "fps": true,
+          "restPose": "relaxed-idle",
+          "limbTriangles": 8115
+        },
+        "actors": [
+          {
+            "profile": {
+              "id": "guestM0",
+              "name": "ΑΝΤΩΝΗΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.8,
+              "shirt": 5608868,
+              "pants": 13680289,
+              "shoes": 4797735,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 6043942,
+              "long": false,
+              "width": 1.02,
+              "skin": 1.25
+            },
+            "id": 0,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": -2.751589203349252,
+            "z": 54.2807363852192
+          },
+          {
+            "profile": {
+              "id": "guestF0",
+              "name": "ΕΛΕΝΗ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.7,
+              "shirt": 10895945,
+              "pants": 2506072,
+              "shoes": 15787735,
+              "hair": "Hair_Long",
+              "hairColor": 5518368,
+              "long": false,
+              "width": 1.02,
+              "skin": 1.2
+            },
+            "id": 1,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": 0.5654590106829821,
+            "z": 55.40818612485847
+          },
+          {
+            "profile": {
+              "id": "guestM1",
+              "name": "ΜΑΡΙΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.76,
+              "shirt": 14794102,
+              "pants": 2638420,
+              "shoes": 14998217,
+              "hair": "Hair_Buzzed",
+              "hairColor": 3154458,
+              "beard": true,
+              "long": false,
+              "width": 1.1,
+              "skin": 0.85
+            },
+            "id": 2,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": 4.902748501504483,
+            "z": 55.65996599337747
+          },
+          {
+            "profile": {
+              "id": "guestF1",
+              "name": "ΜΑΡΙΑ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.66,
+              "shirt": 15591116,
+              "pants": 5993845,
+              "shoes": 7161397,
+              "hair": "Hair_Buns",
+              "hairColor": 2563352,
+              "long": true,
+              "width": 1.08,
+              "skin": 0.83
+            },
+            "id": 3,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": -5.655198719304966,
+            "z": 56.290731857906664
+          },
+          {
+            "profile": {
+              "id": "guestM2",
+              "name": "ΠΕΤΡΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.74,
+              "shirt": 15656920,
+              "pants": 6576976,
+              "shoes": 5911841,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 9605259,
+              "long": true,
+              "width": 1.13,
+              "skin": 1.18
+            },
+            "id": 4,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": 1.022013623594102,
+            "z": 58.01512539153454
+          },
+          {
+            "profile": {
+              "id": "guestF2",
+              "name": "ΣΟΦΙΑ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.72,
+              "shirt": 3235428,
+              "pants": 13416597,
+              "shoes": 5847337,
+              "hair": "Hair_Long",
+              "hairColor": 10847043,
+              "long": true,
+              "width": 0.99,
+              "skin": 1.28
+            },
+            "id": 5,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": 3.331416867611776,
+            "z": 60.776046030341575
+          },
+          {
+            "profile": {
+              "id": "guestM3",
+              "name": "ΝΙΚΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.86,
+              "shirt": 3694211,
+              "pants": 9278860,
+              "shoes": 1517113,
+              "hair": "Hair_Buzzed",
+              "hairColor": 3876378,
+              "long": false,
+              "width": 0.94,
+              "skin": 0.9
+            },
+            "id": 6,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": -0.5638129533965855,
+            "z": 60.99999986803295
+          },
+          {
+            "profile": {
+              "id": "bartender",
+              "name": "ΜΠΑΡΜΑΝ · ΠΛΗΡΩΜΑ",
+              "role": "staff",
+              "gender": "male",
+              "height": 1.78,
+              "shirt": 15790046,
+              "pants": 1844786,
+              "shoes": 1514272,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 3942429,
+              "long": true,
+              "width": 0.99,
+              "skin": 1.13
+            },
+            "id": 7,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": -5.760327480571529,
+            "z": 54.91517540634895
+          },
+          {
+            "profile": {
+              "id": "securityM",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "male",
+              "height": 1.82,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buzzed",
+              "hairColor": 2630434,
+              "long": false,
+              "width": 1.01,
+              "skin": 1.05
+            },
+            "id": 8,
+            "health": 85,
+            "guard": true,
+            "state": "fight",
+            "y": 18.43,
+            "x": 3.8580658705408406,
+            "z": 39.25803802556796
+          },
+          {
+            "profile": {
+              "id": "securityM",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "male",
+              "height": 1.82,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buzzed",
+              "hairColor": 2630434,
+              "long": false,
+              "width": 1.01,
+              "skin": 1.05
+            },
+            "id": 9,
+            "health": 85,
+            "guard": true,
+            "state": "fight",
+            "y": 18.43,
+            "x": 4.123914884065701,
+            "z": 39.783392619892425
+          },
+          {
+            "profile": {
+              "id": "securityF",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "female",
+              "height": 1.75,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buns",
+              "hairColor": 2366743,
+              "long": false,
+              "width": 1.03,
+              "skin": 1.12
+            },
+            "id": 10,
+            "health": 85,
+            "guard": true,
+            "state": "fight",
+            "y": 18.43,
+            "x": 11.68076766525363,
+            "z": 33.54155054808358
+          },
+          {
+            "profile": {
+              "id": "securityM",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "male",
+              "height": 1.82,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buzzed",
+              "hairColor": 2630434,
+              "long": false,
+              "width": 1.01,
+              "skin": 1.05
+            },
+            "id": 11,
+            "health": 85,
+            "guard": true,
+            "state": "fight",
+            "y": 10.1,
+            "x": 9.102297311897637,
+            "z": 49.899249907877106
+          }
+        ],
+        "limbTriangles": 8115
+      }
+    },
+    {
+      "name": "bridge: captain is inside the visible jail",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "bridge: custody meter is complete",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "bridge: no controls or helm leaking through jail",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Guards followed the physical stairs to the bridge",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "desktop: no uncaught runtime errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "custodyRuns": [
+    {
+      "name": "deck",
+      "history": [
+        {
+          "phase": "deck",
+          "time": 5.694766666666658,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 6.444766666666656,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 7.194766666666653,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 7.94476666666665,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 8.694766666666684,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 9.444766666666721,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 10.194766666666759,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 10.944766666666796,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 11.694766666666833,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 12.44476666666687,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 13.194766666666908,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 13.944766666666945,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 14.694766666666983,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 15.44476666666702,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 16.194766666667036,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 16.944766666666993,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 17.69476666666695,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 18.444766666666908,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 19.194766666666865,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 19.944766666666823,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 20.69476666666678,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 21.444766666666737,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 22.194766666666695,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 22.944766666666652,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 23.69476666666661,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 24.444766666666567,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 25.194766666666524,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 25.94476666666648,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 26.69476666666644,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 27.444766666666396,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 28.194766666666354,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 28.94476666666631,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 29.69476666666627,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 30.444766666666226,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 31.194766666666183,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 31.94476666666614,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 32.6947666666661,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 33.444766666666055,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 34.19476666666601,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 34.94476666666597,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 35.69476666666593,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 36.444766666665885,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 37.19476666666584,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 37.9447666666658,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 38.69476666666576,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 39.444766666665714,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 40.19476666666567,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 40.94476666666563,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 41.694766666665586,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 42.444766666665544,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 43.1947666666655,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 43.94476666666546,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 44.694766666665416,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 45.44476666666537,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 46.19476666666533,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 46.94476666666529,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 47.694766666665245,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 48.4447666666652,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 49.19476666666516,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 49.94476666666512,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 50.694766666665075,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 51.44476666666503,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 52.19476666666499,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 52.94476666666495,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 53.694766666664904,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "security",
+          "time": 54.44476666666486,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 55.19476666666482,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 55.944766666664776,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 56.694766666664734,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 1,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 57.44476666666469,
+          "health": 76,
+          "capture": 16.03333333333334,
+          "nearGuards": 2,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 58.19476666666465,
+          "health": 76,
+          "capture": 35.53333333333332,
+          "nearGuards": 2,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 58.944766666664606,
+          "health": 52,
+          "capture": 55.03333333333317,
+          "nearGuards": 2,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 59.69476666666456,
+          "health": 28,
+          "capture": 74.53333333333319,
+          "nearGuards": 2,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 60.44476666666452,
+          "health": 28,
+          "capture": 94.03333333333336,
+          "nearGuards": 2,
+          "guardCount": 2
+        },
+        {
+          "phase": "arrested",
+          "time": 61.19476666666448,
+          "health": 28,
+          "capture": 100,
+          "nearGuards": 2,
+          "guardCount": 2
+        },
+        {
+          "phase": "arrested",
+          "time": 61.944766666664435,
+          "health": 28,
+          "capture": 100,
+          "nearGuards": 2,
+          "guardCount": 2
+        },
+        {
+          "phase": "arrested",
+          "time": 62.69476666666439,
+          "health": 28,
+          "capture": 100,
+          "nearGuards": 2,
+          "guardCount": 2
+        },
+        {
+          "phase": "arrested",
+          "time": 63.44476666666435,
+          "health": 28,
+          "capture": 100,
+          "nearGuards": 2,
+          "guardCount": 2
+        },
+        {
+          "phase": "cell",
+          "time": 64.19476666666431,
+          "health": 35,
+          "capture": 100,
+          "nearGuards": 2,
+          "guardCount": 2
+        }
+      ],
+      "guardsReachedBridge": false
+    },
+    {
+      "name": "bridge",
+      "history": [
+        {
+          "phase": "deck",
+          "time": 2.8166666666666615,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 3.566666666666659,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 4.316666666666657,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 5.066666666666654,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 5.816666666666651,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 6.566666666666649,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 7.316666666666646,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 8.066666666666647,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 8.816666666666684,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 9.566666666666721,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 10.316666666666759,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 11.066666666666796,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 11.816666666666833,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 12.56666666666687,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 13.316666666666908,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 14.066666666666945,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 14.816666666666983,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 15.56666666666702,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 16.31666666666702,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 17.06666666666698,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 17.816666666666936,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 18.566666666666894,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 19.31666666666685,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 20.06666666666681,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 20.816666666666766,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 21.566666666666723,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 22.31666666666668,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 23.066666666666638,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 23.816666666666595,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 24.566666666666553,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 25.31666666666651,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 26.066666666666467,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 26.816666666666425,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 27.566666666666382,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 28.31666666666634,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 29.066666666666297,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 29.816666666666254,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 30.56666666666621,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 31.31666666666617,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 32.06666666666613,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 32.81666666666609,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 33.566666666666045,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 34.316666666666,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 35.06666666666596,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 35.81666666666592,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 36.566666666665874,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 37.31666666666583,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 38.06666666666579,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 38.816666666665746,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 39.566666666665704,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 40.31666666666566,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 41.06666666666562,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 41.816666666665576,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 42.56666666666553,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 43.31666666666549,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 44.06666666666545,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 44.816666666665405,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 45.56666666666536,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 46.31666666666532,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 47.06666666666528,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 47.816666666665235,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 48.56666666666519,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 49.31666666666515,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 50.06666666666511,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "deck",
+          "time": 50.816666666665064,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 0
+        },
+        {
+          "phase": "security",
+          "time": 51.56666666666502,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 52.31666666666498,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 53.066666666664936,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 53.816666666664894,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 54.56666666666485,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 55.31666666666481,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 56.066666666664766,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 56.81666666666472,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 57.56666666666468,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 58.31666666666464,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 59.066666666664595,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 2
+        },
+        {
+          "phase": "security",
+          "time": 59.81666666666455,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 3
+        },
+        {
+          "phase": "security",
+          "time": 60.56666666666451,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 3
+        },
+        {
+          "phase": "security",
+          "time": 61.31666666666447,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 3
+        },
+        {
+          "phase": "security",
+          "time": 62.066666666664425,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 3
+        },
+        {
+          "phase": "security",
+          "time": 62.81666666666438,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 3
+        },
+        {
+          "phase": "security",
+          "time": 63.56666666666434,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 0,
+          "guardCount": 3
+        },
+        {
+          "phase": "security",
+          "time": 64.3166666666643,
+          "health": 100,
+          "capture": 0,
+          "nearGuards": 1,
+          "guardCount": 3
+        },
+        {
+          "phase": "security",
+          "time": 65.06666666666426,
+          "health": 76,
+          "capture": 16.03333333333334,
+          "nearGuards": 2,
+          "guardCount": 3
+        },
+        {
+          "phase": "security",
+          "time": 65.81666666666422,
+          "health": 64,
+          "capture": 35.53333333333332,
+          "nearGuards": 2,
+          "guardCount": 3
+        },
+        {
+          "phase": "security",
+          "time": 66.56666666666418,
+          "health": 52,
+          "capture": 55.03333333333317,
+          "nearGuards": 2,
+          "guardCount": 3
+        },
+        {
+          "phase": "security",
+          "time": 67.31666666666413,
+          "health": 40,
+          "capture": 74.53333333333319,
+          "nearGuards": 2,
+          "guardCount": 4
+        },
+        {
+          "phase": "security",
+          "time": 68.06666666666409,
+          "health": 28,
+          "capture": 94.03333333333336,
+          "nearGuards": 2,
+          "guardCount": 4
+        },
+        {
+          "phase": "arrested",
+          "time": 68.81666666666405,
+          "health": 16,
+          "capture": 100,
+          "nearGuards": 2,
+          "guardCount": 4
+        },
+        {
+          "phase": "arrested",
+          "time": 69.566666666664,
+          "health": 16,
+          "capture": 100,
+          "nearGuards": 2,
+          "guardCount": 4
+        },
+        {
+          "phase": "arrested",
+          "time": 70.31666666666396,
+          "health": 16,
+          "capture": 100,
+          "nearGuards": 2,
+          "guardCount": 4
+        },
+        {
+          "phase": "arrested",
+          "time": 71.06666666666392,
+          "health": 16,
+          "capture": 100,
+          "nearGuards": 2,
+          "guardCount": 4
+        },
+        {
+          "phase": "cell",
+          "time": 71.81666666666388,
+          "health": 35,
+          "capture": 100,
+          "nearGuards": 2,
+          "guardCount": 4
+        }
+      ],
+      "guardsReachedBridge": true
+    }
+  ],
+  "passed": true
+}

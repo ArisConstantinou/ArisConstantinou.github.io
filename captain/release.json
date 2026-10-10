@@ -1,8 +1,13 @@
 {
-  "version": "1.7.2",
-  "chapter": "UTTER CHAOS: helm, deck combat, security, cell",
-  "characters": "Quaternius CC0 civilian male and female rigs; captain uniform and full-body inspector; navy ship security; mixed passenger profiles; relaxed FPS idle",
-  "controls": "Desktop WASD and touch joystick retained. V opens full-body captain inspector.",
-  "audio": "Existing synthetic Greek MP3 speech unchanged.",
-  "scope": "Existing captain/ game only. No stealth escape or third-person gameplay added."
+  "version": "1.7.3",
+  "changes": [
+    "Touch-specific controls and contextual action buttons",
+    "Permanent health, intoxication and custody meters",
+    "Guards navigate the deck and stairway; real proximity-based restraint and physical jail scene"
+  ],
+  "preserved": [
+    "Captain models and FPS animations",
+    "Desktop WASD and numeric combat keys",
+    "Existing audio"
+  ]
 }
