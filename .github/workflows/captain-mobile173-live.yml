@@ -12,23 +12,25 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Confirm exact live release
+      - name: Confirm exact final live release
         run: |
           python - <<'PY'
           import urllib.request,time,hashlib
           from pathlib import Path
           base='https://arisconstantinou.github.io/captain/'
+          files=['index.html','main173.js','chaos173.js','ui173.js','mobile173.css','security173.js','chaos-world173.js','sw.js']
           for attempt in range(24):
             try:
-              body=urllib.request.urlopen(base+'release.json?verify=173').read()
-              if b'1.7.3' in body: break
-            except Exception: pass
+              matches=[]
+              for f in files:
+                data=urllib.request.urlopen(base+f+'?verify=173b-'+str(attempt),timeout=15).read()
+                matches.append(data==Path('captain',f).read_bytes())
+              if all(matches):break
+              print('Waiting for final public release',attempt,matches,flush=True)
+            except Exception as e:print(e,flush=True)
             time.sleep(5)
-          else: raise SystemExit('Live version did not update')
-          for f in ['index.html','main173.js','chaos173.js','ui173.js','mobile173.css','security173.js','chaos-world173.js','sw.js']:
-            b=urllib.request.urlopen(base+f+'?verify=173').read()
-            assert b==Path('captain',f).read_bytes(), 'Different public bytes: '+f
-            print('MATCH',f,hashlib.sha256(b).hexdigest())
+          else:raise SystemExit('Public bytes do not match final tested release')
+          for f in files:print('MATCH',f,hashlib.sha256(Path('captain',f).read_bytes()).hexdigest())
           PY
       - name: Install Chromium
         run: |
