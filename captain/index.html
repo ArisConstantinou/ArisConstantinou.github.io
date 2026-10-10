@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#081820">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="description" content="LAST CALL: Ανέλαβε ένα μεγάλο κρουαζιερόπλοιο στη φουρτούνα. Πάγοι, κύματα και ένας καπετάνιος που δεν αφήνει το ποτήρι.">
-  <title>LAST CALL — Καπετάνιος στη φουρτούνα</title>
+  <title>LAST CALL — Ιστορία / Mayhem</title>
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./style.css?v=140">
@@ -22,25 +22,50 @@
 <link rel="stylesheet" href="./escape180.css?v=180">
 <link rel="stylesheet" href="./controls181.css?v=181"><link rel="stylesheet" href="./touch183.css?v=183">
 <link rel="stylesheet" href="./shipmap184.css?v=184">
+<meta name="captain-menu" content="1.0">
+<link rel="stylesheet" href="./mode-menu.css?v=1">
+<script defer src="./mode-menu.js?v=1"></script>
 </head>
 <body>
   <main id="game" aria-label="Παιχνίδι Last Call">
     <canvas id="sea" aria-label="Τρισδιάστατη θέα κρουαζιερόπλοιου"></canvas>
     <div id="rainLens" aria-hidden="true"></div><div id="impact" aria-hidden="true"></div>
-    <section id="intro" class="screen">
+    <section id="intro" class="screen mode-hub" data-selected-mode="story">
       <div class="intro-top"><span class="brand-mark">LC<span> / </span>01</span><span class="edition">NORTH ATLANTIC · 02:47</span><button class="tiny-button" id="introSound" aria-label="Ενεργοποίηση ή απενεργοποίηση ήχου">Ήχος: ΝΑΙ</button></div>
       <div class="intro-copy">
-        <div class="eyebrow"><span class="status-dot"></span> UTTER CHAOS · ΚΕΦΑΛΑΙΟ 01</div>
+        <div class="eyebrow"><span class="status-dot"></span> ΕΝΑΣ ΚΑΠΕΤΑΝΙΟΣ. ΔΥΟ ΤΡΟΠΟΙ ΝΑ ΠΑΙΞΕΙΣ.</div>
         <h1>LAST<br><span>CALL.</span></h1>
-        <p class="tagline">Μία γουλιά.<br>Μία καταστροφική βάρδια.</p>
+        <div class="mode-selection" aria-labelledby="modeSelectionTitle">
+          <h2 id="modeSelectionTitle">ΕΠΙΛΟΓΗ MODE</h2>
+          <div class="mode-cards" role="tablist" aria-label="Επιλογή παιχνιδιού">
+            <button type="button" class="mode-card" id="modeStory" role="tab" aria-selected="true" aria-controls="storyModePanel" tabindex="0">
+              <span class="mode-card-top"><span>01 / STORY</span><span class="mode-selected" aria-hidden="true">✓</span></span>
+              <strong>ΙΣΤΟΡΙΑ</strong><small>Καβγάδες · κελί · απόδραση</small>
+            </button>
+            <button type="button" class="mode-card mode-card-mayhem" id="modeMayhem" role="tab" aria-selected="false" aria-controls="mayhemModePanel" tabindex="-1">
+              <span class="mode-card-top"><span class="mode-new">ΝΕΟ MODE</span><span class="mode-selected" aria-hidden="true">✓</span></span>
+              <strong>MAYHEM</strong><small>Ελεύθερο χάος · χωρίς τέλος</small>
+            </button>
+          </div>
+        </div>
+        <div id="storyModePanel" class="mode-panel" role="tabpanel" aria-labelledby="modeStory">
+        <p class="tagline">Μία γουλιά. Μία καταστροφική βάρδια.</p>
         <p class="intro-description">Πιες μία γουλιά στη γέφυρα. Κατέβα στους επιβάτες. <b>Προκάλεσε όσο περισσότερο χάος μπορείς πριν σε συλλάβει η ασφάλεια.</b> Πρώτο πρόσωπο, καβγάδες και καταστροφές στο ίδιο κρουαζιερόπλοιο.</p>
         <div class="start-options"><button id="difficulty" class="option-button">Φουρτούνα <b>ΚΑΝΟΝΙΚΗ</b> <span>↗</span></button><button id="introMotion" class="option-button">Κάμερα <b>ΚΙΝΗΜΑΤΟΓΡΑΦΙΚΗ</b> <span>↗</span></button></div>
         <button id="start" class="primary-button" disabled><span id="startText">ΠΡΟΕΤΟΙΜΑΣΙΑ ΠΛΟΙΟΥ</span><span>→</span></button>
         <button id="jailEntry180" disabled>ΚΕΦΑΛΑΙΟ 2 · ΑΠΟΔΡΑΣΗ →</button>
         <button id="classicVoyage" class="text-button" style="margin-top:10px">ΜΟΝΟ ΠΛΕΥΣΗ · ΧΩΡΙΣ ΤΟ ΚΕΦΑΛΑΙΟ ΧΑΟΥΣ</button><div id="loadProgress"><span></span></div><p id="loadStatus" class="loading-copy" role="status">Φόρτωση θάλασσας, πλοίου και επιβατών…</p>
         <div class="intro-help"><span><b>A D / ← →</b> Τιμόνι</span><span><b>W S / ↑ ↓</b> Μηχανές</span><span><b>C</b> Κάμερα</span><span><b>9</b> Ουίσκι · <b>F</b> Σήκω</span></div>
+        </div>
+        <div id="mayhemModePanel" class="mode-panel" role="tabpanel" aria-labelledby="modeMayhem" hidden>
+          <p class="tagline">Δικό σου το πλοίο. Δικοί σου οι μπελάδες.</p>
+          <p class="intro-description">Περπάτα μεθυσμένος, πλάκωσέ τους και κάνε ζημιές. Σπάσε περάσματα, πέτα έπιπλα και ξέφυγε από την ασφάλεια.<br><b>Χωρίς θελήματα. Χωρίς υποχρεωτικό κελί.</b></p>
+          <div class="mode-features"><span>ΕΛΕΥΘΕΡΗ ΚΑΤΑΣΤΡΟΦΗ</span><span>6 ΚΑΤΑΣΤΡΩΜΑΤΑ</span></div>
+          <a id="launchMayhem" class="primary-button mode-launch" href="../captain-mayhem/?v=100"><span>ΠΑΙΞΕ MAYHEM</span><span aria-hidden="true">→</span></a>
+          <p class="mode-save-note">Ξεχωριστή πρόοδος. Η αποθήκευση της Ιστορίας μένει ανέπαφη.</p>
+        </div>
       </div>
-      <div class="intro-bottom"><span>ΚΑΤΕΒΑ · ΠΡΟΚΑΛΕΣΕ · ΑΝΤΙΣΤΑΘΟΥ</span><span>3D · ΑΚΟΥΣΤΙΚΑ ΠΡΟΤΕΙΝΟΝΤΑΙ</span></div>
+      <div class="intro-bottom"><span>ΙΣΤΟΡΙΑ / MAYHEM · ΕΠΙΛΕΞΕ MODE</span><span>3D · ΑΚΟΥΣΤΙΚΑ ΠΡΟΤΕΙΝΟΝΤΑΙ</span></div>
       <div class="ship-caption"><span>MS AURORA</span><b>140 m</b><small>24 ψυχές στο κατάστρωμα</small></div>
     </section>
     <section id="hud" class="hidden" aria-label="Όργανα πλοήγησης">
