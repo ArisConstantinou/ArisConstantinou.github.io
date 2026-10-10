@@ -8,7 +8,7 @@ def rep(s,a,b,count=1):
 def patch_game(src,dst,prefix):
  s=src.read_text()
  s=f"import {{installMoveStick}} from '{prefix}move-stick185.js?v=185';\n"+s
- s=rep(s,'let touchControl=null,drinkProp=null;','let touchControl=null,moveStick=null,drinkProp=null;')
+ s=rep(s,'let touchControl=null,drinkProp=null','let touchControl=null,moveStick=null,drinkProp=null')
  a=s.index(" const pad=$('chaosMove');function padMove(e)")
  b=s.index(' function down(e){',a)
  s=s[:a]+" const pad=$('chaosMove');\n moveStick=installMoveStick({element:pad,enabled:()=>available()&&s.foot&&movementHints.scheme==='touch',onChange:(x,y)=>{stick={x,y:-y};}});\n"+s[b:]
@@ -33,7 +33,6 @@ s=rep(s,'inspect:()=>active?{...snapshot(s),','inspect:()=>active?{...snapshot(s
 s=(C/'main184.js').read_text().replace('./chaos184.js?v=184','./chaos185.js?v=185').replace("version:'1.8.4'","version:'1.8.5'").replace('v1.8.4 · SHIP FIX','v1.8.5 · JOYSTICK FIX')
 (C/'main185.js').write_text(s)
 s=(M/'main.js').read_text().replace("from './game.js'","from './game101.js?v=185'").replace('MAYHEM 1.0.0','MAYHEM 1.0.1')
-# A short visible build identifier is shared by the hub and direct launch.
 s=re.sub(r"\$\('releaseBadge'\)\.textContent='[^']+';","$('releaseBadge').textContent='MAYHEM 1.0.1 · JOYSTICK FIX';",s)
 (M/'main101.js').write_text(s)
 for folder,old,new,ver in [(C,'./main184.js?v=184','./main185.js?v=185','1.8.5'),(M,'./main.js?v=100','./main101.js?v=185','MAYHEM 1.0.1')]:
