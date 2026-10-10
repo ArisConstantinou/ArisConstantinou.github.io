@@ -1,0 +1,101 @@
+name: Captain joystick public verification
+on:
+  push:
+    branches: [captain-joystick-release-185]
+    paths: ['.github/workflows/captain185-public.yml']
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: d871e70dc99f0f8b6dc59e6d2ae4a79e04f5e495
+      - name: Confirm exact verified files are public
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,time,urllib.request,json
+          base='https://arisconstantinou.github.io/'
+          files=['captain/index.html','captain/main185.js','captain/chaos185.js','captain/escape185.js','captain/move-stick185.js','captain/sw.js','captain-mayhem/index.html','captain-mayhem/main101.js','captain-mayhem/game101.js']
+          for attempt in range(15):
+            try:
+              bad=[f for f in files if hashlib.sha256(urllib.request.urlopen(base+f+'?verify=185-release',timeout=20).read()).digest()!=hashlib.sha256(Path(f).read_bytes()).digest()]
+              if not bad:break
+              print('Waiting for Pages',bad,flush=True)
+            except Exception as e:print(str(e),flush=True)
+            time.sleep(5)
+          else:raise SystemExit('Public files do not match tested patch')
+          print('All public bytes match the tested release')
+          PY
+      - name: Prepare touch browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Verify public release behavior
+        run: |
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+          from pathlib import Path
+          import json,math,traceback
+          out=Path('/tmp/captain185-public');out.mkdir(exist_ok=True)
+          report={'url':'https://arisconstantinou.github.io/','method':'Real emulated touch events in Chromium on the public Story and Mayhem games; isolated player-position fixture and deterministic advancement. Service workers enabled. Not physical iPhone.','checks':[]}
+          def check(n,ok,d=None):
+            report['checks'].append({'name':n,'pass':bool(ok),'detail':d});print(('PASS ' if ok else 'FAIL ')+n,flush=True)
+            if not ok:raise AssertionError(n)
+          with sync_playwright() as pw:
+            b=pw.chromium.launch(headless=True,args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-webgl'])
+            p=None
+            try:
+              for mode,version in [('captain','1.8.5'),('captain-mayhem','MAYHEM 1.0.1')]:
+                ctx=b.new_context(viewport={'width':390,'height':844},has_touch=True,is_mobile=True)
+                p=ctx.new_page();errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
+                p.goto(report['url']+mode+'/?test=1&v=185',wait_until='domcontentloaded')
+                p.wait_for_function('window.__lastCall?.getState()?.ready',timeout=90000)
+                get=lambda:p.evaluate('window.__lastCall.getState().chapter')
+                def advance(t):p.evaluate('(t)=>window.__lastCall.test.chapter.advance(t)',t)
+                check(mode+' public version',p.evaluate('window.__lastCall.getState().version')==version)
+                p.evaluate('window.__CHAOS_FREEZE__=true');p.locator('#start').tap()
+                if mode=='captain':p.evaluate('window.__lastCall.test.chapter.drink();window.__lastCall.test.chapter.foot()')
+                p.evaluate('window.__lastCall.test.chapter.setPosition3(10.7,10.1,0,0);window.__lastCall.test.setState({intox:70})');advance(1.4)
+                pos=get()['position'];advance(.5)
+                check(mode+' drunk idle stationary',get()['position']==pos)
+                a=p.locator('#chaosMove').bounding_box();r=p.locator('#combatRightStick').bounding_box()
+                left={'x':a['x']+a['width']/2,'y':a['y']+a['height']/2-30,'id':7};right={'x':r['x']+r['width']/2,'y':r['y']+r['height']/2,'id':19}
+                cd=ctx.new_cdp_session(p)
+                def send(kind,pts):
+                  cd.send('Input.dispatchTouchEvent',{'type':kind,'touchPoints':pts})
+                  p.evaluate('()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(()=>done())))')
+                send('touchStart',[left]);before=get()['position'];advance(.25)
+                after=get()['position'];check(mode+' touch moves captain',math.hypot(after['x']-before['x'],after['z']-before['z'])>.1)
+                send('touchStart',[left,right]);send('touchEnd',[left])
+                s=get();check(mode+' lifting left with right held stops input',not s['movement']['active'] and s['stick']['x']==0 and s['stick']['y']==0,s['movement'])
+                pos=s['position'];advance(.75);check(mode+' no endless movement after release',get()['position']==pos)
+                yaw=get()['yaw'];right={**right,'x':right['x']+20};send('touchMove',[right]);check(mode+' camera thumb still works',abs(get()['yaw']-yaw)>.001)
+                send('touchEnd',[])
+                send('touchStart',[left]);send('touchMove',[{**left,'x':left['x']+80,'y':left['y']-30}]);send('touchEnd',[])
+                check(mode+' release beyond joystick bounds stops',not get()['movement']['active'] and get()['stick']['y']==0)
+                send('touchStart',[left]);send('touchCancel',[]);check(mode+' touch cancellation stops',not get()['movement']['active'])
+                check(mode+' no desktop key labels',p.locator('#chaos170 kbd:visible').count()==0)
+                check(mode+' no runtime exceptions',not errors,errors)
+                p.screenshot(path=str(out/(mode+'.png')));ctx.close()
+              report['passed']=True
+            except Exception as e:
+              report['passed']=False;report['error']=str(e);traceback.print_exc()
+              if p:
+                try:p.screenshot(path=str(out/'failure.png'));report['state']=p.evaluate('window.__lastCall?.getState()')
+                except:pass
+            finally:
+              (out/'public-results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2));b.close()
+          if not report.get('passed'):raise SystemExit(1)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain185-public-verified
+          path: |
+            /tmp/captain185-public/
+            captain/tests/verified185.json
+          retention-days: 7
