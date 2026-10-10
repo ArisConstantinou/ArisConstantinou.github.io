@@ -18,6 +18,7 @@ jobs:
       - name: Integrate existing chapter and run logic regressions
         run: |
           python captain/tools/apply180.py
+          python captain/tools/finalize180.py
           node --check captain/main180.js
           node --check captain/chaos180.js
           node --check captain/escape180.js
