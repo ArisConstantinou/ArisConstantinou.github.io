@@ -1,12 +1,13 @@
 {
-  "version": "1.8.1",
+  "version": "1.8.2",
   "changes": [
-    "Character-space crouch IK; bounded body with no sideways pelvis displacement",
-    "Desktop mouse look, M1 slap/M2 punch, Q E F R C X Z G nearby bindings",
-    "Gentler guard recognition, automatic low-passage crouch, navigation dots and more checkpoints"
+    "Portrait right joystick with nine radial touch actions and drag-to-select",
+    "Visible 3D whisky bottle while drinking on deck",
+    "One sip instantly reaches 70% intoxication during jail escape"
   ],
   "preserved": [
-    "Mobile touch-only controls",
-    "Existing chapter one, jail continuation, saves and helm"
+    "Desktop WASD and mouse",
+    "Left movement joystick",
+    "Existing story and save checkpoints"
   ]
 }

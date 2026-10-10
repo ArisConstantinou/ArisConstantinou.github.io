@@ -385,7 +385,7 @@ async function init(){
     helm=createHelm({hud:$('hud'),setThrottle,getState:()=>({throttle:input.throttle,speed:state.speed,rudder:state.rudder}),canControl:()=>playing&&!paused,recenter:()=>{targetLookYaw=targetLookPitch=lookYaw=lookPitch=0;updateCamera(1,true);}});
     dialogue=createDialogue({hud:$('hud'),audio,camera,ship,getPeople:()=>people,getView:()=>cameraMode});
     chapter=createChaosChapter({ship,camera,hud:$('hud'),canvas:$('sea'),getPeople:()=>people,getState:()=>state,canPlay:()=>playing&&!paused,audio,onToast:toast,onResetHelm:()=>{helm.reset();keys.clear();drag=null;input.turn=0;cameraMode=1;},onRestart:startGame,onDrinkLine:()=>dialogue.drink(state),mildMotion:()=>mildMotion});
-    installSoundPanel({audio,enable:()=>{soundEnabled=true;saveStore('lc-sound',true);audio.setEnabled(true);updateSettings();}});audio.preload();$('releaseBadge').textContent='v1.8.1 · CONTROL';
+    installSoundPanel({audio,enable:()=>{soundEnabled=true;saveStore('lc-sound',true);audio.setEnabled(true);updateSettings();}});audio.preload();$('releaseBadge').textContent='v1.8.2 · TOUCH RING';
     $('loadProgress').firstElementChild.style.width='60%';$('loadStatus').textContent='Φόρτωση ανθρώπινων μοντέλων και κινήσεων…';
     updateCamera(1,true);requestAnimationFrame(frame);
     people=await createPassengers(ship.group,ship.deckZones,scene,{mobile,onEvent:passengerEvent});
@@ -394,7 +394,7 @@ async function init(){
     $('jailEntry180').onclick=()=>{chapter.setEnabled(true);startGame();chapter.resumeStory();};
     ready=true;$('start').disabled=false;$('startText').textContent='ΑΝΑΛΑΒΕ ΤΟ ΤΙΜΟΝΙ';$('loadProgress').firstElementChild.style.width='100%';
     $('loadStatus').textContent=mobile?'Έτοιμο. Παίζεται με αφή — δοκίμασε και οριζόντια οθόνη.':'Έτοιμο. Ταξίδι περίπου 6–8 λεπτών. Εσύ επιλέγεις πότε θα πιεις.';
-    window.__lastCall={getState:()=>({version:'1.8.1',ready,playing,paused,camera:cameraLabels[cameraMode],frames:renderedFrames,time:state.time,hull:state.hull,intox:state.intox,panic:state.panic,speed:state.speed,rudder:state.rudder,throttle:input.throttle,turn:input.turn,heading:state.heading,x:state.x,z:state.z,collisions:state.collisions,danger:state.danger,distance:state.distance,people:people.getStats(),wheelAngle:ship.wheel.rotation.z,look:{yaw:lookYaw,pitch:lookPitch},controls:helm.inspect(),dialogue:dialogue.inspect(),voices:audio.voiceStatus(),chapter:chapter?.inspect(),identity:identity?.inspect(),drawCalls:sceneDrawCalls,triangles:sceneTriangles})};
+    window.__lastCall={getState:()=>({version:'1.8.2',ready,playing,paused,camera:cameraLabels[cameraMode],frames:renderedFrames,time:state.time,hull:state.hull,intox:state.intox,panic:state.panic,speed:state.speed,rudder:state.rudder,throttle:input.throttle,turn:input.turn,heading:state.heading,x:state.x,z:state.z,collisions:state.collisions,danger:state.danger,distance:state.distance,people:people.getStats(),wheelAngle:ship.wheel.rotation.z,look:{yaw:lookYaw,pitch:lookPitch},controls:helm.inspect(),dialogue:dialogue.inspect(),voices:audio.voiceStatus(),chapter:chapter?.inspect(),identity:identity?.inspect(),drawCalls:sceneDrawCalls,triangles:sceneTriangles})};
     if(window.__CAPTAIN_TEST__||new URLSearchParams(location.search).has('test'))window.__lastCall.test={
       restart:startGame,chapter:chapter.test,
       setState:values=>{for(const k of ['x','z','heading','time','speed','intox','panic','hull'])if(Number.isFinite(values[k]))state[k]=values[k];},
