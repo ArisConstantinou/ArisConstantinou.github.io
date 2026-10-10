@@ -1,13 +1,13 @@
 {
-  "version": "1.7.3",
+  "version": "1.8.0",
   "changes": [
-    "Touch-specific controls and contextual action buttons",
-    "Permanent health, intoxication and custody meters",
-    "Guards navigate the deck and stairway; real proximity-based restraint and physical jail scene"
+    "Continue from jail instead of restart-only",
+    "Playable sober top-down escape, crawl hatch, guard perception, noise and local checkpoints",
+    "Whisky recovery and return to the existing guarded bridge"
   ],
   "preserved": [
-    "Captain models and FPS animations",
-    "Desktop WASD and numeric combat keys",
-    "Existing audio"
+    "Captain identity and FPS combat",
+    "Touch-only mobile controls and desktop WASD",
+    "Ship damage and chapter score during continuation"
   ]
 }

@@ -1,0 +1,1622 @@
+{
+  "version": "1.8.0",
+  "url": "http://127.0.0.1:8765/captain/",
+  "environment": "Chromium; desktop and emulated touch, not physical iPhone",
+  "method": "Real buttons and input; deterministic advancement and isolated position fixtures for individual stage regressions. Not an unassisted full-route playthrough.",
+  "checks": [
+    {
+      "name": "Correct release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Direct jail migration entry",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Continue button replaces restart-only dead end",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Wake starts playable escape",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Captain starts sober",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Score retained on continuation",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop WASD not joystick",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Pick up mug using keyboard",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": -3.3999999999999955,
+          "z": 22.440000000000026
+        },
+        "yaw": 3.082840468623909,
+        "hatch": false,
+        "card": false,
+        "storeOpen": false,
+        "bottle": false,
+        "intox": 0,
+        "caught": 0,
+        "throws": 0,
+        "heard": 0,
+        "checkpoint": "cell",
+        "stage": "escape",
+        "alert": 0,
+        "crouch": false,
+        "held": "mug",
+        "nearest": null,
+        "guards": [
+          {
+            "x": 0,
+            "z": 21.654666666666582,
+            "yaw": 3.141592653589793,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 0.8901485463267274,
+            "z": 11.224468716891227,
+            "yaw": 3.089889648366342,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 4.17644331485861,
+            "z": 10.78636250954942,
+            "yaw": 1.5080163004116145,
+            "mode": "patrol",
+            "suspect": 0
+          }
+        ],
+        "items": [
+          {
+            "id": "mug",
+            "x": -3.3735767242846064,
+            "z": 21.990776435947037,
+            "available": false,
+            "flying": false
+          },
+          {
+            "id": "tin",
+            "x": -3,
+            "z": 15.7,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "bottle-empty",
+            "x": 3.2,
+            "z": 18.1,
+            "available": true,
+            "flying": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Hatch opens by contextual input",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": -4.5,
+          "z": 21.340000000000067
+        },
+        "yaw": 3.148181059441136,
+        "hatch": true,
+        "card": false,
+        "storeOpen": false,
+        "bottle": false,
+        "intox": 0,
+        "caught": 0,
+        "throws": 0,
+        "heard": 0,
+        "checkpoint": "cell",
+        "stage": "escape",
+        "alert": 0,
+        "crouch": false,
+        "held": "mug",
+        "nearest": null,
+        "guards": [
+          {
+            "x": 0,
+            "z": 20.422666666666483,
+            "yaw": 3.141592653589793,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 0.8997820405924111,
+            "z": 9.926547293775112,
+            "yaw": 3.140249264027102,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 5.0452460061309115,
+            "z": 11.137828587675584,
+            "yaw": 1.0050880178842734,
+            "mode": "patrol",
+            "suspect": 0
+          }
+        ],
+        "items": [
+          {
+            "id": "mug",
+            "x": -4.502964761184385,
+            "z": 20.890009766560365,
+            "available": false,
+            "flying": false
+          },
+          {
+            "id": "tin",
+            "x": -3,
+            "z": 15.7,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "bottle-empty",
+            "x": 3.2,
+            "z": 18.1,
+            "available": true,
+            "flying": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Standing remains outside low hatch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Crouch passes underneath",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": -4.5,
+          "z": 18.655333333333417
+        },
+        "yaw": 3.141592653590793,
+        "hatch": true,
+        "card": false,
+        "storeOpen": false,
+        "bottle": false,
+        "intox": 0,
+        "caught": 0,
+        "throws": 0,
+        "heard": 0,
+        "checkpoint": "cell",
+        "stage": "escape",
+        "alert": 0,
+        "crouch": true,
+        "held": "mug",
+        "nearest": null,
+        "guards": [
+          {
+            "x": 0,
+            "z": 17.09999999999955,
+            "yaw": 3.141592653589793,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 0.8999999977890601,
+            "z": 5.953880663480238,
+            "yaw": 3.1415926376485768,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 5.521254741294888,
+            "z": 11.495654125310118,
+            "yaw": 2.5170455115310593,
+            "mode": "patrol",
+            "suspect": 0
+          }
+        ],
+        "items": [
+          {
+            "id": "mug",
+            "x": -4.50000000000045,
+            "z": 18.205333333333417,
+            "available": false,
+            "flying": false
+          },
+          {
+            "id": "tin",
+            "x": -3,
+            "z": 15.7,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "bottle-empty",
+            "x": 3.2,
+            "z": 18.1,
+            "available": true,
+            "flying": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Thrown prop lands and makes distraction noise",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": -3,
+          "z": 17
+        },
+        "yaw": 3.141592653590793,
+        "hatch": true,
+        "card": false,
+        "storeOpen": false,
+        "bottle": false,
+        "intox": 0,
+        "caught": 0,
+        "throws": 1,
+        "heard": 1,
+        "checkpoint": "cell",
+        "stage": "escape",
+        "alert": 0,
+        "crouch": true,
+        "held": null,
+        "nearest": "tin",
+        "guards": [
+          {
+            "x": 0.112,
+            "z": 17.099999999999657,
+            "yaw": 3.113915230835963,
+            "mode": "investigate",
+            "suspect": 0
+          },
+          {
+            "x": 0.8999999997307153,
+            "z": 5.206547330146902,
+            "yaw": 3.1415926518805004,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 4.740605141915434,
+            "z": 10.429939542056806,
+            "yaw": 4.248019638982786,
+            "mode": "patrol",
+            "suspect": 0
+          }
+        ],
+        "items": [
+          {
+            "id": "mug",
+            "x": 0,
+            "z": 17.1,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "tin",
+            "x": -3,
+            "z": 15.7,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "bottle-empty",
+            "x": 3.2,
+            "z": 18.1,
+            "available": true,
+            "flying": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Staff investigate the noise",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Guard can detect captain and present retry",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": 0.1396738892215971,
+          "z": 16.100382995414726
+        },
+        "yaw": 3.141592653590793,
+        "hatch": true,
+        "card": false,
+        "storeOpen": false,
+        "bottle": false,
+        "intox": 0,
+        "caught": 0,
+        "throws": 1,
+        "heard": 1,
+        "checkpoint": "cell",
+        "stage": "caught",
+        "alert": 100,
+        "crouch": true,
+        "held": null,
+        "nearest": "mug",
+        "guards": [
+          {
+            "x": 0.04003515390426052,
+            "z": 16.793209191495844,
+            "yaw": 2.9987571157293402,
+            "mode": "search",
+            "suspect": 100
+          },
+          {
+            "x": -0.4463289152050429,
+            "z": 5.679899646203343,
+            "yaw": 6.15777013563418,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 3.590794985685052,
+            "z": 9.643040762792275,
+            "yaw": 6.2207089119603225,
+            "mode": "patrol",
+            "suspect": 0
+          }
+        ],
+        "items": [
+          {
+            "id": "mug",
+            "x": 0,
+            "z": 17.1,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "tin",
+            "x": -3,
+            "z": 15.7,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "bottle-empty",
+            "x": 3.2,
+            "z": 18.1,
+            "available": true,
+            "flying": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Detection retry stays in chapter two",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Keycard can be picked up",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": 5,
+          "z": 10
+        },
+        "yaw": 3.141592653589793,
+        "hatch": true,
+        "card": true,
+        "storeOpen": false,
+        "bottle": false,
+        "intox": 0,
+        "caught": 1,
+        "throws": 1,
+        "heard": 1,
+        "checkpoint": "card",
+        "stage": "escape",
+        "alert": 0,
+        "crouch": false,
+        "held": null,
+        "nearest": null,
+        "guards": [
+          {
+            "x": 0,
+            "z": 22.58799999999999,
+            "yaw": 3.141592653589793,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 0.737314876389987,
+            "z": 12.188055370830035,
+            "yaw": 2.9908335355722566,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 3.3815409288451086,
+            "z": 10.654360619230074,
+            "yaw": 1.0574519517617504,
+            "mode": "patrol",
+            "suspect": 0
+          }
+        ],
+        "items": [
+          {
+            "id": "mug",
+            "x": -3.3,
+            "z": 22.4,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "tin",
+            "x": -3,
+            "z": 15.7,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "bottle-empty",
+            "x": 3.2,
+            "z": 18.1,
+            "available": true,
+            "flying": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Reload resumes keycard checkpoint and score",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": 5,
+          "z": 10
+        },
+        "yaw": 3.141592653589793,
+        "hatch": true,
+        "card": true,
+        "storeOpen": false,
+        "bottle": false,
+        "intox": 0,
+        "caught": 1,
+        "throws": 1,
+        "heard": 1,
+        "checkpoint": "card",
+        "stage": "escape",
+        "alert": 0,
+        "crouch": false,
+        "held": null,
+        "nearest": null,
+        "guards": [
+          {
+            "x": 0,
+            "z": 22.662666666666663,
+            "yaw": 3.141592653589793,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 0.7124382921299957,
+            "z": 12.262685123610012,
+            "yaw": 3.080460048254431,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 3.327180309615036,
+            "z": 10.618120206410024,
+            "yaw": 1.0965846522435507,
+            "mode": "patrol",
+            "suspect": 0
+          }
+        ],
+        "items": [
+          {
+            "id": "mug",
+            "x": -3.3,
+            "z": 22.4,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "tin",
+            "x": -3,
+            "z": 15.7,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "bottle-empty",
+            "x": 3.2,
+            "z": 18.1,
+            "available": true,
+            "flying": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Keycard unlocks storage door",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Full whisky bottle collected",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Whisky not applied instantly",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Whisky absorbed over time",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Escape exit restores FPS chapter instead of restarting",
+      "pass": true,
+      "detail": {
+        "escape": null,
+        "returning": true,
+        "retaken": false,
+        "controlScheme": "keyboard",
+        "phase": "security",
+        "foot": true,
+        "time": 0.3833333333333333,
+        "drinkCooldown": 0,
+        "position": {
+          "x": 7.4,
+          "y": 10.1,
+          "z": 51.294107230445576
+        },
+        "yaw": -1.5707963267948966,
+        "pitch": 0,
+        "block": false,
+        "stick": {
+          "x": 0,
+          "y": 0
+        },
+        "sips": 1,
+        "pendingAlcohol": 13.313333333333315,
+        "chaos": 145,
+        "health": 100,
+        "stamina": 100,
+        "heat": 0,
+        "hits": 0,
+        "broken": 0,
+        "thrown": 0,
+        "guardCount": 4,
+        "capture": 0,
+        "nearGuards": 0,
+        "securityAt": null,
+        "alarmAt": null,
+        "cellVisible": false,
+        "cellCaptainVisible": false,
+        "navigation": {
+          "nodes": 1720
+        },
+        "attack": null,
+        "held": null,
+        "captain": {
+          "role": "captain",
+          "gender": "male",
+          "name": "ΚΑΠΕΤΑΝΙΟΣ",
+          "source": "civilian172",
+          "fps": true,
+          "restPose": "relaxed-idle",
+          "limbTriangles": 8115
+        },
+        "actors": [
+          {
+            "profile": {
+              "id": "guestM0",
+              "name": "ΑΝΤΩΝΗΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.8,
+              "shirt": 5608868,
+              "pants": 13680289,
+              "shoes": 4797735,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 6043942,
+              "long": false,
+              "width": 1.02,
+              "skin": 1.25
+            },
+            "id": 0,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": -3.4,
+            "z": 53.9
+          },
+          {
+            "profile": {
+              "id": "guestF0",
+              "name": "ΕΛΕΝΗ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.7,
+              "shirt": 10895945,
+              "pants": 2506072,
+              "shoes": 15787735,
+              "hair": "Hair_Long",
+              "hairColor": 5518368,
+              "long": false,
+              "width": 1.02,
+              "skin": 1.2
+            },
+            "id": 1,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": 0.8,
+            "z": 54.8
+          },
+          {
+            "profile": {
+              "id": "guestM1",
+              "name": "ΜΑΡΙΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.76,
+              "shirt": 14794102,
+              "pants": 2638420,
+              "shoes": 14998217,
+              "hair": "Hair_Buzzed",
+              "hairColor": 3154458,
+              "beard": true,
+              "long": false,
+              "width": 1.1,
+              "skin": 0.85
+            },
+            "id": 2,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": 4.291564962106642,
+            "z": 55.23735662543538
+          },
+          {
+            "profile": {
+              "id": "guestF1",
+              "name": "ΜΑΡΙΑ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.66,
+              "shirt": 15591116,
+              "pants": 5993845,
+              "shoes": 7161397,
+              "hair": "Hair_Buns",
+              "hairColor": 2563352,
+              "long": true,
+              "width": 1.08,
+              "skin": 0.83
+            },
+            "id": 3,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": -4.8,
+            "z": 57.5
+          },
+          {
+            "profile": {
+              "id": "guestM2",
+              "name": "ΠΕΤΡΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.74,
+              "shirt": 15656920,
+              "pants": 6576976,
+              "shoes": 5911841,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 9605259,
+              "long": true,
+              "width": 1.13,
+              "skin": 1.18
+            },
+            "id": 4,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": 0.8,
+            "z": 58.4
+          },
+          {
+            "profile": {
+              "id": "guestF2",
+              "name": "ΣΟΦΙΑ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.72,
+              "shirt": 3235428,
+              "pants": 13416597,
+              "shoes": 5847337,
+              "hair": "Hair_Long",
+              "hairColor": 10847043,
+              "long": true,
+              "width": 0.99,
+              "skin": 1.28
+            },
+            "id": 5,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": 3,
+            "z": 60.6
+          },
+          {
+            "profile": {
+              "id": "guestM3",
+              "name": "ΝΙΚΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.86,
+              "shirt": 3694211,
+              "pants": 9278860,
+              "shoes": 1517113,
+              "hair": "Hair_Buzzed",
+              "hairColor": 3876378,
+              "long": false,
+              "width": 0.94,
+              "skin": 0.9
+            },
+            "id": 6,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": -1,
+            "z": 61.8
+          },
+          {
+            "profile": {
+              "id": "bartender",
+              "name": "ΜΠΑΡΜΑΝ · ΠΛΗΡΩΜΑ",
+              "role": "staff",
+              "gender": "male",
+              "height": 1.78,
+              "shirt": 15790046,
+              "pants": 1844786,
+              "shoes": 1514272,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 3942429,
+              "long": true,
+              "width": 0.99,
+              "skin": 1.13
+            },
+            "id": 7,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": -5.2,
+            "z": 54
+          },
+          {
+            "profile": {
+              "id": "securityM",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "male",
+              "height": 1.82,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buzzed",
+              "hairColor": 2630434,
+              "long": false,
+              "width": 1.01,
+              "skin": 1.05
+            },
+            "id": 8,
+            "health": 65,
+            "guard": true,
+            "state": "fight",
+            "y": 18.43,
+            "x": 3.664091118664369,
+            "z": 40.33590888133563
+          },
+          {
+            "profile": {
+              "id": "securityM",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "male",
+              "height": 1.82,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buzzed",
+              "hairColor": 2630434,
+              "long": false,
+              "width": 1.01,
+              "skin": 1.05
+            },
+            "id": 9,
+            "health": 65,
+            "guard": true,
+            "state": "fight",
+            "y": 18.43,
+            "x": -2.0608333333333295,
+            "z": 40
+          },
+          {
+            "profile": {
+              "id": "securityF",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "female",
+              "height": 1.75,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buns",
+              "hairColor": 2366743,
+              "long": false,
+              "width": 1.03,
+              "skin": 1.12
+            },
+            "id": 10,
+            "health": 65,
+            "guard": true,
+            "state": "fight",
+            "y": 18.43,
+            "x": 6.9391666666666705,
+            "z": 36
+          },
+          {
+            "profile": {
+              "id": "securityM",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "male",
+              "height": 1.82,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buzzed",
+              "hairColor": 2630434,
+              "long": false,
+              "width": 1.01,
+              "skin": 1.05
+            },
+            "id": 11,
+            "health": 65,
+            "guard": true,
+            "state": "fight",
+            "y": 18.43,
+            "x": 10.783746309475074,
+            "z": 33.4491998986154
+          }
+        ],
+        "limbTriangles": 8115
+      }
+    },
+    {
+      "name": "Guarded bridge has ship security",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Score remains after escaping",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Clear helm can be retaken",
+      "pass": true,
+      "detail": {
+        "escape": null,
+        "returning": false,
+        "retaken": true,
+        "controlScheme": "keyboard",
+        "phase": "retaken",
+        "foot": false,
+        "time": 0.41666666666666663,
+        "drinkCooldown": 0,
+        "position": {
+          "x": 1.1990281749441838,
+          "y": 18.43,
+          "z": 44.4
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "block": false,
+        "stick": {
+          "x": 0,
+          "y": 0
+        },
+        "sips": 1,
+        "pendingAlcohol": 13.166666666666647,
+        "chaos": 145,
+        "health": 100,
+        "stamina": 100,
+        "heat": 0,
+        "hits": 0,
+        "broken": 0,
+        "thrown": 0,
+        "guardCount": 4,
+        "capture": 0,
+        "nearGuards": 0,
+        "securityAt": null,
+        "alarmAt": null,
+        "cellVisible": false,
+        "cellCaptainVisible": false,
+        "navigation": {
+          "nodes": 1720
+        },
+        "attack": null,
+        "held": null,
+        "captain": {
+          "role": "captain",
+          "gender": "male",
+          "name": "ΚΑΠΕΤΑΝΙΟΣ",
+          "source": "civilian172",
+          "fps": true,
+          "restPose": "relaxed-idle",
+          "limbTriangles": 8115
+        },
+        "actors": [
+          {
+            "profile": {
+              "id": "guestM0",
+              "name": "ΑΝΤΩΝΗΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.8,
+              "shirt": 5608868,
+              "pants": 13680289,
+              "shoes": 4797735,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 6043942,
+              "long": false,
+              "width": 1.02,
+              "skin": 1.25
+            },
+            "id": 0,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": -3.4,
+            "z": 53.9
+          },
+          {
+            "profile": {
+              "id": "guestF0",
+              "name": "ΕΛΕΝΗ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.7,
+              "shirt": 10895945,
+              "pants": 2506072,
+              "shoes": 15787735,
+              "hair": "Hair_Long",
+              "hairColor": 5518368,
+              "long": false,
+              "width": 1.02,
+              "skin": 1.2
+            },
+            "id": 1,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": 0.8,
+            "z": 54.8
+          },
+          {
+            "profile": {
+              "id": "guestM1",
+              "name": "ΜΑΡΙΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.76,
+              "shirt": 14794102,
+              "pants": 2638420,
+              "shoes": 14998217,
+              "hair": "Hair_Buzzed",
+              "hairColor": 3154458,
+              "beard": true,
+              "long": false,
+              "width": 1.1,
+              "skin": 0.85
+            },
+            "id": 2,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.1,
+            "x": 4.291564962106642,
+            "z": 55.23735662543538
+          },
+          {
+            "profile": {
+              "id": "guestF1",
+              "name": "ΜΑΡΙΑ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.66,
+              "shirt": 15591116,
+              "pants": 5993845,
+              "shoes": 7161397,
+              "hair": "Hair_Buns",
+              "hairColor": 2563352,
+              "long": true,
+              "width": 1.08,
+              "skin": 0.83
+            },
+            "id": 3,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": -4.8,
+            "z": 57.5
+          },
+          {
+            "profile": {
+              "id": "guestM2",
+              "name": "ΠΕΤΡΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.74,
+              "shirt": 15656920,
+              "pants": 6576976,
+              "shoes": 5911841,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 9605259,
+              "long": true,
+              "width": 1.13,
+              "skin": 1.18
+            },
+            "id": 4,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": 0.8,
+            "z": 58.4
+          },
+          {
+            "profile": {
+              "id": "guestF2",
+              "name": "ΣΟΦΙΑ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "female",
+              "height": 1.72,
+              "shirt": 3235428,
+              "pants": 13416597,
+              "shoes": 5847337,
+              "hair": "Hair_Long",
+              "hairColor": 10847043,
+              "long": true,
+              "width": 0.99,
+              "skin": 1.28
+            },
+            "id": 5,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": 3,
+            "z": 60.6
+          },
+          {
+            "profile": {
+              "id": "guestM3",
+              "name": "ΝΙΚΟΣ · ΕΠΙΒΑΤΗΣ",
+              "role": "passenger",
+              "gender": "male",
+              "height": 1.86,
+              "shirt": 3694211,
+              "pants": 9278860,
+              "shoes": 1517113,
+              "hair": "Hair_Buzzed",
+              "hairColor": 3876378,
+              "long": false,
+              "width": 0.94,
+              "skin": 0.9
+            },
+            "id": 6,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": -1,
+            "z": 61.8
+          },
+          {
+            "profile": {
+              "id": "bartender",
+              "name": "ΜΠΑΡΜΑΝ · ΠΛΗΡΩΜΑ",
+              "role": "staff",
+              "gender": "male",
+              "height": 1.78,
+              "shirt": 15790046,
+              "pants": 1844786,
+              "shoes": 1514272,
+              "hair": "Hair_SimpleParted",
+              "hairColor": 3942429,
+              "long": true,
+              "width": 0.99,
+              "skin": 1.13
+            },
+            "id": 7,
+            "health": 55,
+            "guard": false,
+            "state": "idle",
+            "y": 10.12,
+            "x": -5.2,
+            "z": 54
+          },
+          {
+            "profile": {
+              "id": "securityM",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "male",
+              "height": 1.82,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buzzed",
+              "hairColor": 2630434,
+              "long": false,
+              "width": 1.01,
+              "skin": 1.05
+            },
+            "id": 8,
+            "health": 65,
+            "guard": true,
+            "state": "fight",
+            "y": 18.43,
+            "x": 3.621741369118793,
+            "z": 40.40573683522613
+          },
+          {
+            "profile": {
+              "id": "securityM",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "male",
+              "height": 1.82,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buzzed",
+              "hairColor": 2630434,
+              "long": false,
+              "width": 1.01,
+              "skin": 1.05
+            },
+            "id": 9,
+            "health": 65,
+            "guard": true,
+            "state": "fight",
+            "y": 18.43,
+            "x": -2.012214929124302,
+            "z": 40.06561779642566
+          },
+          {
+            "profile": {
+              "id": "securityF",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "female",
+              "height": 1.75,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buns",
+              "hairColor": 2366743,
+              "long": false,
+              "width": 1.03,
+              "skin": 1.12
+            },
+            "id": 10,
+            "health": 65,
+            "guard": true,
+            "state": "fight",
+            "y": 18.43,
+            "x": 6.893091694110675,
+            "z": 36.06742804569109
+          },
+          {
+            "profile": {
+              "id": "securityM",
+              "name": "ΑΣΦΑΛΕΙΑ ΠΛΟΙΟΥ",
+              "role": "security",
+              "gender": "male",
+              "height": 1.82,
+              "shirt": 1651019,
+              "pants": 1581099,
+              "shoes": 1316635,
+              "hair": "Hair_Buzzed",
+              "hairColor": 2630434,
+              "long": false,
+              "width": 1.01,
+              "skin": 1.05
+            },
+            "id": 11,
+            "health": 65,
+            "guard": true,
+            "state": "fight",
+            "y": 18.43,
+            "x": 10.703357827283966,
+            "z": 33.463592131779656
+          }
+        ],
+        "limbTriangles": 8115
+      }
+    },
+    {
+      "name": "Original ship throttle restored",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No JavaScript errors in chapter transitions",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "430x832: joystick only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "430x832: no desktop key hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "430x832: bounds #escapePad",
+      "pass": true,
+      "detail": {
+        "x": 18,
+        "y": 674,
+        "width": 100,
+        "height": 100
+      }
+    },
+    {
+      "name": "430x832: bounds #escapeUse",
+      "pass": true,
+      "detail": {
+        "x": 258,
+        "y": 660.609375,
+        "width": 160,
+        "height": 60
+      }
+    },
+    {
+      "name": "430x832: finger-sized #escapeUse",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "430x832: bounds #escapeCrouch",
+      "pass": true,
+      "detail": {
+        "x": 258,
+        "y": 728.609375,
+        "width": 160,
+        "height": 68.390625
+      }
+    },
+    {
+      "name": "430x832: finger-sized #escapeCrouch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "430x832: bounds .escape-vitals",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 148,
+        "width": 406,
+        "height": 48
+      }
+    },
+    {
+      "name": "430x832: bounds .escape-goal",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 64,
+        "width": 406,
+        "height": 63.09375
+      }
+    },
+    {
+      "name": "430x832: controls do not overlap",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Mobile joystick actually moves captain",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Mobile crouch toggles",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "430x832: no runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "390x744: joystick only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "390x744: no desktop key hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "390x744: bounds #escapePad",
+      "pass": true,
+      "detail": {
+        "x": 18,
+        "y": 586,
+        "width": 100,
+        "height": 100
+      }
+    },
+    {
+      "name": "390x744: bounds #escapeUse",
+      "pass": true,
+      "detail": {
+        "x": 218,
+        "y": 572.609375,
+        "width": 160,
+        "height": 60
+      }
+    },
+    {
+      "name": "390x744: finger-sized #escapeUse",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "390x744: bounds #escapeCrouch",
+      "pass": true,
+      "detail": {
+        "x": 218,
+        "y": 640.609375,
+        "width": 160,
+        "height": 68.390625
+      }
+    },
+    {
+      "name": "390x744: finger-sized #escapeCrouch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "390x744: bounds .escape-vitals",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 148,
+        "width": 366,
+        "height": 48
+      }
+    },
+    {
+      "name": "390x744: bounds .escape-goal",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 64,
+        "width": 366,
+        "height": 63.09375
+      }
+    },
+    {
+      "name": "390x744: controls do not overlap",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "390x744: no runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "320x568: joystick only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568: no desktop key hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568: bounds #escapePad",
+      "pass": true,
+      "detail": {
+        "x": 18,
+        "y": 410,
+        "width": 100,
+        "height": 100
+      }
+    },
+    {
+      "name": "320x568: bounds #escapeUse",
+      "pass": true,
+      "detail": {
+        "x": 160,
+        "y": 396.609375,
+        "width": 148,
+        "height": 60
+      }
+    },
+    {
+      "name": "320x568: finger-sized #escapeUse",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568: bounds #escapeCrouch",
+      "pass": true,
+      "detail": {
+        "x": 160,
+        "y": 464.609375,
+        "width": 148,
+        "height": 68.390625
+      }
+    },
+    {
+      "name": "320x568: finger-sized #escapeCrouch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568: bounds .escape-vitals",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 148,
+        "width": 296,
+        "height": 48
+      }
+    },
+    {
+      "name": "320x568: bounds .escape-goal",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 64,
+        "width": 296,
+        "height": 60.890625
+      }
+    },
+    {
+      "name": "320x568: controls do not overlap",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568: no runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "932x430: joystick only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430: no desktop key hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430: bounds #escapePad",
+      "pass": true,
+      "detail": {
+        "x": 18,
+        "y": 290,
+        "width": 100,
+        "height": 100
+      }
+    },
+    {
+      "name": "932x430: bounds #escapeUse",
+      "pass": true,
+      "detail": {
+        "x": 690,
+        "y": 272.609375,
+        "width": 230,
+        "height": 60
+      }
+    },
+    {
+      "name": "932x430: finger-sized #escapeUse",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430: bounds #escapeCrouch",
+      "pass": true,
+      "detail": {
+        "x": 854,
+        "y": 340.609375,
+        "width": 66,
+        "height": 68.390625
+      }
+    },
+    {
+      "name": "932x430: finger-sized #escapeCrouch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430: bounds .escape-vitals",
+      "pass": true,
+      "detail": {
+        "x": 484.625,
+        "y": 54,
+        "width": 435.375,
+        "height": 48
+      }
+    },
+    {
+      "name": "932x430: bounds .escape-goal",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 54,
+        "width": 428.71875,
+        "height": 63.09375
+      }
+    },
+    {
+      "name": "932x430: controls do not overlap",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430: no runtime errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "passed": true
+}

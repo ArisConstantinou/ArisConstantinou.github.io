@@ -57,6 +57,7 @@ with sync_playwright() as pw:
   ck('Keycard unlocks storage door',esc(p)['storeOpen'])
   fixture(p,-4.4,8.1);p.keyboard.press('KeyF');advance(p,.02)
   ck('Full whisky bottle collected',esc(p)['bottle'])
+  fixture(p,-4.5,12.0) # sheltered absorption fixture, guards remain active
   p.keyboard.press('Digit9');ck('Whisky not applied instantly',esc(p)['intox']<1);advance(p,4.1)
   ck('Whisky absorbed over time',esc(p)['intox']>=30)
   p.screenshot(path=str(OUT/'whisky-store.png'))
@@ -67,7 +68,7 @@ with sync_playwright() as pw:
   p.screenshot(path=str(OUT/'return-deck.png'))
   p.evaluate('window.__lastCall.test.chapter.setPosition(1.2,44.4,0)');advance(p,.02);p.keyboard.press('KeyF');advance(p,.02)
   ck('Clear helm can be retaken',state(p)['chapter']['retaken'],state(p)['chapter'])
-  before=state(p)['throttle'];p.keyboard.down('KeyW');p.evaluate('window.__CHAOS_FREEZE__=false');p.wait_for_timeout(300);p.keyboard.up('KeyW');p.evaluate('window.__CHAOS_FREEZE__=true')
+  before=state(p)['throttle'];p.keyboard.down('KeyW');p.evaluate('window.__CHAOS_FREEZE__=false');p.wait_for_function('(before)=>window.__lastCall.getState().throttle>before+.02',arg=before,timeout=15000);p.keyboard.up('KeyW');p.evaluate('window.__CHAOS_FREEZE__=true')
   ck('Original ship throttle restored',state(p)['throttle']>before)
   ck('No JavaScript errors in chapter transitions',not errors,errors);ctx.close()
   for w,h in [(430,832),(390,744),(320,568),(932,430)]:
