@@ -81,10 +81,23 @@ try:
     p.locator('#chaosUse').tap();advance(p,.12);ck('Touch throws held object',state(p)['chapter']['held'] is None)
     pos(p,3,40,0);pad=p.locator('#chaosMove').bounding_box();block=p.locator('#chaosBlock').bounding_box();cd=ctx.new_cdp_session(p)
     x=pad['x']+pad['width']/2;y=pad['y']+pad['height']/2;bx=block['x']+block['width']/2;by=block['y']+block['height']/2
-    before=state(p)['chapter']['position'];cd.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':x,'y':y-25,'id':0},{'x':bx,'y':by,'id':1}]});advance(p,.2)
-    ck('Two fingers: walk while blocking',state(p)['chapter']['position']['z']>before['z']+.04 and 'held' in (p.locator('#chaosBlock').get_attribute('class') or ''),{'before':before,'after':state(p)['chapter']['position'],'blockClass':p.locator('#chaosBlock').get_attribute('class'),'disabled':p.locator('#chaosBlock').is_disabled(),'paused':state(p)['paused'],'modelBlock':p.evaluate('window.__lastCall.test.chapter.model.block')})
+    before=state(p)['chapter']['position']
+    # Start on the child knob and child shield, then drag: regression for bubbling lostpointercapture.
+    shield=p.locator('#chaosBlock span').bounding_box();bx=shield['x']+shield['width']/2;by=shield['y']+shield['height']/2
+    cd.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':x,'y':y,'id':0},{'x':bx,'y':by,'id':1}]});p.wait_for_timeout(120)
+    cd.send('Input.dispatchTouchEvent',{'type':'touchMove','touchPoints':[{'x':x,'y':y-25,'id':0},{'x':bx,'y':by,'id':1}]});advance(p,.2)
+    ck('Two fingers: walk while blocking',state(p)['chapter']['position']['z']>before['z']+.04 and 'held' in (p.locator('#chaosBlock').get_attribute('class') or ''),{'before':before,'after':state(p)['chapter']['position'],'blockClass':p.locator('#chaosBlock').get_attribute('class'),'disabled':p.locator('#chaosBlock').is_disabled(),'paused':state(p)['paused'],'modelBlock':state(p)['chapter']['block']})
     cd.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]});advance(p,.1)
     ck('Release clears block', 'held' not in (p.locator('#chaosBlock').get_attribute('class') or ''))
+    p.evaluate("window.__touchAudit=[];for(const k of ['pointerdown','pointerup','pointercancel','gotpointercapture','lostpointercapture'])document.addEventListener(k,e=>{window.__touchAudit.push({event:e.type,id:e.pointerId,target:e.target.id||e.target.tagName,parent:e.target.parentElement?.id});if(window.__touchAudit.length>40)window.__touchAudit.shift();},true)")
+    for cycle in range(4):
+     cd.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':x,'y':y,'id':0},{'x':bx,'y':by,'id':1}]});p.wait_for_timeout(70)
+     cd.send('Input.dispatchTouchEvent',{'type':'touchMove','touchPoints':[{'x':x,'y':y-25,'id':0},{'x':bx,'y':by,'id':1}]})
+     advance(p,.1);ck('Nested touch capture cycle '+str(cycle),state(p)['chapter']['block'])
+     cd.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[{'x':x,'y':y-25,'id':0}]});advance(p,.1)
+     ck('Releasing movement preserves block '+str(cycle),state(p)['chapter']['block'] and abs(state(p)['chapter']['stick']['y'])<.01,{'events':p.evaluate('window.__touchAudit'),'block':state(p)['chapter']['block'],'stick':state(p)['chapter']['stick']})
+     cd.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]});advance(p,.1)
+     ck('Releasing the block finger ends block '+str(cycle),not state(p)['chapter']['block'])
     incident(p,True);custody(p,[0,56,0],'deck')
     p.locator('#chaosReplay').tap();p.wait_for_timeout(150)
     ck('Replay resets health, custody and jail',state(p)['chapter']['health']==100 and state(p)['chapter']['capture']==0 and not state(p)['chapter']['cellVisible'])

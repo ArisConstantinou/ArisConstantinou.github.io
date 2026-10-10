@@ -1,5 +1,5 @@
 import {installIdentityPanel} from './identity172.js?v=172';
-import { createChaosChapter } from './chaos173.js?v=173';
+import { createChaosChapter } from './chaos173.js?v=173b';
 import { installSoundPanel } from './sound-panel150.js?v=150';
 import * as THREE from 'three';
 import { createWorld } from './world.js?v=140';
