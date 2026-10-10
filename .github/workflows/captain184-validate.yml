@@ -31,6 +31,7 @@ jobs:
           git show 551d8a3f5832a7d4feadd31937690f3d5acb32cb:captain/index.html > captain/index.html
           git show 551d8a3f5832a7d4feadd31937690f3d5acb32cb:captain/sw.js > captain/sw.js
           python captain/tools/apply184.py
+          python .github/captain184/finish.py
           node --check captain/chaos184.js
           node --check captain/ship184.js
           node --check captain/roam-world184.js
