@@ -1,0 +1,373 @@
+{
+  "version": "1.8.3",
+  "url": "http://127.0.0.1:8765/captain/",
+  "method": "Chromium desktop and emulated physical touch events. Isolated setup positions and deterministic simulation steps are used; not a physical iPhone playtest.",
+  "checks": [
+    {
+      "name": "New release loads",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Helm hides combat life and jail cards",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Helm hides redundant logo/profile and radar",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Helm keeps compact drink and hull status",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Exit is compact but finger sized",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Helm has no combat ring",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Deck has a right look ring",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Three captain vitals remain on deck",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Off-center initial touch does not spin camera",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Moving finger turns the camera gently",
+      "pass": true,
+      "detail": {
+        "yaw": -0.0512,
+        "pitch": 0
+      }
+    },
+    {
+      "name": "Holding stationary stops camera immediately",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Joystick base never relocates",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Knob visual travel is bounded",
+      "pass": true,
+      "detail": [
+        15.0,
+        0.0
+      ]
+    },
+    {
+      "name": "Center swipe does not accidentally punch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Separate ring tap performs punch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Attack tap does not jerk camera",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Cancelled gesture never kicks",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Outer ring drag selects the release action",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Block held while touching its sector",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Block releases without a second toggle",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Releasing camera keeps left movement active",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Camera remains stopped with the other finger held",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All touch input releases cleanly",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Drinking has an actually scene-attached 3D bottle",
+      "pass": true,
+      "detail": {
+        "visible": true,
+        "sceneAttached": true,
+        "attachmentError": 0.03671511950137167,
+        "position": [
+          5.339511740522073,
+          10.434065032177834,
+          55.386827341973245
+        ],
+        "label": "LAST CALL WHISKY"
+      }
+    },
+    {
+      "name": "Bottle follows the animated palm closely",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Bottle center projects inside camera frustum",
+      "pass": true,
+      "detail": [
+        0.5432889539744625,
+        -0.26616512718924973,
+        0.5036598538526728
+      ]
+    },
+    {
+      "name": "Bottle is stowed after the sip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch sensitivity is adjustable in pause",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Sensitivity affects the active controller",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No mobile runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "320x568 sticks do not overlap",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568 in bounds #mobileCombatWheel",
+      "pass": true,
+      "detail": {
+        "x": 113,
+        "y": 348,
+        "width": 202,
+        "height": 202
+      }
+    },
+    {
+      "name": "320x568 in bounds #chaosMove",
+      "pass": true,
+      "detail": {
+        "x": 10,
+        "y": 466,
+        "width": 76,
+        "height": 76
+      }
+    },
+    {
+      "name": "320x568 in bounds #captainVitals",
+      "pass": true,
+      "detail": {
+        "x": 10,
+        "y": 55,
+        "width": 300,
+        "height": 40
+      }
+    },
+    {
+      "name": "320x568 all nine actions are touch sized",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568 no desktop keys",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568 no runtime error",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "430x832 sticks do not overlap",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "430x832 in bounds #mobileCombatWheel",
+      "pass": true,
+      "detail": {
+        "x": 200,
+        "y": 592,
+        "width": 222,
+        "height": 222
+      }
+    },
+    {
+      "name": "430x832 in bounds #chaosMove",
+      "pass": true,
+      "detail": {
+        "x": 14,
+        "y": 722,
+        "width": 84,
+        "height": 84
+      }
+    },
+    {
+      "name": "430x832 in bounds #captainVitals",
+      "pass": true,
+      "detail": {
+        "x": 10,
+        "y": 55,
+        "width": 410,
+        "height": 40
+      }
+    },
+    {
+      "name": "430x832 all nine actions are touch sized",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "430x832 no desktop keys",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "430x832 no runtime error",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "932x430 sticks do not overlap",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430 in bounds #mobileCombatWheel",
+      "pass": true,
+      "detail": {
+        "x": 722,
+        "y": 220,
+        "width": 202,
+        "height": 202
+      }
+    },
+    {
+      "name": "932x430 in bounds #chaosMove",
+      "pass": true,
+      "detail": {
+        "x": 14,
+        "y": 320,
+        "width": 84,
+        "height": 84
+      }
+    },
+    {
+      "name": "932x430 in bounds #captainVitals",
+      "pass": true,
+      "detail": {
+        "x": 145,
+        "y": 10,
+        "width": 330,
+        "height": 40
+      }
+    },
+    {
+      "name": "932x430 all nine actions are touch sized",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430 no desktop keys",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430 no runtime error",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Desktop retains WASD and hides touch ring",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "First mouse capture does not attack",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop left click retains slap",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop right click retains punch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No desktop runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "One escape sip immediately reaches required level",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Escape also shows the physical bottle",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "One sip is sufficient to leave escape",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No escape runtime errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "passed": true
+}
