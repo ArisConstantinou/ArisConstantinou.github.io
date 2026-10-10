@@ -2,7 +2,7 @@ name: Captain 183 touch repair validation
 on:
   push:
     branches: [captain-touch-183]
-    paths: ['captain/touch183.js','captain/touch183.css','captain/whisky183.js','captain/tools/apply183.py','captain/tools/qa183.py','.github/workflows/captain183-validate.yml']
+    paths: ['captain/touch183.js','captain/touch183.css','captain/whisky183.js','captain/tools/apply183.py','captain/tools/polish183.py','captain/tools/qa183.py','.github/workflows/captain183-validate.yml']
 permissions:
   contents: write
 concurrency:
@@ -17,6 +17,7 @@ jobs:
       - name: Integrate the isolated Captain patch
         run: |
           python captain/tools/apply183.py
+          python captain/tools/polish183.py
           node --check captain/main183.js
           node --check captain/chaos183.js
           node --check captain/touch183.js
