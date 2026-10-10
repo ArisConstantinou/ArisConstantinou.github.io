@@ -1,0 +1,49 @@
+name: Captain 183 public verification
+on:
+  push:
+    branches: [captain-touch-183]
+    paths: ['.github/workflows/captain183-public.yml']
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 71d68522023e120a6e726315bac5af1d2d2316be
+      - name: Verify public files match the tested game
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import urllib.request,time,hashlib
+          base='https://arisconstantinou.github.io/captain/'
+          files=['index.html','main183.js','chaos183.js','actors183.js','escape183.js','escape-world183.js','touch183.js','touch183.css','whisky183.js','ui183.js','sw.js']
+          for attempt in range(16):
+            try:
+              bad=[]
+              for name in files:
+                remote=urllib.request.urlopen(base+name+'?v=183',timeout=20).read()
+                if hashlib.sha256(remote).digest()!=hashlib.sha256(Path('captain',name).read_bytes()).digest():bad.append(name)
+              if not bad:break
+              print('Waiting for current Pages files',bad,flush=True)
+            except Exception as e:print(str(e),flush=True)
+            time.sleep(6)
+          else:raise SystemExit('Public files differ from tested files')
+          print('Exact tested public game files verified')
+          PY
+      - name: Prepare Chromium
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Play the public mobile and desktop build
+        env:
+          CAPTAIN_BASE: https://arisconstantinou.github.io/captain/
+        run: python captain/tools/qa183.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain183-public-verified
+          path: /tmp/captain183-qa/
+          retention-days: 7
