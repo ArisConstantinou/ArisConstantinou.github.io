@@ -1,0 +1,45 @@
+name: Captain 1.8.0 public jail continuation verification
+on:
+  push:
+    branches: [captain-escape-180]
+    paths: ['.github/workflows/captain-escape180-live.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm the exact tested game is live
+        run: |
+          python - <<'PY'
+          import urllib.request,json,time,hashlib
+          from pathlib import Path
+          base='https://arisconstantinou.github.io/captain/'
+          for attempt in range(36):
+            try:
+              if json.load(urllib.request.urlopen(base+'release.json?verify=180'))['version']=='1.8.0':break
+            except Exception:pass
+            time.sleep(5)
+          else:raise SystemExit('Chapter two has not reached the public site')
+          for name in ['index.html','main180.js','chaos180.js','ui180.js','escape180.js','escape-world180.js','escape-model180.js','escape180.css','sw.js']:
+            body=urllib.request.urlopen(base+name+'?verify=180').read()
+            assert body==Path('captain',name).read_bytes(), 'Public file mismatch: '+name
+            print('MATCH',name,hashlib.sha256(body).hexdigest())
+          PY
+      - name: Install Chromium
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Verify public continuation and controls
+        env:
+          CAPTAIN_BASE: https://arisconstantinou.github.io/captain/
+        run: python captain/tools/qa180.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain180-public-continuation
+          path: /tmp/captain180-qa/
+          retention-days: 7
