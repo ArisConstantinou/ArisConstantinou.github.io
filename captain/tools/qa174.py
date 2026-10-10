@@ -6,7 +6,12 @@ BASE=os.environ.get('CAPTAIN_BASE','http://127.0.0.1:8765/captain/')
 report={'version':'1.7.4','url':BASE,'environment':'Chromium, mouse/keyboard and emulated touch; not a physical iPhone','checks':[],'notes':['Isolated scenario setup uses test positions; real key/button handlers and simulation are exercised.']}
 def ck(name,ok,detail=None):
  report['checks'].append({'name':name,'pass':bool(ok),'detail':detail});print(('PASS ' if ok else 'FAIL ')+name,flush=True)
- if not ok:raise AssertionError((name,detail))
+ if not ok:
+  try:
+   report['failureState']=state(p);p.screenshot(path=str(OUT/'failure.png'))
+   (OUT/'results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+  except Exception:pass
+  raise AssertionError((name,detail))
 def state(p):return p.evaluate('window.__lastCall.getState()')
 def es(p):return state(p)['chapter']['escape']
 def advance(p,seconds):p.evaluate('(n)=>window.__lastCall.test.chapter.advance(n)',seconds)
@@ -17,13 +22,20 @@ try:
   browser=pw.chromium.launch(headless=True,args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-webgl'])
   for mobile,w,h in [(False,1280,800),(True,430,832)]:
    ctx=browser.new_context(viewport={'width':w,'height':h},is_mobile=mobile,has_touch=mobile)
-   p=ctx.new_page();errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
+   p=ctx.new_page();errors=[];p.on('pageerror',lambda e:(errors.append(str(e)),print('BROWSER ERROR',str(e),flush=True)));report['browserErrors']=errors
    p.goto(BASE+'?test=1&v=174',wait_until='domcontentloaded');p.wait_for_function('window.__lastCall?.getState()?.ready',timeout=90000)
    ck('New release loads',state(p)['version']=='1.7.4')
-   p.locator('#continueFromCell').click();p.wait_for_function("window.__lastCall.getState().chapter.phase==='cell'",timeout=15000)
+   (p.locator('#continueFromCell').tap() if mobile else p.locator('#continueFromCell').click());p.wait_for_function("window.__lastCall.getState().chapter.phase==='cell'",timeout=15000)
    ck('Jail offers continue, not only restart',p.locator('#continueStory').is_visible())
    p.screenshot(path=str(OUT/('mobile-cell.png' if mobile else 'desktop-cell.png')))
-   p.locator('#continueStory').click();p.wait_for_function("window.__lastCall.getState().chapter.escape.mode==='play'",timeout=20000)
+   (p.locator('#continueStory').tap() if mobile else p.locator('#continueStory').click())
+   report['afterContinue']=state(p);print('AFTER CONTINUE',json.dumps(es(p)),flush=True)
+   (OUT/'results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+   p.screenshot(path=str(OUT/'sleep-diagnostic.png'))
+   ck('Continue actually starts sleep',es(p)['active'],es(p))
+   advance(p,2.3);report['afterWake']=state(p)
+   (OUT/'results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+   p.screenshot(path=str(OUT/'wake-diagnostic.png'));ck('Wake has no runtime exception',not errors,errors)
    ck('Sleep wakes into playable escape',es(p)['active'] and state(p)['intox']==0)
    ck('Life/drunk/detection meters visible',all(p.locator('#vital'+k+'Value').is_visible() for k in ['Life','Drunk','Custody']))
    ck('Old jail card hidden during play',not p.locator('#arrestCard').is_visible())
@@ -53,7 +65,7 @@ try:
     pos(p,0,43);p.keyboard.press('c');hold(p,'w',1);ck('Standing body cannot enter vent',es(p)['position']['z']>42.65,es(p)['position'])
     p.keyboard.press('c');hold(p,'w',1);ck('Crawling passes low clearance',es(p)['position']['z']<42.6)
     # Distinct object pickup and noise-driven investigation, with no direct AI flag mutation.
-    pos(p,-5.4,36.9);p.keyboard.press('f');ck('Object picked up',es(p)['holding'] is not None,es(p))
+    pos(p,1.2,33.4);p.keyboard.press('f');ck('Object picked up',es(p)['holding'] is not None,es(p))
     p.evaluate('window.__lastCall.test.chapter.escape.setAim({x:-3,z:36})');p.keyboard.press('8');advance(p,.8)
     ck('Thrown object lands and emits noise',es(p)['noiseCount']>0)
     ck('Nearby patrol hears and investigates',es(p)['heardCount']>0 and any(n['state']=='investigate' for n in es(p)['guards']),es(p))
@@ -61,13 +73,14 @@ try:
     # Force only the setup position, then let real sight and proximity cause detection.
     g=es(p)['guards'][1];pos(p,g['x']+.35*math.sin(g['yaw']),g['z']+.35*math.cos(g['yaw']));advance(p,5)
     ck('Guard sight and approach catch player naturally',es(p)['mode']=='caught',es(p))
-    p.locator('#escapeRetry').click();ck('Retry preserves chapter progress',es(p)['mode']=='play' and es(p)['checkpoint']=='laundry')
+    p.locator('#escapeRetry').click();advance(p,.85);ck('Retry preserves chapter progress',es(p)['mode']=='play' and es(p)['checkpoint']=='laundry')
     pos(p,8,50);p.keyboard.press('f');ck('Exit remains locked without card',es(p)['mode']=='play' and not es(p)['card'])
     pos(p,2,27);p.keyboard.press('f');ck('Card acquired through interaction',es(p)['card'])
     pos(p,5,47);p.keyboard.press('f');ck('Full whisky bottle acquired',es(p)['bottle'])
     p.keyboard.press('9');advance(p,2);ck('Whisky absorption restores intoxication progressively',es(p)['sipped'] and 0<state(p)['intox']<30,state(p)['intox'])
     pos(p,8,50);p.keyboard.press('f');advance(p,2.3)
     ck('Exit continues to first-person return chapter',state(p)['chapter']['phase']=='assault' and not es(p)['active'])
+    ck('Return to deck does not restore jail overlay',not p.locator('#arrestCard').is_visible())
     ck('Bridge has four security guards',state(p)['chapter']['guardCount']==4,state(p)['chapter']['actors'])
     p.evaluate('window.__CHAOS_FREEZE__=false');p.wait_for_timeout(150);p.screenshot(path=str(OUT/'return-to-bridge.png'));p.evaluate('window.__CHAOS_FREEZE__=true')
     # Strike actual guards with numeric attacks, never set guard health or call contact.
@@ -80,7 +93,7 @@ try:
      ck('Numeric attack incapacitates guard '+str(guard['id']),next(a for a in state(p)['chapter']['actors'] if a['id']==guard['id'])['health']<=0)
     p.evaluate('window.__lastCall.test.chapter.setPosition(1.2,44.3,0)');p.keyboard.press('f');advance(p,.15)
     ck('Captain reclaims actual helm',state(p)['chapter']['phase']=='reclaimed')
-    ck('Helm UI restored',p.locator('#helm140').is_visible())
+    ck('Helm UI restored',p.locator('#helm140').is_visible() and not p.locator('#arrestCard').is_visible())
     p.evaluate('window.__CHAOS_FREEZE__=false');p.keyboard.down('w');p.wait_for_timeout(600);p.keyboard.up('w');ck('W controls ship throttle again',state(p)['throttle']>0)
     p.screenshot(path=str(OUT/'reclaimed-helm.png'))
    ck(('Mobile' if mobile else 'Desktop')+' no uncaught errors',not errors,errors)

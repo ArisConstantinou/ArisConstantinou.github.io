@@ -1,13 +1,11 @@
 {
-  "version": "1.7.3",
+  "version": "1.7.4",
+  "chapter": "Jail continuation, top-down escape and bridge return",
   "changes": [
-    "Touch-specific controls and contextual action buttons",
-    "Permanent health, intoxication and custody meters",
-    "Guards navigate the deck and stairway; real proximity-based restraint and physical jail scene"
-  ],
-  "preserved": [
-    "Captain models and FPS animations",
-    "Desktop WASD and numeric combat keys",
-    "Existing audio"
+    "Sleep/continue in cell; direct saved chapter entry",
+    "Crawl-only passages, guards with sight and hearing",
+    "Pickup/aim/throw distractions, keycard and whisky bottle",
+    "Guarded bridge assault and actual helm reclaim",
+    "Local checkpoint saves; existing mobile/desktop UI retained"
   ]
 }

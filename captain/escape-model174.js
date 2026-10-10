@@ -10,7 +10,7 @@ rect(10,20,14,26,'store');rect(15,23,15,24,'crawl');
 rect(16,3,18,26,'passage');rect(13,3,18,8,'locker');rect(17,2,17,2,'exit');
 export const position=(c,r)=>({x:c-9,z:52-r});
 export const cellAt=(x,z)=>tiles.get(key(Math.round(x+9),Math.round(52-z)))||null;
-export const START=position(9,7), CHECKPOINT=position(4,15), CARD=position(11,25), BOTTLE=position(14,5), EXIT=position(17,2);
+export const START=position(9,7), CHECKPOINT=position(2,19), CARD=position(11,25), BOTTLE=position(14,5), EXIT=position(17,2);
 export const FURNITURE=[{x:-6,z:36,w:1.5,d:1.1},{x:-4,z:34,w:1.2,d:1.3},{x:2,z:30,w:1.2,d:1.1},{x:4,z:26.3,w:1.3,d:1.0}];
 export function blocked(x,z,crawling=false,radius=.23,furniture=FURNITURE){
  for(const [dx,dz] of [[0,0],[radius,0],[-radius,0],[0,radius],[0,-radius]]){const t=cellAt(x+dx,z+dz);if(!t||t.zone==='crawl'&&!crawling)return true;}
