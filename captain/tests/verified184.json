@@ -18,7 +18,6 @@
         "areas": 15,
         "zone": "ΠΛΩΡΗ · ΜΠΑΡ",
         "visited": [
-          "ΓΕΦΥΡΑ",
           "ΠΛΩΡΗ · ΜΠΑΡ"
         ],
         "mapOpen": false
@@ -110,7 +109,7 @@
       "detail": {
         "ok": true,
         "at": {
-          "x": 0.1476616196667835,
+          "x": 0.15088139986868815,
           "y": 6.65,
           "z": -7.793939468225626
         },
@@ -131,6 +130,51 @@
       "name": "Selecting route resumes without teleport",
       "pass": true,
       "detail": null
+    },
+    {
+      "name": "Visual fixture on actual cabins",
+      "pass": true,
+      "detail": {
+        "x": -1.237228356956403e-09,
+        "y": 13.12,
+        "z": 4.000336825285314
+      }
+    },
+    {
+      "name": "Visual fixture on actual restaurant",
+      "pass": true,
+      "detail": {
+        "x": -0.0003255852687524457,
+        "y": 15.83,
+        "z": 14.99999999913603
+      }
+    },
+    {
+      "name": "Visual fixture on actual pool",
+      "pass": true,
+      "detail": {
+        "x": 5.999999999419914,
+        "y": 13.12,
+        "z": -48.99984207637145
+      }
+    },
+    {
+      "name": "Visual fixture on actual stern",
+      "pass": true,
+      "detail": {
+        "x": 0.0002969425512546989,
+        "y": 10.1,
+        "z": -63
+      }
+    },
+    {
+      "name": "Visual fixture on actual sky-lounge",
+      "pass": true,
+      "detail": {
+        "x": -0.00027972306596225655,
+        "y": 21.35,
+        "z": 12.99999999925773
+      }
     },
     {
       "name": "No runtime errors in all ship areas",
@@ -164,6 +208,30 @@
       }
     },
     {
+      "name": "An actual in-game action raises security alarm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Slower security can still arrest and take captain to jail",
+      "pass": true,
+      "detail": {
+        "phase": "cell",
+        "health": 80,
+        "capture": 100
+      }
+    },
+    {
+      "name": "Existing sober escape chapter still starts",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No errors after jail continuation",
+      "pass": true,
+      "detail": []
+    },
+    {
       "name": "390x700 mobile uses both touch controllers",
       "pass": true,
       "detail": null
@@ -178,7 +246,7 @@
       "pass": true,
       "detail": {
         "x": 10,
-        "y": 159,
+        "y": 170,
         "width": 114.703125,
         "height": 44
       }
@@ -208,7 +276,7 @@
       "pass": true,
       "detail": {
         "x": 10,
-        "y": 159,
+        "y": 170,
         "width": 114.703125,
         "height": 44
       }

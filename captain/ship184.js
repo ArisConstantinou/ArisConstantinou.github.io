@@ -150,7 +150,7 @@ export function createShip() {
     geometry.rotateX(-Math.PI / 2);
     add(geometry, material, 0, y, 0);
   }
-  deckShape(-67.4, 74.2, z => widthAt(z) * .98, 9.5, .28, M.teak);
+  deckShape(-67.4, 74.2, z => widthAt(z) * .98, 9.82, .24, M.teak);
   deckShape(48, 67, z => widthAt(z) * .94, 9.9, .17, M.teak);
   // Tall accommodation decks and their open, recessed balconies.
   deckShape(-45, 46, 9.25, 9.96, .10, M.teak);

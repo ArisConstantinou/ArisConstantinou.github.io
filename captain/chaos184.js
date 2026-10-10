@@ -94,7 +94,7 @@ export function createChaosChapter({ship,camera,hud,canvas,getPeople,getState,ca
   const crew=getPeople().getCharacterTemplate('captain');avatar=createActor(crew,ship.group,{fps:true});drinkProp=createWhiskyProp(avatar);avatar.group.visible=false;
   const spawns=[[-3.4,53.9],[.8,54.8],[4.4,55.1],[-4.8,57.5],[.8,58.4],[3,60.6],[-1,61.8],[-5.2,54]];
   spawns.forEach(([x,z],i)=>{const template=getPeople().getDeckTemplates()[i];const actor=createActor(template,world.root,{id:i});actor.group.position.set(x,10.12,z);party.push({id:i,actor,x,z,y:10.1,radius:.29,home:new T.Vector3(x,10.1,z),goal:new T.Vector3(x,10.1,z),health:55,guard:false,brave:i%3!==1,state:'idle',wait:1.5+i*.3,speed:0,attack:null,cooldown:1+i*.15,stagger:0,down:0,flinch:0,bubble:null,bubbleUntil:0,hits:0});});
-  const extra=[[-10.7,10.1,23],[10.7,10.1,-12],[0,10.1,-62],[4.9,10.1,6],[-4.8,10.1,-6],[-6,13.12,-48],[6,13.12,-59],[0,13.12,2],[0,15.83,11],[0,15.83,-5],[0,18.57,-31],[0,21.35,11],[0,6.65,8],[0,6.65,-9]];
+  const extra=[[-10.7,10.1,23],[10.7,10.1,-12],[0,10.1,-62],[4.9,10.1,6],[-4.8,10.1,-6],[-6,13.12,-48],[6,13.12,-49],[0,13.12,2],[0,15.83,11],[0,15.83,-5],[0,18.57,-31],[0,21.35,11],[0,6.65,8],[0,6.65,-9]];
   extra.forEach(([x,y,z],i)=>{const id=party.length,template=getPeople().getDeckTemplates()[i%8],actor=createActor(template,world.root,{id});actor.group.position.set(x,y,z);party.push({id,actor,x,y,z,radius:.29,home:new T.Vector3(x,y,z),goal:new T.Vector3(x,y,z),health:55,guard:false,brave:i%3===0,state:'idle',wait:3+i*.4,speed:0,attack:null,cooldown:2+i*.2,stagger:0,down:0,flinch:0,bubble:null,bubbleUntil:0,hits:0});});
   civilianCount=party.length;ready=true;
  }
@@ -243,7 +243,7 @@ export function createChaosChapter({ship,camera,hud,canvas,getPeople,getState,ca
    updateSecurity(dt);
    const threat=party.some(n=>n.health>0&&(n.guard||n.state==='fight')&&Math.abs(n.actor.group.position.y-p.y)<1&&Math.hypot(n.actor.group.position.x-p.x,n.actor.group.position.z-p.z)<5.5);
    if(s.time-lastDamageAt>BALANCE.healDelay&&!threat&&s.health>0)s.health=clamp(s.health+dt*BALANCE.healRate,0,100);
-   shipMap.update(s.time);visitedAreas.add(zoneAt(p));
+   roam.update(p);shipMap.update(s.time);visitedAreas.add(zoneAt(p));
 
    if(held){held.group.position.copy(p).addScaledVector(fwd,.73).addScaledVector(right,.25);held.group.position.y+=1.1;held.group.rotation.set(.2,yaw,0);}
   }

@@ -54,7 +54,7 @@ export function createRoamWorld(ship,world){
   wallWithDoor(xwall,13.12,z0,z1,cz,1.8);
   solid(side*5.55,13.12,z0,6.4,.12,2.30);if(i===3)solid(side*5.55,13.12,z1,6.4,.12,2.3);
   const bx=side*6.5;solid(bx,13.12,cz,1.5,2.15,.50,M.wood);box(1.44,.18,2.1,M.ivory,bx,13.72,cz);box(1.42,.04,1.32,carpet,bx,13.82,cz+.32);box(1.1,.12,.5,wallMat,bx,13.83,cz-.74);
-  solid(side*3.45,13.12,z0+.85,.85,.85,1.7,M.wood);sign('ΚΑΜΠΙΝΑ '+(201+i+(side>0?4:0)),xwall-side*.11,14.87,cz,side>0?-Math.PI/2:Math.PI/2,1.25);
+  solid(side*3.45,13.12,z0+.85,.85,.85,1.7,M.wood);sign('ΚΑΜΠΙΝΑ '+(201+i+(side>0?4:0)),xwall-side*.11,15.37,cz,side>0?-Math.PI/2:Math.PI/2,1.25);
  }
  // Restaurant and theatre use distinct furniture, with central escape aisles.
  for(const side of [-1,1])for(const z of [3,9,15])table(side*5.2,15.83,z);
@@ -81,5 +81,7 @@ export function createRoamWorld(ship,world){
  // Merge static architecture by material to keep mobile draw calls bounded.
  const batches=new Map();for(const o of [...root.children])if(o.isMesh&&o.material.isMeshStandardMaterial&&!o.material.transparent){if(!batches.has(o.material))batches.set(o.material,[]);batches.get(o.material).push(o);}
  for(const [m,items] of batches){if(items.length<2)continue;const parts=items.map(o=>{o.updateMatrix();return o.geometry.clone().applyMatrix4(o.matrix);}),g=mergeGeometries(parts,false);if(g){const merged=new T.Mesh(g,m);merged.receiveShadow=true;merged.name='Roam architecture';root.add(merged);for(const o of items){root.remove(o);o.geometry.dispose();}}parts.forEach(g=>g.dispose());}
- return {root,solids,props,inspect:()=>({decks:DECKS.length,stairs:STAIRS.length,cabins:8,areas:DESTINATIONS.length})};
+ const roomFill=new T.PointLight(0xffe6c8,7,18,1);roomFill.visible=false;root.add(roomFill);
+ function update(p){const inside=p.y<8||(Math.abs(p.x)<(p.y>20?6.2:8.6)&&p.z<(p.y>20?18:39)&&p.z>(p.y>20?-18:-42));roomFill.visible=inside;if(inside)roomFill.position.set(p.x,p.y+2.12,p.z+.25);}
+ return {root,solids,props,update,inspect:()=>({decks:DECKS.length,stairs:STAIRS.length,cabins:8,areas:DESTINATIONS.length})};
 }

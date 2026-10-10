@@ -49,8 +49,8 @@ with sync_playwright() as pw:
   p.screenshot(path=str(OUT/'ship-map.png'))
   p.locator('[data-destination=pool]').click();ck('Selecting route resumes without teleport',not state(p)['paused'] and abs(ch(p)['position']['y']-6.65)<.3)
   # Inspect actual rendered spaces through independent visual fixtures.
-  for name,xyz,yaw in [('cabins',(0,13.12,4),-1.5708),('restaurant',(0,15.83,15),3.14159),('pool',(-6,13.12,-53),1.5708),('stern',(0,10.1,-63),0),('sky-lounge',(0,21.35,13),3.14159)]:
-   pos(p,*xyz,yaw);p.screenshot(path=str(OUT/(name+'.png')))
+  for name,xyz,yaw in [('cabins',(0,13.12,4),-1.5708),('restaurant',(0,15.83,15),3.14159),('pool',(6,13.12,-49),-1.5708),('stern',(0,10.1,-63),0),('sky-lounge',(0,21.35,13),3.14159)]:
+   pos(p,*xyz,yaw);ck('Visual fixture on actual '+name,abs(ch(p)['position']['y']-xyz[1])<.2 and abs(ch(p)['position']['z']-xyz[2])<.2,ch(p)['position']);p.wait_for_timeout(200);p.screenshot(path=str(OUT/(name+'.png')))
   ck('No runtime errors in all ship areas',not errors,errors)
   # Controlled combat fixtures: actual security attacks update health normally.
   pos(p,4.8,10.1,54,0);p.evaluate('window.__lastCall.test.chapter.setState({health:100,heat:100,chaos:250})')
@@ -60,7 +60,15 @@ with sync_playwright() as pw:
   ck('No simultaneous attack stacking',p.evaluate('window.__lastCall.test.chapter.party.filter(n=>n.attack).length')<=1)
   # Escape distance allows recovery instead of unavoidable death spiral.
   pos(p,0,10.1,-63,0);life=ch(p)['health'];adv(p,10);ck('Out-of-combat recovery restores health',ch(p)['health']>life or life==100,{'before':life,'after':ch(p)['health']})
-  p.screenshot(path=str(OUT/'life-recovery.png'));c.close()
+  p.screenshot(path=str(OUT/'life-recovery.png'))
+  pos(p,4.8,10.1,54,0)
+  p.evaluate('''()=>{const t=window.__lastCall.test.chapter,a=window.__lastCall.getState().chapter.position;t.party.filter(n=>n.guard).forEach((n,i)=>{n.actor.group.position.set(a.x+Math.sin(i*Math.PI/2)*1.1,a.y,a.z+Math.cos(i*Math.PI/2)*1.1);n.attack=null;n.cooldown=3;n.state='fight';n.health=85;});t.attack('spit');}''')
+  adv(p,.5);ck('An actual in-game action raises security alarm',ch(p)['alarmAt'] is not None)
+  adv(p,17);ck('Slower security can still arrest and take captain to jail',ch(p)['phase']=='cell',{'phase':ch(p)['phase'],'health':ch(p)['health'],'capture':ch(p)['capture']})
+  p.screenshot(path=str(OUT/'jail-continuation.png'))
+  p.locator('#continueFromCell180').click();adv(p,2);p.locator('#escapeOverlayAction').click();adv(p,.1)
+  ck('Existing sober escape chapter still starts',ch(p)['escape']['stage']=='escape')
+  ck('No errors after jail continuation',not errors,errors);c.close()
   for w,h in [(390,700),(320,568),(932,430)]:
    c,p,errors=fresh(b,True,w,h)
    ck(f'{w}x{h} mobile uses both touch controllers',p.locator('#chaosMove').is_visible() and p.locator('#mobileCombatWheel').is_visible())
