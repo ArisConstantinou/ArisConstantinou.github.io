@@ -1,0 +1,71 @@
+name: Captain 184 ship and security validation
+on:
+  push:
+    branches: [captain-roam-184]
+    paths: ['.github/workflows/captain184-validate.yml']
+permissions:
+  contents: write
+concurrency:
+  group: captain184-validation
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble reviewed source bundle
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,base64,zlib,json
+          packed=''.join(Path(f'.github/captain184/part{i}.txt').read_text().strip() for i in range(1,5))
+          assert hashlib.sha256(packed.encode()).hexdigest()=='0bc4e611d0064f829b93e2ade1885d2792a3016efd89af8d967063b4e6710df3'
+          data=json.loads(zlib.decompress(base64.b64decode(packed)))
+          for name,text in data.items():
+            assert not Path(name).is_absolute() and '..' not in Path(name).parts
+            p=Path('captain')/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text)
+          print('Assembled',len(data),'reviewed source files')
+          PY
+          git fetch --depth=1 origin 551d8a3f5832a7d4feadd31937690f3d5acb32cb
+          git show 551d8a3f5832a7d4feadd31937690f3d5acb32cb:captain/index.html > captain/index.html
+          git show 551d8a3f5832a7d4feadd31937690f3d5acb32cb:captain/sw.js > captain/sw.js
+          python captain/tools/apply184.py
+          node --check captain/chaos184.js
+          node --check captain/ship184.js
+          node --check captain/roam-world184.js
+          node --check captain/shipmap184.js
+          node --test captain/tests/chaos170.test.mjs
+      - name: Prepare Chromium
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Walk across decks and verify security and touch controls
+        run: |
+          python -m http.server 8765 >/tmp/captain184-http.log 2>&1 &
+          python captain/tools/qa184.py
+      - name: Commit tested files to staging only
+        run: |
+          cp /tmp/captain184-qa/results.json captain/tests/verified184.json
+          git config user.name 'Captain ship validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/
+          git diff --cached --quiet || git commit -m 'Validated LAST CALL 1.8.4 connected ship decks, map and fairer security'
+          git push origin HEAD:captain-roam-184
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain184-ship-security-qa
+          path: |
+            /tmp/captain184-qa/
+            captain/chaos184.js
+            captain/ship184.js
+            captain/roam-world184.js
+            captain/shipwalk184.js
+            captain/combat184.js
+            captain/security184.js
+            captain/shipmap184.js
+            captain/shipmap184.css
+            captain/main184.js
+            captain/release.json
+          retention-days: 7
