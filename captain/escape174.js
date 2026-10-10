@@ -1,0 +1,116 @@
+import * as T from 'three';
+import {createActor} from './actors172.js';
+import {tiles,FLOOR,START,CHECKPOINT,CARD,BOTTLE,EXIT,FURNITURE,position,cellAt,blocked,move,clearSight,canSee,detectionStep,path,clampThrow} from './escape-model174.js?v=174';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const SAVE='last-call-story-174';
+export function readStoryCheckpoint(){try{const v=JSON.parse(localStorage.getItem(SAVE));return v?.version===1?v:null;}catch{return null;}}
+export function storeStoryCheckpoint(data){try{localStorage.setItem(SAVE,JSON.stringify({version:1,...data}));}catch{}}
+/** A playable continuation. No independent start/reset of the existing voyage. */
+export function createEscape({ship,camera,canvas,root,getPeople,getVoyage,getChapter,movement,audio,onPhase,onToast,onReturn,getRecap}){
+ const $=id=>root.querySelector('#'+id),scene=new T.Group();scene.name='Service deck — chapter 02';scene.position.y=FLOOR;ship.group.add(scene);scene.visible=false;
+ const ui=document.createElement('div');ui.id='escapeUI';ui.innerHTML=`<div id="escapeInventory"></div><div id="escapeControls"><button id="escapeCrawl"><kbd>C</kbd><span>↘</span><strong>ΣΥΡΣΟΥ</strong></button><button id="escapeThrow"><kbd>8</kbd><span>↗</span><strong>ΠΕΤΑ</strong></button></div><div id="escapeNote" role="status"></div><div id="escapeAimHint"></div><div id="escapeTransition" hidden><small>LAST CALL · ΚΕΦΑΛΑΙΟ 02</small><h2></h2><p></p><button id="escapeRetry">ΣΥΝΕΧΕΙΑ ΑΠΟ ΤΟ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ</button></div>`;root.append(ui);
+ const mat=(color,roughness=.8)=>new T.MeshStandardMaterial({color,roughness,metalness:.04});
+ const mats={floor:mat(0x274652),cell:mat(0x344149),wall:mat(0xb8c9c6),dark:mat(0x172733),gold:mat(0xe9bd70),cloth:mat(0x86a9ae),steel:mat(0x9db2b7,.38),wood:mat(0x977053),white:mat(0xe8e4d8)};
+ const temp=new T.Object3D(),geometry=new T.BoxGeometry(1,1,1);
+ const boxes=[];let built=false,actor=null,guards=[],objects=[],fly=[],rings=[],labels=[],cardMesh=null,bottleMesh=null,marker=null,aimMarker=null;
+ let active=false,mode='off',time=0,timer=0,crawl=false,holding=null,card=false,bottle=false,sipped=false,checkpoint='cell',suspicion=0,noiseCount=0,heardCount=0,catches=0,drank=0,aim={...START},aimSet=false,projectedAim=false;
+ const p={...START},ray=new T.Raycaster(),plane=new T.Plane(),normal=new T.Vector3(),wp=new T.Vector3();let aimPointer=null,lastHud=-10,noteUntil=0;
+ const patrolDefs=[{id:'worker',template:'bartender',worker:true,route:[[3,15],[6,15],[6,18],[3,18]]},{id:'hall',template:'securityM',route:[[10,18],[14,18]]},{id:'store',template:'securityF',route:[[13,21],[13,24],[10,24],[10,21]]},{id:'corridor',template:'securityM',route:[[17,11],[17,21]]}];
+ function box(x,y,z,w,h,d,m=mats.wall){const mesh=new T.Mesh(geometry,m);mesh.position.set(x,y,z);mesh.scale.set(w,h,d);scene.add(mesh);boxes.push(mesh);return mesh;}
+ function text(str,x,z,size=2.3){const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');ctx.fillStyle='#102932';ctx.fillRect(0,0,512,128);ctx.fillStyle='#f8e9c9';ctx.font='bold 39px system-ui';ctx.textAlign='center';ctx.fillText(str,256,78);const tx=new T.CanvasTexture(c);tx.colorSpace=T.SRGBColorSpace;const o=new T.Mesh(new T.PlaneGeometry(size,size/4),new T.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false}));o.rotation.x=-Math.PI/2;o.position.set(x,.04,z);scene.add(o);return o;}
+ function bottleObject(x,z,whisky=false){const g=new T.Group();const material=mat(whisky?0x9a5a21:0x6a9691,.27);const body=new T.Mesh(new T.CylinderGeometry(.105,.105,.33,12),material);body.position.y=.165;g.add(body);const neck=new T.Mesh(new T.CylinderGeometry(.042,.055,.15,10),mats.gold);neck.position.y=.405;g.add(neck);const band=new T.Mesh(new T.CylinderGeometry(.107,.107,.14,12),mats.white);band.position.y=.19;g.add(band);g.position.set(x,.08,z);scene.add(g);return g;}
+ function build(){if(built)return;built=true;
+  const floorMesh=new T.InstancedMesh(geometry,mats.floor,tiles.size);let count=0;
+  for(const t of tiles.values()){const a=position(t.c,t.r);temp.position.set(a.x,-.065,a.z);temp.scale.set(.98,.12,.98);temp.updateMatrix();floorMesh.setMatrixAt(count,temp.matrix);floorMesh.setColorAt(count++,new T.Color(t.zone==='crawl'?0x566b6e:t.zone==='cell'?0x465963:t.zone==='locker'?0x56645b:0x64878c));}
+  floorMesh.instanceMatrix.needsUpdate=true;scene.add(floorMesh);
+  const edges=[];for(const t of tiles.values())for(const [dc,dr]of [[1,0],[-1,0],[0,1],[0,-1]])if(!tiles.has((t.c+dc)+','+(t.r+dr))){const a=position(t.c,t.r);edges.push({x:a.x+dc*.5,z:a.z-dr*.5,w:dc?.10:1,d:dc?1:.10});}
+  // Cutaway walls: no roof obscures the captain; logic still blocks vision and movement.
+  const walls=new T.InstancedMesh(geometry,mats.wall,edges.length);edges.forEach((e,i)=>{temp.position.set(e.x,.68,e.z);temp.scale.set(e.w,1.36,e.d);temp.updateMatrix();walls.setMatrixAt(i,temp.matrix);});walls.instanceMatrix.needsUpdate=true;scene.add(walls);
+  const trim=new T.InstancedMesh(geometry,mats.dark,edges.length);edges.forEach((e,i)=>{temp.position.set(e.x,.18,e.z);temp.scale.set(e.w+.02,.2,e.d+.02);temp.updateMatrix();trim.setMatrixAt(i,temp.matrix);});scene.add(trim);
+  for(const t of tiles.values())if(t.zone==='crawl'){const a=position(t.c,t.r);box(a.x,.56,a.z,.84,.05,.85,mats.steel);for(const dx of [-.38,.38])box(a.x+dx,.27,a.z,.035,.56,.85,mats.dark);}
+  box(-1.45,.43,45,1.05,.18,2.05,mats.cloth);box(-1.45,.3,45,1.1,.08,2.1,mats.steel);box(-1.45,.57,44.35,.75,.12,.4,mats.white);
+  for(let x=-2;x<=2;x+=.24)box(x,1.1,47.45,.025,2.2,.04,mats.steel);
+  FURNITURE.forEach((f,i)=>{box(f.x,.5,f.z,f.w,1,f.d,i<2?mats.white:mats.wood);if(i<2){const drum=new T.Mesh(new T.CylinderGeometry(.36,.36,.07,18),mats.dark);drum.rotation.x=Math.PI/2;drum.position.set(f.x,.55,f.z+f.d/2);scene.add(drum);box(f.x,.95,f.z+f.d/2+.01,.6,.09,.025,mats.steel);}else for(const x of [-.4,.4])box(f.x+x,.51,f.z,.055,1.05,f.d+.02,mats.gold);});
+  for(let i=0;i<3;i++){box(-6.65,.26+i*.14,33.5,1,.13,.6,mats.cloth);box(4.35,.24+i*.16,29.1,.85,.15,.6,mats.wood);}
+  for(const [x,z] of [[-6.8,36.8],[1.5,32.7],[7.9,33],[6.1,45.1]]){box(x,.026,z,1.3,.02,.055,mats.gold);box(x,1.18,z,.8,.04,.12,mats.white);}
+  text('ΚΡΑΤΗΤΗΡΙΟ',0,44);text('ΠΛΥΝΤΗΡΙΑ',-4.5,33.5);text('ΑΠΟΘΗΚΗ',3,27.2);text('ΠΡΟΣ ΚΑΤΑΣΤΡΩΜΑ',7.5,49.35,2.8);
+  text('ΣΥΡΣΟΥ ↓',0,42.1,1.6);text('ΧΑΜΗΛΟ ΠΕΡΑΣΜΑ',5.5,28.3,2.5);
+  box(7.6,.75,46.7,.4,1.5,1.3,mats.dark);box(5.3,.45,46.7,1.5,.1,.5,mats.wood);
+  cardMesh=box(CARD.x,.14,CARD.z,.24,.03,.16,mats.gold);bottleMesh=bottleObject(BOTTLE.x,BOTTLE.z,true);bottleMesh.scale.setScalar(1.5);
+  const door=box(EXIT.x,.5,EXIT.z,.9,1,.10,mats.gold);text('ΕΞΟΔΟΣ',EXIT.x,EXIT.z-.24,1.5);
+  marker=new T.Mesh(new T.RingGeometry(.27,.36,32),new T.MeshBasicMaterial({color:0xf3ca79,side:T.DoubleSide,transparent:true,opacity:.9,depthWrite:false}));marker.rotation.x=-Math.PI/2;marker.position.y=.065;scene.add(marker);
+  aimMarker=new T.Mesh(new T.RingGeometry(.16,.23,24),new T.MeshBasicMaterial({color:0x8cd9de,side:T.DoubleSide,depthWrite:false}));aimMarker.rotation.x=-Math.PI/2;aimMarker.position.y=.09;scene.add(aimMarker);
+  actor=createActor(getPeople().getCharacterTemplate('captain'),scene,{id:174});actor.group.position.set(p.x,0,p.z);
+  patrolDefs.forEach((d,i)=>{const a=createActor(getPeople().getCharacterTemplate(d.template),scene,{guard:!d.worker,id:200+i});const q=position(...d.route[0]);const coneGeometry=new T.BufferGeometry();coneGeometry.setAttribute('position',new T.Float32BufferAttribute(new Float32Array(32*9),3));const cone=new T.Mesh(coneGeometry,new T.MeshBasicMaterial({color:d.worker?0xf4d784:0x6ec9c6,transparent:true,opacity:.15,side:T.DoubleSide,depthWrite:false}));cone.frustumCulled=false;scene.add(cone);guards.push({...d,actor:a,cone,x:q.x,z:q.z,yaw:0,index:1,state:'patrol',until:0,route:d.route.map(a=>position(...a)),nav:[],nextPath:0,lastSeen:null,investigate:null});});
+  resetObjects();
+ }
+ function resetObjects(){for(const o of objects)scene.remove(o.mesh);for(const o of fly)scene.remove(o.mesh);fly=[];objects=[[-.9,45.3],[-5.5,36.8],[1.2,33.4],[3.7,28.2],[7.6,36.5],[6.8,45.5]].map(([x,z],id)=>({id,x,z,mesh:bottleObject(x,z),taken:false,label:id%2?'ΠΟΤΗΡΙ':'ΑΔΕΙΟ ΜΠΟΥΚΑΛΙ'}));holding=null;}
+ function save(stage=checkpoint){storeStoryCheckpoint({checkpoint:stage,card,bottle,sipped,stats:getRecap()});}
+ function message(str,duration=4){$('escapeNote').textContent=str;noteUntil=time+duration;}
+ function setMode(value){mode=value;onPhase(value==='play'?'escape':value==='caught'?'escape-caught':value==='exit'?'escape-exit':'sleep');}
+ function start(resume=null){build();active=true;scene.visible=false;root.closest('#hud').classList.add('escape-active');ui.style.display='';checkpoint=resume?.checkpoint==='locker'?'locker':resume?.checkpoint==='laundry'?'laundry':'cell';card=!!resume?.card;bottle=!!resume?.bottle;sipped=!!resume?.sipped;catches=0;noiseCount=0;heardCount=0;suspicion=0;drank=0;timer=0;time=0;aimSet=false;resetObjects();holding=null;setMode('sleep');$('escapeTransition').hidden=false;$('escapeTransition').querySelector('h2').textContent='ΛΙΓΕΣ ΩΡΕΣ ΑΡΓΟΤΕΡΑ…';$('escapeTransition').querySelector('p').textContent='Ο καπετάνιος κοιμάται. Η βάρδια αλλάζει.';$('escapeRetry').hidden=true;save(checkpoint);drawHUD();}
+ function wake(){scene.visible=true;actor.group.visible=true;setMode('play');$('escapeTransition').hidden=true;getVoyage().intox=0;getVoyage().drinkCooldown=0;const s=getChapter();s.pendingAlcohol=0;s.capture=0;s.health=Math.max(s.health,70);resetToCheckpoint();message(`«${s.hits} χτυπήματα και ${s.broken} ζημιές… θα μιλήσουμε όταν ξυπνήσεις!»`,6);}
+ function resetToCheckpoint(){const q=checkpoint==='locker'?position(16,7):checkpoint==='laundry'?CHECKPOINT:START;Object.assign(p,q);crawl=checkpoint==='cell';suspicion=0;aim={x:p.x,z:p.z-3};aimSet=false;for(const n of guards){const q=n.route[0];n.x=q.x;n.z=q.z;n.yaw=Math.atan2(n.route[1].x-q.x,n.route[1].z-q.z);n.index=1;n.state='patrol';n.nav=[];n.nextPath=0;n.until=0;n.lastSeen=null;n.investigate=null;}cardMesh.visible=!card;bottleMesh.visible=!bottle;actor.group.rotation.set(0,0,0);}
+ function caught(){if(mode!=='play')return;catches++;suspicion=100;holding=null;setMode('caught');$('escapeTransition').hidden=false;$('escapeTransition').querySelector('h2').textContent='ΣΕ ΕΝΤΟΠΙΣΑΝ';$('escapeTransition').querySelector('p').textContent='Η απόδραση συνεχίζεται από το τελευταίο ασφαλές σημείο — όχι από την αρχή της κρουαζιέρας.';$('escapeRetry').hidden=false;save();}
+ function retry(){if(mode!=='caught')return;resetObjects();resetToCheckpoint();setMode('play');$('escapeTransition').hidden=true;message('Δοκίμασε να τους αποσπάσεις την προσοχή με ένα αντικείμενο.');}
+ $('escapeRetry').onclick=retry;
+ function toggleCrawl(){if(mode!=='play')return;if(crawl&&cellAt(p.x,p.z)?.zone==='crawl'){message('Το πέρασμα είναι χαμηλό. Συνέχισε συρόμενος.');return;}crawl=!crawl;drawHUD();}
+ $('escapeCrawl').onclick=toggleCrawl;
+ function context(){if(mode!=='play')return null;const dist=q=>Math.hypot(q.x-p.x,q.z-p.z);if(dist(EXIT)<1.45)return {kind:'exit',label:!card?'ΚΛΕΙΔΩΜΕΝΟ':!bottle?'ΒΡΕΣ ΤΟ ΟΥΙΣΚΙ':!sipped?'ΠΙΕ ΜΙΑ ΓΟΥΛΙΑ':'ΑΝΕΒΑ',note:!card?'Χρειάζεται κάρτα από την αποθήκη':!bottle?'Το μπουκάλι είναι στο ντουλάπι':!sipped?'Η επιστροφή σου ξεκινά εδώ':'Υπηρεσιακή σκάλα → κατάστρωμα',icon:!card?'🔒':'↗'};
+ if(!card&&dist(CARD)<1.25)return {kind:'card',label:'ΠΑΡΕ ΚΑΡΤΑ',note:'Πρόσβαση στην υπηρεσιακή έξοδο',icon:'▣'};
+ if(!bottle&&dist(BOTTLE)<1.4)return {kind:'bottle',label:'ΠΑΡΕ ΟΥΙΣΚΙ',note:'Γεμάτο μπουκάλι στο ντουλάπι',icon:'🥃'};
+ if(bottle&&!sipped)return {kind:'drink',label:'ΠΙΕ',note:'Πάρε ξανά θάρρος',icon:'🥃'};
+ const obj=objects.filter(o=>!o.taken&&dist(o)<1.25&&clearSight(p,o)).sort((a,b)=>dist(a)-dist(b))[0];if(obj&&!holding)return {kind:'grab',label:'ΠΑΡΕ',note:obj.label,icon:'✊',object:obj};
+ if(holding)return {kind:'throw',label:'ΠΕΤΑ',note:'Στόχευσε στο δάπεδο και ρίξε',icon:'↗'};return null;
+ }
+ function interact(){if(mode==='caught'){retry();return;}if(mode!=='play')return;const c=context();if(!c)return;if(c.kind==='grab'){holding=c.object;holding.taken=true;message('Στόχευσε σε ελεύθερο δάπεδο και πάτησε ΠΕΤΑ.');}
+ else if(c.kind==='card'){card=true;cardMesh.visible=false;message('Κάρτα πρόσβασης αποκτήθηκε. Βρες τώρα το ουίσκι.');save();}
+ else if(c.kind==='bottle'){bottle=true;bottleMesh.visible=false;checkpoint='locker';save();message('Βρήκες ολόκληρο μπουκάλι. Πιες και πήγαινε προς την έξοδο.');}
+ else if(c.kind==='drink')drink();else if(c.kind==='throw')throwItem();else if(c.kind==='exit'){if(!card||!bottle){message(c.note);return;}if(!sipped){drink();return;}timer=0;setMode('exit');$('escapeTransition').hidden=false;$('escapeTransition').querySelector('h2').textContent='ΠΙΣΩ ΣΤΗ ΓΕΦΥΡΑ';$('escapeTransition').querySelector('p').textContent='Ανεβαίνεις την υπηρεσιακή σκάλα. Η ασφάλεια σε περιμένει.';$('escapeRetry').hidden=true;save('assault');}drawHUD();}
+ function drink(){if(mode!=='play'||!bottle)return;sipped=true;drank=1;getChapter().pendingAlcohol=Math.max(70,getChapter().pendingAlcohol);getChapter().health=100;getVoyage().drinks++;getVoyage().drinkAnim=1;save();message('Το ουίσκι ανεβαίνει σταδιακά. Στόχος: πάρε πίσω τη γέφυρα.');}
+ function noise(q){noiseCount++;audio.hit?.('glass');const ring=new T.Mesh(new T.RingGeometry(.92,1,48),new T.MeshBasicMaterial({color:0xfacb75,transparent:true,opacity:.75,side:T.DoubleSide,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.set(q.x,.10,q.z);scene.add(ring);rings.push({mesh:ring,t:0});for(const n of guards){if(Math.hypot(n.x-q.x,n.z-q.z)<8.5&&cellAt(q.x,q.z)?.zone!=='crawl'){const nav=path(n,q);if(nav.length){heardCount++;n.state='investigate';n.until=time+7;n.investigate={...q};n.nav=nav;n.nextPath=time+1;}}}message('ΘΟΡΥΒΟΣ — οι κοντινοί εργαζόμενοι ερευνούν.',2.4);onToast('Το αντικείμενο ακούστηκε στον διάδρομο.');}
+ function throwItem(){if(mode!=='play'||!holding)return;const from={x:p.x,z:p.z},to=clampThrow(from,aimSet?aim:{x:p.x+Math.sin(actor.group.rotation.y)*4.5,z:p.z+Math.cos(actor.group.rotation.y)*4.5});if(Math.hypot(to.x-from.x,to.z-from.z)<.45){message('Στόχευσε σε ανοιχτό δάπεδο, όχι στον τοίχο.');return;}const o=holding;holding=null;fly.push({mesh:o.mesh,from,to,t:0});getChapter().thrown++;}
+ $('escapeThrow').onclick=throwItem;
+ function keyDown(e){if(!active)return false;if(e.repeat)return true;if(e.code==='KeyC'||e.code==='Space')toggleCrawl();else if(e.code==='KeyF'||e.code==='KeyE'||e.code==='Digit7'||e.code==='Numpad7')interact();else if(e.code==='Digit8'||e.code==='Numpad8')throwItem();else if(e.code==='Digit9'||e.code==='Numpad9')drink();return !['Escape','KeyV','KeyP'].includes(e.code);}
+ function setAim(e){if(mode!=='play')return;normal.set(0,1,0).applyQuaternion(ship.group.quaternion);wp.set(0,FLOOR,0);ship.group.localToWorld(wp);plane.setFromNormalAndCoplanarPoint(normal,wp);const r=canvas.getBoundingClientRect();ray.setFromCamera(new T.Vector2((e.clientX-r.left)/r.width*2-1,1-(e.clientY-r.top)/r.height*2),camera);const hit=ray.ray.intersectPlane(plane,new T.Vector3());if(hit){ship.group.worldToLocal(hit);aim=clampThrow(p,{x:hit.x,z:hit.z});aimSet=true;}}
+ function pointerDown(e){if(!active)return false;aimPointer=e.pointerId;canvas.setPointerCapture(e.pointerId);setAim(e);return true;}
+ function pointerMove(e){if(!active)return false;if(e.pointerId===aimPointer||e.pointerType==='mouse')setAim(e);return true;}
+ function pointerUp(e){if(e.pointerId===aimPointer)aimPointer=null;}
+ function updateGuard(n,dt){n.speed=0;let target=n.route[n.index];if(n.state==='chase'){target=n.lastSeen||p;if(time>n.until){n.state='investigate';n.investigate={...target};n.until=time+3;}}
+ else if(n.state==='investigate'){target=n.investigate;if(time>n.until){n.state='patrol';n.nav=[];target=n.route[n.index];}}
+ if(!target)return;
+ const d=Math.hypot(target.x-n.x,target.z-n.z);if(d<.28){if(n.state==='patrol')n.index=(n.index+1)%n.route.length;else n.yaw+=dt*.7;}
+ else {if(time>n.nextPath||!n.nav.length){n.nav=path(n,target);n.nextPath=time+.8;}const dest=n.nav[0]||target,dx=dest.x-n.x,dz=dest.z-n.z,len=Math.hypot(dx,dz);if(len<.22)n.nav.shift();else {const speed=n.state==='chase'?2.9:n.worker?.85:1.1;n.yaw+=Math.atan2(Math.sin(Math.atan2(dx,dz)-n.yaw),Math.cos(Math.atan2(dx,dz)-n.yaw))*Math.min(1,dt*7);const moved=move(n,dx/len*speed*dt,dz/len*speed*dt,false);n.speed=moved/Math.max(.001,dt);}}
+ n.actor.group.position.set(n.x,0,n.z);n.actor.group.rotation.y=n.yaw;n.actor.tick(dt,{speed:n.speed||0,time,block:false});
+ const attr=n.cone.geometry.attributes.position;const range=n.worker?4:5.6;let j=0;for(let i=0;i<32;i++){const ang1=n.yaw-.65+i*1.3/32,ang2=n.yaw-.65+(i+1)*1.3/32;attr.setXYZ(j++,n.x,.065,n.z);for(const a of [ang1,ang2]){let d=.2;for(;d<range;d+=.2)if(!clearSight(n,{x:n.x+Math.sin(a)*d,z:n.z+Math.cos(a)*d}))break;attr.setXYZ(j++,n.x+Math.sin(a)*Math.max(.15,d-.2),.065,n.z+Math.cos(a)*Math.max(.15,d-.2));}}attr.needsUpdate=true;n.cone.material.color.setHex(n.state==='chase'?0xf06e58:n.state==='investigate'?0xe2b366:0x69cec6);
+ }
+ function update(dt,{stick,keys}){if(!active)return;time+=dt;timer+=dt;
+  if(mode==='sleep'){if(timer>=2.2)wake();drawHUD();return;}if(mode==='caught'){drawHUD();return;}if(mode==='exit'){if(timer>2){const result={card,bottle,sipped,checkpoint:'assault'};stop();onReturn(result);}return;}
+  const mx=stick.x+(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0),mz=-stick.y-(keys.has('KeyW')||keys.has('ArrowUp')?1:0)+(keys.has('KeyS')||keys.has('ArrowDown')?1:0),len=Math.max(1,Math.hypot(mx,mz)),speed=crawl?1.18:2.55;
+  const d=move(p,mx/len*dt*speed,mz/len*dt*speed,crawl);if(d>.001){actor.group.rotation.y+=Math.atan2(Math.sin(Math.atan2(mx,mz)-actor.group.rotation.y),Math.cos(Math.atan2(mx,mz)-actor.group.rotation.y))*Math.min(1,dt*13);if(!aimSet)aim={x:p.x+mx/len*4,z:p.z+mz/len*4};}
+  actor.group.position.set(p.x,0,p.z);actor.tick(dt,{speed:crawl?0:d/Math.max(dt,.001),time,held:!!holding,drinking:drank});drank=Math.max(0,drank-dt*.65);
+  if(crawl){actor.model.rotation.x=-Math.PI/2;actor.model.position.y=.35;actor.model.position.z=-.85;const phase=time*6;for(const [n,b]of actor.bones){if(n==='leftarm')b.rotateX(Math.sin(phase)*.25);if(n==='rightarm')b.rotateX(-Math.sin(phase)*.25);if(n==='leftupleg')b.rotateX(Math.sin(phase)*.12);if(n==='rightupleg')b.rotateX(-Math.sin(phase)*.12);}}
+  else {actor.model.rotation.x=0;actor.model.position.y=0;actor.model.position.z=0;}
+  if(holding)holding.mesh.position.set(p.x,.9,p.z+.24);
+  let seen=0;for(const n of guards){updateGuard(n,dt);if(canSee(n,p,crawl)){seen++;n.lastSeen={...p};if(suspicion>60){n.state='chase';n.until=time+3;}}if(n.state==='chase'&&Math.hypot(n.x-p.x,n.z-p.z)<.67&&clearSight(n,p)){caught();return;}}
+  suspicion=detectionStep(suspicion,dt,seen,crawl);if(suspicion>=100){for(const n of guards)if(canSee(n,p,crawl)){n.state='chase';n.lastSeen={...p};n.until=time+4;}if(seen>0&&guards.some(n=>Math.hypot(n.x-p.x,n.z-p.z)<1.05)){caught();return;}}
+  for(let i=fly.length-1;i>=0;i--){const f=fly[i];f.t+=dt/ .63;const t=Math.min(1,f.t);f.mesh.position.set(T.MathUtils.lerp(f.from.x,f.to.x,t),.35+Math.sin(Math.PI*t)*1.7,T.MathUtils.lerp(f.from.z,f.to.z,t));f.mesh.rotation.x+=dt*8;if(t>=1){noise(f.to);scene.remove(f.mesh);fly.splice(i,1);}}
+  for(let i=rings.length-1;i>=0;i--){const r=rings[i];r.t+=dt;r.mesh.scale.setScalar(.25+r.t*3);r.mesh.material.opacity=Math.max(0,.7-r.t*.3);if(r.t>2.3){scene.remove(r.mesh);r.mesh.material.dispose();rings.splice(i,1);}}
+  if(checkpoint==='cell'&&cellAt(p.x,p.z)?.zone==='laundry'){checkpoint='laundry';save();message('ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ · Πλυντήρια. Βρες την κάρτα στην αποθήκη.');}
+  marker.position.set((!card?CARD:!bottle?BOTTLE:EXIT).x,.065,(!card?CARD:!bottle?BOTTLE:EXIT).z);marker.scale.setScalar(1+Math.sin(time*3)*.15);
+  aimMarker.visible=!!holding;aimMarker.position.set(aim.x,.09,aim.z);
+  if(time-lastHud>.08){lastHud=time;drawHUD();}
+ }
+ function drawHUD(){if(!active)return;const touch=movement.scheme==='touch',s=getChapter(),v=getVoyage(),c=context();
+  $('chapterGoal').textContent=mode==='sleep'?'ΞΥΠΝΑ ΝΗΦΑΛΙΟΣ.':mode==='caught'?'ΣΕ ΕΝΤΟΠΙΣΑΝ!':!card?'ΒΡΕΣ ΤΗΝ ΚΑΡΤΑ.':!bottle?'ΒΡΕΣ ΤΟ ΟΥΙΣΚΙ.':'ΕΠΙΣΤΡΟΦΗ ΣΤΗ ΓΕΦΥΡΑ.';
+  $('chapterDetail').textContent=checkpoint==='cell'?'Σύρσου από το χαμηλό άνοιγμα πίσω από το κρεβάτι.':!card?'Αποθήκη → κάρτα. Πέτα αντικείμενα για αντιπερισπασμό.':!bottle?'Χαμηλό πέρασμα → δεξιός διάδρομος → ντουλάπι.':'Πάρε τη σκάλα προς το κατάστρωμα.';
+  for(const [id,value,note]of [['Life',s.health,'Νηφάλια απόδραση'],['Drunk',v.intox,sipped?'Ανεβαίνει σταδιακά':'Χωρίς ουίσκι'],['Custody',suspicion,suspicion>60?'Σε αναζητούν':suspicion>0?'Σε υποψιάζονται':'Μείνε έξω από τα οπτικά πεδία']]){const n=Math.round(clamp(value,0,100));$('vital'+id+'Value').textContent=n+'%';$('vital'+id+'Fill').style.width=n+'%';$('vital'+id+'Meter').setAttribute('aria-valuenow',n);$('vital'+id+'Note').textContent=note;}
+  $('vitalCustodyLabel').textContent='ΕΝΤΟΠΙΣΜΟΣ';$('escapeInventory').textContent=(card?'▣ ΚΑΡΤΑ ✓':'▣ ΚΑΡΤΑ —')+'   '+(bottle?'🥃 ΟΥΙΣΚΙ ✓':'🥃 ΟΥΙΣΚΙ —')+(holding?'   ✊ '+holding.label:'');
+  const use=$('chaosUse');use.disabled=!c||mode!=='play';use.dataset.action=c?.kind||'';use.querySelector('.use-icon').textContent=c?.icon||'⌖';use.querySelector('strong').textContent=c?.label||'ΠΛΗΣΙΑΣΕ';use.querySelector('small').textContent=c?.note||'Αντικείμενο ή έξοδο';use.classList.toggle('available',!!c);
+  $('escapeCrawl').classList.toggle('held',crawl);$('escapeCrawl').querySelector('strong').textContent=crawl?'ΣΗΚΩ':'ΣΥΡΣΟΥ';$('escapeThrow').disabled=!holding||mode!=='play';$('escapeAimHint').textContent=holding?(touch?'Άγγιξε δάπεδο για στόχο · πάτησε ΠΕΤΑ':'Στόχευσε με το ποντίκι · 8 για ρίψη'):'';
+  $('chaosTutorial').textContent=touch?'':'W A S D · C σύρσιμο · F αλληλεπίδραση · 8 ρίψη';$('escapeNote').style.opacity=time<noteUntil?'1':'0';
+ }
+ function cameraUpdate(){if(!active)return false;if(mode==='sleep')return false;const portrait=innerHeight>innerWidth,at=new T.Vector3(p.x,.4,p.z),eye=new T.Vector3(p.x,portrait?15.6:13.8,p.z+(portrait?8.4:7.2));scene.localToWorld(at);scene.localToWorld(eye);camera.position.copy(eye);camera.up.set(0,1,0).applyQuaternion(ship.group.quaternion);camera.lookAt(at);camera.fov=54;camera.updateProjectionMatrix();camera.updateMatrixWorld();return true;}
+ function stop(){active=false;mode='off';scene.visible=false;ui.style.display='none';root.closest('#hud').classList.remove('escape-active');actor?.hide();$('escapeTransition').hidden=true;}
+ return {start,update,drawHUD,interact,keyDown,pointerDown,pointerMove,pointerUp,cameraUpdate,stop,get active(){return active;},get mode(){return mode;},get hideCell(){return active&&mode!=='sleep';},inspect:()=>({active,mode,position:{...p},crawl,card,bottle,sipped,checkpoint,suspicion,noiseCount,heardCount,catches,holding:holding?.id??null,aim:{...aim},guards:guards.map(n=>({id:n.id,x:n.x,z:n.z,yaw:n.yaw,state:n.state,worker:!!n.worker}))}),test:{pathTo:q=>path(p,q,true),setPosition:q=>{if(!blocked(q.x,q.z,true))Object.assign(p,q);},setAim:q=>{aim={...q};aimSet=true;},interact,toggleCrawl,throwItem,drink,retry,context,guards}};
+}
