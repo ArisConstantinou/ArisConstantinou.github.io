@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {START,CHECKPOINT,CARD,BOTTLE,EXIT,blocked,move,path,canSee,detectionStep,clampThrow} from '../escape-model174.js';
+import {makeChapterState,beginAttack} from '../chaos-model174.js';
+test('Full crawl path connects cell, laundry, card, bottle and exit',()=>{for(const [a,b]of [[START,CHECKPOINT],[CHECKPOINT,CARD],[CARD,BOTTLE],[BOTTLE,EXIT]])assert.ok(path(a,b,true).length>0);});
+test('Standing guards cannot use the cell crawl exit',()=>assert.equal(path(START,CHECKPOINT,false).length,0));
+test('Standing captain is stopped at a low clearance',()=>{const p={x:0,z:43};move(p,0,-2,false);assert.ok(p.z>42.6);});
+test('Crawling captain traverses the same opening',()=>{const p={x:0,z:43};move(p,0,-2,true);assert.ok(p.z<41.3);});
+test('Large movement does not tunnel outside cell walls',()=>{const p={...START};move(p,100,0,true);assert.ok(p.x<2.4);});
+test('Vision requires a forward cone',()=>{const n={x:8,z:36,yaw:Math.PI};assert.ok(canSee(n,{x:8,z:34},false));assert.equal(canSee(n,{x:8,z:39},false),false);});
+test('Low passage hides crawling captain from guards',()=>assert.equal(canSee({x:6.7,z:28,yaw:-Math.PI/2},{x:6,z:28},true),false));
+test('Suspicion grows gradually and decays out of view',()=>{const a=detectionStep(0,.3,1,false);assert.ok(a>0&&a<100);assert.ok(detectionStep(a,.2,0,false)<a);});
+test('Crawling reduces detection rate',()=>assert.ok(detectionStep(0,.5,1,true)<detectionStep(0,.5,1,false)));
+test('Throwing cannot cross disconnected walls',()=>{const q=clampThrow(START,{x:12,z:45});assert.ok(q.x<2.6);});
+test('Return-to-bridge phase accepts original numeric combat',()=>{const s={...makeChapterState(),phase:'assault',foot:true};assert.equal(beginAttack(s,'slap'),true);});
