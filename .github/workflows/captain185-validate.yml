@@ -2,7 +2,7 @@ name: Captain joystick release validation
 on:
   push:
     branches: [captain-joystick-release-185]
-    paths: ['captain/move-stick185.js','captain/tools/apply185.py','captain/tools/qa185.py','.github/workflows/captain185-validate.yml']
+    paths: ['captain/move-stick185.js','captain/tools/apply185.py','captain/tools/refine185.py','captain/tools/qa185.py','.github/workflows/captain185-validate.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -20,6 +20,7 @@ jobs:
           git fetch --depth=1 origin 66f98b3f72413c96fc2820389eff19972f748adc
           git restore --source=66f98b3f72413c96fc2820389eff19972f748adc -- captain/index.html captain/sw.js captain/release.json captain-mayhem/index.html captain-mayhem/release.json
           python captain/tools/apply185.py
+          python captain/tools/refine185.py
           node --check captain/move-stick185.js
           node --check captain/chaos185.js
           node --check captain/escape185.js
