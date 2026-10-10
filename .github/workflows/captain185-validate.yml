@@ -1,0 +1,58 @@
+name: Captain joystick release validation
+on:
+  push:
+    branches: [captain-joystick-release-185]
+    paths: ['captain/move-stick185.js','captain/tools/apply185.py','captain/tools/qa185.py','.github/workflows/captain185-validate.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: captain185-release
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate isolated release patch
+        run: |
+          git fetch --depth=1 origin 66f98b3f72413c96fc2820389eff19972f748adc
+          git restore --source=66f98b3f72413c96fc2820389eff19972f748adc -- captain/index.html captain/sw.js captain/release.json captain-mayhem/index.html captain-mayhem/release.json
+          python captain/tools/apply185.py
+          node --check captain/move-stick185.js
+          node --check captain/chaos185.js
+          node --check captain/escape185.js
+          node --check captain/main185.js
+          node --check captain-mayhem/game101.js
+          node --check captain-mayhem/main101.js
+          node --test captain/tests/escape181.test.mjs captain/tests/chaos170.test.mjs captain-mayhem/rules.test.mjs
+      - name: Prepare Chromium and WebKit
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium webkit
+      - name: Test multi-touch release and neutral locomotion
+        run: |
+          python -m http.server 8765 >/tmp/captain185-http.log 2>&1 &
+          python captain/tools/qa185.py
+      - name: Commit only the verified patch to staging
+        run: |
+          cp /tmp/captain185-qa/results.json captain/tests/verified185.json
+          git config user.name 'Captain joystick validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/ captain-mayhem/
+          git diff --cached --quiet || git commit -m 'Verified joystick release fix: independent touch ownership and neutral movement in Story, Mayhem and escape'
+          git push origin HEAD:captain-joystick-release-185
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain185-joystick-validation
+          path: |
+            /tmp/captain185-qa/
+            captain/move-stick185.js
+            captain/chaos185.js
+            captain/escape185.js
+            captain/main185.js
+            captain-mayhem/game101.js
+            captain-mayhem/main101.js
+          retention-days: 7
