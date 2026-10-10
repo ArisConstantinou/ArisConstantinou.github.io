@@ -2,7 +2,7 @@ name: Captain chapter two validation
 on:
   push:
     branches: [captain-escape-180]
-    paths: ['captain/escape*180*','captain/tools/apply180.py','captain/tools/qa180.py','captain/tests/escape180.test.mjs','.github/workflows/captain-escape180.yml']
+    paths: ['captain/escape*180*','captain/tools/*180.py','captain/tests/escape180.test.mjs','.github/workflows/captain-escape180.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -21,6 +21,7 @@ jobs:
           node --check captain/main180.js
           node --check captain/chaos180.js
           node --check captain/escape180.js
+          node --check captain/escape-world180.js
           node --test captain/tests/escape180.test.mjs captain/tests/custody173.test.mjs captain/tests/chaos170.test.mjs
       - name: Prepare Chromium
         run: |
@@ -29,6 +30,7 @@ jobs:
       - name: Play and verify chapter transitions and input
         run: |
           python -m http.server 8765 >/tmp/captain180-http.log 2>&1 &
+          python captain/tools/diagnose180.py
           python captain/tools/qa180.py
       - name: Commit tested Captain files to this staging branch only
         run: |
