@@ -1,0 +1,47 @@
+name: Captain chapter two validation
+on:
+  push:
+    branches: [captain-escape-180]
+    paths: ['captain/escape*180*','captain/tools/apply180.py','captain/tools/qa180.py','captain/tests/escape180.test.mjs','.github/workflows/captain-escape180.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: captain-escape180-validation
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Integrate existing chapter and run logic regressions
+        run: |
+          python captain/tools/apply180.py
+          node --check captain/main180.js
+          node --check captain/chaos180.js
+          node --check captain/escape180.js
+          node --test captain/tests/escape180.test.mjs captain/tests/custody173.test.mjs captain/tests/chaos170.test.mjs
+      - name: Prepare Chromium
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Play and verify chapter transitions and input
+        run: |
+          python -m http.server 8765 >/tmp/captain180-http.log 2>&1 &
+          python captain/tools/qa180.py
+      - name: Commit tested Captain files to this staging branch only
+        run: |
+          cp /tmp/captain180-qa/results.json captain/tests/verified180.json
+          git config user.name 'Captain chapter validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/
+          git diff --cached --quiet || git commit -m 'Validated LAST CALL 1.8.0 jail continuation and checkpoint escape'
+          git push origin HEAD:captain-escape-180
+          git rev-parse HEAD > /tmp/captain180-qa/staged-commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain180-escape-checks
+          path: /tmp/captain180-qa/
+          retention-days: 7
