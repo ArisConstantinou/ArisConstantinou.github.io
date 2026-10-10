@@ -1,0 +1,275 @@
+{
+  "version": "1.8.4",
+  "url": "http://127.0.0.1:8765/captain/",
+  "method": "Chromium desktop and emulated touch. Input-driven traversal plus isolated positioning for visual and combat fixtures. Not a real iPhone test.",
+  "checks": [
+    {
+      "name": "Release 1.8.4 starts",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Six decks, eight cabin interiors, two stair cores",
+      "pass": true,
+      "detail": {
+        "decks": 6,
+        "stairs": 12,
+        "cabins": 8,
+        "areas": 15,
+        "zone": "ΠΛΩΡΗ · ΜΠΑΡ",
+        "visited": [
+          "ΓΕΦΥΡΑ",
+          "ΠΛΩΡΗ · ΜΠΑΡ"
+        ],
+        "mapOpen": false
+      }
+    },
+    {
+      "name": "Original three captain vital meters remain",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Collision-valid route: bridge",
+      "pass": true,
+      "detail": 37
+    },
+    {
+      "name": "Collision-valid route: bar",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "name": "Collision-valid route: bow",
+      "pass": true,
+      "detail": 15
+    },
+    {
+      "name": "Collision-valid route: stern",
+      "pass": true,
+      "detail": 119
+    },
+    {
+      "name": "Collision-valid route: port",
+      "pass": true,
+      "detail": 56
+    },
+    {
+      "name": "Collision-valid route: starboard",
+      "pass": true,
+      "detail": 53
+    },
+    {
+      "name": "Collision-valid route: lounge",
+      "pass": true,
+      "detail": 47
+    },
+    {
+      "name": "Collision-valid route: pool",
+      "pass": true,
+      "detail": 122
+    },
+    {
+      "name": "Collision-valid route: cabins",
+      "pass": true,
+      "detail": 75
+    },
+    {
+      "name": "Collision-valid route: restaurant",
+      "pass": true,
+      "detail": 53
+    },
+    {
+      "name": "Collision-valid route: theatre",
+      "pass": true,
+      "detail": 68
+    },
+    {
+      "name": "Collision-valid route: terrace",
+      "pass": true,
+      "detail": 91
+    },
+    {
+      "name": "Collision-valid route: sky",
+      "pass": true,
+      "detail": 73
+    },
+    {
+      "name": "Collision-valid route: engine",
+      "pass": true,
+      "detail": 63
+    },
+    {
+      "name": "Collision-valid route: crew",
+      "pass": true,
+      "detail": 45
+    },
+    {
+      "name": "Input-driven bar-to-engine traversal, no teleports on route",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "at": {
+          "x": 0.1476616196667835,
+          "y": 6.65,
+          "z": -7.793939468225626
+        },
+        "steps": 343
+      }
+    },
+    {
+      "name": "Ship map pauses combat",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Map lists fifteen destinations",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Selecting route resumes without teleport",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No runtime errors in all ship areas",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Guard announces windup before dealing damage",
+      "pass": true,
+      "detail": 100
+    },
+    {
+      "name": "Four guards cannot instantly down captain",
+      "pass": true,
+      "detail": {
+        "life": 84,
+        "capture": 0
+      }
+    },
+    {
+      "name": "No simultaneous attack stacking",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Out-of-combat recovery restores health",
+      "pass": true,
+      "detail": {
+        "before": 84,
+        "after": 100
+      }
+    },
+    {
+      "name": "390x700 mobile uses both touch controllers",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "390x700 mobile has no keyboard hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "390x700 map touch target fits",
+      "pass": true,
+      "detail": {
+        "x": 10,
+        "y": 159,
+        "width": 114.703125,
+        "height": 44
+      }
+    },
+    {
+      "name": "390x700 closing map resumes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "390x700 no runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "320x568 mobile uses both touch controllers",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568 mobile has no keyboard hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568 map touch target fits",
+      "pass": true,
+      "detail": {
+        "x": 10,
+        "y": 159,
+        "width": 114.703125,
+        "height": 44
+      }
+    },
+    {
+      "name": "320x568 closing map resumes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "320x568 no runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "932x430 mobile uses both touch controllers",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430 mobile has no keyboard hints",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430 map touch target fits",
+      "pass": true,
+      "detail": {
+        "x": 10,
+        "y": 99,
+        "width": 114.703125,
+        "height": 44
+      }
+    },
+    {
+      "name": "932x430 closing map resumes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "932x430 no runtime errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "routeLengths": {
+    "bridge": 37,
+    "bar": 1,
+    "bow": 15,
+    "stern": 119,
+    "port": 56,
+    "starboard": 53,
+    "lounge": 47,
+    "pool": 122,
+    "cabins": 75,
+    "restaurant": 53,
+    "theatre": 68,
+    "terrace": 91,
+    "sky": 73,
+    "engine": 63,
+    "crew": 45
+  },
+  "passed": true
+}
