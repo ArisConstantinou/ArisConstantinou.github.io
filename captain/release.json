@@ -1,13 +1,12 @@
 {
-  "version": "1.8.0",
+  "version": "1.8.1",
   "changes": [
-    "Continue from jail instead of restart-only",
-    "Playable sober top-down escape, crawl hatch, guard perception, noise and local checkpoints",
-    "Whisky recovery and return to the existing guarded bridge"
+    "Character-space crouch IK; bounded body with no sideways pelvis displacement",
+    "Desktop mouse look, M1 slap/M2 punch, Q E F R C X Z G nearby bindings",
+    "Gentler guard recognition, automatic low-passage crouch, navigation dots and more checkpoints"
   ],
   "preserved": [
-    "Captain identity and FPS combat",
-    "Touch-only mobile controls and desktop WASD",
-    "Ship damage and chapter score during continuation"
+    "Mobile touch-only controls",
+    "Existing chapter one, jail continuation, saves and helm"
   ]
 }

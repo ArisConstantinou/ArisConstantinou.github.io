@@ -34,8 +34,8 @@ export function installCrouchPose(group,bones){
    chain(side,'upleg','leg','foot',group.localToWorld(goal),world([x,.48,.64]));
    const toe=bones.get(side+'toebase');if(toe)aim(foot,toe,world([x,.05,.24+k*step]));
    const hand=bones.get(side+'hand'),handAt=hand?group.worldToLocal(hand.getWorldPosition(new T.Vector3())):new T.Vector3(x*2,.85,.22);
-   const handGoal=handAt.lerp(new T.Vector3(x*2.35,.72,.24-k*step*.4),blend);
-   chain(side,'arm','forearm','hand',group.localToWorld(handGoal),world([x*3.5,.85,-.02]));
+   const handGoal=handAt.lerp(new T.Vector3(x*1.9,.53,.18-k*step*.3),blend);
+   chain(side,'arm','forearm','hand',group.localToWorld(handGoal),world([x*2.8,.70,-.02]));
   }
   if(head&&headQ){head.parent.getWorldQuaternion(parentQ).invert();head.quaternion.copy(parentQ.multiply(headQ));}
   group.updateWorldMatrix(true,true);

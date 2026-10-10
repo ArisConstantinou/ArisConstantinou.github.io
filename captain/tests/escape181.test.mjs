@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import * as E from '../escape-model181.js';
+test('Hatch physically blocks the cell exit before being opened',()=>{const s=E.newEscape(),p={...E.START};E.move(p,0,-8,E.obstacles(s),true);assert.ok(p.z>20.3);});
+test('Standing cannot pass an open low hatch, crouching can',()=>{const s=E.newEscape();s.hatch=true;const p={x:-4.5,z:21.6};E.move(p,0,-3.3,E.obstacles(s),false);assert.ok(p.z>20.8);E.move(p,0,-3.3,E.obstacles(s),true);assert.ok(p.z<19);});
+test('Route around walls reaches every interaction in order',()=>{const s=E.newEscape();s.hatch=true;let p={...E.START};for(const dest of [{x:-4.5,z:18.5},{x:0,z:17},{x:5,z:10},{x:-.9,z:9}]){const route=E.path(p,dest,E.obstacles(s),true);assert.ok(route.length);assert.ok(E.distance(route.at(-1),dest)<.1);p=dest;}s.storeOpen=true;for(const dest of [{x:-4.4,z:8.1},{x:0,z:1.5}]){const route=E.path(p,dest,E.obstacles(s),true);assert.ok(E.distance(route.at(-1),dest)<.1);p=dest;}});
+test('A locked storage door cannot be crossed',()=>{const s=E.newEscape(),p={x:0,z:9};E.move(p,-6,0,E.obstacles(s),true);assert.ok(p.x>-1.7);s.storeOpen=true;E.move(p,-3,0,E.obstacles(s),true);assert.ok(p.x<-2.5);});
+test('A guard cannot see through the cabin partition',()=>{const g={x:0,z:22,yaw:-Math.PI/2};assert.equal(E.canSee(g,{x:-4.5,z:22},false,E.WALLS),false);});
+test('Vision depends on facing and crouched visibility distance',()=>{const g={x:0,z:10,yaw:0};assert.equal(E.canSee(g,{x:0,z:13},false,[]),true);assert.equal(E.canSee(g,{x:0,z:7},false,[]),false);assert.equal(E.canSee(g,{x:0,z:15},true,[]),false);});
+test('Thrown ray is blocked by a solid wall',()=>{assert.equal(E.clear({x:-4,z:22},{x:0,z:22},E.WALLS),false);assert.equal(E.clear({x:-4,z:17},{x:0,z:17},E.WALLS),true);});
+test('Restored local progress retains flags and bounded intoxication',()=>{const s=E.newEscape();Object.assign(s,{hatch:true,card:true,storeOpen:true,bottle:true,intox:33,position:{x:-4.4,z:8.1}});const r=E.restore(E.snapshot(s));assert.equal(r.card,true);assert.equal(r.bottle,true);assert.equal(r.stage,'escape');assert.deepEqual(r.position,s.position);assert.equal(r.intox,33);});
+test('Malformed local position is not trusted',()=>{const r=E.restore({position:{x:999,z:NaN},intox:999});assert.deepEqual(r.position,E.START);assert.equal(r.intox,100);});
+test('A long frame cannot tunnel through room walls',()=>{const p={x:0,z:22};E.move(p,50,0,E.WALLS,true);assert.ok(p.x<1.9);});
