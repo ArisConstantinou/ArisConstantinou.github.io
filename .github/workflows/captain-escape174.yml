@@ -2,7 +2,7 @@ name: Captain 1.7.4 escape validation
 on:
   push:
     branches: [captain-escape-174]
-    paths: ['captain/escape174.js','captain/escape-model174.js','captain/escape174.css','captain/tools/apply174.py','captain/tools/polish174.py','captain/tools/qa174.py','captain/tests/escape174.test.mjs','.github/workflows/captain-escape174.yml']
+    paths: ['captain/escape174.js','captain/escape-model174.js','captain/escape174.css','captain/tools/apply174.py','captain/tools/polish174.py','captain/tools/finish174.py','captain/tools/qa174.py','captain/tests/escape174.test.mjs','.github/workflows/captain-escape174.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -22,6 +22,7 @@ jobs:
           git show db1020c09e13b241f229bd2d477156feb1c59025:captain/sw.js > captain/sw.js
           python captain/tools/apply174.py
           python captain/tools/polish174.py
+          python captain/tools/finish174.py
           node --check captain/main174.js
           node --check captain/chaos174.js
           node --check captain/escape174.js
