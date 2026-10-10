@@ -1,0 +1,43 @@
+name: Captain main-page mode selection
+on:
+  push:
+    branches: [captain-main-menu-modes]
+    paths: ['captain/mode-menu.js','captain/mode-menu.css','tools/captain-mode-menu/apply.py','tools/captain-mode-menu/qa.py','.github/workflows/captain-mode-menu.yml']
+permissions:
+  contents: write
+concurrency:
+  group: captain-main-mode-menu
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply presentation-only main-menu change
+        run: |
+          python tools/captain-mode-menu/apply.py
+          node --check captain/mode-menu.js
+          test "$(git diff --name-only)" = "captain/index.html"
+      - name: Prepare browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Test main menu, portrait touch and launches into both games
+        run: |
+          python -m http.server 8765 >/tmp/menu-server.log 2>&1 &
+          xvfb-run -a python tools/captain-mode-menu/qa.py
+      - name: Stage validated menu HTML only
+        run: |
+          test "$(git diff --name-only)" = "captain/index.html"
+          git config user.name 'Captain menu validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/index.html
+          git commit -m 'Main page: visible Story / Mayhem mode selector; gameplay and saves unchanged'
+          git push origin HEAD:captain-main-menu-modes
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain-main-mode-menu-qa
+          path: /tmp/mode-menu-qa/
+          retention-days: 7
