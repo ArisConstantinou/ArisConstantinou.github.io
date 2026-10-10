@@ -1,0 +1,54 @@
+name: Mayhem isolated mode validation
+on:
+  push:
+    branches: [captain-mayhem-mode]
+    paths: ['captain-mayhem/build.py','captain-mayhem/polish.py','captain-mayhem/qa.py','captain-mayhem/rules.test.mjs','captain-mayhem/systems.js','captain-mayhem/rules.js','captain-mayhem/setdress.js','captain-mayhem/look.js','captain-mayhem/mode.css','.github/workflows/captain-mayhem-validate.yml']
+permissions:
+  contents: write
+concurrency:
+  group: mayhem-validation
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build without changing the story
+        run: |
+          python captain-mayhem/build.py
+          python captain-mayhem/polish.py
+          for file in captain-mayhem/*.js; do node --check "$file"; done
+          node --test captain-mayhem/rules.test.mjs
+          test -z "$(git diff --name-only -- captain)"
+      - name: Prepare browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Exercise the actual game
+        run: |
+          python -m http.server 8765 >/tmp/mayhem-server.log 2>&1 &
+          python captain-mayhem/qa.py
+      - name: Confirm baseline and stage only the new folder
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,hashlib
+          baseline=json.loads(Path('captain-mayhem/baseline.json').read_text())
+          assert all(hashlib.sha256(Path('captain',name).read_bytes()).hexdigest()==value for name,value in baseline.items())
+          print('All',len(baseline),'original Captain files remain byte-identical')
+          Path('captain-mayhem/verified.json').write_text(Path('/tmp/mayhem-qa/results.json').read_text())
+          PY
+          git config user.name 'Mayhem isolated validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain-mayhem/
+          git diff --cached --quiet || git commit -m 'Validate independent Mayhem mode; original Captain untouched'
+          git push origin HEAD:captain-mayhem-mode
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mayhem-validation
+          path: |
+            /tmp/mayhem-qa/
+            captain-mayhem/
+          retention-days: 7
