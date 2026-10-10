@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 R=Path(__file__).resolve().parent
 p=R/'systems.js';s=p.read_text()
 s=s.replace("o===s.held||!['chair'","o.active===false||!['chair'")
@@ -20,5 +21,11 @@ s=s.replace("n.state=n.brave||n.guard?'fight':'flee';n.goal.copy", "n.state=n.br
 s=s.replace("const q=n.actor.group.position;const distance=", "const q=n.actor.group.position;if(!n.guard&&n.state==='fight'&&s.time>(n.civilianAngryUntil||0)&&(!lineClear(p,q)||q.distanceTo(p)>10)){n.state='flee';n.attack=null;}const distance=")
 p.write_text(s)
 p=R/'main.js';s=p.read_text()
-s=s.replace("Promise.resolve(voicesReady).then(()=>{if(playing&&!paused)dialogue?.drink(state);});",'// The sandbox does not schedule the story opening dialogue.')
+s=s.replace("const thisVoyage=state;Promise.resolve(audioReady).then(()=>audio.loadVoices()).then(()=>{if(state===thisVoyage&&playing&&!paused&&soundEnabled)dialogue.say('calm',state,undefined,1);}).catch(()=>{});","Promise.resolve(audioReady).then(()=>audio.loadVoices()).catch(()=>{});")
 p.write_text(s)
+p=R/'audio.js';s=p.read_text().replace('from "./voice-store140.js?v=140"','from "../captain/voice-store140.js?v=140"');p.write_text(s)
+for p in R.glob('*.js'):
+ for imp in re.findall(r'''from\s+['"](\.[^'"]+)['"]''',p.read_text()):
+  target=p.parent/imp.split('?')[0]
+  assert target.exists(),(p.name,imp)
+print('Every relative module import resolves locally')
