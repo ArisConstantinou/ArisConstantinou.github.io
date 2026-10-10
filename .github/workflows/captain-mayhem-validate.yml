@@ -2,7 +2,7 @@ name: Mayhem isolated mode validation
 on:
   push:
     branches: [captain-mayhem-mode]
-    paths: ['captain-mayhem/build.py','captain-mayhem/polish.py','captain-mayhem/finalize.py','captain-mayhem/qa.py','captain-mayhem/rules.test.mjs','captain-mayhem/systems.js','captain-mayhem/rules.js','captain-mayhem/setdress.js','captain-mayhem/look.js','captain-mayhem/mode.css','.github/workflows/captain-mayhem-validate.yml']
+    paths: ['captain-mayhem/build.py','captain-mayhem/polish.py','captain-mayhem/finalize.py','captain-mayhem/finish2.py','captain-mayhem/qa.py','captain-mayhem/rules.test.mjs','captain-mayhem/systems.js','captain-mayhem/rules.js','captain-mayhem/setdress.js','captain-mayhem/look.js','captain-mayhem/mode.css','.github/workflows/captain-mayhem-validate.yml']
 permissions:
   contents: write
 concurrency:
@@ -19,6 +19,7 @@ jobs:
           python captain-mayhem/build.py
           python captain-mayhem/polish.py
           python captain-mayhem/finalize.py
+          python captain-mayhem/finish2.py
           for file in captain-mayhem/*.js; do node --check "$file"; done
           node --test captain-mayhem/rules.test.mjs
           test -z "$(git diff --name-only -- captain)"
@@ -27,9 +28,11 @@ jobs:
           pip install -q playwright
           python -m playwright install --with-deps chromium
       - name: Exercise the actual game
+        env:
+          MAYHEM_HEADED: '1'
         run: |
           python -m http.server 8765 >/tmp/mayhem-server.log 2>&1 &
-          python captain-mayhem/qa.py
+          xvfb-run --auto-servernum python captain-mayhem/qa.py
       - name: Confirm baseline and stage only the new folder
         run: |
           python - <<'PY'
