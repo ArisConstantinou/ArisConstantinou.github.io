@@ -1,13 +1,14 @@
 {
-  "version": "1.8.2",
+  "version": "1.8.3",
   "changes": [
-    "Portrait right joystick with nine radial touch actions and drag-to-select",
-    "Visible 3D whisky bottle while drinking on deck",
-    "One sip instantly reaches 70% intoxication during jail escape"
+    "Compact mobile bridge HUD; no combat panels at helm",
+    "Fixed ring with relative drag camera: stationary finger stops view, no input mixing",
+    "World-rendered whisky attached to animated palm, on deck and in escape",
+    "One-sip 70% escape retained"
   ],
   "preserved": [
-    "Desktop WASD and mouse",
-    "Left movement joystick",
-    "Existing story and save checkpoints"
+    "Portrait",
+    "Mouse and WASD on desktop",
+    "Jail progression and checkpoints"
   ]
 }

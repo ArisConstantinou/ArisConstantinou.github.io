@@ -56,7 +56,7 @@ export function installTouchControls({root,canvas,enabled,onLook,onAction,onBloc
  const settings=document.createElement('label');settings.id='touchSensitivity183';settings.innerHTML='<span>Ευαισθησία αφής <b></b></span><input type="range" min="40" max="140" step="5" aria-label="Ευαισθησία κάμερας αφής"><small>Σύρε για ματιά · το κράτημα δεν περιστρέφει την κάμερα.</small>';
  const slider=settings.querySelector('input'),value=settings.querySelector('b');slider.value=String(Math.round(sensitivity*100));value.textContent=slider.value+'%';
  slider.addEventListener('input',()=>{sensitivity=Number(slider.value)/100;value.textContent=slider.value+'%';try{localStorage.setItem('captain-look183',String(sensitivity));}catch{}});
- const pause=document.querySelector('#pauseScreen .modal')||document.querySelector('#pauseScreen');if(pause)pause.append(settings);
+ const pause=document.querySelector('#pauseScreen .modal')||document.querySelector('#pauseScreen');if(pause){pause.append(settings);const profile=document.createElement('button');profile.className='setting-button';profile.textContent='Ο καπετάνιος · προβολή χαρακτήρα';profile.onclick=()=>document.getElementById('captainIdentityButton')?.click();pause.append(profile);}
  function sync(){const can=usable();wheel.hidden=!can;if(!can&&wasEnabled)reset();wasEnabled=can;
   const s=status();buttons.forEach((b,i)=>{b.classList.toggle('unavailable',!allowed(i));b.setAttribute('aria-disabled',String(!allowed(i)));b.classList.toggle('executing',s.attack===actions[i][0]);});
  }

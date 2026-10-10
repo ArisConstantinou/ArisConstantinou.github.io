@@ -1,7 +1,7 @@
 /** Visible, world-rendered whisky attached to the animated palm, not to an unrendered camera. */
 import * as T from 'three';
 export function createWhiskyProp(actor){
- const root=new T.Group();root.name='Captain held whisky';root.visible=false;root.userData.whisky183=true;actor.group.add(root);
+ const root=new T.Group();root.name='Captain held whisky';root.scale.set(.64,.90,.64);root.visible=false;root.userData.whisky183=true;actor.group.add(root);
  const amber=new T.MeshStandardMaterial({color:0x9c4e14,roughness:.30,metalness:.12,emissive:0x4a2109,emissiveIntensity:.24});
  const profile=[[-.145,.025],[-.135,.052],[-.12,.061],[.065,.061],[.085,.052],[.105,.024],[.171,.024],[.18,.027]];
  const body=new T.Mesh(new T.LatheGeometry(profile.map(([y,r])=>new T.Vector2(r,y)),24),amber);root.add(body);
@@ -19,7 +19,7 @@ export function createWhiskyProp(actor){
   if(finger){actor.group.worldToLocal(finger.getWorldPosition(f));p.lerp(f,.55);}
   root.position.copy(p);root.position.z-=.032;root.position.y+=.018;
   const lift=Math.sin(Math.PI*Math.max(0,Math.min(1,remaining)));
-  axis.set(0,1,0).lerp(new T.Vector3(0,1.57,.04).sub(root.position).normalize(),lift*.68).normalize();
+  axis.set(0,1,0).lerp(new T.Vector3(0,1.57,.04).sub(root.position).normalize(),lift*.22).normalize();
   root.quaternion.setFromUnitVectors(up,axis);root.updateWorldMatrix(true,true);attachmentError=root.position.distanceTo(p);
  }
  function inspect(){let scene=false;for(let o=root;o;o=o.parent)if(o.isScene)scene=true;

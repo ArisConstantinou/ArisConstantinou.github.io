@@ -66,7 +66,7 @@ with sync_playwright() as pw:
   bx,by=center(p,'.ring-action[data-action=block]');event(cd,'touchStart',[point(bx,by)]);check('Block held while touching its sector',ch(p)['block']);event(cd,'touchEnd',[]);check('Block releases without a second toggle',not ch(p)['block'])
   lx,ly=center(p,'#chaosMove');x,y=center(p,'#combatRightStick');before=ch(p)['position']
   event(cd,'touchStart',[point(lx,ly-18,0)]);event(cd,'touchStart',[point(lx,ly-18,0),point(x,y,1)]);event(cd,'touchMove',[point(lx,ly-18,0),point(x+12,y,1)]);adv(p,.3)
-  event(cd,'touchEnd',[point(lx,ly-18,0)]);look=ch(p)['look'];adv(p,.3)
+  event(cd,'touchEnd',[point(x+12,y,1)]);look=ch(p)['look'];adv(p,.3)
   check('Releasing camera keeps left movement active',abs(ch(p)['stick']['y'])>.1 and ch(p)['position']!=before)
   check('Camera remains stopped with the other finger held',ch(p)['look']==look)
   event(cd,'touchEnd',[]);adv(p,.03);check('All touch input releases cleanly',not ch(p)['touch']['active'] and abs(ch(p)['stick']['y'])<.001)
@@ -91,15 +91,15 @@ with sync_playwright() as pw:
   ctx,p,errors=fresh(browser,1280,800,False);deck(p,False)
   check('Desktop retains WASD and hides touch ring',p.locator('#keyboardMovement').is_visible() and not p.locator('#mobileCombatWheel').is_visible())
   p.locator('#sea').click(position={'x':640,'y':300});p.wait_for_function('document.pointerLockElement!==null',timeout=5000);check('First mouse capture does not attack',ch(p)['attack'] is None)
-  p.mouse.click(640,300);check('Desktop left click retains slap',ch(p)['attack']['kind']=='slap');adv(p,.6)
-  p.mouse.click(640,300,button='right');check('Desktop right click retains punch',ch(p)['attack']['kind']=='punch');adv(p,.8);p.keyboard.press('Tab')
+  p.wait_for_timeout(150);p.mouse.move(660,310,steps=3);p.mouse.down();p.mouse.up();check('Desktop left click retains slap',(ch(p)['attack'] or {}).get('kind')=='slap');adv(p,.6)
+  p.mouse.down(button='right');p.mouse.up(button='right');check('Desktop right click retains punch',(ch(p)['attack'] or {}).get('kind')=='punch');adv(p,.8);p.keyboard.press('Tab')
   check('No desktop runtime errors',not errors,errors);ctx.close()
   ctx,p,errors=fresh(browser,390,700,True);p.locator('#jailEntry180').tap();p.evaluate('window.__CHAOS_FREEZE__=true');p.locator('#continueFromCell180').tap();adv(p,1.8);p.locator('#escapeOverlayAction').tap();adv(p,.05)
   for x,z in [(5,10),(-.9,9),(-4.4,8.1)]:
-   p.evaluate('([x,z])=>window.__lastCall.test.chapter.escape.moveTo(x,z)',[x,z]);adv(p,.03);p.locator('#escapeUse').tap();adv(p,.03)
+   p.evaluate('([x,z])=>window.__lastCall.test.chapter.escape.moveTo(x,z)',[x,z]);adv(p,.15);p.locator('#escapeUse').tap();adv(p,.03)
   p.locator('#escapeDrink').tap();check('One escape sip immediately reaches required level',ch(p)['escape']['intox']>=70)
   adv(p,.5);check('Escape also shows the physical bottle',ch(p)['escape']['whisky']['visible'] and ch(p)['escape']['whisky']['sceneAttached']);p.screenshot(path=str(OUT/'escape-drink.png'))
-  p.evaluate('window.__lastCall.test.chapter.escape.moveTo(0,2.4)');adv(p,.03);p.locator('#escapeUse').tap();adv(p,2)
+  p.evaluate('window.__lastCall.test.chapter.escape.moveTo(0,2.4)');adv(p,.15);p.locator('#escapeUse').tap();adv(p,2)
   check('One sip is sufficient to leave escape',ch(p)['returning'] and ch(p)['escape'] is None)
   check('No escape runtime errors',not errors,errors);ctx.close();report['passed']=True
  except Exception as e:
