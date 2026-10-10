@@ -1,0 +1,56 @@
+name: Captain 1.7.3 mobile and custody validation
+on:
+  push:
+    branches: [captain-mobile-custody-173]
+    paths: ['captain/ui173.js','captain/mobile173.css','captain/security173.js','captain/tools/apply173.py','captain/tools/finalize173.py','captain/tools/qa173.py','.github/workflows/captain-mobile173.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: captain-mobile173
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply guarded integration
+        run: |
+          if [ ! -f captain/main173.js ]; then
+            python captain/tools/apply173.py
+            python captain/tools/finalize173.py
+          fi
+          node --check captain/main173.js
+          node --check captain/chaos173.js
+          node --check captain/ui173.js
+          node --test captain/tests/custody173.test.mjs captain/tests/chaos170.test.mjs
+      - name: Install browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Test actual game and natural custody
+        run: |
+          python -m http.server 8765 >/tmp/captain-http.log 2>&1 &
+          python captain/tools/qa173.py
+      - name: Stage verified captain files only
+        run: |
+          cp /tmp/captain173-qa/results.json captain/tests/verified173.json
+          git config user.name 'Captain mobile validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/
+          git commit -m 'Captain 1.7.3 verified: touch controls, captain status, natural guard pursuit and custody' || true
+          git push origin HEAD:captain-mobile-custody-173
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain173-tested
+          path: |
+            /tmp/captain173-qa/
+            captain/main173.js
+            captain/chaos173.js
+            captain/chaos-world173.js
+            captain/ui173.js
+            captain/security173.js
+            captain/mobile173.css
+          retention-days: 7
