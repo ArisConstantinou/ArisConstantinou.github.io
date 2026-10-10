@@ -2,7 +2,7 @@ name: Captain 181 controls and pose
 on:
   push:
     branches: [captain-fix-181]
-    paths: ['captain/pose181.js','captain/mouse181.js','captain/controls181.css','captain/tools/apply181.py','captain/tools/qa181.py','.github/workflows/captain181-validate.yml']
+    paths: ['captain/pose181.js','captain/mouse181.js','captain/controls181.css','captain/tools/apply181.py','captain/tools/polish181.py','captain/tools/qa181.py','.github/workflows/captain181-validate.yml']
 permissions:
   contents: write
 concurrency:
@@ -20,6 +20,7 @@ jobs:
           git show 2748541544cb5bfd0fc34dc4cbe6792db9bda3ed:captain/index.html > captain/index.html
           git show 2748541544cb5bfd0fc34dc4cbe6792db9bda3ed:captain/sw.js > captain/sw.js
           python captain/tools/apply181.py
+          python captain/tools/polish181.py
           for f in captain/*181.js; do node --check "$f"; done
           sed 's/escape-model180/escape-model181/g' captain/tests/escape180.test.mjs > captain/tests/escape181.test.mjs
           node --test captain/tests/escape181.test.mjs captain/tests/chaos170.test.mjs
