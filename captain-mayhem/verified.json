@@ -1,0 +1,518 @@
+{
+  "mode": "MAYHEM 1.0.0",
+  "url": "http://127.0.0.1:8765/captain-mayhem/",
+  "method": "Chromium. Real input handlers, deterministic clock steps and explicit setup positions for isolated mechanics; not an unassisted full playthrough. Mobile is emulated, not a physical iPhone.",
+  "checks": [
+    {
+      "name": "New mode loads as distinct version",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Starts free on the ship, already drunk",
+      "passed": true,
+      "detail": {
+        "x": 4.3007246765925276,
+        "y": 10.1,
+        "z": 57
+      }
+    },
+    {
+      "name": "No story card or jail entry in sandbox UI",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Compact new HUD replaces old objective and vitals",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Six-deck map retained",
+      "passed": true,
+      "detail": {
+        "decks": 6,
+        "stairs": 12,
+        "cabins": 8,
+        "areas": 15,
+        "zone": "ΠΛΩΡΗ · ΜΠΑΡ",
+        "visited": [
+          "ΠΛΩΡΗ · ΜΠΑΡ"
+        ],
+        "mapOpen": false
+      }
+    },
+    {
+      "name": "WASD visible; mobile wheel hidden",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Unbroken glass stops player",
+      "passed": true,
+      "detail": {
+        "x": 2.0804374999999995,
+        "y": 10.1,
+        "z": 6.1199835958079785
+      }
+    },
+    {
+      "name": "Kick shatters selected glass",
+      "passed": true,
+      "detail": {
+        "id": "prop-42",
+        "type": "window",
+        "hp": 24,
+        "broken": false,
+        "x": 2.45,
+        "y": 10.1,
+        "z": 6
+      }
+    },
+    {
+      "name": "Broken doorway becomes traversable",
+      "passed": true,
+      "detail": {
+        "x": 4.348562500000002,
+        "y": 10.1,
+        "z": 6.027823812816702
+      }
+    },
+    {
+      "name": "Extinguisher is a real pickup",
+      "passed": true,
+      "detail": {
+        "id": "prop-47",
+        "type": "extinguisher",
+        "hp": 999,
+        "broken": false,
+        "x": 4.053599631843689,
+        "y": 11.2,
+        "z": 54.57
+      }
+    },
+    {
+      "name": "Context action changes to spray",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Spray produces persistent cover volume",
+      "passed": true,
+      "detail": {
+        "mode": "mayhem",
+        "seen": false,
+        "quiet": 0,
+        "smoke": 1,
+        "best": 119,
+        "saveKey": "last-call-mayhem-v1",
+        "tiltReady": 0
+      }
+    },
+    {
+      "name": "Throw still releases held prop",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Manoeuvre physically moves loose props",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "Manoeuvre has a visible cooldown",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Guards allow reaction time rather than instant kill",
+      "passed": true,
+      "detail": {
+        "before": 100,
+        "after": 92
+      }
+    },
+    {
+      "name": "Lost line of sight clears wanted heat",
+      "passed": true,
+      "detail": {
+        "before": 80,
+        "after": 0
+      }
+    },
+    {
+      "name": "No automatic jail after security encounter",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Defeat is recovery, not a forced story ending",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Recovery keeps score and destroyed glass",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Captain can play again immediately",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Old story save untouched",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Separate Mayhem save restores score and destruction",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Whisky prop is rendered during sip",
+      "passed": true,
+      "detail": {
+        "visible": true,
+        "sceneAttached": true,
+        "attachmentError": 0.03671511950137167,
+        "position": [
+          4.40943667780232,
+          11.697616921060915,
+          56.593314726156365
+        ],
+        "label": "LAST CALL WHISKY"
+      }
+    },
+    {
+      "name": "Desktop FPS pointer lock works",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Mouse movement rotates camera",
+      "passed": true,
+      "detail": {
+        "before": 3.141592653589793,
+        "after": 2.8115926535897926,
+        "lock": "sea"
+      }
+    },
+    {
+      "name": "Primary click starts slap",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Secondary click starts punch",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Can take the real helm inside the new mode",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Leaving helm restores unrestricted combat",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Heavy attack works after helm roundtrip",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop has no runtime errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "430: only touch controls",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "430: no visible keyboard labels",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "430: #mhMeters within viewport",
+      "passed": true,
+      "detail": {
+        "x": 12,
+        "y": 65,
+        "width": 406,
+        "height": 19
+      }
+    },
+    {
+      "name": "430: #mhTilt within viewport",
+      "passed": true,
+      "detail": {
+        "x": 12,
+        "y": 629,
+        "width": 98,
+        "height": 50
+      }
+    },
+    {
+      "name": "430: #chaosMove within viewport",
+      "passed": true,
+      "detail": {
+        "x": 14,
+        "y": 722,
+        "width": 84,
+        "height": 84
+      }
+    },
+    {
+      "name": "430: #mobileCombatWheel within viewport",
+      "passed": true,
+      "detail": {
+        "x": 200,
+        "y": 592,
+        "width": 222,
+        "height": 222
+      }
+    },
+    {
+      "name": "430: .mode-head within viewport",
+      "passed": true,
+      "detail": {
+        "x": 12,
+        "y": 12,
+        "width": 165.5,
+        "height": 33
+      }
+    },
+    {
+      "name": "Holding still never drifts the camera",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Relative thumb movement controls look",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Look gesture never triggers an attack",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Touch drink also renders the bottle",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "430: no runtime errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "390: only touch controls",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "390: no visible keyboard labels",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "390: #mhMeters within viewport",
+      "passed": true,
+      "detail": {
+        "x": 12,
+        "y": 65,
+        "width": 366,
+        "height": 19
+      }
+    },
+    {
+      "name": "390: #mhTilt within viewport",
+      "passed": true,
+      "detail": {
+        "x": 12,
+        "y": 541,
+        "width": 98,
+        "height": 50
+      }
+    },
+    {
+      "name": "390: #chaosMove within viewport",
+      "passed": true,
+      "detail": {
+        "x": 14,
+        "y": 634,
+        "width": 84,
+        "height": 84
+      }
+    },
+    {
+      "name": "390: #mobileCombatWheel within viewport",
+      "passed": true,
+      "detail": {
+        "x": 160,
+        "y": 504,
+        "width": 222,
+        "height": 222
+      }
+    },
+    {
+      "name": "390: .mode-head within viewport",
+      "passed": true,
+      "detail": {
+        "x": 12,
+        "y": 12,
+        "width": 165.5,
+        "height": 33
+      }
+    },
+    {
+      "name": "390: no runtime errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "320: only touch controls",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "320: no visible keyboard labels",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "320: #mhMeters within viewport",
+      "passed": true,
+      "detail": {
+        "x": 12,
+        "y": 65,
+        "width": 296,
+        "height": 19
+      }
+    },
+    {
+      "name": "320: #mhTilt within viewport",
+      "passed": true,
+      "detail": {
+        "x": 12,
+        "y": 383,
+        "width": 86,
+        "height": 50
+      }
+    },
+    {
+      "name": "320: #chaosMove within viewport",
+      "passed": true,
+      "detail": {
+        "x": 10,
+        "y": 466,
+        "width": 76,
+        "height": 76
+      }
+    },
+    {
+      "name": "320: #mobileCombatWheel within viewport",
+      "passed": true,
+      "detail": {
+        "x": 113,
+        "y": 348,
+        "width": 202,
+        "height": 202
+      }
+    },
+    {
+      "name": "320: .mode-head within viewport",
+      "passed": true,
+      "detail": {
+        "x": 12,
+        "y": 12,
+        "width": 155.671875,
+        "height": 29
+      }
+    },
+    {
+      "name": "320: no runtime errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "932: only touch controls",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "932: no visible keyboard labels",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "932: #mhMeters within viewport",
+      "passed": true,
+      "detail": {
+        "x": 265,
+        "y": 15,
+        "width": 545,
+        "height": 19
+      }
+    },
+    {
+      "name": "932: #mhTilt within viewport",
+      "passed": true,
+      "detail": {
+        "x": 12,
+        "y": 243,
+        "width": 98,
+        "height": 50
+      }
+    },
+    {
+      "name": "932: #chaosMove within viewport",
+      "passed": true,
+      "detail": {
+        "x": 14,
+        "y": 320,
+        "width": 84,
+        "height": 84
+      }
+    },
+    {
+      "name": "932: #mobileCombatWheel within viewport",
+      "passed": true,
+      "detail": {
+        "x": 722,
+        "y": 220,
+        "width": 202,
+        "height": 202
+      }
+    },
+    {
+      "name": "932: .mode-head within viewport",
+      "passed": true,
+      "detail": {
+        "x": 12,
+        "y": 12,
+        "width": 165.5,
+        "height": 33
+      }
+    },
+    {
+      "name": "932: no runtime errors",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "desktopMetrics": {
+    "drawCalls": 606,
+    "triangles": 426444
+  },
+  "passed": true
+}

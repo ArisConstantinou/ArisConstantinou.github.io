@@ -13,8 +13,16 @@ def props(p):return p.evaluate('window.__lastCall.test.chapter.props()')
 def check(name,passed,detail=None):
  report['checks'].append({'name':name,'passed':bool(passed),'detail':detail});print(('PASS ' if passed else 'FAIL ')+name,flush=True)
  if not passed:raise AssertionError((name,detail))
-def shot(p,name):p.wait_for_timeout(160);p.screenshot(path=str(OUT/(name+'.png')))
-def fresh(browser,w=1365,h=820,touch=False):
+def shot(p,name):
+ (OUT/'results-progress.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+ try:
+  p.wait_for_timeout(250)
+  p.screenshot(path=str(OUT/(name+'.png')),timeout=15000,animations='disabled')
+ except Exception as error:
+  report.setdefault('captureWarnings',[]).append({'frame':name,'error':str(error)})
+  print('CAPTURE WARNING',name,str(error),flush=True)
+
+def fresh(browser,w=1280,h=800,touch=False):
  ctx=browser.new_context(viewport={'width':w,'height':h},is_mobile=touch,has_touch=touch,service_workers='block',device_scale_factor=1)
  p=ctx.new_page();errors=[];net=[];p.on('pageerror',lambda e:(errors.append(str(e)),print('JS',str(e),flush=True)));p.on('requestfailed',lambda r:net.append([r.url,r.failure]));p.add_init_script("localStorage.setItem('last-call-story180','STORY_SENTINEL_UNCHANGED');")
  try:
@@ -23,7 +31,7 @@ def fresh(browser,w=1365,h=820,touch=False):
   (OUT/'startup.json').write_text(json.dumps({'errors':errors,'network':net,'dom':p.locator('body').inner_text()},ensure_ascii=False,indent=2));shot(p,'startup-failed');raise
  return ctx,p,errors
 with sync_playwright() as pw:
- browser=pw.chromium.launch(headless=True,args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-webgl'])
+ browser=pw.chromium.launch(headless=os.getenv('MAYHEM_HEADED')!='1',args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-webgl','--disable-dev-shm-usage'])
  p=None
  try:
   ctx,p,errors=fresh(browser)
@@ -44,7 +52,7 @@ with sync_playwright() as pw:
   check('Kick shatters selected glass',next(o for o in props(p) if o['id']==panel['id'])['broken'],panel)
   hold(p,'KeyW',.85)
   check('Broken doorway becomes traversable',ch(p)['position']['x']>2.85,ch(p)['position'])
-  shot(p,'glass-passage')
+  pos(p,4.3,10.1,6,-math.pi/2);shot(p,'glass-passage')
   # Actual held extinguisher and contextual spray.
   pos(p,3.8,10.1,55.3,math.pi);p.keyboard.press('KeyX');advance(p,.08)
   ext=next(o for o in props(p) if o['id']==ch(p)['held']) if ch(p)['held'] is not None else None
@@ -79,9 +87,16 @@ with sync_playwright() as pw:
   check('Whisky prop is rendered during sip',ch(p)['whisky']['visible'],ch(p)['whisky'])
   advance(p,2);p.mouse.click(620,360);p.wait_for_timeout(250)
   check('Desktop FPS pointer lock works',p.evaluate('document.pointerLockElement?.id')=='sea')
-  old=ch(p)['yaw'];p.mouse.move(690,380);p.wait_for_timeout(100);check('Mouse movement rotates camera',abs(ch(p)['yaw']-old)>.01)
+  old=ch(p)['yaw'];p.mouse.move(655,370,steps=3);p.wait_for_timeout(150);p.mouse.move(730,390,steps=6)
+  p.wait_for_function('(old)=>Math.abs(window.__lastCall.getState().chapter.yaw-old)>.01',arg=old,timeout=5000)
+  check('Mouse movement rotates camera',abs(ch(p)['yaw']-old)>.01,{'before':old,'after':ch(p)['yaw'],'lock':p.evaluate('document.pointerLockElement?.id')})
   p.mouse.click(690,380);check('Primary click starts slap',ch(p)['attack'] and ch(p)['attack']['kind']=='slap');advance(p,1)
   p.mouse.click(690,380,button='right');check('Secondary click starts punch',ch(p)['attack'] and ch(p)['attack']['kind']=='punch');advance(p,1);p.keyboard.press('Tab')
+  pos(p,1.2,18.43,44.4,0);p.keyboard.press('KeyF');advance(p,.1)
+  check('Can take the real helm inside the new mode',not ch(p)['foot'])
+  p.keyboard.press('KeyF');advance(p,.1)
+  check('Leaving helm restores unrestricted combat',ch(p)['foot'] and ch(p)['phase']=='deck')
+  p.keyboard.press('KeyQ');check('Heavy attack works after helm roundtrip',ch(p)['attack'] and ch(p)['attack']['kind']=='heavy');advance(p,1.1)
   check('Desktop has no runtime errors',not errors,errors)
   report['desktopMetrics']={k:state(p).get(k) for k in ['drawCalls','triangles']};ctx.close()
   for w,h in [(430,832),(390,744),(320,568),(932,430)]:
@@ -105,7 +120,7 @@ with sync_playwright() as pw:
  except Exception as e:
   report['passed']=False;report['error']=str(e);traceback.print_exc()
   if p:
-   try:shot(p,'failure');report['failureState']=state(p)
+   try:report['failureState']=state(p);shot(p,'failure')
    except:pass
  finally:
   (OUT/'results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2));browser.close()
