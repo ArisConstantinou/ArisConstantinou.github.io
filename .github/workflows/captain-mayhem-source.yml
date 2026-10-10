@@ -1,0 +1,17 @@
+name: Mayhem baseline snapshot
+on:
+  push:
+    branches: [captain-mayhem-mode]
+    paths: ['.github/workflows/captain-mayhem-source.yml']
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: captain-mayhem-baseline
+          path: captain/
+          retention-days: 2
