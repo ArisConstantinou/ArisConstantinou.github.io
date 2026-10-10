@@ -1,0 +1,51 @@
+name: Captain 184 public ship verification
+on:
+  push:
+    branches: [captain-roam-184]
+    paths: ['.github/workflows/captain184-public.yml']
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 74dfd6488201d8aca51b391aa955b0e44a7efa46
+      - name: Confirm exact tested public files
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import urllib.request,time,hashlib,json
+          base='https://arisconstantinou.github.io/captain/'
+          names=['index.html','main184.js','chaos184.js','ship184.js','shipwalk184.js','security184.js','combat184.js','roam-world184.js','shipmap184.js','shipmap184.css','touch183.js','whisky183.js','escape183.js','sw.js','release.json']
+          out=Path('/tmp/captain184-qa');out.mkdir(exist_ok=True)
+          for attempt in range(20):
+            try:
+              bad=[]
+              for name in names:
+                data=urllib.request.urlopen(base+name+'?verify=184-public',timeout=15).read()
+                if hashlib.sha256(data).digest()!=hashlib.sha256(Path('captain',name).read_bytes()).digest():bad.append(name)
+              if not bad:break
+              print('Waiting for files',bad,flush=True)
+            except Exception as e:print(str(e),flush=True)
+            time.sleep(8)
+          else:raise SystemExit('Public files mismatch')
+          (out/'published-files.json').write_text(json.dumps({'commit':'74dfd6488201d8aca51b391aa955b0e44a7efa46','url':base,'matched':names},indent=2))
+          print('Published code and preserved input/whisky files match')
+          PY
+      - name: Prepare Chromium
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Test live game
+        env:
+          CAPTAIN_BASE: https://arisconstantinou.github.io/captain/
+        run: python captain/tools/qa184.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain184-public-verified
+          path: /tmp/captain184-qa/
+          retention-days: 7
