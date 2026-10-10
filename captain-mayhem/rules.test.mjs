@@ -1,0 +1,12 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {heatStep,guardLimit,validSave,SAVE_KEY,COMBAT} from './rules.js';
+import {makeChapterState,beginAttack,tickAttack,sip} from './model.js';
+test('Mode uses a distinct persistence namespace',()=>assert.notEqual(SAVE_KEY,'last-call-story180'));
+test('Wanted level falls only outside sight after a grace interval',()=>{assert.equal(heatStep(80,1,{seen:true,recent:false,quiet:10}),80);assert.equal(heatStep(80,1,{seen:false,recent:false,quiet:2}),80);assert.ok(heatStep(80,1,{seen:false,recent:false,quiet:5})<80);});
+test('No growing infinite wave of attackers',()=>assert.equal(guardLimit(1000),4));
+test('No guard spawn required at zero heat',()=>assert.equal(guardLimit(0),0));
+test('Blocking prevents immediate damage',()=>assert.equal(COMBAT.blockedDamage,0));
+test('Health cannot be exhausted in one guard hit',()=>assert.ok(COMBAT.guardDamage<10&&COMBAT.hitGrace>1));
+test('Malformed saves rejected',()=>{assert.equal(!!validSave({version:1,score:NaN,broken:[]}),false);assert.equal(!!validSave({version:1,score:32,broken:[]}),true);});
+test('Player attack lands once at contact, not at button press',()=>{const s={...makeChapterState(),phase:'deck',foot:true};let hits=0;assert.ok(beginAttack(s,'kick'));tickAttack(s,.1,()=>hits++);assert.equal(hits,0);tickAttack(s,.35,()=>hits++);tickAttack(s,.35,()=>hits++);assert.equal(hits,1);});
+test('Sandbox can drink while exploring, not gated by a chore',()=>{const s={...makeChapterState(),phase:'deck',foot:true,visited:true};const v={drinkCooldown:0,drinks:0,intox:40};assert.ok(sip(s,v).ok);assert.ok(s.pendingAlcohol>0);assert.equal(v.intox,40);});

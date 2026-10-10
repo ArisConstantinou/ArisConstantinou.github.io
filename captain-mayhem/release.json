@@ -1,0 +1,15 @@
+{
+  "mode": "MAYHEM",
+  "version": "1.0.0",
+  "isolated": true,
+  "baseline": "74dfd6488201d8aca51b391aa955b0e44a7efa46",
+  "storyUnchanged": true,
+  "features": [
+    "Independent endless mode; no mandatory arrest",
+    "Physical prop impacts and glass openings",
+    "Extinguisher smoke blocks pursuit visibility",
+    "Escapeable heat; recover without losing damage",
+    "Separate save namespace; fixed relative touch camera",
+    "Six connected decks; existing human rigs with improved run/hit transitions"
+  ]
+}
