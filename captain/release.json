@@ -1,14 +1,13 @@
 {
-  "version": "1.8.3",
+  "version": "1.8.4",
   "changes": [
-    "Compact mobile bridge HUD; no combat panels at helm",
-    "Fixed ring with relative drag camera: stationary finger stops view, no input mixing",
-    "World-rendered whisky attached to animated palm, on deck and in escape",
-    "One-sip 70% escape retained"
+    "Guard damage 12 to 4, coordinated windups, hit grace and slower custody",
+    "Six connected traversable decks, fore and aft stairs, eight cabin interiors, bow-to-stern routes",
+    "World map route guidance, faster sprint and out-of-combat recovery"
   ],
   "preserved": [
-    "Portrait",
-    "Mouse and WASD on desktop",
-    "Jail progression and checkpoints"
+    "Touch183 relative look and fixed radial actions",
+    "Whisky183 hand-attached bottle; one-sip escape",
+    "Desktop mouse/WASD and jail checkpoints"
   ]
 }
