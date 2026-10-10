@@ -34,19 +34,17 @@ update('systems.js',systems)
 
 def qa(s):
  s=s.replace("def shot(p,name):p.wait_for_timeout(160);p.screenshot(path=str(OUT/(name+'.png')))", '''def shot(p,name):
- import base64
+ # Screenshot diagnostics have their own bounded timeout. A Chromium compositor
+ # timeout is recorded, not misrepresented as a passed gameplay assertion.
  (OUT/'results-progress.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
  p.evaluate("window.__MAYHEM_CAPTURE_DONE__=false;window.__MAYHEM_CAPTURE_ONCE__=true")
- session=None
  try:
-  p.wait_for_function('window.__MAYHEM_CAPTURE_DONE__===true',timeout=45000)
-  p.wait_for_timeout(120)
-  session=p.context.new_cdp_session(p)
-  data=session.send('Page.captureScreenshot',{'format':'png','fromSurface':True,'captureBeyondViewport':False})
-  (OUT/(name+'.png')).write_bytes(base64.b64decode(data['data']))
- finally:
-  if session:session.detach()
-  p.evaluate('window.__MAYHEM_CAPTURE_DONE__=false;window.__MAYHEM_CAPTURE_ONCE__=false')
+  p.wait_for_function('window.__MAYHEM_CAPTURE_DONE__===true',timeout=15000)
+  p.screenshot(path=str(OUT/(name+'.png')),timeout=10000)
+ except Exception as error:
+  report.setdefault('captureWarnings',[]).append({'frame':name,'error':str(error)})
+  print('CAPTURE WARNING',name,str(error),flush=True)
+ finally:p.evaluate('window.__MAYHEM_CAPTURE_DONE__=false;window.__MAYHEM_CAPTURE_ONCE__=false')
 ''')
  s=s.replace('w=1365,h=820','w=1280,h=800')
  s=s.replace("'--enable-webgl']", "'--enable-webgl','--disable-dev-shm-usage']")
@@ -60,4 +58,4 @@ def qa(s):
  s=s.replace("try:shot(p,'failure');report['failureState']=state(p)", "try:report['failureState']=state(p);shot(p,'failure')")
  return s
 update('qa.py',qa)
-print('Mayhem finalization: independent phase flow, stable screenshots, bounded shadow cost.')
+print('Mayhem finalization: independent phase flow, bounded diagnostic capture and shadow cost.')
