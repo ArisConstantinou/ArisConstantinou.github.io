@@ -1,0 +1,52 @@
+name: Mayhem public verification
+on:
+  push:
+    branches: [captain-mayhem-mode]
+    paths: ['.github/workflows/captain-mayhem-public.yml']
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: d3f959635b6799ea911a439d6de8aca9856084f1
+      - name: Verify exact public files and original baseline
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json,time,urllib.request
+          root=Path('captain-mayhem');base='https://arisconstantinou.github.io/captain-mayhem/'
+          files=list(root.glob('*.js'))+list(root.glob('*.css'))+[root/'index.html',root/'release.json']
+          for attempt in range(12):
+            try:
+              for p in files:
+                data=urllib.request.urlopen(base+p.name+'?verify=mayhem100',timeout=20).read()
+                assert hashlib.sha256(data).digest()==hashlib.sha256(p.read_bytes()).digest(),p.name
+              break
+            except Exception as e:
+              print('Waiting for new Pages deployment:',e,flush=True);time.sleep(8)
+          else:raise SystemExit('Published Mayhem does not match tested build')
+          baseline=json.loads((root/'baseline.json').read_text())
+          assert all(hashlib.sha256(Path('captain',p).read_bytes()).hexdigest()==h for p,h in baseline.items())
+          Path('/tmp/mayhem-qa').mkdir(exist_ok=True)
+          Path('/tmp/mayhem-qa/public-files.json').write_text(json.dumps({'publishedCommit':'d3f959635b6799ea911a439d6de8aca9856084f1','verifiedPublicFiles':len(files),'unchangedOriginalFiles':len(baseline),'onlyNewFolderPublished':True},indent=2))
+          print('Exact public mode verified; all',len(baseline),'original game files unchanged')
+          PY
+      - name: Prepare browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Play the public mode on desktop and emulated mobile
+        env:
+          MAYHEM_BASE: https://arisconstantinou.github.io/captain-mayhem/
+          MAYHEM_HEADED: '1'
+        run: xvfb-run --auto-servernum python captain-mayhem/qa.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mayhem-public-verification
+          path: /tmp/mayhem-qa/
+          retention-days: 7
