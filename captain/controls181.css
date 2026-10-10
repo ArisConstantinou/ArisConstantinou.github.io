@@ -1,0 +1,7 @@
+/* New desktop hints do not alter the proven touch layout. */
+#deckMouse181{position:absolute;left:50%;bottom:40px;transform:translateX(-50%);pointer-events:auto;padding:9px 15px;border:1px solid #a1cfc49c;background:#102b35df;color:#eff8ee;border-radius:12px;display:grid;grid-template-columns:25px 1fr;gap:2px 8px;cursor:pointer;z-index:16}
+#deckMouse181 span{grid-row:span 2;font-size:24px}#deckMouse181 strong{font-size:12px}#deckMouse181 small{font-size:10px;color:#c5dedc}#deckMouse181[hidden],html[data-input-scheme=touch] #deckMouse181{display:none!important}
+html[data-input-scheme=keyboard] #chaos170 .attack-button kbd{min-width:23px;font-size:13px;padding:3px 5px}html[data-input-scheme=keyboard] #chaos170 .utility-row kbd{font-size:12px;padding:2px 4px}
+#escape180[data-assisted=true] .escape-goal>small::after{content:' · ΗΠΙΑ ΑΠΟΔΡΑΣΗ';color:#d0c795}
+html[data-input-scheme=touch] #escape180 .escape-goal>small::after{font-size:8px;letter-spacing:.3px}
+@media(max-width:800px){html[data-input-scheme=keyboard] #deckMouse181{bottom:31px;max-width:225px}#deckMouse181 small{font-size:9px}}

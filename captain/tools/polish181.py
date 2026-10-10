@@ -1,0 +1,13 @@
+from pathlib import Path
+r=Path('captain')
+p=r/'pose181.js';s=p.read_text().replace('new T.Vector3(x*2.35,.72,.24-k*step*.4)','new T.Vector3(x*1.9,.53,.18-k*step*.3)').replace('world([x*3.5,.85,-.02])','world([x*2.8,.70,-.02])');p.write_text(s)
+p=r/'escape-model181.js';s=p.read_text().replace("route:[{x:3.3,z:10.6},{x:5.8,z:11.8},{x:3.3,z:9}]","route:[{x:3.3,z:16},{x:3.3,z:19.2},{x:5.8,z:19.2}]").replace('walkable(b,solids,crouch,.26)','walkable(b,solids,crouch,.35)');p.write_text(s)
+p=r/'escape181.js';s=p.read_text().replace("if(s.alert>=100){s.stage='caught'", "if(s.alert>=100&&guards.some(g=>g.suspect>=95&&distance(g,s.position)<1.3&&clear(g,s.position,solids))){s.stage='caught'")
+s=s.replace("if(s.stage==='sleep'){s.stage='escape';", "if(s.stage==='sleep'){grace=4;s.stage='escape';")
+s=s.replace("if(goal.id==='card')dest={x:5,z:10};", "if(goal.id==='card')dest={x:5,z:10};if(goal.id==='storeDoor')dest={x:-.9,z:9};")
+s=s.replace('Πλησίασε τη θυρίδα και πάτησε ΑΝΟΙΞΕ. Μετά ΣΚΥΨΕ για να περάσεις.','Πλησίασε τη θυρίδα και πάτησε ΑΝΟΙΞΕ. Ακολούθησε τα φωτεινά σημάδια — σκύβεις αυτόματα.')
+p.write_text(s)
+p=r/'mouse181.js';s=p.read_text().replace('let pending=false,locked=false,','let fallback=false,pending=false,locked=false,').replace('pending=false;onMessage(','pending=false;fallback=true;onMessage(').replace('catch{pending=false;render();}','catch{pending=false;fallback=true;render();}').replace("document.addEventListener('pointerlockerror',()=>{pending=false;render();});","document.addEventListener('pointerlockerror',()=>{pending=false;fallback=true;render();});").replace('if(!locked){capture();return true;}','if(!locked&&!fallback){capture();return true;}')
+p.write_text(s)
+p=r/'ui181.js';s=p.read_text().replace("help.dataset.desktop173=help.innerHTML;", "help.dataset.desktop173='<p><b>ΚΑΤΑΣΤΡΩΜΑ:</b> Ποντίκι για ματιά. M1 χαστούκι, M2 γροθιά, Q βαρύ χαστούκι, E κλωτσιά, C κράτημα για μπλοκ. F αλληλεπίδραση, X πάρε/άφησε, R πέτα, Z ποτό, G φτύσιμο. TAB ελεύθερος δείκτης, Esc παύση. Οι αριθμοί 1–9 λειτουργούν επίσης.</p>'+help.innerHTML;")
+p.write_text(s)

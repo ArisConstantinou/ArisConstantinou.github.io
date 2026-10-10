@@ -1,0 +1,811 @@
+{
+  "version": "1.8.1",
+  "url": "http://127.0.0.1:8765/captain/",
+  "method": "Chromium. Mouse and real key events for bindings; fixed-step keyboard-driven path traversal with active patrols for escape; explicit position fixtures only for edge-pose and combat checks. Mobile is emulated touch, not physical iPhone.",
+  "checks": [
+    {
+      "name": "Release loads",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Crouch lowers world-space hips, not sideways",
+      "pass": true,
+      "detail": {
+        "standing": {
+          "hips": [
+            0.0015326032088127661,
+            0.8826214463456026,
+            -0.08845941273681746
+          ],
+          "head": [
+            -0.026095938649120853,
+            1.5322508124032161,
+            0.02259656463443349
+          ],
+          "lefthand": [
+            0.2627050989587083,
+            0.942585877466521,
+            0.07896446277506186
+          ],
+          "righthand": [
+            -0.273469923193713,
+            0.9459319128612727,
+            0.08137067742614335
+          ],
+          "leftfoot": [
+            0.20411661146476678,
+            0.1127569837312965,
+            0.12770749842581353
+          ],
+          "rightfoot": [
+            -0.16921128801156282,
+            0.11331058112573622,
+            -0.26875048708582483
+          ]
+        },
+        "crouched": {
+          "hips": [
+            0.005178246896449856,
+            0.38973498083378555,
+            -0.12171186924310007
+          ],
+          "head": [
+            -0.016320027936011172,
+            0.9867088988944834,
+            0.14389750186471417
+          ],
+          "lefthand": [
+            0.22306047539135943,
+            0.5276045571016512,
+            0.18084887013700524
+          ],
+          "righthand": [
+            -0.22093193922963383,
+            0.5302537972237342,
+            0.18162786155983923
+          ],
+          "leftfoot": [
+            0.11339394917724377,
+            0.08294698191270111,
+            0.0338001708180542
+          ],
+          "rightfoot": [
+            -0.12790643943907654,
+            0.08861926649752405,
+            0.02905121426331192
+          ]
+        }
+      }
+    },
+    {
+      "name": "Head upright at sensible crouch height",
+      "pass": true,
+      "detail": {
+        "hips": [
+          0.005178246896449856,
+          0.38973498083378555,
+          -0.12171186924310007
+        ],
+        "head": [
+          -0.016320027936011172,
+          0.9867088988944834,
+          0.14389750186471417
+        ],
+        "lefthand": [
+          0.22306047539135943,
+          0.5276045571016512,
+          0.18084887013700524
+        ],
+        "righthand": [
+          -0.22093193922963383,
+          0.5302537972237342,
+          0.18162786155983923
+        ],
+        "leftfoot": [
+          0.11339394917724377,
+          0.08294698191270111,
+          0.0338001708180542
+        ],
+        "rightfoot": [
+          -0.12790643943907654,
+          0.08861926649752405,
+          0.02905121426331192
+        ]
+      }
+    },
+    {
+      "name": "Feet remain at deck height",
+      "pass": true,
+      "detail": {
+        "hips": [
+          0.005178246896449856,
+          0.38973498083378555,
+          -0.12171186924310007
+        ],
+        "head": [
+          -0.016320027936011172,
+          0.9867088988944834,
+          0.14389750186471417
+        ],
+        "lefthand": [
+          0.22306047539135943,
+          0.5276045571016512,
+          0.18084887013700524
+        ],
+        "righthand": [
+          -0.22093193922963383,
+          0.5302537972237342,
+          0.18162786155983923
+        ],
+        "leftfoot": [
+          0.11339394917724377,
+          0.08294698191270111,
+          0.0338001708180542
+        ],
+        "rightfoot": [
+          -0.12790643943907654,
+          0.08861926649752405,
+          0.02905121426331192
+        ]
+      }
+    },
+    {
+      "name": "Crouch does not accumulate displacement",
+      "pass": true,
+      "detail": {
+        "hips": [
+          0.0017491337643633642,
+          0.38252162922902144,
+          -0.12365346934640087
+        ],
+        "head": [
+          -0.026111503754128407,
+          0.9669796285918597,
+          0.1656367178100524
+        ],
+        "lefthand": [
+          0.22303951183261006,
+          0.5270970125310352,
+          0.18089094033165765
+        ],
+        "righthand": [
+          -0.22246644821044903,
+          0.5292594748171995,
+          0.18273598364182675
+        ],
+        "leftfoot": [
+          0.11299835311277828,
+          0.0827765839703245,
+          0.034139235636772014
+        ],
+        "rightfoot": [
+          -0.12934126315928296,
+          0.08660284588927247,
+          0.02947706419035967
+        ]
+      }
+    },
+    {
+      "name": "Body stays inside hull while pressing the wall",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": -6.446666666666667,
+          "z": 22
+        },
+        "yaw": 3.621558197888234,
+        "hatch": false,
+        "card": false,
+        "storeOpen": false,
+        "bottle": false,
+        "intox": 0,
+        "caught": 0,
+        "throws": 0,
+        "heard": 0,
+        "checkpoint": "cell",
+        "stage": "escape",
+        "alert": 0,
+        "crouch": true,
+        "held": null,
+        "nearest": null,
+        "grace": 0,
+        "assisted": true,
+        "pose": {
+          "hips": [
+            -0.000587230146798845,
+            0.38531758297821206,
+            -0.12243080502483394
+          ],
+          "head": [
+            -0.023429741060951415,
+            0.9801464159254376,
+            0.1482382386312473
+          ],
+          "lefthand": [
+            0.22305041990928487,
+            0.5288389355545204,
+            0.1803905606610705
+          ],
+          "righthand": [
+            -0.22175072464211,
+            0.5285420145868178,
+            0.1846680092878188
+          ],
+          "leftfoot": [
+            0.11360530618707543,
+            0.08325097534611459,
+            0.0370994838580927
+          ],
+          "rightfoot": [
+            -0.12763543811610134,
+            0.08970451664218437,
+            0.030508846777109966
+          ]
+        },
+        "guide": {
+          "id": "hatch",
+          "x": -4.5,
+          "z": 20.5,
+          "label": "ΑΝΟΙΞΕ ΘΥΡΙΔΑ",
+          "icon": "↗"
+        },
+        "guards": [
+          {
+            "x": 3.1003267730700506,
+            "z": 18.448956880762402,
+            "yaw": 1.5663413970944249,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": -0.4265653120956107,
+            "z": 5.100304920604283,
+            "yaw": 3.855706858629391,
+            "mode": "patrol",
+            "suspect": 0
+          },
+          {
+            "x": 5.831440655147094,
+            "z": 18.202169084118974,
+            "yaw": 3.038317142439211,
+            "mode": "patrol",
+            "suspect": 0
+          }
+        ],
+        "items": [
+          {
+            "id": "mug",
+            "x": -3.3,
+            "z": 22.4,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "tin",
+            "x": -3,
+            "z": 15.7,
+            "available": true,
+            "flying": false
+          },
+          {
+            "id": "bottle-empty",
+            "x": 3.2,
+            "z": 18.1,
+            "available": true,
+            "flying": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Standing pose restores after crouch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No pose runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Z activates first sip",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Mouse moves camera without dragging",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "First click captures without an attack",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Relative mouse works after capture",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "left mouse attacks slap",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "right mouse attacks punch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyQ action",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyE action",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "KeyG action",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "C holds block",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "C release ends block",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Tab releases pointer",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Visible desktop labels match bindings",
+      "pass": true,
+      "detail": [
+        "M1",
+        "Q",
+        "M2",
+        "E"
+      ]
+    },
+    {
+      "name": "Escape releases pointer safely",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No mouse runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Walk route to (-3.3, 22.4)",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "position": {
+          "x": -3.3333333333333326,
+          "z": 22.474999999999984
+        },
+        "stage": "escape",
+        "steps": 43
+      }
+    },
+    {
+      "name": "Pick up mug",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walk route to (-4.5, 21.2)",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "position": {
+          "x": -4.458333333333333,
+          "z": 21.224999999999948
+        },
+        "stage": "escape",
+        "steps": 57
+      }
+    },
+    {
+      "name": "Open hatch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walk route to (-4.5, 18.9)",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "position": {
+          "x": -4.458333333333333,
+          "z": 18.989999999999938
+        },
+        "stage": "escape",
+        "steps": 95
+      }
+    },
+    {
+      "name": "Low passage crossed without manual crouch timing",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walk route to (-4.5, 16.8)",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "position": {
+          "x": -4.458333333333333,
+          "z": 16.87666666666655
+        },
+        "stage": "escape",
+        "steps": 56
+      }
+    },
+    {
+      "name": "Laundry checkpoint earned",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walk route to (-0.5, 16.8)",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "position": {
+          "x": -0.5000000000000027,
+          "z": 16.87666666666655
+        },
+        "stage": "escape",
+        "steps": 103
+      }
+    },
+    {
+      "name": "R creates a distraction",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walk route to (0.5, 13)",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "position": {
+          "x": 0.4166666666666641,
+          "z": 13.043333333333235
+        },
+        "stage": "escape",
+        "steps": 114
+      }
+    },
+    {
+      "name": "Walk route to (5, 10)",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "position": {
+          "x": 4.958333333333331,
+          "z": 9.91833333333328
+        },
+        "stage": "escape",
+        "steps": 204
+      }
+    },
+    {
+      "name": "Card acquired through walked route",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walk route to (-0.9, 9)",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "position": {
+          "x": -0.8333333333333359,
+          "z": 9.043333333333292
+        },
+        "stage": "escape",
+        "steps": 160
+      }
+    },
+    {
+      "name": "Storage unlocks",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walk route to (-4.5, 8.1)",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "position": {
+          "x": -4.458333333333333,
+          "z": 8.168333333333305
+        },
+        "stage": "escape",
+        "steps": 108
+      }
+    },
+    {
+      "name": "Bottle acquired",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walk route to (-4.5, 12)",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "position": {
+          "x": -4.458333333333333,
+          "z": 11.918333333333251
+        },
+        "stage": "escape",
+        "steps": 90
+      }
+    },
+    {
+      "name": "Z drinks gradually during escape",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Walk route to (0, 2.4)",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "position": {
+          "x": -0.04166666666666926,
+          "z": 2.4599999999999507
+        },
+        "stage": "escape",
+        "steps": 333
+      }
+    },
+    {
+      "name": "Walked escape returns to deck",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No route runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "(430, 832) touch only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "(430, 832)#escapeUse inside screen",
+      "pass": true,
+      "detail": {
+        "x": 258,
+        "y": 660.609375,
+        "width": 160,
+        "height": 60
+      }
+    },
+    {
+      "name": "(430, 832)#escapeCrouch inside screen",
+      "pass": true,
+      "detail": {
+        "x": 258,
+        "y": 728.609375,
+        "width": 160,
+        "height": 68.390625
+      }
+    },
+    {
+      "name": "(430, 832).escape-vitals inside screen",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 148,
+        "width": 406,
+        "height": 48
+      }
+    },
+    {
+      "name": "(430, 832).escape-goal inside screen",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 64,
+        "width": 406,
+        "height": 63.09375
+      }
+    },
+    {
+      "name": "Touch crouch pose centered",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch no runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "(390, 744) touch only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "(390, 744)#escapeUse inside screen",
+      "pass": true,
+      "detail": {
+        "x": 218,
+        "y": 572.609375,
+        "width": 160,
+        "height": 60
+      }
+    },
+    {
+      "name": "(390, 744)#escapeCrouch inside screen",
+      "pass": true,
+      "detail": {
+        "x": 218,
+        "y": 640.609375,
+        "width": 160,
+        "height": 68.390625
+      }
+    },
+    {
+      "name": "(390, 744).escape-vitals inside screen",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 148,
+        "width": 366,
+        "height": 48
+      }
+    },
+    {
+      "name": "(390, 744).escape-goal inside screen",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 64,
+        "width": 366,
+        "height": 63.09375
+      }
+    },
+    {
+      "name": "Touch crouch pose centered",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch no runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "(320, 568) touch only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "(320, 568)#escapeUse inside screen",
+      "pass": true,
+      "detail": {
+        "x": 160,
+        "y": 396.609375,
+        "width": 148,
+        "height": 60
+      }
+    },
+    {
+      "name": "(320, 568)#escapeCrouch inside screen",
+      "pass": true,
+      "detail": {
+        "x": 160,
+        "y": 464.609375,
+        "width": 148,
+        "height": 68.390625
+      }
+    },
+    {
+      "name": "(320, 568).escape-vitals inside screen",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 148,
+        "width": 296,
+        "height": 48
+      }
+    },
+    {
+      "name": "(320, 568).escape-goal inside screen",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 64,
+        "width": 296,
+        "height": 60.890625
+      }
+    },
+    {
+      "name": "Touch crouch pose centered",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch no runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "(932, 430) touch only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "(932, 430)#escapeUse inside screen",
+      "pass": true,
+      "detail": {
+        "x": 690,
+        "y": 272.609375,
+        "width": 230,
+        "height": 60
+      }
+    },
+    {
+      "name": "(932, 430)#escapeCrouch inside screen",
+      "pass": true,
+      "detail": {
+        "x": 854,
+        "y": 340.609375,
+        "width": 66,
+        "height": 68.390625
+      }
+    },
+    {
+      "name": "(932, 430).escape-vitals inside screen",
+      "pass": true,
+      "detail": {
+        "x": 484.625,
+        "y": 54,
+        "width": 435.375,
+        "height": 48
+      }
+    },
+    {
+      "name": "(932, 430).escape-goal inside screen",
+      "pass": true,
+      "detail": {
+        "x": 12,
+        "y": 54,
+        "width": 428.71875,
+        "height": 63.09375
+      }
+    },
+    {
+      "name": "Touch crouch pose centered",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch no runtime errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "passed": true
+}
