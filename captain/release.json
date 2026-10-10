@@ -1,5 +1,5 @@
 {
-  "version": "1.8.4",
+  "version": "1.8.5",
   "changes": [
     "Guard damage 12 to 4, coordinated windups, hit grace and slower custody",
     "Six connected traversable decks, fore and aft stairs, eight cabin interiors, bow-to-stern routes",
@@ -9,5 +9,11 @@
     "Touch183 relative look and fixed radial actions",
     "Whisky183 hand-attached bottle; one-sip escape",
     "Desktop mouse/WASD and jail checkpoints"
+  ],
+  "inputFix": [
+    "Owned left-stick gesture; neutral on release, cancellation, lost capture, pause and rotation",
+    "Native touch identifier fallback independent of other fingers",
+    "Radial dead zone; no world translation from idle drunken sway",
+    "Existing layout, right camera, actions, save namespaces and story retained"
   ]
 }

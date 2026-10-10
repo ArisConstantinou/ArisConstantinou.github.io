@@ -1,0 +1,1215 @@
+{
+  "version": "Story 1.8.5 / Mayhem 1.0.1",
+  "url": "http://127.0.0.1:8765/",
+  "method": "Chromium real CDP touch input and WebKit synthetic pointer/native-touch lifecycle tests. Isolated player-position fixtures and deterministic gameplay advancement. Not a physical iPhone.",
+  "checks": [
+    {
+      "name": "captain corrected build",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain intoxicated neutral stance does not translate",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain joystick visible",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain ownership starts",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain held stick moves player",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain stationary thumb keeps intentional walking",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain release outside pad resets immediately",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain no drift after release",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        },
+        "after": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        }
+      }
+    },
+    {
+      "name": "captain center dead zone is stationary",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        },
+        "after": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        }
+      }
+    },
+    {
+      "name": "captain center release",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain right look works while walking",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain left release while right stays down",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain right held alone cannot move captain",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        },
+        "after": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        }
+      }
+    },
+    {
+      "name": "captain right input survives left release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain right release does not cancel left",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain last left finger release",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain can block with second finger",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain movement stops while block stays held",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain left release does not release block",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain re-touch 1 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain release 1",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain re-touch 2 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain release 2",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain re-touch 3 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain release 3",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain re-touch 4 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain release 4",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain browser cancels gesture",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointercancel",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain no movement after cancellation",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        },
+        "after": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        }
+      }
+    },
+    {
+      "name": "captain pause clears input",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "reset",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain resume does not restore stale movement",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        },
+        "after": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        }
+      }
+    },
+    {
+      "name": "captain orientation change clears input",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "orientationchange",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain actual viewport rotation clears input",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "orientationchange",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain capture-failure fixture accepts touch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain window release works even without capture",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain capture-failure leaves no runaway motion",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        },
+        "after": {
+          "x": 10.394136486895945,
+          "y": 10.1,
+          "z": 1.779645600587757
+        }
+      }
+    },
+    {
+      "name": "captain no desktop labels on mobile",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain no runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "captain-mayhem corrected build",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem intoxicated neutral stance does not translate",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem joystick visible",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem ownership starts",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem held stick moves player",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem stationary thumb keeps intentional walking",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem release outside pad resets immediately",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem no drift after release",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        },
+        "after": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        }
+      }
+    },
+    {
+      "name": "captain-mayhem center dead zone is stationary",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        },
+        "after": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        }
+      }
+    },
+    {
+      "name": "captain-mayhem center release",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem right look works while walking",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem left release while right stays down",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem right held alone cannot move captain",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        },
+        "after": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        }
+      }
+    },
+    {
+      "name": "captain-mayhem right input survives left release",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem right release does not cancel left",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem last left finger release",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem can block with second finger",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem movement stops while block stays held",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem left release does not release block",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem re-touch 1 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem release 1",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem re-touch 2 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem release 2",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem re-touch 3 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem release 3",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem re-touch 4 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem release 4",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem browser cancels gesture",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointercancel",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem no movement after cancellation",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        },
+        "after": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        }
+      }
+    },
+    {
+      "name": "captain-mayhem pause clears input",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "reset",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem resume does not restore stale movement",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        },
+        "after": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        }
+      }
+    },
+    {
+      "name": "captain-mayhem orientation change clears input",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "orientationchange",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem actual viewport rotation clears input",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "orientationchange",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem capture-failure fixture accepts touch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem window release works even without capture",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "captain-mayhem capture-failure leaves no runaway motion",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        },
+        "after": {
+          "x": 10.39151982585784,
+          "y": 10.1,
+          "z": 1.7900646994918081
+        }
+      }
+    },
+    {
+      "name": "captain-mayhem no desktop labels on mobile",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "captain-mayhem no runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Escape starts with saved chapter architecture",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "escape joystick visible",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "escape ownership starts",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "escape held stick moves player",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "escape stationary thumb keeps intentional walking",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "escape release outside pad resets immediately",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "escape no drift after release",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": -4.323223304703365,
+          "z": 21.196821115920898
+        },
+        "after": {
+          "x": -4.323223304703365,
+          "z": 21.196821115920898
+        }
+      }
+    },
+    {
+      "name": "escape center dead zone is stationary",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": -4.323223304703365,
+          "z": 21.196821115920898
+        },
+        "after": {
+          "x": -4.323223304703365,
+          "z": 21.196821115920898
+        }
+      }
+    },
+    {
+      "name": "escape center release",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "escape re-touch 1 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "escape release 1",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "escape re-touch 2 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "escape release 2",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "escape re-touch 3 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "escape release 3",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "escape re-touch 4 accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "escape release 4",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "escape browser cancels gesture",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointercancel",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "escape no movement after cancellation",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": -4.323223304703365,
+          "z": 21.196821115920898
+        },
+        "after": {
+          "x": -4.323223304703365,
+          "z": 21.196821115920898
+        }
+      }
+    },
+    {
+      "name": "escape pause clears input",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "reset",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "escape resume does not restore stale movement",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": -4.323223304703365,
+          "z": 21.196821115920898
+        },
+        "after": {
+          "x": -4.323223304703365,
+          "z": 21.196821115920898
+        }
+      }
+    },
+    {
+      "name": "escape orientation change clears input",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "orientationchange",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "escape capture-failure fixture accepts touch",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "escape window release works even without capture",
+      "pass": true,
+      "detail": {
+        "active": false,
+        "pointerId": null,
+        "touchId": null,
+        "axes": {
+          "x": 0,
+          "y": 0
+        },
+        "reason": "pointerup",
+        "deadZone": 0.14
+      }
+    },
+    {
+      "name": "escape capture-failure leaves no runaway motion",
+      "pass": true,
+      "detail": {
+        "before": {
+          "x": -4.323223304703365,
+          "z": 21.196821115920898
+        },
+        "after": {
+          "x": -4.323223304703365,
+          "z": 21.196821115920898
+        }
+      }
+    },
+    {
+      "name": "escape no desktop labels on mobile",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Escape no runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "320x568 #chaosMove remains in bounds",
+      "pass": true,
+      "detail": {
+        "x": 10,
+        "y": 466,
+        "width": 76,
+        "height": 76
+      }
+    },
+    {
+      "name": "320x568 #mobileCombatWheel remains in bounds",
+      "pass": true,
+      "detail": {
+        "x": 113,
+        "y": 348,
+        "width": 202,
+        "height": 202
+      }
+    },
+    {
+      "name": "320x568 no errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "932x430 #chaosMove remains in bounds",
+      "pass": true,
+      "detail": {
+        "x": 14,
+        "y": 320,
+        "width": 84,
+        "height": 84
+      }
+    },
+    {
+      "name": "932x430 #mobileCombatWheel remains in bounds",
+      "pass": true,
+      "detail": {
+        "x": 722,
+        "y": 220,
+        "width": 202,
+        "height": 202
+      }
+    },
+    {
+      "name": "932x430 no errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Desktop WASD kept, joystick hidden",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop W still moves",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop key release is stationary when drunk",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Desktop no errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "WebKit unrelated pointer release cannot cancel owner",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit unrelated native touch release cannot cancel owner",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit native touch fallback resets while another finger remains",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit pointercancel neutralizes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit lostpointercapture neutralizes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit blur neutralizes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit pagehide neutralizes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit resize neutralizes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit orientationchange neutralizes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit disabled gameplay resets on next update",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit valid stationary held touch is never timed out",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit center deadzone",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "WebKit diagonal magnitude bounded",
+      "pass": true,
+      "detail": null
+    }
+  ],
+  "passed": true
+}

@@ -30,8 +30,11 @@ def touch_suite(p,ctx,label,escape=False):
  box=p.locator(selector).bounding_box();ck(label+' joystick visible',box is not None)
  cx=box['x']+box['width']/2;cy=box['y']+box['height']/2
  cd=ctx.new_cdp_session(p)
+ p.evaluate('''()=>{window.__releaseEvents=[];for(const type of ['pointerdown','pointerup','pointercancel','lostpointercapture','touchstart','touchend','touchcancel'])window.addEventListener(type,e=>{window.__releaseEvents.push({type,id:e.pointerId,target:e.target.id||e.target.tagName,touches:e.touches?Array.from(e.touches,t=>t.identifier):null,changed:e.changedTouches?Array.from(e.changedTouches,t=>t.identifier):null});if(window.__releaseEvents.length>60)window.__releaseEvents.shift();},true);}''')
  left={'x':cx,'y':cy-30,'id':7};center={'x':cx+2,'y':cy-2,'id':7}
- def send(kind,pts):cd.send('Input.dispatchTouchEvent',{'type':kind,'touchPoints':pts})
+ def send(kind,pts):
+  cd.send('Input.dispatchTouchEvent',{'type':kind,'touchPoints':pts})
+  p.evaluate('()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(()=>done())))')
  def neutral(name):
   a=read();ck(label+' '+name,not a['movement']['active'] and abs(a['stick']['x'])<1e-8 and abs(a['stick'].get('z',a['stick'].get('y',0)))<1e-8,a['movement'])
  def rest(name):
@@ -46,12 +49,12 @@ def touch_suite(p,ctx,label,escape=False):
   r=p.locator('#combatRightStick').bounding_box();right={'x':r['x']+r['width']/2,'y':r['y']+r['height']/2,'id':19}
   send('touchStart',[left]);send('touchStart',[left,right]);right2={**right,'x':right['x']+16}
   yaw=ch(p)['yaw'];send('touchMove',[left,right2]);ck(label+' right look works while walking',abs(ch(p)['yaw']-yaw)>.001)
-  send('touchEnd',[right2]);neutral('left release while right stays down');rest('right held alone cannot move captain')
+  send('touchEnd',[left]);neutral('left release while right stays down');rest('right held alone cannot move captain')
   yaw=ch(p)['yaw'];right3={**right2,'x':right2['x']+18};send('touchMove',[right3]);ck(label+' right input survives left release',abs(ch(p)['yaw']-yaw)>.001)
   send('touchEnd',[])
-  send('touchStart',[right]);send('touchStart',[right,left]);send('touchEnd',[left]);ck(label+' right release does not cancel left',read()['movement']['active']);send('touchEnd',[]);neutral('last left finger release')
+  send('touchStart',[right]);send('touchStart',[right,left]);send('touchEnd',[right]);ck(label+' right release does not cancel left',read()['movement']['active']);send('touchEnd',[]);neutral('last left finger release')
   b=p.locator('#combatOuterRing [data-action=block]').bounding_box();block={'x':b['x']+b['width']/2,'y':b['y']+b['height']/2,'id':27}
-  send('touchStart',[left]);send('touchStart',[left,block]);ck(label+' can block with second finger',ch(p)['block']);send('touchEnd',[block]);neutral('movement stops while block stays held');ck(label+' left release does not release block',ch(p)['block']);send('touchEnd',[])
+  send('touchStart',[left]);send('touchStart',[left,block]);ck(label+' can block with second finger',ch(p)['block']);send('touchEnd',[left]);neutral('movement stops while block stays held');ck(label+' left release does not release block',ch(p)['block']);send('touchEnd',[])
  for i in range(4):
   send('touchStart',[left]);ck(label+f' re-touch {i+1} accepted',read()['movement']['active']);send('touchEnd',[]);neutral(f'release {i+1}')
  send('touchStart',[left]);send('touchCancel',[]);neutral('browser cancels gesture');rest('no movement after cancellation')
@@ -116,7 +119,7 @@ with sync_playwright() as pw:
  except Exception as e:
   report['passed']=False;report['error']=str(e);traceback.print_exc()
   if page:
-   try:page.screenshot(path=str(OUT/'failure.png'));report['failureState']=state(page)
+   try:page.screenshot(path=str(OUT/'failure.png'));report['failureState']=state(page);report['events']=page.evaluate('window.__releaseEvents')
    except:pass
  finally:(OUT/'results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
 if not report.get('passed'):raise SystemExit(1)
