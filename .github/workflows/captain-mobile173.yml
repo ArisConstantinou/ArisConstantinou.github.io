@@ -19,8 +19,9 @@ jobs:
         run: |
           if [ ! -f captain/main173.js ]; then
             python captain/tools/apply173.py
-            python captain/tools/finalize173.py
           fi
+          python captain/tools/finalize173.py
+          python -m py_compile captain/tools/qa173.py
           node --check captain/main173.js
           node --check captain/chaos173.js
           node --check captain/ui173.js
