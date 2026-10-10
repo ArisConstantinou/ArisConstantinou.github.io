@@ -12,7 +12,7 @@ def ck(name,condition,detail=None):
 def state(p):return p.evaluate('window.__lastCall.getState()')
 def ch(p):return state(p)['chapter']
 def adv(p,t):p.evaluate('(t)=>window.__lastCall.test.chapter.advance(t)',t)
-def resetpos(p):p.evaluate('window.__lastCall.test.chapter.setPosition3(0,10.1,-63,0)')
+def resetpos(p):p.evaluate('window.__lastCall.test.chapter.setPosition3(10.7,10.1,0,0)')
 def dist(a,b):return math.hypot(a['x']-b['x'],a['z']-b['z'])
 def fresh(browser,mode='captain',touch=True,w=390,h=844):
  ctx=browser.new_context(viewport={'width':w,'height':h},has_touch=touch,is_mobile=touch,service_workers='block');p=ctx.new_page();errors=[]
@@ -50,7 +50,6 @@ def touch_suite(p,ctx,label,escape=False):
   yaw=ch(p)['yaw'];right3={**right2,'x':right2['x']+18};send('touchMove',[right3]);ck(label+' right input survives left release',abs(ch(p)['yaw']-yaw)>.001)
   send('touchEnd',[])
   send('touchStart',[right]);send('touchStart',[right,left]);send('touchEnd',[left]);ck(label+' right release does not cancel left',read()['movement']['active']);send('touchEnd',[]);neutral('last left finger release')
-  # The movement thumb is independent of a held defensive action.
   b=p.locator('#combatOuterRing [data-action=block]').bounding_box();block={'x':b['x']+b['width']/2,'y':b['y']+b['height']/2,'id':27}
   send('touchStart',[left]);send('touchStart',[left,block]);ck(label+' can block with second finger',ch(p)['block']);send('touchEnd',[block]);neutral('movement stops while block stays held');ck(label+' left release does not release block',ch(p)['block']);send('touchEnd',[])
  for i in range(4):
@@ -61,7 +60,6 @@ def touch_suite(p,ctx,label,escape=False):
  send('touchStart',[left]);p.evaluate("window.dispatchEvent(new Event('orientationchange'))");neutral('orientation change clears input');send('touchEnd',[])
  if not escape:
   w=p.viewport_size['width'];h=p.viewport_size['height'];send('touchStart',[left]);p.set_viewport_size({'width':h,'height':w});p.wait_for_timeout(100);neutral('actual viewport rotation clears input');send('touchEnd',[]);p.set_viewport_size({'width':w,'height':h});p.wait_for_timeout(100)
- # Native pointer cancellation normally works; this separately injects a missing-capture failure.
  p.evaluate('''(sel)=>{const el=document.querySelector(sel),r=el.getBoundingClientRect();el.dispatchEvent(new PointerEvent('pointerdown',{pointerId:999,pointerType:'touch',button:0,buttons:1,clientX:r.x+r.width/2,clientY:r.y+10,bubbles:true,cancelable:true}));}''',selector)
  ck(label+' capture-failure fixture accepts touch',read()['movement']['active'])
  p.evaluate("window.dispatchEvent(new PointerEvent('pointerup',{pointerId:999,pointerType:'touch',bubbles:true}))")
@@ -78,14 +76,12 @@ with sync_playwright() as pw:
    touch_suite(page,ctx,mode)
    page.screenshot(path=str(OUT/(mode+'-portrait.png')))
    ck(mode+' no runtime errors',not errors,errors);ctx.close()
-  # Escape uses its own controller: the same release invariant must hold there.
   ctx,page,errors=fresh(b)
   page.reload(wait_until='domcontentloaded');page.wait_for_function('window.__lastCall?.getState()?.ready',timeout=60000);page.evaluate('window.__CHAOS_FREEZE__=true')
   page.locator('#jailEntry180').tap();page.locator('#continueFromCell180').tap();adv(page,1.8);page.locator('#escapeOverlayAction').tap();adv(page,.02)
   ck('Escape starts with saved chapter architecture',ch(page)['escape']['stage']=='escape')
   touch_suite(page,ctx,'escape',True)
   ck('Escape no runtime errors',not errors,errors);ctx.close()
-  # Existing small and landscape layouts stay in bounds; only input code was changed.
   for w,h in [(320,568),(932,430)]:
    ctx,page,errors=fresh(b,w=w,h=h)
    for sel in ['#chaosMove','#mobileCombatWheel']:
@@ -96,7 +92,6 @@ with sync_playwright() as pw:
   start=ch(page)['position'];page.keyboard.down('w');adv(page,.3);page.keyboard.up('w');ck('Desktop W still moves',dist(start,ch(page)['position'])>.1)
   start=ch(page)['position'];adv(page,.6);ck('Desktop key release is stationary when drunk',dist(start,ch(page)['position'])<1e-6)
   ck('Desktop no errors',not errors,errors);ctx.close();b.close()
-  # WebKit tests shared input without WebGL/GPU emulation. Touch IDs intentionally differ from pointer IDs.
   wk=pw.webkit.launch(headless=True);ctx=wk.new_context(has_touch=True,viewport={'width':390,'height':844});page=ctx.new_page()
   page.goto(BASE+'captain/move-stick185.js?v=185')
   results=page.evaluate('''async()=>{
