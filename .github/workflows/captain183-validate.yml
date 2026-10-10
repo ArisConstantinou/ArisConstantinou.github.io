@@ -1,0 +1,51 @@
+name: Captain 183 touch repair validation
+on:
+  push:
+    branches: [captain-touch-183]
+    paths: ['captain/touch183.js','captain/touch183.css','captain/whisky183.js','captain/tools/apply183.py','captain/tools/qa183.py','.github/workflows/captain183-validate.yml']
+permissions:
+  contents: write
+concurrency:
+  group: captain183-validation
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Integrate the isolated Captain patch
+        run: |
+          python captain/tools/apply183.py
+          node --check captain/main183.js
+          node --check captain/chaos183.js
+          node --check captain/touch183.js
+          node --check captain/whisky183.js
+          node --check captain/escape183.js
+          node --test captain/tests/escape181.test.mjs captain/tests/chaos170.test.mjs
+      - name: Prepare test browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Exercise actual touch events and 3D drinking
+        run: |
+          python -m http.server 8765 >/tmp/captain183-http.log 2>&1 &
+          python captain/tools/qa183.py
+      - name: Commit tested game files to this staging branch
+        run: |
+          cp /tmp/captain183-qa/results.json captain/tests/verified183.json
+          git config user.name 'Captain touch validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/
+          git diff --cached --quiet || git commit -m 'Validated Captain 1.8.3 compact helm, independent relative look ring and hand-attached whisky'
+          git push origin HEAD:captain-touch-183
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain183-touch-qa
+          path: |
+            /tmp/captain183-qa/
+            captain/release.json
+            captain/main183.js
+            captain/chaos183.js
+          retention-days: 7
