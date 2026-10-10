@@ -9,6 +9,7 @@ s=s.replace("if(n.state==='fight'){\n     const angle", "if(n.state==='fight'){\
 s=s.replace("if(['assault','reclaimed'].includes(data.checkpoint))returnToDeck();else startEscape(data);", "if(['assault','reclaimed'].includes(data.checkpoint)){returnToDeck();if(data.checkpoint==='reclaimed'){for(const n of party.filter(n=>n.guard)){n.health=0;n.actor.hide();}p.set(1.2,18.43,44.4);reclaim();}}else startEscape(data);")
 p.write_text(s)
 p=r/'tools/qa174.py';s=p.read_text()
+s=s.replace('pos(p,-5.4,36.9);p.keyboard.press', 'pos(p,1.2,33.4);p.keyboard.press')
 s=s.replace("if not ok:raise AssertionError((name,detail))", """if not ok:
   try:
    report['failureState']=state(p);p.screenshot(path=str(OUT/'failure.png'))
