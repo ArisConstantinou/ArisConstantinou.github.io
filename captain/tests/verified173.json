@@ -1233,23 +1233,523 @@
       "pass": true,
       "detail": {
         "before": {
-          "x": 2.998741130912966,
+          "x": 2.998760288030707,
           "y": 18.43,
           "z": 40
         },
         "after": {
-          "x": 2.9943174815097393,
+          "x": 2.994271869861023,
           "y": 18.43,
-          "z": 40.18090494234997
+          "z": 40.18083332080002
         },
         "blockClass": "held",
         "disabled": false,
         "paused": false,
-        "modelBlock": false
+        "modelBlock": true
       }
     },
     {
       "name": "Release clears block",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Nested touch capture cycle 0",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Releasing movement preserves block 0",
+      "pass": true,
+      "detail": {
+        "events": [
+          {
+            "event": "pointerdown",
+            "id": 10,
+            "target": "I",
+            "parent": "chaosMove"
+          },
+          {
+            "event": "pointerdown",
+            "id": 11,
+            "target": "SPAN",
+            "parent": "chaosBlock"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "pointerup",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          }
+        ],
+        "block": true,
+        "stick": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "Releasing the block finger ends block 0",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Nested touch capture cycle 1",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Releasing movement preserves block 1",
+      "pass": true,
+      "detail": {
+        "events": [
+          {
+            "event": "pointerdown",
+            "id": 10,
+            "target": "I",
+            "parent": "chaosMove"
+          },
+          {
+            "event": "pointerdown",
+            "id": 11,
+            "target": "SPAN",
+            "parent": "chaosBlock"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "pointerup",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 11,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerup",
+            "id": 11,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 11,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerdown",
+            "id": 12,
+            "target": "I",
+            "parent": "chaosMove"
+          },
+          {
+            "event": "pointerdown",
+            "id": 13,
+            "target": "SPAN",
+            "parent": "chaosBlock"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 12,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "pointerup",
+            "id": 12,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 12,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          }
+        ],
+        "block": true,
+        "stick": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "Releasing the block finger ends block 1",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Nested touch capture cycle 2",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Releasing movement preserves block 2",
+      "pass": true,
+      "detail": {
+        "events": [
+          {
+            "event": "pointerdown",
+            "id": 10,
+            "target": "I",
+            "parent": "chaosMove"
+          },
+          {
+            "event": "pointerdown",
+            "id": 11,
+            "target": "SPAN",
+            "parent": "chaosBlock"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "pointerup",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 11,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerup",
+            "id": 11,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 11,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerdown",
+            "id": 12,
+            "target": "I",
+            "parent": "chaosMove"
+          },
+          {
+            "event": "pointerdown",
+            "id": 13,
+            "target": "SPAN",
+            "parent": "chaosBlock"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 12,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "pointerup",
+            "id": 12,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 12,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 13,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerup",
+            "id": 13,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 13,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerdown",
+            "id": 14,
+            "target": "I",
+            "parent": "chaosMove"
+          },
+          {
+            "event": "pointerdown",
+            "id": 15,
+            "target": "SPAN",
+            "parent": "chaosBlock"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 14,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "pointerup",
+            "id": 14,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 14,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          }
+        ],
+        "block": true,
+        "stick": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "Releasing the block finger ends block 2",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Nested touch capture cycle 3",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Releasing movement preserves block 3",
+      "pass": true,
+      "detail": {
+        "events": [
+          {
+            "event": "pointerdown",
+            "id": 10,
+            "target": "I",
+            "parent": "chaosMove"
+          },
+          {
+            "event": "pointerdown",
+            "id": 11,
+            "target": "SPAN",
+            "parent": "chaosBlock"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "pointerup",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 10,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 11,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerup",
+            "id": 11,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 11,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerdown",
+            "id": 12,
+            "target": "I",
+            "parent": "chaosMove"
+          },
+          {
+            "event": "pointerdown",
+            "id": 13,
+            "target": "SPAN",
+            "parent": "chaosBlock"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 12,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "pointerup",
+            "id": 12,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 12,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 13,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerup",
+            "id": 13,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 13,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerdown",
+            "id": 14,
+            "target": "I",
+            "parent": "chaosMove"
+          },
+          {
+            "event": "pointerdown",
+            "id": 15,
+            "target": "SPAN",
+            "parent": "chaosBlock"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 14,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "pointerup",
+            "id": 14,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 14,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 15,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerup",
+            "id": 15,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 15,
+            "target": "chaosBlock",
+            "parent": ""
+          },
+          {
+            "event": "pointerdown",
+            "id": 16,
+            "target": "I",
+            "parent": "chaosMove"
+          },
+          {
+            "event": "pointerdown",
+            "id": 17,
+            "target": "SPAN",
+            "parent": "chaosBlock"
+          },
+          {
+            "event": "gotpointercapture",
+            "id": 16,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "pointerup",
+            "id": 16,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          },
+          {
+            "event": "lostpointercapture",
+            "id": 16,
+            "target": "chaosMove",
+            "parent": "chaos170"
+          }
+        ],
+        "block": true,
+        "stick": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "Releasing the block finger ends block 3",
       "pass": true,
       "detail": null
     },
@@ -1265,15 +1765,20 @@
         "controlScheme": "touch",
         "phase": "cell",
         "foot": false,
-        "time": 64.19476666666431,
-        "drinkCooldown": 2.4833333333333343,
+        "time": 65.36536666666427,
+        "drinkCooldown": 2.533333333333334,
         "position": {
-          "x": -0.0005007387997057929,
+          "x": 0.0023346789461870256,
           "y": 10.1,
           "z": 56
         },
         "yaw": 0,
         "pitch": 0,
+        "block": false,
+        "stick": {
+          "x": 0,
+          "y": 0
+        },
         "sips": 1,
         "pendingAlcohol": 0,
         "chaos": 90,
@@ -1286,8 +1791,8 @@
         "guardCount": 2,
         "capture": 100,
         "nearGuards": 2,
-        "securityAt": 54.01143333333155,
-        "alarmAt": 53.99476666666666,
+        "securityAt": 55.18203333333151,
+        "alarmAt": 55.16536666666668,
         "cellVisible": true,
         "cellCaptainVisible": true,
         "navigation": {
@@ -1326,8 +1831,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": -3.381215333249255,
-            "z": 54.27631001759106
+            "x": -3.656046253062907,
+            "z": 54.501376162287954
           },
           {
             "profile": {
@@ -1350,8 +1855,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": 0.29959269818105144,
-            "z": 55.248723128715525
+            "x": 1.5135559933790437,
+            "z": 54.157379626624014
           },
           {
             "profile": {
@@ -1375,8 +1880,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": 4.362610518198476,
-            "z": 55.19168750585065
+            "x": 5.189361587962209,
+            "z": 55.718142593816225
           },
           {
             "profile": {
@@ -1399,8 +1904,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": -5.298161109421263,
-            "z": 57.57086930877936
+            "x": -5.267916001769596,
+            "z": 58.512441991842586
           },
           {
             "profile": {
@@ -1423,8 +1928,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": 1.1165648537639623,
-            "z": 57.6365143880557
+            "x": 0.6541978964348476,
+            "z": 58.5276735043694
           },
           {
             "profile": {
@@ -1447,8 +1952,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": 2.986012582595158,
-            "z": 60.02189992446948
+            "x": 2.896670430221206,
+            "z": 60.05433679572301
           },
           {
             "profile": {
@@ -1471,8 +1976,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": -0.32516182196640947,
-            "z": 60.99875100511272
+            "x": -1.4548431800232098,
+            "z": 60.94248161657158
           },
           {
             "profile": {
@@ -1495,8 +2000,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": -4.534767745343758,
-            "z": 54.20556711669166
+            "x": -4.4271061512342476,
+            "z": 53.240116779193016
           },
           {
             "profile": {
@@ -1519,8 +2024,8 @@
             "guard": true,
             "state": "fight",
             "y": 10.1,
-            "x": -0.05838394505244549,
-            "z": 54.79768892287757
+            "x": 0.9877079650585112,
+            "z": 55.46201340210846
           },
           {
             "profile": {
@@ -1543,8 +2048,8 @@
             "guard": true,
             "state": "fight",
             "y": 10.1,
-            "x": 1.0464875737977877,
-            "z": 55.56598576242442
+            "x": 1.1266795417001856,
+            "z": 56.05004640796118
           }
         ],
         "limbTriangles": 8115
@@ -1621,6 +2126,11 @@
         },
         "yaw": 0,
         "pitch": 0,
+        "block": false,
+        "stick": {
+          "x": 0,
+          "y": 0
+        },
         "sips": 1,
         "pendingAlcohol": 0,
         "chaos": 90,
@@ -1673,8 +2183,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": -2.751589203349252,
-            "z": 54.2807363852192
+            "x": -3.0697399557301566,
+            "z": 53.29918925588898
           },
           {
             "profile": {
@@ -1697,8 +2207,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": 0.5654590106829821,
-            "z": 55.40818612485847
+            "x": 1.179300323944693,
+            "z": 55.565301500378695
           },
           {
             "profile": {
@@ -1722,8 +2232,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": 4.902748501504483,
-            "z": 55.65996599337747
+            "x": 4.154984001050834,
+            "z": 54.71688703272689
           },
           {
             "profile": {
@@ -1746,8 +2256,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": -5.655198719304966,
-            "z": 56.290731857906664
+            "x": -5.035829511277999,
+            "z": 57.90695372621253
           },
           {
             "profile": {
@@ -1770,8 +2280,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": 1.022013623594102,
-            "z": 58.01512539153454
+            "x": 0.5888451263427524,
+            "z": 58.50858417089203
           },
           {
             "profile": {
@@ -1794,8 +2304,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": 3.331416867611776,
-            "z": 60.776046030341575
+            "x": 3.64614086349937,
+            "z": 60.71512414859114
           },
           {
             "profile": {
@@ -1818,8 +2328,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": -0.5638129533965855,
-            "z": 60.99999986803295
+            "x": -1.0755538756355314,
+            "z": 60.99999978733858
           },
           {
             "profile": {
@@ -1842,8 +2352,8 @@
             "guard": false,
             "state": "idle",
             "y": 10.1,
-            "x": -5.760327480571529,
-            "z": 54.91517540634895
+            "x": -5.5766135617950985,
+            "z": 53.19908194519502
           },
           {
             "profile": {
@@ -1977,7 +2487,7 @@
       "history": [
         {
           "phase": "deck",
-          "time": 5.694766666666658,
+          "time": 6.865366666666672,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -1985,7 +2495,7 @@
         },
         {
           "phase": "deck",
-          "time": 6.444766666666656,
+          "time": 7.615366666666669,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -1993,7 +2503,7 @@
         },
         {
           "phase": "deck",
-          "time": 7.194766666666653,
+          "time": 8.365366666666686,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2001,7 +2511,7 @@
         },
         {
           "phase": "deck",
-          "time": 7.94476666666665,
+          "time": 9.115366666666723,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2009,7 +2519,7 @@
         },
         {
           "phase": "deck",
-          "time": 8.694766666666684,
+          "time": 9.86536666666676,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2017,7 +2527,7 @@
         },
         {
           "phase": "deck",
-          "time": 9.444766666666721,
+          "time": 10.615366666666798,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2025,7 +2535,7 @@
         },
         {
           "phase": "deck",
-          "time": 10.194766666666759,
+          "time": 11.365366666666835,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2033,7 +2543,7 @@
         },
         {
           "phase": "deck",
-          "time": 10.944766666666796,
+          "time": 12.115366666666873,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2041,7 +2551,7 @@
         },
         {
           "phase": "deck",
-          "time": 11.694766666666833,
+          "time": 12.86536666666691,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2049,7 +2559,7 @@
         },
         {
           "phase": "deck",
-          "time": 12.44476666666687,
+          "time": 13.615366666666947,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2057,7 +2567,7 @@
         },
         {
           "phase": "deck",
-          "time": 13.194766666666908,
+          "time": 14.365366666666985,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2065,7 +2575,7 @@
         },
         {
           "phase": "deck",
-          "time": 13.944766666666945,
+          "time": 15.115366666667022,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2073,7 +2583,7 @@
         },
         {
           "phase": "deck",
-          "time": 14.694766666666983,
+          "time": 15.86536666666706,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2081,7 +2591,7 @@
         },
         {
           "phase": "deck",
-          "time": 15.44476666666702,
+          "time": 16.615366666667033,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2089,7 +2599,7 @@
         },
         {
           "phase": "deck",
-          "time": 16.194766666667036,
+          "time": 17.36536666666699,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2097,7 +2607,7 @@
         },
         {
           "phase": "deck",
-          "time": 16.944766666666993,
+          "time": 18.115366666666947,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2105,7 +2615,7 @@
         },
         {
           "phase": "deck",
-          "time": 17.69476666666695,
+          "time": 18.865366666666905,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2113,7 +2623,7 @@
         },
         {
           "phase": "deck",
-          "time": 18.444766666666908,
+          "time": 19.615366666666862,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2121,7 +2631,7 @@
         },
         {
           "phase": "deck",
-          "time": 19.194766666666865,
+          "time": 20.36536666666682,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2129,7 +2639,7 @@
         },
         {
           "phase": "deck",
-          "time": 19.944766666666823,
+          "time": 21.115366666666777,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2137,7 +2647,7 @@
         },
         {
           "phase": "deck",
-          "time": 20.69476666666678,
+          "time": 21.865366666666734,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2145,7 +2655,7 @@
         },
         {
           "phase": "deck",
-          "time": 21.444766666666737,
+          "time": 22.61536666666669,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2153,7 +2663,7 @@
         },
         {
           "phase": "deck",
-          "time": 22.194766666666695,
+          "time": 23.36536666666665,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2161,7 +2671,7 @@
         },
         {
           "phase": "deck",
-          "time": 22.944766666666652,
+          "time": 24.115366666666606,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2169,7 +2679,7 @@
         },
         {
           "phase": "deck",
-          "time": 23.69476666666661,
+          "time": 24.865366666666564,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2177,7 +2687,7 @@
         },
         {
           "phase": "deck",
-          "time": 24.444766666666567,
+          "time": 25.61536666666652,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2185,7 +2695,7 @@
         },
         {
           "phase": "deck",
-          "time": 25.194766666666524,
+          "time": 26.36536666666648,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2193,7 +2703,7 @@
         },
         {
           "phase": "deck",
-          "time": 25.94476666666648,
+          "time": 27.115366666666436,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2201,7 +2711,7 @@
         },
         {
           "phase": "deck",
-          "time": 26.69476666666644,
+          "time": 27.865366666666393,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2209,7 +2719,7 @@
         },
         {
           "phase": "deck",
-          "time": 27.444766666666396,
+          "time": 28.61536666666635,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2217,7 +2727,7 @@
         },
         {
           "phase": "deck",
-          "time": 28.194766666666354,
+          "time": 29.365366666666308,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2225,7 +2735,7 @@
         },
         {
           "phase": "deck",
-          "time": 28.94476666666631,
+          "time": 30.115366666666265,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2233,7 +2743,7 @@
         },
         {
           "phase": "deck",
-          "time": 29.69476666666627,
+          "time": 30.865366666666223,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2241,7 +2751,7 @@
         },
         {
           "phase": "deck",
-          "time": 30.444766666666226,
+          "time": 31.61536666666618,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2249,7 +2759,7 @@
         },
         {
           "phase": "deck",
-          "time": 31.194766666666183,
+          "time": 32.36536666666614,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2257,7 +2767,7 @@
         },
         {
           "phase": "deck",
-          "time": 31.94476666666614,
+          "time": 33.1153666666661,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2265,7 +2775,7 @@
         },
         {
           "phase": "deck",
-          "time": 32.6947666666661,
+          "time": 33.865366666666056,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2273,7 +2783,7 @@
         },
         {
           "phase": "deck",
-          "time": 33.444766666666055,
+          "time": 34.61536666666601,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2281,7 +2791,7 @@
         },
         {
           "phase": "deck",
-          "time": 34.19476666666601,
+          "time": 35.36536666666597,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2289,7 +2799,7 @@
         },
         {
           "phase": "deck",
-          "time": 34.94476666666597,
+          "time": 36.11536666666593,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2297,7 +2807,7 @@
         },
         {
           "phase": "deck",
-          "time": 35.69476666666593,
+          "time": 36.865366666665885,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2305,7 +2815,7 @@
         },
         {
           "phase": "deck",
-          "time": 36.444766666665885,
+          "time": 37.61536666666584,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2313,7 +2823,7 @@
         },
         {
           "phase": "deck",
-          "time": 37.19476666666584,
+          "time": 38.3653666666658,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2321,7 +2831,7 @@
         },
         {
           "phase": "deck",
-          "time": 37.9447666666658,
+          "time": 39.11536666666576,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2329,7 +2839,7 @@
         },
         {
           "phase": "deck",
-          "time": 38.69476666666576,
+          "time": 39.865366666665714,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2337,7 +2847,7 @@
         },
         {
           "phase": "deck",
-          "time": 39.444766666665714,
+          "time": 40.61536666666567,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2345,7 +2855,7 @@
         },
         {
           "phase": "deck",
-          "time": 40.19476666666567,
+          "time": 41.36536666666563,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2353,7 +2863,7 @@
         },
         {
           "phase": "deck",
-          "time": 40.94476666666563,
+          "time": 42.11536666666559,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2361,7 +2871,7 @@
         },
         {
           "phase": "deck",
-          "time": 41.694766666665586,
+          "time": 42.865366666665544,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2369,7 +2879,7 @@
         },
         {
           "phase": "deck",
-          "time": 42.444766666665544,
+          "time": 43.6153666666655,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2377,7 +2887,7 @@
         },
         {
           "phase": "deck",
-          "time": 43.1947666666655,
+          "time": 44.36536666666546,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2385,7 +2895,7 @@
         },
         {
           "phase": "deck",
-          "time": 43.94476666666546,
+          "time": 45.115366666665416,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2393,7 +2903,7 @@
         },
         {
           "phase": "deck",
-          "time": 44.694766666665416,
+          "time": 45.86536666666537,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2401,7 +2911,7 @@
         },
         {
           "phase": "deck",
-          "time": 45.44476666666537,
+          "time": 46.61536666666533,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2409,7 +2919,7 @@
         },
         {
           "phase": "deck",
-          "time": 46.19476666666533,
+          "time": 47.36536666666529,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2417,7 +2927,7 @@
         },
         {
           "phase": "deck",
-          "time": 46.94476666666529,
+          "time": 48.115366666665246,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2425,7 +2935,7 @@
         },
         {
           "phase": "deck",
-          "time": 47.694766666665245,
+          "time": 48.8653666666652,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2433,7 +2943,7 @@
         },
         {
           "phase": "deck",
-          "time": 48.4447666666652,
+          "time": 49.61536666666516,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2441,7 +2951,7 @@
         },
         {
           "phase": "deck",
-          "time": 49.19476666666516,
+          "time": 50.36536666666512,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2449,7 +2959,7 @@
         },
         {
           "phase": "deck",
-          "time": 49.94476666666512,
+          "time": 51.115366666665075,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2457,7 +2967,7 @@
         },
         {
           "phase": "deck",
-          "time": 50.694766666665075,
+          "time": 51.86536666666503,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2465,7 +2975,7 @@
         },
         {
           "phase": "deck",
-          "time": 51.44476666666503,
+          "time": 52.61536666666499,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2473,7 +2983,7 @@
         },
         {
           "phase": "deck",
-          "time": 52.19476666666499,
+          "time": 53.36536666666495,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2481,7 +2991,7 @@
         },
         {
           "phase": "deck",
-          "time": 52.94476666666495,
+          "time": 54.115366666664904,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2489,7 +2999,7 @@
         },
         {
           "phase": "deck",
-          "time": 53.694766666664904,
+          "time": 54.86536666666486,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2497,7 +3007,7 @@
         },
         {
           "phase": "security",
-          "time": 54.44476666666486,
+          "time": 55.61536666666482,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2505,7 +3015,7 @@
         },
         {
           "phase": "security",
-          "time": 55.19476666666482,
+          "time": 56.36536666666478,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2513,7 +3023,7 @@
         },
         {
           "phase": "security",
-          "time": 55.944766666664776,
+          "time": 57.115366666664734,
           "health": 100,
           "capture": 0,
           "nearGuards": 0,
@@ -2521,87 +3031,87 @@
         },
         {
           "phase": "security",
-          "time": 56.694766666664734,
+          "time": 57.86536666666469,
           "health": 100,
           "capture": 0,
-          "nearGuards": 1,
+          "nearGuards": 0,
           "guardCount": 2
         },
         {
           "phase": "security",
-          "time": 57.44476666666469,
-          "health": 76,
-          "capture": 16.03333333333334,
+          "time": 58.61536666666465,
+          "health": 88,
+          "capture": 4.333333333333335,
           "nearGuards": 2,
           "guardCount": 2
         },
         {
           "phase": "security",
-          "time": 58.19476666666465,
+          "time": 59.365366666664606,
           "health": 76,
-          "capture": 35.53333333333332,
+          "capture": 23.833333333333343,
           "nearGuards": 2,
           "guardCount": 2
         },
         {
           "phase": "security",
-          "time": 58.944766666664606,
+          "time": 60.11536666666456,
           "health": 52,
-          "capture": 55.03333333333317,
+          "capture": 43.33333333333326,
           "nearGuards": 2,
           "guardCount": 2
         },
         {
           "phase": "security",
-          "time": 59.69476666666456,
-          "health": 28,
-          "capture": 74.53333333333319,
+          "time": 60.86536666666452,
+          "health": 40,
+          "capture": 62.83333333333311,
           "nearGuards": 2,
           "guardCount": 2
         },
         {
           "phase": "security",
-          "time": 60.44476666666452,
+          "time": 61.61536666666448,
           "health": 28,
-          "capture": 94.03333333333336,
+          "capture": 82.33333333333326,
           "nearGuards": 2,
           "guardCount": 2
         },
         {
           "phase": "arrested",
-          "time": 61.19476666666448,
-          "health": 28,
+          "time": 62.365366666664436,
+          "health": 16,
           "capture": 100,
           "nearGuards": 2,
           "guardCount": 2
         },
         {
           "phase": "arrested",
-          "time": 61.944766666664435,
-          "health": 28,
+          "time": 63.11536666666439,
+          "health": 16,
           "capture": 100,
           "nearGuards": 2,
           "guardCount": 2
         },
         {
           "phase": "arrested",
-          "time": 62.69476666666439,
-          "health": 28,
+          "time": 63.86536666666435,
+          "health": 16,
           "capture": 100,
           "nearGuards": 2,
           "guardCount": 2
         },
         {
           "phase": "arrested",
-          "time": 63.44476666666435,
-          "health": 28,
+          "time": 64.61536666666431,
+          "health": 16,
           "capture": 100,
           "nearGuards": 2,
           "guardCount": 2
         },
         {
           "phase": "cell",
-          "time": 64.19476666666431,
+          "time": 65.36536666666427,
           "health": 35,
           "capture": 100,
           "nearGuards": 2,
