@@ -1,0 +1,46 @@
+name: Captain 1.7.3 public mobile and jail verification
+on:
+  push:
+    branches: [captain-mobile-custody-173]
+    paths: ['.github/workflows/captain-mobile173-live.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm exact live release
+        run: |
+          python - <<'PY'
+          import urllib.request,time,hashlib
+          from pathlib import Path
+          base='https://arisconstantinou.github.io/captain/'
+          for attempt in range(24):
+            try:
+              body=urllib.request.urlopen(base+'release.json?verify=173').read()
+              if b'1.7.3' in body: break
+            except Exception: pass
+            time.sleep(5)
+          else: raise SystemExit('Live version did not update')
+          for f in ['index.html','main173.js','chaos173.js','ui173.js','mobile173.css','security173.js','chaos-world173.js','sw.js']:
+            b=urllib.request.urlopen(base+f+'?verify=173').read()
+            assert b==Path('captain',f).read_bytes(), 'Different public bytes: '+f
+            print('MATCH',f,hashlib.sha256(b).hexdigest())
+          PY
+      - name: Install Chromium
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Verify live touch interface and actual arrest to jail
+        env:
+          CAPTAIN_BASE: https://arisconstantinou.github.io/captain/
+        run: python captain/tools/qa173.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain173-public-mobile-jail
+          path: /tmp/captain173-qa/
+          retention-days: 7
