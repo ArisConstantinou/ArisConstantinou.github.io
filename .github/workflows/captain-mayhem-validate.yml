@@ -2,7 +2,7 @@ name: Mayhem isolated mode validation
 on:
   push:
     branches: [captain-mayhem-mode]
-    paths: ['captain-mayhem/build.py','captain-mayhem/polish.py','captain-mayhem/qa.py','captain-mayhem/rules.test.mjs','captain-mayhem/systems.js','captain-mayhem/rules.js','captain-mayhem/setdress.js','captain-mayhem/look.js','captain-mayhem/mode.css','.github/workflows/captain-mayhem-validate.yml']
+    paths: ['captain-mayhem/build.py','captain-mayhem/polish.py','captain-mayhem/finalize.py','captain-mayhem/qa.py','captain-mayhem/rules.test.mjs','captain-mayhem/systems.js','captain-mayhem/rules.js','captain-mayhem/setdress.js','captain-mayhem/look.js','captain-mayhem/mode.css','.github/workflows/captain-mayhem-validate.yml']
 permissions:
   contents: write
 concurrency:
@@ -18,6 +18,7 @@ jobs:
         run: |
           python captain-mayhem/build.py
           python captain-mayhem/polish.py
+          python captain-mayhem/finalize.py
           for file in captain-mayhem/*.js; do node --check "$file"; done
           node --test captain-mayhem/rules.test.mjs
           test -z "$(git diff --name-only -- captain)"
