@@ -1,0 +1,84 @@
+/* Scoped to the opening screen: story and Mayhem gameplay UI are untouched. */
+#intro.mode-hub{background:linear-gradient(90deg,#06121cf5 0%,#071923e8 26%,#081a2566 52%,transparent 82%);overflow-y:auto;touch-action:pan-y;overscroll-behavior:contain}
+#intro.mode-hub .intro-copy{left:6.8%;width:440px;max-width:45%;top:50%;bottom:auto;transform:translateY(-47%);padding:0 0 12px}
+#intro.mode-hub .intro-copy>.eyebrow{font-size:9px;letter-spacing:1.5px;margin-bottom:15px}
+#intro.mode-hub h1{font-size:clamp(64px,6.5vw,104px);line-height:.91;margin-bottom:22px;white-space:nowrap}
+#intro.mode-hub h1 br{display:none}
+#intro.mode-hub h1 span{margin-left:.16em}
+#intro.mode-hub .mode-selection{margin:0 0 18px}
+#modeSelectionTitle{font-family:inherit;font-weight:700;font-size:10px;letter-spacing:2.3px;color:#b5c6cb;margin:0 0 10px}
+#intro.mode-hub .mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#intro.mode-hub .mode-card{display:flex;flex-direction:column;text-align:left;gap:9px;min-width:0;min-height:112px;border:1px solid #69889780;border-radius:12px;padding:13px 15px;background:linear-gradient(150deg,#183542f2,#10202bf0);color:#dae4e5;box-shadow:0 5px 18px #0002;transition:border-color .15s,background .15s;touch-action:manipulation}
+#intro.mode-hub .mode-card[aria-selected="true"]{border:2px solid #f6b758;padding:12px 14px;background:linear-gradient(145deg,#5a422df5,#28302df0);color:#fff1d7;box-shadow:0 0 0 2px #f6b75814}
+#intro.mode-hub .mode-card-mayhem[aria-selected="true"]{border-color:#ffa774;background:linear-gradient(145deg,#713a2be8,#312c2cf0)}
+#intro.mode-hub .mode-card:focus-visible{outline:3px solid #9ce5e2;outline-offset:3px}
+#intro.mode-hub .mode-card-top{display:flex;justify-content:space-between;align-items:center;font-size:9px;line-height:12px;letter-spacing:1.2px;font-weight:700}
+#intro.mode-hub .mode-new{color:#ffb883}
+#intro.mode-hub .mode-selected{visibility:hidden;font-size:16px;color:#ffd499;letter-spacing:0}
+#intro.mode-hub .mode-card[aria-selected="true"] .mode-selected{visibility:visible}
+#intro.mode-hub .mode-card strong{font-size:22px;letter-spacing:.2px;line-height:1.1}
+#intro.mode-hub .mode-card small{font-size:11px;line-height:1.4;color:#cbdbdc;font-weight:500;letter-spacing:0}
+#intro.mode-hub .mode-panel[hidden]{display:none!important}
+#intro.mode-hub .mode-panel .tagline{font-size:19px;line-height:1.35;letter-spacing:0;margin:0 0 9px}
+#intro.mode-hub .mode-panel .intro-description{font-size:12px;line-height:1.6;margin:0 0 15px;max-width:none;color:#c2d3d9}
+#intro.mode-hub .start-options{margin-bottom:10px}
+#intro.mode-hub .option-button{min-height:42px;padding:10px;font-size:9px}
+#intro.mode-hub .primary-button{min-height:49px;padding:15px 18px;font-size:11px;border-radius:6px}
+#intro.mode-hub .mode-launch{display:flex;align-items:center;justify-content:space-between;gap:14px;text-decoration:none;background:#f5b054;color:#152028;font-weight:900;letter-spacing:1.2px}
+#intro.mode-hub .mode-launch:hover{background:#ffc678}
+#intro.mode-hub .mode-features{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0}
+#intro.mode-hub .mode-features span{font-size:9px;letter-spacing:.6px;padding:7px 9px;border:1px solid #cba78466;background:#17303d99;border-radius:4px;color:#ecd8b7}
+#intro.mode-hub .mode-save-note{font-size:11px;line-height:1.6;margin:10px 0;color:#acc4ca}
+#intro.mode-hub #jailEntry180{min-height:42px;font-size:10px;margin-top:8px;width:100%}
+#intro.mode-hub #classicVoyage{font-size:9px;min-height:32px;margin-top:5px!important}
+#intro.mode-hub #loadProgress{margin-top:8px}
+#intro.mode-hub #loadStatus{font-size:9px;margin:6px 0;line-height:1.4}
+#intro.mode-hub .intro-help{display:none}
+#intro.mode-hub #introCaptainIdentity{font-size:9px;margin-top:8px;min-height:34px;padding:8px 12px}
+@media(min-width:801px) and (max-height:740px){
+ #intro.mode-hub .intro-copy{top:78px;transform:none;max-width:50%;padding-bottom:55px}
+ #intro.mode-hub h1{font-size:64px;margin-bottom:15px}
+ #intro.mode-hub .intro-copy>.eyebrow{margin-bottom:10px}
+ #intro.mode-hub .mode-card{min-height:97px;gap:7px}
+ #intro.mode-hub .intro-bottom{position:fixed}
+}
+@media(orientation:portrait) and (max-width:800px){
+ #intro.mode-hub{background:linear-gradient(180deg,#081d2aaa 0%,#06172488 19%,#071722ec 35%,#07131cfb 72%)}
+ #intro.mode-hub .intro-copy{left:18px;right:18px;width:auto;max-width:none;top:max(100px,calc(env(safe-area-inset-top) + 86px));bottom:auto;transform:none;padding-bottom:48px}
+ #intro.mode-hub .intro-top{top:max(17px,env(safe-area-inset-top));left:20px;right:20px}
+ #intro.mode-hub .intro-copy>.eyebrow{font-size:8px;letter-spacing:1px;margin-bottom:12px}
+ #intro.mode-hub h1{font-size:68px;margin-bottom:22px}
+ #intro.mode-hub .mode-cards{gap:8px}
+ #intro.mode-hub .mode-card{min-height:112px;padding:12px;gap:10px}
+ #intro.mode-hub .mode-card[aria-selected="true"]{padding:11px}
+ #intro.mode-hub .mode-card strong{font-size:23px}
+ #intro.mode-hub .mode-card small{font-size:11px;line-height:1.45;max-width:145px}
+ #intro.mode-hub .mode-selection{margin-bottom:17px}
+ #intro.mode-hub .mode-panel .tagline{font-size:17px}
+ #intro.mode-hub .mode-panel .intro-description{font-size:12px;line-height:1.55}
+ #intro.mode-hub .primary-button{min-height:50px;font-size:11px}
+ #intro.mode-hub #jailEntry180{min-height:44px}
+ #intro.mode-hub #classicVoyage{min-height:40px}
+ #intro.mode-hub .ship-caption,#intro.mode-hub .intro-bottom{display:none}
+ #intro.mode-hub #introCaptainIdentity{min-height:40px}
+}
+@media(orientation:portrait) and (max-height:690px){
+ #intro.mode-hub .intro-copy{top:70px;padding-bottom:24px}
+ #intro.mode-hub h1{font-size:53px;margin-bottom:15px}
+ #intro.mode-hub .intro-copy>.eyebrow{font-size:7px;margin-bottom:9px}
+ #intro.mode-hub .mode-selection{margin-bottom:13px}
+ #intro.mode-hub .mode-card{min-height:98px;gap:7px}
+ #intro.mode-hub .mode-card strong{font-size:20px}
+ #intro.mode-hub .mode-panel .intro-description{font-size:11px;margin-bottom:10px}
+}
+@media(orientation:landscape) and (max-height:550px){
+ #intro.mode-hub .intro-copy{left:max(24px,env(safe-area-inset-left));right:max(24px,env(safe-area-inset-right));top:65px;width:auto;max-width:none;transform:none;padding-bottom:24px;display:grid;grid-template-columns:minmax(250px,.9fr) minmax(300px,1fr);column-gap:30px;align-items:start}
+ #intro.mode-hub .intro-copy>.eyebrow,#intro.mode-hub h1,#intro.mode-hub .mode-selection,#intro.mode-hub #introCaptainIdentity{grid-column:1}
+ #intro.mode-hub .mode-panel{grid-column:2;grid-row:1 / span 4}
+ #intro.mode-hub h1{font-size:52px;margin-bottom:16px}
+ #intro.mode-hub .intro-bottom,#intro.mode-hub .ship-caption{display:none}
+ #intro.mode-hub .mode-card{min-height:95px;gap:6px}
+ #intro.mode-hub .mode-panel .intro-description{font-size:11px}
+ #intro.mode-hub .mode-panel .tagline{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){#intro.mode-hub .mode-card{transition:none}}
