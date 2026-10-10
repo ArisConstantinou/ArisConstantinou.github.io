@@ -17,26 +17,40 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import urllib.request,time,hashlib
+          import urllib.request,hashlib
           base='https://arisconstantinou.github.io/captain/'
-          files=['index.html','main181.js','chaos181.js','actors181.js','pose181.js','mouse181.js','ui181.js','escape181.js','escape-world181.js','escape-model181.js','controls181.css','sw.js']
-          for attempt in range(20):
-            try:
-              bad=[]
-              for name in files:
-                remote=urllib.request.urlopen(base+name+'?verify=181-public',timeout=15).read()
-                if hashlib.sha256(remote).digest()!=hashlib.sha256(Path('captain',name).read_bytes()).digest():bad.append(name)
-              if not bad:break
-              print('Waiting for Pages files:',bad,flush=True)
-            except Exception as e:print(str(e),flush=True)
-            time.sleep(8)
-          else:raise SystemExit('Public build mismatch')
+          for name in ['index.html','main181.js','chaos181.js','actors181.js','pose181.js','mouse181.js','ui181.js','escape181.js','escape-world181.js','escape-model181.js','controls181.css','sw.js']:
+            remote=urllib.request.urlopen(base+name+'?v=181',timeout=15).read()
+            assert hashlib.sha256(remote).digest()==hashlib.sha256(Path('captain',name).read_bytes()).digest(),name
           print('Exact tested public build verified')
           PY
       - name: Prepare browser
         run: |
           pip install -q playwright
           python -m playwright install --with-deps chromium
+      - name: Capture public startup diagnostics
+        run: |
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+          from pathlib import Path
+          import json
+          out=Path('/tmp/captain181-qa');out.mkdir(exist_ok=True)
+          with sync_playwright() as pw:
+            browser=pw.chromium.launch(headless=True,args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
+            ctx=browser.new_context(service_workers='block');p=ctx.new_page();r={'console':[],'errors':[],'httpErrors':[],'failures':[]}
+            p.on('console',lambda m:r['console'].append(m.text) if m.type=='error' else None)
+            p.on('pageerror',lambda e:r['errors'].append(str(e)))
+            p.on('requestfailed',lambda q:r['failures'].append({'url':q.url,'reason':q.failure}))
+            p.on('response',lambda q:r['httpErrors'].append({'url':q.url,'status':q.status}) if q.status>=400 else None)
+            try:
+              p.goto('https://arisconstantinou.github.io/captain/?test=1&qa=181&diagnostic=2',wait_until='domcontentloaded')
+              p.wait_for_function('window.__lastCall?.getState()?.ready || document.getElementById("errorText")?.textContent',timeout=30000)
+            except Exception as e:r['timeout']=str(e)
+            r['text']=p.locator('body').inner_text();r['state']=p.evaluate('window.__lastCall?.getState() || null');r['url']=p.url
+            (out/'startup.json').write_text(json.dumps(r,ensure_ascii=False,indent=2));p.screenshot(path=str(out/'startup.png'));print(json.dumps(r,ensure_ascii=False),flush=True)
+            browser.close()
+            if not r['state']:raise SystemExit('Public startup diagnostics captured')
+          PY
       - name: Play public build
         env:
           CAPTAIN_BASE: https://arisconstantinou.github.io/captain/
