@@ -1,0 +1,47 @@
+name: Captain 181 controls and pose
+on:
+  push:
+    branches: [captain-fix-181]
+    paths: ['captain/pose181.js','captain/mouse181.js','captain/controls181.css','captain/tools/apply181.py','captain/tools/qa181.py','.github/workflows/captain181-validate.yml']
+permissions:
+  contents: write
+concurrency:
+  group: captain181-validate
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build isolated patch and test physics
+        run: |
+          git fetch --depth=1 origin 2748541544cb5bfd0fc34dc4cbe6792db9bda3ed
+          git show 2748541544cb5bfd0fc34dc4cbe6792db9bda3ed:captain/index.html > captain/index.html
+          git show 2748541544cb5bfd0fc34dc4cbe6792db9bda3ed:captain/sw.js > captain/sw.js
+          python captain/tools/apply181.py
+          for f in captain/*181.js; do node --check "$f"; done
+          sed 's/escape-model180/escape-model181/g' captain/tests/escape180.test.mjs > captain/tests/escape181.test.mjs
+          node --test captain/tests/escape181.test.mjs captain/tests/chaos170.test.mjs
+      - name: Prepare browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Verify pose, mouse, playthrough and touch
+        run: |
+          python -m http.server 8765 >/tmp/captain181-http.log 2>&1 &
+          python captain/tools/qa181.py
+      - name: Stage tested Captain files only
+        run: |
+          cp /tmp/captain181-qa/results.json captain/tests/verified181.json
+          git config user.name 'Captain controls validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/
+          git diff --cached --quiet || git commit -m 'Validated Captain 1.8.1: centered crouch, mouse combat and guided escape'
+          git push origin HEAD:captain-fix-181
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain181-pose-controls-qa
+          path: /tmp/captain181-qa/
+          retention-days: 7
