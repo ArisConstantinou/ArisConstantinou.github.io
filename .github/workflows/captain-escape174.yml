@@ -17,6 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Integrate with stable original voyage
         run: |
+          git fetch --depth=1 origin db1020c09e13b241f229bd2d477156feb1c59025
           git show db1020c09e13b241f229bd2d477156feb1c59025:captain/index.html > captain/index.html
           git show db1020c09e13b241f229bd2d477156feb1c59025:captain/sw.js > captain/sw.js
           python captain/tools/apply174.py
