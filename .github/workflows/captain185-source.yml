@@ -1,0 +1,19 @@
+name: Captain joystick source
+on:
+  push:
+    branches: [captain-joystick-release-185]
+    paths: ['.github/workflows/captain185-source.yml']
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: captain185-source
+          path: |
+            captain/
+            captain-mayhem/
+          retention-days: 2
