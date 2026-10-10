@@ -10,7 +10,7 @@ export function guardQuota(seconds){return Math.min(6,2+Math.floor(Math.max(0,se
 function clear(x,z,solids){const y=floorAt(x,z);return y!==null&&onFloor(x,z,R)&&!solids.some(b=>b.active!==false&&Math.abs((b.y??y)-y)<2.2&&circleBox(x,z,R,b));}
 function travel(a,b,solids){const d=Math.hypot(a.x-b.x,a.z-b.z),n=Math.max(1,Math.ceil(d/.18));let y=a.y;for(let i=1;i<=n;i++){const t=i/n,x=a.x+(b.x-a.x)*t,z=a.z+(b.z-a.z)*t,h=floorAt(x,z);if(h===null||Math.abs(h-y)>.65||!clear(x,z,solids))return false;y=h;}return true;}
 export function createShipNavigator(){
- let stamp='',nodes=[],lookup=new Map();
+ let stamp=null,nodes=[],lookup=new Map();
  function rebuild(solids){const key=solids.map(b=>[b.x,b.z,b.w,b.d,b.y,b.active].join(',')).join('|');if(stamp===key)return;stamp=key;nodes=[];lookup.clear();
   for(let z=32;z<=63;z+=STEP)for(let x=-10;x<=13.5;x+=STEP)if(clear(x,z,solids)){const n={x,z,y:floorAt(x,z),index:nodes.length,edges:[]};nodes.push(n);lookup.set(KEY(x,z),n);}
   for(const a of nodes)for(const [dx,dz] of [[STEP,0],[-STEP,0],[0,STEP],[0,-STEP],[STEP,STEP],[STEP,-STEP],[-STEP,STEP],[-STEP,-STEP]]){const b=lookup.get(KEY(a.x+dx,a.z+dz));if(b&&travel(a,b,solids))a.edges.push(b.index);}
@@ -29,5 +29,5 @@ export function createShipNavigator(){
   while(actor.nav.points.length&&Math.hypot(actor.nav.points[0].x-position.x,actor.nav.points[0].z-position.z)<.23)actor.nav.points.shift();
   return actor.nav.points[0]||position;
  }
- return {steer,path,clear:(p,s)=>clear(p.x,p.z,s),reset:()=>{stamp='';nodes=[];lookup.clear();},inspect:()=>({nodes:nodes.length})};
+ return {steer,path,clear:(p,s)=>clear(p.x,p.z,s),reset:()=>{stamp=null;nodes=[];lookup.clear();},inspect:()=>({nodes:nodes.length})};
 }

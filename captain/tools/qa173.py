@@ -7,7 +7,10 @@ BASE=os.environ.get('CAPTAIN_BASE','http://127.0.0.1:8765/captain/')
 report={'version':'1.7.3','url':BASE,'environment':'Chromium; real mouse and emulated touch, not physical iPhone','checks':[],'custodyRuns':[]}
 def ck(name,ok,detail=None):
  report['checks'].append({'name':name,'pass':bool(ok),'detail':detail});print(('PASS ' if ok else 'FAIL ')+name,flush=True)
- if not ok:raise AssertionError((name,detail))
+ if not ok:
+  try:report['state']=state(p);snap(p,'failure')
+  except Exception:pass
+  raise AssertionError((name,detail))
 def state(p):return p.evaluate('window.__lastCall.getState()')
 def advance(p,n):p.evaluate('(n)=>window.__lastCall.test.chapter.advance(n)',n)
 def pos(p,x,z,yaw=0):p.evaluate('a=>window.__lastCall.test.chapter.setPosition(...a)',[x,z,yaw]);advance(p,.12);p.wait_for_timeout(90)
@@ -76,10 +79,10 @@ try:
     p.locator('#chaosUse').tap();advance(p,.12);ck('Touch grabs object',state(p)['chapter']['held'] is not None)
     ck('Held object changes contextual action to throw',p.locator('#chaosUse').get_attribute('data-action')=='throw')
     p.locator('#chaosUse').tap();advance(p,.12);ck('Touch throws held object',state(p)['chapter']['held'] is None)
-    pos(p,0,56,0);pad=p.locator('#chaosMove').bounding_box();block=p.locator('#chaosBlock').bounding_box();cd=ctx.new_cdp_session(p)
+    pos(p,3,40,0);pad=p.locator('#chaosMove').bounding_box();block=p.locator('#chaosBlock').bounding_box();cd=ctx.new_cdp_session(p)
     x=pad['x']+pad['width']/2;y=pad['y']+pad['height']/2;bx=block['x']+block['width']/2;by=block['y']+block['height']/2
     before=state(p)['chapter']['position'];cd.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':x,'y':y-25,'id':0},{'x':bx,'y':by,'id':1}]});advance(p,.2)
-    ck('Two fingers: walk while blocking',state(p)['chapter']['position']['z']>before['z']+.04 and 'held' in (p.locator('#chaosBlock').get_attribute('class') or ''))
+    ck('Two fingers: walk while blocking',state(p)['chapter']['position']['z']>before['z']+.04 and 'held' in (p.locator('#chaosBlock').get_attribute('class') or ''),{'before':before,'after':state(p)['chapter']['position'],'blockClass':p.locator('#chaosBlock').get_attribute('class'),'disabled':p.locator('#chaosBlock').is_disabled(),'paused':state(p)['paused'],'modelBlock':p.evaluate('window.__lastCall.test.chapter.model.block')})
     cd.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]});advance(p,.1)
     ck('Release clears block', 'held' not in (p.locator('#chaosBlock').get_attribute('class') or ''))
     incident(p,True);custody(p,[0,56,0],'deck')
