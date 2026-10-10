@@ -2,7 +2,7 @@ name: Captain 1.7.3 mobile and custody validation
 on:
   push:
     branches: [captain-mobile-custody-173]
-    paths: ['captain/ui173.js','captain/mobile173.css','captain/security173.js','captain/tools/apply173.py','captain/tools/finalize173.py','captain/tools/qa173.py','.github/workflows/captain-mobile173.yml']
+    paths: ['captain/ui173.js','captain/mobile173.css','captain/security173.js','captain/tools/apply173.py','captain/tools/finalize173.py','captain/tools/qa173.py','captain/tools/touch_checks173.py','.github/workflows/captain-mobile173.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -21,7 +21,8 @@ jobs:
             python captain/tools/apply173.py
           fi
           python captain/tools/finalize173.py
-          python -m py_compile captain/tools/qa173.py
+          python captain/tools/touch_checks173.py
+          python -c "import ast,pathlib; ast.parse(pathlib.Path('captain/tools/qa173.py').read_text())"
           node --check captain/main173.js
           node --check captain/chaos173.js
           node --check captain/ui173.js
