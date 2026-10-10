@@ -1,0 +1,13 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {captureStep,guardQuota,createShipNavigator} from '../security173.js';
+import {floorAt} from '../chaos-model170.js';
+const solid=[{x:0,z:51.9,w:5.8,d:1.05,y:10.12},{x:3,z:58,w:1.3,d:.9,y:10.12},{x:-3.1,z:55.4,w:1.3,d:.9,y:10.12},{x:6.7,z:55.3,w:.1,d:2.1,y:10.12}];
+const p=(x,z)=>({x,z,y:floorAt(x,z)});
+test('No nearby guard cannot restrain a player',()=>assert.equal(captureStep(0,1/60,{nearby:0,health:0}),0));
+test('Two guards fill capture over time',()=>{let v=0;for(let i=0;i<250;i++)v=captureStep(v,1/60,{nearby:2});assert.equal(v,100);});
+test('Escaping contact lowers capture',()=>assert.ok(captureStep(50,.05,{nearby:0})<50));
+test('One guard can restrain an exhausted player',()=>assert.ok(captureStep(0,.05,{nearby:1,health:20})>0));
+test('Blocking slows but cannot freeze restraint',()=>assert.ok(captureStep(0,.05,{nearby:2,blocking:true})<captureStep(0,.05,{nearby:2})));
+test('Guard population remains bounded',()=>assert.equal(guardQuota(300),6));
+test('Navigation reaches around furniture and glass',()=>{const nav=createShipNavigator(),a=nav.path(p(7.5,52.1),p(0,56),solid);assert.ok(a.length>0);assert.ok(a.every(n=>floorAt(n.x,n.z)!==null));});
+test('Navigation connects foredeck to upper bridge using stairs',()=>{const nav=createShipNavigator(),a=nav.path(p(7.5,52.1),p(3,40),solid);assert.ok(a.length>20);assert.ok(a.some(n=>n.x>11.8&&n.z>35&&n.z<48&&n.y>11&&n.y<18));assert.equal(a.at(-1).y,18.43);});
