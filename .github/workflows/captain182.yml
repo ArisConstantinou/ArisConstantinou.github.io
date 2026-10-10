@@ -1,0 +1,61 @@
+name: Captain 182 mobile ring validation
+on:
+  push:
+    branches: [captain-mobile-ring-182]
+    paths: ['.github/workflows/captain182.yml']
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and invariant checks
+        run: |
+          node --check captain/chaos181.js
+          node --check captain/escape181.js
+          node --check captain/main181.js
+          node --test captain/tests/escape181.test.mjs
+          python - <<'PY'
+          from pathlib import Path
+          a=Path('captain/chaos181.js').read_text();b=Path('captain/escape181.js').read_text()
+          assert 'combatRightStick' in a and 'ringAction' in a and 'bottleView.visible' in a
+          assert 's.intox=Math.max(70,s.intox)' in b
+          print('Source checks pass')
+          PY
+      - name: Install browser
+        run: |
+          pip install -q playwright
+          python -m playwright install chromium
+      - name: Browser test portrait and desktop
+        run: |
+          python -m http.server 8765 >/tmp/captain182.log 2>&1 &
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+          from pathlib import Path
+          import json
+          with sync_playwright() as pw:
+            browser=pw.chromium.launch(headless=True,args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-webgl'])
+            for mobile,w,h in [(True,390,844),(True,320,568),(True,932,430),(False,1280,800)]:
+              ctx=browser.new_context(viewport={'width':w,'height':h},is_mobile=mobile,has_touch=mobile)
+              page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+              page.goto('http://127.0.0.1:8765/captain/?test=1&v=182',wait_until='domcontentloaded')
+              page.wait_for_function('window.__lastCall?.getState()?.ready',timeout=60000)
+              assert page.evaluate('window.__lastCall.getState().version')=='1.8.2'
+              page.evaluate("window.__lastCall.test.chapter.enterDeck?.()")
+              page.wait_for_timeout(400)
+              if mobile:
+                assert page.locator('#mobileCombatWheel').count()==1
+                assert page.locator('#combatOuterRing button').count()==9
+              assert not errors,errors
+              page.screenshot(path=f'/tmp/captain182-{w}x{h}.png')
+              print('PASS',w,h,'mobile',mobile,flush=True)
+              ctx.close()
+            browser.close()
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain182-mobile-qa
+          path: /tmp/captain182-*.png
