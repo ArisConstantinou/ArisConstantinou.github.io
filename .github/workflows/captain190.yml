@@ -1,0 +1,49 @@
+name: Captain 190 ship and ocean validation
+on:
+  push:
+    branches: [captain-190-ocean-mayhem]
+    paths: ['captain/tools/payload190-*.txt','captain/tools/install190.py','captain/tools/refine190.py','.github/workflows/captain190.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: captain190-staging
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate isolated patch from verified baseline
+        run: |
+          git fetch --depth=1 origin 61e2e303d8ecf095e97734eebfc18a76bcc6b1f6
+          git restore --source=61e2e303d8ecf095e97734eebfc18a76bcc6b1f6 -- captain/index.html captain/sw.js captain/release.json captain-mayhem/index.html captain-mayhem/release.json
+          python captain/tools/install190.py
+          if [ -f captain/tools/refine190.py ]; then python captain/tools/refine190.py; fi
+          for f in captain/*190.js captain-mayhem/*190.js captain-mayhem/game110.js captain-mayhem/main110.js; do node --check "$f"; done
+          node --test captain/tests/chaos170.test.mjs captain/tests/escape181.test.mjs captain-mayhem/rules.test.mjs
+      - name: Prepare browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Walk, interact, steer and pursue with desktop and touch
+        run: |
+          python -m http.server 8765 >/tmp/captain190-http.log 2>&1 &
+          python captain/tools/qa190.py
+      - name: Commit tested game files to staging only
+        run: |
+          cp /tmp/captain190-qa/results.json captain/tests/verified190.json
+          git config user.name 'Captain ship validation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add captain/ captain-mayhem/
+          git diff --cached --quiet || git commit -m 'Validated shared ship repairs and Mayhem ocean town pursuit with interactive interiors'
+          git push origin HEAD:captain-190-ocean-mayhem
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain190-game-validation
+          path: |
+            /tmp/captain190-qa/
+            /tmp/captain190-http.log
+          retention-days: 7
