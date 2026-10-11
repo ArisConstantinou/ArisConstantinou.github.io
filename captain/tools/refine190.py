@@ -1,8 +1,13 @@
 from pathlib import Path
 import re
 R=Path(__file__).resolve().parents[2]
-# The legacy Mayhem look helper forcibly enabled shadows even on phones. Keep the
-# same lighting/materials, but enable expensive shadow filtering only in Detail.
+# Normalize indexed boxes / nonindexed extrusions before batching. Otherwise a
+# single stair soffit prevented hundreds of ceiling panels from being merged.
+p=R/'captain/interiors190.js';s=p.read_text()
+s=s.replace('o.geometry.clone().applyMatrix4(o.matrix)','(o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone()).applyMatrix4(o.matrix)')
+s=s.replace('a.setXYZ(i,st.x-st.w/2+x,y,z)','a.setXYZ(i,st.x+st.w/2-x,y,z)')
+p.write_text(s)
+# The legacy Mayhem look helper enabled shadows even on phones. Detail only.
 for name in ['captain/main190.js','captain-mayhem/main110.js']:
  p=R/name;s=p.read_text()
  s=s.replace('requestAnimationFrame(frame);\n  if(!renderer',"requestAnimationFrame(frame);\n  if(window.__CAPTAIN_HOLD_FRAME__&&!window.__CAPTAIN_DRAW_ONCE__)return;window.__CAPTAIN_DRAW_ONCE__=false;\n  if(!renderer")
@@ -11,8 +16,8 @@ for name in ['captain/main190.js','captain-mayhem/main110.js']:
   s=s.replace('finishLook(scene,renderer,ship,chapter.renderWorld);',"finishLook(scene,renderer,ship,chapter.renderWorld);renderer.shadowMap.enabled=!mobile&&quality===2;")
  p.write_text(s)
 p=R/'captain/shipwalk190.js';s=p.read_text().replace("id:'pool-port',x:-5.0,w:2.4","id:'pool-port',x:-6.4,w:2.2").replace("id:'pool-starboard',x:5.0,w:2.4","id:'pool-starboard',x:6.4,w:2.2");p.write_text(s)
-# Capture one freshly rendered frame, then let the compositor settle instead of
-# racing an unbounded software-rendered frame loop. This changes QA timing only.
+# Capture one freshly rendered frame and let the compositor settle. Only QA
+# sets these frame-capture flags; user-facing gameplay continues normally.
 p=R/'captain/tools/qa190.py';s=p.read_text()
 s=s.replace('import os,json,math,traceback','import os,json,math,traceback,base64')
 s=s.replace('p.screenshot(path=', 'shot(path=')
@@ -28,7 +33,5 @@ helper='''def shot(path):
  finally:p.evaluate('(old)=>{window.__CAPTAIN_HOLD_FRAME__=false;window.__CHAOS_FREEZE__=old;}',old)
 '''
 s=s.replace('def st():return',helper+'def st():return')
-s=s.replace("p.evaluate('window.__lastCall.test.setState({speed:6})')","p.evaluate('window.__lastCall.test.setState({speed:6})')")
-s=s.replace("p.locator('#bridgeLock').click()", "p.locator('#bridgeLock').click()")
 p.write_text(s)
-print('Refined rendering budget, pool access and settled-frame screenshots')
+print('Refined batching, lighting budget, pool access and screenshot timing')
