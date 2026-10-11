@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="../captain/dialogue130.css?v=140">
 <link rel="stylesheet" href="../captain/chaos170.css?v=171">
 <link rel="stylesheet" href="../captain/movement-ui171.css?v=171">
-<meta name="captain-build" content="MAYHEM 1.0.1">
+<meta name="captain-build" content="MAYHEM 1.1.0">
 <script type="importmap">{"imports":{"three":"../captain/vendor/three.module.js","three/addons/":"../captain/vendor/addons/"}}</script>
 <link rel="stylesheet" href="../captain/identity172.css?v=172">
 <link rel="stylesheet" href="../captain/mobile173.css?v=173b">
@@ -22,18 +22,18 @@
 <link rel="stylesheet" href="../captain/escape180.css?v=180">
 <link rel="stylesheet" href="../captain/controls181.css?v=181"><link rel="stylesheet" href="../captain/touch183.css?v=183">
 <link rel="stylesheet" href="../captain/shipmap184.css?v=184">
-<link rel="stylesheet" href="./mode.css?v=100"></head>
+<link rel="stylesheet" href="./mode.css?v=100"><link rel="stylesheet" href="../captain/repair190.css?v=190"><link rel="stylesheet" href="./marine190.css?v=190"></head>
 <body>
   <main id="game" aria-label="Παιχνίδι Last Call">
     <canvas id="sea" aria-label="Τρισδιάστατη θέα κρουαζιερόπλοιου"></canvas>
     <div id="rainLens" aria-hidden="true"></div><div id="impact" aria-hidden="true"></div>
     <section id="intro" class="screen">
-      <div class="intro-top"><span class="brand-mark">LC<span> / </span>01</span><span class="edition">SANDBOX / MS AURORA</span><button class="tiny-button" id="introSound" aria-label="Ενεργοποίηση ή απενεργοποίηση ήχου">Ήχος: ΝΑΙ</button></div>
+      <div class="intro-top"><span class="brand-mark">LC<span> / </span>01</span><span class="edition">OPEN SEA / MS AURORA</span><button class="tiny-button" id="introSound" aria-label="Ενεργοποίηση ή απενεργοποίηση ήχου">Ήχος: ΝΑΙ</button></div>
       <div class="intro-copy">
         <div class="eyebrow"><span class="status-dot"></span> ΝΕΟ MODE / ΕΛΕΥΘΕΡΟ ΧΑΟΣ</div>
         <h1>LAST CALL<span>MAYHEM.</span></h1>
         <p class="tagline">Δικό σου το πλοίο.<br>Δικοί σου οι μπελάδες.</p>
-        <p class="intro-description">Σπάσε περάσματα. Στείλε έπιπλα στον αέρα. Παίξε με την κλίση του πλοίου και ξέφυγε από την ασφάλεια.<br><b>Χωρίς θελήματα. Χωρίς υποχρεωτικό κελί.</b></p>
+        <p class="intro-description">Ξεκίνα σε καθαρή θάλασσα κοντά στο λιμάνι. Κυβέρνησε το πλοίο, εξερεύνησε τους χώρους και παίξε με μηχανισμούς και αντικείμενα. Αν επιτεθείς στην ακτοφυλακή, αρχίζει ατελείωτη καταδίωξη.<br><b>Χωρίς θελήματα. Χωρίς υποχρεωτικό κελί.</b></p>
         <div class="start-options"><button id="difficulty" class="option-button">Φουρτούνα <b>ΚΑΝΟΝΙΚΗ</b> <span>↗</span></button><button id="introMotion" class="option-button">Κάμερα <b>ΚΙΝΗΜΑΤΟΓΡΑΦΙΚΗ</b> <span>↗</span></button></div>
         <button id="start" class="primary-button" disabled><span id="startText">ΠΡΟΕΤΟΙΜΑΣΙΑ ΠΛΟΙΟΥ</span><span>→</span></button>
         <button id="jailEntry180" disabled>ΚΕΦΑΛΑΙΟ 2 · ΑΠΟΔΡΑΣΗ →</button>
@@ -75,6 +75,6 @@
     <section id="errorScreen" class="modal-backdrop hidden"><div class="modal"><h2>Δεν φορτώθηκε η γέφυρα.</h2><p id="errorText"></p><button class="primary-button" onclick="location.reload()">ΔΟΚΙΜΑΣΕ ΞΑΝΑ ↻</button></div></section>
   </main>
   <noscript>Το παιχνίδι χρειάζεται JavaScript και WebGL2. Άνοιξέ το σε σύγχρονο Safari, Chrome ή Edge.</noscript>
-  <script type="module" src="./main101.js?v=185"></script>
+  <script type="module" src="./main110.js?v=190"></script>
 </body>
 </html>

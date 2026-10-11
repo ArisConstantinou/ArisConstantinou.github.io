@@ -1,0 +1,4 @@
+/* Preserve the established controls; only contextual architecture interactions change. */
+html[data-input-scheme=touch] #chaosUse[data-action=helm]{min-height:48px}
+#chaos170 #chaosUse{max-width:min(240px,48vw)}
+#releaseBadge{pointer-events:none}

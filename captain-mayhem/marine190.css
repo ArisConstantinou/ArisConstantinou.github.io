@@ -1,0 +1,37 @@
+#marine190{position:absolute;inset:0;pointer-events:none;z-index:17;font-family:system-ui,sans-serif;color:#fff1d8;font-variant-numeric:tabular-nums}
+#seaBrief{position:absolute;left:50%;top:23px;transform:translateX(-50%);max-width:390px;display:grid;gap:4px;padding:8px 13px;background:#0d3443bd;border:1px solid #d7ba7733;border-radius:6px;text-align:center}
+#seaBrief b{font-size:12px;letter-spacing:.6px}#seaBrief span{font-size:10px;line-height:1.4;color:#c5dad9}
+#seaRadar{position:absolute;right:20px;top:85px;width:124px;height:124px;border-radius:50%;opacity:.93}
+#seaNav{position:absolute;right:20px;top:216px;max-width:230px;display:grid;gap:4px;text-align:right;text-shadow:0 1px 4px #000}
+#seaNav strong{font-size:12px}#seaNav small{font-size:10px;color:#def1e9}
+#seaActions{position:absolute;left:28px;top:260px;display:flex;gap:8px;pointer-events:auto}
+#seaActions button{min-width:50px;min-height:46px;max-width:145px;background:#163747d9;border:1px solid #cdb88666;border-radius:7px;color:#ffefcb;font:700 10px system-ui;padding:8px;display:flex;gap:6px;align-items:center}
+#seaActions button span{font-size:21px}#seaActions button[hidden]{display:none!important}
+#seaActions button:disabled{opacity:.45}
+.boat-label{position:absolute;transform:translate(-50%,-100%);padding:5px 8px;border:1px solid #84d2b97a;background:#0e303bd6;border-radius:5px;font-size:10px;white-space:nowrap;pointer-events:none}
+.boat-label[data-hostile=true]{border-color:#edbc89;color:#ffe1a5}
+#hud:not(.chaos-foot) #helm140{display:block!important;pointer-events:none}
+#hud:not(.chaos-foot) #helm140 #leverShell,#hud:not(.chaos-foot) #helm140 #helmPad,#hud:not(.chaos-foot) #helm140 #helmActions,#hud:not(.chaos-foot) #helm140 #recenterHelm{pointer-events:auto}
+#hud:not(.chaos-foot) #mayhemHUD .mode-location,#hud:not(.chaos-foot) #mayhemHUD #mhMeters,#hud:not(.chaos-foot) #shipMapButton184{display:none!important}
+#hud:not(.chaos-foot) #leaveHelm{pointer-events:auto!important;visibility:visible!important}
+#hud:not(.chaos-foot) #chaos170[data-phase=helm] #leaveHelm{display:flex!important}
+#rainLens{display:none!important}
+html[data-input-scheme=touch] #seaBrief{left:12px;top:150px;transform:none;max-width:220px;padding:6px 8px;gap:3px;text-align:left}
+html[data-input-scheme=touch] #seaBrief b{font-size:10px}html[data-input-scheme=touch] #seaBrief span{font-size:9px}
+html[data-input-scheme=touch] #seaRadar{right:9px;top:104px;width:88px;height:88px}
+html[data-input-scheme=touch] #seaNav{right:12px;top:199px;max-width:185px}
+html[data-input-scheme=touch] #seaNav strong{font-size:10px}html[data-input-scheme=touch] #seaNav small{font-size:9px}
+html[data-input-scheme=touch] #seaActions{left:12px;top:auto;bottom:calc(165px + env(safe-area-inset-bottom));gap:6px;flex-direction:column}
+html[data-input-scheme=touch] #seaActions button{min-height:46px;max-width:106px;font-size:9px}
+html[data-input-scheme=touch] #hud:not(.chaos-foot) #seaBrief{top:58px;max-width:245px}
+html[data-input-scheme=touch] #hud:not(.chaos-foot) #seaRadar{top:124px}
+html[data-input-scheme=touch] .boat-label{font-size:8px;padding:4px 6px}
+html[data-input-scheme=touch] #hud.chaos-foot #seaBrief{top:146px;max-width:230px}
+html[data-input-scheme=touch] #shipMapButton184{top:223px}
+@media(orientation:landscape) and (max-height:550px){html[data-input-scheme=touch] #seaBrief{left:270px;top:68px;max-width:230px}html[data-input-scheme=touch] #seaRadar{width:76px;height:76px;top:65px}html[data-input-scheme=touch] #seaNav{top:145px;max-width:155px}html[data-input-scheme=touch] #seaActions{left:12px;bottom:125px}html[data-input-scheme=touch] #hud.chaos-foot #seaBrief{top:67px}html[data-input-scheme=touch] #shipMapButton184{top:161px}}
+
+/* Keep the existing wanted meter and both thumbs unobstructed. */
+html[data-input-scheme=touch] #hud.chaos-foot #seaBrief{top:178px;max-width:calc(100% - 120px)}
+html[data-input-scheme=touch] #hud.chaos-foot #seaBrief span,html[data-input-scheme=touch] #hud.chaos-foot #seaNav small{display:none}
+html[data-input-scheme=touch] #hud.chaos-foot #seaActions{bottom:calc(215px + env(safe-area-inset-bottom))}
+@media(orientation:landscape) and (max-height:550px){html[data-input-scheme=touch] #hud.chaos-foot #seaBrief{top:69px;max-width:230px}html[data-input-scheme=touch] #hud.chaos-foot #seaActions{bottom:125px}}
