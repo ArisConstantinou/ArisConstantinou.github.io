@@ -1,0 +1,300 @@
+{
+  "assetPack": "KayKit Character Pack: Adventurers 1.0",
+  "creator": "Kay Lousberg",
+  "creatorUrl": "https://kaylousberg.com/",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "licenseEvidence": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/blob/672074b73ba276876a19e8816ecdc5241817ab47/LICENSE.txt",
+  "includedLicense": "models/LICENSE-KayKit.txt",
+  "sourceRepository": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0",
+  "pinnedRevision": "672074b73ba276876a19e8816ecdc5241817ab47",
+  "creatorPackPage": "https://kaylousberg.itch.io/kaykit-adventurers",
+  "verifiedDate": "2026-10-11",
+  "modifications": [
+    "Unused animations removed",
+    "Alternative equipped meshes removed",
+    "Binary buffers losslessly repacked",
+    "Runtime normalization, independent skeletal cloning, material tint and animation blending"
+  ],
+  "models": [
+    {
+      "kind": "mage",
+      "file": "models/mage.glb",
+      "sourceFile": "addons/kaykit_character_pack_adventures/Characters/gltf/Mage.glb",
+      "sourceSha256": "cf898585da33fab50c724d31605fb931eb2912e6d2280092141e98ca81ad507d",
+      "sha256": "b298bc24b4ae8fe3221af28cb9c2630791f6dbc5d5dc1d31130869b61a36a0a6",
+      "bytes": 687872,
+      "sourceBytes": 3589240,
+      "skinJoints": 41,
+      "skinnedMeshes": 6,
+      "meshPrimitives": 8,
+      "triangles": 4509,
+      "equipment": [
+        "Mage_Cape",
+        "Mage_Hat"
+      ],
+      "clips": [
+        {
+          "name": "Death_B",
+          "duration": 2.6333333333333333
+        },
+        {
+          "name": "Hit_A",
+          "duration": 0.6666666666666666
+        },
+        {
+          "name": "Idle",
+          "duration": 1.0666666666666667
+        },
+        {
+          "name": "Lie_Pose",
+          "duration": 0
+        },
+        {
+          "name": "Running_A",
+          "duration": 0.8
+        },
+        {
+          "name": "Spellcast_Raise",
+          "duration": 2.1
+        },
+        {
+          "name": "Spellcast_Shoot",
+          "duration": 0.9333333333333333
+        },
+        {
+          "name": "Spellcasting",
+          "duration": 0.6666666666666666
+        },
+        {
+          "name": "Throw",
+          "duration": 1.3666666666666667
+        },
+        {
+          "name": "Walking_A",
+          "duration": 1.0666666666666667
+        }
+      ],
+      "runtimeNormalization": {
+        "heightMeters": 1.85,
+        "forward": "+Z",
+        "pivot": "feet",
+        "horizontalRootMotion": "removed"
+      },
+      "sourceStandingHeightMeters": 2.7029823429015023,
+      "validation": {
+        "mode": "Node GLTFLoader, skeletal-pose and transform checks; embedded PNG integrity checked separately",
+        "independentSkeletons": true,
+        "independentMaterials": true,
+        "finitePosedBounds": true,
+        "forwardPositiveZVerified": true,
+        "noHorizontalRootMotion": true,
+        "rendered": false
+      }
+    },
+    {
+      "kind": "guard",
+      "file": "models/guard.glb",
+      "sourceFile": "addons/kaykit_character_pack_adventures/Characters/gltf/Knight.glb",
+      "sourceSha256": "60428e3abc09ba83e595d256e3af8c5c976b46cdae599f0802fc82b4a3445168",
+      "sha256": "d76a67ac8d44a83f9af356a27b4d4b8f7b3f310bfa260a580294db59f5b2e5a1",
+      "bytes": 643104,
+      "sourceBytes": 3659532,
+      "skinJoints": 41,
+      "skinnedMeshes": 6,
+      "meshPrimitives": 10,
+      "triangles": 5274,
+      "equipment": [
+        "1H_Sword",
+        "Badge_Shield",
+        "Knight_Cape",
+        "Knight_Helmet"
+      ],
+      "clips": [
+        {
+          "name": "1H_Melee_Attack_Slice_Horizontal",
+          "duration": 1.0666666666666667
+        },
+        {
+          "name": "Blocking",
+          "duration": 1.0666666666666667
+        },
+        {
+          "name": "Death_B",
+          "duration": 2.6333333333333333
+        },
+        {
+          "name": "Hit_A",
+          "duration": 0.6666666666666666
+        },
+        {
+          "name": "Idle",
+          "duration": 1.0666666666666667
+        },
+        {
+          "name": "Lie_Pose",
+          "duration": 0
+        },
+        {
+          "name": "Running_A",
+          "duration": 0.8
+        },
+        {
+          "name": "Walking_A",
+          "duration": 1.0666666666666667
+        }
+      ],
+      "runtimeNormalization": {
+        "heightMeters": 1.85,
+        "forward": "+Z",
+        "pivot": "feet",
+        "horizontalRootMotion": "removed"
+      },
+      "sourceStandingHeightMeters": 2.453806862463952,
+      "validation": {
+        "mode": "Node GLTFLoader, skeletal-pose and transform checks; embedded PNG integrity checked separately",
+        "independentSkeletons": true,
+        "independentMaterials": true,
+        "finitePosedBounds": true,
+        "forwardPositiveZVerified": true,
+        "noHorizontalRootMotion": true,
+        "rendered": false
+      }
+    },
+    {
+      "kind": "archer",
+      "file": "models/archer.glb",
+      "sourceFile": "addons/kaykit_character_pack_adventures/Characters/gltf/Rogue_Hooded.glb",
+      "sourceSha256": "93e6e25213009952276d9cf34f5d96a243767334c66f280db0433ddfabb91545",
+      "sha256": "a6e697ee7a25ea78250bf777199977eab4ffb96ec7b0eb9ba7f2112a30d900c3",
+      "bytes": 629888,
+      "sourceBytes": 3597652,
+      "skinJoints": 41,
+      "skinnedMeshes": 6,
+      "meshPrimitives": 8,
+      "triangles": 4797,
+      "equipment": [
+        "2H_Crossbow",
+        "Rogue_Cape"
+      ],
+      "clips": [
+        {
+          "name": "2H_Ranged_Aiming",
+          "duration": 1.6
+        },
+        {
+          "name": "2H_Ranged_Shoot",
+          "duration": 1.0666666666666667
+        },
+        {
+          "name": "Death_B",
+          "duration": 2.6333333333333333
+        },
+        {
+          "name": "Hit_A",
+          "duration": 0.6666666666666666
+        },
+        {
+          "name": "Idle",
+          "duration": 1.0666666666666667
+        },
+        {
+          "name": "Lie_Pose",
+          "duration": 0
+        },
+        {
+          "name": "Running_A",
+          "duration": 0.8
+        },
+        {
+          "name": "Walking_A",
+          "duration": 1.0666666666666667
+        }
+      ],
+      "runtimeNormalization": {
+        "heightMeters": 1.85,
+        "forward": "+Z",
+        "pivot": "feet",
+        "horizontalRootMotion": "removed"
+      },
+      "sourceStandingHeightMeters": 2.238504850668841,
+      "validation": {
+        "mode": "Node GLTFLoader, skeletal-pose and transform checks; embedded PNG integrity checked separately",
+        "independentSkeletons": true,
+        "independentMaterials": true,
+        "finitePosedBounds": true,
+        "forwardPositiveZVerified": true,
+        "noHorizontalRootMotion": true,
+        "rendered": false
+      }
+    },
+    {
+      "kind": "heavy",
+      "file": "models/heavy.glb",
+      "sourceFile": "addons/kaykit_character_pack_adventures/Characters/gltf/Barbarian.glb",
+      "sourceSha256": "cefc311a0e10c7858b6141f5ada7e33268727564fb8ac1347aab97d000669cc6",
+      "sha256": "d470a4623c91bb51723cc286178eaea45d365aae1135c7c57b9c07f550cc794c",
+      "bytes": 623808,
+      "sourceBytes": 3613268,
+      "skinJoints": 41,
+      "skinnedMeshes": 6,
+      "meshPrimitives": 9,
+      "triangles": 5285,
+      "equipment": [
+        "2H_Axe",
+        "Barbarian_Cape",
+        "Barbarian_Hat"
+      ],
+      "clips": [
+        {
+          "name": "2H_Melee_Attack_Chop",
+          "duration": 1.6333333333333333
+        },
+        {
+          "name": "2H_Melee_Idle",
+          "duration": 1.0666666666666667
+        },
+        {
+          "name": "Death_B",
+          "duration": 2.6333333333333333
+        },
+        {
+          "name": "Hit_A",
+          "duration": 0.6666666666666666
+        },
+        {
+          "name": "Idle",
+          "duration": 1.0666666666666667
+        },
+        {
+          "name": "Lie_Pose",
+          "duration": 0
+        },
+        {
+          "name": "Running_A",
+          "duration": 0.8
+        },
+        {
+          "name": "Walking_A",
+          "duration": 1.0666666666666667
+        }
+      ],
+      "runtimeNormalization": {
+        "heightMeters": 1.85,
+        "forward": "+Z",
+        "pivot": "feet",
+        "horizontalRootMotion": "removed"
+      },
+      "sourceStandingHeightMeters": 2.3849959421154754,
+      "validation": {
+        "mode": "Node GLTFLoader, skeletal-pose and transform checks; embedded PNG integrity checked separately",
+        "independentSkeletons": true,
+        "independentMaterials": true,
+        "finitePosedBounds": true,
+        "forwardPositiveZVerified": true,
+        "noHorizontalRootMotion": true,
+        "rendered": false
+      }
+    }
+  ]
+}

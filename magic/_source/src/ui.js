@@ -1,0 +1,480 @@
+const PATHS = {
+  rune: '<path d="M12 2 20.7 7v10L12 22l-8.7-5V7L12 2Z"/><path d="m12 5 5.8 3.4v6.8L12 19l-5.8-3.8V8.4L12 5Z"/><path d="M12 5v14M6.2 8.4 12 12l5.8-3.6M6.2 15.2 12 12l5.8 3.2"/>',
+  grab: '<path d="M8 13V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-5a1.5 1.5 0 0 1 3 0v6-3a1.5 1.5 0 0 1 3 0v6c0 4-2.5 6-6 6h-2c-2 0-3.5-1.1-4.5-2.5L4 13.8a1.6 1.6 0 0 1 2.4-2.1L8 13Z"/><path d="M2 4 3 3M20 3l1 1M2 8H1"/>',
+  throw: '<path d="m5 19 13-13M10 5h9v9"/><path d="M4 12v7h7M5 5l2 2M13 19l2-2"/>',
+  pulse: '<circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M5 19l3-3m8-8 3-3"/>',
+  dash: '<path d="m14 3-7 10h6l-3 8 10-12h-7l1-6ZM2 6h5M1 11h4M3 17h3"/>',
+  shield: '<path d="m12 2 8 3v6c0 5-4 9-8 11-4-2-8-6-8-11V5l8-3Z"/><path d="M12 6v11M8 10l4-4 4 4"/>',
+  interact: '<path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6Z"/><circle cx="12" cy="12" r="2"/>',
+  scepter: '<path d="m7 21 8-14m-6 2 8 4M13 6l-1-4 6 1 3 5-5 1-3-3Z"/><path d="m6 19 3 2M15 3l-1 3 4 1"/>',
+  portal: '<path d="M5 21V9a7 7 0 0 1 14 0v12M2 21h20M8 21V10a4 4 0 0 1 8 0v11"/><path d="m12 11-2 4h4l-2 4"/>',
+  shard: '<path d="m12 2 6 6-2 11-6 3-5-12 7-8Z"/><path d="m12 2-2 10 6 7M5 10l5 2 8-4M10 12v10"/>',
+  skull: '<path d="M6 16v-2a8 8 0 1 1 12 0v2l-3 1v4H9v-4l-3-1Z"/><circle cx="8.5" cy="10.5" r="1.5"/><circle cx="15.5" cy="10.5" r="1.5"/><path d="m11 15 1-2 1 2M12 18v3"/>',
+  heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
+  mana: '<path d="M12 2C10 6 5 10 5 15a7 7 0 0 0 14 0c0-5-5-9-7-13Z"/><path d="M9 15a3 3 0 0 0 3 3"/>',
+  pause: '<path d="M8 5v14M16 5v14"/>',
+  play: '<path d="m9 5 11 7-11 7V5Z"/>',
+  sound: '<path d="M11 4 6 8H3v8h3l5 4V4ZM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
+  mute: '<path d="M11 4 6 8H3v8h3l5 4V4Zm5 5 6 6m0-6-6 6"/>',
+  arrow: '<path d="M3 12h17m-6-6 6 6-6 6"/>',
+  close: '<path d="m6 6 12 12M6 18 18 6"/>',
+  mouse: '<rect x="6" y="2" width="12" height="20" rx="6"/><path d="M12 2v7M6 10h12"/>',
+  book: '<path d="M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Zm0 0v15"/><path d="M5 8h3M5 12h3M16 8h3M16 12h3"/>',
+  crown: '<path d="m3 6 4 5 5-8 5 8 4-5-3 14H6L3 6ZM6 16h12"/>',
+};
+
+function icon(name, className = '') {
+  return `<svg class="icon ${className}" viewBox="0 0 24 24" aria-hidden="true">${PATHS[name] || PATHS.rune}</svg>`;
+}
+const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+const number = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+const formatNumber = (value) => Math.round(number(value)).toLocaleString('el-GR');
+const clock = (seconds) => `${Math.floor(number(seconds) / 60)}:${String(Math.floor(number(seconds) % 60)).padStart(2, '0')}`;
+
+function ability(action, name, glyph, key = '', extra = '') {
+  return `<button class="ability ${extra}" type="button" data-action="${action}" aria-label="${name}"><span class="ability-disc">${icon(glyph)}${key ? `<span class="ability-key">${key === 'mouse' ? icon('mouse') : key}</span>` : ''}<span class="cooldown-number" hidden></span></span><span class="ability-name">${name}</span></button>`;
+}
+
+export function createUI(callbacks = {}) {
+  const host = document.getElementById('magic-ui');
+  const canvas = document.getElementById('game-canvas');
+  if (!host || !canvas) throw new Error('Το MAGIC χρειάζεται τα #magic-ui και #game-canvas.');
+  const abort = new AbortController();
+  const signal = abort.signal;
+  const keys = new Set();
+  const actions = [];
+  const timers = new Set();
+  const stickStates = [];
+  const changed = new Map();
+  let phase = 'menu';
+  let modal = null;
+  let modalReturnFocus = null;
+  let loaded = false;
+  let muted = false;
+  let quality = 'high';
+  let profile = { shards: 0, best: 0, runs: 0, wins: 0, upgrades: {} };
+  let lastUpgrades = [];
+  let touchShield = false;
+  let mouseShield = false;
+  let pointerX = 0;
+  let pointerY = 0;
+  let pointerActive = false;
+  let move = { x: 0, y: 0 };
+  let aim = { x: 0, y: 0 };
+  const coarseMedia = window.matchMedia('(pointer: coarse)');
+  let touchMode = coarseMedia.matches || (navigator.maxTouchPoints > 0 && window.matchMedia('(hover: none)').matches);
+  document.body.dataset.input = touchMode ? 'touch' : 'keyboard';
+
+  host.innerHTML = `
+    <div class="edge-shade"></div>
+    <section class="screen menu-screen" id="menu-screen" aria-label="Αρχική οθόνη">
+      <div class="menu-content">
+        <div class="menu-rune">${icon('rune', 'rune')}<span class="overline">ΣΚΟΤΕΙΝΗ ΜΑΓΕΙΑ<br>ΔΥΝΑΜΗ ΤΟΥ ΝΟΥ</span></div>
+        <h1 class="hero-title">MAGIC</h1>
+        <h2 class="hero-subtitle">Ο Εξόριστος Μάγος</h2>
+        <div class="fine-divider"></div>
+        <p class="hero-description">Σου πήραν το βασίλειο.<br><strong>Δεν σου πήραν τη δύναμη.</strong><br>Σήκωσε εχθρούς και συντρίμμια. Κάνε το ίδιο το κάστρο όπλο σου.</p>
+        <div class="mission-note">${icon('scepter')}<span>Κλέψε το Μαύρο Σκήπτρο.<br>Επέστρεψε στη φωτεινή πύλη για να διαφύγεις.</span></div>
+        <div class="ritual-steps" aria-label="Κίνηση, αρπαγή, στόχευση, ρίψη"><span><b>1</b>ΚΙΝΗΣΗ</span><i>›</i><span><b>2</b>ΑΡΠΑΓΗ</span><i>›</i><span><b>3</b>ΣΤΟΧΕΥΣΗ</span><i>›</i><span><b>4</b>ΡΙΨΗ</span></div>
+        <div class="menu-actions">
+          <button class="primary-button" id="start-button" type="button" disabled><span id="start-label">ΞΥΠΝΑ Η ΜΑΓΕΙΑ…</span>${icon('arrow')}</button>
+          <div class="loading-line" id="loading-line"><div class="loading-fill" id="loading-fill"></div></div>
+          <p class="loading-label" id="loading-label" role="status">Προετοιμασία του κάστρου…</p>
+          <button class="secondary-button" id="menu-upgrades" type="button"><span class="button-name">${icon('rune')}ΜΟΝΙΜΕΣ ΔΥΝΑΜΕΙΣ</span><span class="shard-pill" id="menu-shards">0 ◇</span></button>
+          <div class="menu-footer"><button class="text-button" id="menu-help" type="button">Πώς παίζεται</button><button class="text-button" id="menu-mute" type="button">Ήχος ενεργός</button><button class="text-button" id="menu-quality" type="button">Γραφικά: υψηλά</button></div>
+          <p class="menu-achievement" id="menu-achievement">Κάθε απόδραση σε κάνει ισχυρότερο.</p>
+        </div>
+      </div>
+      <div class="menu-caption"><div class="overline">I · ΤΟ ΜΑΥΡΟ ΣΚΗΠΤΡΟ</div><p>«Ό,τι μπορείς να σηκώσεις,<br>μπορεί να γίνει όπλο.»</p></div>
+    </section>
+
+    <section class="hud" id="game-hud" hidden aria-label="Πληροφορίες παιχνιδιού">
+      <header class="game-header">
+        <div class="vitals-block" id="vitals-block"><div class="hud-brand-row"><span class="hud-wordmark">MAGIC</span><span class="zone-name" id="zone-name">Η εξωτερική αυλή</span></div>
+          <div class="vital-row">${icon('heart', 'vital-icon health-icon')}<div class="vital-track" role="meter" aria-label="Ζωή" aria-valuemin="0" aria-valuemax="100" id="health-meter"><div class="vital-fill health-fill" id="health-fill"></div></div><span class="vital-value" id="health-value">100</span></div>
+          <div class="vital-row">${icon('mana', 'vital-icon mana-icon')}<div class="vital-track" role="meter" aria-label="Μαγική ενέργεια" aria-valuemin="0" aria-valuemax="100" id="mana-meter"><div class="vital-fill mana-fill" id="mana-fill"></div></div><span class="vital-value" id="mana-value">100</span></div>
+        </div>
+        <div class="objective-block" id="objective-block"><span id="objective-symbol">${icon('scepter', 'objective-glyph')}</span><div><span class="objective-label" id="objective-label">Η ΑΠΟΣΤΟΛΗ ΣΟΥ</span><div class="objective-text" id="objective-text">Βρες το Μαύρο Σκήπτρο στην κρύπτη</div><div class="objective-progress" id="objective-progress" hidden><span id="objective-fill"></span></div></div></div>
+        <div class="header-tools"><button class="icon-button" id="hud-mute" type="button" aria-label="Σίγαση ήχου" aria-pressed="false">${icon('sound')}</button><button class="icon-button" id="hud-pause" type="button" aria-label="Παύση παιχνιδιού">${icon('pause')}</button></div>
+      </header>
+      <div class="boss-track" id="boss-track" hidden><div class="boss-name" id="boss-name">Ο Φύλακας της Κρύπτης</div><div class="boss-bar"><span id="boss-fill"></span></div></div>
+      <div class="combo-display" id="combo-display" hidden><div class="combo-value" id="combo-value">×2</div><div class="combo-label">ΜΑΓΙΚΗ ΑΛΥΣΙΔΑ</div></div>
+      <div class="context-strip" id="context-strip"><div class="context-main" id="context-main"></div><div class="context-sub" id="context-sub"></div></div>
+      <div class="held-state" id="held-state" hidden>${icon('grab')}<span id="held-text"></span></div>
+      <div class="run-meta"><span class="run-stat" title="Θραύσματα αυτής της προσπάθειας">${icon('shard')}<span id="hud-shards">0</span></span><span class="run-stat" title="Εχθροί που νικήθηκαν">${icon('skull')}<span id="hud-kills">0</span></span><span class="run-stat time" id="hud-time">0:00</span></div>
+      <div class="desktop-controls" aria-label="Δυνάμεις και πλήκτρα">
+        ${ability('grab', 'ΑΦΗΣΕ', 'grab', 'Q')}
+        ${ability('primary', 'ΑΡΠΑΓΗ', 'grab', 'mouse', 'primary-ability')}
+        ${ability('pulse', 'ΩΣΤΙΚΟ ΚΥΜΑ', 'pulse', 'F')}
+        ${ability('dash', 'ΕΦΟΡΜΗΣΗ', 'dash', 'SPACE')}
+        ${ability('shield', 'ΑΣΠΙΔΑ', 'shield', 'SHIFT')}
+        ${ability('interact', 'ΧΡΗΣΗ', 'interact', 'E')}
+      </div>
+      <div class="movement-hint"><div class="wasd" aria-label="W A S D"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div><div class="movement-caption">ΚΙΝΗΣΗ<small>Ποντίκι · στόχευση</small></div></div>
+      <div class="touch-controls">
+        <div class="joystick move-stick" id="move-stick" role="application" aria-label="Αριστερός μοχλός κίνησης"><span class="stick-knob"></span><span class="stick-label">ΚΙΝΗΣΗ</span></div>
+        <div class="joystick aim-stick" id="aim-stick" role="application" aria-label="Δεξιός μοχλός στόχευσης"><span class="stick-knob"></span><span class="stick-label">ΣΤΟΧΕΥΣΗ</span></div>
+        ${ability('shield', 'ΑΣΠΙΔΑ', 'shield', '', 'touch-shield')}
+        <div class="touch-actions">
+          ${ability('pulse', 'ΩΣΤΙΚΟ ΚΥΜΑ', 'pulse')}
+          ${ability('dash', 'ΕΦΟΡΜΗΣΗ', 'dash')}
+          ${ability('interact', 'ΧΡΗΣΗ', 'interact')}
+          ${ability('primary', 'ΑΡΠΑΓΗ', 'grab', '', 'primary-ability')}
+        </div>
+      </div>
+    </section>
+
+    <section class="screen overlay-screen" id="pause-screen" hidden><div class="panel pause-panel" role="dialog" aria-modal="true" aria-labelledby="pause-title">${icon('rune', 'rune')}<p class="panel-eyebrow">ΜΙΑ ΣΤΙΓΜΗ ΗΣΥΧΙΑΣ</p><h2 class="panel-title" id="pause-title">Η δύναμη περιμένει.</h2><p class="panel-description">Το κάστρο κρατά την ανάσα του.</p><div class="panel-buttons"><button class="primary-button" id="resume-button" type="button"><span>ΣΥΝΕΧΙΣΕ</span>${icon('play')}</button><button class="secondary-button" id="pause-restart" type="button"><span>ΝΕΑ ΠΡΟΣΠΑΘΕΙΑ</span>${icon('arrow')}</button></div><div class="settings-row"><button class="text-button" id="pause-help" type="button">Χειρισμός</button><button class="text-button" id="pause-mute" type="button">Ήχος ενεργός</button><button class="text-button" id="pause-quality" type="button">Γραφικά: υψηλά</button></div></div></section>
+
+    <section class="screen overlay-screen" id="result-screen" hidden><div class="panel result-panel" id="result-panel" role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="result-sigil" id="result-sigil">${icon('scepter')}</div><p class="panel-eyebrow" id="result-eyebrow">Η ΑΠΟΣΤΟΛΗ ΟΛΟΚΛΗΡΩΘΗΚΕ</p><h2 class="panel-title" id="result-title">Το σκήπτρο είναι δικό σου.</h2><p class="panel-description" id="result-description">Η πύλη έκλεισε. Η δύναμή σου μόλις μεγάλωσε.</p><div class="result-stats"><div class="result-stat"><strong id="result-shards">0</strong><span>ΘΡΑΥΣΜΑΤΑ</span></div><div class="result-stat"><strong id="result-kills">0</strong><span>ΕΧΘΡΟΙ</span></div><div class="result-stat"><strong id="result-time">0:00</strong><span>ΧΡΟΝΟΣ</span></div></div><div class="score-line"><span>Βαθμολογία <strong id="result-score">0</strong></span><span>Ρεκόρ <strong id="result-best">0</strong></span></div><p class="result-reason" id="result-reason" hidden></p><div class="panel-buttons"><button class="primary-button" id="result-restart" type="button"><span>ΑΚΟΜΗ ΜΙΑ ΕΙΣΒΟΛΗ</span>${icon('arrow')}</button><button class="secondary-button" id="result-upgrades" type="button"><span class="button-name">${icon('rune')}ΜΟΝΙΜΕΣ ΔΥΝΑΜΕΙΣ</span><span class="shard-pill" id="result-wallet">0 ◇</span></button></div><button class="text-button" id="result-menu" type="button">Επιστροφή στην αρχή</button></div></section>
+
+    <section class="screen overlay-screen" id="modal-screen" hidden><div class="panel upgrades-panel" id="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button class="icon-button panel-close" id="modal-close" type="button" aria-label="Κλείσιμο">${icon('close')}</button><div id="modal-content"></div></div></section>
+    <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+  `;
+
+  const $ = (id) => document.getElementById(id);
+  const el = Object.fromEntries([...host.querySelectorAll('[id]')].map((node) => [node.id, node]));
+  const allAbilities = [...host.querySelectorAll('[data-action]')];
+  const byAction = (name) => allAbilities.filter((button) => button.dataset.action === name);
+  const actionGroups = Object.fromEntries(['grab', 'primary', 'pulse', 'dash', 'shield', 'interact'].map((name) => [name, byAction(name)]));
+  const text = (id, value) => { const output = String(value ?? ''); if (changed.get(id) !== output) { el[id].textContent = output; changed.set(id, output); } };
+  const listen = (node, type, handler, options = {}) => node.addEventListener(type, handler, { ...options, signal });
+  const later = (handler, delay) => { const timer = window.setTimeout(() => { timers.delete(timer); handler(); }, delay); timers.add(timer); return timer; };
+  const live = () => phase === 'playing' && !modal;
+  const prevent = (event) => { event.preventDefault(); event.stopPropagation(); };
+  const invoke = (name, ...args) => { if (typeof callbacks[name] === 'function') return callbacks[name](...args); };
+
+  function clearInput() {
+    keys.clear(); actions.length = 0; move = { x: 0, y: 0 }; aim = { x: 0, y: 0 };
+    mouseShield = false; touchShield = false; pointerActive = false;
+    for (const stick of stickStates) {
+      if (stick.id !== null && stick.node.hasPointerCapture?.(stick.id)) stick.node.releasePointerCapture(stick.id);
+      stick.id = null; stick.knob.style.transform = 'translate(0px, 0px)';
+    }
+    for (const button of actionGroups.shield) button.classList.remove('is-held');
+  }
+
+  function setPhase(next) {
+    clearInput(); phase = next; modal = null; el['modal-screen'].hidden = true;
+    el['menu-screen'].hidden = next !== 'menu';
+    el['game-hud'].hidden = next !== 'playing' && next !== 'paused';
+    el['pause-screen'].hidden = next !== 'paused';
+    el['result-screen'].hidden = next !== 'result';
+    document.body.classList.toggle('is-playing', next === 'playing');
+  }
+
+  function requestPause() {
+    if (!live()) return;
+    clearInput();
+    if (callbacks.onPause) invoke('onPause'); else actions.push('pause');
+  }
+
+  function requestResume() {
+    clearInput();
+    if (callbacks.onResume) invoke('onResume'); else showPause(false);
+  }
+
+  function updateProfile(next) {
+    if (next) profile = { ...profile, ...next };
+    text('menu-shards', `${formatNumber(profile.shards)} ◇`);
+    text('result-wallet', `${formatNumber(profile.shards)} ◇`);
+    text('menu-achievement', number(profile.runs) > 0 ? `${formatNumber(profile.wins)} αποδράσεις · ${formatNumber(profile.runs)} εισβολές · Ρεκόρ ${formatNumber(profile.best)}` : 'Κάθε απόδραση σε κάνει ισχυρότερο.');
+  }
+
+  function setMuted(value) {
+    muted = Boolean(value);
+    for (const id of ['menu-mute', 'pause-mute']) text(id, muted ? 'Ήχος κλειστός' : 'Ήχος ενεργός');
+    el['hud-mute'].innerHTML = icon(muted ? 'mute' : 'sound');
+    el['hud-mute'].setAttribute('aria-pressed', String(muted));
+    el['hud-mute'].setAttribute('aria-label', muted ? 'Ενεργοποίηση ήχου' : 'Σίγαση ήχου');
+  }
+
+  function toggleMute() { setMuted(!muted); invoke('onMute', muted); }
+  function setQuality(value) {
+    quality = value === 'low' || value === 'performance' ? 'low' : 'high';
+    for (const id of ['menu-quality', 'pause-quality']) text(id, quality === 'low' ? 'Γραφικά: ομαλά' : 'Γραφικά: υψηλά');
+  }
+  function toggleQuality() { setQuality(quality === 'high' ? 'low' : 'high'); invoke('onQuality', quality); }
+
+  function openModal(kind, contents) {
+    clearInput(); modalReturnFocus = document.activeElement; modal = kind;
+    el['modal-content'].innerHTML = contents;
+    el['modal-panel'].className = `panel ${kind === 'help' ? 'help-panel' : 'upgrades-panel'}`;
+    el['modal-screen'].hidden = false;
+    el['modal-screen'].scrollTop = 0;
+    el['modal-close'].focus({ preventScroll: true });
+  }
+
+  function hideModal() {
+    el['modal-screen'].hidden = true; modal = null; clearInput();
+    if (modalReturnFocus?.isConnected && !modalReturnFocus.closest('[hidden]')) modalReturnFocus.focus({ preventScroll: true });
+    modalReturnFocus = null;
+  }
+
+  function showHelp() {
+    if (phase === 'playing') { requestPause(); if (phase === 'playing') showPause(true); }
+    openModal('help', `<p class="panel-eyebrow">Η ΤΕΧΝΗ ΤΗΣ ΤΗΛΕΚΙΝΗΣΗΣ</p><h2 class="panel-title" id="modal-title">Το κάστρο είναι το όπλο σου.</h2><ol class="help-list"><li><span class="step-index">1</span><div><strong>Πλησίασε και άρπαξε.</strong><p>${touchMode ? 'Κινήσου με τον αριστερό μοχλό. Πλησίασε ένα αντικείμενο ή έναν φρουρό και πάτησε ΑΡΠΑΓΗ.' : 'Κινήσου με W A S D. Σημάδεψε ένα κοντινό αντικείμενο ή φρουρό και κάνε κλικ για να τον σηκώσεις.'}</p></div></li><li><span class="step-index">2</span><div><strong>Σημάδεψε. Ρίξε. Συνδύασε.</strong><p>${touchMode ? 'Ο δεξιός μοχλός στρέφει τη δύναμή σου. Πάτησε ΡΙΨΗ για να εκτοξεύσεις ό,τι κρατάς.' : 'Σημάδεψε με το ποντίκι και κάνε ξανά κλικ για ρίψη. Το Q αφήνει ό,τι κρατάς.'} Χτύπα εχθρούς με εχθρούς και συντρίμμια.</p></div></li><li><span class="step-index">3</span><div><strong>Πάρε το Μαύρο Σκήπτρο.</strong><p>Φτάσε στην κρύπτη και χρησιμοποίησε ${touchMode ? 'το κουμπί ΧΡΗΣΗ' : 'το E'} κοντά στο σκήπτρο. Το κάστρο θα σημάνει συναγερμό.</p></div></li><li><span class="step-index">4</span><div><strong>Βρες τον δρόμο της επιστροφής.</strong><p>Γύρισε στη φωτεινή πύλη για να διαφύγεις. Τα θραύσματα ξεκλειδώνουν μόνιμες δυνάμεις για τις επόμενες εισβολές.</p></div></li></ol><div class="help-controls"><div class="help-control"><kbd>${touchMode ? 'ΚΡΑΤΑ' : 'SHIFT'}</kbd>Ασπίδα</div><div class="help-control"><kbd>${touchMode ? 'ΚΥΜΑ' : 'F'}</kbd>Ωστικό κύμα</div><div class="help-control"><kbd>${touchMode ? 'ΕΦΟΔΟΣ' : 'SPACE'}</kbd>Εφόρμηση</div><div class="help-control"><kbd>${touchMode ? 'Ⅱ' : 'ESC / P'}</kbd>Παύση</div></div>`);
+  }
+
+  function requestUpgrades() {
+    if (callbacks.onUpgrades) invoke('onUpgrades'); else showUpgrades(profile, lastUpgrades);
+  }
+
+  function showUpgrades(nextProfile, upgrades = []) {
+    updateProfile(nextProfile); lastUpgrades = upgrades;
+    const symbols = ['grab', 'mana', 'heart', 'pulse', 'shield', 'dash'];
+    const rows = upgrades.map((upgrade, index) => {
+      const level = number(upgrade.level); const max = Math.max(1, number(upgrade.max, 3));
+      const cost = number(upgrade.cost); const maxed = level >= max; const affordable = number(profile.shards) >= cost;
+      const levels = Array.from({ length: Math.min(10, max) }, (_, i) => `<i class="${i < level ? 'active' : ''}"></i>`).join('');
+      return `<div class="upgrade-row">${icon(symbols[index % symbols.length], 'upgrade-symbol')}<div><h3 class="upgrade-title">${esc(upgrade.title)}</h3><p class="upgrade-description">${esc(upgrade.description)}</p><div class="upgrade-level" aria-label="Επίπεδο ${level} από ${max}">${levels}</div></div><button class="upgrade-buy" type="button" data-upgrade="${esc(upgrade.id)}" ${maxed || !affordable ? 'disabled' : ''} aria-label="${maxed ? 'Ολοκληρωμένη αναβάθμιση' : `Αναβάθμιση ${esc(upgrade.title)} για ${cost} θραύσματα`}">${maxed ? 'ΠΛΗΡΕΣ' : `${formatNumber(cost)} ◇`}</button></div>`;
+    }).join('');
+    openModal('upgrades', `<p class="panel-eyebrow">Ο,ΤΙ ΚΕΡΔΙΣΕΣ ΜΕΝΕΙ ΜΑΖΙ ΣΟΥ</p><h2 class="panel-title" id="modal-title">Μόνιμες δυνάμεις</h2><p class="panel-description">Επένδυσε τα θραύσματά σου. Επίστρεψε ισχυρότερος στην επόμενη εισβολή.</p><div class="upgrade-wallet">${icon('shard')}<span>${formatNumber(profile.shards)} διαθέσιμα θραύσματα</span></div><div class="upgrade-list">${rows || '<p class="upgrade-empty">Οι δυνάμεις θα εμφανιστούν μόλις ολοκληρωθεί η προετοιμασία του κάστρου.</p>'}</div>`);
+  }
+
+  function showPause(paused) {
+    setPhase(paused ? 'paused' : 'playing');
+    if (paused) el['resume-button'].focus({ preventScroll: true });
+  }
+
+  function showResult(result = {}, nextProfile) {
+    updateProfile(nextProfile); setPhase('result');
+    const won = Boolean(result.won);
+    el['result-panel'].classList.toggle('won', won);
+    el['result-sigil'].innerHTML = icon(won ? 'scepter' : 'rune');
+    text('result-eyebrow', won ? 'Η ΑΠΟΔΡΑΣΗ ΠΕΤΥΧΕ' : 'Η ΕΙΣΒΟΛΗ ΤΕΛΕΙΩΣΕ');
+    text('result-title', won ? 'Το σκήπτρο είναι δικό σου.' : 'Το κάστρο σε σταμάτησε.');
+    text('result-description', won ? 'Πέρασες την πύλη. Άφησες πίσω συντρίμμια. Επέστρεψες με τη δύναμη.' : 'Μάθε τα περάσματα. Δυνάμωσε τη μαγεία σου. Η επόμενη εισβολή αρχίζει με σένα.');
+    text('result-shards', formatNumber(result.shards)); text('result-kills', formatNumber(result.kills)); text('result-time', clock(result.time));
+    text('result-score', formatNumber(result.score)); text('result-best', formatNumber(result.best ?? profile.best));
+    text('result-reason', result.reason || ''); el['result-reason'].hidden = !result.reason;
+    el['result-restart'].focus({ preventScroll: true });
+  }
+
+  function setLoading(progress, label) {
+    const raw = number(progress); const percent = Math.max(0, Math.min(100, raw <= 1 ? raw * 100 : raw));
+    el['loading-fill'].style.width = `${percent}%`;
+    if (label) text('loading-label', label);
+  }
+
+  function ready() {
+    loaded = true; el['start-button'].disabled = false;
+    text('start-label', 'ΜΠΕΣ ΣΤΟ ΚΑΣΤΡΟ');
+    el['loading-fill'].style.width = '100%'; el['loading-line'].hidden = true;
+    text('loading-label', touchMode ? 'Δύο μοχλοί. Απεριόριστοι συνδυασμοί.' : 'W A S D για κίνηση · Ποντίκι για τηλεκίνηση');
+  }
+
+  function showMenu(nextProfile) { updateProfile(nextProfile); setPhase('menu'); }
+  function start() { setPhase('playing'); }
+
+  function update(state = {}) {
+    if (state.hp !== undefined) {
+      const hp = Math.max(0, number(state.hp)); const maxHp = Math.max(1, number(state.maxHp, 100));
+      el['health-fill'].style.width = `${Math.min(1, hp / maxHp) * 100}%`;
+      text('health-value', Math.ceil(hp)); el['health-meter'].setAttribute('aria-valuenow', String(Math.ceil(hp))); el['health-meter'].setAttribute('aria-valuemax', String(maxHp));
+      el['vitals-block'].classList.toggle('low-health', hp > 0 && hp / maxHp < .27);
+    }
+    if (state.mana !== undefined) {
+      const mana = Math.max(0, number(state.mana)); const maxMana = Math.max(1, number(state.maxMana, 100));
+      el['mana-fill'].style.width = `${Math.min(1, mana / maxMana) * 100}%`;
+      text('mana-value', Math.ceil(mana)); el['mana-meter'].setAttribute('aria-valuenow', String(Math.ceil(mana))); el['mana-meter'].setAttribute('aria-valuemax', String(maxMana));
+    }
+    if (state.zone !== undefined) text('zone-name', state.zone);
+    const relic = Boolean(state.relic);
+    text('objective-text', state.objective || state.goal || (relic ? 'Επέστρεψε στη φωτεινή πύλη και δραπέτευσε' : 'Βρες το Μαύρο Σκήπτρο στην κρύπτη'));
+    text('objective-label', relic ? 'ΩΡΑ ΝΑ ΔΙΑΦΥΓΕΙΣ' : 'Η ΑΠΟΣΤΟΛΗ ΣΟΥ');
+    el['objective-block'].classList.toggle('extraction', relic);
+    if (changed.get('relic') !== relic) { el['objective-symbol'].innerHTML = icon(relic ? 'portal' : 'scepter', 'objective-glyph'); changed.set('relic', relic); }
+    if (typeof state.progress === 'number') { el['objective-progress'].hidden = false; el['objective-fill'].style.width = `${Math.max(0, Math.min(100, state.progress <= 1 ? state.progress * 100 : state.progress))}%`; }
+    else el['objective-progress'].hidden = true;
+    text('hud-shards', formatNumber(state.shards)); text('hud-kills', formatNumber(state.kills)); text('hud-time', clock(state.time));
+    const holding = Boolean(state.holding); const target = state.targetName;
+    el['held-state'].hidden = !holding && !target;
+    el['held-state'].classList.toggle('target', !holding);
+    text('held-text', holding ? (state.heldName ? `${state.heldName} · έτοιμο για ρίψη` : 'Η δύναμη είναι στα χέρια σου') : (target ? `${target}` : ''));
+    const primaryLabel = state.grabLabel || (holding ? 'ΡΙΨΗ' : 'ΑΡΠΑΓΗ');
+    for (const button of actionGroups.primary) {
+      button.classList.toggle('holding', holding);
+      const label = button.querySelector('.ability-name'); if (label.textContent !== primaryLabel) label.textContent = primaryLabel;
+      button.setAttribute('aria-label', holding ? 'Ρίξε το αντικείμενο που κρατάς' : 'Άρπαξε κοντινό αντικείμενο ή εχθρό');
+      if (button.dataset.held !== String(holding)) { button.querySelector('.ability-disc > .icon').outerHTML = icon(holding ? 'throw' : 'grab'); button.dataset.held = String(holding); }
+    }
+    for (const button of actionGroups.grab) {
+      button.querySelector('.ability-name').textContent = holding ? 'ΑΦΗΣΕ' : 'ΑΡΠΑΓΗ';
+      button.setAttribute('aria-label', holding ? 'Άφησε αυτό που κρατάς' : 'Άρπαξε τον κοντινό στόχο');
+    }
+    for (const [action, cooldown] of [['pulse', state.pulseCooldown], ['dash', state.dashCooldown]]) {
+      const remaining = Math.max(0, number(cooldown));
+      for (const button of actionGroups[action]) {
+        button.classList.toggle('cooling', remaining > .05);
+        const label = button.querySelector('.cooldown-number'); label.hidden = remaining <= .05;
+        const value = remaining >= 10 ? `${Math.ceil(remaining)}` : remaining.toFixed(1);
+        if (label.textContent !== value) label.textContent = value;
+      }
+    }
+    const combo = number(state.combo); const multiplier = number(state.comboMultiplier, combo);
+    el['combo-display'].hidden = combo < 2 && multiplier < 2;
+    text('combo-value', `×${Math.max(1, multiplier).toLocaleString('el-GR', { maximumFractionDigits: 1 })}`);
+    const customHint = state.hint ? String(state.hint) : '';
+    const tutorialVisible = number(state.time) < 32;
+    el['context-strip'].hidden = !customHint && !tutorialVisible;
+    text('context-main', customHint || (touchMode ? 'Αριστερός μοχλός: κίνηση · Δεξιός: στόχευση' : 'Κλικ: αρπαγή / ρίψη · Q: άφησε · Shift: ασπίδα'));
+    text('context-sub', customHint ? '' : (touchMode ? 'Πλησίασε έναν στόχο και πάτησε ΑΡΠΑΓΗ.' : 'Στόχευσε ένα κοντινό αντικείμενο ή έναν φρουρό.'));
+    el['context-sub'].hidden = Boolean(customHint);
+    const bossVisible = state.bossHP !== undefined && number(state.bossMaxHP) > 0 && number(state.bossHP) > 0;
+    el['boss-track'].hidden = !bossVisible;
+    if (bossVisible) { el['boss-fill'].style.width = `${Math.max(0, Math.min(1, number(state.bossHP) / number(state.bossMaxHP))) * 100}%`; if (state.bossName) text('boss-name', state.bossName); }
+    if (state.quality !== undefined && state.quality !== quality) setQuality(state.quality);
+    const shielding = keys.has('ShiftLeft') || keys.has('ShiftRight') || mouseShield || touchShield;
+    for (const button of actionGroups.shield) button.classList.toggle('is-held', shielding);
+  }
+
+  function toast(message, type = '') {
+    if (!message) return;
+    while (el.toasts.children.length >= 3) el.toasts.firstElementChild.remove();
+    const node = document.createElement('div'); node.className = `toast ${['error', 'danger', 'gold', 'success'].includes(type) ? type : ''}`; node.textContent = String(message);
+    el.toasts.append(node);
+    later(() => { if (node.isConnected) { node.classList.add('leaving'); later(() => node.remove(), 220); } }, 3300);
+  }
+
+  function getInput() {
+    if (!live()) return { moveX: 0, moveZ: 0, aimX: 0, aimY: 0, aimActive: false, pointerX, pointerY, pointerActive: false, shielding: false };
+    let x = move.x + (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) - (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0);
+    let z = move.y + (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) - (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0);
+    const length = Math.hypot(x, z); if (length > 1) { x /= length; z /= length; }
+    return { moveX: x, moveZ: z, aimX: aim.x, aimY: aim.y, aimActive: Math.hypot(aim.x, aim.y) > .05, pointerX, pointerY, pointerActive, shielding: keys.has('ShiftLeft') || keys.has('ShiftRight') || mouseShield || touchShield };
+  }
+
+  function consumeActions() { return actions.splice(0); }
+  function queueAction(action) { if (live() && actions.length < 12) actions.push(action); }
+
+  function buildStick(node, type) {
+    const stick = { node, knob: node.querySelector('.stick-knob'), id: null };
+    stickStates.push(stick);
+    const point = (event) => {
+      const rect = node.getBoundingClientRect(); const radius = Math.max(10, rect.width * .34);
+      let x = (event.clientX - rect.left - rect.width / 2) / radius;
+      let y = (event.clientY - rect.top - rect.height / 2) / radius;
+      const rawLength = Math.hypot(x, y); if (rawLength > 1) { x /= rawLength; y /= rawLength; }
+      stick.knob.style.transform = `translate(${x * radius}px, ${y * radius}px)`;
+      const length = Math.hypot(x, y); const output = length < .12 ? { x: 0, y: 0 } : { x: x / length * (length - .12) / .88, y: y / length * (length - .12) / .88 };
+      if (type === 'move') move = output;
+      else {
+        // Preserve the last deliberate direction so the aiming thumb can move
+        // from the stick to the throw button while the other thumb keeps moving.
+        const magnitude = Math.hypot(output.x, output.y);
+        if (magnitude > 0) aim = { x: output.x / magnitude, y: output.y / magnitude };
+        pointerActive = false;
+      }
+    };
+    listen(node, 'pointerdown', (event) => { if (!live() || stick.id !== null) return; prevent(event); stick.id = event.pointerId; node.setPointerCapture(event.pointerId); point(event); });
+    listen(node, 'pointermove', (event) => { if (event.pointerId !== stick.id) return; prevent(event); point(event); });
+    const release = (event) => {
+      if (event.pointerId !== stick.id) return;
+      stick.id = null;
+      if (node.hasPointerCapture?.(event.pointerId)) node.releasePointerCapture(event.pointerId);
+      stick.knob.style.transform = 'translate(0px, 0px)';
+      if (type === 'move') move = { x: 0, y: 0 };
+    };
+    listen(node, 'pointerup', release); listen(node, 'pointercancel', release); listen(node, 'lostpointercapture', release);
+  }
+
+  buildStick(el['move-stick'], 'move'); buildStick(el['aim-stick'], 'aim');
+
+  for (const button of allAbilities) {
+    const action = button.dataset.action;
+    if (action === 'shield') {
+      let pointerId = null;
+      listen(button, 'pointerdown', (event) => { if (!live()) return; prevent(event); touchShield = true; pointerId = event.pointerId; button.setPointerCapture(event.pointerId); button.classList.add('is-held'); });
+      const release = (event) => { if (pointerId !== null && event.pointerId === pointerId) { touchShield = false; pointerId = null; button.classList.remove('is-held'); if (button.hasPointerCapture?.(event.pointerId)) button.releasePointerCapture(event.pointerId); } };
+      listen(button, 'pointerup', release); listen(button, 'pointercancel', release); listen(button, 'lostpointercapture', release);
+      listen(button, 'click', prevent);
+    } else {
+      listen(button, 'pointerdown', (event) => { if (event.button !== 0 || !live()) return; prevent(event); queueAction(action); });
+      listen(button, 'click', (event) => { prevent(event); if (event.detail === 0) queueAction(action); });
+    }
+  }
+
+  const editable = (target) => target?.closest?.('input, textarea, select, [contenteditable="true"]');
+  const gameKeys = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyQ', 'KeyF', 'KeyE', 'Space', 'ShiftLeft', 'ShiftRight', 'Escape', 'KeyP']);
+  listen(window, 'keydown', (event) => {
+    if (editable(event.target) || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.code === 'Tab') {
+      const surface = modal ? el['modal-panel'] : phase === 'paused' ? el['pause-screen'] : phase === 'result' ? el['result-screen'] : null;
+      if (surface) {
+        const focusable = [...surface.querySelectorAll('button:not(:disabled), [tabindex="0"]')].filter((node) => !node.closest('[hidden]'));
+        if (focusable.length) {
+          const first = focusable[0]; const last = focusable[focusable.length - 1];
+          if (event.shiftKey && (document.activeElement === first || !surface.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
+          else if (!event.shiftKey && (document.activeElement === last || !surface.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
+        }
+      }
+      return;
+    }
+    if (event.code === 'Escape' || event.code === 'KeyP') {
+      if (event.repeat) return;
+      if (modal) { prevent(event); hideModal(); }
+      else if (phase === 'paused') { prevent(event); requestResume(); }
+      else if (live()) { prevent(event); requestPause(); }
+      return;
+    }
+    if (!live() || !gameKeys.has(event.code)) return;
+    event.preventDefault(); keys.add(event.code);
+    if (!event.repeat) {
+      const action = { KeyQ: 'grab', KeyF: 'pulse', KeyE: 'interact', Space: 'dash' }[event.code];
+      if (action) queueAction(action);
+    }
+  });
+  listen(window, 'keyup', (event) => { keys.delete(event.code); if (live() && gameKeys.has(event.code) && !editable(event.target)) event.preventDefault(); });
+  listen(window, 'blur', () => { clearInput(); if (phase === 'playing') requestPause(); });
+  listen(document, 'visibilitychange', () => { if (document.hidden) { clearInput(); if (phase === 'playing') requestPause(); } });
+  listen(window, 'resize', clearInput);
+
+  listen(canvas, 'pointermove', (event) => {
+    if (!live() || (event.pointerType !== 'mouse' && event.pointerType !== 'pen')) return;
+    pointerX = event.clientX; pointerY = event.clientY; pointerActive = true;
+    aim = { x: 0, y: 0 };
+  });
+  listen(canvas, 'pointerdown', (event) => {
+    if (!live()) return;
+    prevent(event); pointerX = event.clientX; pointerY = event.clientY; pointerActive = true;
+    aim = { x: 0, y: 0 };
+    if (event.pointerType === 'touch') return;
+    if (event.button === 0) queueAction('primary');
+    if (event.button === 2) mouseShield = true;
+  });
+  listen(window, 'pointerup', (event) => { if (event.button === 2) mouseShield = false; });
+  listen(window, 'pointercancel', (event) => { if (event.pointerType === 'mouse') mouseShield = false; });
+  listen(canvas, 'contextmenu', (event) => event.preventDefault());
+
+  const setTouchMode = (event) => { touchMode = event.matches; document.body.dataset.input = touchMode ? 'touch' : 'keyboard'; clearInput(); if (loaded) ready(); };
+  coarseMedia.addEventListener('change', setTouchMode);
+
+  listen(el['start-button'], 'click', () => { if (loaded) { clearInput(); invoke('onStart'); } });
+  for (const id of ['menu-mute', 'pause-mute', 'hud-mute']) listen(el[id], 'click', toggleMute);
+  for (const id of ['menu-quality', 'pause-quality']) listen(el[id], 'click', toggleQuality);
+  for (const id of ['menu-help', 'pause-help']) listen(el[id], 'click', () => { showHelp(); invoke('onHelp'); });
+  for (const id of ['menu-upgrades', 'result-upgrades']) listen(el[id], 'click', requestUpgrades);
+  listen(el['hud-pause'], 'click', requestPause);
+  listen(el['resume-button'], 'click', requestResume);
+  for (const id of ['pause-restart', 'result-restart']) listen(el[id], 'click', () => { clearInput(); invoke(callbacks.onRestart ? 'onRestart' : 'onStart'); });
+  listen(el['result-menu'], 'click', () => { if (callbacks.onMenu) invoke('onMenu'); else showMenu(profile); });
+  listen(el['modal-close'], 'click', hideModal);
+  listen(el['modal-screen'], 'click', (event) => { if (event.target === el['modal-screen']) hideModal(); });
+  listen(el['modal-content'], 'click', (event) => { const button = event.target.closest('[data-upgrade]'); if (button && !button.disabled) { button.disabled = true; invoke('onUpgrade', button.dataset.upgrade); } });
+
+  function showError(message) {
+    clearInput(); const fatal = $('fatal-error');
+    fatal.hidden = false; fatal.innerHTML = `<strong>Η πύλη δεν άνοιξε.</strong><div>${esc(message)}</div><button type="button">Δοκίμασε ξανά</button>`;
+    listen(fatal.querySelector('button'), 'click', () => window.location.reload());
+  }
+
+  function destroy() {
+    clearInput(); abort.abort(); coarseMedia.removeEventListener('change', setTouchMode);
+    for (const timer of timers) window.clearTimeout(timer); timers.clear();
+    host.innerHTML = ''; delete document.body.dataset.input; document.body.classList.remove('is-playing');
+  }
+
+  updateProfile(profile); update({ hp: 100, maxHp: 100, mana: 100, maxMana: 100, time: 0 });
+  return { setLoading, ready, showMenu, start, update, toast, showPause, showResult, showUpgrades, hideModal, setMuted, getInput, consumeActions, destroy, showError, showHelp, setQuality };
+}

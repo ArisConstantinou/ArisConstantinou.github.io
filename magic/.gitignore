@@ -1,0 +1,5 @@
+_source/node_modules/
+_source/.cache/
+_source/.vite/
+_source/.release/
+*.log

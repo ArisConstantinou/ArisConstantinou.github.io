@@ -1,0 +1,9 @@
+{
+  "name": "magic-the-exiled",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {"build": "node scripts/build.mjs", "test": "node --test src/*.test.js", "test:physics": "node tests/physics-integration.mjs"},
+  "dependencies": {"three": "0.180.0", "cannon-es": "0.20.0"},
+  "devDependencies": {"vite": "7.1.7"}
+}
