@@ -1,0 +1,49 @@
+name: Captain 190 public sea mechanics
+on:
+  push:
+    branches: [captain-190-ocean-mayhem]
+    paths: ['.github/workflows/captain190-sea-public.yml']
+permissions:
+  contents: read
+jobs:
+  sea:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Prepare browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Test live sea mechanics
+        run: |
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+          from pathlib import Path
+          import json,base64
+          out=Path('/tmp/captain190-sea-public');out.mkdir(exist_ok=True);checks=[]
+          def ck(name,ok,detail=None):
+            checks.append({'name':name,'pass':bool(ok),'detail':detail});print(name,ok,flush=True)
+            (out/'results.json').write_text(json.dumps(checks,ensure_ascii=False,indent=2))
+            assert ok,(name,detail)
+          with sync_playwright() as pw:
+            browser=pw.chromium.launch(headless=True,args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-webgl'])
+            ctx=browser.new_context(viewport={'width':1280,'height':800},service_workers='block');p=ctx.new_page();errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
+            p.goto('https://arisconstantinou.github.io/captain-mayhem/?test=1&v=110-sea-final',wait_until='domcontentloaded');p.wait_for_function('window.__lastCall?.getState()?.ready',timeout=90000)
+            p.locator('#start').click();p.wait_for_timeout(250);p.evaluate('window.__CHAOS_FREEZE__=true')
+            ck('Live Mayhem 1.1.0',p.evaluate('window.__lastCall.getState().version')=='MAYHEM 1.1.0')
+            ck('Fresh voyage starts offshore beside friendly escorts',p.evaluate('Math.abs(window.__lastCall.getState().x)<5 && Math.abs(window.__lastCall.getState().z)<30 && !window.__lastCall.getState().marine.hostile'))
+            p.evaluate('window.__lastCall.test.camera(0)')
+            n=p.evaluate('window.__CAPTAIN_HOLD_FRAME__=true;window.__CAPTAIN_DRAW_ONCE__=true;window.__lastCall.getState().frames');p.wait_for_function('(n)=>window.__lastCall.getState().frames>n',arg=n,timeout=45000)
+            data=ctx.new_cdp_session(p).send('Page.captureScreenshot',{'format':'png','fromSurface':True});(out/'ocean-and-escorts.png').write_bytes(base64.b64decode(data['data']))
+            p.evaluate('window.__CAPTAIN_HOLD_FRAME__=false;window.__lastCall.test.camera(1);window.__lastCall.test.setState({x:0,z:0,heading:0,speed:7,intox:70});const q=window.__lastCall.test.marine.boats[0];q.x=15;q.z=10;q.speed=0;q.cooldown=0;window.__lastCall.test.marine.advance(.04)')
+            s=p.evaluate('window.__lastCall.getState().marine');ck('Actual hull collision damages coast guard and starts pursuit',s['hostile'] and s['boats'][0]['hp']<100,s)
+            p.evaluate('const q=window.__lastCall.test.marine.boats[0];q.x=15;q.z=10;q.speed=0;q.cooldown=0;window.__lastCall.test.marine.advance(.04)');s=p.evaluate('window.__lastCall.getState().marine');ck('Repeat collision sinks the actual boat',s['sunk']>0,s)
+            p.evaluate('window.__lastCall.test.marine.advance(32)');s=p.evaluate('window.__lastCall.getState().marine');ck('Police waves continue after sinking',s['wave']>=2 and any(q['kind']=='police' for q in s['boats']),s)
+            ck('No browser errors',not errors,errors);browser.close()
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain190-public-sea-verified
+          path: /tmp/captain190-sea-public/
+          retention-days: 7
