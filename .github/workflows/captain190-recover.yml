@@ -1,0 +1,23 @@
+name: Captain 190 recover working build
+on:
+  push:
+    branches: [captain-190-ocean-mayhem]
+    paths: ['.github/workflows/captain190-recover.yml']
+permissions:
+  contents: read
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore generated working tree
+        run: |
+          python captain/tools/install190.py
+          python captain/tools/refine190.py
+          tar -czf /tmp/captain190-working.tar.gz captain captain-mayhem
+      - uses: actions/upload-artifact@v4
+        with:
+          name: captain190-working-source
+          path: /tmp/captain190-working.tar.gz
+          retention-days: 3
