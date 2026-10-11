@@ -1,19 +1,17 @@
 {
-  "version": "1.8.5",
+  "version": "1.9.0",
   "changes": [
-    "Guard damage 12 to 4, coordinated windups, hit grace and slower custody",
-    "Six connected traversable decks, fore and aft stairs, eight cabin interiors, bow-to-stern routes",
-    "World map route guidance, faster sprint and out-of-combat recovery"
+    "Paired sign faces, signs removed from travel throats",
+    "Closed-riser supported stairs, shared geometry and navigation",
+    "Interactive room props and machinery",
+    "Existing story, joystick fixes and save namespaces preserved"
   ],
-  "preserved": [
-    "Touch183 relative look and fixed radial actions",
-    "Whisky183 hand-attached bottle; one-sip escape",
-    "Desktop mouse/WASD and jail checkpoints"
-  ],
-  "inputFix": [
-    "Owned left-stick gesture; neutral on release, cancellation, lost capture, pause and rotation",
-    "Native touch identifier fallback independent of other fingers",
-    "Radial dead zone; no world translation from idle drunken sway",
-    "Existing layout, right camera, actions, save namespaces and story retained"
+  "completed": [
+    "Shared rebuilt stairwells, two-face signage and furnished six-deck architecture",
+    "Interactive piano, vending machines, carts, luggage racks, screens, water, foam and steam effects",
+    "Mayhem helm control and visible town approach in fair weather",
+    "Coast Guard escorts, attack-triggered police waves, ramming and thrown prop impacts",
+    "Bridge and cabin door locking, visible evacuation and rescue boats",
+    "Original independent left/right touch controls and separate save namespaces"
   ]
 }

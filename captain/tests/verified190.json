@@ -1,0 +1,707 @@
+{
+  "version": "Story 1.9.0 / Mayhem 1.1.0",
+  "base": "http://127.0.0.1:8765/",
+  "checks": [
+    {
+      "name": "captain-mayhem loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Mayhem starts at the helm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Mobile-compatible exit is enabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Two friendly escort boats, not hostile",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Rendered town includes 36 detailed buildings",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "W raises real throttle",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "D changes actual ship heading",
+      "pass": true,
+      "detail": -0.0008824974906309341
+    },
+    {
+      "name": "Leave helm into FPS",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Return to helm via F",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Helm UI available in Mayhem",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "All authored signs have two independent FrontSide faces",
+      "pass": true,
+      "detail": 63
+    },
+    {
+      "name": "Playground registers many actual props and mechanisms",
+      "pass": true,
+      "detail": {
+        "props": 59,
+        "usable": 9,
+        "used": 0,
+        "cascades": 0,
+        "effects": 0
+      }
+    },
+    {
+      "name": "Stair traversal deck 4 to 5",
+      "pass": true,
+      "detail": {
+        "x": 5.002712860549194,
+        "y": 10.1,
+        "z": 26.84612288000024
+      }
+    },
+    {
+      "name": "Stair traversal deck 5 to 6",
+      "pass": true,
+      "detail": {
+        "x": 5.042191250515596,
+        "y": 13.12,
+        "z": 26.84612288000024
+      }
+    },
+    {
+      "name": "Stair traversal deck 6 to 7",
+      "pass": true,
+      "detail": {
+        "x": 4.962416211086505,
+        "y": 15.83,
+        "z": 26.84612288000024
+      }
+    },
+    {
+      "name": "Stair traversal deck 7 to 8",
+      "pass": true,
+      "detail": {
+        "x": 4.988871626143581,
+        "y": 18.57,
+        "z": 26.84612288000024
+      }
+    },
+    {
+      "name": "Stair traversal deck 8 to 9",
+      "pass": true,
+      "detail": {
+        "x": 5.046781352930115,
+        "y": 21.35,
+        "z": 26.84612288000024
+      }
+    },
+    {
+      "name": "lounge walkable deck",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "engine walkable deck",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "cabins walkable deck",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "restaurant walkable deck",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Piano plays through interaction",
+      "pass": true,
+      "detail": {
+        "props": 59,
+        "usable": 9,
+        "used": 1,
+        "cascades": 0,
+        "effects": 1
+      }
+    },
+    {
+      "name": "Soda machine releases physical cans",
+      "pass": true,
+      "detail": {
+        "props": 59,
+        "usable": 9,
+        "used": 2,
+        "cascades": 1,
+        "effects": 3
+      }
+    },
+    {
+      "name": "Rail object can be picked up",
+      "pass": true,
+      "detail": "play190-rail-1-4-2"
+    },
+    {
+      "name": "Physical throw hits escort and requests police",
+      "pass": true,
+      "detail": {
+        "hostile": true,
+        "locked": false,
+        "evacuation": false,
+        "docked": false,
+        "wave": 1,
+        "nextWave": 7.433333333333338,
+        "sunk": 0,
+        "rescued": 0,
+        "swimmers": 0,
+        "projectiles": 0,
+        "flight": [],
+        "totalSpawned": 2,
+        "boats": [
+          {
+            "id": 0,
+            "kind": "coast",
+            "x": 17.002780034897246,
+            "z": 11.382059999576809,
+            "hp": 73,
+            "heading": -1.8123266524345014,
+            "speed": 17.70572780871408,
+            "sinking": 0
+          },
+          {
+            "id": 1,
+            "kind": "coast",
+            "x": 50.437777460864474,
+            "z": 13.3027674878175,
+            "hp": 100,
+            "heading": 1.8034281870101596,
+            "speed": 12.49781089362403,
+            "sinking": 0
+          }
+        ],
+        "navigationLights": 12,
+        "buoys": 8,
+        "rockyObstacles": 12,
+        "townBuildings": 36,
+        "port": {
+          "x": 0,
+          "z": 1530
+        }
+      }
+    },
+    {
+      "name": "Police reinforcements arrive after initial attack",
+      "pass": true,
+      "detail": {
+        "hostile": true,
+        "locked": false,
+        "evacuation": false,
+        "docked": false,
+        "wave": 2,
+        "nextWave": 15.433333333333106,
+        "sunk": 0,
+        "rescued": 0,
+        "swimmers": 0,
+        "projectiles": 0,
+        "flight": [],
+        "totalSpawned": 3,
+        "boats": [
+          {
+            "id": 0,
+            "kind": "coast",
+            "x": 17.002831151842464,
+            "z": -13.66090105245002,
+            "hp": 73,
+            "heading": -1.613053714348939,
+            "speed": 19.99999967552775,
+            "sinking": 0
+          },
+          {
+            "id": 1,
+            "kind": "coast",
+            "x": 36.13469627016837,
+            "z": -15.307661601041445,
+            "hp": 100,
+            "heading": 9.403363992149874,
+            "speed": 0.46213676947654586,
+            "sinking": 0
+          },
+          {
+            "id": 2,
+            "kind": "police",
+            "x": -81.97818327049335,
+            "z": -2.054472318594062,
+            "hp": 100,
+            "heading": 1.9012876103530543,
+            "speed": 19.84546128994314,
+            "sinking": 0
+          }
+        ],
+        "navigationLights": 16,
+        "buoys": 8,
+        "rockyObstacles": 12,
+        "townBuildings": 36,
+        "port": {
+          "x": 0,
+          "z": 1530
+        }
+      }
+    },
+    {
+      "name": "Chase continues with a bounded active fleet",
+      "pass": true,
+      "detail": {
+        "hostile": true,
+        "locked": false,
+        "evacuation": false,
+        "docked": false,
+        "wave": 5,
+        "nextWave": 5.4833333333341585,
+        "sunk": 0,
+        "rescued": 0,
+        "swimmers": 0,
+        "projectiles": 0,
+        "flight": [],
+        "totalSpawned": 6,
+        "boats": [
+          {
+            "id": 0,
+            "kind": "coast",
+            "x": 17.00278114830182,
+            "z": 10.836586334875548,
+            "hp": 73,
+            "heading": -0.9646158815441707,
+            "speed": 19.99999999999992,
+            "sinking": 0
+          },
+          {
+            "id": 1,
+            "kind": "coast",
+            "x": 38.00428755442848,
+            "z": -13.649113870040742,
+            "hp": 100,
+            "heading": -0.6885261483477919,
+            "speed": 1.489066929543395,
+            "sinking": 0
+          },
+          {
+            "id": 2,
+            "kind": "police",
+            "x": -42.701533629593996,
+            "z": -15.529265092497209,
+            "hp": 100,
+            "heading": -10.181547524574272,
+            "speed": 3.6644346973673894e-08,
+            "sinking": 0
+          },
+          {
+            "id": 3,
+            "kind": "police",
+            "x": 20.464057075913974,
+            "z": -3.2914818969028423,
+            "hp": 100,
+            "heading": 13.597423678426159,
+            "speed": 5.944332461334785,
+            "sinking": 0
+          },
+          {
+            "id": 4,
+            "kind": "police",
+            "x": -40.522742055781656,
+            "z": 2.635779945534841,
+            "hp": 100,
+            "heading": -14.114568742196004,
+            "speed": 8.106784423263617,
+            "sinking": 0
+          },
+          {
+            "id": 5,
+            "kind": "police",
+            "x": 54.45135488811493,
+            "z": -7.838227207559623,
+            "hp": 100,
+            "heading": 2.184721981704786,
+            "speed": 7.344796750708998,
+            "sinking": 0
+          }
+        ],
+        "navigationLights": 28,
+        "buoys": 8,
+        "rockyObstacles": 12,
+        "townBuildings": 36,
+        "port": {
+          "x": 0,
+          "z": 1530
+        }
+      }
+    },
+    {
+      "name": "Bridge doors lock and evacuation starts",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Navigation lights and rocky approaches present",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Cabin door locks via real interaction",
+      "pass": true,
+      "detail": [
+        {
+          "id": "prop-117",
+          "number": 201,
+          "open": false,
+          "locked": true,
+          "broken": false,
+          "x": -2.3,
+          "z": -9.5
+        },
+        {
+          "id": "prop-118",
+          "number": 202,
+          "open": true,
+          "locked": false,
+          "broken": false,
+          "x": -3.1199999999999997,
+          "z": -3.32
+        },
+        {
+          "id": "prop-119",
+          "number": 203,
+          "open": true,
+          "locked": false,
+          "broken": false,
+          "x": -3.1199999999999997,
+          "z": 3.68
+        },
+        {
+          "id": "prop-120",
+          "number": 204,
+          "open": true,
+          "locked": false,
+          "broken": false,
+          "x": -3.1199999999999997,
+          "z": 10.68
+        },
+        {
+          "id": "prop-121",
+          "number": 205,
+          "open": true,
+          "locked": false,
+          "broken": false,
+          "x": 3.1199999999999997,
+          "z": -10.32
+        },
+        {
+          "id": "prop-122",
+          "number": 206,
+          "open": true,
+          "locked": false,
+          "broken": false,
+          "x": 3.1199999999999997,
+          "z": -3.32
+        },
+        {
+          "id": "prop-123",
+          "number": 207,
+          "open": true,
+          "locked": false,
+          "broken": false,
+          "x": 3.1199999999999997,
+          "z": 3.68
+        },
+        {
+          "id": "prop-124",
+          "number": 208,
+          "open": true,
+          "locked": false,
+          "broken": false,
+          "x": 3.1199999999999997,
+          "z": 10.68
+        }
+      ]
+    },
+    {
+      "name": "Same door unlocks without a dead end",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Evacuation enters an actual water/rescue state",
+      "pass": true,
+      "detail": {
+        "hostile": true,
+        "locked": true,
+        "evacuation": true,
+        "docked": false,
+        "wave": 5,
+        "nextWave": 0.03333333333446831,
+        "sunk": 0,
+        "rescued": 0,
+        "swimmers": 1,
+        "projectiles": 0,
+        "flight": [],
+        "totalSpawned": 7,
+        "boats": [
+          {
+            "id": 0,
+            "kind": "coast",
+            "x": 17.00476683719085,
+            "z": -0.9176962841647387,
+            "hp": 73,
+            "heading": -1.889637208270093,
+            "speed": 19.99999999999993,
+            "sinking": 0
+          },
+          {
+            "id": 1,
+            "kind": "coast",
+            "x": 34.901929289690884,
+            "z": -15.345134960407513,
+            "hp": 100,
+            "heading": -2.0956005314426496,
+            "speed": 0.19046391032620524,
+            "sinking": 0
+          },
+          {
+            "id": 2,
+            "kind": "police",
+            "x": -42.67920985704638,
+            "z": -15.505711074824053,
+            "hp": 100,
+            "heading": -13.20821419124101,
+            "speed": 0.010143447412508895,
+            "sinking": 0
+          },
+          {
+            "id": 3,
+            "kind": "police",
+            "x": 59.02456911486394,
+            "z": -1.93295274871963,
+            "hp": 100,
+            "heading": 15.557423678426202,
+            "speed": 15.479519304054667,
+            "sinking": 0
+          },
+          {
+            "id": 4,
+            "kind": "police",
+            "x": -50.0281751331633,
+            "z": -35.08146095801581,
+            "hp": 100,
+            "heading": -17.061235408862604,
+            "speed": 11.92504560747827,
+            "sinking": 0
+          },
+          {
+            "id": 5,
+            "kind": "police",
+            "x": 40.924674767455954,
+            "z": -30.191898134207907,
+            "hp": 100,
+            "heading": 3.82472198170477,
+            "speed": 6.168294093262788,
+            "sinking": 0
+          },
+          {
+            "id": 6,
+            "kind": "rescue",
+            "x": -110.90860045926027,
+            "z": 13.939630917136824,
+            "hp": 100,
+            "heading": 1.3414214253004468,
+            "speed": 9.98691219336059,
+            "sinking": 0
+          }
+        ],
+        "navigationLights": 32,
+        "buoys": 8,
+        "rockyObstacles": 12,
+        "townBuildings": 36,
+        "port": {
+          "x": 0,
+          "z": 1530
+        }
+      }
+    },
+    {
+      "name": "Dock requires real location and low speed",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Dock interaction works without ending Mayhem",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "No browser runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "captain-mayhem loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Touch helm usable 390",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch keeps joystick, no desktop keys 390",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch has no errors 390",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "captain-mayhem loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Touch helm usable 320",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch keeps joystick, no desktop keys 320",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch has no errors 320",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "captain-mayhem loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Touch helm usable 844",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch keeps joystick, no desktop keys 844",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Touch has no errors 844",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "captain loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Story retained new version",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Story starts in helm chapter",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Story runtime errors absent",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "notes": [
+    "Browser automation, not a physical iPhone. Isolated tests use position/aim fixtures; actions use real input handlers.",
+    "Six pursuit boats active at most; waves continue without a final wave."
+  ],
+  "launch": {
+    "hostile": false,
+    "locked": false,
+    "evacuation": false,
+    "docked": false,
+    "wave": 0,
+    "nextWave": 18.283199999999947,
+    "sunk": 0,
+    "rescued": 0,
+    "swimmers": 0,
+    "projectiles": 1,
+    "flight": [
+      {
+        "age": 0.08340000000002329,
+        "position": [
+          12.96597938711084,
+          10.718842243257429,
+          5.936720397409184
+        ],
+        "velocity": [
+          22.886291117639058,
+          -8.043486472073814,
+          0.06530987460518509
+        ]
+      }
+    ],
+    "totalSpawned": 2,
+    "boats": [
+      {
+        "id": 0,
+        "kind": "coast",
+        "x": 27.984174533004822,
+        "z": 6.099747327417998,
+        "hp": 100,
+        "heading": -0.1990466524345162,
+        "speed": 0.8196851543218776,
+        "sinking": 0
+      },
+      {
+        "id": 1,
+        "kind": "coast",
+        "x": 36.343526607363714,
+        "z": 6.865473035093478,
+        "hp": 100,
+        "heading": 0.19014818701017444,
+        "speed": 6.156540320870925,
+        "sinking": 0
+      }
+    ],
+    "navigationLights": 12,
+    "buoys": 8,
+    "rockyObstacles": 12,
+    "townBuildings": 36,
+    "port": {
+      "x": 0,
+      "z": 1530
+    }
+  },
+  "passed": true
+}

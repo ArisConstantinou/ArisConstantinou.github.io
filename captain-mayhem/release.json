@@ -1,21 +1,24 @@
 {
-  "mode": "MAYHEM",
-  "version": "1.0.1",
-  "isolated": true,
-  "baseline": "74dfd6488201d8aca51b391aa955b0e44a7efa46",
-  "storyUnchanged": true,
-  "features": [
-    "Independent endless mode; no mandatory arrest",
-    "Physical prop impacts and glass openings",
-    "Extinguisher smoke blocks pursuit visibility",
-    "Escapeable heat; recover without losing damage",
-    "Separate save namespace; fixed relative touch camera",
-    "Six connected decks; existing human rigs with improved run/hit transitions"
+  "version": "1.1.0",
+  "changes": [
+    "Open sunny ocean with port town and navigation lights",
+    "Working helm on foot/steering transitions",
+    "Coast guard escort, actual attacks trigger continuous police waves",
+    "Bridge lockdown and staged evacuation/rescue",
+    "Physical seaward throws and boat hull impacts",
+    "Interactive interior props, cascades, repaired stairs and signs"
   ],
-  "inputFix": [
-    "Owned left-stick gesture; neutral on release, cancellation, lost capture, pause and rotation",
-    "Native touch identifier fallback independent of other fingers",
-    "Radial dead zone; no world translation from idle drunken sway",
-    "Existing layout, right camera, actions, save namespaces and story retained"
+  "limits": [
+    "Six active pursuit craft at once; reinforcements continue",
+    "Selected props and partitions break; main hull and structural floors remain intact",
+    "Fictional arcade setting, not a navigation simulator"
+  ],
+  "completed": [
+    "Shared rebuilt stairwells, two-face signage and furnished six-deck architecture",
+    "Interactive piano, vending machines, carts, luggage racks, screens, water, foam and steam effects",
+    "Mayhem helm control and visible town approach in fair weather",
+    "Coast Guard escorts, attack-triggered police waves, ramming and thrown prop impacts",
+    "Bridge and cabin door locking, visible evacuation and rescue boats",
+    "Original independent left/right touch controls and separate save namespaces"
   ]
 }
