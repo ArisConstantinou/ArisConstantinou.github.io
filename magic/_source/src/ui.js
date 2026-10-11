@@ -4,6 +4,8 @@ const PATHS = {
   throw: '<path d="m5 19 13-13M10 5h9v9"/><path d="M4 12v7h7M5 5l2 2M13 19l2-2"/>',
   pulse: '<circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M5 19l3-3m8-8 3-3"/>',
   dash: '<path d="m14 3-7 10h6l-3 8 10-12h-7l1-6ZM2 6h5M1 11h4M3 17h3"/>',
+  stone: '<path d="m5 8 7-5 7 5 2 8-6 5-10-3-2-6 2-4Z"/><path d="m5 8 7 3 7-3M12 11l3 10M5 18l7-7"/>',
+  drop: '<path d="M12 3v13m-5-5 5 5 5-5M4 20h16"/>',
   shield: '<path d="m12 2 8 3v6c0 5-4 9-8 11-4-2-8-6-8-11V5l8-3Z"/><path d="M12 6v11M8 10l4-4 4 4"/>',
   interact: '<path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6Z"/><circle cx="12" cy="12" r="2"/>',
   scepter: '<path d="m7 21 8-14m-6 2 8 4M13 6l-1-4 6 1 3 5-5 1-3-3Z"/><path d="m6 19 3 2M15 3l-1 3 4 1"/>',
@@ -45,6 +47,7 @@ export function createUI(callbacks = {}) {
   const actions = [];
   const timers = new Set();
   const stickStates = [];
+  const shieldStates = [];
   const changed = new Map();
   let phase = 'menu';
   let modal = null;
@@ -60,7 +63,8 @@ export function createUI(callbacks = {}) {
   let pointerY = 0;
   let pointerActive = false;
   let move = { x: 0, y: 0 };
-  let aim = { x: 0, y: 0 };
+  let dragPointer = null;
+  let holdingObject = false;
   const coarseMedia = window.matchMedia('(pointer: coarse)');
   let touchMode = coarseMedia.matches || (navigator.maxTouchPoints > 0 && window.matchMedia('(hover: none)').matches);
   document.body.dataset.input = touchMode ? 'touch' : 'keyboard';
@@ -73,9 +77,9 @@ export function createUI(callbacks = {}) {
         <h1 class="hero-title">MAGIC</h1>
         <h2 class="hero-subtitle">Ο Εξόριστος Μάγος</h2>
         <div class="fine-divider"></div>
-        <p class="hero-description">Σου πήραν το βασίλειο.<br><strong>Δεν σου πήραν τη δύναμη.</strong><br>Σήκωσε εχθρούς και συντρίμμια. Κάνε το ίδιο το κάστρο όπλο σου.</p>
+        <p class="hero-description">Σου πήραν το βασίλειο.<br><strong>Δεν σου πήραν τη δύναμη.</strong><br>Πάτησε πάνω σε εχθρούς και συντρίμμια. Σύρε τα στον αέρα. Άφησε για ρίψη.</p>
         <div class="mission-note">${icon('scepter')}<span>Κλέψε το Μαύρο Σκήπτρο.<br>Επέστρεψε στη φωτεινή πύλη για να διαφύγεις.</span></div>
-        <div class="ritual-steps" aria-label="Κίνηση, αρπαγή, στόχευση, ρίψη"><span><b>1</b>ΚΙΝΗΣΗ</span><i>›</i><span><b>2</b>ΑΡΠΑΓΗ</span><i>›</i><span><b>3</b>ΣΤΟΧΕΥΣΗ</span><i>›</i><span><b>4</b>ΡΙΨΗ</span></div>
+        <div class="ritual-steps" aria-label="Πάτησε πάνω στο αντικείμενο, σύρε, άφησε για ρίψη"><span><b>1</b>ΠΑΤΗΣΕ</span><i>›</i><span><b>2</b>ΣΥΡΕ</span><i>›</i><span><b>3</b>ΑΦΗΣΕ ΓΙΑ ΡΙΨΗ</span></div>
         <div class="menu-actions">
           <button class="primary-button" id="start-button" type="button" disabled><span id="start-label">ΞΥΠΝΑ Η ΜΑΓΕΙΑ…</span>${icon('arrow')}</button>
           <div class="loading-line" id="loading-line"><div class="loading-fill" id="loading-fill"></div></div>
@@ -103,23 +107,23 @@ export function createUI(callbacks = {}) {
       <div class="held-state" id="held-state" hidden>${icon('grab')}<span id="held-text"></span></div>
       <div class="run-meta"><span class="run-stat" title="Θραύσματα αυτής της προσπάθειας">${icon('shard')}<span id="hud-shards">0</span></span><span class="run-stat" title="Εχθροί που νικήθηκαν">${icon('skull')}<span id="hud-kills">0</span></span><span class="run-stat time" id="hud-time">0:00</span></div>
       <div class="desktop-controls" aria-label="Δυνάμεις και πλήκτρα">
-        ${ability('grab', 'ΑΦΗΣΕ', 'grab', 'Q')}
-        ${ability('primary', 'ΑΡΠΑΓΗ', 'grab', 'mouse', 'primary-ability')}
+        ${ability('conjure', 'ΠΕΤΡΑ', 'stone', 'R')}
+        ${ability('drop', 'ΑΦΗΣΕ', 'drop', 'Q')}
         ${ability('pulse', 'ΩΣΤΙΚΟ ΚΥΜΑ', 'pulse', 'F')}
         ${ability('dash', 'ΕΦΟΡΜΗΣΗ', 'dash', 'SPACE')}
         ${ability('shield', 'ΑΣΠΙΔΑ', 'shield', 'SHIFT')}
         ${ability('interact', 'ΧΡΗΣΗ', 'interact', 'E')}
       </div>
-      <div class="movement-hint"><div class="wasd" aria-label="W A S D"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div><div class="movement-caption">ΚΙΝΗΣΗ<small>Ποντίκι · στόχευση</small></div></div>
+      <div class="movement-hint"><div class="wasd" aria-label="W A S D"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div><div class="movement-caption">ΚΙΝΗΣΗ<small>Πάτησε · σύρε · άφησε</small></div></div>
       <div class="touch-controls">
         <div class="joystick move-stick" id="move-stick" role="application" aria-label="Αριστερός μοχλός κίνησης"><span class="stick-knob"></span><span class="stick-label">ΚΙΝΗΣΗ</span></div>
-        <div class="joystick aim-stick" id="aim-stick" role="application" aria-label="Δεξιός μοχλός στόχευσης"><span class="stick-knob"></span><span class="stick-label">ΣΤΟΧΕΥΣΗ</span></div>
-        ${ability('shield', 'ΑΣΠΙΔΑ', 'shield', '', 'touch-shield')}
         <div class="touch-actions">
-          ${ability('pulse', 'ΩΣΤΙΚΟ ΚΥΜΑ', 'pulse')}
-          ${ability('dash', 'ΕΦΟΡΜΗΣΗ', 'dash')}
+          ${ability('conjure', 'ΠΕΤΡΑ', 'stone')}
+          ${ability('drop', 'ΑΦΗΣΕ', 'drop')}
+          ${ability('pulse', 'ΚΥΜΑ', 'pulse')}
+          ${ability('dash', 'ΕΦΟΔΟΣ', 'dash')}
+          ${ability('shield', 'ΑΣΠΙΔΑ', 'shield')}
           ${ability('interact', 'ΧΡΗΣΗ', 'interact')}
-          ${ability('primary', 'ΑΡΠΑΓΗ', 'grab', '', 'primary-ability')}
         </div>
       </div>
     </section>
@@ -136,7 +140,7 @@ export function createUI(callbacks = {}) {
   const el = Object.fromEntries([...host.querySelectorAll('[id]')].map((node) => [node.id, node]));
   const allAbilities = [...host.querySelectorAll('[data-action]')];
   const byAction = (name) => allAbilities.filter((button) => button.dataset.action === name);
-  const actionGroups = Object.fromEntries(['grab', 'primary', 'pulse', 'dash', 'shield', 'interact'].map((name) => [name, byAction(name)]));
+  const actionGroups = Object.fromEntries(['conjure', 'drop', 'pulse', 'dash', 'shield', 'interact'].map((name) => [name, byAction(name)]));
   const text = (id, value) => { const output = String(value ?? ''); if (changed.get(id) !== output) { el[id].textContent = output; changed.set(id, output); } };
   const listen = (node, type, handler, options = {}) => node.addEventListener(type, handler, { ...options, signal });
   const later = (handler, delay) => { const timer = window.setTimeout(() => { timers.delete(timer); handler(); }, delay); timers.add(timer); return timer; };
@@ -144,14 +148,33 @@ export function createUI(callbacks = {}) {
   const prevent = (event) => { event.preventDefault(); event.stopPropagation(); };
   const invoke = (name, ...args) => { if (typeof callbacks[name] === 'function') return callbacks[name](...args); };
 
+  const dragInfo = (event) => ({ pointerId: event.pointerId, clientX: event.clientX, clientY: event.clientY, pointerType: event.pointerType, timeStamp: event.timeStamp });
+  function releaseDragCapture(info) {
+    if (canvas.hasPointerCapture?.(info.pointerId)) canvas.releasePointerCapture(info.pointerId);
+  }
+  function cancelDrag(event) {
+    if (!dragPointer || (event?.pointerId !== undefined && event.pointerId !== dragPointer.pointerId)) return;
+    const info = event?.pointerId !== undefined ? dragInfo(event) : dragPointer;
+    dragPointer = null;
+    document.body.classList.remove('is-dragging');
+    pointerActive = false;
+    invoke('onDragCancel', info);
+    releaseDragCapture(info);
+  }
+
   function clearInput() {
-    keys.clear(); actions.length = 0; move = { x: 0, y: 0 }; aim = { x: 0, y: 0 };
+    cancelDrag();
+    keys.clear(); actions.length = 0; move = { x: 0, y: 0 };
     mouseShield = false; touchShield = false; pointerActive = false;
     for (const stick of stickStates) {
       if (stick.id !== null && stick.node.hasPointerCapture?.(stick.id)) stick.node.releasePointerCapture(stick.id);
       stick.id = null; stick.knob.style.transform = 'translate(0px, 0px)';
     }
-    for (const button of actionGroups.shield) button.classList.remove('is-held');
+    for (const shield of shieldStates) {
+      const pointerId = shield.id; shield.id = null;
+      if (pointerId !== null && shield.node.hasPointerCapture?.(pointerId)) shield.node.releasePointerCapture(pointerId);
+      shield.node.classList.remove('is-held');
+    }
   }
 
   function setPhase(next) {
@@ -213,7 +236,7 @@ export function createUI(callbacks = {}) {
 
   function showHelp() {
     if (phase === 'playing') { requestPause(); if (phase === 'playing') showPause(true); }
-    openModal('help', `<p class="panel-eyebrow">Η ΤΕΧΝΗ ΤΗΣ ΤΗΛΕΚΙΝΗΣΗΣ</p><h2 class="panel-title" id="modal-title">Το κάστρο είναι το όπλο σου.</h2><ol class="help-list"><li><span class="step-index">1</span><div><strong>Πλησίασε και άρπαξε.</strong><p>${touchMode ? 'Κινήσου με τον αριστερό μοχλό. Πλησίασε ένα αντικείμενο ή έναν φρουρό και πάτησε ΑΡΠΑΓΗ.' : 'Κινήσου με W A S D. Σημάδεψε ένα κοντινό αντικείμενο ή φρουρό και κάνε κλικ για να τον σηκώσεις.'}</p></div></li><li><span class="step-index">2</span><div><strong>Σημάδεψε. Ρίξε. Συνδύασε.</strong><p>${touchMode ? 'Ο δεξιός μοχλός στρέφει τη δύναμή σου. Πάτησε ΡΙΨΗ για να εκτοξεύσεις ό,τι κρατάς.' : 'Σημάδεψε με το ποντίκι και κάνε ξανά κλικ για ρίψη. Το Q αφήνει ό,τι κρατάς.'} Χτύπα εχθρούς με εχθρούς και συντρίμμια.</p></div></li><li><span class="step-index">3</span><div><strong>Πάρε το Μαύρο Σκήπτρο.</strong><p>Φτάσε στην κρύπτη και χρησιμοποίησε ${touchMode ? 'το κουμπί ΧΡΗΣΗ' : 'το E'} κοντά στο σκήπτρο. Το κάστρο θα σημάνει συναγερμό.</p></div></li><li><span class="step-index">4</span><div><strong>Βρες τον δρόμο της επιστροφής.</strong><p>Γύρισε στη φωτεινή πύλη για να διαφύγεις. Τα θραύσματα ξεκλειδώνουν μόνιμες δυνάμεις για τις επόμενες εισβολές.</p></div></li></ol><div class="help-controls"><div class="help-control"><kbd>${touchMode ? 'ΚΡΑΤΑ' : 'SHIFT'}</kbd>Ασπίδα</div><div class="help-control"><kbd>${touchMode ? 'ΚΥΜΑ' : 'F'}</kbd>Ωστικό κύμα</div><div class="help-control"><kbd>${touchMode ? 'ΕΦΟΔΟΣ' : 'SPACE'}</kbd>Εφόρμηση</div><div class="help-control"><kbd>${touchMode ? 'Ⅱ' : 'ESC / P'}</kbd>Παύση</div></div>`);
+    openModal('help', `<p class="panel-eyebrow">Η ΤΕΧΝΗ ΤΗΣ ΤΗΛΕΚΙΝΗΣΗΣ</p><h2 class="panel-title" id="modal-title">Η δύναμη ακολουθεί το χέρι σου.</h2><ol class="help-list"><li><span class="step-index">1</span><div><strong>Πάτησε πάνω στο αντικείμενο.</strong><p>${touchMode ? 'Κινήσου με τον αριστερό μοχλό. Με άλλο δάχτυλο πάτησε πάνω στο αντικείμενο ή στον φρουρό που θέλεις να σηκώσεις.' : 'Κινήσου με W A S D. Κράτησε πατημένο το αριστερό κουμπί πάνω στο αντικείμενο ή στον φρουρό που θέλεις να σηκώσεις.'} Πλησίασε τον στόχο ώστε να τον φτάνει η μαγεία σου.</p></div></li><li><span class="step-index">2</span><div><strong>Σύρε. Άφησε για ρίψη.</strong><p>Όσο κρατάς πατημένο, μετακινείς το αντικείμενο ζωντανά στον αέρα. Άφησε για να το εκτοξεύσεις. Ένα γρήγορο σύρσιμο δίνει κατεύθυνση και περισσότερη δύναμη στη ρίψη. Χτύπα εχθρούς με εχθρούς και συντρίμμια.</p></div></li><li><span class="step-index">3</span><div><strong>Πάρε το Μαύρο Σκήπτρο.</strong><p>Νίκησε τον Δεσμοφύλακα στην κρύπτη και χρησιμοποίησε ${touchMode ? 'το κουμπί ΧΡΗΣΗ' : 'το E'} κοντά στο σκήπτρο. Το κάστρο θα σημάνει συναγερμό.</p></div></li><li><span class="step-index">4</span><div><strong>Βρες τον δρόμο της επιστροφής.</strong><p>Γύρισε στη φωτεινή πύλη για να διαφύγεις. Τα θραύσματα ξεκλειδώνουν μόνιμες δυνάμεις για τις επόμενες εισβολές.</p></div></li></ol><div class="help-controls"><div class="help-control"><kbd>${touchMode ? 'ΠΕΤΡΑ' : 'R'}</kbd>Δημιούργησε πέτρα</div><div class="help-control"><kbd>${touchMode ? 'ΑΦΗΣΕ' : 'Q'}</kbd>Άφημα χωρίς ρίψη</div><div class="help-control"><kbd>${touchMode ? 'ΑΣΠΙΔΑ' : 'SHIFT'}</kbd>Κράτησε ως ασπίδα</div><div class="help-control"><kbd>${touchMode ? 'ΚΥΜΑ' : 'F'}</kbd>Ωστικό κύμα</div><div class="help-control"><kbd>${touchMode ? 'ΕΦΟΔΟΣ' : 'SPACE'}</kbd>Εφόρμηση</div><div class="help-control"><kbd>${touchMode ? 'Ⅱ' : 'ESC / P'}</kbd>Παύση</div></div>`);
   }
 
   function requestUpgrades() {
@@ -261,7 +284,7 @@ export function createUI(callbacks = {}) {
     loaded = true; el['start-button'].disabled = false;
     text('start-label', 'ΜΠΕΣ ΣΤΟ ΚΑΣΤΡΟ');
     el['loading-fill'].style.width = '100%'; el['loading-line'].hidden = true;
-    text('loading-label', touchMode ? 'Δύο μοχλοί. Απεριόριστοι συνδυασμοί.' : 'W A S D για κίνηση · Ποντίκι για τηλεκίνηση');
+    text('loading-label', 'Πάτησε πάνω στο αντικείμενο · Σύρε · Άφησε για ρίψη');
   }
 
   function showMenu(nextProfile) { updateProfile(nextProfile); setPhase('menu'); }
@@ -289,19 +312,18 @@ export function createUI(callbacks = {}) {
     else el['objective-progress'].hidden = true;
     text('hud-shards', formatNumber(state.shards)); text('hud-kills', formatNumber(state.kills)); text('hud-time', clock(state.time));
     const holding = Boolean(state.holding); const target = state.targetName;
+    const dragging = holding && Boolean(state.dragging || dragPointer);
+    holdingObject = holding;
     el['held-state'].hidden = !holding && !target;
     el['held-state'].classList.toggle('target', !holding);
-    text('held-text', holding ? (state.heldName ? `${state.heldName} · έτοιμο για ρίψη` : 'Η δύναμη είναι στα χέρια σου') : (target ? `${target}` : ''));
-    const primaryLabel = state.grabLabel || (holding ? 'ΡΙΨΗ' : 'ΑΡΠΑΓΗ');
-    for (const button of actionGroups.primary) {
-      button.classList.toggle('holding', holding);
-      const label = button.querySelector('.ability-name'); if (label.textContent !== primaryLabel) label.textContent = primaryLabel;
-      button.setAttribute('aria-label', holding ? 'Ρίξε το αντικείμενο που κρατάς' : 'Άρπαξε κοντινό αντικείμενο ή εχθρό');
-      if (button.dataset.held !== String(holding)) { button.querySelector('.ability-disc > .icon').outerHTML = icon(holding ? 'throw' : 'grab'); button.dataset.held = String(holding); }
+    text('held-text', holding ? `${state.heldName || 'Στα χέρια σου'} · ${dragging ? 'άφησε για ρίψη' : 'πάτησέ το και σύρε'}` : (target ? `${target} · πάτησε και κράτησε` : ''));
+    for (const button of actionGroups.drop) {
+      button.disabled = !holding;
+      button.setAttribute('aria-label', 'Άφησε το αντικείμενο χωρίς ρίψη');
     }
-    for (const button of actionGroups.grab) {
-      button.querySelector('.ability-name').textContent = holding ? 'ΑΦΗΣΕ' : 'ΑΡΠΑΓΗ';
-      button.setAttribute('aria-label', holding ? 'Άφησε αυτό που κρατάς' : 'Άρπαξε τον κοντινό στόχο');
+    for (const button of actionGroups.conjure) {
+      button.disabled = holding;
+      button.setAttribute('aria-label', 'Δημιούργησε μια πέτρα και σύρε τη για ρίψη');
     }
     for (const [action, cooldown] of [['pulse', state.pulseCooldown], ['dash', state.dashCooldown]]) {
       const remaining = Math.max(0, number(cooldown));
@@ -317,9 +339,9 @@ export function createUI(callbacks = {}) {
     text('combo-value', `×${Math.max(1, multiplier).toLocaleString('el-GR', { maximumFractionDigits: 1 })}`);
     const customHint = state.hint ? String(state.hint) : '';
     const tutorialVisible = number(state.time) < 32;
-    el['context-strip'].hidden = !customHint && !tutorialVisible;
-    text('context-main', customHint || (touchMode ? 'Αριστερός μοχλός: κίνηση · Δεξιός: στόχευση' : 'Κλικ: αρπαγή / ρίψη · Q: άφησε · Shift: ασπίδα'));
-    text('context-sub', customHint ? '' : (touchMode ? 'Πλησίασε έναν στόχο και πάτησε ΑΡΠΑΓΗ.' : 'Στόχευσε ένα κοντινό αντικείμενο ή έναν φρουρό.'));
+    el['context-strip'].hidden = !customHint && !tutorialVisible && !dragging;
+    text('context-main', customHint || (dragging ? 'Σύρε το αντικείμενο · Άφησε για ρίψη' : 'Πάτησε πάνω στο αντικείμενο · Σύρε · Άφησε για ρίψη'));
+    text('context-sub', customHint ? '' : (dragging ? 'Γρήγορο σύρσιμο = περισσότερη δύναμη.' : (touchMode ? 'Κίνηση με τον αριστερό μοχλό. Η μαγεία ακολουθεί το άλλο δάχτυλο.' : 'W A S D: κίνηση · Q: άφημα χωρίς ρίψη · R: δημιούργησε πέτρα')));
     el['context-sub'].hidden = Boolean(customHint);
     const bossVisible = state.bossHP !== undefined && number(state.bossMaxHP) > 0 && number(state.bossHP) > 0;
     el['boss-track'].hidden = !bossVisible;
@@ -342,13 +364,17 @@ export function createUI(callbacks = {}) {
     let x = move.x + (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) - (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0);
     let z = move.y + (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) - (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0);
     const length = Math.hypot(x, z); if (length > 1) { x /= length; z /= length; }
-    return { moveX: x, moveZ: z, aimX: aim.x, aimY: aim.y, aimActive: Math.hypot(aim.x, aim.y) > .05, pointerX, pointerY, pointerActive, shielding: keys.has('ShiftLeft') || keys.has('ShiftRight') || mouseShield || touchShield };
+    return { moveX: x, moveZ: z, aimX: 0, aimY: 0, aimActive: false, pointerX, pointerY, pointerActive, shielding: keys.has('ShiftLeft') || keys.has('ShiftRight') || mouseShield || touchShield };
   }
 
   function consumeActions() { return actions.splice(0); }
-  function queueAction(action) { if (live() && actions.length < 12) actions.push(action); }
+  function queueAction(action) {
+    if (!live() || actions.length >= 12 || (action === 'drop' && !holdingObject && !dragPointer)) return;
+    if (action === 'drop') cancelDrag();
+    actions.push(action);
+  }
 
-  function buildStick(node, type) {
+  function buildStick(node) {
     const stick = { node, knob: node.querySelector('.stick-knob'), id: null };
     stickStates.push(stick);
     const point = (event) => {
@@ -358,14 +384,7 @@ export function createUI(callbacks = {}) {
       const rawLength = Math.hypot(x, y); if (rawLength > 1) { x /= rawLength; y /= rawLength; }
       stick.knob.style.transform = `translate(${x * radius}px, ${y * radius}px)`;
       const length = Math.hypot(x, y); const output = length < .12 ? { x: 0, y: 0 } : { x: x / length * (length - .12) / .88, y: y / length * (length - .12) / .88 };
-      if (type === 'move') move = output;
-      else {
-        // Preserve the last deliberate direction so the aiming thumb can move
-        // from the stick to the throw button while the other thumb keeps moving.
-        const magnitude = Math.hypot(output.x, output.y);
-        if (magnitude > 0) aim = { x: output.x / magnitude, y: output.y / magnitude };
-        pointerActive = false;
-      }
+      move = output;
     };
     listen(node, 'pointerdown', (event) => { if (!live() || stick.id !== null) return; prevent(event); stick.id = event.pointerId; node.setPointerCapture(event.pointerId); point(event); });
     listen(node, 'pointermove', (event) => { if (event.pointerId !== stick.id) return; prevent(event); point(event); });
@@ -374,29 +393,29 @@ export function createUI(callbacks = {}) {
       stick.id = null;
       if (node.hasPointerCapture?.(event.pointerId)) node.releasePointerCapture(event.pointerId);
       stick.knob.style.transform = 'translate(0px, 0px)';
-      if (type === 'move') move = { x: 0, y: 0 };
+      move = { x: 0, y: 0 };
     };
     listen(node, 'pointerup', release); listen(node, 'pointercancel', release); listen(node, 'lostpointercapture', release);
   }
 
-  buildStick(el['move-stick'], 'move'); buildStick(el['aim-stick'], 'aim');
+  buildStick(el['move-stick']);
 
   for (const button of allAbilities) {
     const action = button.dataset.action;
     if (action === 'shield') {
-      let pointerId = null;
-      listen(button, 'pointerdown', (event) => { if (!live()) return; prevent(event); touchShield = true; pointerId = event.pointerId; button.setPointerCapture(event.pointerId); button.classList.add('is-held'); });
-      const release = (event) => { if (pointerId !== null && event.pointerId === pointerId) { touchShield = false; pointerId = null; button.classList.remove('is-held'); if (button.hasPointerCapture?.(event.pointerId)) button.releasePointerCapture(event.pointerId); } };
+      const shield = { node: button, id: null }; shieldStates.push(shield);
+      listen(button, 'pointerdown', (event) => { if (!live() || shield.id !== null || event.button !== 0) return; prevent(event); touchShield = true; shield.id = event.pointerId; button.setPointerCapture(event.pointerId); button.classList.add('is-held'); });
+      const release = (event) => { if (shield.id !== null && event.pointerId === shield.id) { touchShield = false; shield.id = null; button.classList.remove('is-held'); if (button.hasPointerCapture?.(event.pointerId)) button.releasePointerCapture(event.pointerId); } };
       listen(button, 'pointerup', release); listen(button, 'pointercancel', release); listen(button, 'lostpointercapture', release);
       listen(button, 'click', prevent);
     } else {
-      listen(button, 'pointerdown', (event) => { if (event.button !== 0 || !live()) return; prevent(event); queueAction(action); });
-      listen(button, 'click', (event) => { prevent(event); if (event.detail === 0) queueAction(action); });
+      listen(button, 'pointerdown', (event) => { if (event.button !== 0 || !live() || button.disabled) return; prevent(event); queueAction(action); });
+      listen(button, 'click', (event) => { prevent(event); if (event.detail === 0 && !button.disabled) queueAction(action); });
     }
   }
 
   const editable = (target) => target?.closest?.('input, textarea, select, [contenteditable="true"]');
-  const gameKeys = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyQ', 'KeyF', 'KeyE', 'Space', 'ShiftLeft', 'ShiftRight', 'Escape', 'KeyP']);
+  const gameKeys = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyQ', 'KeyR', 'KeyF', 'KeyE', 'Space', 'ShiftLeft', 'ShiftRight', 'Escape', 'KeyP']);
   listen(window, 'keydown', (event) => {
     if (editable(event.target) || event.metaKey || event.ctrlKey || event.altKey) return;
     if (event.code === 'Tab') {
@@ -421,7 +440,7 @@ export function createUI(callbacks = {}) {
     if (!live() || !gameKeys.has(event.code)) return;
     event.preventDefault(); keys.add(event.code);
     if (!event.repeat) {
-      const action = { KeyQ: 'grab', KeyF: 'pulse', KeyE: 'interact', Space: 'dash' }[event.code];
+      const action = { KeyQ: 'drop', KeyR: 'conjure', KeyF: 'pulse', KeyE: 'interact', Space: 'dash' }[event.code];
       if (action) queueAction(action);
     }
   });
@@ -431,20 +450,53 @@ export function createUI(callbacks = {}) {
   listen(window, 'resize', clearInput);
 
   listen(canvas, 'pointermove', (event) => {
-    if (!live() || (event.pointerType !== 'mouse' && event.pointerType !== 'pen')) return;
-    pointerX = event.clientX; pointerY = event.clientY; pointerActive = true;
-    aim = { x: 0, y: 0 };
+    if (!live()) return;
+    if (dragPointer) {
+      if (event.pointerId !== dragPointer.pointerId) return;
+      prevent(event);
+      dragPointer = dragInfo(event);
+      pointerX = event.clientX; pointerY = event.clientY; pointerActive = true;
+      invoke('onDragMove', dragPointer);
+    } else if (event.pointerType === 'mouse' || event.pointerType === 'pen') {
+      pointerX = event.clientX; pointerY = event.clientY; pointerActive = true;
+    }
   });
   listen(canvas, 'pointerdown', (event) => {
     if (!live()) return;
-    prevent(event); pointerX = event.clientX; pointerY = event.clientY; pointerActive = true;
-    aim = { x: 0, y: 0 };
-    if (event.pointerType === 'touch') return;
-    if (event.button === 0) queueAction('primary');
-    if (event.button === 2) mouseShield = true;
+    if (event.button === 2 && event.pointerType === 'mouse') {
+      prevent(event); mouseShield = true;
+      return;
+    }
+    // Each contact owns its own action. A second touch may drag while the
+    // movement thumb remains down, so PointerEvent.isPrimary is not a gate.
+    if (event.button !== 0 || dragPointer) return;
+    const info = dragInfo(event);
+    if (invoke('onDragStart', info) !== true) return;
+    if (!live()) { invoke('onDragCancel', info); return; }
+    prevent(event);
+    dragPointer = info;
+    pointerX = event.clientX; pointerY = event.clientY; pointerActive = true;
+    document.body.classList.add('is-dragging');
+    try { canvas.setPointerCapture(event.pointerId); }
+    catch { cancelDrag(); }
   });
-  listen(window, 'pointerup', (event) => { if (event.button === 2) mouseShield = false; });
-  listen(window, 'pointercancel', (event) => { if (event.pointerType === 'mouse') mouseShield = false; });
+  const endDrag = (event) => {
+    if (!dragPointer || event.pointerId !== dragPointer.pointerId) return;
+    prevent(event);
+    const info = dragInfo(event);
+    dragPointer = null;
+    document.body.classList.remove('is-dragging');
+    pointerX = event.clientX; pointerY = event.clientY;
+    pointerActive = event.pointerType === 'mouse' || event.pointerType === 'pen';
+    invoke('onDragEnd', info);
+    releaseDragCapture(info);
+  };
+  listen(canvas, 'pointerup', endDrag);
+  listen(window, 'pointerup', (event) => { if (event.button === 2) mouseShield = false; endDrag(event); });
+  listen(canvas, 'pointercancel', cancelDrag);
+  listen(canvas, 'lostpointercapture', cancelDrag);
+  listen(window, 'pointercancel', (event) => { if (event.pointerType === 'mouse') mouseShield = false; cancelDrag(event); });
+  listen(canvas, 'pointerleave', () => { if (!dragPointer) pointerActive = false; });
   listen(canvas, 'contextmenu', (event) => event.preventDefault());
 
   const setTouchMode = (event) => { touchMode = event.matches; document.body.dataset.input = touchMode ? 'touch' : 'keyboard'; clearInput(); if (loaded) ready(); };

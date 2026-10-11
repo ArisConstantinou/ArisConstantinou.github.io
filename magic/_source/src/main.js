@@ -10,7 +10,8 @@ import { loadCharacters, createCharacter } from './characters.js';
 import { createUI } from './ui.js';
 import { createEffects } from './effects.js';
 import { MagicAudio } from './audio.js';
-import { clamp, distance, lineClear, pointSegmentDistance, ballisticVelocity, NavigationGrid, ProfileStore } from './systems.js';
+import { clamp, distance, lineClear, pointSegmentDistance, NavigationGrid, ProfileStore } from './systems.js';
+import { PointerMotion, gestureThrowVelocity, clampDragPoint, constrainDragPoint } from './drag.js';
 import './style.css';
 
 const mobile = matchMedia('(pointer: coarse)').matches;
@@ -22,8 +23,10 @@ let entities=[], arrows=[], pickups=[], kills=0, runShards=0, runTime=0, relicTa
 let combo=0, comboUntil=0, lastTime=performance.now(), worldTime=0, shake=0, castTime=0, boss=null, lastHint='';
 let renderer, composer, camera, scene, fx, moon, bloom, targetRing, playerRing, playerLight, heldLight, trajectory;
 let actorMaterial, solidMaterial;
+let drag=null;
 let aimPoint=new THREE.Vector3(0,.8,5), aimDirection=new THREE.Vector3(0,0,-1), cameraTarget=new THREE.Vector3(0,0,9);
 const raycaster=new THREE.Raycaster(), groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-.8);
+const dragPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-2.1);
 const tempV=new THREE.Vector3(), tempQ=new THREE.Quaternion();
 const ui=createUI({
   onStart:()=>{if(ready)startRun();},
@@ -35,6 +38,10 @@ const ui=createUI({
   onMute:value=>{save.profile.muted=!!value;save.save();sound.setMuted(save.profile.muted);ui.setMuted(save.profile.muted);},
   onQuality:value=>{quality=value==='high'?'high':'low';resize();ui.setQuality(quality);ui.toast(quality==='high'?'Κινηματογραφική εικόνα':'Ομαλή απόδοση');},
   onMenu:()=>{phase='menu';if(ready)populate();ui.showMenu(save.profile);},
+  onDragStart:info=>beginDrag(info),
+  onDragMove:info=>moveDrag(info),
+  onDragEnd:info=>finishDrag(info),
+  onDragCancel:()=>cancelDrag(),
 });
 ui.setMuted(save.profile.muted);
 ui.setQuality(quality);
@@ -141,7 +148,7 @@ function prop(kind,x,z,options={}){
   body.quaternion.setFromEuler(0,options.rotation||0,0);
   body.collisionFilterGroup=GROUP.PROP;
   const e={category:'prop',kind,mesh,body,ext,mass,radius:Math.max(ext.x,ext.z),hp:item.health||70,maxHp:item.health||70,label:item.label||'Θραύσμα',
-    removed:false,dead:false,thrownUntil:0,thrownBy:null,collisionTimes:new Map(),pendingBreak:false,ephemeral:!!options.ephemeral,spawn:{x,z,y:body.position.y}};
+    removed:false,dead:false,thrownUntil:0,thrownBy:null,collisionTimes:new Map(),pendingBreak:false,ephemeral:!!options.ephemeral,expireAt:runTime+18,spawn:{x,z,y:body.position.y}};
   body.entity=e;body.addEventListener('collide',event=>impact(e,event));
   physics.addBody(body);scene.add(mesh);entities.push(e);return e;
 }
@@ -177,7 +184,7 @@ function populate(){
 }
 function startRun(){
   sound.start();populate();phase='playing';ui.start();cameraTarget.set(player.body.position.x,0,player.body.position.z-2);
-  ui.toast(mobile?'Πάτησε ΑΡΠΑΓΗ. Στόχευσε με τον δεξιό μοχλό και πάτησε ΡΙΨΗ.':'Κλικ: άρπαξε. Στόχευσε και κάνε κλικ ξανά για ρίψη. Q: άφησε.','info');
+  ui.toast(mobile?'Άγγιξε ένα αντικείμενο, κράτησε και σύρε. Άφησε το δάχτυλο για ρίψη.':'Κάνε κλικ πάνω σε ένα αντικείμενο, κράτησε και σύρε. Άφησε το κλικ για ρίψη.','info');
   if(!save.available)ui.toast('Η πρόοδος κρατιέται για αυτή τη συνεδρία. Ο browser δεν επιτρέπει αποθήκευση.','info');
 }
 function togglePause(){
@@ -199,72 +206,152 @@ function canGrab(e){
 function visibleLine(a,b,margin=0){
   return lineClear(a,b,nav.obstacles.filter(o=>o.y+o.h/2>1.15),margin);
 }
-function chooseTarget(input){
-  target=null;
-  if(held)return;
-  const p=player.body.position,reach=7.8+1.5*(save.profile.upgrades.reach||0);
-  let score=Infinity;
-  for(const e of entities){
-    if(e.removed||e.isPlayer||e.body.position.y>5||distance(p,e.body.position)>reach)continue;
-    if(!visibleLine(p,e.body.position,.05))continue;
-    const dx=e.body.position.x-p.x,dz=e.body.position.z-p.z,d=Math.hypot(dx,dz)||.01;
-    const dot=(dx*aimDirection.x+dz*aimDirection.z)/d;
-    let s;
-    if(input.pointerActive){const dp=distance(aimPoint,e.body.position);s=dp*2+d*.11;if(dp>2.1&&dot<.62)continue;}
-    else{if(dot<.15&&d>2.5)continue;s=(1-dot)*4+d*.34;}
-    if(e.category==='actor'&&!e.dead)s-=.45;
-    if(!canGrab(e))s+=.18;
-    if(s<score){score=s;target=e;}
-  }
+function telekinesisReach(){return 7.8+1.5*(save.profile.upgrades.reach||0);}
+function pointerRay(info){
+  if(!renderer||!camera||!Number.isFinite(info.clientX)||!Number.isFinite(info.clientY))return false;
+  const rect=renderer.domElement.getBoundingClientRect();
+  if(rect.width<=0||rect.height<=0)return false;
+  camera.updateMatrixWorld();
+  raycaster.setFromCamera(new THREE.Vector2((info.clientX-rect.left)/rect.width*2-1,-(info.clientY-rect.top)/rect.height*2+1),camera);
+  return true;
 }
-function grab(){
-  if(held){releaseHeld(false);return;}
-  let e=target;
-  if(e&&!canGrab(e)){ui.toast('Χτύπησέ τον με αντικείμενο για να σπάσεις την άμυνά του.','info');return;}
-  if(!e){
-    if(player.mana<23){ui.toast('Χρειάζεσαι 23 ενέργεια για να καλέσεις και να σηκώσεις θραύσμα.','info');return;}
-    player.mana-=16;
-    const p=player.body.position;
-    e=prop('stone',p.x+aimDirection.x*1.15,p.z+aimDirection.z*1.15,{y:1.4,mass:2,ephemeral:true});
-    fx.burst(e.body.position,0x8bffda,20,1.6);
+function pointerAtHeight(info,height){
+  if(!pointerRay(info))return null;
+  dragPlane.constant=-height;
+  return raycaster.ray.intersectPlane(dragPlane,new THREE.Vector3());
+}
+function pickObject(info){
+  if(!pointerRay(info))return null;
+  scene.updateMatrixWorld(true);
+  let selected=null,nearest=Infinity;
+  const candidates=entities.filter(e=>!e.removed&&!e.isPlayer&&e.mesh.visible);
+  for(const e of candidates){
+    const p=e.body.position,r=Math.hypot(e.radius,e.ext?.y||e.cy*1.3)+.3;
+    if(raycaster.ray.distanceSqToPoint(new THREE.Vector3(p.x,p.y,p.z))>r*r)continue;
+    // Animated skinned bounds must describe the current pose, including raised arms.
+    e.mesh.traverse(o=>{if(o.isSkinnedMesh)o.computeBoundingSphere();});
+    for(const hit of raycaster.intersectObject(e.mesh,true)){
+      let visible=true;for(let node=hit.object;node;node=node.parent)if(!node.visible){visible=false;break;}
+      if(visible&&hit.distance<nearest){nearest=hit.distance;selected=e;}
+    }
   }
-  if(player.mana<7)return;
+  if(selected)return selected;
+  // A small screen-space allowance makes thin props tappable without auto-selecting
+  // an unrelated nearby object. Exact visible mesh hits always take precedence.
+  if(info.pointerType!=='touch'&&info.pointerType!=='pen')return null;
+  const rect=renderer.domElement.getBoundingClientRect();let closest=Infinity;
+  for(const e of candidates){
+    const p=new THREE.Vector3(e.body.position.x,e.body.position.y,e.body.position.z).project(camera);
+    if(p.z<-1||p.z>1)continue;
+    const x=rect.left+(p.x+1)*rect.width/2,y=rect.top+(1-p.y)*rect.height/2;
+    const d=Math.hypot(x-info.clientX,y-info.clientY);
+    if(d<24&&d<closest){closest=d;selected=e;}
+  }
+  return selected;
+}
+function chooseTarget(input){
+  target=!held&&input.pointerActive?pickObject({clientX:input.pointerX,clientY:input.pointerY,pointerType:'mouse'}):null;
+}
+function holdEntity(e){
+  if(!e||e.removed||e.isPlayer)return false;
+  if(distance(player.body.position,e.body.position)>telekinesisReach()){
+    ui.toast('Πλησίασε τον στόχο για να τον αρπάξεις.','info');return false;
+  }
+  if(!visibleLine(player.body.position,e.body.position,.05)){
+    ui.toast('Ένας τοίχος εμποδίζει την αρπαγή.','info');return false;
+  }
+  if(!canGrab(e)){ui.toast('Χτύπησέ τον με αντικείμενο για να σπάσεις την άμυνά του.','info');return false;}
+  if(player.mana<7){ui.toast('Χρειάζεσαι 7 ενέργεια για αρπαγή.','info');return false;}
   player.mana-=7;held=e;target=null;e.body.wakeUp();
   e.body.collisionFilterMask=GROUP.ENEMY|GROUP.PROP|GROUP.WORLD;
-  e.body.fixedRotation=false;e.body.updateMassProperties();e.thrownUntil=0;
+  e.body.fixedRotation=false;e.body.updateMassProperties();e.thrownUntil=0;e.thrownBy=null;e.collisionTimes.clear();
   if(e.category==='actor'){e.body.quaternion.setFromEuler(0,e.yaw,0);e.stun=2;e.windup=0;e.visual.reset?.();}
-  castTime=.3;sound.sound('grab');fx.ring(e.body.position,0x7fffce,e.radius+1,.28);
+  castTime=.3;sound.sound('grab');fx.ring(e.body.position,0x7fffce,e.radius+1,.28);return true;
+}
+function gestureTime(info){
+  const now=performance.now();
+  return Number.isFinite(info.timeStamp)&&Math.abs(info.timeStamp-now)<60000?info.timeStamp:now;
+}
+function beginDrag(info){
+  if(phase!=='playing'||!ready||drag)return false;
+  const e=pickObject(info);
+  if(!e)return false;
+  if(held&&held!==e){ui.toast('Άφησε πρώτα αυτό που κρατάς.','info');return false;}
+  const height=Math.max(2.1,(e.ext?.y||e.cy)+.6),point=pointerAtHeight(info,height);
+  if(!point||(!held&&!holdEntity(e)))return false;
+  const motion=new PointerMotion();motion.add(info.clientX,info.clientY,gestureTime(info));
+  drag={pointerId:info.pointerId,clientX:info.clientX,clientY:info.clientY,height,motion,
+    offset:{x:e.body.position.x-point.x,z:e.body.position.z-point.z}};
+  return true;
+}
+function moveDrag(info){
+  if(phase!=='playing'||!drag||drag.pointerId!==info.pointerId)return;
+  drag.clientX=info.clientX;drag.clientY=info.clientY;
+  drag.motion.add(info.clientX,info.clientY,gestureTime(info));
+}
+function currentThrowVelocity(now=performance.now()){
+  if(!held)return null;
+  const fallback={x:held.body.position.x-player.body.position.x,z:held.body.position.z-player.body.position.z};
+  if(Math.hypot(fallback.x,fallback.z)<.25){fallback.x=aimDirection.x;fallback.z=aimDirection.z;}
+  let motion={x:0,z:0};
+  if(drag){
+    const speed=drag.motion.velocity(now),point=pointerAtHeight(drag,drag.height);
+    const before=pointerAtHeight({clientX:drag.clientX-speed.x*.1,clientY:drag.clientY-speed.y*.1},drag.height);
+    // Convert pointer motion with one camera transform so camera following the
+    // walking mage cannot create an accidental throwing gesture.
+    if(point&&before)motion={x:(point.x-before.x)*10,z:(point.z-before.z)*10};
+  }
+  return gestureThrowVelocity(motion,fallback,save.profile.upgrades.grip||0);
+}
+function finishDrag(info){
+  if(phase!=='playing'||!drag||drag.pointerId!==info.pointerId)return;
+  moveDrag(info);const velocity=currentThrowVelocity(gestureTime(info));
+  if(held&&velocity)throwHeld(velocity);else drag=null;
+}
+function cancelDrag(){if(drag)releaseHeld(false);}
+function conjure(){
+  if(held)return;
+  if(player.mana<16){ui.toast('Χρειάζεσαι 16 ενέργεια για να καλέσεις πέτρα.','info');return;}
+  const p=player.body.position,from={x:p.x,y:1.2,z:p.z};
+  const point=constrainDragPoint(from,{x:p.x+aimDirection.x*1.6,y:1.2,z:p.z+aimDirection.z*1.6},worldMap.colliders,.6,.5);
+  player.mana-=16;const e=prop('stone',point.x,point.z,{y:point.y,mass:2,ephemeral:true});
+  fx.burst(e.body.position,0x8bffda,25,1.6);fx.ring(e.body.position,0x8bffda,1.1,.4);sound.sound('grab');
+  ui.toast(mobile?'Άγγιξε την πέτρα και σύρε την.':'Πιάσε την πέτρα με κλικ και σύρε την.','info');
 }
 function releaseHeld(thrown){
+  drag=null;
   if(!held)return;
   const e=held;held=null;
+  if(player)player.shielding=false;
   e.body.collisionFilterMask=-1;
   if(e.category==='actor'){e.stun=thrown?2.5:1;e.body.fixedRotation=false;e.body.updateMassProperties();}
   if(!thrown){e.body.velocity.scale(.25,e.body.velocity);e.thrownUntil=0;}
+  if(e.ephemeral)e.expireAt=runTime+(thrown?8:18);
   heldLight.intensity=0;fx.connect(null);
 }
-function throwHeld(){
-  if(!held){grab();return;}
+function throwHeld(v=currentThrowVelocity()){
+  if(!held||!v)return;
   const e=held,p=e.body.position;
-  const destination={x:aimPoint.x,y:.9,z:aimPoint.z};
-  if(distance(p,destination)<1){destination.x=p.x+aimDirection.x*8;destination.z=p.z+aimDirection.z*8;}
-  const range=15+1.5*(save.profile.upgrades.reach||0),dist=distance(p,destination);
-  if(dist>range){destination.x=p.x+(destination.x-p.x)/dist*range;destination.z=p.z+(destination.z-p.z)/dist*range;}
-  const speed=19*(1+.14*(save.profile.upgrades.grip||0));
-  const v=ballisticVelocity(p,destination,Math.min(26,speed),20);
-  releaseHeld(true);e.body.velocity.set(v.x,v.y,v.z);e.body.angularVelocity.set(-aimDirection.z*4,2,aimDirection.x*4);
+  const speed=Math.hypot(v.x,v.z)||1;
+  releaseHeld(true);e.body.velocity.set(v.x,v.y,v.z);e.body.angularVelocity.set(-v.z/speed*4,2,v.x/speed*4);
   e.thrownUntil=runTime+4;e.thrownBy='player';e.body.wakeUp();
   castTime=.35;sound.sound('throw');shake=Math.max(shake,.12);fx.burst(p,0x9bffda,18,2.7);
 }
 function updateHeld(dt,input){
   if(!held)return;
-  if(held.removed||distance(player.body.position,held.body.position)>9){releaseHeld(false);return;}
+  if(held.removed||distance(player.body.position,held.body.position)>telekinesisReach()+3){releaseHeld(false);return;}
   player.shielding=!!input.shielding;
   const e=held,amount=player.shielding?1.1:1.8;
-  const desired=new THREE.Vector3(player.body.position.x+aimDirection.x*amount,
+  let desired=new THREE.Vector3(player.body.position.x+aimDirection.x*amount,
     player.shielding?1.35:2.1+Math.sin(worldTime*3)*.1,player.body.position.z+aimDirection.z*amount);
+  if(drag&&!player.shielding){
+    const point=pointerAtHeight(drag,drag.height);
+    if(point)desired={x:point.x+drag.offset.x,y:drag.height,z:point.z+drag.offset.z};
+  }
+  desired=clampDragPoint(desired,player.body.position,telekinesisReach());
+  desired=constrainDragPoint(e.body.position,desired,worldMap.colliders,e.radius+.05,e.ext?.y||e.cy);
   const b=e.body,pos=b.position;
-  b.velocity.set(clamp((desired.x-pos.x)*11,-18,18),clamp((desired.y-pos.y)*11,-16,16),clamp((desired.z-pos.z)*11,-18,18));
+  b.velocity.set(clamp((desired.x-pos.x)*15,-28,28),clamp((desired.y-pos.y)*15+1.3,-20,20),clamp((desired.z-pos.z)*15,-28,28));
   if(player.shielding){b.quaternion.setFromEuler(0,player.yaw,0);b.angularVelocity.set(0,0,0);}
   else b.angularVelocity.set(.18,.75,.12);
   b.wakeUp();e.stun=1;
@@ -485,10 +572,7 @@ function turnToward(current,target,amount){
 function updatePlayer(dt,input){
   const p=player;
   p.invulnerable=Math.max(0,p.invulnerable-dt);p.dashCooldown=Math.max(0,p.dashCooldown-dt);p.pulseCooldown=Math.max(0,p.pulseCooldown-dt);p.dashTime=Math.max(0,p.dashTime-dt);
-  if(input.aimActive&&Math.hypot(input.aimX,input.aimY)>.12){
-    const len=Math.hypot(input.aimX,input.aimY);aimDirection.set(input.aimX/len,0,input.aimY/len);
-    aimPoint.set(p.body.position.x+aimDirection.x*8,.8,p.body.position.z+aimDirection.z*8);
-  }else if(input.pointerActive){
+  if(input.pointerActive){
     const rect=renderer.domElement.getBoundingClientRect();
     raycaster.setFromCamera(new THREE.Vector2((input.pointerX-rect.left)/rect.width*2-1,-(input.pointerY-rect.top)/rect.height*2+1),camera);
     if(raycaster.ray.intersectPlane(groundPlane,tempV)){
@@ -526,7 +610,7 @@ function updateEntities(dt){
       removeEntity(e);continue;
     }
     if(e.category==='actor'&&e.dead&&e!==held&&runTime-e.deathTime>28){fx.burst(e.body.position,0x4a7b72,12,1.7);removeEntity(e);continue;}
-    if(e.ephemeral&&e!==held&&e.thrownUntil<runTime-4){fx.burst(e.body.position,0x7ce9b9,10,1);removeEntity(e);continue;}
+    if(e.ephemeral&&e!==held&&runTime>e.expireAt){fx.burst(e.body.position,0x7ce9b9,10,1);removeEntity(e);continue;}
     if(e.body.position.y<-5){
       if(e.isPlayer){e.body.position.set(e.lastSafe.x,2,e.lastSafe.z);e.body.velocity.set(0,0,0);hurt(e,10,null);}
       else if(e.category==='actor'&&!e.dead){hurt(e,e.hp+1,player.body.position);removeEntity(e);}
@@ -569,19 +653,17 @@ function syncVisuals(dt){
   if(target){
     targetRing.position.set(target.body.position.x,.06,target.body.position.z);
     targetRing.scale.setScalar(Math.max(.85,target.radius+ .6)*(1+Math.sin(worldTime*6)*.035));
-    targetRing.material.color.set(canGrab(target)?0x8cffda:0xffb17c);
+    const reachable=distance(player.body.position,target.body.position)<=telekinesisReach()&&visibleLine(player.body.position,target.body.position,.05);
+    targetRing.material.color.set(canGrab(target)&&reachable?0x8cffda:0xffb17c);
   }
   trajectory.visible=phase==='playing'&&!!held;
   if(held){
-    const from=held.body.position,to={x:aimPoint.x,y:.9,z:aimPoint.z},range=15+1.5*(save.profile.upgrades.reach||0);
-    let d=distance(from,to);
-    if(d<1){to.x=from.x+aimDirection.x*8;to.z=from.z+aimDirection.z*8;d=8;}
-    if(d>range){to.x=from.x+(to.x-from.x)/d*range;to.z=from.z+(to.z-from.z)/d*range;d=range;}
-    const speed=Math.min(26,19*(1+.14*(save.profile.upgrades.grip||0))),v=ballisticVelocity(from,to,speed,20),duration=d/speed;
+    const from=held.body.position,v=currentThrowVelocity();
+    const duration=(v.y+Math.sqrt(v.y*v.y+40*Math.max(0,from.y-.12)))/20;
     const a=trajectory.geometry.attributes.position.array;
     for(let i=0;i<28;i++){const t=i/27*duration;a[i*3]=from.x+v.x*t;a[i*3+1]=Math.max(.1,from.y+v.y*t-10*t*t);a[i*3+2]=from.z+v.z*t;}
     trajectory.geometry.attributes.position.needsUpdate=true;
-    targetRing.position.set(to.x,.07,to.z);targetRing.scale.setScalar(.5);targetRing.material.color.set(0x99ffda);
+    targetRing.position.set(from.x+v.x*duration,.07,from.z+v.z*duration);targetRing.scale.setScalar(.5);targetRing.material.color.set(0x99ffda);
   }
 }
 function updateCamera(dt){
@@ -610,16 +692,17 @@ function updateHUD(){
   let hint='';
   if(nearRelic)hint=boss&&!boss.dead?'Χτύπα τον Δεσμοφύλακα με αντικείμενα για να σπάσεις την άμυνα.':(mobile?'ΧΡΗΣΗ':'E')+' · Πάρε το Μαύρο Σκήπτρο';
   else if(nearExit)hint=(mobile?'ΧΡΗΣΗ':'E')+' · Πέρασε την πύλη';
-  else if(held)hint=mobile?'Δεξιός μοχλός: στόχευση · ΡΙΨΗ · Κράτησε ΑΣΠΙΔΑ για κάλυψη':'Στόχευσε και ρίξε · Q: άφησε · Shift: κράτα ως ασπίδα';
+  else if(held)hint=mobile?'Σύρε ελεύθερα · Άφησε το δάχτυλο για ρίψη · ΑΦΗΣΕ: χωρίς ρίψη':'Σύρε το αντικείμενο · Άφησε το κλικ για ρίψη · Q: άφημα χωρίς ρίψη';
+  else if(target&&distance(p,target.body.position)>telekinesisReach())hint='Πλησίασε τον στόχο για να τον αρπάξεις.';
   else if(target&&!canGrab(target))hint='Αντιστέκεται στην άρπαξη. Χτύπησέ τον με ένα αντικείμενο.';
-  else if(runTime<22)hint=mobile?'ΑΡΠΑΓΗ → δεξιός μοχλός → ΡΙΨΗ.':'Κλικ: άρπαξε αντικείμενο · Κλικ ξανά: ρίψη · Q: άφησε';
-  else if(!target)hint='Χωρίς στόχο; Πάτησε άρπαξη για να καλέσεις μια πέτρα.';
+  else if(runTime<22)hint=mobile?'Άγγιξε ένα αντικείμενο → σύρε → άφησε για ρίψη.':'Κλικ πάνω σε αντικείμενο → κράτησε και σύρε → άφησε για ρίψη.';
+  else if(!target)hint=mobile?'Πάτησε πάνω σε αντικείμενο ή φρουρό. ΠΕΤΡΑ: κάλεσε ένα θραύσμα.':'Πάτησε πάνω σε αντικείμενο ή φρουρό. R: κάλεσε μια πέτρα.';
   let zone='Η Αυλή';
   for(const z of worldMap.zones)if(p.x>=z.xMin&&p.x<=z.xMax&&p.z>=z.zMin&&p.z<=z.zMax)zone=z.label||z.name;
   ui.update({hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,kills,
     goal:relicTaken?'ΕΠΙΣΤΡΟΦΗ ΣΤΗΝ ΠΥΛΗ':'ΤΟ ΜΑΥΡΟ ΣΚΗΠΤΡΟ',
     objective:relicTaken?'Δραπέτευσε από τη νότια πύλη · '+dist+' μ.':'Βρες το Σκήπτρο στην κρύπτη · '+dist+' μ.',
-    hint,holding:!!held,heldName:held?.label||'',grabLabel:held?'ΡΙΨΗ':target?'ΑΡΠΑΓΗ':'ΚΑΛΕΣΕ ΠΕΤΡΑ',
+    hint,holding:!!held,dragging:!!drag,heldName:held?.label||'',
     pulseCooldown:player.pulseCooldown,dashCooldown:player.dashCooldown,relic:relicTaken,shards:runShards,
     combo:runTime<comboUntil?combo:0,comboMultiplier:runTime<comboUntil?Math.min(4,combo):0,time:runTime,
     progress:relicTaken?.8:boss?.dead?.6:clamp((18-p.z)/40,0,.55),zone,
@@ -637,8 +720,8 @@ function frame(now){
         runTime+=dt;castTime=Math.max(0,castTime-dt);
         const input=ui.getInput();updatePlayer(dt,input);
         for(const action of actions){
-          if(action==='grab')grab();
-          else if(action==='throw'||action==='primary')throwHeld();
+          if(action==='drop')releaseHeld(false);
+          else if(action==='conjure')conjure();
           else if(action==='dash')dash(input);
           else if(action==='pulse')pulse();
           else if(action==='interact')interact();
@@ -680,8 +763,8 @@ async function boot(){
     ui.setLoading(.9,'Η μαγεία σχηματίζεται…');populate();
     if(renderer.compileAsync)await renderer.compileAsync(scene,camera);
     ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
-    window.__MAGIC__={version:'1.0.0',snapshot:()=>({phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
-      kills,relicTaken,holding:held?.label||null,entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
+    window.__MAGIC__={version:'1.1.0',snapshot:()=>({phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
+      kills,relicTaken,holding:held?.label||null,dragging:!!drag,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
       pathToRelic:nav.path({x:0,z:18},{x:0,z:-16}).length,profile:{runs:save.profile.runs,wins:save.profile.wins}})};
     if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});
   }catch(error){showError(error);}

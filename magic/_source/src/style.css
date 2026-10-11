@@ -28,6 +28,8 @@ button:disabled { cursor: default; }
 button svg { pointer-events: none; }
 [hidden] { display: none !important; }
 #game-canvas { display: block; position: fixed; width: 100%; height: 100%; inset: 0; outline: none; }
+body.is-playing #game-canvas { cursor: crosshair; }
+body.is-dragging #game-canvas { cursor: grabbing; }
 #magic-ui { position: fixed; inset: 0; z-index: 3; pointer-events: none; user-select: none; -webkit-user-select: none; }
 .icon { display: block; width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
 .edge-shade { position: absolute; inset: 0; box-shadow: inset 0 0 160px 25px rgba(0, 9, 8, .42); background: linear-gradient(180deg, rgba(2, 11, 10, .4), transparent 26%, transparent 73%, rgba(2, 11, 10, .48)); }
@@ -120,11 +122,10 @@ button svg { pointer-events: none; }
 .desktop-controls { position: absolute; bottom: calc(25px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); display: flex; align-items: flex-end; gap: 17px; pointer-events: auto; }
 .ability { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; width: 62px; border: 0; background: none; padding: 0; color: #c7d3bf; }
 .ability-disc { position: relative; display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; border: 1px solid rgba(198, 215, 177, .39); border-radius: 50%; background: radial-gradient(circle at 50% 30%, rgba(34, 66, 49, .83), rgba(5, 19, 16, .86)); box-shadow: 0 3px 18px rgba(0, 0, 0, .25), inset 0 0 16px rgba(6, 19, 12, .5); transition: border-color .16s, background .16s; }
-.ability:hover .ability-disc { border-color: var(--gold); background: radial-gradient(circle at 50% 30%, #476249, #10291f); }
+.ability:hover:not(:disabled) .ability-disc { border-color: var(--gold); background: radial-gradient(circle at 50% 30%, #476249, #10291f); }
 .ability-disc .icon { width: 24px; height: 24px; }
-.ability.primary-ability { width: 73px; }
-.primary-ability .ability-disc { width: 59px; height: 59px; border-color: #a8cda5; color: var(--teal); box-shadow: 0 0 23px rgba(116, 226, 172, .14), inset 0 0 19px rgba(7, 50, 31, .55); }
-.ability.holding .ability-disc { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 25px rgba(222, 190, 116, .23); }
+.ability:disabled { opacity: .3; }
+.ability[data-action="drop"]:not(:disabled) .ability-disc { border-color: var(--teal); color: var(--teal); }
 .ability-key { position: absolute; bottom: -5px; right: -6px; display: flex; align-items: center; justify-content: center; min-width: 21px; height: 18px; padding: 1px 4px; color: #c2cfb8; background: #12251b; border: 1px solid #647d56; border-radius: 3px; font-size: 9px; font-weight: 600; white-space: nowrap; }
 .ability-key .icon { width: 12px; height: 12px; }
 .ability-name { font-size: 8px; font-weight: 600; letter-spacing: .07em; white-space: nowrap; text-shadow: 0 2px 8px #000; }
@@ -138,7 +139,7 @@ button svg { pointer-events: none; }
 .movement-caption { font-size: 9px; line-height: 1.7; letter-spacing: .07em; }
 .movement-caption small { display: block; font-size: 8px; color: #94a994; letter-spacing: 0; }
 
-/* Touch controls have separate movement and aiming ownership. */
+/* One movement thumb; direct dragging owns the other pointer on the world. */
 .touch-controls { display: none; position: absolute; inset: 0; }
 body[data-input="touch"] .touch-controls { display: block; }
 body[data-input="touch"] .desktop-controls, body[data-input="touch"] .movement-hint { display: none; }
@@ -147,26 +148,19 @@ body[data-input="touch"] .desktop-controls, body[data-input="touch"] .movement-h
 .joystick::before { width: 60%; height: 1px; }
 .joystick::after { width: 1px; height: 60%; }
 .joystick.move-stick { left: max(22px, calc(16px + var(--safe-left))); bottom: calc(25px + var(--safe-bottom)); }
-.joystick.aim-stick { right: max(22px, calc(16px + var(--safe-right))); bottom: calc(25px + var(--safe-bottom)); border-color: rgba(157, 229, 191, .32); }
 .stick-knob { position: absolute; width: 51px; height: 51px; left: calc(50% - 25.5px); top: calc(50% - 25.5px); border-radius: 50%; border: 1px solid rgba(205, 227, 177, .55); background: radial-gradient(circle at 40% 30%, rgba(131, 167, 128, .37), rgba(23, 49, 30, .66)); box-shadow: 0 4px 14px rgba(0, 0, 0, .22); z-index: 1; will-change: transform; }
-.aim-stick .stick-knob { border-color: rgba(134, 245, 201, .65); background: radial-gradient(circle at 40% 30%, rgba(89, 182, 146, .38), rgba(19, 58, 42, .68)); }
 .stick-label { position: absolute; width: 100%; bottom: -17px; text-align: center; font-size: 8px; font-weight: 600; letter-spacing: .1em; color: #adbda5; text-shadow: 0 2px 6px #000; }
-.touch-actions { position: absolute; right: max(22px, calc(16px + var(--safe-right))); bottom: calc(187px + var(--safe-bottom)); display: grid; grid-template-columns: 60px 64px; gap: 13px 14px; align-items: end; pointer-events: auto; }
-.touch-actions .ability { width: 60px; gap: 5px; }
-.touch-actions .ability-disc { width: 56px; height: 56px; }
-.touch-actions .ability-name { font-size: 8px; }
-.touch-actions .primary-ability { width: 64px; }
-.touch-actions .primary-ability .ability-disc { width: 64px; height: 64px; }
-.touch-actions .primary-ability .icon { width: 29px; height: 29px; }
-.touch-shield { position: absolute; bottom: calc(189px + var(--safe-bottom)); left: max(62px, calc(54px + var(--safe-left))); pointer-events: auto; width: 48px; }
-.touch-shield .ability-disc { width: 43px; height: 43px; border-color: rgba(193, 208, 162, .3); }
-.touch-shield .ability-disc .icon { width: 20px; height: 20px; }
-.touch-shield.is-held .ability-disc, .ability.is-held .ability-disc { color: var(--teal); border-color: var(--teal); background: rgba(48, 97, 65, .7); box-shadow: 0 0 22px rgba(131, 243, 180, .22); }
+.touch-actions { position: absolute; right: max(18px, calc(12px + var(--safe-right))); bottom: calc(21px + var(--safe-bottom)); display: grid; grid-template-columns: repeat(3, 46px); gap: 12px 10px; align-items: end; pointer-events: none; }
+.touch-actions .ability { width: 46px; gap: 5px; min-height: 60px; pointer-events: auto; }
+.touch-actions .ability-disc { width: 44px; height: 44px; }
+.touch-actions .ability-disc .icon { width: 22px; height: 22px; }
+.touch-actions .ability-name { font-size: 7px; letter-spacing: .025em; }
+.ability.is-held .ability-disc { color: var(--teal); border-color: var(--teal); background: rgba(48, 97, 65, .7); box-shadow: 0 0 22px rgba(131, 243, 180, .22); }
 body[data-input="touch"] .run-meta { bottom: calc(19px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); flex-direction: column; gap: 5px; }
 body[data-input="touch"] .run-stat { font-size: 10px; }
 body[data-input="touch"] .run-stat .icon { width: 13px; height: 13px; }
 body[data-input="touch"] .context-strip { bottom: auto; top: calc(124px + var(--safe-top)); max-width: min(580px, calc(100% - 34px)); }
-body[data-input="touch"] .held-state { bottom: calc(113px + var(--safe-bottom)); max-width: 140px; text-align: center; font-size: 10px; }
+body[data-input="touch"] .held-state { bottom: calc(176px + var(--safe-bottom)); max-width: calc(100% - 40px); text-align: center; font-size: 10px; }
 
 /* Menus share a quiet ceremonial surface, over the live castle. */
 .overlay-screen { display: flex; align-items: center; justify-content: center; padding: calc(28px + var(--safe-top)) calc(24px + var(--safe-right)) calc(28px + var(--safe-bottom)) calc(24px + var(--safe-left)); background: rgba(3, 11, 10, .79); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
@@ -324,12 +318,9 @@ body[data-input="touch"] .held-state { bottom: calc(113px + var(--safe-bottom));
   .ritual-steps { gap: 6px; font-size: 7px; }
   .joystick { width: 113px; height: 113px; }
   .joystick.move-stick { left: 17px; }
-  .joystick.aim-stick { right: 17px; }
-  .touch-actions { right: 17px; bottom: calc(170px + var(--safe-bottom)); grid-template-columns: 54px 61px; gap: 13px 9px; }
-  .touch-actions .ability-disc { width: 51px; height: 51px; }
-  .touch-actions .primary-ability .ability-disc { width: 60px; height: 60px; }
-  .touch-shield { bottom: calc(170px + var(--safe-bottom)); left: 50px; }
-  body[data-input="touch"] .held-state { max-width: 95px; font-size: 9px; bottom: calc(112px + var(--safe-bottom)); }
+  .touch-actions { right: 14px; grid-template-columns: repeat(3, 44px); gap: 10px 6px; }
+  .touch-actions .ability { width: 44px; }
+  body[data-input="touch"] .held-state { max-width: calc(100% - 34px); font-size: 9px; bottom: calc(171px + var(--safe-bottom)); }
 }
 
 @media (max-height: 780px) and (min-width: 651px) and (min-height: 521px) {
@@ -355,8 +346,7 @@ body[data-input="touch"] .held-state { bottom: calc(113px + var(--safe-bottom));
   .menu-achievement { display: none; }
   .primary-button { min-height: 49px; }
   .secondary-button { min-height: 39px; }
-  .touch-actions { bottom: calc(173px + var(--safe-bottom)); gap: 10px; }
-  .touch-shield { bottom: calc(174px + var(--safe-bottom)); }
+  .touch-actions { bottom: calc(18px + var(--safe-bottom)); row-gap: 8px; }
   body[data-input="touch"] .context-strip { top: calc(151px + var(--safe-top)); }
   .boss-track { top: calc(194px + var(--safe-top)); }
 }
@@ -403,18 +393,13 @@ body[data-input="touch"] .held-state { bottom: calc(113px + var(--safe-bottom));
   .icon-button .icon { width: 16px; height: 16px; }
   .joystick { width: 102px; height: 102px; }
   .joystick.move-stick { left: max(20px, calc(13px + var(--safe-left))); bottom: calc(18px + var(--safe-bottom)); }
-  .joystick.aim-stick { right: max(20px, calc(13px + var(--safe-right))); bottom: calc(18px + var(--safe-bottom)); }
   .stick-knob { width: 43px; height: 43px; left: calc(50% - 21.5px); top: calc(50% - 21.5px); }
   .stick-label { bottom: -13px; font-size: 7px; }
-  .touch-actions { right: max(141px, calc(132px + var(--safe-right))); bottom: calc(18px + var(--safe-bottom)); display: flex; align-items: flex-end; gap: 12px; }
-  .touch-actions .ability, .touch-actions .primary-ability { width: 48px; }
-  .touch-actions .ability-disc { width: 43px; height: 43px; }
-  .touch-actions .primary-ability .ability-disc { width: 51px; height: 51px; }
+  .touch-actions { right: max(18px, calc(12px + var(--safe-right))); bottom: calc(18px + var(--safe-bottom)); display: flex; align-items: flex-end; gap: 9px; }
+  .touch-actions .ability { width: 46px; min-height: 58px; }
+  .touch-actions .ability-disc { width: 44px; height: 44px; }
   .touch-actions .ability-disc .icon { width: 22px; height: 22px; }
   .touch-actions .ability-name { font-size: 7px; }
-  .touch-shield { left: max(143px, calc(133px + var(--safe-left))); bottom: calc(20px + var(--safe-bottom)); width: 42px; }
-  .touch-shield .ability-disc { width: 39px; height: 39px; }
-  .touch-shield .ability-name { font-size: 7px; }
   body[data-input="touch"] .run-meta { left: max(25px, calc(17px + var(--safe-left))); bottom: auto; top: calc(85px + var(--safe-top)); transform: none; flex-direction: row; gap: 12px; }
   body[data-input="touch"] .run-stat { font-size: 9px; }
   body[data-input="touch"] .context-strip { top: calc(76px + var(--safe-top)); max-width: 380px; }
