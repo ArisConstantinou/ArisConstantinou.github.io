@@ -26,6 +26,20 @@ export function polygonBounds(rings) {
   const x=Math.min(...xs),y=Math.min(...ys);
   return {x,y,w:Math.max(...xs)-x,h:Math.max(...ys)-y};
 }
+export function filledArea(item){
+  const rings=worldRings(item);
+  return rings.reduce((sum,ring,n)=>{const depth=rings.filter((other,k)=>k!==n&&Math.abs(signedArea(other))>Math.abs(signedArea(ring))&&contains([other],ring[0])).length;return sum+(depth%2?-1:1)*Math.abs(signedArea(ring));},0);
+}
+// Keep attachments on the same world point when a cut changes boundary indices.
+export function remapBoundaryRef(before,after,ref){
+  const old=worldRings(before)[ref.ring],a=old?.[ref.edge],b=old?.[(ref.edge+1)%old.length];if(!a||!b)return null;
+  const p={x:a.x+(b.x-a.x)*ref.t,y:a.y+(b.y-a.y)*ref.t},epsilon=Math.max(before.w,before.h)*1e-7;
+  for(const [ring,points] of worldRings(after).entries())for(let edge=0;edge<points.length;edge++){
+    const c=points[edge],d=points[(edge+1)%points.length],dx=d.x-c.x,dy=d.y-c.y,length=Math.hypot(dx,dy),t=((p.x-c.x)*dx+(p.y-c.y)*dy)/(length*length);
+    if(t>=-1e-9&&t<=1+1e-9&&Math.abs((p.x-c.x)*dy-(p.y-c.y)*dx)/length<epsilon&&Math.abs((b.x-a.x)*dy-(b.y-a.y)*dx)/length<epsilon)return {...ref,ring,edge,t:Math.max(0,Math.min(1,t))};
+  }
+  return null;
+}
 function splitAt(a,b,c,d,epsilon) {
   const r=sub(b,a),s=sub(d,c),q=sub(c,a),den=cross(r,s),length=Math.hypot(r.x,r.y);
   if(Math.abs(den)>epsilon*length) {
@@ -38,11 +52,18 @@ function splitAt(a,b,c,d,epsilon) {
 }
 export function unionAreas(items) {
   if(items.length<2)throw Error('Επίλεξε τουλάχιστον δύο χώρους.');
+  return booleanAreas(items,polygons=>p=>polygons.some(r=>contains(r,p)),true);
+}
+export function subtractAreas(target,cutters) {
+  if(!cutters.length)throw Error('Επίλεξε και τους χώρους που θα αφαιρεθούν.');
+  return booleanAreas([target,...cutters],polygons=>p=>contains(polygons[0],p)&&!polygons.slice(1).some(r=>contains(r,p)),false);
+}
+function booleanAreas(items,predicate,singleOuter) {
   const polygons=items.map(worldRings), all=polygons.flat(), extent=polygonBounds(all);
   const epsilon=Math.max(1e-7,Math.max(extent.w,extent.h)*1e-9);
   const edges=all.flatMap(r=>r.map((a,n)=>({a,b:r[(n+1)%r.length]}))).filter(e=>distance(e.a,e.b)>epsilon);
   if(edges.length>800)throw Error('Συγχώνευσε τους χώρους σε μικρότερες ομάδες (έως 800 κορυφές).');
-  const inside=p=>polygons.some(r=>contains(r,p));
+  const inside=predicate(polygons);
   const key=p=>`${Math.round(p.x/epsilon)},${Math.round(p.y/epsilon)}`;
   const boundary=new Map();
   for(const e of edges) {
@@ -75,7 +96,8 @@ export function unionAreas(items) {
     });
     if(simplified.length>=3)loops.push(simplified);
   }
-  if(loops.filter(r=>signedArea(r)>0).length!==1)throw Error('Οι χώροι δεν εφάπτονται. Φέρε τους δίπλα ή επάνω στον άλλο πριν τη συγχώνευση.');
+  if(!loops.length)throw Error('Η αφαίρεση θα έσβηνε ολόκληρο τον χώρο. Δεν έγινε αλλαγή.');
+  if(singleOuter&&loops.filter(r=>signedArea(r)>0).length!==1)throw Error('Οι χώροι δεν εφάπτονται. Φέρε τους δίπλα ή επάνω στον άλλο πριν τη συγχώνευση.');
   const b=polygonBounds(loops);
   return {...b,outline:loops.map(r=>r.map(p=>({x:(p.x-b.x)/b.w,y:(p.y-b.y)/b.h})))};
 }
