@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#142b32"/><g fill="#e0f0e7" stroke="#167a78" stroke-width="10" stroke-linejoin="round"><path d="M112 112H400V400H112Z"/><path d="M112 242H260V112M260 242V400M260 318H400" fill="none"/></g><path d="M144 440H368M440 144V368" fill="none" stroke="#e5a253" stroke-width="10" stroke-linecap="round"/><path d="M144 424V456M368 424V456M424 144H456M424 368H456" stroke="#e5a253" stroke-width="8"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">AC · ARIS Plan Builder</title>
+  <rect width="512" height="512" rx="100" fill="#d5ebe1"/>
+  <g fill="none" stroke="#183a37" stroke-width="34" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M100 336 168 142 236 336M128 262H208"/>
+    <path d="M392 166A88 88 0 1 0 392 312" stroke-linecap="round"/>
+  </g>
+  <g fill="none" stroke="#167a78" stroke-width="9" stroke-linecap="square">
+    <path d="M101 384H411M101 373V395M411 373V395"/>
+  </g>
+</svg>

@@ -1,6 +1,6 @@
 import {worldRings,contains} from './geometry.mjs';
 export const AREA_3D=['room','ramp','stairs'];
-export const HEIGHT_TYPES=[...AREA_3D,'wall','door','window','ac'];
+export const HEIGHT_TYPES=[...AREA_3D,'wall','door','window','ac','column'];
 export const heightCm=item=>item.heightCm??({door:210,window:120,ac:35,ramp:280}[item.type]??280);
 export function openingLine(item,scale){
   const a=item.rotation*Math.PI/180,c=Math.cos(a),s=Math.sin(a),v=item.type==='door'?item.h/2:0;

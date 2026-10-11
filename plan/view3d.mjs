@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three/three.module.min.js';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
 import {architecture,heightCm,AREA_3D} from './architecture.mjs';
+import {STRUCTURE_TYPES,structuralSpan} from './structure.mjs';
 import {worldRings,signedArea,contains} from './geometry.mjs';
 
 function shapes(rings){
@@ -37,7 +38,7 @@ export function createPlan3D(host,{onSelect,onError,onDoorPlace,onDoorMove,onDoo
     const start=performance.now();disposeModel();const items=plan.items.filter(i=>i.floor===plan.activeFloor&&!i.hidden),model=architecture(items,plan.measurement.cmPerUnit);currentItems=items;modelWalls=model.walls;
     for(const f of model.floors){
       const mesh=add(new THREE.Mesh(floorGeometry(f.rings),material(f.item.color)),f.item.id);mesh.userData.baseColor=f.item.color;mesh.userData.width=f.item.w*model.scale;mesh.userData.length=f.item.h*model.scale;mesh.userData.height=heightCm(f.item)/100;floorMeshes.push(mesh);
-      if(!f.item.floorOnly){const roof=add(new THREE.Mesh(floorGeometry(f.rings,.06),material('#f5f4ed')),f.item.id);roof.position.y=heightCm(f.item)/100+.06;roof.visible=ceilingVisible;roof.userData.ceiling=true;ceilings.push(roof);}makeLabel(f.item,f.rings);
+      if(!f.item.floorOnly&&!plan.items.some(i=>i.floor===f.item.floor&&i.type==='ceiling'&&i.ceilingSourceId===f.item.id)){const roof=add(new THREE.Mesh(floorGeometry(f.rings,.06),material('#f5f4ed')),f.item.id);roof.position.y=heightCm(f.item)/100+.06;roof.visible=ceilingVisible;roof.userData.ceiling=true;ceilings.push(roof);}makeLabel(f.item,f.rings);
       if(f.item.type==='stairs'){
         const stairParts=[];const a=-f.item.rotation*Math.PI/180;for(let n=0;n<12;n++){const localZ=(n/12-.5+.5/12)*f.item.h*model.scale,h=(n+1)/12*heightCm(f.item)/100,x=(f.item.x+f.item.w/2)*model.scale+localZ*Math.sin(a),z=(f.item.y+f.item.h/2)*model.scale+localZ*Math.cos(a);stairParts.push(box(f.item.w*model.scale,h,f.item.h*model.scale/12,x,h/2,z,a));}add(new THREE.Mesh(mergeGeometries(stairParts),material(f.item.color)),f.item.id);
       }
@@ -68,10 +69,17 @@ export function createPlan3D(host,{onSelect,onError,onDoorPlace,onDoorMove,onDoo
       const a=i.rotation*Math.PI/180,c=Math.cos(a),s=Math.sin(a),points=(i.points??[{x:1,y:1},{x:1,y:0},{x:0,y:0}]).map(p=>{const x=(p.x-.5)*i.w,y=(p.y-.5)*i.h;return new THREE.Vector3((i.x+i.w/2+x*c-y*s)*model.scale,.03,(i.y+i.h/2+x*s+y*c)*model.scale);});
       const parts=[];for(let n=1;n<points.length;n++){const p=points[n-1],q=points[n],len=p.distanceTo(q);if(!len)continue;const g=new THREE.CylinderGeometry(.025,.025,len,4);g.rotateZ(-Math.PI/2);g.rotateY(-Math.atan2(q.z-p.z,q.x-p.x));g.translate((p.x+q.x)/2,.03,(p.z+q.z)/2);parts.push(g);}if(parts.length)add(new THREE.Mesh(mergeGeometries(parts),material(i.color)),i.id);
     }
+    const structural=[];
+    for(const i of items.filter(i=>STRUCTURE_TYPES.includes(i.type))){const span=structuralSpan(plan,i),a=-i.rotation*Math.PI/180,x=(i.x+i.w/2)*model.scale,z=(i.y+i.h/2)*model.scale;let mesh;
+      if(i.type==='ceiling'){mesh=add(new THREE.Mesh(floorGeometry(worldRings(i).map(r=>r.map(p=>({x:p.x*model.scale,y:p.y*model.scale}))),(span.top-span.bottom)/100),material(i.color)),i.id);mesh.position.y=span.top/100;mesh.visible=ceilingVisible;mesh.userData.ceiling=true;ceilings.push(mesh);}
+      else mesh=add(new THREE.Mesh(box(i.w*model.scale,(span.top-span.bottom)/100,i.h*model.scale,x,(span.top+span.bottom)/200,z,a),material(i.color)),i.id);
+      mesh.userData.bottom=span.bottom/100;mesh.userData.top=span.top/100;const actual=new THREE.Box3().setFromObject(mesh);structural.push({id:i.id,type:i.type,bottom:span.bottom/100,top:span.top/100,renderedBottom:actual.min.y,renderedTop:actual.max.y,width:i.w*model.scale,length:i.h*model.scale,dropCm:span.drop});
+      if(i.type!=='ceiling'){makeLabel(i,worldRings(i).map(r=>r.map(p=>({x:p.x*model.scale,y:p.y*model.scale}))));labelEntries.at(-1).position.y=(span.bottom+span.top)/200;}
+    }host.dataset.structural=JSON.stringify(structural);
     modelBounds=new THREE.Box3().setFromObject(root);if(modelBounds.isEmpty())modelBounds=new THREE.Box3(new THREE.Vector3(-2,0,-2),new THREE.Vector3(2,2,2));
     host.dataset.areas=String(floorMeshes.length);host.dataset.wallSegments=String(model.walls.length);host.dataset.wallBlocks=String(model.blocks.length);host.dataset.buildMs=(performance.now()-start).toFixed(2);highlight();
   }
-  function highlight(){for(const mesh of floorMeshes){const chosen=selected.has(mesh.userData.id);mesh.material.color.set(chosen?'#38bfa9':mesh.userData.baseColor);mesh.material.emissive.set(chosen?'#13463f':'#000000');mesh.material.emissiveIntensity=chosen?.28:0;if(chosen){host.dataset.selectedWidth=String(mesh.userData.width);host.dataset.selectedLength=String(mesh.userData.length);host.dataset.selectedHeight=String(mesh.userData.height);}}for(const roof of ceilings)roof.material.color.set(selected.has(roof.userData.id)?'#9fe7d9':'#f5f4ed');for(const label of labelEntries)label.el.classList.toggle('selected',selected.has(label.item.id));host.dataset.selected=[...selected].join(',');}
+  function highlight(){for(const mesh of floorMeshes){const chosen=selected.has(mesh.userData.id);mesh.material.color.set(chosen?'#38bfa9':mesh.userData.baseColor);mesh.material.emissive.set(chosen?'#13463f':'#000000');mesh.material.emissiveIntensity=chosen?.28:0;if(chosen){host.dataset.selectedWidth=String(mesh.userData.width);host.dataset.selectedLength=String(mesh.userData.length);host.dataset.selectedHeight=String(mesh.userData.height);}}for(const roof of ceilings)roof.material.color.set(selected.has(roof.userData.id)?'#9fe7d9':roof.userData.baseColor);for(const label of labelEntries)label.el.classList.toggle('selected',selected.has(label.item.id));host.dataset.selected=[...selected].join(',');}
   function updateLabels(){const r=host.getBoundingClientRect();for(const l of labelEntries){const p=l.position.clone().project(camera),wide=l.item.w*currentScale()*camera.zoom*r.width/(camera.right-camera.left)>75,show=p.z>-1&&p.z<1&&Math.abs(p.x)<1&&Math.abs(p.y)<1&&(wide||selected.has(l.item.id));l.el.hidden=!show;l.el.style.left=((p.x+1)*r.width/2)+'px';l.el.style.top=((-p.y+1)*r.height/2)+'px';}}
   function currentScale(){return floorMeshes[0]?floorMeshes[0].userData.width/labelEntries[0].item.w:1;}
   function highlightObjects(){

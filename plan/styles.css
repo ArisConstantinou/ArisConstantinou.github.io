@@ -45,3 +45,46 @@ button,summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent
 #drawing-review-tools{margin-bottom:8px}.drawing-review-buttons{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}.drawing-review-buttons button{min-height:44px;font-size:14px}.drawing-review-buttons button[aria-pressed=true]{background:var(--accent-soft);border-color:#83afa5}.drawing-review-buttons .check-label{font-size:14px;display:flex;align-items:center;min-height:44px;margin:0 4px 0 0}.drawing-review-buttons input,#drawing-confirm-row input,#drawing-review-wall-row input{width:22px;min-height:22px;flex:0 0 22px;padding:0}#drawing-review-panel{padding:10px;background:#f3f8f6;border:1px solid var(--line);border-radius:8px;margin-bottom:10px}#drawing-review-panel h3{font-size:16px;margin:0 0 8px}.drawing-review-size{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}#drawing-review-wall-row,#drawing-confirm-row{display:flex;align-items:center;gap:10px;font-size:14px;line-height:1.4;min-height:48px}#drawing-review-error{font-size:14px;color:#a52c32;margin:6px 0}#drawing-confirm-row{padding:10px 0}#drawing-preview[data-review=true]{cursor:crosshair}#drawing-preview [data-review-id]{cursor:pointer}#drawing-preview [data-review-id]:focus,#drawing-preview [data-review-vertex]:focus{outline:none;stroke:#bd247b;stroke-width:4px}.drawing-options #drawing-review-panel{grid-column:1 / -1}
 #drawing-add-menu{position:relative}#drawing-add-menu summary{border:1px solid var(--line);background:white;padding:10px 12px;border-radius:6px;font-size:14px;min-height:44px;cursor:pointer}#drawing-add-menu>div{position:absolute;z-index:3;top:100%;left:0;width:240px;padding:8px;background:white;border:1px solid var(--line);box-shadow:0 5px 16px #142b3222;border-radius:8px}#drawing-add-menu>div button{flex:1 0 100px}
 .drawing-tabs{display:flex;flex-wrap:wrap}.drawing-tabs button{white-space:normal;min-width:0;flex:1 1 140px}#drawing-recalculate{max-width:100%;white-space:normal}
+
+#structure-properties,#area-structure{order:-3}
+.structure-summary{font-size:14px;line-height:1.5;color:#365f54;background:#edf5f1;border-radius:8px;padding:10px}
+#structure-properties label,#snap-dialog label{font-size:14px}
+#structure-properties input,#structure-properties select,#snap-dialog input,#snap-dialog select{font-size:16px;min-height:44px;width:100%;min-width:0}
+#structure-properties .check-label input,#snap-dialog .check-label input{width:22px;min-height:22px}
+.beam-presets{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.beam-presets button,#structure-properties button,#area-structure button{min-height:44px;white-space:normal;font-size:14px}
+#structure-guide{position:absolute;left:18px;bottom:62px;z-index:5;display:flex;align-items:center;gap:12px;max-width:calc(100% - 36px);padding:12px 14px;border:1px solid #9bc7b8;border-radius:10px;background:#f0fff7;box-shadow:0 3px 14px #153d2622;font-size:14px}
+#structure-guide button{min-height:44px}
+#view-section[aria-pressed=true]{background:#e3f1ed;color:#126c63}
+#section-host{position:absolute;inset:0;z-index:2;background:#f4f7f6;display:flex;flex-direction:column;overflow:hidden}
+.section-toolbar{display:flex;flex-wrap:wrap;align-items:end;gap:10px;padding:14px 18px;background:#fff;border-bottom:1px solid #d4e1dc}
+.section-toolbar strong{align-self:center;font-size:16px;margin-right:auto}
+.section-toolbar label{display:flex;flex-direction:column;gap:5px;font-size:12px;min-width:0;margin:0}
+.section-toolbar select,.section-toolbar input{min-height:44px;font-size:16px;max-width:230px;min-width:0}
+.section-toolbar input{width:125px}
+.section-toolbar button{min-height:44px;font-size:14px}
+#section-svg{flex:1;width:100%;min-height:0;cursor:pointer}
+#cut-summary{padding:8px 18px;margin:0;font-size:14px;color:#47635b}
+.view-section #canvas{visibility:hidden}
+.view-section .canvas-tools,.view-section .draw-tools,.view-section .canvas-foot,.view-section #empty-tip{display:none}
+.canvas-tools{max-width:calc(100% - 36px);flex-wrap:wrap}
+.route-drawing #snap-settings,.route-drawing #ceiling-2d{display:none}
+@media(max-width:850px),(pointer:coarse){
+ .canvas-tools{gap:2px;left:8px;max-width:calc(100% - 16px)}
+ .canvas-tools button{font-size:12px;padding:5px;min-height:44px}
+ .canvas-tools button span{display:none}
+ #snap-settings span{display:inline}
+ .draw-tools{top:64px}
+ #structure-guide{left:8px;bottom:62px;max-width:calc(100% - 16px);padding:8px;font-size:14px}
+ .section-toolbar{padding:8px;gap:6px}
+ .section-toolbar strong{flex:1 0 100%}
+ .section-toolbar label{flex:1}
+ .section-toolbar select,.section-toolbar input{width:100%;max-width:none}
+ #cut-summary{padding:8px;font-size:14px}
+ .view-tabs button{padding:7px;min-width:36px;font-size:14px}
+}
+
+/* AC monogram remains legible at desktop and compact mobile sizes. */
+.brand-mark{padding:0;overflow:hidden;flex-shrink:0}.brand-mark img{display:block;width:100%;height:100%}
+
+@media(max-width:850px){#update-app{position:fixed;right:10px;bottom:44px;z-index:4;min-height:44px;max-width:calc(100vw - 20px);padding:8px 12px;font-size:14px;background:#e0f0e7;border-color:#83afa5;box-shadow:0 3px 12px #20363e20}}

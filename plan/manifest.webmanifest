@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "NK Plan Builder",
-  "short_name": "Plan Builder",
+  "name": "ARIS Plan Builder",
+  "short_name": "ARIS Plan",
   "description": "Κάτοψη, χώροι και διαστάσεις με αποθήκευση και πλήρη offline λειτουργία.",
   "lang": "el",
   "start_url": "./",
