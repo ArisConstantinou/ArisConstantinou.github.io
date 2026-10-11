@@ -1,0 +1,97 @@
+name: LAST CALL public replay 190
+on:
+  push:
+    branches: [captain-recheck-live-190]
+    paths: ['.github/workflows/captain190-recheck-live.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  recheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm live source matches the current reviewed code
+        run: |
+          python - <<'PY'
+          import urllib.request,hashlib,json
+          from pathlib import Path
+          base='https://arisconstantinou.github.io/'
+          rows=[]
+          for f in ['captain/index.html','captain-mayhem/index.html','captain-mayhem/main110.js','captain-mayhem/game110.js','captain-mayhem/marine190.js','captain/move-stick185.js','captain/interiors190.js','captain/signs190.js']:
+            req=urllib.request.Request(base+f+'?recheck=20261011',headers={'Cache-Control':'no-cache'})
+            raw=urllib.request.urlopen(req,timeout=45).read()
+            same=hashlib.sha256(raw).digest()==hashlib.sha256(Path(f).read_bytes()).digest()
+            rows.append({'file':f,'matchesRepository':same});print(f,same)
+            assert same,f
+          Path('/tmp/live-file-check.json').write_text(json.dumps(rows,indent=2))
+          PY
+      - name: Prepare browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Play the normal public Mayhem entry without test flags
+        run: |
+          python - <<'PY'
+          import json,base64
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          out=Path('/tmp/normal-mayhem');out.mkdir(exist_ok=True)
+          result={'url':'https://arisconstantinou.github.io/captain-mayhem/?v=110','usesTestFlags':False,'checks':[]};errors=[]
+          def check(name,ok,data=None):
+            result['checks'].append({'name':name,'pass':bool(ok),'detail':data});print(name,ok,flush=True)
+            (out/'results.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+            assert ok,(name,data)
+          with sync_playwright() as pw:
+            browser=pw.chromium.launch(headless=True,args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-webgl'])
+            page=browser.new_page(viewport={'width':1280,'height':800})
+            page.on('pageerror',lambda e:errors.append(str(e)))
+            try:
+              page.goto(result['url'],wait_until='domcontentloaded')
+              page.wait_for_function('window.__lastCall?.getState()?.ready',timeout=90000)
+              st=lambda:page.evaluate('window.__lastCall.getState()')
+              check('Normal player build loads without debug API',page.evaluate('!window.__lastCall.test'))
+              page.locator('#start').click()
+              page.wait_for_function('window.__lastCall.getState().playing',timeout=15000)
+              check('Starts at working helm',st()['chapter']['helm'] and not st()['chapter']['foot'])
+              check('Coast Guard starts friendly',len(st()['marine']['boats'])==2 and not st()['marine']['hostile'])
+              before=st()
+              page.keyboard.down('w')
+              page.wait_for_function('(n)=>window.__lastCall.getState().throttle>n+.05',arg=before['throttle'],timeout=20000)
+              page.keyboard.up('w')
+              check('Actual W key increases engine power',st()['throttle']>before['throttle'])
+              page.wait_for_function('Math.abs(window.__lastCall.getState().speed)>.1',timeout=25000)
+              a=st()['heading'];page.keyboard.down('d')
+              page.wait_for_function('(a)=>Math.abs(window.__lastCall.getState().heading-a)>.0005',arg=a,timeout=25000)
+              page.keyboard.up('d');check('Actual D key changes heading',abs(st()['heading']-a)>.0005)
+              page.keyboard.press('f');page.wait_for_function('window.__lastCall.getState().chapter.foot',timeout=15000)
+              check('F leaves helm into first person',st()['chapter']['foot'])
+              page.keyboard.press('f');page.wait_for_function('window.__lastCall.getState().chapter.helm',timeout=15000)
+              check('F retakes helm without restart',st()['chapter']['helm'])
+              check('Helm and throttle remain visible',page.locator('#helm140').is_visible() and page.locator('#engineLever').is_visible())
+              check('No runtime errors',not errors,errors)
+              result['passed']=True;result['state']=st()
+              data=page.context.new_cdp_session(page).send('Page.captureScreenshot',{'format':'png','fromSurface':True})
+              (out/'public-helm.png').write_bytes(base64.b64decode(data['data']))
+            except Exception as e:
+              result['passed']=False;result['error']=str(e);result['errors']=errors
+              try:result['state']=st()
+              except Exception:pass
+              raise
+            finally:
+              (out/'results.json').write_text(json.dumps(result,ensure_ascii=False,indent=2));browser.close()
+          PY
+      - name: Replay current ship, pursuit, evacuation and touch acceptance cases against live URLs
+        env:
+          CAPTAIN_BASE: https://arisconstantinou.github.io/
+        run: python captain/tools/qa190.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lastcall190-live-retry
+          path: |
+            /tmp/live-file-check.json
+            /tmp/normal-mayhem/
+            /tmp/captain190-qa/
+          retention-days: 7
