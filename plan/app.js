@@ -480,7 +480,9 @@ async function setupOffline(){
   const status=$('offline-status');
   if(!('serviceWorker' in navigator)){status.textContent='Ο browser δεν υποστηρίζει offline εφαρμογή.';status.dataset.state='error';return;}
   try{
-    const registration=await navigator.serviceWorker.register('./sw.js',{scope:'./'});
+    const canonicalWorker=new URL('./sw.js',location.href),controllerWorker=navigator.serviceWorker.controller?.scriptURL;
+    const workerURL=controllerWorker&&new URL(controllerWorker).pathname===canonicalWorker.pathname?controllerWorker:canonicalWorker.href;
+    const registration=await navigator.serviceWorker.register(workerURL,{scope:'./',updateViaCache:'none'});
     const refresh=async()=>{
       const keys=await caches.keys(),ready=!!navigator.serviceWorker.controller&&!!registration.active&&keys.some(k=>k.startsWith('nk-plan-'));
       status.textContent=ready?(navigator.onLine?'Έτοιμο για offline':'Offline · εργασία στη συσκευή'):'Χρειάζεται πρώτη φόρτωση με σύνδεση';

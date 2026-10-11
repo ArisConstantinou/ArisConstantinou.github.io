@@ -1,11 +1,14 @@
-const VERSION='nk-plan-989aeba600ac1513';
+const VERSION='nk-plan-ce2b4975cec63695';
 const APP_FILES=["./","./index.html","./app.js","./geometry.mjs","./architecture.mjs","./structure.mjs","./structure-ui.mjs","./svg-annotations.mjs","./view3d.mjs","./drawing-import.mjs","./drawing-geometry.mjs","./drawing-worker.mjs","./dwg-worker.mjs","./pdf-drawing.mjs","./raster-drawing.mjs","./styles.css","./manifest.webmanifest","./icon.svg","./icon-192.png","./icon-512.png","./vendor/three/three.module.min.js","./vendor/three/three.core.min.js","./vendor/three/OrbitControls.js","./vendor/three/LICENSE","./vendor/pdfjs/pdf.min.mjs","./vendor/pdfjs/pdf.worker.min.mjs","./vendor/pdfjs/LICENSE","./vendor/libredwg/dist/libredwg-web.js","./vendor/libredwg/wasm/libredwg-web.js","./vendor/libredwg/wasm/libredwg-web.wasm","./vendor/libredwg/COPYING","./vendor/libredwg/SOURCE.md","./vendor/libredwg/package.json"];
-self.addEventListener('install',event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(APP_FILES))));
+self.addEventListener('install',event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(APP_FILES.map(file=>new Request(new URL(file,self.location.href),{cache:'reload'}))))));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{
   for(const key of await caches.keys())if(key.startsWith('nk-plan-')&&key!==VERSION)await caches.delete(key);
   await self.clients.claim();
 })()));
-self.addEventListener('message',event=>{if(event.data==='ACTIVATE_UPDATE')self.skipWaiting();});
+self.addEventListener('message',event=>{
+  if(event.data==='ACTIVATE_UPDATE')self.skipWaiting();
+  if(event.data==='GET_PLAN_RELEASE')event.ports[0]?.postMessage({version:VERSION});
+});
 self.addEventListener('fetch',event=>{
   const url=new URL(event.request.url),base=new URL('./',self.location.href);
   if(event.request.method!=='GET'||url.origin!==base.origin||!url.pathname.startsWith(base.pathname)||url.pathname.includes('/api/'))return;
