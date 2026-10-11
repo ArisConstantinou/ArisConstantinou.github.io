@@ -1,0 +1,80 @@
+name: Captain 190 public verification
+on:
+  push:
+    branches: [captain-190-ocean-mayhem]
+    paths: ['.github/workflows/captain190-public.yml']
+permissions:
+  contents: read
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 2190e8f29d8469b2b0c604ed4502ecc6de12f153
+      - name: Verify tested files are the public files
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import urllib.request,time,hashlib,json
+          paths=['captain/index.html','captain/main190.js','captain/chaos190.js','captain/ship190.js','captain/shipwalk190.js','captain/interiors190.js','captain/signs190.js','captain/playground190.js','captain/cabins190.js','captain/repair190.css','captain/sw.js','captain/release.json','captain-mayhem/index.html','captain-mayhem/main110.js','captain-mayhem/game110.js','captain-mayhem/marine190.js','captain-mayhem/marine190.css','captain-mayhem/ocean190.js','captain-mayhem/setdress190.js','captain-mayhem/release.json']
+          for attempt in range(15):
+            try:
+              result=[]
+              for f in paths:
+                remote=urllib.request.urlopen('https://arisconstantinou.github.io/'+f+'?verify=190-release',timeout=20).read()
+                result.append({'path':f,'match':hashlib.sha256(remote).digest()==hashlib.sha256(Path(f).read_bytes()).digest()})
+              if all(x['match'] for x in result):break
+              print('Waiting for Pages',result,flush=True)
+            except Exception as e:print(e,flush=True)
+            time.sleep(8)
+          else:raise SystemExit('Public files do not match validated release')
+          Path('/tmp/captain190-qa').mkdir(exist_ok=True)
+          Path('/tmp/captain190-qa/public-hashes.json').write_text(json.dumps(result,indent=2))
+          print('Exact 20 public files verified')
+          PY
+      - name: Prepare touch and desktop browser
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium
+      - name: Replay public gameplay and mobile interactions
+        env:
+          CAPTAIN_BASE: https://arisconstantinou.github.io/
+        run: python captain/tools/qa190.py
+      - name: Verify ramming and capture open-ocean view
+        run: |
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+          from pathlib import Path
+          import json,base64
+          out=Path('/tmp/captain190-qa');checks=[]
+          def ck(name,ok,detail=None):
+            checks.append({'name':name,'pass':bool(ok),'detail':detail})
+            (out/'ram-and-ocean.json').write_text(json.dumps(checks,ensure_ascii=False,indent=2))
+            assert ok,(name,detail)
+          with sync_playwright() as pw:
+            b=pw.chromium.launch(headless=True,args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-webgl'])
+            c=b.new_context(viewport={'width':1280,'height':800},service_workers='block');p=c.new_page();errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
+            p.goto('https://arisconstantinou.github.io/captain-mayhem/?test=1&v=110-public',wait_until='domcontentloaded')
+            p.wait_for_function('window.__lastCall?.getState()?.ready',timeout=90000);p.locator('#start').click();p.wait_for_timeout(250)
+            p.evaluate('window.__CHAOS_FREEZE__=true')
+            ck('Fresh start is open ocean with calm water',p.evaluate('window.__lastCall.getState().x===0 && window.__lastCall.getState().z<30 && !window.__lastCall.getState().marine.hostile'))
+            p.evaluate('window.__lastCall.test.camera(2)')
+            n=p.evaluate('window.__CAPTAIN_HOLD_FRAME__=true;window.__CAPTAIN_DRAW_ONCE__=true;window.__lastCall.getState().frames')
+            p.wait_for_function('(n)=>window.__lastCall.getState().frames>n',arg=n,timeout=45000)
+            data=c.new_cdp_session(p).send('Page.captureScreenshot',{'format':'png','fromSurface':True});(out/'public-open-ocean.png').write_bytes(base64.b64decode(data['data']))
+            p.evaluate('window.__CAPTAIN_HOLD_FRAME__=false;window.__lastCall.test.camera(1);window.__lastCall.test.setState({x:0,z:0,heading:0,speed:7,intox:70});const q=window.__lastCall.test.marine.boats[0];q.x=15;q.z=10;q.speed=0;q.cooldown=0;window.__lastCall.test.marine.advance(.04)')
+            s=p.evaluate('window.__lastCall.getState().marine');ck('Physical hull collision damages escort and triggers police request',s['hostile'] and s['boats'][0]['hp']<100,s)
+            p.evaluate('const q=window.__lastCall.test.marine.boats[0];q.x=15;q.z=10;q.speed=0;q.cooldown=0;window.__lastCall.test.marine.advance(.04)')
+            s=p.evaluate('window.__lastCall.getState().marine');ck('Repeated ram disables and starts sinking the actual boat',s['sunk']>0,s)
+            p.evaluate('window.__lastCall.test.marine.advance(32)');s=p.evaluate('window.__lastCall.getState().marine');ck('Chase continues after a boat sinks',s['wave']>=2 and any(q['kind']=='police' for q in s['boats']),s)
+            ck('No unhandled browser errors',not errors,errors)
+            b.close()
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captain190-public-verified
+          path: /tmp/captain190-qa/
+          retention-days: 7
