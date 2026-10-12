@@ -1,0 +1,182 @@
+{
+  "task": "Promote approved realistic HEARTH engine fire into the main local MAGIC game",
+  "verifiedAt": "2026-10-12T05:02:16.180Z",
+  "approval": "User Yes following the review of candidate b474145",
+  "branch": "codex/trajectory-collision",
+  "protectedBase": "6caca2f",
+  "sourcePromotion": "19ddc99",
+  "candidate": "b474145",
+  "url": "http://127.0.0.1:5173/",
+  "port": 5173,
+  "listenerPid": 14872,
+  "reference": {
+    "url": "https://www.youtube.com/shorts/wO4Z7zM3Aag",
+    "observedSeconds": [
+      1.75,
+      6.75,
+      11.75
+    ],
+    "originalScreenshots": "output/playwright/engine-fire-reference/"
+  },
+  "rendering": {
+    "source": "_source/src/hearth-jet.js",
+    "volume": true,
+    "highSamples": 28,
+    "lowSamples": 18,
+    "smokeCapacity": 48,
+    "maximumJetDrawCalls": 2,
+    "extraNonShadowLights": 1
+  },
+  "build": {
+    "main": "engine/index-LipmAMRF.js",
+    "sha256": "c0889a7ce71b2b75306486db4bab04d3e6d5f7532b8779b4bb133c0e0affb345",
+    "offlineCache": "4411fc39038444aeb09c01ee",
+    "files": [
+      {
+        "file": "assets-credit.json",
+        "sha256": "d922327df5f7db8017790255b74c472337b851201c6e127942dcf253040fc700"
+      },
+      {
+        "file": "engine/index-BFPdowtO.css",
+        "sha256": "a41889f11b0cd4abf89a9bf42acbd2877ef51285da10d35a6a76974309e77489"
+      },
+      {
+        "file": "engine/index-LipmAMRF.js",
+        "sha256": "c0889a7ce71b2b75306486db4bab04d3e6d5f7532b8779b4bb133c0e0affb345"
+      },
+      {
+        "file": "engine/trajectory-worker-DexR-Kw-.js",
+        "sha256": "5e6e1f9c73b29662a121a8b6b1129823bb8247f01951229e82bdc232f1ce8401"
+      },
+      {
+        "file": "icons/apple-touch-icon.png",
+        "sha256": "387cfceeb659a2c870b5b979c63ade3e813f0301a6e3ebd27bc56ee22addbaf9"
+      },
+      {
+        "file": "icons/magic-192.png",
+        "sha256": "503f250b988f16aa5c7804bb3277355578e4f65b713ae26a4b0ce5c2e7245821"
+      },
+      {
+        "file": "icons/magic-512.png",
+        "sha256": "f66cbdf839bad63fabceb57030ab5d008ea837883437c5625765ccabe724f24b"
+      },
+      {
+        "file": "icons/magic-rune.svg",
+        "sha256": "e504e0221112a0843a4c5a5dd1aa684776a95b0283094ca89fc5cacd5f0afa13"
+      },
+      {
+        "file": "index.html",
+        "sha256": "eb95671ec2895cd4a81e009873fd66acff76b84d0fe24db4b61f68234e734cee"
+      },
+      {
+        "file": "licenses/cannon-es-MIT.txt",
+        "sha256": "4714d0272f50cb21fe46fe29333c7c600d3c85b5ebd2a80f4db07e8cfccbf5b2"
+      },
+      {
+        "file": "licenses/three-MIT.txt",
+        "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+      },
+      {
+        "file": "manifest.webmanifest",
+        "sha256": "2ac19389d8ed0535ce5800eed33d1edf44c6261f792d37154eb536ab117275eb"
+      },
+      {
+        "file": "models/LICENSE-KayKit.txt",
+        "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629"
+      },
+      {
+        "file": "models/archer.glb",
+        "sha256": "a6e697ee7a25ea78250bf777199977eab4ffb96ec7b0eb9ba7f2112a30d900c3"
+      },
+      {
+        "file": "models/bosses/colossus.glb",
+        "sha256": "996105205afd33658b24cef3e8a77d65f9952d2e6aa4125c9864d2f06f149184"
+      },
+      {
+        "file": "models/bosses/gargoyle.glb",
+        "sha256": "5fb7d90ea41f9b20995f6371aeed0edb086fe41ac7d7d345025bf379fe015533"
+      },
+      {
+        "file": "models/bosses/wraith.glb",
+        "sha256": "130d5baea65a44e46df459ccb71f54e2f28a381d6bb963744590fb3395a844e4"
+      },
+      {
+        "file": "models/guard.glb",
+        "sha256": "d76a67ac8d44a83f9af356a27b4d4b8f7b3f310bfa260a580294db59f5b2e5a1"
+      },
+      {
+        "file": "models/hearth-bulwark/hearth-bulwark.glb",
+        "sha256": "aa0136fa40155b02cc1bb8d61b3237fc13f15c5255354f38bf639a94dd082633"
+      },
+      {
+        "file": "models/heavy.glb",
+        "sha256": "d470a4623c91bb51723cc286178eaea45d365aae1135c7c57b9c07f550cc794c"
+      },
+      {
+        "file": "models/mage.glb",
+        "sha256": "b298bc24b4ae8fe3221af28cb9c2630791f6dbc5d5dc1d31130869b61a36a0a6"
+      },
+      {
+        "file": "sw.js",
+        "sha256": "d6f94b0137d0af5cd4826490df876b98e825e819fab375b0ac006870f18606a7"
+      }
+    ],
+    "primaryAndTestedBuildMatch": true
+  },
+  "diff": {
+    "sourceCheckPassed": true,
+    "generatedWhitespaceWarnings": 5,
+    "allWarningsPresentInPreviousBuild": true
+  },
+  "tests": {
+    "unit": {
+      "passed": 103,
+      "failed": 0
+    },
+    "physics": {
+      "failures": 0,
+      "ballisticPassed": 16,
+      "missionFlowPassed": true
+    },
+    "compiledEffect": {
+      "passed": 27,
+      "report": "output/playwright/engine-fire/integrated/report.json"
+    },
+    "mainNativeControls": {
+      "passed": 46,
+      "report": "output/playwright/engine-fire/main-controls/report.json"
+    },
+    "mainSkillSmoke": {
+      "iterations": 2,
+      "phase": "playing",
+      "candidate": false,
+      "report": "output/playwright/engine-fire/main-skill-smoke/browser-lifecycle.json"
+    },
+    "activeFirePerformance": {
+      "passed": true,
+      "conditions": "One owned Chrome, RTX 5080/ANGLE D3D11, DPR1. ABBA, same seeded court, frozen hostile AI, native held V and actual frame() including compositor. Touch sizes are PC emulation. CPU elapsed includes JS/render submission; no claim of GPU frame time or physical-phone speed.",
+      "sampleCount": 12,
+      "report": "output/playwright/engine-fire/performance/report.json"
+    },
+    "browserErrors": 0,
+    "ownedBrowsersClosed": true
+  },
+  "screenshots": {
+    "before": "output/playwright/engine-fire/before/desktop-detail.png",
+    "after": "output/playwright/engine-fire/integrated/desktop-detail.png",
+    "mainNativeFire": "output/playwright/engine-fire/main-controls/desktop-fire.png",
+    "detailCamera": "Identical diagnostic oblique camera, unedited WebGL PNG without UI or bloom; gameplay timing may differ"
+  },
+  "recovery": {
+    "previousBuild": "output/engine-fire-promotion/previous-build/",
+    "previousSourceCommit": "6caca2f",
+    "unrelatedUntracked": "concepts/ preserved"
+  },
+  "limitations": [
+    "Procedural visual approximation; no claim of photographic identity or full fluid simulation",
+    "Physical phone, GPU time, RAM/VRAM and long-session leak performance unmeasured",
+    "Existing landscape tutorial card partly occludes the jet in this court view",
+    "Pre-existing Vite chunk-size warning retained"
+  ],
+  "delivery": "Local primary source and canonical build; no public deployment performed by this task; primary repository has no remote"
+}

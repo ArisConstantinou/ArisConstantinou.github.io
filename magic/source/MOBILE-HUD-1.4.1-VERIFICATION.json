@@ -1,0 +1,545 @@
+{
+  "version": "1.4.1",
+  "verifiedAt": "2026-10-12T05:14:12.486Z",
+  "status": "User approved primary integration and public publication; deployment verification in progress",
+  "protectedBase": {
+    "branch": "codex/trajectory-collision",
+    "commit": "6caca2f",
+    "untracked": [
+      "concepts/"
+    ],
+    "listener": {
+      "url": "http://127.0.0.1:5173/",
+      "pid": 14872
+    },
+    "candidateBranch": "codex/mobile-hud-notices",
+    "saveIsolation": "Existing preview key magic-integrated-preview-v1; normal magic-exiled-v1 unchanged",
+    "integrationSourceCommit": "19ddc99",
+    "latestPrimaryCommit": "697e1cc",
+    "latestPrimarySourceMatchesIntegration": true,
+    "latestPrimaryUntracked": [
+      "concepts/"
+    ],
+    "promotionBase": "697e1cc"
+  },
+  "urls": {
+    "preview": "http://127.0.0.1:5173/.cache/mobile-build/index.htm",
+    "public": "https://arisconstantinou.github.io/magic/"
+  },
+  "changes": [
+    "Mobile mission/suit/Goliath/run details in a paused panel",
+    "One prioritized notice, repeat cooldown, no routine reminders during holding",
+    "44px screen-space target mark follows existing physical throw destination and predicted wall landing",
+    "Contextual fire, mounted flamethrower and available potions; retained desktop HUD",
+    "Visible version from package.json; physics, assets, saves and dependencies retained",
+    "Preserved concurrently approved HEARTH volume/smoke source from 19ddc99; retained 56px fire touch controls"
+  ],
+  "verification": {
+    "unit": {
+      "passed": 103,
+      "total": 103,
+      "log": "output/playwright/mobile-final-unit.log"
+    },
+    "physics": {
+      "passed": true,
+      "failures": 0,
+      "navigationCases": 4,
+      "spawnActors": 2,
+      "spawnProps": 104,
+      "seamTraversals": 3,
+      "wallContainmentCases": 3,
+      "physicalPursuitCases": 2,
+      "ballisticCases": 16,
+      "successfulBallisticCases": 16,
+      "missionFlowPassed": true
+    },
+    "sourceUI": {
+      "passed": 136,
+      "total": 136,
+      "errors": 0,
+      "cleanup": {
+        "closed": true,
+        "remainingPids": []
+      }
+    },
+    "correctedBeforeUI": {
+      "passed": 29,
+      "total": 40,
+      "errors": 0,
+      "cleanup": {
+        "closed": true,
+        "remainingPids": []
+      },
+      "expectedFailures": [
+        {
+          "mode": "portrait",
+          "name": "details folded during gameplay"
+        },
+        {
+          "mode": "portrait",
+          "name": "control labels at least 12px"
+        },
+        {
+          "mode": "portrait",
+          "name": "guard clear mark matches physics target"
+        },
+        {
+          "mode": "tall",
+          "name": "details folded during gameplay"
+        },
+        {
+          "mode": "tall",
+          "name": "control labels at least 12px"
+        },
+        {
+          "mode": "tall",
+          "name": "guard clear mark matches physics target"
+        },
+        {
+          "mode": "narrow",
+          "name": "details folded during gameplay"
+        },
+        {
+          "mode": "narrow",
+          "name": "control labels at least 12px"
+        },
+        {
+          "mode": "narrow",
+          "name": "guard clear mark matches physics target"
+        },
+        {
+          "mode": "landscape",
+          "name": "details folded during gameplay"
+        },
+        {
+          "mode": "landscape",
+          "name": "guard clear mark matches physics target"
+        }
+      ]
+    },
+    "compiledUI": {
+      "passed": 38,
+      "total": 38,
+      "errors": 0,
+      "cleanup": {
+        "closed": true,
+        "remainingPids": []
+      },
+      "delivery": "Exact saved artifact through owned-browser network fixture; no application-source edits"
+    },
+    "markedThrows": {
+      "before": {
+        "passed": 18,
+        "total": 18,
+        "errors": 0,
+        "cleanup": {
+          "closed": true,
+          "remainingPids": []
+        }
+      },
+      "after": {
+        "passed": 18,
+        "total": 18,
+        "errors": 0,
+        "cleanup": {
+          "closed": true,
+          "remainingPids": []
+        }
+      }
+    },
+    "compiledHearth": {
+      "passed": true,
+      "spawn": {
+        "state": "sleep",
+        "fuel": 0,
+        "room": "library",
+        "roomLabel": "Βιβλιοθήκη",
+        "x": -37,
+        "z": 1.1500000000000026,
+        "clip": "Sleep",
+        "firing": false,
+        "occupied": false
+      },
+      "piloted": {
+        "state": "piloted",
+        "fuel": 98.36708000000002,
+        "room": "library",
+        "roomLabel": "Βιβλιοθήκη",
+        "x": -37.00349448085755,
+        "z": 1.151063055465759,
+        "clip": "Fire",
+        "firing": true,
+        "occupied": true
+      },
+      "cleanup": {
+        "closed": true,
+        "remainingPids": []
+      }
+    },
+    "installedGameSkillSmoke": "Final combined build passed; output/playwright/mobile-final-smoke-combined",
+    "combinedNativeControls": {
+      "passed": 37,
+      "total": 37,
+      "errors": [],
+      "cleanup": {
+        "closed": true,
+        "remainingPids": []
+      }
+    },
+    "combinedFire": {
+      "passed": true,
+      "checks": 27,
+      "errors": [],
+      "cleanup": {
+        "closed": true,
+        "remainingPids": []
+      }
+    },
+    "promotionArtifact": {
+      "passed": 38,
+      "total": 38,
+      "errors": 0,
+      "runtimeFilesVerified": 22,
+      "sourceUnchangedFrom": "4ea478a",
+      "report": "output/playwright/mobile-build/report.json"
+    }
+  },
+  "publicObservation": {
+    "verifiedAt": "2026-10-12T04:21:05.140Z",
+    "version": "1.4.0",
+    "passed": true,
+    "files": [
+      {
+        "file": "engine/index-C6DXnHsT.js",
+        "bytes": 948062,
+        "sha256": "392fe7eae7f2697f7ce53efc945841a4f7bcea45f8c51aa10beb3cce64e58bdf"
+      },
+      {
+        "file": "models/hearth-bulwark/hearth-bulwark.glb",
+        "bytes": 6664128,
+        "sha256": "aa0136fa40155b02cc1bb8d61b3237fc13f15c5255354f38bf639a94dd082633"
+      }
+    ],
+    "spawn": {
+      "state": "sleep",
+      "fuel": 0,
+      "room": "gallery",
+      "roomLabel": "Στοά",
+      "x": 43.8,
+      "z": -2.7499999999999973,
+      "clip": "Sleep",
+      "firing": false,
+      "occupied": false
+    },
+    "piloted": {
+      "state": "piloted",
+      "fuel": 98.56838000000002,
+      "room": "gallery",
+      "roomLabel": "Στοά",
+      "x": 43.8,
+      "z": -2.7499999999999973,
+      "clip": "Fire",
+      "firing": true,
+      "occupied": true
+    },
+    "limitations": [
+      "Chrome touch emulation; not a physical iPhone",
+      "Test repositions only the mage to reach the naturally spawned suit, and stuns enemies"
+    ],
+    "userBrowser": "Chrome; exact device-cached build not established",
+    "domainRoot": "404; canonical /magic/ route returns 200",
+    "lastIndexObservation": {
+      "date": "2026-10-12T05:11:40.017Z",
+      "status": 200,
+      "bundle": "engine/index-C6DXnHsT.js"
+    }
+  },
+  "performance": {
+    "date": "2026-10-12T05:06:35.614Z",
+    "baselineSourceCommit": "19ddc99",
+    "baselineSnapshot": "output/playwright/mobile-baseline-19dd.json",
+    "cpu": "Intel(R) Core(TM) Ultra 9 285K",
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "delivery": "Exact before/after compiled artifacts in an owned-browser network fixture",
+    "order": "ABBA",
+    "samples": 16,
+    "framesPerSample": 180,
+    "comparison": [
+      {
+        "mode": "desktop",
+        "scene": "idle",
+        "before": {
+          "fps": [
+            60,
+            60
+          ],
+          "p95Ms": [
+            16.8,
+            16.8
+          ],
+          "maxMs": 16.80000000000109,
+          "over50ms": 0
+        },
+        "after": {
+          "fps": [
+            60,
+            60
+          ],
+          "p95Ms": [
+            16.8,
+            16.8
+          ],
+          "maxMs": 16.900000000000546,
+          "over50ms": 0
+        },
+        "regression": false
+      },
+      {
+        "mode": "desktop",
+        "scene": "held",
+        "before": {
+          "fps": [
+            60,
+            60
+          ],
+          "p95Ms": [
+            16.8,
+            16.8
+          ],
+          "maxMs": 16.900000000000546,
+          "over50ms": 0
+        },
+        "after": {
+          "fps": [
+            60,
+            60
+          ],
+          "p95Ms": [
+            16.8,
+            16.8
+          ],
+          "maxMs": 16.899999999999636,
+          "over50ms": 0
+        },
+        "regression": false
+      },
+      {
+        "mode": "portrait",
+        "scene": "idle",
+        "before": {
+          "fps": [
+            60,
+            60
+          ],
+          "p95Ms": [
+            16.8,
+            16.8
+          ],
+          "maxMs": 16.800000000000182,
+          "over50ms": 0
+        },
+        "after": {
+          "fps": [
+            60,
+            60
+          ],
+          "p95Ms": [
+            16.8,
+            16.8
+          ],
+          "maxMs": 16.90000000000009,
+          "over50ms": 0
+        },
+        "regression": false
+      },
+      {
+        "mode": "portrait",
+        "scene": "held",
+        "before": {
+          "fps": [
+            60,
+            60
+          ],
+          "p95Ms": [
+            16.8,
+            16.8
+          ],
+          "maxMs": 16.899999999999636,
+          "over50ms": 0
+        },
+        "after": {
+          "fps": [
+            59.7,
+            60
+          ],
+          "p95Ms": [
+            16.8,
+            16.8
+          ],
+          "maxMs": 33.29999999999927,
+          "over50ms": 0
+        },
+        "regression": false
+      }
+    ],
+    "limitations": [
+      "Desktop Chrome and desktop GPU, including emulated mobile viewport",
+      "CPU/GPU utilization, RAM/VRAM, physical phone performance and long-session leaks not measured"
+    ],
+    "passed": true,
+    "cleanup": {
+      "closed": true,
+      "remainingPids": []
+    }
+  },
+  "evidence": {
+    "before": "output/playwright/mobile-hud-before/portrait-crate-aim.png",
+    "after": "output/playwright/mobile-hud-after/portrait-crate-aim.png",
+    "landscape": "output/playwright/mobile-hud-after/landscape-crate-aim.png",
+    "details": "output/playwright/mobile-hud-after/portrait-details.png",
+    "suit": "output/playwright/compiled-hearth/public-suit-piloted.png",
+    "comparisonConditions": "Same 390x676 viewport, opening courtyard, fixed crate/target/mage positions and camera; frame-dependent effects/time and unrelated random suit room can differ",
+    "fixtureCorrections": [
+      "Guard uses shield stance to avoid an overlap/near-vertical throw before release; works on both revisions",
+      "Fast gesture scaled to one quarter of viewport width; fixed 80px was insufficient on desktop",
+      "Initial copied build did not include the latest 12px version label; final compiled checks pass",
+      "Vite transforms compiled JS/worker URLs; exact saved artifact tested with scoped owned-browser network fixture",
+      "Dynamic HEARTH body moved 3.7mm during natural contact; spawn assertion checks original room and <5cm drift, without relocating the suit. Strict-float failure report retained."
+    ],
+    "originalBeforeFixture": {
+      "passed": 60,
+      "total": 104,
+      "errors": 0,
+      "cleanup": {
+        "closed": true,
+        "remainingPids": []
+      }
+    },
+    "combinedFire": "output/playwright/mobile-combined-fire/portrait-motion-160.png"
+  },
+  "build": {
+    "cacheHash": "12e87a0c4ec79d6931f76b47",
+    "files": [
+      {
+        "file": "assets-credit.json",
+        "bytes": 10624,
+        "sha256": "d922327df5f7db8017790255b74c472337b851201c6e127942dcf253040fc700"
+      },
+      {
+        "file": "engine/index-C7WJ2aeD.js",
+        "bytes": 959836,
+        "sha256": "1f2a9c359e09cc620818652576910000d6ab5a142a54e3c30b7694ef06065966"
+      },
+      {
+        "file": "engine/index-D0N1EqVz.css",
+        "bytes": 49026,
+        "sha256": "9d81373f0b4918f3012e88785947d02a59249ce8f50f7f10135ee3c6c422b270"
+      },
+      {
+        "file": "engine/trajectory-worker-DexR-Kw-.js",
+        "bytes": 94610,
+        "sha256": "5e6e1f9c73b29662a121a8b6b1129823bb8247f01951229e82bdc232f1ce8401"
+      },
+      {
+        "file": "icons/apple-touch-icon.png",
+        "bytes": 18260,
+        "sha256": "387cfceeb659a2c870b5b979c63ade3e813f0301a6e3ebd27bc56ee22addbaf9"
+      },
+      {
+        "file": "icons/magic-192.png",
+        "bytes": 20095,
+        "sha256": "503f250b988f16aa5c7804bb3277355578e4f65b713ae26a4b0ce5c2e7245821"
+      },
+      {
+        "file": "icons/magic-512.png",
+        "bytes": 64067,
+        "sha256": "f66cbdf839bad63fabceb57030ab5d008ea837883437c5625765ccabe724f24b"
+      },
+      {
+        "file": "icons/magic-rune.svg",
+        "bytes": 1515,
+        "sha256": "e504e0221112a0843a4c5a5dd1aa684776a95b0283094ca89fc5cacd5f0afa13"
+      },
+      {
+        "file": "index.html",
+        "bytes": 1323,
+        "sha256": "b87e1654f5ce839dda3ab080e42e7f4c6495cb34316d056ed9c4a32a0d169a66"
+      },
+      {
+        "file": "licenses/cannon-es-MIT.txt",
+        "bytes": 1125,
+        "sha256": "4714d0272f50cb21fe46fe29333c7c600d3c85b5ebd2a80f4db07e8cfccbf5b2"
+      },
+      {
+        "file": "licenses/three-MIT.txt",
+        "bytes": 1081,
+        "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+      },
+      {
+        "file": "manifest.webmanifest",
+        "bytes": 831,
+        "sha256": "2ac19389d8ed0535ce5800eed33d1edf44c6261f792d37154eb536ab117275eb"
+      },
+      {
+        "file": "models/LICENSE-KayKit.txt",
+        "bytes": 891,
+        "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629"
+      },
+      {
+        "file": "models/archer.glb",
+        "bytes": 629888,
+        "sha256": "a6e697ee7a25ea78250bf777199977eab4ffb96ec7b0eb9ba7f2112a30d900c3"
+      },
+      {
+        "file": "models/bosses/colossus.glb",
+        "bytes": 2993552,
+        "sha256": "996105205afd33658b24cef3e8a77d65f9952d2e6aa4125c9864d2f06f149184"
+      },
+      {
+        "file": "models/bosses/gargoyle.glb",
+        "bytes": 6032368,
+        "sha256": "5fb7d90ea41f9b20995f6371aeed0edb086fe41ac7d7d345025bf379fe015533"
+      },
+      {
+        "file": "models/bosses/wraith.glb",
+        "bytes": 2409068,
+        "sha256": "130d5baea65a44e46df459ccb71f54e2f28a381d6bb963744590fb3395a844e4"
+      },
+      {
+        "file": "models/guard.glb",
+        "bytes": 643104,
+        "sha256": "d76a67ac8d44a83f9af356a27b4d4b8f7b3f310bfa260a580294db59f5b2e5a1"
+      },
+      {
+        "file": "models/hearth-bulwark/hearth-bulwark.glb",
+        "bytes": 6664128,
+        "sha256": "aa0136fa40155b02cc1bb8d61b3237fc13f15c5255354f38bf639a94dd082633"
+      },
+      {
+        "file": "models/heavy.glb",
+        "bytes": 623808,
+        "sha256": "d470a4623c91bb51723cc286178eaea45d365aae1135c7c57b9c07f550cc794c"
+      },
+      {
+        "file": "models/mage.glb",
+        "bytes": 687872,
+        "sha256": "b298bc24b4ae8fe3221af28cb9c2630791f6dbc5d5dc1d31130869b61a36a0a6"
+      },
+      {
+        "file": "sw.js",
+        "bytes": 3333,
+        "sha256": "88552239dd0b0c6784f0e66abb1692d28eb57e167a655c5a87db04134a1220b4"
+      }
+    ],
+    "totalFiles": 22,
+    "bytes": 21910405,
+    "warnings": [
+      "Existing main chunk exceeds 500 kB",
+      "Generated GLSL retains upstream trailing whitespace; source/docs/scripts diff check clean"
+    ]
+  },
+  "approval": {
+    "date": "2026-10-12T06:13:53.969Z",
+    "scope": "Publish existing verified 1.4.1 mobile HUD; live inventory and unified suit keys remain pending"
+  }
+}

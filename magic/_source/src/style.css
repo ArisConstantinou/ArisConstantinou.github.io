@@ -467,6 +467,8 @@ body[data-input="touch"] .held-state { bottom: calc(176px + var(--safe-bottom));
 @media(max-height:500px){.stone-status{top:auto;bottom:135px;left:12px;font-size:12px;max-width:225px;padding:5px 8px}}
 /* Permanent equipment and consumables use the same castle palette. */
 .is-inventory-open .toasts{display:none}
+body[data-input="touch"].is-status-open #game-hud,
+body[data-input="touch"].is-status-open .toasts { visibility:hidden; }
 .is-inventory-open .touch-controls{visibility:hidden}
 .is-dragging .context-sub{font-size:12px}
 .inventory-tool,.potion-tools button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:8px 12px;border:1px solid #829c91;border-radius:8px;background:#172d2ce8;color:#e6f3e9;font:600 12px var(--font-body,system-ui);cursor:pointer;pointer-events:auto}
@@ -493,3 +495,89 @@ body[data-input="touch"] .held-state { bottom: calc(176px + var(--safe-bottom));
 .hearth-status{top:180px}.zone-name{font-size:12px}.context-main{font-size:14px}.context-sub{font-size:12px}.toast{font-size:14px}
 @media(max-width:650px) and (min-height:501px){.stone-status{top:190px;bottom:auto;max-width:174px}.hearth-status{top:266px}.potion-tools{top:auto;bottom:195px}.boss-track{top:190px;left:auto;right:12px;transform:none;width:160px}.toasts{top:420px}.objective-text{font-size:14px}.objective-label{font-size:12px}body[data-input="touch"] .context-strip{top:146px}.context-main{font-size:12px}}
 @media(max-height:500px){.stone-status{top:96px;bottom:auto;width:175px}.hearth-status{top:169px;width:175px;padding:7px 9px;font-size:12px}.hearth-status span{font-size:12px}.hearth-actions{bottom:115px}.potion-tools{bottom:15px;right:350px}.toasts{top:160px;left:55%}.context-main{font-size:12px}.touch-actions .ability-name,.stick-label{font-size:12px}.touch-actions .ability{min-height:65px}body[data-input="touch"] .fire-sample-control{left:215px;bottom:115px}}
+
+/* Mobile gameplay keeps the world clear; full system information is one tap away. */
+.mobile-status-button, .throw-mark { display:none; }
+.status-panel { width:560px; max-height:calc(100dvh - 56px - var(--safe-top) - var(--safe-bottom)); overflow-y:auto; overscroll-behavior:contain; padding-top:48px; }
+.status-section { padding:14px 0; border-top:1px solid var(--line); }
+.status-section h3 { margin:0 0 8px; font-size:16px; color:var(--gold); }
+.status-section p { margin:6px 0; font-size:16px; line-height:1.55; color:#d6dfd0; }
+.status-panel .panel-eyebrow { font-size:12px; }
+.status-panel .panel-close { position:sticky; float:right; top:0; margin-top:-32px; width:44px; height:44px; background:#14271b; z-index:1; }
+
+body[data-input="touch"] .objective-block,
+body[data-input="touch"] .stone-status,
+body[data-input="touch"] .hearth-status,
+body[data-input="touch"] .run-meta,
+body[data-input="touch"] .mobile-unavailable { display:none; }
+body[data-input="touch"] .game-header { top:calc(12px + var(--safe-top)); left:max(12px,var(--safe-left)); right:max(12px,var(--safe-right)); display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:start; }
+body[data-input="touch"] .vitals-block { width:auto; min-width:0; max-width:none; }
+body[data-input="touch"] .hud-brand-row { margin-bottom:6px; gap:7px; }
+body[data-input="touch"] .hud-wordmark { font-size:20px; }
+body[data-input="touch"] .zone-name { font-size:12px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+body[data-input="touch"] .vital-value { font-size:12px; min-width:25px; }
+body[data-input="touch"] .vital-track { height:5px; }
+body[data-input="touch"] .header-tools { gap:5px; }
+body[data-input="touch"] .header-tools .icon-button,
+body[data-input="touch"] .inventory-tool { width:44px; height:44px; min-width:44px; min-height:44px; padding:0; border-radius:12px; }
+body[data-input="touch"] .inventory-tool span,
+body[data-input="touch"] .inventory-tool kbd { display:none; }
+body[data-input="touch"] .header-tools .icon { width:21px; height:21px; }
+body[data-input="touch"] .mobile-status-button { position:absolute; top:calc(76px + var(--safe-top)); left:max(12px,var(--safe-left)); right:max(12px,var(--safe-right)); display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:44px; padding:9px 12px; border:1px solid #ccb98655; border-radius:10px; background:#0e241de6; color:#ede4c7; pointer-events:auto; text-align:left; }
+.mobile-status-button > span:first-child { display:flex; align-items:center; gap:8px; font-size:14px; }
+.mobile-status-button > span:last-child { font-size:12px; color:#cfc19a; }
+.mobile-status-button .icon { width:20px; height:20px; color:var(--gold); }
+body[data-input="touch"] .context-strip,
+body[data-input="touch"] .held-state { top:calc(128px + var(--safe-top)); bottom:auto; width:max-content; max-width:calc(100% - 24px); padding:6px 10px; border-radius:7px; background:#0b211bc9; font-size:14px; line-height:1.45; }
+body[data-input="touch"] .context-main { font-size:14px; line-height:1.45; }
+body[data-input="touch"] .boss-track { top:calc(183px + var(--safe-top)); left:50%; right:auto; transform:translateX(-50%); width:min(300px,calc(100% - 48px)); }
+body[data-input="touch"] .boss-name { font-size:16px; margin-bottom:5px; }
+body[data-input="touch"] #boss-channel { font-size:12px; }
+body[data-input="touch"] .combo-display { top:calc(226px + var(--safe-top)); right:12px; }
+body[data-input="touch"] .combo-value { font-size:28px; }
+body[data-input="touch"] .combo-label { font-size:12px; }
+body[data-input="touch"] .joystick.move-stick { width:124px; height:124px; left:max(12px,var(--safe-left)); bottom:calc(26px + var(--safe-bottom)); }
+body[data-input="touch"] .stick-label { font-size:12px; bottom:-18px; }
+body[data-input="touch"] .touch-actions { right:max(12px,var(--safe-right)); bottom:calc(14px + var(--safe-bottom)); grid-template-columns:repeat(3,52px); gap:8px 7px; }
+body[data-input="touch"] .touch-actions .ability { width:52px; min-height:72px; gap:4px; }
+body[data-input="touch"] .touch-actions .ability-disc { width:50px; height:50px; background:#123026bd; }
+body[data-input="touch"] .touch-actions .ability-name { font-size:12px; letter-spacing:0; }
+body[data-input="touch"] .fire-sample-control,
+body[data-input="touch"] .hearth-actions { left:auto; right:max(12px,var(--safe-right)); bottom:calc(176px + var(--safe-bottom)); gap:0; }
+body[data-input="touch"] .fire-sample-control .ability,
+body[data-input="touch"] .hearth-actions .ability { width:56px; min-height:72px; gap:4px; }
+body[data-input="touch"] .fire-sample-control .ability-disc,
+body[data-input="touch"] .hearth-actions .ability-disc { width:56px; height:56px; }
+body[data-input="touch"] .fire-sample-control .ability-name,
+body[data-input="touch"] .hearth-actions .ability-name { font-size:12px; }
+body[data-input="touch"] .fire-status,
+body[data-input="touch"] .ability-key { display:none; }
+body[data-input="touch"] .potion-tools { top:auto; right:calc(78px + var(--safe-right)); bottom:calc(184px + var(--safe-bottom)); gap:8px; }
+body[data-input="touch"] .potion-tools button { min-width:54px; min-height:52px; padding:5px; gap:4px; flex-direction:column; }
+body[data-input="touch"] .potion-tools button span { font-size:12px; }
+body[data-input="touch"] .potion-tools kbd { display:none; }
+body[data-input="touch"] .toasts { top:auto; bottom:calc(264px + var(--safe-bottom)); left:50%; max-width:min(420px,calc(100% - 24px)); }
+body[data-input="touch"] .toast { font-size:14px; padding:9px 12px; line-height:1.4; border-radius:8px; }
+body[data-input="touch"] .throw-mark { display:block; position:absolute; z-index:21; width:44px; height:44px; transform:translate(-50%,-50%); border:3px solid #9bffda; border-radius:50%; box-shadow:0 0 0 2px #071d18,0 0 0 5px #9bffda44; background:#071d1833; pointer-events:none; color:#9bffda; }
+.throw-mark i, .throw-mark b { position:absolute; top:50%; left:50%; width:22px; height:3px; margin:-1.5px 0 0 -11px; background:currentColor; box-shadow:0 0 0 1px #071d18; }
+.throw-mark b { transform:rotate(90deg); }
+body[data-input="touch"] .throw-mark.blocked { color:#ffc18c; border-color:#ffc18c; box-shadow:0 0 0 2px #251b13,0 0 0 5px #ffc18c44; }
+body[data-input="touch"] .status-panel { width:100%; padding:46px 20px 18px; }
+body[data-input="touch"] .loading-label { font-size:12px; }
+body[data-input="touch"] .status-panel .panel-title { font-size:26px; padding-right:25px; }
+
+@media(max-height:500px) {
+  body[data-input="touch"] .game-header { right:auto; width:min(390px,calc(100% - 24px)); }
+  body[data-input="touch"] .mobile-status-button { right:auto; width:min(390px,calc(100% - 24px)); top:calc(72px + var(--safe-top)); }
+  body[data-input="touch"] .context-strip,
+  body[data-input="touch"] .held-state { top:calc(123px + var(--safe-top)); max-width:calc(100% - 240px); }
+  body[data-input="touch"] .boss-track { top:calc(18px + var(--safe-top)); left:auto; right:18px; transform:none; width:240px; }
+  body[data-input="touch"] .combo-display { top:78px; right:18px; }
+  body[data-input="touch"] .joystick.move-stick { width:100px; height:100px; }
+  body[data-input="touch"] .touch-actions { grid-template-columns:repeat(3,52px); gap:6px 7px; }
+  body[data-input="touch"] .touch-actions .ability { min-height:68px; }
+  body[data-input="touch"] .fire-sample-control,
+  body[data-input="touch"] .hearth-actions { bottom:calc(164px + var(--safe-bottom)); }
+  body[data-input="touch"] .potion-tools { bottom:calc(18px + var(--safe-bottom)); right:calc(202px + var(--safe-right)); }
+  body[data-input="touch"] .toasts { bottom:calc(115px + var(--safe-bottom)); max-width:calc(100% - 430px); left:45%; }
+}

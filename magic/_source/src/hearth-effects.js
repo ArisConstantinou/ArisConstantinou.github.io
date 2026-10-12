@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {createHearthJet} from './hearth-jet.js';
 const vertex=`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`;
 const fragment=`
 uniform float time; uniform float seed; varying vec2 vUv;
@@ -73,25 +74,20 @@ export function createFireEffects(scene){
 export function createHearthEffects(scene){
  const geometry=new THREE.PlaneGeometry(1,1),groups=[];
  function make(n){const root=new THREE.Group();scene.add(root);const planes=[];for(let i=0;i<n;i++){const m=new THREE.ShaderMaterial({uniforms:{time:{value:0},seed:{value:i*2.71}},vertexShader:vertex,fragmentShader:fragment,transparent:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});const p=new THREE.Mesh(geometry,m);root.add(p);planes.push(p);}groups.push(root);return {root,planes};}
- const carried=make(3),heart=make(3),jet=make(6),burns=Array.from({length:48},()=>make(3));
+ const carried=make(3),heart=make(3),burns=Array.from({length:48},()=>make(3));
+ const jet=createHearthJet(scene);
  const light=new THREE.PointLight(0xff7e20,0,7,2);scene.add(light);
- const point=new THREE.Vector3(),end=new THREE.Vector3(),dir=new THREE.Vector3(),right=new THREE.Vector3();
+ const point=new THREE.Vector3();
  function flame(g,p,w,h,camera,time){g.root.visible=true;g.root.position.copy(p);g.planes.forEach((o,i)=>{o.position.set(Math.sin(i*2.4)*w*.15,h*.45,Math.cos(i*2.4)*w*.15);o.scale.set(w,h,1);o.quaternion.copy(camera.quaternion);o.material.uniforms.time.value=time;});}
- function update({spell,player,hearth,entities,time,camera}){
+ function update({spell,player,hearth,entities,time,camera,quality}){
   groups.forEach(g=>g.visible=false);light.intensity=0;
   if(spell.charged){const t=THREE.MathUtils.clamp((time-spell.takenAt)/.45,0,1);point.set(player.body.position.x+.65,1.6,player.body.position.z).lerp(spell.torch.position,1-t);point.y+=Math.sin(Math.PI*t)*.6;flame(carried,point,.32,.63,camera,time);}
   if(hearth){const core=hearth.visual.point('heart');if(hearth.heart.fuel>0){flame(heart,core,.35,.67,camera,time);light.position.copy(core);light.intensity=4+Math.sin(time*13)*.4;}
    if(hearth.transfer){const t=THREE.MathUtils.clamp((time-hearth.transfer.time)/.65,0,1);point.copy(hearth.transfer.from).lerp(hearth.visual.point('inlet'),t);flame(carried,point,.22,.50,camera,time);}
-   if(hearth.heart.firing){
-    const origin=hearth.visual.point('nozzle',.28);dir.set(0,1,0).transformDirection(hearth.visual.bones.nozzle.matrixWorld);
-    end.copy(origin).addScaledVector(dir,hearth.jetLength||6);right.crossVectors(dir,new THREE.Vector3(0,1,0)).normalize();if(right.lengthSq()<.01)right.set(1,0,0);
-    jet.root.visible=true;jet.root.position.copy(origin);
-    jet.planes.forEach((o,i)=>{const t=(i+.6)/6;o.position.copy(dir).multiplyScalar(t*(hearth.jetLength||6));o.position.y+=Math.sin(time*16+i)*.07;const width=.35+t*.9;o.scale.set(width,(hearth.jetLength||6)*.45,1);o.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right,dir,new THREE.Vector3().crossVectors(right,dir)));o.material.uniforms.time.value=time+i*.13;});
-    light.position.copy(origin);light.intensity=7;
-   }
   }
+  jet.update(hearth,camera,time,quality);
   entities.filter(e=>!e.removed&&e.burnUntil>time).slice(0,burns.length).forEach((e,i)=>{point.copy(e.body.position);flame(burns[i],point,e.category==='actor'?.75:.8,e.category==='actor'?1.25:1,camera,time);});
  }
- function clear(){groups.forEach(g=>g.visible=false);light.intensity=0;}
- return {update,clear,counts:()=>({planes:156,lights:1})};
+ function clear(){groups.forEach(g=>g.visible=false);light.intensity=0;jet.clear();}
+ return {update,clear,counts:()=>({planes:150,lights:2,jet:jet.counts()})};
 }

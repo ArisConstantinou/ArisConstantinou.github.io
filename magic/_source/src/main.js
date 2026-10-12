@@ -31,6 +31,7 @@ import {createHearthSystem} from './hearth-system.js';
 import {createHearthEffects} from './hearth-effects.js';
 import {igniteActor} from './fire.js';
 import './style.css';
+import packageInfo from '../package.json';
 
 const mobile = matchMedia('(pointer: coarse)').matches;
 const FIRE_ENABLED=new URL(location.href).searchParams.get('fire')!=='0';
@@ -68,6 +69,7 @@ const raycaster=new THREE.Raycaster(), groundPlane=new THREE.Plane(new THREE.Vec
 const dragPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-2.1);
 const tempV=new THREE.Vector3(), tempQ=new THREE.Quaternion();
 const ui=createUI({
+  version:packageInfo.version,
   fireEnabled:FIRE_ENABLED,
   hearth:true,
   onStart:()=>{if(ready)startRun();},
@@ -85,6 +87,10 @@ const ui=createUI({
   onDragCancel:()=>cancelDrag(),
   onAim:info=>aimAtPointer(info),
   onInventory:()=>openInventory(),
+  onStatus:()=>{
+    if(phase!=='playing')return;
+    inventoryReturnPhase=phase;cancelRitual();releaseHeld(false);phase='inventory';ui.showStatus();
+  },
   onInventoryClose:()=>closeInventory(),
   onInventoryAction:(action,id)=>inventoryAction(action,id),
   onPotion:kind=>usePotion(kind),
@@ -153,7 +159,7 @@ function setupRenderer(){
   bloom=new UnrealBloomPass(new THREE.Vector2(800,600),.34,.58,.93);composer.addPass(bloom);composer.addPass(new OutputPass());
   fx=createEffects(scene);
   targetRing=new THREE.Mesh(new THREE.RingGeometry(.72,.77,48),new THREE.MeshBasicMaterial({color:0x86ffda,transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false}));
-  for(let i=0;i<4;i++){const tick=new THREE.Mesh(new THREE.PlaneGeometry(.27,.07),targetRing.material);tick.position.set(Math.cos(i*Math.PI/2)*.87,Math.sin(i*Math.PI/2)*.87,.002);tick.rotation.z=i*Math.PI/2;targetRing.add(tick);}
+  for(let i=0;i<4;i++){const tick=new THREE.Mesh(new THREE.PlaneGeometry(.27,.07),targetRing.material);tick.position.set(Math.cos(i*Math.PI/2)*.87,Math.sin(i*Math.PI/2)*.87,.002);tick.rotation.z=i*Math.PI/2;tick.renderOrder=9;targetRing.add(tick);}
   targetRing.rotation.x=-Math.PI/2;targetRing.material.depthTest=false;targetRing.renderOrder=9;targetRing.visible=false;scene.add(targetRing);
   const trajectoryGeometry=new THREE.BufferGeometry();
   trajectoryGeometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array((TRAJECTORY_STEPS+1)*3),3));
@@ -1106,6 +1112,8 @@ function updateEntities(dt){
   entities=entities.filter(e=>!e.removed);
 }
 function syncVisuals(dt){
+  // Clear first: stale worker replies, drops and cancelled gestures cannot leave a mark.
+  if(!held||phase!=='playing')ui.updateThrowMark(null);
   for(const e of entities){
     if(e.removed||e.assemblyRestore)continue;
     const p=e.body.position;
@@ -1167,6 +1175,7 @@ function syncVisuals(dt){
     const destination=throwDestination;
     targetRing.position.set(destination.x,.065,destination.z);targetRing.scale.setScalar(.85);
     targetRing.material.color.set(0x9bffda);
+    updateMobileThrowMark();
     if(!throwPreview?.origin||Math.hypot(held.body.position.x-throwPreview.origin.x,held.body.position.y-throwPreview.origin.y,held.body.position.z-throwPreview.origin.z)>.25
       ||Math.hypot(v.x-throwPreview.velocity.x,v.y-throwPreview.velocity.y,v.z-throwPreview.velocity.z)>2)return;
     const a=trajectory.geometry.attributes.position.array;
@@ -1183,6 +1192,7 @@ function syncVisuals(dt){
       if(contact.kind==='world'){
         const mark=floorThrowTarget(throwPreview.landing||p,worldMap.floors,.4);
         targetRing.position.set(mark.x,.07,mark.z);targetRing.scale.setScalar(.4);targetRing.material.color.set(0xffb17c);targetRing.visible=true;
+        updateMobileThrowMark(true);
         if(!contact.breaksProjectile){
           const rebound=throwPreview.points.slice(Math.ceil(contact.time*120)+1).filter(q=>q.y>=0&&nav.onFloor(q.x,q.z));
           if(rebound.length>2){
@@ -1210,6 +1220,12 @@ function syncVisuals(dt){
   }else if(!held){
     throwPreview=null;previewBody=null;previewVelocity=null;
   }
+}
+function updateMobileThrowMark(blocked=false){
+  if(!mobile||!held||!targetRing.visible)return;
+  const point=targetRing.position.clone().project(camera);
+  const rect=renderer.domElement.getBoundingClientRect();
+  ui.updateThrowMark({visible:point.z>=-1&&point.z<=1,x:(point.x+1)*rect.width/2,y:(1-point.y)*rect.height/2,blocked});
 }
 function updateCamera(dt){
   if(!player)return;
@@ -1247,7 +1263,7 @@ function updateHUD(){
   const hs=hearth.snapshot(),nearHearth=hearth.near(),fireAvailable=fireSpell.available(player,fireLineClear,held,aimPoint);
   if(hs.occupied)hint=hs.state==='piloted'?(mobile?'ΠΥΡ: κράτησε · Σύρε και άφησε για ρίψη · ΧΡΗΣΗ: έξοδος':'V: κράτησε για φωτιά · Σύρε και άφησε για ρίψη · E: έξοδος'):'Η σκάλα χρησιμοποιείται · περίμενε να ολοκληρωθεί η κίνηση.';
   else if(nearHearth)hint=hs.state==='sleep'?(fireSpell.charged?'E / ΧΡΗΣΗ · Δώσε τη φλόγα στην καρδιά':'Η στολή κοιμάται · πάρε φωτιά από πυρσό με C / ΦΛΟΓΑ'):hs.state==='ready'?'E / ΧΡΗΣΗ · Μπες στη στολή':'Η καρδιά ξυπνά τη στολή…';
-  else if(fireAvailable&&!fireSpell.charged)hint='C / ΦΛΟΓΑ · Απορρόφησε τον κοντινό πυρσό';
+  else if(fireAvailable&&!fireSpell.charged&&!held)hint=(mobile?'ΦΛΟΓΑ':'C')+' · Απορρόφησε τον κοντινό πυρσό';
   let zone='Η Αυλή';
   if(FIRE_ENABLED&&!held&&!nearRelic&&!nearExit&&!nearHearth&&!hs.occupied)hint=fireSpell.charged?'Η φωτιά μένει μαζί σου · Σήκωσε ξύλο ή στόχευσέ το και πάτησε '+(mobile?'ΦΛΟΓΑ':'C')+'.':fireSpell.sourceFor(player,fireLineClear,aimPoint)?(mobile?'ΦΛΟΓΑ':'C')+' · Πάρε φωτιά από πυρσό ή πύρινο πυλώνα.':hint;
   for(const z of worldMap.zones)if(p.x>=z.xMin&&p.x<=z.xMax&&p.z>=z.zMin&&p.z<=z.zMax)zone=z.label||z.name;
@@ -1259,7 +1275,7 @@ function updateHUD(){
     assembled:assemblyCreature?.assemble(ritual.elapsed).locked.length||0,goliathHP:ally?.hp||0,goliathTime:ally?ally.expires-runTime:0,
     goal:relicTaken?'ΕΠΙΣΤΡΟΦΗ ΣΤΗΝ ΠΥΛΗ':'ΤΟ ΜΑΥΡΟ ΣΚΗΠΤΡΟ',
     objective:relicTaken?'Δραπέτευσε από τη νότια πύλη · '+dist+' μ.':`Φύλακες ${bosses.filter(b=>b.dead).length}/4 · Σκήπτρο στην κρύπτη · ${dist} μ.`,
-    hint,holding:!!held,dragging:!!drag,throwPower:held?currentThrowVelocity()?.speed:0,heldName:held?.label||'',
+    hint,nearRelic,nearExit,holding:!!held,dragging:!!drag,throwPower:held?currentThrowVelocity()?.speed:0,heldName:held?.label||'',
     fireAvailable:FIRE_ENABLED&&(fireSpell.charged||fireSpell.available(player,fireLineClear,held,aimPoint)),fireCharged:FIRE_ENABLED&&fireSpell.charged,
     pulseCooldown:player.pulseCooldown,dashCooldown:player.dashCooldown,relic:relicTaken,shards:runShards,
     combo:runTime<comboUntil?combo:0,comboMultiplier:runTime<comboUntil?Math.min(4,combo):0,time:runTime,
@@ -1302,7 +1318,7 @@ function frame(now,manual=false){
       const animate=['playing','menu'].includes(phase)?dt:0;
       syncVisuals(animate);updateCamera(dt);updateHUD();fx.update(animate||dt*.25);
       hearth.sync(animate);
-      hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});
+      hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera,quality});
       if(!held)fx.connect(null);
       if(FIRE_ENABLED)fireFX.update({spell:fireSpell,player,entities,surfaces:worldMap.woodenSurfaces,time:runTime,camera,playing:['playing','paused'].includes(phase),source:fireSpell.sourceFor(player,fireLineClear,aimPoint)});
     }
@@ -1337,7 +1353,7 @@ async function boot(){
     ui.setLoading(.9,'Η μαγεία σχηματίζεται…');populate();
     if(renderer.compileAsync)await renderer.compileAsync(scene,camera);
     ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
-    window.__MAGIC__={version:'1.4.0',snapshot:()=>({hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
+    window.__MAGIC__={version:packageInfo.version,snapshot:()=>({hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
       kills,relicTaken,holding:held?.label||null,dragging:!!drag,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
       pathToRelic:nav.path({x:0,z:18},{x:0,z:-16}).length,profile:{runs:save.profile.runs,wins:save.profile.wins},time:runTime,candidate,
       inventory:{items:save.profile.loot.items.map(i=>({...i})),equipped:{...save.profile.loot.equipped},shards:save.profile.shards,storage:save.available},gear:player?.gear,

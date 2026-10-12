@@ -21,7 +21,7 @@ try{
   contexts.add(context);
   const page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));page.on('console',m=>{if(m.type()==='error')report.errors.push(m.text());});
   await context.route('**/src/main.js*',async route=>{const r=await route.fetch();await route.fulfill({response:r,body:(await r.text())+'\n'+extra});});
-  await page.goto('http://127.0.0.1:5173/.cache/loot-game/');await page.waitForFunction(()=>window.__MAGIC__?.snapshot().phase==='menu');await page.locator('#start-button').click();
+  await page.goto(process.env.MAGIC_TEST_URL||'http://127.0.0.1:5173/.cache/loot-game/');await page.waitForFunction(()=>window.__MAGIC__?.snapshot().phase==='menu');await page.locator('#start-button').click();
   const cdp=touch?await context.newCDPSession(page):null,state=()=>page.evaluate(()=>window.__MARK__.state()),project=p=>page.evaluate(p=>window.__MARK__.project(p),p);
   const move=async p=>{if(touch)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:1,...p}]});else await page.mouse.move(p.x,p.y);};
   for(const mode of ['enemy','side','wall','empty','slow','fast'])for(const kind of mode==='wall'?['stone','crate','guard']:['crate']){
@@ -32,7 +32,9 @@ try{
    let aim=await project(mode==='wall'?[17,.8,18]:mode==='empty'?[-4,.8,14]:[(await state()).target[0],(await state()).target[1]+.2,(await state()).target[2]]);
    if(touch&&['side','wall','empty'].includes(mode)){const r=await page.locator('.touch-actions [data-action="shield"]').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:1,...aim},{id:2,x:r.x+r.width/2,y:r.y+r.height/2}]});}else await move(aim);
    await page.waitForTimeout(750);
-   if(mode==='fast'){await move({x:aim.x-80,y:aim.y});await page.waitForTimeout(40);await move(aim);}else if(mode==='slow'){await move({x:aim.x-20,y:aim.y});await page.waitForTimeout(250);await move(aim);await page.waitForTimeout(200);}
+   // A quarter-screen fast stroke represents the same physical gesture at both
+   // viewports; fixed 80px undershoots default power on a 1440px desktop canvas.
+   if(mode==='fast'){await move({x:aim.x-page.viewportSize().width*.25,y:aim.y});await page.waitForTimeout(40);await move(aim);}else if(mode==='slow'){await move({x:aim.x-20,y:aim.y});await page.waitForTimeout(250);await move(aim);await page.waitForTimeout(200);}
    const before=await state();if(mode!=='fast')await page.screenshot({path:path.join(output,(touch?'touch':'pc')+'-'+mode+'-'+kind+'.png')});
    if(touch)await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});else{await page.mouse.up();await page.keyboard.up('Shift');}await page.waitForTimeout(1300);const after=await state();
    let pass=before.marker.visible&&before.marker.onFloor;
