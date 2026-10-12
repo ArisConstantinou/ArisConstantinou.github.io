@@ -1,6 +1,6 @@
 {
   "version": "1.4.2",
-  "status": "Approved release 1.4.2; public deployment verification in progress",
+  "status": "Published 1.4.2; public runtime, native mobile UI, HEARTH, save/cache migration and offline behavior verified; physical phone performance pending",
   "date": "2026-10-12T07:42:53.376Z",
   "baseCommit": "088be53",
   "branch": "codex/mobile-performance-castle",
@@ -306,13 +306,67 @@
     "after": "output/playwright/castle-performance-final-worker/after-start.png",
     "rooms": "output/playwright/castle-source-preview/wide-library.png",
     "secrets": "output/playwright/castle-source-preview/library-secret.png",
-    "offline": "output/playwright/castle-offline/offline-aim.png"
+    "offline": "output/playwright/castle-offline/offline-aim.png",
+    "publicBefore": "output/playwright/pages-release-142/before-game.png",
+    "publicAfter": "output/playwright/pages-release-142/after-game.png",
+    "publicTouch": "output/playwright/castle-public-ui-142/portrait-aim.png",
+    "publicSuit": "output/playwright/castle-public-hearth-142/public-suit-piloted.png"
   },
   "limitations": [
     "Physical phone FPS, load time, touch latency, CPU/GPU utilization and RAM/VRAM are not measured",
     "4x CPU throttle is a desktop surrogate, not a device benchmark",
     "Draw calls increase with local instance bounds; submitted triangles fall and measured CPU frame times improve",
-    "Public cache migration and final deployment checks are running for the approved release",
     "Live inventory / 3D wizard and unified suit keys remain separate pending work"
-  ]
+  ],
+  "verifiedAt": "2026-10-12T08:02:53.855Z",
+  "integration": {
+    "sourceCommit": "4705f95",
+    "buildMatchesCandidate": true,
+    "unitTests": 111,
+    "physics": {
+      "passed": true,
+      "failures": 0,
+      "navigationCases": 4,
+      "spawnActors": 2,
+      "spawnProps": 107,
+      "seamTraversals": 3,
+      "secretTraversals": 3,
+      "wallContainmentCases": 3,
+      "physicalPursuitCases": 2,
+      "ballisticCases": 16,
+      "successfulBallisticCases": 16,
+      "missionFlowPassed": true
+    }
+  },
+  "publication": {
+    "url": "https://arisconstantinou.github.io/magic/",
+    "runtimeCommit": "544ea8f9962fed0d9a3614d77520ad96233eb92a",
+    "workflow": "https://github.com/ArisConstantinou/ArisConstantinou.github.io/actions/runs/38220831661",
+    "before": "1.4.1",
+    "after": "1.4.2",
+    "verifiedFiles": 22,
+    "cache": "magic-exiled:/magic/:b84af222c7b915b85f7ebe4f",
+    "cachedFiles": 21,
+    "saveFieldsPreserved": [
+      "shards",
+      "best",
+      "wins",
+      "runs",
+      "muted",
+      "upgrades"
+    ],
+    "otherAppCachesPreserved": true,
+    "offlineFireAndWorker": true,
+    "nativeUIChecks": 38,
+    "nativeSuitFire": true,
+    "suitRoom": "gatehouse",
+    "errors": 0,
+    "frames": {
+      "samples": 180,
+      "median": 16.699999999999818,
+      "p95": 16.800000000000182,
+      "max": 16.899999999999636,
+      "over50ms": 0
+    }
+  }
 }
