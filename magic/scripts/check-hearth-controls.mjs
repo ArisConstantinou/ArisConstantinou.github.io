@@ -21,7 +21,9 @@ try{for(const [name,viewport,touch]of [['desktop',{width:1440,height:900},false]
  const after=await page.evaluate(()=>({fuel:__HEARTH_QA__.engine.heart.fuel,hp:__HEARTH_QA__.entities.find(e=>e.kind==='guard').hp,x:__HEARTH_QA__.engine.body.position.x,z:__HEARTH_QA__.engine.body.position.z,firing:__HEARTH_QA__.engine.heart.firing}));
  check(after.firing&&after.fuel<before.fuel-5,'held fire depletes fuel');check(after.z>before.z+.25,'move and fire work simultaneously');check(after.hp<before.hp,'real forearm flame damages guard');
  if(process.argv.includes('--loot')){
- if(touch){touches.splice(1);await event('touchEnd');}else await page.keyboard.up('s');
+ // CDP touchEnd terminates the active gesture. Start a separate stationary
+ // fire gesture so this kill check cannot release fire or leave the stick held.
+ if(touch){touches.length=0;await event('touchEnd');const box=await page.locator('[data-action="flamethrower"]').boundingBox();touches.push({id:13,x:box.x+box.width/2,y:box.y+box.height/2});await event('touchStart');}else await page.keyboard.up('s');
  await page.waitForTimeout(300);await page.evaluate(()=>{const q=__HEARTH_QA__,v=q.engine.visual,o=v.point('nozzle',.28),dir=q.player.mesh.position.clone().set(0,1,0).transformDirection(v.bones.nozzle.matrixWorld);dir.multiplyScalar(1/Math.hypot(dir.x,dir.z));const e=q.entities.find(e=>e.kind==='guard');e.body.position.set(o.x+dir.x*3,e.cy+.05,o.z+dir.z*3);e.body.velocity.set(0,0,0);e.body.type=4;e.body.mass=0;e.body.updateMassProperties();e.body.aabbNeedsUpdate=true;});
  await page.waitForFunction(()=>__HEARTH_QA__.entities.find(e=>e.kind==='guard').dead,null,{timeout:6000});check((await page.evaluate(()=>__MAGIC__.snapshot().loot.length))>0,'native flamethrower kill drops visible loot');
 }

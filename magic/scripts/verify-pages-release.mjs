@@ -71,10 +71,13 @@ try{
  await page.locator('#start-button').click();
  await page.waitForFunction(()=>window.__MAGIC__.snapshot().phase==='playing');
  await page.keyboard.press('c');await page.waitForFunction(()=>window.__MAGIC__.snapshot().fire.charged);
- const item=await page.evaluate(()=>window.__MAGIC__.inspect().entities.find(e=>e.primaryCrate));
+ // Expanded-castle entity order begins in the armory. Pick a reachable opening
+ // crate, rather than assuming the first global crate is near the spawn.
+ const item=await page.evaluate(()=>{const all=window.__MAGIC__.inspect().entities,p=all.find(e=>e.isPlayer);return all.filter(e=>e.kind==='crate'&&Math.hypot(e.x-p.x,e.z-p.z)<5).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z))[0];});
+ assert.ok(item,'A reachable opening crate is available offline');
  const pick=await page.evaluate(p=>window.__MAGIC__.project(p),item);
  await page.mouse.move(pick.x,pick.y);await page.mouse.down();
- await page.waitForFunction(()=>window.__MAGIC__.snapshot().holding==='Κιβώτιο'&&window.__MAGIC__.snapshot().fire.crateBurnRemaining>0);
+ await page.waitForFunction(id=>window.__MAGIC__.snapshot().holding==='Κιβώτιο'&&window.__MAGIC__.inspect().entities.find(e=>e.id===id)?.burnRemaining>0,item.id);
  await page.mouse.move(pick.x+120,pick.y-80);await page.waitForFunction(()=>window.__MAGIC__.inspect().preview?.points?.length>1);
  report.offline={passed:true,state:await page.evaluate(()=>window.__MAGIC__.snapshot()),workerPreview:await page.evaluate(()=>window.__MAGIC__.inspect().preview)};
  await page.screenshot({path:path.join(output,'offline-fire.png')});await page.mouse.up();
