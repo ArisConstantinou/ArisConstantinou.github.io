@@ -1,3 +1,4 @@
+import {freshLoot,hydrateLoot,BAG_LIMIT,SLOTS,KINDS,isPotion,salvageValue} from './loot.js';
 export const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 export const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 export function segmentBox(a, b, box, margin = 0) {
@@ -89,7 +90,7 @@ export class NavigationGrid {
     const open=[start], g=new Map([[start,0]]), parent=new Map(),closed=new Set();
     const gp=this.point(goal);
     let count=0;
-    while(open.length && count++ < 3200) {
+    while(open.length && count++ < this.walk.length) {
       let bi=0,bf=Infinity;
       for(let k=0;k<open.length;k++){const p=this.point(open[k]);const f=g.get(open[k])+Math.hypot(p.x-gp.x,p.z-gp.z);if(f<bf){bf=f;bi=k;}}
       const current=open.splice(bi,1)[0];
@@ -115,7 +116,7 @@ export class NavigationGrid {
   }
 }
 
-const FRESH = () => ({version:1,shards:0,best:0,wins:0,runs:0,upgrades:{},muted:false});
+const FRESH = () => ({version:1,shards:0,best:0,wins:0,runs:0,upgrades:{},muted:false,loot:freshLoot()});
 function savedInteger(value, max) {
   const number = typeof value === 'number' || typeof value === 'string' ? Number(value) : NaN;
   return Number.isFinite(number) ? clamp(Math.floor(number), 0, max) : 0;
@@ -129,10 +130,17 @@ export const UPGRADE_SPECS = [
   {id:'dash',title:'Βήμα της σκιάς',description:'Το άλμα σκιάς επανέρχεται πιο γρήγορα.',cost:6,max:2},
 ];
 export class ProfileStore {
-  constructor(storage) {
+  constructor(storage, key = 'magic-exiled-v1', seedKeys = []) {
+    this.key=key;
     this.storage=storage;this.available=!!storage;this.profile=FRESH();
-    let serialized,raw;
-    try {serialized=storage?.getItem('magic-exiled-v1');}
+    let serialized,raw,inherited=false;
+    try {
+      serialized=storage?.getItem(this.key);
+      if(!serialized)for(const sourceKey of seedKeys){
+        const source=storage?.getItem(sourceKey);let candidate;try{candidate=JSON.parse(source||'null');}catch{continue;}
+        if(candidate?.version===1){serialized=source;inherited=true;break;}
+      }
+    }
     catch {this.available=false;return;}
     // A damaged save does not imply that the browser denied storage access.
     try {raw=JSON.parse(serialized||'null');}
@@ -140,10 +148,25 @@ export class ProfileStore {
     if(raw&&raw.version===1){
       for(const key of ['shards','best','wins','runs'])this.profile[key]=savedInteger(raw[key],999999);
       this.profile.muted=!!raw.muted;
+      this.profile.loot=hydrateLoot(raw.loot);
       for(const s of UPGRADE_SPECS)this.profile.upgrades[s.id]=savedInteger(raw.upgrades?.[s.id],s.max);
+      if(inherited)this.save();
     }
   }
-  save(){try{if(!this.storage){this.available=false;return false;}this.storage.setItem('magic-exiled-v1',JSON.stringify(this.profile));this.available=true;return true;}catch{this.available=false;return false;}}
+  save(){try{if(!this.storage){this.available=false;return false;}this.storage.setItem(this.key,JSON.stringify(this.profile));this.available=true;return true;}catch{this.available=false;return false;}}
+  acquire(raw){
+    if(!raw||!Object.hasOwn(KINDS,raw.kind))return false;
+    const loot=this.profile.loot,level=Math.max(1,Math.min(5,Math.floor(raw.level)||1));
+    const stack=isPotion(raw)?loot.items.find(i=>i.kind===raw.kind&&i.level===level&&i.count<99):null;
+    if(stack)stack.count++;
+    else{if(loot.items.length>=BAG_LIMIT)return false;loot.items.push({id:loot.nextId++,kind:raw.kind,level,roll:Math.max(0,Math.min(2,Math.floor(raw.roll)||0)),count:1});}
+    this.save();return true;
+  }
+  equip(id){const item=this.profile.loot.items.find(i=>i.id===id);if(!item||!Object.hasOwn(SLOTS,item.kind))return false;this.profile.loot.equipped[item.kind]=id;this.save();return true;}
+  unequip(slot){if(!Object.hasOwn(SLOTS,slot))return false;delete this.profile.loot.equipped[slot];this.save();return true;}
+  salvage(id){const loot=this.profile.loot,item=loot.items.find(i=>i.id===id);if(!item||isPotion(item)||Object.values(loot.equipped).includes(id))return false;
+    loot.items=loot.items.filter(i=>i.id!==id);this.profile.shards+=salvageValue(item);this.save();return true;}
+  consume(id){const loot=this.profile.loot,item=loot.items.find(i=>i.id===id);if(!isPotion(item))return false;if(--item.count<=0)loot.items=loot.items.filter(i=>i.id!==id);this.save();return true;}
   upgrades(){return UPGRADE_SPECS.map(s=>({...s,level:this.profile.upgrades[s.id]||0,cost:s.cost+4*(this.profile.upgrades[s.id]||0)}));}
   buy(id){const u=this.upgrades().find(s=>s.id===id);if(!u||u.level>=u.max||this.profile.shards<u.cost)return false;
     this.profile.shards-=u.cost;this.profile.upgrades[id]=u.level+1;this.save();return true;}

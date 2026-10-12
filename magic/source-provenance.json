@@ -1,0 +1,255 @@
+{
+  "sourceArchive": "F:\\Chrome Downloads\\MAGIC-v1.1.0.zip",
+  "retainedArchive": ".source/MAGIC-v1.1.0.zip",
+  "sha256": "f00082506dec7658fc9cedef9a8bafc02312b2eb4227276517c984cd36d33ed9",
+  "archivePrefix": "magic/",
+  "importedAt": "2026-10-11T15:08:37.7531001+03:00",
+  "publishedUrl": "https://arisconstantinou.github.io/magic/",
+  "files": [
+    {
+      "path": ".gitignore",
+      "sha256": "229edae5441f227fb87c5dd0460367af2acf49085378185c443bf31d07645d0b",
+      "bytes": 77
+    },
+    {
+      "path": "README.md",
+      "sha256": "5b97e8ac6e5162332e7a19d7ccc44085dd674f36a3a4d7acef0811a8886c69bc",
+      "bytes": 8193
+    },
+    {
+      "path": "_source/index.html",
+      "sha256": "bf21e205b6d17ebcd76d4a551375e92332b56d582361a156d6454309c8815b08",
+      "bytes": 1223
+    },
+    {
+      "path": "_source/package-lock.json",
+      "sha256": "85852481ff9ea7bed8c11f3f38012eeab191998ba519ff94e44f5e5e1e66ff29",
+      "bytes": 35511
+    },
+    {
+      "path": "_source/package.json",
+      "sha256": "127be72cf1b333878ad6d99d11300f7e36f6cfa68acaf4ac0ffc95c5b729e3e8",
+      "bytes": 374
+    },
+    {
+      "path": "_source/public/assets-credit.json",
+      "sha256": "16392b8c27b3f678d6c4e56fd5abd173a70ec5682c36bbc387634261c5f16708",
+      "bytes": 8729
+    },
+    {
+      "path": "_source/public/icons/apple-touch-icon.png",
+      "sha256": "387cfceeb659a2c870b5b979c63ade3e813f0301a6e3ebd27bc56ee22addbaf9",
+      "bytes": 18260
+    },
+    {
+      "path": "_source/public/icons/magic-192.png",
+      "sha256": "503f250b988f16aa5c7804bb3277355578e4f65b713ae26a4b0ce5c2e7245821",
+      "bytes": 20095
+    },
+    {
+      "path": "_source/public/icons/magic-512.png",
+      "sha256": "f66cbdf839bad63fabceb57030ab5d008ea837883437c5625765ccabe724f24b",
+      "bytes": 64067
+    },
+    {
+      "path": "_source/public/icons/magic-rune.svg",
+      "sha256": "e504e0221112a0843a4c5a5dd1aa684776a95b0283094ca89fc5cacd5f0afa13",
+      "bytes": 1515
+    },
+    {
+      "path": "_source/public/licenses/cannon-es-MIT.txt",
+      "sha256": "4714d0272f50cb21fe46fe29333c7c600d3c85b5ebd2a80f4db07e8cfccbf5b2",
+      "bytes": 1125
+    },
+    {
+      "path": "_source/public/licenses/three-MIT.txt",
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601",
+      "bytes": 1081
+    },
+    {
+      "path": "_source/public/manifest.webmanifest",
+      "sha256": "2ac19389d8ed0535ce5800eed33d1edf44c6261f792d37154eb536ab117275eb",
+      "bytes": 831
+    },
+    {
+      "path": "_source/public/models/LICENSE-KayKit.txt",
+      "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629",
+      "bytes": 891
+    },
+    {
+      "path": "_source/public/models/archer.glb",
+      "sha256": "a6e697ee7a25ea78250bf777199977eab4ffb96ec7b0eb9ba7f2112a30d900c3",
+      "bytes": 629888
+    },
+    {
+      "path": "_source/public/models/guard.glb",
+      "sha256": "d76a67ac8d44a83f9af356a27b4d4b8f7b3f310bfa260a580294db59f5b2e5a1",
+      "bytes": 643104
+    },
+    {
+      "path": "_source/public/models/heavy.glb",
+      "sha256": "d470a4623c91bb51723cc286178eaea45d365aae1135c7c57b9c07f550cc794c",
+      "bytes": 623808
+    },
+    {
+      "path": "_source/public/models/mage.glb",
+      "sha256": "b298bc24b4ae8fe3221af28cb9c2630791f6dbc5d5dc1d31130869b61a36a0a6",
+      "bytes": 687872
+    },
+    {
+      "path": "_source/scripts/build.mjs",
+      "sha256": "76433126ae1b31705e82779870752f0ce430834bc83cc918cdb547a4a129c459",
+      "bytes": 9446
+    },
+    {
+      "path": "_source/src/audio.js",
+      "sha256": "17a52a2ce3bc71e003051a000ce5dfde15892333d82deb4852f6f84bb918cdb3",
+      "bytes": 2404
+    },
+    {
+      "path": "_source/src/characters.js",
+      "sha256": "7fd50e5a309eae1c7e44de9844c902a28eb1826e02fdc9780dace4c278bef995",
+      "bytes": 11796
+    },
+    {
+      "path": "_source/src/drag.js",
+      "sha256": "6d36632627edaa89b3242d229b81b361bc0b2b34da77bc2fecc715a33cd90202",
+      "bytes": 6250
+    },
+    {
+      "path": "_source/src/drag.test.js",
+      "sha256": "3b86185c37ba0bd0e41904020bd50353118fd204a50a7c3cf0489eb323c52f17",
+      "bytes": 8647
+    },
+    {
+      "path": "_source/src/effects.js",
+      "sha256": "e6ebdd1d789f3694258b125771920873189a21cc8dbeb5c32195c592fc5de67e",
+      "bytes": 5197
+    },
+    {
+      "path": "_source/src/main.js",
+      "sha256": "f2deb34e6d40f9ea5e716507d8eb547f8f0799b8e71d15743210764ae7ebe701",
+      "bytes": 48372
+    },
+    {
+      "path": "_source/src/style.css",
+      "sha256": "950c7f5226f574d3512e292b6ce3bf7c8424e2f6d3fdc87f58b3a44430f3b907",
+      "bytes": 37823
+    },
+    {
+      "path": "_source/src/systems.js",
+      "sha256": "15f244ba1f5634861a9fb4cb1a5ec2d70d7db32b2872ba73574bd2d4708d85cc",
+      "bytes": 8200
+    },
+    {
+      "path": "_source/src/systems.test.js",
+      "sha256": "72533456ca735865a34350d2a6e426a75d9e68c6e2f6ef5ccb7c4baa7f6698aa",
+      "bytes": 14675
+    },
+    {
+      "path": "_source/src/ui.js",
+      "sha256": "5b0d29d69f1514e9e2fbd034b4c9d3d8b46598c451aa85884b46b4db27eb1e6b",
+      "bytes": 42927
+    },
+    {
+      "path": "_source/src/world.js",
+      "sha256": "4f032748396f3e7fb68fef1f3d1926feb8866d8e3dbcb914317860984a389590",
+      "bytes": 43098
+    },
+    {
+      "path": "_source/tests/physics-integration.mjs",
+      "sha256": "78b216493db59bd034c18e775894d9cc174ec0e060224adb9540f45bea8313e4",
+      "bytes": 21592
+    },
+    {
+      "path": "_source/vite.config.js",
+      "sha256": "26b73ef984af5ae5c18e01e4e1acc921390bf151ea161c433710d45627fbd231",
+      "bytes": 192
+    },
+    {
+      "path": "assets-credit.json",
+      "sha256": "16392b8c27b3f678d6c4e56fd5abd173a70ec5682c36bbc387634261c5f16708",
+      "bytes": 8729
+    },
+    {
+      "path": "engine/index-DxhRrE7E.css",
+      "sha256": "46c6fb8719c6bb5ff8b29f1148dba2a466df7a5481191ac27ede859f7d527f9a",
+      "bytes": 32118
+    },
+    {
+      "path": "engine/index-W8LbutyL.js",
+      "sha256": "0eb56aebd49f631aa82060e72a73040c7a2387041068b870368460ca0c80a601",
+      "bytes": 849551
+    },
+    {
+      "path": "icons/apple-touch-icon.png",
+      "sha256": "387cfceeb659a2c870b5b979c63ade3e813f0301a6e3ebd27bc56ee22addbaf9",
+      "bytes": 18260
+    },
+    {
+      "path": "icons/magic-192.png",
+      "sha256": "503f250b988f16aa5c7804bb3277355578e4f65b713ae26a4b0ce5c2e7245821",
+      "bytes": 20095
+    },
+    {
+      "path": "icons/magic-512.png",
+      "sha256": "f66cbdf839bad63fabceb57030ab5d008ea837883437c5625765ccabe724f24b",
+      "bytes": 64067
+    },
+    {
+      "path": "icons/magic-rune.svg",
+      "sha256": "e504e0221112a0843a4c5a5dd1aa684776a95b0283094ca89fc5cacd5f0afa13",
+      "bytes": 1515
+    },
+    {
+      "path": "index.html",
+      "sha256": "e74a9cecf07764ebd9917bf7e5411211165ed4838dc75dfef986c463c1ef773a",
+      "bytes": 1323
+    },
+    {
+      "path": "licenses/cannon-es-MIT.txt",
+      "sha256": "4714d0272f50cb21fe46fe29333c7c600d3c85b5ebd2a80f4db07e8cfccbf5b2",
+      "bytes": 1125
+    },
+    {
+      "path": "licenses/three-MIT.txt",
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601",
+      "bytes": 1081
+    },
+    {
+      "path": "manifest.webmanifest",
+      "sha256": "2ac19389d8ed0535ce5800eed33d1edf44c6261f792d37154eb536ab117275eb",
+      "bytes": 831
+    },
+    {
+      "path": "models/LICENSE-KayKit.txt",
+      "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629",
+      "bytes": 891
+    },
+    {
+      "path": "models/archer.glb",
+      "sha256": "a6e697ee7a25ea78250bf777199977eab4ffb96ec7b0eb9ba7f2112a30d900c3",
+      "bytes": 629888
+    },
+    {
+      "path": "models/guard.glb",
+      "sha256": "d76a67ac8d44a83f9af356a27b4d4b8f7b3f310bfa260a580294db59f5b2e5a1",
+      "bytes": 643104
+    },
+    {
+      "path": "models/heavy.glb",
+      "sha256": "d470a4623c91bb51723cc286178eaea45d365aae1135c7c57b9c07f550cc794c",
+      "bytes": 623808
+    },
+    {
+      "path": "models/mage.glb",
+      "sha256": "b298bc24b4ae8fe3221af28cb9c2630791f6dbc5d5dc1d31130869b61a36a0a6",
+      "bytes": 687872
+    },
+    {
+      "path": "sw.js",
+      "sha256": "27848a8cc2c8387bce8fc0195eab9c99ad87192796af52a1fbb92862f8c762f8",
+      "bytes": 3151
+    }
+  ]
+}

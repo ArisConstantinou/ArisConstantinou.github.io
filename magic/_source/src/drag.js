@@ -33,7 +33,7 @@ export class PointerMotion {
     return this;
   }
 
-  velocity(nowMs = this.samples.at(-1)?.timeMs ?? 0) {
+  velocity(nowMs = this.samples.at(-1)?.timeMs ?? 0, absolute = false) {
     const last = this.samples.at(-1);
     if (!last || !Number.isFinite(nowMs) || nowMs < last.timeMs ||
         nowMs - this.lastMovedAt > IDLE_MS || nowMs - last.timeMs > IDLE_MS) return { x: 0, y: 0 };
@@ -47,7 +47,8 @@ export class PointerMotion {
       const vy = (b.y - a.y) * 1000 / (b.timeMs - a.timeMs);
       if (!Number.isFinite(vx) || !Number.isFinite(vy)) continue;
       const w = DECAY_MS * (Math.exp((end - nowMs) / DECAY_MS) - Math.exp((start - nowMs) / DECAY_MS));
-      x += vx * w; y += vy * w; weight += w;
+      // Power measures travel, so a reversed stroke cannot cancel its speed.
+      x += (absolute?Math.abs(vx):vx) * w; y += (absolute?Math.abs(vy):vy) * w; weight += w;
     }
     return weight > 0 ? { x: finite(x / weight), y: finite(y / weight) } : { x: 0, y: 0 };
   }
@@ -61,11 +62,11 @@ function directionXZ(vector) {
   return { x: x / scale / length, z: z / scale / length, magnitude: scale * length };
 }
 
-// A deliberate swipe supplies momentum; a still release throws away from the mage.
-export function gestureThrowVelocity(motionXZ, fallbackXZ, gripLevel = 0) {
+// Pointer aim supplies direction; swipe magnitude supplies power only.
+export function gestureThrowVelocity(motionXZ, aimXZ, gripLevel = 0) {
   const motion = directionXZ(motionXZ);
   const swipe = motion.magnitude >= 1.4;
-  const direction = swipe ? motion : directionXZ(fallbackXZ);
+  const direction = directionXZ(aimXZ);
   const base = swipe ? Math.min(26, Math.max(9, motion.magnitude * .9)) : 16;
   const speed = Math.min(32, base * (1 + .1 * nonnegative(gripLevel)));
   return { x: direction.x * speed, y: 2.4 + speed * .035, z: direction.z * speed, speed };

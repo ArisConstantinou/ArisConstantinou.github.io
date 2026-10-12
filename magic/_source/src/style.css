@@ -18,6 +18,19 @@
   --safe-left: env(safe-area-inset-left, 0px);
 }
 
+.fire-sample-control { position:absolute; left:max(24px,env(safe-area-inset-left)); bottom:150px; display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:auto; }
+.fire-sample-control .ability { width:76px; }
+.fire-sample-control .ability-disc { width:64px; height:64px; color:#ffc66d; border:2px solid #eaa257; background:radial-gradient(circle at 50% 30%,#643920,#201b17); }
+.fire-sample-control .ability-disc .icon { width:30px; height:30px; }
+.fire-sample-control .ability-name { font-size:14px; letter-spacing:.04em; }
+.fire-sample-control .ability:disabled { opacity:.7; }
+.fire-sample-control .ability.is-charged { opacity:1; }
+.fire-sample-control .ability.is-charged .ability-disc { box-shadow:0 0 24px #ff9c3955; }
+.fire-status { max-width:130px; text-align:center; color:#ecc895; font-size:12px; line-height:1.4; }
+body[data-input="touch"] .fire-sample-control { left:max(18px,env(safe-area-inset-left)); bottom:calc(210px + env(safe-area-inset-bottom)); }
+body[data-input="touch"] .fire-sample-control .ability-key { display:none; }
+@media (max-height:500px) { body[data-input="touch"] .fire-sample-control { left:20px; bottom:150px; } .fire-status { display:none; } }
+
 * { box-sizing: border-box; }
 html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--ink); }
 body { color: var(--ivory); font-family: var(--sans); -webkit-font-smoothing: antialiased; overscroll-behavior: none; }
@@ -446,3 +459,37 @@ body[data-input="touch"] .held-state { bottom: calc(176px + var(--safe-bottom));
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+.stone-status{position:absolute;left:26px;top:105px;max-width:280px;padding:9px 12px;background:#102520e8;border-left:2px solid #8de5bf;display:flex;flex-direction:column;gap:4px;font-size:14px;pointer-events:none}
+#stone-count{font-weight:700;color:#a0eccd}#goliath-state{font-size:12px;color:#d9eee3}
+.summon-bar{height:5px;background:#19352d;margin-top:4px;overflow:hidden}.summon-bar span{display:block;height:100%;background:#8de5bf;width:0}
+#boss-channel{font-size:14px;color:#d5b1ee;margin-top:6px}#boss-channel-fill{background:#bb8ae8}
+@media(max-width:650px){.stone-status{top:auto;bottom:210px;left:12px;padding:6px 9px;max-width:245px;font-size:14px}#goliath-state{font-size:12px}}
+@media(max-height:500px){.stone-status{top:auto;bottom:135px;left:12px;font-size:12px;max-width:225px;padding:5px 8px}}
+/* Permanent equipment and consumables use the same castle palette. */
+.is-inventory-open .toasts{display:none}
+.is-inventory-open .touch-controls{visibility:hidden}
+.is-dragging .context-sub{font-size:12px}
+.inventory-tool,.potion-tools button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:8px 12px;border:1px solid #829c91;border-radius:8px;background:#172d2ce8;color:#e6f3e9;font:600 12px var(--font-body,system-ui);cursor:pointer;pointer-events:auto}
+.inventory-tool .icon{width:22px;height:22px}.inventory-tool kbd{font-size:12px}
+.potion-tools{position:absolute;right:24px;bottom:96px;display:flex;gap:8px;pointer-events:auto}.potion-tools button{min-width:110px}.potion-tools .icon{width:20px;height:20px}.potion-tools button:first-child .icon{color:#ffaaa0}.potion-tools button:last-child .icon{color:#9bcaff}.potion-tools b{margin-left:5px;font-size:14px}.potion-tools button:disabled{opacity:.45;cursor:default}
+.inventory-panel{width:min(1080px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);overflow:auto;padding:30px;text-align:left}
+.inventory-panel .panel-close{position:sticky;top:0;float:right;margin:0 0 -44px 12px;z-index:3;background:#172d2c}
+.inventory-panel .panel-title{font-size:30px;margin:8px 0 16px}.inventory-summary{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #617870;padding-bottom:14px;margin-bottom:22px;font-size:14px}.inventory-summary>span:last-child{display:flex;align-items:center;gap:8px;color:#f1d5a1}.inventory-summary .icon{width:20px;height:20px}
+.inventory-layout{display:grid;grid-template-columns:200px minmax(290px,1fr) 245px;gap:24px}.inventory-layout h3{margin:0 0 14px;font-size:18px;color:#f1ead7}.equipment-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.equipment-slot>span{display:block;font-size:14px;color:#bdd0c5;margin-bottom:7px}.equipment-slot .loot-slot{width:100%;height:82px}.inventory-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}
+.loot-slot{position:relative;display:grid;place-items:center;min-height:58px;aspect-ratio:1;border:1px solid var(--tier,#52645f);border-radius:8px;background:linear-gradient(140deg,#233b39,#102220);color:var(--tier,#8faaa0);cursor:pointer;box-shadow:inset 0 0 15px #07171266}.loot-slot .icon{width:34px;height:34px}.loot-slot.selected{outline:2px solid var(--tier);outline-offset:2px;background:#304c45}.loot-slot.empty{cursor:default;color:#496057;border-color:#496057;background:#132b2866}.loot-slot.empty small{font-size:12px}.loot-level{position:absolute;left:5px;bottom:4px;font:600 12px system-ui}.loot-count{position:absolute;right:5px;top:4px;font:600 12px system-ui}.loot-worn{position:absolute;right:5px;bottom:4px;font-size:12px;color:#a6ffcf}
+.character-stats{display:grid;gap:9px;margin-top:24px;font-size:14px}.character-stats>span{display:flex;justify-content:space-between;gap:8px;color:#bccdc5}.character-stats b{color:#f0ede0}.inventory-note,.inventory-storage{font-size:14px;line-height:1.5;color:#aabfb4;margin:16px 0 0}.inventory-storage{border-top:1px solid #526b5f;padding-top:16px}.tier-legend{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:16px}.tier-legend span{font-size:12px;color:var(--tier)}.tier-legend i{display:inline-block;width:7px;height:7px;margin-right:5px;border-radius:50%;background:var(--tier)}
+.inventory-detail{padding:18px;border:1px solid var(--tier);border-radius:12px;background:#102723}.item-art{display:grid;place-items:center;height:82px;color:var(--tier)}.item-art .icon{width:65px;height:65px;filter:drop-shadow(0 0 12px #c7e0cb33)}.item-tier{display:block;font-size:14px;color:var(--tier);margin:10px 0}.inventory-detail h3{color:var(--tier);font-size:20px;line-height:1.3}.inventory-detail>p{font-size:14px;line-height:1.5}.item-attributes{list-style:none;padding:0;display:grid;gap:14px;margin:18px 0}.item-attributes li{display:grid;grid-template-columns:1fr auto;gap:5px;font-size:14px}.item-attributes b{color:#f2eedc}.item-attributes small{grid-column:2;text-align:right;font-size:12px}.gain{color:#96efb3}.loss{color:#ffa19b}.inventory-detail .primary-button,.inventory-detail .secondary-button{width:100%;min-height:48px;padding:10px;margin-top:12px;font-size:12px}.inventory-detail button:disabled{opacity:.4;cursor:default}
+@media(max-width:1000px){.inventory-layout{grid-template-columns:165px minmax(250px,1fr)}.inventory-detail{grid-column:1/-1}.item-art{float:left;width:90px;margin-right:18px}.inventory-detail .primary-button,.inventory-detail .secondary-button{width:auto;min-width:180px}.inventory-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(max-width:600px){.inventory-tool{padding:6px;gap:5px;min-width:76px;min-height:44px}.inventory-tool kbd,.potion-tools kbd{display:none}.potion-tools{top:100px;right:12px;bottom:auto;gap:5px}.potion-tools button{min-width:72px;padding:6px;gap:4px;flex-direction:column;min-height:54px}.potion-tools .icon{width:18px;height:18px}.potion-tools button span{font-size:12px}.inventory-panel{width:calc(100vw - 16px);max-height:calc(100dvh - 16px);padding:18px}.inventory-panel .panel-title{font-size:25px}.inventory-layout{grid-template-columns:1fr;gap:22px}.equipment-grid{grid-template-columns:repeat(4,1fr);gap:8px}.equipment-slot .loot-slot{height:auto;min-height:58px}.equipment-slot>span{font-size:12px}.character-stats{grid-template-columns:repeat(2,minmax(0,1fr));font-size:14px;gap:10px 14px;margin-top:16px}.character-stats>span{flex-direction:column;gap:3px}.inventory-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.inventory-detail{grid-column:auto}.inventory-detail .primary-button,.inventory-detail .secondary-button{width:100%;min-height:48px}.inventory-summary{gap:8px;font-size:14px}.inventory-note{font-size:14px}.header-tools{gap:5px}}
+/* Finite fire controls remain outside the drag canvas and movement stick. */
+.hearth-status{position:absolute;left:22px;top:128px;width:208px;padding:12px 14px;border:1px solid #ac795343;border-radius:10px;background:#17231de8;display:grid;gap:6px;pointer-events:none;color:#f2d2a4;font-size:14px}
+.hearth-status[hidden]{display:none}.hearth-status strong{font-size:14px;letter-spacing:.06em}.hearth-status span{font-size:14px;line-height:1.35}
+.hearth-fuel{height:6px;background:#5b443a;border-radius:4px;overflow:hidden}.hearth-fuel i{display:block;height:100%;background:linear-gradient(90deg,#c44320,#ffc85b)}
+.hearth-actions{position:absolute;right:24px;bottom:156px;display:flex;gap:14px;pointer-events:auto}.hearth-actions .ability-disc{width:64px;height:64px;border-color:#d5a477}.hearth-actions .ability-name{font-size:14px}.hearth-actions .is-held .ability-disc{background:#87401f;box-shadow:0 0 18px #ff9a3a80}
+@media(max-width:600px){.hearth-status{left:12px;top:264px;width:174px;padding:9px 11px}.hearth-actions{right:14px;bottom:260px;gap:10px}.hearth-actions .ability-disc{width:60px;height:60px}}
+@media(max-height:500px){.hearth-status{top:86px;width:180px}.hearth-actions{right:18px;bottom:136px}.hearth-actions .ability-disc{width:56px;height:56px}}
+
+/* Combined castle HUD: reserve independent spaces for each system. */
+.hearth-status{top:180px}.zone-name{font-size:12px}.context-main{font-size:14px}.context-sub{font-size:12px}.toast{font-size:14px}
+@media(max-width:650px) and (min-height:501px){.stone-status{top:190px;bottom:auto;max-width:174px}.hearth-status{top:266px}.potion-tools{top:auto;bottom:195px}.boss-track{top:190px;left:auto;right:12px;transform:none;width:160px}.toasts{top:420px}.objective-text{font-size:14px}.objective-label{font-size:12px}body[data-input="touch"] .context-strip{top:146px}.context-main{font-size:12px}}
+@media(max-height:500px){.stone-status{top:96px;bottom:auto;width:175px}.hearth-status{top:169px;width:175px;padding:7px 9px;font-size:12px}.hearth-status span{font-size:12px}.hearth-actions{bottom:115px}.potion-tools{bottom:15px;right:350px}.toasts{top:160px;left:55%}.context-main{font-size:12px}.touch-actions .ability-name,.stick-label{font-size:12px}.touch-actions .ability{min-height:65px}body[data-input="touch"] .fire-sample-control{left:215px;bottom:115px}}

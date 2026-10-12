@@ -1,0 +1,246 @@
+{
+  "errors": [],
+  "checks": [
+    {
+      "pass": true,
+      "label": "verified candidate JavaScript is served with only observed Vite transformations"
+    },
+    {
+      "pass": true,
+      "label": "verified compiled trajectory worker is served"
+    },
+    {
+      "pass": true,
+      "label": "exact verified GLB is served"
+    },
+    {
+      "pass": true,
+      "label": "no entity or physics body growth across 20 rendered restarts"
+    },
+    {
+      "pass": true,
+      "label": "bounded GPU resource counts after warm-up"
+    },
+    {
+      "pass": true,
+      "label": "normal save untouched by candidate"
+    },
+    {
+      "pass": true,
+      "label": "active fire stays within measured PC frame budget"
+    },
+    {
+      "pass": true,
+      "label": "viewer controls match the displayed pose"
+    },
+    {
+      "pass": true,
+      "label": "interactive viewer plays real 3D clip"
+    },
+    {
+      "pass": true,
+      "label": "viewer pauses actual animation"
+    },
+    {
+      "pass": true,
+      "label": "no final runtime errors"
+    }
+  ],
+  "main": {
+    "file": "engine/index-vCvgdkyE.js",
+    "sha256": "5216f2b448cf61c826b3415238f4fc5882dacbc1e884f4b0c86643771f730370"
+  },
+  "restartSamples": [
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "hall"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "courtyard"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "crypt"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "hall"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "crypt"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "courtyard"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "hall"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "courtyard"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "hall"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "courtyard"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "crypt"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "courtyard"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "hall"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "crypt"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "hall"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "crypt"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "hall"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "crypt"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "courtyard"
+    },
+    {
+      "memory": {
+        "geometries": 116,
+        "textures": 132
+      },
+      "bodies": 92,
+      "entities": 52,
+      "room": "hall"
+    }
+  ],
+  "resourceConditions": "All actor and suit meshes rendered; native viewport, same full asset population per restart.",
+  "activeFire": {
+    "fps": 236.66666666666666,
+    "p95": 4.299999999999272,
+    "max": 8.399999999999636,
+    "over50": 0
+  },
+  "cleanup": {
+    "closed": true,
+    "remainingPids": []
+  }
+}

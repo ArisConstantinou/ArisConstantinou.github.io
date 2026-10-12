@@ -7,28 +7,69 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createWorld, createPropMesh } from './world.js';
 import { loadCharacters, createCharacter } from './characters.js';
+import { loadBossCharacters, createBossCharacter } from './boss-characters.js';
+import { BOSS_DEFINITIONS, createBossLayout, insideBossRoom, bossAttackCrossed } from './boss-rules.js';
 import { createUI } from './ui.js';
 import { createEffects } from './effects.js';
 import { MagicAudio } from './audio.js';
 import { clamp, distance, lineClear, pointSegmentDistance, NavigationGrid, ProfileStore } from './systems.js';
 import { PointerMotion, gestureThrowVelocity, clampDragPoint, constrainDragPoint } from './drag.js';
+import { aimedThrowVelocity, floorThrowTarget } from './throw-aim.js';
+import {equipmentStats,isPotion,rollLoot,TIERS,itemName} from './loot.js';
+import {createLootVisual} from './loot-visuals.js';
+import {pathAroundProps} from './goliath-navigation.js';
+import { captureTrajectoryWorld, TRAJECTORY_STEPS } from './trajectory.js';
+import { impactDamage, propSelfDamage, knockbackXZ } from './impact-rules.js';
+import {FireSpell,consumeBurnDamage,consumeWoodDamage,spreadFire,fireSight} from './fire.js';
+import {createFireEffects} from './fire-effects.js';
+import { createStoneCreature } from './stone-creature.js';
+import { existingRooms, newRooms } from './castle-layout.js';
+import { STONE_LIMIT, GOLIATH_STONES, GOLIATH_CHARGE, GOLIATH_HEALTH, GOLIATH_LIFETIME, ENEMY_LIMIT,
+  CHANNEL_DURATION, CHANNEL_COOLDOWN, MINION_LIMIT, activeStones, selectStones, StoneRitual, bodyguardTarget, freePosition } from './goliath.js';
+import {loadHearth} from './hearth-character.js';
+import {createHearthSystem} from './hearth-system.js';
+import {createHearthEffects} from './hearth-effects.js';
+import {igniteActor} from './fire.js';
 import './style.css';
 
 const mobile = matchMedia('(pointer: coarse)').matches;
+const FIRE_ENABLED=new URL(location.href).searchParams.get('fire')!=='0';
+const FIRE_PREVIEW=location.pathname.includes('/.cache/');
+const FIRE_BENCHMARK=new URL(location.href).searchParams.has('benchmarkFire');
 const GROUP = {PLAYER:1, ENEMY:2, PROP:4, WORLD:8};
 let storage; try { storage = window.localStorage; } catch {}
-const save = new ProfileStore(storage), sound = new MagicAudio(save.profile.muted);
+const lootCandidate=location.pathname.includes('/.cache/loot-');
+const candidate=FIRE_PREVIEW||lootCandidate||location.pathname.includes('/.cache/goliath-')||location.pathname.includes('/.cache/latest-');
+const save = new ProfileStore(storage,candidate?'magic-integrated-preview-v1':'magic-exiled-v1',[]), sound = new MagicAudio(save.profile.muted);
+const ritual=new StoneRitual();
+let goliath=null, assemblyCreature=null, assemblyPlacement=null, ritualPressed=false, ritualStarted=0;
+let ritualPressedAt=0, ritualConjured=false, ritualAwaitingSeventh=false;
+let bosses=[], reinforcements=[], enteredRooms=new Set();
+const rooms=[...existingRooms,...newRooms];
+let goliathNav;
+let hearth,hearthFX;
 let phase='loading', ready=false, quality=mobile?'low':'high', worldMap, physics, nav, player, held=null, target=null;
+let inventoryReturnPhase='playing',lootDrops=[];
 let entities=[], arrows=[], pickups=[], kills=0, runShards=0, runTime=0, relicTaken=false, alarmTime=0, nextWave=0;
 let combo=0, comboUntil=0, lastTime=performance.now(), worldTime=0, shake=0, castTime=0, boss=null, lastHint='';
+let lastBossOrder=[];
+let fireSpell,fireFX,fireLastSpark=0;
 let renderer, composer, camera, scene, fx, moon, bloom, targetRing, playerRing, playerLight, heldLight, trajectory;
 let actorMaterial, solidMaterial;
 let drag=null;
+let trajectoryPredictor,throwPreview=null,previewAt=-Infinity,previewBody=null,previewVelocity=null;
+let previewBusy=false;
+let impactMarker;
+let aimedEnemy=null;
+let lastAimPointer=null,throwDestination=new THREE.Vector3();
+let sideTrajectory,sideArrow;
 let aimPoint=new THREE.Vector3(0,.8,5), aimDirection=new THREE.Vector3(0,0,-1), cameraTarget=new THREE.Vector3(0,0,9);
 const raycaster=new THREE.Raycaster(), groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-.8);
 const dragPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-2.1);
 const tempV=new THREE.Vector3(), tempQ=new THREE.Quaternion();
 const ui=createUI({
+  fireEnabled:FIRE_ENABLED,
+  hearth:true,
   onStart:()=>{if(ready)startRun();},
   onRestart:()=>{if(ready)startRun();},
   onPause:()=>togglePause(),
@@ -42,13 +83,58 @@ const ui=createUI({
   onDragMove:info=>moveDrag(info),
   onDragEnd:info=>finishDrag(info),
   onDragCancel:()=>cancelDrag(),
+  onAim:info=>aimAtPointer(info),
+  onInventory:()=>openInventory(),
+  onInventoryClose:()=>closeInventory(),
+  onInventoryAction:(action,id)=>inventoryAction(action,id),
+  onPotion:kind=>usePotion(kind),
+  onConjureStart:()=>beginConjure(),
+  onConjureEnd:()=>endConjure(),
+  onConjureCancel:()=>cancelRitual(),
 });
 ui.setMuted(save.profile.muted);
 ui.setQuality(quality);
+function applyEquipment(){
+  if(!player)return;const gear=equipmentStats(save.profile.loot);player.gear=gear;
+  player.maxHp=120+25*(save.profile.upgrades.vitality||0)+gear.health;
+  player.maxMana=100+20*(save.profile.upgrades.focus||0)+gear.mana;
+  player.speed=5*(1+gear.speed);player.hp=Math.min(player.hp,player.maxHp);player.mana=Math.min(player.mana,player.maxMana);
+}
+function refreshInventory(id){
+  ui.showInventory({...save.profile,storageAvailable:save.available},{hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,gear:player.gear,usable:!player.dead&&['playing','paused'].includes(inventoryReturnPhase)},id);
+}
+function openInventory(){
+  if(!ready||phase==='loading'||phase==='error')return;
+  if(phase==='inventory'){ui.hideModal();return;}
+  inventoryReturnPhase=phase;cancelRitual();releaseHeld(false);phase='inventory';refreshInventory();
+}
+function closeInventory(){if(phase!=='inventory')return;phase=document.hidden&&inventoryReturnPhase==='playing'?'paused':inventoryReturnPhase;if(phase==='paused')ui.showPause(true);}
+function inventoryAction(action,id){
+  if(phase!=='inventory')return;const item=save.profile.loot.items.find(i=>i.id===id);
+  if(action==='equip')save.equip(id);
+  if(action==='unequip'&&item)save.unequip(item.kind);
+  if(action==='salvage'&&save.salvage(id)){sound.sound('pickup');ui.toast('Ο εξοπλισμός έγινε μόνιμα θραύσματα.','success');}
+  if(action==='use'&&item)usePotion(item.kind,id);
+  applyEquipment();refreshInventory(id);
+}
+function potionCounts(){const counts={health:0,mana:0};for(const item of save.profile.loot.items)if(isPotion(item))counts[item.kind]+=item.count;return counts;}
+function usePotion(kind,id){
+  if(!player||player.dead||!(['playing','paused'].includes(phase)||phase==='inventory'&&['playing','paused'].includes(inventoryReturnPhase)))return false;
+  const item=id?save.profile.loot.items.find(i=>i.id===id&&i.kind===kind):save.profile.loot.items.filter(i=>i.kind===kind).sort((a,b)=>a.level-b.level)[0];
+  if(!isPotion(item))return false;const current=kind==='health'?'hp':'mana',maximum=kind==='health'?'maxHp':'maxMana';
+  if(player[current]>=player[maximum]-.01){ui.toast(kind==='health'?'Η ζωή σου είναι ήδη πλήρης.':'Η ενέργειά σου είναι ήδη πλήρης.','info');return false;}
+  const amount=Math.round(player[maximum]*(.25+.05*item.level)+10);
+  if(!save.consume(item.id))return false;player[current]=Math.min(player[maximum],player[current]+amount);
+  sound.sound('pickup');fx.ring(player.body.position,kind==='health'?0xffaaa0:0x8bcfff,1,.4);ui.updatePotions(potionCounts());return true;
+}
 
 function setupRenderer(){
   const canvas=document.getElementById('game-canvas');
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+  // All composer passes belong to one game frame. Reset once so Three updates
+  // each skeleton once, and counters include the full frame rather than its
+  // final fullscreen pass.
+  renderer.info.autoReset=false;
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -67,11 +153,19 @@ function setupRenderer(){
   bloom=new UnrealBloomPass(new THREE.Vector2(800,600),.34,.58,.93);composer.addPass(bloom);composer.addPass(new OutputPass());
   fx=createEffects(scene);
   targetRing=new THREE.Mesh(new THREE.RingGeometry(.72,.77,48),new THREE.MeshBasicMaterial({color:0x86ffda,transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false}));
-  targetRing.rotation.x=-Math.PI/2;targetRing.visible=false;scene.add(targetRing);
+  for(let i=0;i<4;i++){const tick=new THREE.Mesh(new THREE.PlaneGeometry(.27,.07),targetRing.material);tick.position.set(Math.cos(i*Math.PI/2)*.87,Math.sin(i*Math.PI/2)*.87,.002);tick.rotation.z=i*Math.PI/2;targetRing.add(tick);}
+  targetRing.rotation.x=-Math.PI/2;targetRing.material.depthTest=false;targetRing.renderOrder=9;targetRing.visible=false;scene.add(targetRing);
   const trajectoryGeometry=new THREE.BufferGeometry();
-  trajectoryGeometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array(28*3),3));
-  trajectory=new THREE.Line(trajectoryGeometry,new THREE.LineBasicMaterial({color:0x91f9d4,transparent:true,opacity:.22,depthWrite:false}));
+  trajectoryGeometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array((TRAJECTORY_STEPS+1)*3),3));
+  trajectory=new THREE.Line(trajectoryGeometry,new THREE.LineDashedMaterial({color:0xffce87,dashSize:.12,gapSize:.09,transparent:true,opacity:.7,depthWrite:false}));
   trajectory.frustumCulled=false;trajectory.visible=false;scene.add(trajectory);
+  impactMarker=new THREE.Mesh(new THREE.RingGeometry(.12,.18,24),new THREE.MeshBasicMaterial({color:0xffce87,side:THREE.DoubleSide,depthWrite:false}));
+  impactMarker.visible=false;scene.add(impactMarker);
+  const sideGeometry=new THREE.BufferGeometry();sideGeometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array((TRAJECTORY_STEPS+1)*3),3));
+  sideTrajectory=new THREE.Line(sideGeometry,new THREE.LineDashedMaterial({color:0xffce87,dashSize:.12,gapSize:.09,transparent:true,opacity:.85,depthTest:false,depthWrite:false}));
+  sideTrajectory.frustumCulled=false;sideTrajectory.visible=false;scene.add(sideTrajectory);
+  sideArrow=new THREE.ArrowHelper(new THREE.Vector3(1,0,0),new THREE.Vector3(),.4,0xffce87,.25,.14);sideArrow.visible=false;scene.add(sideArrow);
+  for(const mesh of [sideTrajectory,sideArrow.line,sideArrow.cone]){mesh.renderOrder=10;mesh.material.depthTest=false;mesh.material.depthWrite=false;}
   playerRing=new THREE.Group();
   for(const [r,width,opacity] of [[.62,.035,.85],[.76,.015,.3]]){
     const ring=new THREE.Mesh(new THREE.RingGeometry(r,r+width,48),new THREE.MeshBasicMaterial({color:0x88ffde,transparent:true,opacity,side:THREE.DoubleSide,depthWrite:false}));
@@ -91,8 +185,9 @@ function resize(){
   const shadowSize=quality==='high'?2048:1024;
   if(moon.shadow.mapSize.x!==shadowSize){moon.shadow.mapSize.set(shadowSize,shadowSize);moon.shadow.map?.dispose();moon.shadow.map=null;}
 }
-function staticBox(box){
+function staticBox(box,isFloor=false){
   const body=new CANNON.Body({mass:0,material:solidMaterial,shape:new CANNON.Box(new CANNON.Vec3(box.w/2,box.h/2,box.d/2)),position:new CANNON.Vec3(box.x,box.y,box.z)});
+  body.previewFloor=isFloor;
   body.collisionFilterGroup=GROUP.WORLD;body.collisionFilterMask=-1;physics.addBody(body);
 }
 function setupPhysics(){
@@ -104,7 +199,15 @@ function setupPhysics(){
   physics.addContactMaterial(new CANNON.ContactMaterial(actorMaterial,solidMaterial,{friction:0,restitution:0}));
   physics.addContactMaterial(new CANNON.ContactMaterial(actorMaterial,actorMaterial,{friction:0,restitution:0}));
   physics.addContactMaterial(new CANNON.ContactMaterial(solidMaterial,solidMaterial,{friction:.55,restitution:.15}));
-  for(const box of [...worldMap.floors,...worldMap.colliders])staticBox(box);
+  for(const box of worldMap.floors)staticBox(box,true);
+  for(const box of worldMap.colliders)staticBox(box);
+  trajectoryPredictor=new Worker(new URL('./trajectory-worker.js',import.meta.url),{type:'module'});
+  trajectoryPredictor.onmessage=({data})=>{
+    previewBusy=false;
+    if(data.error){console.error('Trajectory preview:',data.error);return;}
+    if(held?.body.id===data.bodyId){throwPreview=data.preview;throwPreview.origin=data.origin;throwPreview.velocity=data.velocity;}
+  };
+  trajectoryPredictor.onerror=event=>{previewBusy=false;console.error('Trajectory worker:',event.message);};
   nav=new NavigationGrid(worldMap.floors,worldMap.colliders);
 }
 function createHealthBar(){
@@ -113,21 +216,25 @@ function createHealthBar(){
   const fill=new THREE.Mesh(new THREE.PlaneGeometry(.94,.043),new THREE.MeshBasicMaterial({color:0xeebb8f,depthTest:false}));
   fill.position.z=.002;g.add(bg,fill);g.userData.fill=fill;g.visible=false;scene.add(g);return g;
 }
-function actor(kind,x,z,isPlayer=false){
-  const bossMode=kind==='boss',visual=createCharacter(bossMode?'heavy':kind),scale=bossMode?1.3:1;
-  if(bossMode)visual.group.scale.multiplyScalar(scale);
-  const stats={mage:{hp:120,speed:5.0,mass:5,label:'Εξόριστος'},
+function actor(kind,x,z,isPlayer=false,bossType=null,room=null){
+  const bossMode=kind==='boss',definition=bossType?BOSS_DEFINITIONS[bossType]:null;
+  const visual=definition?createBossCharacter(bossType):createCharacter(bossMode?'heavy':kind),scale=definition?1:bossMode?1.3:1;
+  if(bossMode&&!definition)visual.group.scale.multiplyScalar(scale);
+  const stats=definition?{...definition,label:definition.name}:{mage:{hp:120,speed:5.0,mass:5,label:'Εξόριστος'},
     guard:{hp:65,speed:2.3,mass:4,label:'Φρουρός'},archer:{hp:48,speed:1.9,mass:3,label:'Τοξότης'},
     heavy:{hp:135,speed:1.65,mass:9,label:'Σιδερόφρακτος'},boss:{hp:330,speed:1.55,mass:13,label:'Ο Δεσμοφύλακας'}}[kind];
   const hp=stats.hp+(isPlayer?25*(save.profile.upgrades.vitality||0):0);
-  const cy=.88*scale,r=.43*scale;
+  const cy=definition?.cy||.88*scale,r=definition?.radius||.43*scale;
   const body=new CANNON.Body({mass:stats.mass,material:actorMaterial,position:new CANNON.Vec3(x,cy+.08,z),linearDamping:.3,angularDamping:.7,fixedRotation:true,allowSleep:false});
-  body.addShape(new CANNON.Sphere(r),new CANNON.Vec3(0,-.43*scale,0));
-  body.addShape(new CANNON.Sphere(r*.92),new CANNON.Vec3(0,.32*scale,0));
+  body.addShape(new CANNON.Sphere(r),new CANNON.Vec3(0,definition?r-cy:-.43*scale,0));
+  body.addShape(new CANNON.Sphere(r*.92),new CANNON.Vec3(0,definition ? .65 : .32*scale,0));
+  if(definition)body.addShape(new CANNON.Sphere(.34),new CANNON.Vec3(0,definition.height-cy-.45,0));
   body.collisionFilterGroup=isPlayer?GROUP.PLAYER:GROUP.ENEMY;
   const e={category:'actor',kind,isPlayer,visual,mesh:visual.group,body,cy,radius:r,hp,maxHp:hp,speed:stats.speed,mass:stats.mass,label:stats.label,
     dead:false,removed:false,stun:0,invulnerable:0,hitFlash:0,thrownUntil:0,thrownBy:null,collisionTimes:new Map(),yaw:Math.PI,
     path:[],pathTick:0,aggro:false,attackCooldown:1+Math.random(),windup:0,attackType:'',guardBreak:0,spawn:{x,z},lastSafe:{x,z},deathTime:0};
+  if(definition)Object.assign(e,{bossType,room,bossClip:'Idle',bossTime:0,bossAttack:null,attackIndex:0});
+  if(bossMode){e.channel=0;e.channelCooldown=7;e.minions=new Set();}
   if(isPlayer){e.mana=100+20*(save.profile.upgrades.focus||0);e.maxMana=e.mana;e.dashCooldown=0;e.pulseCooldown=0;e.dashTime=0;e.dashDirection=new THREE.Vector3();e.shielding=false;}
   else{
     e.healthBar=createHealthBar();
@@ -148,35 +255,59 @@ function prop(kind,x,z,options={}){
   body.quaternion.setFromEuler(0,options.rotation||0,0);
   body.collisionFilterGroup=GROUP.PROP;
   const e={category:'prop',kind,mesh,body,ext,mass,radius:Math.max(ext.x,ext.z),hp:item.health||70,maxHp:item.health||70,label:item.label||'Θραύσμα',
+    flammable:item.flammable,woodFraction:item.woodFraction,
     removed:false,dead:false,thrownUntil:0,thrownBy:null,collisionTimes:new Map(),pendingBreak:false,ephemeral:!!options.ephemeral,expireAt:runTime+18,spawn:{x,z,y:body.position.y}};
   body.entity=e;body.addEventListener('collide',event=>impact(e,event));
   physics.addBody(body);scene.add(mesh);entities.push(e);return e;
 }
 function removeEntity(e){
   if(e.removed)return;if(e===held)releaseHeld(false);
+  if(e.kind==='boss')interruptChannel(e);
   e.removed=true;physics.removeBody(e.body);scene.remove(e.mesh);
   if(e.healthBar){scene.remove(e.healthBar);e.healthBar.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});}
   if(e.telegraph){scene.remove(e.telegraph);e.telegraph.geometry.dispose();e.telegraph.material.dispose();}
   if(e.shadow){scene.remove(e.shadow);e.shadow.geometry.dispose();e.shadow.material.dispose();}
   if(e.category==='actor')e.visual.dispose?.();
-  else e.mesh.traverse(o=>{o.geometry?.dispose();});
+  // Prop clones share the cached prefab's geometry/material. Removing one
+  // summoned stone must not invalidate the remaining stones or future calls.
+  if(e===goliath)goliath=null;
+  if(e.category==='prop')e.mesh.traverse(o=>{if(o.userData.ownedFireMaterial)o.material.dispose();});
 }
 function clearDynamic(){
+  cancelRitual();goliath=null;bosses=[];reinforcements=[];enteredRooms=new Set();
+  hearth?.dispose();hearthFX?.clear();
   for(const e of entities)removeEntity(e);entities=[];
   for(const a of arrows){scene.remove(a.mesh);a.mesh.geometry.dispose();a.mesh.material.dispose();}arrows=[];
   for(const p of pickups){scene.remove(p.mesh);p.mesh.geometry.dispose();p.mesh.material.dispose();}pickups=[];
+  for(const drop of lootDrops)drop.mesh.removeFromParent();lootDrops=[];
   fx.clear();held=target=null;
 }
 function populate(){
   clearDynamic();kills=runShards=runTime=combo=0;comboUntil=0;relicTaken=false;nextWave=0;alarmTime=0;shake=0;castTime=0;
   worldMap.setAlarm(false);worldMap.setRelicTaken(false);
-  for(const d of worldMap.props)prop(d.kind,d.x,d.z,d);
+  if(FIRE_ENABLED){fireSpell.reset();for(const s of fireSpell.sources)worldMap.setTorchLit(s.id,true);worldMap.resetWood();fireFX.clear();fireLastSpark=0;}
+  hearth.reset();
+  for(const original of worldMap.props){const d=hearth.propPosition(original);prop(d.kind,d.x,d.z,d);}
   player=actor('mage',worldMap.spawn.x,worldMap.spawn.z,true);
-  const spawns=[['guard',2,12.5],['guard',-5,9],['archer',7,7],['guard',-7,5.5],
-    ['guard',-4,-1],['archer',5,-4],['heavy',0,-5.8],['guard',-5.1,-5.2],
-    ['guard',-3.5,-14],['archer',4,-16]];
-  for(const [kind,x,z]of spawns)actor(kind,x,z);
-  boss=actor('boss',0,-20.5);boss.visual.setTint?.(0xa89bbb);
+  applyEquipment();player.hp=player.maxHp;player.mana=player.maxMana;
+  const bossTypes=['colossus','gargoyle','wraith',null];
+  for(let i=3;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bossTypes[i],bossTypes[j]]=[bossTypes[j],bossTypes[i]];}
+  if(bossTypes.every((t,i)=>t===lastBossOrder[i]))bossTypes.push(bossTypes.shift());lastBossOrder=[...bossTypes];
+  let bossIndex=0;
+  for(const room of rooms){
+    const spots=roomSpawnPoints(room);
+    for(let i=0;i<room.enemies;i++){const p=spots[i];if(!p)throw new Error('No safe spawn in '+room.id);const free=hearth.propPosition(p,.5);const e=actor(i%4===2?'archer':i%5===4?'heavy':'guard',free.x,free.z);e.room=room.id;}
+    if(room.boss){
+      const p=room.id==='crypt'?{x:0,z:-20.5}:spots[room.enemies];
+      const bounds={name:room.id,xMin:room.x+.7,xMax:room.x+room.w-.7,zMin:room.z+.7,zMax:room.z+room.d-.7};
+      const type=bossTypes[bossIndex++],preferred=hearth.propPosition(p,.9);
+      const free=freePosition(preferred,.9,worldMap.floors,nav.obstacles,entities,4.2,at=>insideBossRoom(at,bounds,1)&&distance(at,hearth.engine.body.position)>2.8);
+      if(!free)throw new Error('No safe boss position in '+room.id);
+      const e=actor('boss',free.x,free.z,false,type,type?bounds:room.id);
+      if(!type){e.label='Ο Επικλητής του Κάστρου';e.visual.setTint?.(0xb78bd4);}
+      bosses.push(e);if(room.id==='crypt')boss=e;
+    }
+  }
   aimPoint.set(0,.8,10);aimDirection.set(0,0,-1);targetRing.visible=false;heldLight.intensity=0;
   // Settle dynamic props before input begins. No simulation timers advance here.
   for(let i=0;i<35;i++)physics.step(1/120);
@@ -188,17 +319,17 @@ function startRun(){
   if(!save.available)ui.toast('Η πρόοδος κρατιέται για αυτή τη συνεδρία. Ο browser δεν επιτρέπει αποθήκευση.','info');
 }
 function togglePause(){
-  if(phase==='playing'){phase='paused';ui.showPause(true);}
+  if(phase==='playing'){cancelRitual();phase='paused';ui.showPause(true);}
   else if(phase==='paused'){phase='playing';ui.showPause(false);sound.start();}
 }
 function endRun(won,reason){
   if(phase!=='playing')return;
-  releaseHeld(false);phase='result';sound.sound(won?'win':'death');
+  cancelRitual();releaseHeld(false);phase='result';sound.sound(won?'win':'death');
   const result=save.finish({won,kills,time:runTime,shards:runShards});
   ui.showResult({...result,isNewBest:result.best,best:save.profile.best,reason},save.profile);
 }
 function canGrab(e){
-  if(!e||e.removed||e.isPlayer)return false;
+  if(!e||e.removed||e.isPlayer||e.ally||e.reserved)return false;
   if(e.category==='prop'||e.dead)return true;
   if(e.kind==='boss'||e.kind==='heavy')return e.stun>.3||e.guardBreak>.3;
   return true;
@@ -220,11 +351,21 @@ function pointerAtHeight(info,height){
   dragPlane.constant=-height;
   return raycaster.ray.intersectPlane(dragPlane,new THREE.Vector3());
 }
-function pickObject(info){
+function aimAtPointer(info){
+  if(!player||!pointerRay(info)||!raycaster.ray.intersectPlane(groundPlane,tempV))return;
+  aimPoint.copy(tempV);
+  if(held){
+    const moved=!lastAimPointer||Math.hypot(info.clientX-lastAimPointer.x,info.clientY-lastAimPointer.y)>2;
+    if(moved){const picked=pickObject(info,held);aimedEnemy=picked?.category==='actor'&&!picked.dead?picked:null;lastAimPointer={x:info.clientX,y:info.clientY};}
+  }
+  const dx=aimPoint.x-player.body.position.x,dz=aimPoint.z-player.body.position.z;
+  if(Math.hypot(dx,dz)>.35)aimDirection.set(dx,0,dz).normalize();
+}
+function pickObject(info,ignore=null){
   if(!pointerRay(info))return null;
   scene.updateMatrixWorld(true);
   let selected=null,nearest=Infinity;
-  const candidates=entities.filter(e=>!e.removed&&!e.isPlayer&&e.mesh.visible);
+  const candidates=entities.filter(e=>e!==ignore&&!e.removed&&!e.isPlayer&&!e.ally&&!e.reserved&&e.mesh.visible);
   for(const e of candidates){
     const p=e.body.position,r=Math.hypot(e.radius,e.ext?.y||e.cy*1.3)+.3;
     if(raycaster.ray.distanceSqToPoint(new THREE.Vector3(p.x,p.y,p.z))>r*r)continue;
@@ -262,7 +403,8 @@ function holdEntity(e){
   }
   if(!canGrab(e)){ui.toast('Χτύπησέ τον με αντικείμενο για να σπάσεις την άμυνά του.','info');return false;}
   if(player.mana<7){ui.toast('Χρειάζεσαι 7 ενέργεια για αρπαγή.','info');return false;}
-  player.mana-=7;held=e;target=null;e.body.wakeUp();
+  player.mana-=7;held=e;target=null;aimedEnemy=null;lastAimPointer=null;e.body.wakeUp();
+  if(FIRE_ENABLED)igniteWithSpell(e);
   e.body.collisionFilterMask=GROUP.ENEMY|GROUP.PROP|GROUP.WORLD;
   e.body.fixedRotation=false;e.body.updateMassProperties();e.thrownUntil=0;e.thrownBy=null;e.collisionTimes.clear();
   if(e.category==='actor'){e.body.quaternion.setFromEuler(0,e.yaw,0);e.stun=2;e.windup=0;e.visual.reset?.();}
@@ -273,7 +415,7 @@ function gestureTime(info){
   return Number.isFinite(info.timeStamp)&&Math.abs(info.timeStamp-now)<60000?info.timeStamp:now;
 }
 function beginDrag(info){
-  if(phase!=='playing'||!ready||drag)return false;
+  if(phase!=='playing'||!ready||drag||hearth.blocked)return false;
   const e=pickObject(info);
   if(!e)return false;
   if(held&&held!==e){ui.toast('Άφησε πρώτα αυτό που κρατάς.','info');return false;}
@@ -291,32 +433,193 @@ function moveDrag(info){
 }
 function currentThrowVelocity(now=performance.now()){
   if(!held)return null;
-  const fallback={x:held.body.position.x-player.body.position.x,z:held.body.position.z-player.body.position.z};
-  if(Math.hypot(fallback.x,fallback.z)<.25){fallback.x=aimDirection.x;fallback.z=aimDirection.z;}
   let motion={x:0,z:0};
   if(drag){
-    const speed=drag.motion.velocity(now),point=pointerAtHeight(drag,drag.height);
+    const speed=drag.motion.velocity(now,true),point=pointerAtHeight(drag,drag.height);
     const before=pointerAtHeight({clientX:drag.clientX-speed.x*.1,clientY:drag.clientY-speed.y*.1},drag.height);
     // Convert pointer motion with one camera transform so camera following the
     // walking mage cannot create an accidental throwing gesture.
     if(point&&before)motion={x:(point.x-before.x)*10,z:(point.z-before.z)*10};
   }
-  return gestureThrowVelocity(motion,fallback,save.profile.upgrades.grip||0);
+  const power=gestureThrowVelocity(motion,aimDirection,save.profile.upgrades.grip||0).speed;
+  if(aimedEnemy&&(aimedEnemy.dead||aimedEnemy.removed||distance(aimedEnemy.body.position,aimPoint)>3))aimedEnemy=null;
+  throwDestination.copy(aimedEnemy?.body.position||new THREE.Vector3(aimPoint.x,held.ext?.y||held.cy,aimPoint.z));
+  if(!aimedEnemy&&!nav.onFloor(throwDestination.x,throwDestination.z)){
+    throwDestination.copy(floorThrowTarget(throwDestination,worldMap.floors));
+  }
+  let velocity=aimedThrowVelocity(held.body.position,throwDestination,power,held.body.linearDamping,physics.gravity.y);
+  if(aimedEnemy){
+    for(let i=0;i<3;i++){
+      const lead=Math.min(.75,velocity.duration),p=aimedEnemy.body.position,v=aimedEnemy.body.velocity;
+      const decay=-Math.log(1-aimedEnemy.body.linearDamping),travel=decay?(1-Math.exp(-decay*lead))/decay:lead;
+      throwDestination.set(p.x+v.x*travel,p.y,p.z+v.z*travel);
+      velocity=aimedThrowVelocity(held.body.position,throwDestination,power,held.body.linearDamping,physics.gravity.y);
+    }
+  }
+  return velocity;
 }
 function finishDrag(info){
   if(phase!=='playing'||!drag||drag.pointerId!==info.pointerId)return;
-  moveDrag(info);const velocity=currentThrowVelocity(gestureTime(info));
+  moveDrag(info);aimAtPointer(info);const velocity=currentThrowVelocity(gestureTime(info));
   if(held&&velocity)throwHeld(velocity);else drag=null;
 }
 function cancelDrag(){if(drag)releaseHeld(false);}
+function roomSpawnPoints(room){
+  const result=[];
+  for(let z=room.z+2;z<room.z+room.d-1.5;z+=2.2)for(let x=room.x+2;x<room.x+room.w-1.5;x+=2.2){
+    if(!nav.isFree(x,z)||distance({x,z},worldMap.spawn)<4)continue;
+    if(entities.some(e=>!e.removed&&distance(e.body.position,{x,z})<e.radius+1.0))continue;
+    result.push({x,z});
+  }
+  // Spread each room's group across its interior rather than one crowded edge.
+  return result.sort((a,b)=>Math.sin(a.x*17+a.z*31)-Math.sin(b.x*17+b.z*31));
+}
+function ritualCandidates(){
+  return selectStones(entities,player.body.position,e=>distance(e.body.position,player.body.position)<=telekinesisReach()+2
+    &&visibleLine(player.body.position,e.body.position,.05));
+}
+function chargeRitual(stones){
+  if(!ritual.begin(stones))return false;
+  ritualStarted=runTime;
+  for(const e of stones)e.reserved=true;
+  return true;
+}
+function beginConjure(){
+  if(phase!=='playing'||ritualPressed)return;
+  ritualPressed=true;ritualPressedAt=runTime;ritualConjured=false;ritualAwaitingSeventh=false;
+  if(goliath&&!goliath.removed&&!goliath.dead){ritualConjured=!!conjure();return;}
+  const stones=ritualCandidates();
+  if(stones.length<GOLIATH_STONES){ritualAwaitingSeventh=stones.length===GOLIATH_STONES-1;ritualConjured=!!conjure();return;}
+  chargeRitual(stones);
+}
+function endConjure(){
+  const short=ritual.phase==='charge',needsStone=!ritualConjured;
+  ritualPressed=false;ritualAwaitingSeventh=false;
+  if(short){cancelRitual();if(needsStone)conjure();}
+  ritualConjured=false;
+  // Release after the charge commits the assembly; focus/pause/cancel still
+  // restores all seven stones. Repeated keydown cannot start a second ritual.
+}
+function restoreStone(e){
+  const restore=e.assemblyRestore;
+  if(restore){
+    const part=assemblyCreature.parts.get(restore.part);
+    for(const child of [...part.mesh.children])part.mesh.remove(child);
+    part.mesh.geometry=restore.geometry;part.mesh.material=restore.material;
+    e.mesh.add(part.mesh);part.mesh.position.copy(restore.localPosition);part.mesh.quaternion.copy(restore.localQuaternion);
+    physics.addBody(e.body);e.body.velocity.copy(restore.velocity);e.body.angularVelocity.copy(restore.angularVelocity);
+    e.mesh.visible=true;e.assemblyRestore=null;
+  }
+  e.reserved=false;e.expireAt+=Math.max(0,runTime-ritualStarted);
+}
+function cancelRitual(){
+  ritualPressed=false;ritualConjured=false;ritualAwaitingSeventh=false;
+  for(const e of ritual.cancel())if(!e.removed)restoreStone(e);
+  assemblyCreature?.dispose();assemblyCreature=null;assemblyPlacement=null;
+}
+function startAssembly(){
+  const p=player.body.position;
+  assemblyPlacement=freePosition({x:p.x+aimDirection.x*2.7,z:p.z+aimDirection.z*2.7},1.4,
+    worldMap.floors,nav.obstacles,entities.filter(e=>!ritual.stones.includes(e)),4.2,at=>visibleLine(p,at,1.0));
+  if(!assemblyPlacement){cancelRitual();ui.toast('Δεν υπάρχει αρκετός ελεύθερος χώρος για Goliath.','info');return;}
+  assemblyCreature=createStoneCreature();assemblyCreature.group.position.set(assemblyPlacement.x,0,assemblyPlacement.z);
+  assemblyCreature.group.rotation.y=player.yaw;assemblyCreature.group.updateMatrixWorld(true);scene.add(assemblyCreature.group);
+  const inverse=assemblyCreature.group.quaternion.clone().invert();
+  const starts=ritual.stones.map((e,index)=>{
+    if(e===held)releaseHeld(false);
+    e.mesh.position.copy(e.body.position);e.mesh.quaternion.copy(e.body.quaternion);e.mesh.updateMatrixWorld(true);
+    const source=e.mesh.children.find(n=>n.isMesh),name=assemblyCreature.assemblyOrder[index],part=assemblyCreature.parts.get(name);
+    const worldPosition=source.getWorldPosition(new THREE.Vector3()),worldQuaternion=source.getWorldQuaternion(new THREE.Quaternion());
+    e.assemblyRestore={part:name,geometry:source.geometry,material:source.material,localPosition:source.position.clone(),localQuaternion:source.quaternion.clone(),
+      velocity:e.body.velocity.clone(),angularVelocity:e.body.angularVelocity.clone()};
+    // Transfer each real stone's mesh identity into its articulated body part.
+    for(const child of [...part.mesh.children])source.add(child);
+    source.geometry=part.mesh.geometry;source.material=part.mesh.material;part.root.remove(part.mesh);part.root.add(source);part.mesh=source;
+    source.userData.sourceBodyId=e.body.id;source.position.set(0,0,0);source.quaternion.identity();
+    physics.removeBody(e.body);e.mesh.visible=false;
+    return {position:assemblyCreature.group.worldToLocal(worldPosition),quaternion:inverse.clone().multiply(worldQuaternion)};
+  });
+  assemblyCreature.setAssemblyStarts(starts);assemblyCreature.assemble(0);sound.sound('grab');
+}
+function activateGoliath(){
+  const visual=assemblyCreature,at=assemblyPlacement;assemblyCreature=null;assemblyPlacement=null;
+  for(const e of ritual.stones){e.reserved=false;e.assemblyRestore=null;removeEntity(e);}
+  ritual.reset();
+  const body=new CANNON.Body({mass:38,material:actorMaterial,position:new CANNON.Vec3(at.x,1.67,at.z),
+    fixedRotation:true,allowSleep:false,linearDamping:.3,linearFactor:new CANNON.Vec3(1,0,1),shape:new CANNON.Box(new CANNON.Vec3(.84,1.65,.62))});
+  // The bodyguard walks on the flat castle floors. Overlapping actors at the
+  // end of assembly must separate horizontally rather than launch it upwards.
+  // A 2cm floor clearance also avoids contact normals at coplanar tile seams.
+  body.collisionFilterGroup=16;
+  const e={category:'actor',kind:'goliath',ally:true,isPlayer:false,visual:{group:visual.group,dispose:visual.dispose},creature:visual,mesh:visual.group,body,
+    cy:1.65,radius:.95,mass:38,hp:GOLIATH_HEALTH,maxHp:GOLIATH_HEALTH,speed:4.6,label:'Goliath',yaw:visual.group.rotation.y,
+    removed:false,dead:false,stun:0,hitFlash:0,guardBreak:0,attackPulse:0,windup:0,thrownUntil:0,collisionTimes:new Map(),path:[],pathTick:0,
+    expires:runTime+GOLIATH_LIFETIME,healthBar:createHealthBar(),strikeTime:0,strikeCooldown:0,strikeTarget:null,strikeSide:1};
+  body.entity=e;physics.addBody(body);entities.push(e);goliath=e;
+  ui.toast('Ο Goliath παίρνει θέση μπροστά σου.','success');fx.ring(body.position,0x8bffda,2,.5);
+}
+function updateRitual(dt){
+  if(ritual.phase==='idle'){
+    if(!ritualPressed||goliath&&!goliath.removed&&!goliath.dead||runTime-ritualPressedAt<.15)return;
+    let stones=ritualCandidates();
+    // A held press can create the seventh stone, including after mana recovers.
+    // A short tap still creates only one stone; key repeat never creates more.
+    if(ritualAwaitingSeventh&&!ritualConjured&&stones.length===GOLIATH_STONES-1&&!held
+      &&player.mana>=16&&activeStones(entities).length<STONE_LIMIT){ritualConjured=!!conjure();stones=ritualCandidates();}
+    if(stones.length<GOLIATH_STONES||!chargeRitual(stones))return;
+  }
+  const valid=ritual.stones.every(e=>!e.removed&&!e.pendingBreak&&(ritual.phase!=='charge'||
+    distance(e.body.position,player.body.position)<=telekinesisReach()+2&&visibleLine(player.body.position,e.body.position,.05)))&&!player.dead;
+  const transition=ritual.tick(dt,valid);
+  if(transition==='cancelled'){cancelRitual();if(!player.dead)ui.toast('Οι 7 πέτρες πρέπει να μείνουν κοντά και χωρίς τοίχο ανάμεσα. Πλησίασε και ξανακράτησε R / ΠΕΤΡΑ.','info');return;}
+  if(transition==='assemble'&&!assemblyCreature)startAssembly();
+  if(assemblyCreature){assemblyCreature.assemble(ritual.elapsed);castTime=.2;if(ritual.elapsed>=assemblyCreature.assembly.duration)activateGoliath();}
+}
+function updateGoliath(e,dt){
+  if(e.dead)return;
+  if(runTime>=e.expires){e.dead=true;e.deathTime=runTime;physics.removeBody(e.body);ui.toast('Ο δεσμός του Goliath ολοκληρώθηκε.','info');return;}
+  const p=e.body.position,pp=player.body.position;
+  const threat=entities.filter(n=>n!==held&&n.category==='actor'&&!n.isPlayer&&!n.ally&&!n.dead&&!n.removed&&n.aggro&&distance(n.body.position,pp)<12
+    &&visibleLine(pp,n.body.position,.1)).sort((a,b)=>distance(a.body.position,pp)-distance(b.body.position,pp))[0];
+  let destination={x:pp.x+aimDirection.x*2.2,z:pp.z+aimDirection.z*2.2};
+  if(threat){const t=threat.body.position,d=distance(pp,t)||1;destination={x:pp.x+(t.x-pp.x)/d*Math.min(2.5,d*.55),z:pp.z+(t.z-pp.z)/d*Math.min(2.5,d*.55)};}
+  e.strikeCooldown=Math.max(0,e.strikeCooldown-dt);
+  const facing=threat?Math.atan2(Math.sin(Math.atan2(threat.body.position.x-p.x,threat.body.position.z-p.z)-e.yaw),Math.cos(Math.atan2(threat.body.position.x-p.x,threat.body.position.z-p.z)-e.yaw)):Math.PI;
+  if(!e.strikeTime&&threat&&Math.abs(facing)<.6&&Math.abs(threat.body.position.y-p.y)<1.8&&distance(p,threat.body.position)<2.3&&e.strikeCooldown<=0&&visibleLine(p,threat.body.position,.05)){
+    e.strikeTime=.0001;e.strikeTarget=threat;e.strikeHit=false;e.strikeSide*=-1;
+  }
+  if(e.strikeTime){
+    e.strikeTime+=dt;const victim=e.strikeTarget;
+    if(e.strikeTime>=.59&&!e.strikeHit){
+      e.strikeHit=true;
+      if(victim&&victim!==held&&!victim.dead&&!victim.removed&&Math.abs(victim.body.position.y-p.y)<1.8&&distance(p,victim.body.position)<2.65&&visibleLine(p,victim.body.position,.05)){
+        hurt(victim,34,p);victim.stun=Math.max(victim.stun,.45);victim.guardBreak=2;
+        fx.burst(victim.body.position,0xafffd8,16,2.5);fx.ring(p,0x8bffda,1.5,.25);sound.sound('impact');
+      }
+    }
+    if(e.strikeTime>=1.14){e.strikeTime=0;e.strikeTarget=null;e.strikeCooldown=.6;}
+  }
+  if(e.pathTick<=0){
+    e.path=pathAroundProps(goliathNav,p,destination,hearth.engine?[...entities,{category:'prop',body:hearth.engine.body}]:entities);e.pathTick=.45;
+  }e.pathTick-=dt;
+  while(e.path.length&&distance(p,e.path[0])<.5)e.path.shift();
+  const to=e.path[0],d=to?distance(p,to):0,speed=e.strikeTime||distance(p,destination)<.8?0:e.speed;
+  const k=Math.min(1,dt*7);
+  e.body.velocity.x+=((to&&d?(to.x-p.x)/d*speed:0)-e.body.velocity.x)*k;
+  e.body.velocity.z+=((to&&d?(to.z-p.z)/d*speed:0)-e.body.velocity.z)*k;
+  const look=e.strikeTarget?.body.position||threat?.body.position||{x:pp.x+aimDirection.x*8,z:pp.z+aimDirection.z*8};
+  e.yaw=turnToward(e.yaw,Math.atan2(look.x-p.x,look.z-p.z),dt*4);e.protecting=!!threat;
+}
 function conjure(){
   if(held)return;
+  if(activeStones(entities).length>=STONE_LIMIT){ui.toast('Όριο 10 πετρών · πλησίασε 7 πέτρες και κράτησε R / ΠΕΤΡΑ.','info');return;}
   if(player.mana<16){ui.toast('Χρειάζεσαι 16 ενέργεια για να καλέσεις πέτρα.','info');return;}
   const p=player.body.position,from={x:p.x,y:1.2,z:p.z};
   const point=constrainDragPoint(from,{x:p.x+aimDirection.x*1.6,y:1.2,z:p.z+aimDirection.z*1.6},worldMap.colliders,.6,.5);
   player.mana-=16;const e=prop('stone',point.x,point.z,{y:point.y,mass:2,ephemeral:true});
   fx.burst(e.body.position,0x8bffda,25,1.6);fx.ring(e.body.position,0x8bffda,1.1,.4);sound.sound('grab');
   ui.toast(mobile?'Άγγιξε την πέτρα και σύρε την.':'Πιάσε την πέτρα με κλικ και σύρε την.','info');
+  return e;
 }
 function releaseHeld(thrown){
   drag=null;
@@ -331,6 +634,7 @@ function releaseHeld(thrown){
 }
 function throwHeld(v=currentThrowVelocity()){
   if(!held||!v)return;
+  if(!hearth.throw()){ui.toast('Η καρδιά δεν έχει αρκετή φωτιά για ρίψη.','info');return;}
   const e=held,p=e.body.position;
   const speed=Math.hypot(v.x,v.z)||1;
   releaseHeld(true);e.body.velocity.set(v.x,v.y,v.z);e.body.angularVelocity.set(-v.z/speed*4,2,v.x/speed*4);
@@ -359,36 +663,39 @@ function updateHeld(dt,input){
   if(player.mana<=0){releaseHeld(false);ui.toast('Η ενέργεια εξαντλήθηκε — άφησες τον στόχο.','info');return;}
   heldLight.position.copy(pos);heldLight.intensity=3.5;
   const from={x:player.body.position.x+aimDirection.x*.5,y:1.35,z:player.body.position.z+aimDirection.z*.5};
+  if(hearth.mounted){const p=hearth.engine.visual.point('hand_L');Object.assign(from,{x:p.x,y:p.y,z:p.z});}
   fx.connect(from,pos,worldTime);
   if(Math.random()<dt*22)fx.burst(pos,0x78ffd0,1,.4);
 }
 function pulse(){
   if(player.pulseCooldown>0||player.mana<25)return;
-  player.mana-=25;player.pulseCooldown=5.2;castTime=.4;
+  player.mana-=25;player.pulseCooldown=5.2*(1-player.gear.cooldown);castTime=.4;
   const radius=4.6+.65*(save.profile.upgrades.pulse||0),p=player.body.position;
   fx.ring(p,0x92ffe0,radius,.5);fx.burst({x:p.x,y:1,z:p.z},0x9cffdf,65,7);
   sound.sound('pulse');shake=.3;
   for(const e of entities){
-    if(e.removed||e.isPlayer||e===held)continue;
+    if(e.removed||e.isPlayer||e.ally||e.reserved||e===held)continue;
     const d=distance(p,e.body.position);
     if(d>radius||!visibleLine(p,e.body.position,.03))continue;
     const dx=(e.body.position.x-p.x)/(d||1),dz=(e.body.position.z-p.z)/(d||1);
     e.body.wakeUp();e.body.velocity.x+=dx*9;e.body.velocity.z+=dz*9;e.body.velocity.y+=3;
     e.thrownBy='player';e.thrownUntil=runTime+2;
-    if(e.category==='actor'&&!e.dead){hurt(e,18+5*(save.profile.upgrades.pulse||0),p);e.stun=Math.max(e.stun,1.3);e.guardBreak=2.3;e.windup=0;}
+    if(e.category==='actor'&&!e.dead){hurt(e,(18+5*(save.profile.upgrades.pulse||0))*(1+player.gear.damage),p);e.stun=Math.max(e.stun,1.3);e.guardBreak=2.3;e.windup=0;}
   }
 }
 function dash(input){
+  if(hearth.occupied)return;
   if(player.dashCooldown>0||player.mana<12)return;
-  player.mana-=12;player.dashTime=.19;player.invulnerable=.3;player.dashCooldown=2.8-.55*(save.profile.upgrades.dash||0);
+  player.mana-=12;player.dashTime=.19;player.invulnerable=.3;player.dashCooldown=(2.8-.55*(save.profile.upgrades.dash||0))*(1-player.gear.cooldown);
   const dx=input.moveX||0,dz=input.moveZ||0,len=Math.hypot(dx,dz);
   player.dashDirection.set(len?dx/len:aimDirection.x,0,len?dz/len:aimDirection.z);
   sound.sound('dash');fx.ring(player.body.position,0x81ffda,1.7,.23);
 }
 function interact(){
+  if(hearth.interact(runTime))return;
   const p=player.body.position;
   if(!relicTaken&&distance(p,worldMap.relic.position)<3){
-    if(boss&&!boss.dead){ui.toast('Νίκησε τον Δεσμοφύλακα για να ελευθερώσεις το Σκήπτρο.','info');return;}
+    if(entities.some(e=>e.kind==='boss'&&!e.dead&&!e.removed)){ui.toast('Νίκησε και τους τέσσερις φύλακες για να ελευθερώσεις το Σκήπτρο.','info');return;}
     relicTaken=true;alarmTime=runTime;nextWave=runTime+14;runShards+=5;
     worldMap.setRelicTaken(true);worldMap.setAlarm(true);
     sound.sound('relic');fx.ring(worldMap.relic.position,0xffca82,6,.9);shake=.4;
@@ -398,25 +705,114 @@ function interact(){
   if(relicTaken&&distance(p,worldMap.exit.position)<2.8){endRun(true,'Το Μαύρο Σκήπτρο είναι ελεύθερο.');return;}
   ui.toast(relicTaken?'Η πύλη βρίσκεται νότια, από εκεί που μπήκες.':'Βρες το Σκήπτρο στην κρύπτη, βόρεια.','info');
 }
+function absorbFire(){
+  if(hearth.blocked||!fireSpell.take(player,(a,b)=>visibleLine(a,b,.01),held,runTime))return;
+  worldMap.setTorchLit(fireSpell.torch.id,false);castTime=.45;sound.sound('fireTake');fx.burst(fireSpell.torch.position,0xffb44a,15,1.2);
+}
 function spawnReinforcements(){
-  const living=entities.filter(e=>e.category==='actor'&&!e.isPlayer&&!e.dead&&!e.removed).length;
-  if(living>13)return;
-  for(const [kind,x,z]of [['guard',-8,15],['guard',8,14],['archer',-6,2]]){
-    const e=actor(kind,x,z);e.aggro=true;fx.ring(e.body.position,0xe4a37e,1.4,.6);fx.burst(e.body.position,0xe2a47d,20,2);
+  const room=rooms.find(r=>player.body.position.x>=r.x&&player.body.position.x<=r.x+r.w&&player.body.position.z>=r.z&&player.body.position.z<=r.z+r.d);
+  if(!room||livingEnemies()+reinforcements.length>=ENEMY_LIMIT)return;
+  const doors=worldMap.doorways.filter(d=>d.rooms.includes(room.id));
+  let added=0;
+  for(const door of doors.slice(0,3)){
+    const p=freePosition(door,.65,worldMap.floors,nav.obstacles,entities,2.4);
+    if(!p||distance(p,player.body.position)<3.5||reinforcements.some(w=>distance(w,p)<2))continue;
+    reinforcements.push({...p,at:runTime+2.5,room:room.id});added++;fx.ring({x:p.x,y:.05,z:p.z},0xe4a37e,1,2.5);
+  }
+  if(added)ui.toast('Βήματα στις εισόδους · έρχονται ενισχύσεις.','danger');
+}
+function livingEnemies(){return entities.filter(e=>e.category==='actor'&&!e.isPlayer&&!e.ally&&!e.dead&&!e.removed).length;}
+function updateReinforcements(){
+  const room=rooms.find(r=>player.body.position.x>=r.x&&player.body.position.x<=r.x+r.w&&player.body.position.z>=r.z&&player.body.position.z<=r.z+r.d);
+  if(room&&!enteredRooms.has(room.id)){enteredRooms.add(room.id);if(room.id!=='courtyard'&&room.id!=='bridge')spawnReinforcements();}
+  for(let i=reinforcements.length-1;i>=0;i--){const w=reinforcements[i];if(runTime<w.at)continue;reinforcements.splice(i,1);
+    if(livingEnemies()>=ENEMY_LIMIT)continue;
+    const p=freePosition(w,.65,worldMap.floors,nav.obstacles,entities,1.2);
+    if(!p||distance(p,player.body.position)<2.5)continue;
+    const e=actor(i%3===1?'archer':'guard',p.x,p.z);e.aggro=true;e.room=w.room;fx.burst(e.body.position,0xe2a47d,20,2);
   }
 }
+function interruptChannel(e){if(e.channel>0){e.channel=0;e.channelCooldown=4;e.channelRing?.removeFromParent();e.channelRing?.geometry.dispose();e.channelRing?.material.dispose();e.channelRing=null;}}
+function startChannel(e){
+  e.channel=.0001;e.channelCooldown=CHANNEL_COOLDOWN;e.windup=0;e.body.velocity.x=e.body.velocity.z=0;
+  e.channelRing=new THREE.Mesh(new THREE.RingGeometry(1.7,1.78,48),new THREE.MeshBasicMaterial({color:0xc192ed,transparent:true,opacity:.65,side:THREE.DoubleSide,depthWrite:false}));
+  e.channelRing.rotation.x=-Math.PI/2;scene.add(e.channelRing);
+  ui.toast(e.label+' καλεί ενισχύσεις · χτύπα για διακοπή.','danger');
+}
+function finishChannel(e){
+  interruptChannel(e);e.channelCooldown=CHANNEL_COOLDOWN;
+  for(const minion of e.minions)if(minion.dead||minion.removed)e.minions.delete(minion);
+  const count=Math.min(3,MINION_LIMIT-e.minions.size,ENEMY_LIMIT-livingEnemies());
+  for(let i=0;i<count;i++){
+    const a=i*Math.PI*2/3,origin={x:e.body.position.x+Math.sin(a)*2.6,z:e.body.position.z+Math.cos(a)*2.6};
+    const p=freePosition(origin,.65,worldMap.floors,nav.obstacles,entities,4.2,at=>distance(at,player.body.position)>=2&&visibleLine(e.body.position,at,.5));if(!p)continue;
+    const m=actor(['guard','archer','heavy'][i],p.x,p.z);m.aggro=true;m.room=e.room;m.summoner=e;e.minions.add(m);
+    fx.ring(m.body.position,0xc192ed,1.6,.8);fx.burst(m.body.position,0xc192ed,28,3);
+  }
+  sound.sound('relic');
+}
 
+function fireLineClear(a,b){return fireSight(a,b,nav.obstacles);}
+function igniteWithSpell(e){
+  if(!fireSpell.ignite(e,runTime))return false;
+  const p=e.body?.position||e.position;fx.burst(p,0xffa43d,12,1.1);sound.sound('fireIgnite');return true;
+}
+function fireTarget(input){
+  if(held?.flammable)return held;
+  if(target?.flammable)return target;
+  if(!input.pointerActive||!pointerRay({clientX:input.pointerX,clientY:input.pointerY}))return null;
+  const meshes=[...new Set(worldMap.woodenSurfaces.map(w=>w.mesh))];
+  for(const hit of raycaster.intersectObjects(meshes,false)){
+    const wood=worldMap.woodenSurfaces.find(w=>w.mesh===hit.object&&w.index===hit.instanceId);
+    if(wood)return wood;
+  }
+  return null;
+}
+function takeFire(input){
+  const wood=fireTarget(input),p=wood?.body?.position||wood?.position;
+  if(fireSpell.charged&&wood&&distance(player.body.position,p)<=telekinesisReach()&&fireLineClear(player.body.position,p)){
+    igniteWithSpell(wood);return;
+  }
+  if(!fireSpell.take(player,fireLineClear,held,runTime,aimPoint)){
+    ui.toast(fireSpell.charged?'Στόχευσε ξύλο ή σήκωσέ το για να το ανάψεις.':'Πλησίασε έναν αναμμένο πυρσό ή πύρινο πυλώνα.','info');return;
+  }
+  worldMap.setTorchLit(fireSpell.torch.id,fireSpell.torch.lit);castTime=.45;
+  fx.burst(fireSpell.torch.position,0xffb44a,15,1.2);sound.sound('fireTake');
+}
+function updateFire(){
+  if(held)igniteWithSpell(held);
+  for(const contact of physics.contacts){spreadFire(contact.bi.entity,contact.bj.entity,runTime);spreadFire(contact.bj.entity,contact.bi.entity,runTime);}
+  // Physical contact with a flame lights wood even without drawing it first.
+  for(const e of entities)if(e.flammable&&!e.removed&&!(e.burnUntil>runTime)&&!e.woodExhausted){
+    for(const s of fireSpell.sources)if(s.lit){
+      tempV.copy(s.position).sub(e.body.position);tempQ.copy(e.body.quaternion).invert();tempV.applyQuaternion(tempQ);
+      const gap=Math.hypot(Math.max(0,Math.abs(tempV.x)-e.ext.x),Math.max(0,Math.abs(tempV.y)-e.ext.y),Math.max(0,Math.abs(tempV.z)-e.ext.z));
+      if(gap<.3){spreadFire({burnUntil:runTime+1},e,runTime);break;}
+    }
+  }
+  for(const e of entities)if(!e.removed){
+    if(e.flammable){
+      e.hp-=consumeWoodDamage(e,runTime);if(e.hp<=1e-6)e.pendingBreak=true;
+      if(e.burnLastTime!==undefined)e.mesh.traverse(o=>{if(o.userData.ownedFireMaterial)o.material.color.copy(o.material.userData.baseColor).lerp(new THREE.Color(0x171311),1-(e.woodFuel??1));});
+    }else if(e.category==='actor'&&!e.dead&&!e.isPlayer){const damage=consumeBurnDamage(e,runTime);if(damage)hurt(e,damage,null,true);}
+  }
+  for(const wood of worldMap.woodenSurfaces)if(wood.burnLastTime!==undefined){consumeWoodDamage(wood,runTime);worldMap.scorchWood(wood);}
+  if(runTime-fireLastSpark>.12){fireLastSpark=runTime;for(const e of entities)if(!e.removed&&e.burnUntil>runTime)fx.burst(e.body.position,0xffa13a,1,.45);}
+}
 function impact(e,event){
-  if(phase!=='playing'||e.removed||e===held)return;
+  if(FIRE_ENABLED){spreadFire(e,event.body.entity,runTime);spreadFire(event.body.entity,e,runTime);}
+  if(phase!=='playing'||e.removed||e===held||e.reserved)return;
   const other=event.body.entity;
   const speed=Math.abs(event.contact.getImpactVelocityAlongNormal());
   if(speed<4.2||e.thrownBy!=='player'||e.thrownUntil<runTime)return;
   const key=event.body.id;
   if((e.collisionTimes.get(key)||-10)>runTime-.45)return;
   e.collisionTimes.set(key,runTime);
-  if(other&&!other.removed&&!other.isPlayer){
-    const damage=clamp(speed*(2+Math.sqrt(e.mass))*(1+.12*(save.profile.upgrades.grip||0)),18,115);
+  if(other&&!other.removed&&!other.isPlayer&&!other.ally&&!other.reserved){
+    const damage=impactDamage(speed,e.mass,save.profile.upgrades.grip||0)*(1+player.gear.damage);
+    if(FIRE_ENABLED&&e.flammable&&e.burnUntil>runTime&&other.category==='actor')fireSpell.hit={time:runTime,target:other.kind,bossType:other.bossType,impactDamage:damage,hpBefore:other.hp};
     if(other.category==='actor'&&!other.dead){hurt(other,damage,e.body.position);other.stun=Math.max(other.stun,.65);other.guardBreak=2.6;}
+    if(e.fireSampleCrate&&e.burnUntil>runTime&&other.category==='actor'&&!other.dead)igniteActor(other,runTime);
     if(other.category==='prop'){
       other.hp-=damage*.55;other.thrownBy='player';other.thrownUntil=runTime+2;
       if(other.hp<=0&&other.kind!=='shield'&&other.kind!=='stone')other.pendingBreak=true;
@@ -424,19 +820,22 @@ function impact(e,event){
   }
   if(e.category==='actor'&&!e.dead&&speed>6.5){hurt(e,speed*3,e.body.position);e.guardBreak=2.2;}
   if(e.category==='prop'){
-    e.hp-=speed*(e.ephemeral?10:2.4);
+    e.hp-=propSelfDamage(speed,e.ephemeral);
     if(e.hp<=0&&(e.kind!=='stone'||e.ephemeral))e.pendingBreak=true;
   }
   if(speed>5.5){fx.burst(e.body.position,0xc0dec0,Math.min(35,Math.round(speed*2)),3.5);sound.sound('impact');shake=Math.max(shake,Math.min(.35,speed*.012));}
 }
-function hurt(e,amount,origin){
+function hurt(e,amount,origin,isBurn=false){
   if(e.removed||e.dead||phase!=='playing')return;
+  if(e.kind==='boss')interruptChannel(e);
   if(e.isPlayer){
+    amount*=1-(e.gear?.armor||0);
     if(e.invulnerable>0)return;
     if(held&&player.shielding&&origin){
       const facing=(origin.x-e.body.position.x)*aimDirection.x+(origin.z-e.body.position.z)*aimDirection.z;
       if(facing>0)amount*=.2;
     }
+    if(hearth.mounted)amount*=.45;
     e.invulnerable=.62;shake=.3;sound.sound('hurt');
     fx.number(e.body.position,'−'+Math.round(amount),'#ffae99');
     fx.burst(e.body.position,0xff9d85,14,2);
@@ -444,26 +843,43 @@ function hurt(e,amount,origin){
     fx.number(e.body.position,Math.round(amount));
     e.aggro=true;e.stun=Math.max(e.stun,.28);e.windup=0;
     e.hitFlash=.1;
+    if(e.bossType&&!isBurn){e.bossAttack=null;e.bossTime=0;e.attackCooldown=Math.max(e.attackCooldown,1.2);if(amount>=35){e.stun=Math.max(e.stun,.65);e.guardBreak=Math.max(e.guardBreak,1.6);}}
   }
   e.hp=Math.max(0,e.hp-amount);
   if(origin&&!e.isPlayer){
-    const d=distance(e.body.position,origin)||1;
-    e.body.velocity.x+=(e.body.position.x-origin.x)/d*2;
-    e.body.velocity.z+=(e.body.position.z-origin.z)/d*2;
+    const push=knockbackXZ(e.body.position,origin);
+    e.body.velocity.x+=push.x;e.body.velocity.z+=push.z;
   }
   if(e.hp>0)return;
   e.dead=true;e.deathTime=runTime;e.stun=0;e.windup=0;e.body.linearDamping=.7;
   if(e.isPlayer){endRun(false,'Οι φύλακες σε σταμάτησαν. Η επόμενη εισβολή σε περιμένει.');return;}
+  if(e.ally){physics.removeBody(e.body);ui.toast('Ο Goliath έπεσε προστατεύοντάς σε.','info');return;}
   kills++;combo=runTime<comboUntil?combo+1:1;comboUntil=runTime+4;
   const reward=e.kind==='boss'?5:e.kind==='heavy'?2:1;
   spawnPickup(e.body.position,reward);
+  spawnLoot(e);
   fx.burst(e.body.position,e.kind==='boss'?0xe8be84:0x9dffc9,e.kind==='boss'?65:25,3.5);
-  if(e.kind==='boss'){ui.toast('Ο Δεσμοφύλακας έπεσε. Πάρε το Σκήπτρο με '+(mobile?'ΧΡΗΣΗ':'E')+'.','success');sound.sound('relic');}
+  if(e.kind==='boss'){const remaining=entities.filter(a=>a.kind==='boss'&&!a.dead&&!a.removed).length;ui.toast(remaining?`${e.label} έπεσε · απομένουν ${remaining} φύλακες.`:'Οι φύλακες έπεσαν. Πάρε το Σκήπτρο με '+(mobile?'ΧΡΗΣΗ':'E')+'.','success');sound.sound('relic');}
   else if(combo>1){sound.sound('pickup');}
 }
 function spawnPickup(p,value){
   const mesh=new THREE.Mesh(new THREE.OctahedronGeometry(.16,0),new THREE.MeshStandardMaterial({color:0xd7df9f,emissive:0xbefbb7,emissiveIntensity:2,roughness:.3,metalness:.4}));
   mesh.position.set(p.x,.65,p.z);scene.add(mesh);pickups.push({mesh,value,age:0});
+}
+function spawnLoot(enemy){
+  const item=rollLoot(enemy.kind),at=freePosition(enemy.body.position,.3,worldMap.floors,nav.obstacles,[],3)||enemy.spawn;
+  const mesh=createLootVisual(item);mesh.position.set(at.x,0,at.z);scene.add(mesh);lootDrops.push({item,mesh,age:0,nextHint:0});
+}
+function updateLoot(dt){
+  for(let i=lootDrops.length-1;i>=0;i--){
+    const drop=lootDrops[i];drop.age+=dt;const d=distance(player.body.position,drop.mesh.position);
+    drop.mesh.visible=d<26;drop.mesh.userData.sprite.position.y=.7+Math.sin(drop.age*3)*.06;
+    if(d>1.25||!visibleLine(player.body.position,drop.mesh.position,.03))continue;
+    if(save.acquire(drop.item)){
+      ui.toast(`${itemName(drop.item)} · Lv ${drop.item.level}`,'success');sound.sound('pickup');fx.burst(drop.mesh.position,new THREE.Color(TIERS[drop.item.level].color).getHex(),9,1.5);
+      drop.mesh.removeFromParent();lootDrops.splice(i,1);
+    }else if(runTime>=drop.nextHint){drop.nextHint=runTime+8;ui.toast('Ο σάκος γέμισε. Άνοιξε I / ΣΑΚΟΣ και διάλυσε εξοπλισμό. Το drop μένει στο έδαφος.','info');}
+  }
 }
 function updatePickups(dt){
   for(let i=pickups.length-1;i>=0;i--){
@@ -475,9 +891,10 @@ function updatePickups(dt){
       sound.sound('pickup');fx.burst(p.mesh.position,0xbaffba,8,1);scene.remove(p.mesh);p.mesh.geometry.dispose();p.mesh.material.dispose();pickups.splice(i,1);}
   }
 }
-function fireArrow(e){
-  const p=e.body.position,pp=player.body.position;
-  const from=new THREE.Vector3(p.x,1.35,p.z),to=new THREE.Vector3(pp.x,1,pp.z);
+function fireArrow(e,victim=e.victim||player){
+  if(victim.dead||victim.removed)return;
+  const p=e.body.position,pp=victim.body.position;
+  const from=new THREE.Vector3(p.x,1.35,p.z),to=new THREE.Vector3(pp.x,victim.ally?1.7:1,pp.z);
   const dir=to.clone().sub(from).normalize();
   const mesh=new THREE.Mesh(new THREE.CylinderGeometry(.035,.055,.85,5),new THREE.MeshStandardMaterial({color:e.kind==='boss'?0xba88e0:0xdbb18a,emissive:e.kind==='boss'?0x8944cf:0x985d26,emissiveIntensity:1.2,roughness:.5}));
   mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);mesh.position.copy(from);scene.add(mesh);
@@ -489,11 +906,11 @@ function updateArrows(dt){
     const a=arrows[i];a.age+=dt;a.previous.copy(a.mesh.position);a.mesh.position.addScaledVector(a.dir,a.speed*dt);
     let hit=a.age>3.5||!visibleLine(a.previous,a.mesh.position,.05);
     if(!hit){
-      for(const e of entities){
+      for(const e of [...entities].sort((e,f)=>distance(e.body.position,a.previous)-distance(f.body.position,a.previous))){
         if(e.removed||e===a.owner||(e.dead&&e!==held))continue;
-        if(e.category==='actor'&&!e.isPlayer&&e!==held)continue;
+        if(e.reserved||e.category==='actor'&&!e.isPlayer&&!e.ally&&e!==held)continue;
         const p=e.body.position;
-        if(pointSegmentDistance(p,a.previous,a.mesh.position)<e.radius+.12&&Math.abs(a.mesh.position.y-p.y)<(e.ext?.y||.85)){
+        if(pointSegmentDistance(p,a.previous,a.mesh.position)<e.radius+.12&&Math.abs(a.mesh.position.y-p.y)<(e.ext?.y||(e.ally?1.65:.85))){
           hit=true;
           if(e.category==='actor')hurt(e,a.damage,a.previous);
           else{fx.burst(a.mesh.position,0xffd6a0,12,2);e.body.wakeUp();e.body.velocity.x+=a.dir.x*.7;e.body.velocity.z+=a.dir.z*.7;sound.sound('impact');}
@@ -505,30 +922,99 @@ function updateArrows(dt){
   }
 }
 function enemyAttack(e){
-  if(e.kind==='archer'){fireArrow(e);e.attackCooldown=2.8;return;}
-  const d=distance(e.body.position,player.body.position);
+  const victim=e.victim||player;if(victim.dead||victim.removed){e.attackCooldown=.4;return;}
+  if(e.kind==='archer'){fireArrow(e,victim);e.attackCooldown=2.8;return;}
+  const d=distance(e.body.position,victim.body.position);
   if(e.kind==='boss'&&e.attackType==='wave'){
     const r=4.1;fx.ring(e.body.position,0xe8a178,r,.55);fx.burst(e.body.position,0xffb786,35,5);
-    if(d<r&&visibleLine(e.body.position,player.body.position,.05))hurt(player,24,e.body.position);
-    for(const prop of entities){if(prop.category==='prop'&&!prop.removed&&prop!==held&&distance(prop.body.position,e.body.position)<r){
+    for(const target of [player,goliath])if(target&&!target.dead&&!target.removed&&distance(e.body.position,target.body.position)<r&&visibleLine(e.body.position,target.body.position,.05))hurt(target,24,e.body.position);
+    for(const prop of entities){if(prop.category==='prop'&&!prop.removed&&!prop.reserved&&prop!==held&&distance(prop.body.position,e.body.position)<r){
       const pd=distance(prop.body.position,e.body.position)||1;prop.body.wakeUp();prop.body.velocity.x+=(prop.body.position.x-e.body.position.x)/pd*5;prop.body.velocity.z+=(prop.body.position.z-e.body.position.z)/pd*5;}}
     e.attackCooldown=3.4;sound.sound('pulse');return;
   }
   const reach=e.kind==='boss'?2.8:e.kind==='heavy'?2.6:2;
-  if(d<reach&&visibleLine(e.body.position,player.body.position,.08)){
-    hurt(player,e.kind==='boss'?24:e.kind==='heavy'?18:11,e.body.position);
+  if(d<reach&&visibleLine(e.body.position,victim.body.position,.08)){
+    hurt(victim,e.kind==='boss'?24:e.kind==='heavy'?18:11,e.body.position);
   }
   e.attackCooldown=e.kind==='boss'?1.8:e.kind==='heavy'?2.0:1.3;
 }
-function updateEnemy(e,dt){
+function updateBossEnemy(e,dt){
   if(e.dead||e.removed)return;
+  const victim=e.bossAttack?e.victim:bodyguardTarget(e,player,goliath,visibleLine);
+  if(!victim||victim.dead||victim.removed)return;
+  const def=BOSS_DEFINITIONS[e.bossType],p=e.body.position,pp=victim.body.position;
   e.attackCooldown=Math.max(0,e.attackCooldown-dt);e.pathTick-=dt;e.guardBreak=Math.max(0,e.guardBreak-dt);
-  if(e===held||e.stun>0||e.thrownUntil>runTime&&e.body.position.y>1.6){
-    e.windup=0;return;
+  if(e===held){interruptChannel(e);e.bossAttack=null;e.windup=0;return;}
+  if(e.thrownUntil>runTime&&p.y>e.cy+.5){e.windup=0;e.bossAttack=null;return;}
+  const roomMargin=e.radius+.1;
+  if(!insideBossRoom(p,e.room,roomMargin)){
+    p.x=clamp(p.x,e.room.xMin+roomMargin,e.room.xMax-roomMargin);p.z=clamp(p.z,e.room.zMin+roomMargin,e.room.zMax-roomMargin);
+    if(!nav.isFree(p.x,p.z)){p.x=e.spawn.x;p.z=e.spawn.z;}
+    e.body.aabbNeedsUpdate=true;e.body.velocity.x=e.body.velocity.z=0;e.pathTick=0;
   }
-  const pp=player.body.position,p=e.body.position,d=distance(p,pp),sight=visibleLine(p,pp,.12);
+  if(e.stun>0){interruptChannel(e);e.bossAttack=null;e.windup=0;e.bossStaggerTime=(e.bossStaggerTime||0)+dt;return;}
+  e.bossStaggerTime=0;
+  const sameRoom=insideBossRoom(pp,e.room),d=distance(p,pp),sight=visibleLine(p,pp,.12);
+  e.aggro=sameRoom&&d<12;
+  if(!sameRoom){interruptChannel(e);e.bossAttack=null;e.bossClip='Idle';e.windup=0;e.body.velocity.x*=.8;e.body.velocity.z*=.8;return;}
+  e.channelCooldown=Math.max(0,e.channelCooldown-dt);
+  if(e.channel>0){
+    e.channel+=dt;e.body.velocity.x=e.body.velocity.z=0;e.bossClip='Idle';
+    e.channelRing.position.set(p.x,.07,p.z);e.channelRing.scale.setScalar(.8+.4*e.channel/CHANNEL_DURATION);e.channelRing.rotation.z+=dt;
+    if(e.channel>=CHANNEL_DURATION)finishChannel(e);return;
+  }
+  if(!e.bossAttack&&e.channelCooldown<=0&&[...e.minions].filter(m=>!m.dead&&!m.removed).length<MINION_LIMIT&&livingEnemies()<ENEMY_LIMIT&&d<12&&sight&&e.guardBreak<=0){startChannel(e);return;}
+  if(!e.bossAttack)e.yaw=turnToward(e.yaw,Math.atan2(pp.x-p.x,pp.z-p.z),dt*4);
+  if(e.bossAttack){
+    const a=e.bossAttack,previous=e.bossTime;e.bossTime+=dt;e.windup=Math.max(0,a.hit-e.bossTime);e.windupMax=a.hit;
+    if(a.clip==='Dive'&&e.bossTime>.75&&e.bossTime<a.hit){
+      const dx=e.bossAim.x-p.x,dz=e.bossAim.z-p.z,len=Math.hypot(dx,dz)||1;
+      const next={x:p.x+dx/len*.45,z:p.z+dz/len*.45};
+      if(insideBossRoom(next,e.room,.85)&&nav.isFree(next.x,next.z)){e.body.velocity.x=dx/len*Math.min(4.5,len*5);e.body.velocity.z=dz/len*Math.min(4.5,len*5);}else{e.body.velocity.x=e.body.velocity.z=0;}
+    }else{e.body.velocity.x*=.7;e.body.velocity.z*=.7;}
+    if(bossAttackCrossed(previous,e.bossTime,a.hit)){
+      const distanceToPlayer=distance(p,pp);fx.ring(p,def.color,a.radius,.45);sound.sound(a.clip==='Binding'?'pulse':'impact');shake=Math.max(shake,.2);
+      const direction=Math.atan2(pp.x-p.x,pp.z-p.z),front=Math.cos(direction-e.yaw)>.15;
+      if(distanceToPlayer<a.radius&&visibleLine(p,pp,.08)&&(front||['Slam','Binding'].includes(a.clip)))hurt(victim,a.damage,p);
+      if(a.clip==='Binding'&&distanceToPlayer<a.radius&&visibleLine(p,pp,.08)){victim.body.velocity.x*=.35;victim.body.velocity.z*=.35;}
+      e.guardBreak=Math.max(e.guardBreak,a.duration-a.hit);
+    }
+    if(e.bossTime>=a.duration){e.bossAttack=null;e.bossClip='Idle';e.attackCooldown=.9;e.windup=0;}
+    return;
+  }
+  let attack=def.attacks[e.attackIndex%def.attacks.length];
+  if(attack.clip==='Claw'&&d>attack.range)attack=def.attacks[0];
+  if(sight&&d<attack.range&&e.attackCooldown<=0){
+    e.victim=victim;e.bossAttack=attack;e.bossClip=attack.clip;e.bossTime=0;e.bossAim={x:pp.x,z:pp.z};e.attackIndex++;e.windup=e.windupMax=attack.hit;e.attackType=attack.clip;e.body.velocity.x=e.body.velocity.z=0;return;
+  }
+  if(e.pathTick<=0){e.path=nav.path(p,pp).filter(point=>insideBossRoom(point,e.room,.75));e.pathTick=.45;}
+  while(e.path.length&&distance(p,e.path[0])<.6)e.path.shift();
+  const to=e.path[0];let vx=0,vz=0;
+  if(to&&d>1.7){const length=distance(p,to)||1;const next={x:p.x+(to.x-p.x)/length*.5,z:p.z+(to.z-p.z)/length*.5};if(insideBossRoom(next,e.room,.8)&&nav.isFree(next.x,next.z)){vx=(to.x-p.x)/length*def.speed;vz=(to.z-p.z)/length*def.speed;}}
+  const blend=Math.min(1,dt*8);e.body.velocity.x+=(vx-e.body.velocity.x)*blend;e.body.velocity.z+=(vz-e.body.velocity.z)*blend;
+  e.bossClip=Math.hypot(vx,vz)>.1?'Walk':'Idle';
+}
+function updateEnemy(e,dt){
+  if(e.bossType){updateBossEnemy(e,dt);return;}
+  if(e.dead||e.removed)return;
+  if(!e.aggro&&!relicTaken&&distance(e.body.position,player.body.position)>24){e.body.velocity.x=e.body.velocity.z=0;return;}
+  e.attackCooldown=Math.max(0,e.attackCooldown-dt);e.pathTick-=dt;e.guardBreak=Math.max(0,e.guardBreak-dt);
+  if(e.kind==='boss')e.channelCooldown=Math.max(0,e.channelCooldown-dt);
+  if(e===held||e.stun>0||e.thrownUntil>runTime&&e.body.position.y>1.6){
+    interruptChannel(e);e.windup=0;return;
+  }
+  const victim=e.windup>0?e.victim:bodyguardTarget(e,player,goliath,visibleLine);
+  if(!victim||victim.dead||victim.removed){e.windup=0;return;}
+  const pp=victim.body.position,p=e.body.position,d=distance(p,pp),sight=visibleLine(p,pp,.12);
   if(d<10.5&&sight||relicTaken)e.aggro=true;
   if(!e.aggro){e.body.velocity.x*=.8;e.body.velocity.z*=.8;return;}
+  if(e.kind==='boss'){
+    if(e.channel>0){e.channel+=dt;e.body.velocity.x=e.body.velocity.z=0;
+      e.channelRing.position.set(p.x,.07,p.z);e.channelRing.scale.setScalar(.8+.4*e.channel/CHANNEL_DURATION);e.channelRing.rotation.z+=dt;
+      if(e.channel>=CHANNEL_DURATION)finishChannel(e);return;}
+    const minions=[...e.minions].filter(m=>!m.dead&&!m.removed).length;
+    if(e.channelCooldown<=0&&minions<MINION_LIMIT&&livingEnemies()<ENEMY_LIMIT&&d<12&&sight&&e.guardBreak<=0){startChannel(e);return;}
+  }
   const yaw=Math.atan2(pp.x-p.x,pp.z-p.z);e.yaw=turnToward(e.yaw,yaw,dt*7);
   if(e.windup>0){
     e.body.velocity.x*=.65;e.body.velocity.z*=.65;
@@ -539,6 +1025,7 @@ function updateEnemy(e,dt){
   const archer=e.kind==='archer',bossMode=e.kind==='boss';
   const reach=archer?8.3:bossMode?3.3:e.kind==='heavy'?2.1:1.6;
   if(sight&&d<reach&&e.attackCooldown<=0){
+    e.victim=victim;
     e.attackType=bossMode&&d>2.25?'wave':'hit';
     e.windup=archer?.65:bossMode?1.05:e.kind==='heavy'?.9:.65;e.windupMax=e.windup;
     e.attackPulse=.08;e.body.velocity.x*=.2;e.body.velocity.z*=.2;return;
@@ -573,19 +1060,15 @@ function updatePlayer(dt,input){
   const p=player;
   p.invulnerable=Math.max(0,p.invulnerable-dt);p.dashCooldown=Math.max(0,p.dashCooldown-dt);p.pulseCooldown=Math.max(0,p.pulseCooldown-dt);p.dashTime=Math.max(0,p.dashTime-dt);
   if(input.pointerActive){
-    const rect=renderer.domElement.getBoundingClientRect();
-    raycaster.setFromCamera(new THREE.Vector2((input.pointerX-rect.left)/rect.width*2-1,-(input.pointerY-rect.top)/rect.height*2+1),camera);
-    if(raycaster.ray.intersectPlane(groundPlane,tempV)){
-      aimPoint.copy(tempV);const dx=aimPoint.x-p.body.position.x,dz=aimPoint.z-p.body.position.z;
-      if(Math.hypot(dx,dz)>.35)aimDirection.set(dx,0,dz).normalize();
-    }
+    aimAtPointer({clientX:input.pointerX,clientY:input.pointerY});
   }else if(Math.hypot(input.moveX,input.moveZ)>.15){
     aimDirection.set(input.moveX,0,input.moveZ).normalize();
     aimPoint.set(p.body.position.x+aimDirection.x*8,.8,p.body.position.z+aimDirection.z*8);
   }else{aimPoint.set(p.body.position.x+aimDirection.x*8,.8,p.body.position.z+aimDirection.z*8);}
   chooseTarget(input);
   p.shielding=held&&!!input.shielding;
-  if(p.dashTime>0){p.body.velocity.x=p.dashDirection.x*18;p.body.velocity.z=p.dashDirection.z*18;fx.burst(p.body.position,0x7dd9c1,3,1.2);}
+  if(hearth.drive(dt,input)){}
+  else if(p.dashTime>0){p.body.velocity.x=p.dashDirection.x*18;p.body.velocity.z=p.dashDirection.z*18;fx.burst(p.body.position,0x7dd9c1,3,1.2);}
   else{
     const length=Math.max(1,Math.hypot(input.moveX,input.moveZ)),slow=p.shielding?.6:held?.84:1;
     const factor=Math.min(1,dt*19);
@@ -593,14 +1076,17 @@ function updatePlayer(dt,input){
     p.body.velocity.z+=(input.moveZ/length*p.speed*slow-p.body.velocity.z)*factor;
   }
   p.yaw=turnToward(p.yaw,Math.atan2(aimDirection.x,aimDirection.z),dt*15);
-  if(!held)p.mana=Math.min(p.maxMana,p.mana+dt*(15+2*(save.profile.upgrades.focus||0)));
+  if(!held)p.mana=Math.min(p.maxMana,p.mana+dt*(15+2*(save.profile.upgrades.focus||0)+p.gear.regen));
   updateHeld(dt,input);
+  if(held&&fireSpell.ignite(held,runTime)){sound.sound('fireIgnite');fx.burst(held.body.position,0xffb047,16,1.8);}
 }
 function updateEntities(dt){
   for(const e of entities){
     if(e.removed)continue;
     e.stun=Math.max(0,(e.stun||0)-dt);e.hitFlash=Math.max(0,(e.hitFlash||0)-dt);e.attackPulse=Math.max(0,(e.attackPulse||0)-dt);
-    if(e.category==='actor'&&!e.isPlayer)updateEnemy(e,dt);
+    if(e.reserved)continue;
+    if(e.ally)updateGoliath(e,dt);
+    else if(e.category==='actor'&&!e.isPlayer)updateEnemy(e,dt);
     if(e.category==='actor'&&e!==held&&e.stun<=0&&e.body.position.y<e.cy+.45){
       if(!e.body.fixedRotation){e.body.fixedRotation=true;e.body.updateMassProperties();e.body.quaternion.set(0,0,0,1);e.body.angularVelocity.set(0,0,0);}
     }
@@ -609,7 +1095,7 @@ function updateEntities(dt){
       if(!e.ephemeral&&Math.random()<.28)spawnPickup(e.body.position,1);
       removeEntity(e);continue;
     }
-    if(e.category==='actor'&&e.dead&&e!==held&&runTime-e.deathTime>28){fx.burst(e.body.position,0x4a7b72,12,1.7);removeEntity(e);continue;}
+    if(e.category==='actor'&&e.dead&&e!==held&&runTime-e.deathTime>(e.ally?1.2:e.bossType==='wraith'?3.2:28)){fx.burst(e.body.position,0x4a7b72,12,1.7);removeEntity(e);continue;}
     if(e.ephemeral&&e!==held&&runTime>e.expireAt){fx.burst(e.body.position,0x7ce9b9,10,1);removeEntity(e);continue;}
     if(e.body.position.y<-5){
       if(e.isPlayer){e.body.position.set(e.lastSafe.x,2,e.lastSafe.z);e.body.velocity.set(0,0,0);hurt(e,10,null);}
@@ -617,30 +1103,41 @@ function updateEntities(dt){
       else removeEntity(e);
     }else if(e.isPlayer&&nav.isFree(e.body.position.x,e.body.position.z)){e.lastSafe={x:e.body.position.x,z:e.body.position.z};}
   }
+  entities=entities.filter(e=>!e.removed);
 }
 function syncVisuals(dt){
   for(const e of entities){
-    if(e.removed)continue;
+    if(e.removed||e.assemblyRestore)continue;
     const p=e.body.position;
+    if(e.isPlayer&&hearth.occupied)continue;
     if(e.category==='prop'){e.mesh.position.copy(p);e.mesh.quaternion.copy(e.body.quaternion);continue;}
     const airborne=e===held||(!e.body.fixedRotation&&p.y>e.cy+.45);
     if(airborne){e.mesh.quaternion.copy(e.body.quaternion);tempV.set(0,e.cy,0).applyQuaternion(e.mesh.quaternion);e.mesh.position.copy(p).sub(tempV);}
     else{e.mesh.position.set(p.x,p.y-e.cy,p.z);e.mesh.rotation.set(0,e.yaw,0);}
     const speed=Math.hypot(e.body.velocity.x,e.body.velocity.z);
-    e.visual.update(dt,{moving:!airborne&&speed>.18,speed,casting:e.isPlayer&&(!!held||castTime>0),
-      attack:e.isPlayer?castTime>.27:e.attackPulse>0,dead:e.dead&&!airborne,stunned:e.stun>.01&&!airborne});
-    if(e.shadow){e.shadow.position.set(p.x,.025,p.z);e.shadow.material.opacity=clamp(.28-(p.y-e.cy)*.025,.06,.28);}
+    e.mesh.visible=e.isPlayer||e.ally||e===held||distance(e.body.position,player.body.position)<29;
+    if(e.ally){
+      e.gait=e.creature.animate(dt,{attack:e.strikeTime,attackSide:e.strikeSide,protecting:e.protecting});
+      if(e.dead){const t=clamp((runTime-e.deathTime)/1.2,0,1);for(const part of e.creature.parts.values()){part.root.position.y*=1-t;part.root.position.x*=1+t*.4;part.root.rotation.z+=t*.45;}}
+    }else if(e.mesh.visible){
+    const animationOptions={moving:!airborne&&speed>.18,speed,casting:e.isPlayer&&(!!held||castTime>0),attack:e.isPlayer?castTime>.27:e.attackPulse>0,dead:e.dead&&!airborne,stunned:e.stun>.01&&!airborne};
+    if(e.bossType){animationOptions.clip=e.bossClip;animationOptions.time=e.dead?runTime-e.deathTime:e.stun>.01?(e.bossStaggerTime||0):e.bossAttack?e.bossTime:undefined;}
+    e.visual.update(dt,animationOptions);
+    }
+    if(e.shadow){e.shadow.visible=e.mesh.visible;e.shadow.position.set(p.x,.025,p.z);e.shadow.material.opacity=clamp(.28-(p.y-e.cy)*.025,.06,.28);}
     if(e.healthBar){
-      const show=!e.dead&&(e.hp<e.maxHp||e===target||e.kind==='boss');
-      e.healthBar.visible=show;e.healthBar.position.set(p.x,p.y-e.cy+2.2*(e.kind==='boss'?1.3:1),p.z);
+      const show=e.mesh.visible&&!e.dead&&(e.hp<e.maxHp||e===target||e.kind==='boss'||e.ally);
+      e.healthBar.visible=show;e.healthBar.position.set(p.x,p.y-e.cy+(e.ally?3.7:e.bossType?BOSS_DEFINITIONS[e.bossType].height+.15:2.2*(e.kind==='boss'?1.3:1)),p.z);
       e.healthBar.quaternion.copy(camera.quaternion);
       e.healthBar.userData.fill.scale.x=Math.max(.001,e.hp/e.maxHp);
       e.healthBar.userData.fill.position.x=-(1-e.hp/e.maxHp)*.47;
-      e.healthBar.userData.fill.material.color.set(e.guardBreak>0?0x9df6d5:e.kind==='boss'?0xd2a1dd:0xeebb8f);
+      e.healthBar.userData.fill.material.color.set(e.ally?0x8be3bf:e.guardBreak>0?0x9df6d5:e.kind==='boss'?0xd2a1dd:0xeebb8f);
     }
     if(e.telegraph){
+      e.telegraph.visible=e.mesh.visible&&!e.dead&&e.windup>0;
       e.telegraph.position.set(p.x,.07,p.z);
-      const radius=e.attackType==='wave'?4.1:e.kind==='boss'?2.8:e.kind==='heavy'?2.5:e.kind==='archer'?1.1:1.9;
+      const radius=e.bossType?(e.bossAttack?.radius||2.5):e.attackType==='wave'?4.1:e.kind==='boss'?2.8:e.kind==='heavy'?2.5:e.kind==='archer'?1.1:1.9;
+      if(e.bossType)e.telegraph.material.color.set(BOSS_DEFINITIONS[e.bossType].color);
       e.telegraph.scale.setScalar(radius);
       e.telegraph.material.opacity=e.windup>0?.35+.6*(1-e.windup/(e.windupMax||1)):0;
     }
@@ -656,14 +1153,62 @@ function syncVisuals(dt){
     const reachable=distance(player.body.position,target.body.position)<=telekinesisReach()&&visibleLine(player.body.position,target.body.position,.05);
     targetRing.material.color.set(canGrab(target)&&reachable?0x8cffda:0xffb17c);
   }
-  trajectory.visible=phase==='playing'&&!!held;
-  if(held){
-    const from=held.body.position,v=currentThrowVelocity();
-    const duration=(v.y+Math.sqrt(v.y*v.y+40*Math.max(0,from.y-.12)))/20;
+  trajectory.visible=false;
+  impactMarker.visible=false;
+  sideTrajectory.visible=sideArrow.visible=false;
+  if(held&&phase==='playing'){
+    const now=performance.now(),v=currentThrowVelocity();
+    const changed=previewBody!==held.body||!previewVelocity||Math.hypot(v.x-previewVelocity.x,v.y-previewVelocity.y,v.z-previewVelocity.z)>1;
+    if(!previewBusy&&(!throwPreview||changed||now-previewAt>=80)){
+      trajectoryPredictor.postMessage({snapshot:captureTrajectoryWorld(physics,held.body,runTime),bodyId:held.body.id,origin:{x:held.body.position.x,y:held.body.position.y,z:held.body.position.z},velocity:v,grip:save.profile.upgrades.grip||0,damageMultiplier:1+player.gear.damage});
+      previewBusy=true;previewAt=now;previewBody=held.body;previewVelocity=v;
+    }
+    targetRing.visible=nav.onFloor(throwDestination.x,throwDestination.z);
+    const destination=throwDestination;
+    targetRing.position.set(destination.x,.065,destination.z);targetRing.scale.setScalar(.85);
+    targetRing.material.color.set(0x9bffda);
+    if(!throwPreview?.origin||Math.hypot(held.body.position.x-throwPreview.origin.x,held.body.position.y-throwPreview.origin.y,held.body.position.z-throwPreview.origin.z)>.25
+      ||Math.hypot(v.x-throwPreview.velocity.x,v.y-throwPreview.velocity.y,v.z-throwPreview.velocity.z)>2)return;
     const a=trajectory.geometry.attributes.position.array;
-    for(let i=0;i<28;i++){const t=i/27*duration;a[i*3]=from.x+v.x*t;a[i*3+1]=Math.max(.1,from.y+v.y*t-10*t*t);a[i*3+2]=from.z+v.z*t;}
+    throwPreview.points.forEach((p,i)=>{a[i*3]=p.x;a[i*3+1]=p.y;a[i*3+2]=p.z;});
+    a[0]=held.body.position.x;a[1]=held.body.position.y;a[2]=held.body.position.z;
+    trajectory.geometry.setDrawRange(0,throwPreview.points.length);
     trajectory.geometry.attributes.position.needsUpdate=true;
-    targetRing.position.set(from.x+v.x*duration,.07,from.z+v.z*duration);targetRing.scale.setScalar(.5);targetRing.material.color.set(0x99ffda);
+    const contact=throwPreview.impacts.find(hit=>!hit.ground);
+    if(contact){
+      const p=contact.position,n=contact.normal;
+      impactMarker.material.color.set(contact.breaksProjectile?0xff9b80:0xffce87);
+      impactMarker.position.set(p.x+n.x*.035,p.y+n.y*.035,p.z+n.z*.035);
+      impactMarker.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),new THREE.Vector3(n.x,n.y,n.z));impactMarker.visible=true;
+      if(contact.kind==='world'){
+        const mark=floorThrowTarget(throwPreview.landing||p,worldMap.floors,.4);
+        targetRing.position.set(mark.x,.07,mark.z);targetRing.scale.setScalar(.4);targetRing.material.color.set(0xffb17c);targetRing.visible=true;
+        if(!contact.breaksProjectile){
+          const rebound=throwPreview.points.slice(Math.ceil(contact.time*120)+1).filter(q=>q.y>=0&&nav.onFloor(q.x,q.z));
+          if(rebound.length>2){
+            rebound.forEach((q,i)=>{a[i*3]=q.x;a[i*3+1]=q.y;a[i*3+2]=q.z;});
+            trajectory.geometry.setDrawRange(0,rebound.length);trajectory.geometry.attributes.position.needsUpdate=true;
+            trajectory.computeLineDistances();trajectory.visible=true;
+          }
+        }
+      }
+    }
+    const rawSide=throwPreview.side?.points;
+    const outside=rawSide?.findIndex(q=>q.y<0||!nav.onFloor(q.x,q.z));
+    const side=rawSide?.slice(0,outside<0?rawSide.length:outside);
+    if(side?.length>2){
+      const start=side[0],end=side.at(-1),delta=new THREE.Vector3(end.x-start.x,end.y-start.y,end.z-start.z);
+      if(delta.length()>.12){
+        const positions=sideTrajectory.geometry.attributes.position.array;
+        side.forEach((p,i)=>{positions[i*3]=p.x;positions[i*3+1]=p.y;positions[i*3+2]=p.z;});
+        sideTrajectory.geometry.setDrawRange(0,side.length);sideTrajectory.geometry.attributes.position.needsUpdate=true;
+        sideTrajectory.computeLineDistances();sideTrajectory.visible=true;
+        const previous=side.at(-3),direction=new THREE.Vector3(end.x-previous.x,end.y-previous.y,end.z-previous.z).normalize();
+        sideArrow.position.set(end.x-direction.x*.4,end.y-direction.y*.4,end.z-direction.z*.4);sideArrow.setDirection(direction);sideArrow.visible=true;
+      }
+    }
+  }else if(!held){
+    throwPreview=null;previewBody=null;previewVelocity=null;
   }
 }
 function updateCamera(dt){
@@ -686,33 +1231,48 @@ function updateCamera(dt){
   }
 }
 function updateHUD(){
+  ui.updatePotions(potionCounts());
   if(!player)return;
+  const activeBoss=entities.filter(e=>e.kind==='boss'&&!e.dead&&!e.removed).sort((a,b)=>distance(player.body.position,a.body.position)-distance(player.body.position,b.body.position))[0];
   const p=player.body.position,goalPos=relicTaken?worldMap.exit.position:worldMap.relic.position,dist=Math.round(distance(p,goalPos));
   const nearRelic=!relicTaken&&distance(p,worldMap.relic.position)<3,nearExit=relicTaken&&distance(p,worldMap.exit.position)<2.8;
   let hint='';
-  if(nearRelic)hint=boss&&!boss.dead?'Χτύπα τον Δεσμοφύλακα με αντικείμενα για να σπάσεις την άμυνα.':(mobile?'ΧΡΗΣΗ':'E')+' · Πάρε το Μαύρο Σκήπτρο';
+  if(nearRelic)hint=entities.some(e=>e.kind==='boss'&&!e.dead&&!e.removed)?'Νίκησε και τους τέσσερις φύλακες · οι δυνατές ρίψεις σπάνε την άμυνά τους.':(mobile?'ΧΡΗΣΗ':'E')+' · Πάρε το Μαύρο Σκήπτρο';
   else if(nearExit)hint=(mobile?'ΧΡΗΣΗ':'E')+' · Πέρασε την πύλη';
   else if(held)hint=mobile?'Σύρε ελεύθερα · Άφησε το δάχτυλο για ρίψη · ΑΦΗΣΕ: χωρίς ρίψη':'Σύρε το αντικείμενο · Άφησε το κλικ για ρίψη · Q: άφημα χωρίς ρίψη';
   else if(target&&distance(p,target.body.position)>telekinesisReach())hint='Πλησίασε τον στόχο για να τον αρπάξεις.';
   else if(target&&!canGrab(target))hint='Αντιστέκεται στην άρπαξη. Χτύπησέ τον με ένα αντικείμενο.';
   else if(runTime<22)hint=mobile?'Άγγιξε ένα αντικείμενο → σύρε → άφησε για ρίψη.':'Κλικ πάνω σε αντικείμενο → κράτησε και σύρε → άφησε για ρίψη.';
   else if(!target)hint=mobile?'Πάτησε πάνω σε αντικείμενο ή φρουρό. ΠΕΤΡΑ: κάλεσε ένα θραύσμα.':'Πάτησε πάνω σε αντικείμενο ή φρουρό. R: κάλεσε μια πέτρα.';
+  const hs=hearth.snapshot(),nearHearth=hearth.near(),fireAvailable=fireSpell.available(player,fireLineClear,held,aimPoint);
+  if(hs.occupied)hint=hs.state==='piloted'?(mobile?'ΠΥΡ: κράτησε · Σύρε και άφησε για ρίψη · ΧΡΗΣΗ: έξοδος':'V: κράτησε για φωτιά · Σύρε και άφησε για ρίψη · E: έξοδος'):'Η σκάλα χρησιμοποιείται · περίμενε να ολοκληρωθεί η κίνηση.';
+  else if(nearHearth)hint=hs.state==='sleep'?(fireSpell.charged?'E / ΧΡΗΣΗ · Δώσε τη φλόγα στην καρδιά':'Η στολή κοιμάται · πάρε φωτιά από πυρσό με C / ΦΛΟΓΑ'):hs.state==='ready'?'E / ΧΡΗΣΗ · Μπες στη στολή':'Η καρδιά ξυπνά τη στολή…';
+  else if(fireAvailable&&!fireSpell.charged)hint='C / ΦΛΟΓΑ · Απορρόφησε τον κοντινό πυρσό';
   let zone='Η Αυλή';
+  if(FIRE_ENABLED&&!held&&!nearRelic&&!nearExit&&!nearHearth&&!hs.occupied)hint=fireSpell.charged?'Η φωτιά μένει μαζί σου · Σήκωσε ξύλο ή στόχευσέ το και πάτησε '+(mobile?'ΦΛΟΓΑ':'C')+'.':fireSpell.sourceFor(player,fireLineClear,aimPoint)?(mobile?'ΦΛΟΓΑ':'C')+' · Πάρε φωτιά από πυρσό ή πύρινο πυλώνα.':hint;
   for(const z of worldMap.zones)if(p.x>=z.xMin&&p.x<=z.xMax&&p.z>=z.zMin&&p.z<=z.zMax)zone=z.label||z.name;
+  const defeatedBosses=entities.filter(e=>e.bossType&&e.dead).length;
+  const nearestBoss=bosses.filter(e=>!e.dead&&!e.removed&&distance(p,e.body.position)<12).sort((a,b)=>distance(p,a.body.position)-distance(p,b.body.position))[0];
+  const ally=goliath&&!goliath.dead&&!goliath.removed?goliath:null;
   ui.update({hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,kills,
+    stones:activeStones(entities).length,readyStones:ritual.phase==='idle'?ritualCandidates().length:ritual.stones.length,ritualPhase:ritual.phase,ritualProgress:ritual.phase==='charge'?ritual.elapsed/GOLIATH_CHARGE:ritual.phase==='assemble'?ritual.elapsed/(assemblyCreature?.assembly.duration||6.13):0,
+    assembled:assemblyCreature?.assemble(ritual.elapsed).locked.length||0,goliathHP:ally?.hp||0,goliathTime:ally?ally.expires-runTime:0,
     goal:relicTaken?'ΕΠΙΣΤΡΟΦΗ ΣΤΗΝ ΠΥΛΗ':'ΤΟ ΜΑΥΡΟ ΣΚΗΠΤΡΟ',
-    objective:relicTaken?'Δραπέτευσε από τη νότια πύλη · '+dist+' μ.':'Βρες το Σκήπτρο στην κρύπτη · '+dist+' μ.',
-    hint,holding:!!held,dragging:!!drag,heldName:held?.label||'',
+    objective:relicTaken?'Δραπέτευσε από τη νότια πύλη · '+dist+' μ.':`Φύλακες ${bosses.filter(b=>b.dead).length}/4 · Σκήπτρο στην κρύπτη · ${dist} μ.`,
+    hint,holding:!!held,dragging:!!drag,throwPower:held?currentThrowVelocity()?.speed:0,heldName:held?.label||'',
+    fireAvailable:FIRE_ENABLED&&(fireSpell.charged||fireSpell.available(player,fireLineClear,held,aimPoint)),fireCharged:FIRE_ENABLED&&fireSpell.charged,
     pulseCooldown:player.pulseCooldown,dashCooldown:player.dashCooldown,relic:relicTaken,shards:runShards,
     combo:runTime<comboUntil?combo:0,comboMultiplier:runTime<comboUntil?Math.min(4,combo):0,time:runTime,
-    progress:relicTaken?.8:boss?.dead?.6:clamp((18-p.z)/40,0,.55),zone,
-    bossHP:boss&&!boss.dead&&distance(p,boss.body.position)<12?boss.hp:null,bossMaxHP:boss?.maxHp||330,bossName:'Ο Δεσμοφύλακας',
-    targetName:target?.label||'',quality});
+    progress:relicTaken?.8:Math.max(bosses.filter(b=>b.dead).length*.15,clamp((18-p.z)/40,0,.55)),zone,
+    bossHP:activeBoss&&distance(p,activeBoss.body.position)<12?activeBoss.hp:null,bossMaxHP:activeBoss?.maxHp||330,bossName:activeBoss?.label||'',bossChannel:(nearestBoss?.channel||0)/CHANNEL_DURATION,
+    targetName:target?.label||'',quality,hearth:hs,nearHearth});
 }
-function frame(now){
+let controlledUntil=0;
+function frame(now,manual=false){
+  if(!manual&&now<controlledUntil){lastTime=now;requestAnimationFrame(frame);return;}
   const dt=Math.min(.045,Math.max(.001,(now-lastTime)/1000));lastTime=now;worldTime+=dt;
   try{
-    if(worldMap)worldMap.update(dt,worldTime);
+    if(worldMap)worldMap.update(dt,worldTime,player?.body.position);
     if(ready){
       const actions=ui.consumeActions();
       for(const action of actions)if(action==='pause')togglePause();
@@ -725,20 +1285,29 @@ function frame(now){
           else if(action==='dash')dash(input);
           else if(action==='pulse')pulse();
           else if(action==='interact')interact();
+          else if(action==='fire'&&FIRE_ENABLED)takeFire(input);
+          else if(action==='healthPotion')usePotion('health');
+          else if(action==='manaPotion')usePotion('mana');
         }
         if(phase==='playing'){
+          hearth.update(dt,input,runTime);
+          updateRitual(dt);updateReinforcements();
           updateEntities(dt);
           physics.step(1/120,dt,6);
-          updateArrows(dt);updatePickups(dt);
+          if(FIRE_ENABLED)updateFire();
+          updateArrows(dt);updatePickups(dt);updateLoot(dt);
           if(relicTaken&&runTime>nextWave){spawnReinforcements();nextWave=runTime+24;}
         }
       }
       const animate=['playing','menu'].includes(phase)?dt:0;
       syncVisuals(animate);updateCamera(dt);updateHUD();fx.update(animate||dt*.25);
+      hearth.sync(animate);
+      hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});
       if(!held)fx.connect(null);
+      if(FIRE_ENABLED)fireFX.update({spell:fireSpell,player,entities,surfaces:worldMap.woodenSurfaces,time:runTime,camera,playing:['playing','paused'].includes(phase),source:fireSpell.sourceFor(player,fireLineClear,aimPoint)});
     }
-    if(composer){if(quality==='high')composer.render();else renderer.render(scene,camera);}
-    requestAnimationFrame(frame);
+    if(composer){renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);}
+    if(!manual)requestAnimationFrame(frame);
   }catch(error){showError(error);}
 }
 function showError(error){
@@ -757,16 +1326,36 @@ window.addEventListener('pagehide',()=>save.save());
 async function boot(){
   try{
     ui.setLoading(.05,'Ανάβουν οι δάδες…');setupRenderer();
-    worldMap=createWorld(scene);setupPhysics();ui.setLoading(.2,'Το κάστρο ξυπνά…');
+    worldMap=createWorld(scene,{fireEnabled:FIRE_ENABLED});
+    if(FIRE_ENABLED){fireSpell=new FireSpell(worldMap.torches);fireFX=createFireEffects(scene);}
+    setupPhysics();goliathNav=new NavigationGrid(worldMap.floors,worldMap.colliders,.85,1.0);ui.setLoading(.2,'Το κάστρο ξυπνά…');
     requestAnimationFrame(frame);
     await loadCharacters((fraction)=>ui.setLoading(.2+fraction*.65,'Οι φύλακες παίρνουν θέση…'));
+    await loadBossCharacters();
+    await loadHearth();hearthFX=createHearthEffects(scene);
+    hearth=createHearthSystem({scene,physics,worldMap,nav,material:actorMaterial,spell:fireSpell,getPlayer:()=>player,getEntities:()=>entities,getHeld:()=>held,releaseHeld,hurt,clear:(a,b)=>visibleLine(a,b,.01),sound,toast:ui.toast,fx});
     ui.setLoading(.9,'Η μαγεία σχηματίζεται…');populate();
     if(renderer.compileAsync)await renderer.compileAsync(scene,camera);
     ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
-    window.__MAGIC__={version:'1.1.0',snapshot:()=>({phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
+    window.__MAGIC__={version:'1.4.0',snapshot:()=>({hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
       kills,relicTaken,holding:held?.label||null,dragging:!!drag,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
-      pathToRelic:nav.path({x:0,z:18},{x:0,z:-16}).length,profile:{runs:save.profile.runs,wins:save.profile.wins}})};
-    if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});
+      pathToRelic:nav.path({x:0,z:18},{x:0,z:-16}).length,profile:{runs:save.profile.runs,wins:save.profile.wins},time:runTime,candidate,
+      inventory:{items:save.profile.loot.items.map(i=>({...i})),equipped:{...save.profile.loot.equipped},shards:save.profile.shards,storage:save.available},gear:player?.gear,
+      loot:lootDrops.filter(d=>d.mesh.visible).map(d=>({kind:d.item.kind,level:d.item.level,position:{x:d.mesh.position.x,z:d.mesh.position.z}})),
+      stones:activeStones(entities).map(e=>({id:e.body.id,mesh:e.assemblyRestore?assemblyCreature?.parts.get(e.assemblyRestore.part).mesh.uuid:e.mesh.children[0]?.uuid,reserved:!!e.reserved,position:{x:e.body.position.x,y:e.body.position.y,z:e.body.position.z}})),
+      ritual:{phase:ritual.phase,elapsed:ritual.elapsed,available:ritual.phase==='idle'?ritualCandidates().length:ritual.stones.length,locked:assemblyCreature?.assemble(ritual.elapsed).locked||[]},
+      goliath:goliath&&!goliath.removed?{hp:goliath.hp,dead:goliath.dead,remaining:goliath.expires-runTime,attack:goliath.strikeTime||0,position:{x:goliath.body.position.x,y:goliath.body.position.y,z:goliath.body.position.z}}:null,
+      enemies:entities.filter(e=>e.category==='actor'&&!e.isPlayer&&!e.ally&&!e.removed).map(e=>({id:e.body.id,kind:e.kind,hp:e.hp,dead:e.dead,room:e.room?.name||e.room,channel:e.channel||0,minions:e.minions?[...e.minions].filter(m=>!m.dead&&!m.removed).length:undefined,target:e.victim?.ally?'goliath':e.victim?.isPlayer?'player':null,position:{x:e.body.position.x,z:e.body.position.z}})),
+      rooms:rooms.map(r=>({id:r.id,label:r.label,enemies:r.enemies,boss:!!r.boss})),
+      fire:FIRE_ENABLED?{charged:fireSpell.charged,source:fireSpell.torch?.id,ready:runTime>=fireSpell.readyAt,torchLit:worldMap.torches[6].lit,hit:fireSpell.hit,crateBurnRemaining:Math.max(0,(entities.find(e=>e.kind==='crate')?.burnUntil||0)-runTime),guardBurnRemaining:Math.max(0,(entities.find(e=>e.kind==='guard')?.burnUntil||0)-runTime),guardHP:entities.find(e=>e.kind==='guard')?.hp,burning:entities.filter(e=>!e.removed&&e.burnUntil>runTime).length}:null}),
+      inspect:()=>({entities:entities.filter(e=>!e.removed).map(e=>({id:e.body.id,kind:e.kind,primaryCrate:e===entities.find(a=>a.kind==='crate'),bossType:e.bossType,room:e.room?.name,isPlayer:e.isPlayer,hp:e.hp,dead:e.dead,flammable:e.flammable,woodFuel:e.woodFuel,burnRemaining:Math.max(0,(e.burnUntil||0)-runTime),x:e.body.position.x,y:e.body.position.y,z:e.body.position.z})),sources:worldMap.torches.map(s=>({id:s.id,infinite:s.infinite,lit:s.lit,x:s.position.x,y:s.position.y,z:s.position.z})),wood:worldMap.woodenSurfaces.map(w=>({id:w.id,x:w.position.x,y:w.position.y,z:w.position.z,burnRemaining:Math.max(0,(w.burnUntil||0)-runTime),fuel:w.woodFuel})),memory:{...renderer.info.memory},render:{...renderer.info.render},fireFX:fireFX?.counts(),preview:throwPreview,velocity:currentThrowVelocity()}),
+      project:p=>{camera.updateMatrixWorld();const v=new THREE.Vector3(p.x,p.y,p.z).project(camera);return{x:(v.x+1)*innerWidth/2,y:(1-v.y)*innerHeight/2};},
+      velocity:()=>currentThrowVelocity()};
+    window.render_game_to_text=()=>JSON.stringify({...window.__MAGIC__.snapshot(),coordinates:'metres: X east, Y up, Z south',bosses:entities.filter(e=>e.bossType&&!e.removed).map(e=>({type:e.bossType,room:e.room.name,hp:e.hp,dead:e.dead,clip:e.mesh.userData.animationState,attackTime:e.bossTime,guardBreak:e.guardBreak,x:e.body.position.x,z:e.body.position.z}))});
+    if(FIRE_ENABLED&&FIRE_BENCHMARK)window.__FIRE_BENCHMARK__=enabled=>{fireFX.setEnabled(enabled);renderer.info.autoReset=false;};
+    window.advanceTime=ms=>{controlledUntil=performance.now()+1000;const steps=Math.max(1,Math.ceil(ms/(1000/60)));for(let i=0;i<steps;i++)frame(lastTime+ms/steps,true);lastTime=performance.now();};
+    if(!candidate&&!import.meta.env.DEV&&'serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});
+    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,get time(){return runTime;},pause:togglePause,step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);syncVisuals(dt);hearth.sync(dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
   }catch(error){showError(error);}
 }
 boot();

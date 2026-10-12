@@ -1,0 +1,42 @@
+import fs from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+const root=String.raw`C:\Users\arz0r\Documents\ChatGPT\Magic`;
+const html=await fs.readFile('_source/.release/index.html','utf8');
+const file=html.match(/src="\.\/([^"]+\.js)"/)[1];
+const local=await fs.readFile('_source/.release/'+file);
+const indexResponse=await fetch('http://127.0.0.1:5173/.cache/fire-sample/index.html');
+const servedHtml=await indexResponse.text();
+const normaliseHtml=s=>s.replace(/<script type="module" src="\/@vite\/client"><\/script>/,'').replace(/>\s+</g,'><').trim();
+assert.ok(normaliseHtml(servedHtml)===normaliseHtml(html),'preview HTML may only contain whitespace changes and the existing Vite development client');
+const response=await fetch('http://127.0.0.1:5173/.cache/fire-sample/'+file);
+const served=Buffer.from(await response.arrayBuffer()),hash=b=>createHash('sha256').update(b).digest('hex');
+assert.equal(response.status,200);
+// The existing development server rebases the worker URL and appends a source
+// map. Confirm the complete executable body, rather than claiming raw delivery.
+const worker=local.toString().match(/new URL\("(trajectory-worker-[^"]+\.js)",import.meta.url\)/)[1];
+const normalise=s=>s.replace(/\n\/\/# sourceMappingURL=data:application\/json;base64,[^\r\n]+\s*$/,'\n').replace(`new URL("/.cache/fire-sample/engine/${worker}", import.meta.url)`,`new URL("${worker}",import.meta.url)`);
+const compare=(a,b,label)=>{a=a.trimEnd();b=b.trimEnd();let at=0;while(at<a.length&&a[at]===b[at])at++;assert.ok(a===b,JSON.stringify({label,at,a:a.slice(at,at+90),b:b.slice(at,at+90),lengths:[a.length,b.length]}));};
+compare(normalise(served.toString()),local.toString(),'main executable');
+const workerLocal=await fs.readFile('_source/.release/engine/'+worker);
+const workerServed=await(await fetch('http://127.0.0.1:5173/.cache/fire-sample/engine/'+worker)).text();
+compare(normalise(workerServed),workerLocal.toString(),'worker executable');
+assert.equal(await fs.stat(root+'/_source/public/.cache/fire-sample').catch(()=>null),null,'preview must stay outside public build inputs');
+const primaryHead=execFileSync('git',['-C',root,'rev-parse','HEAD'],{encoding:'utf8'}).trim();
+const primaryDirty=execFileSync('git',['-C',root,'status','--short'],{encoding:'utf8'}).trim();
+const read=async file=>JSON.parse(await fs.readFile(file,'utf8'));
+const browser=await read('output/playwright/fire-after/report.json'),controls=await read('output/playwright/fire-controls/report.json'),performance=await read('output/playwright/fire-performance/report.json');
+assert.equal(browser.cases.length,3);assert.ok(browser.cases.every(c=>c.passed));assert.equal(browser.errors.length,0);
+assert.equal(controls.cases.length,3);assert.equal(controls.cases.reduce((n,c)=>n+c.aims.length,0),24);assert.equal(controls.errors.length,0);
+const mean=a=>a.reduce((n,v)=>n+v,0)/a.length;
+const timing=performance.cases.map(c=>{
+ const before=c.blocks.filter(b=>!b.enabled),after=c.blocks.filter(b=>b.enabled);
+ const beforeP95=mean(before.map(b=>b.p95Ms)),afterP95=mean(after.map(b=>b.p95Ms));
+ assert.ok(afterP95<=beforeP95*1.1,`${c.mode}: p95 regression exceeds 10%`);
+ assert.ok(after.reduce((n,b)=>n+b.over50ms,0)<=before.reduce((n,b)=>n+b.over50ms,0),`${c.mode}: new long-frame spikes`);
+ return{mode:c.mode,beforeP95,afterP95,afterFPS:after.map(b=>b.fps),maxActiveMs:Math.max(...after.map(b=>b.maxMs))};
+});
+for(const r of [browser,controls,performance])assert.deepEqual(r.cleanup.remainingPids,[]);
+const result={url:'http://127.0.0.1:5173/.cache/fire-sample/index.html',version:'1.1.3-fire-sample',main:file,candidateSha256:hash(local),servedSha256:hash(served),executableMatchesCandidateAfterViteMetadata:true,sampleBase:'30717d738ac6e2b735d237d6b226ab62448781d5',primaryHead,primaryDirty,previewOutsidePublicBuildInputs:true,nativeFireChains:3,nativeAimDirections:24,normalSaveProtected:true,timing,limitations:['existing Vite server appends a source map and rebases the worker URL','sample is based on v1.1.2 and does not integrate the independent v1.2.0 bosses','physical phone performance unverified','timing comparison isolates flame rendering, not all code changes','CPU/GPU utilization and RAM/VRAM not measured']};
+await fs.writeFile('output/fire-delivery.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));

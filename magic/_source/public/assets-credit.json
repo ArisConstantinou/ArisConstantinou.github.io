@@ -296,5 +296,68 @@
         "rendered": false
       }
     }
-  ]
+  ],
+  "originalBosses": {
+    "sourceType": "Original project-authored geometry, rigs, actions and procedural surface maps; approved AI-generated concept references. No third-party model downloads.",
+    "source": "source/bosses/README.md",
+    "models": [
+      {
+        "type": "colossus",
+        "file": "models/bosses/colossus.glb",
+        "sha256": "996105205afd33658b24cef3e8a77d65f9952d2e6aa4125c9864d2f06f149184",
+        "bytes": 2993552,
+        "bones": 15,
+        "triangles": 4830,
+        "clips": {
+          "Idle": 2,
+          "Walk": 1.4,
+          "Slam": 2.4,
+          "Sweep": 2.2,
+          "Stagger": 0.65,
+          "Death": 2.6
+        }
+      },
+      {
+        "type": "gargoyle",
+        "file": "models/bosses/gargoyle.glb",
+        "sha256": "5fb7d90ea41f9b20995f6371aeed0edb086fe41ac7d7d345025bf379fe015533",
+        "bytes": 6032368,
+        "bones": 23,
+        "triangles": 6112,
+        "clips": {
+          "Idle": 2,
+          "Walk": 1.1,
+          "Hover": 1.2,
+          "Dive": 2.8,
+          "Claw": 1.9,
+          "Stagger": 0.65,
+          "Death": 2.8
+        }
+      },
+      {
+        "type": "wraith",
+        "file": "models/bosses/wraith.glb",
+        "sha256": "130d5baea65a44e46df459ccb71f54e2f28a381d6bb963744590fb3395a844e4",
+        "bytes": 2409068,
+        "bones": 21,
+        "triangles": 11825,
+        "clips": {
+          "Idle": 2.4,
+          "Walk": 1.6,
+          "Hover": 2.4,
+          "ChainSweep": 2.4,
+          "Binding": 2.6,
+          "Stagger": 0.7,
+          "Death": 3
+        }
+      }
+    ]
+  },
+  "hearthBulwark": {
+    "model": "models/hearth-bulwark/hearth-bulwark.glb",
+    "origin": "Authored for this project in Blender",
+    "source": "source/hearth-bulwark/hearth-bulwark.blend",
+    "provenance": "source/hearth-bulwark/provenance.json",
+    "approvedConcept": "source/hearth-bulwark/approved-C.png"
+  }
 }

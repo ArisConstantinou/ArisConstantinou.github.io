@@ -1,0 +1,1831 @@
+{
+  "date": "2026-10-11",
+  "authorization": [
+    "User approved all three concepts: implement them",
+    "All three in every run; random room assignment, each in its own room",
+    "Increase actual model resolution and detail"
+  ],
+  "tools": {
+    "blender": "5.1.2",
+    "three": "0.180.0",
+    "cannon": "0.20.0",
+    "vite": "7.1.7"
+  },
+  "sourceType": "Original project-authored geometry, rigs, actions and procedural surface maps; approved AI-generated concept references. No third-party model downloads.",
+  "models": [
+    {
+      "type": "colossus",
+      "file": "models/bosses/colossus.glb",
+      "sha256": "996105205afd33658b24cef3e8a77d65f9952d2e6aa4125c9864d2f06f149184",
+      "bytes": 2993552,
+      "source": "source/bosses/colossus.blend",
+      "sourceSha256": "688d940bf6bf13356a9ddd5e5721bd7f0b9a0183079934d62a67f414b659e81b",
+      "bones": 15,
+      "triangles": 4830,
+      "clips": {
+        "Idle": 2,
+        "Walk": 1.4,
+        "Slam": 2.4,
+        "Sweep": 2.2,
+        "Stagger": 0.65,
+        "Death": 2.6
+      },
+      "detailMaps": [
+        {
+          "name": "MAGIC stone base-2048",
+          "width": 2048,
+          "height": 2048
+        },
+        {
+          "name": "MAGIC stone normal-1024",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "MAGIC stone roughness-1024",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "exportedTextures": 9,
+      "materials": 5,
+      "solidSurfaceTopology": [
+        {
+          "part": "Pelvis central keystone",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.1724344373147157
+        },
+        {
+          "part": "Pelvis side L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.10889438955151338
+        },
+        {
+          "part": "Chest flanking slab L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.48810015847554195
+        },
+        {
+          "part": "Chest upper bevel L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.11640299855410295
+        },
+        {
+          "part": "Scapula L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.13352324805316582
+        },
+        {
+          "part": "Shoulder segmented cap L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.30858273919113804
+        },
+        {
+          "part": "Upper arm slab L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.10453504274119041
+        },
+        {
+          "part": "Elbow brass bearing L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.011228258673816148
+        },
+        {
+          "part": "Elbow inner rune L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.008663997364540895
+        },
+        {
+          "part": "Forearm armour L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.174895949896533
+        },
+        {
+          "part": "Palm",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.06944288706570016
+        },
+        {
+          "part": "Stone finger 0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0062535076104381915
+        },
+        {
+          "part": "Stone finger 1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.006205012114299063
+        },
+        {
+          "part": "Stone finger 2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.005965043506160821
+        },
+        {
+          "part": "Thigh L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.152380986315355
+        },
+        {
+          "part": "Knee patella L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.02091093165266974
+        },
+        {
+          "part": "Knee bearing L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.006209234052339599
+        },
+        {
+          "part": "Shin L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0817432374509887
+        },
+        {
+          "part": "Planted heel L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.13648117741612018
+        },
+        {
+          "part": "Toe L0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.008774031679643933
+        },
+        {
+          "part": "Toe L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.008465923147144375
+        },
+        {
+          "part": "Toe L2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.008148979907637967
+        },
+        {
+          "part": "Pelvis side R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.11018798962131389
+        },
+        {
+          "part": "Chest flanking slab R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.49114315415151094
+        },
+        {
+          "part": "Chest upper bevel R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.11501991056354656
+        },
+        {
+          "part": "Scapula R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.1319809704995123
+        },
+        {
+          "part": "Shoulder segmented cap R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.3094629636525118
+        },
+        {
+          "part": "Upper arm slab R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.10558890035747484
+        },
+        {
+          "part": "Elbow brass bearing R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.011228258761665609
+        },
+        {
+          "part": "Elbow inner rune R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.008663997364540895
+        },
+        {
+          "part": "Forearm armour R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.1728459337364257
+        },
+        {
+          "part": "Integrated strike slab",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.37575456111676425
+        },
+        {
+          "part": "Thigh R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.15118617202116025
+        },
+        {
+          "part": "Knee patella R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.020742709241422592
+        },
+        {
+          "part": "Knee bearing R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00620923379159938
+        },
+        {
+          "part": "Shin R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.08274033389653822
+        },
+        {
+          "part": "Planted heel R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.13538321009502852
+        },
+        {
+          "part": "Toe R0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.008811968096585092
+        },
+        {
+          "part": "Toe R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.008570481165719457
+        },
+        {
+          "part": "Toe R2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.008218536864418978
+        },
+        {
+          "part": "Chest recessed socket",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.15313896314819433
+        },
+        {
+          "part": "Removable chest rune",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.021866669257481892
+        },
+        {
+          "part": "Core bracket",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00717174305949205
+        },
+        {
+          "part": "Core bracket.001",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0071717430667680064
+        },
+        {
+          "part": "Neck bearing",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.02514935424551368
+        },
+        {
+          "part": "Sculpted face",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.16829743065545696
+        },
+        {
+          "part": "Face recess",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.002429134134246761
+        },
+        {
+          "part": "Eyes",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00006066659746769195
+        },
+        {
+          "part": "Eyes.001",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000060666597467691943
+        },
+        {
+          "part": "Nose bridge",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.001417103659024772
+        },
+        {
+          "part": "Crown battlement-1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.014629980649469113
+        },
+        {
+          "part": "Crown battlement0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.014157313559726013
+        },
+        {
+          "part": "Crown battlement1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.014136073329050685
+        },
+        {
+          "part": "Retaining stud L1.3-0.19",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00004083340536453761
+        },
+        {
+          "part": "Retaining stud L1.30.19",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00004083340536453761
+        },
+        {
+          "part": "Retaining stud L1.68-0.19",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00004083340536453761
+        },
+        {
+          "part": "Retaining stud L1.680.19",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00004083340536453761
+        },
+        {
+          "part": "Cheekbone ridge L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.006181323181813526
+        },
+        {
+          "part": "Retaining stud R1.3-0.19",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00004083340536453761
+        },
+        {
+          "part": "Retaining stud R1.30.19",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00004083340536453761
+        },
+        {
+          "part": "Retaining stud R1.68-0.19",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00004083340536453761
+        },
+        {
+          "part": "Retaining stud R1.680.19",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00004083340536453761
+        },
+        {
+          "part": "Cheekbone ridge R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.006130163714168189
+        },
+        {
+          "part": "Carved chin",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.012342069314335898
+        },
+        {
+          "part": "Core socket tooth 0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0001319998506611834
+        },
+        {
+          "part": "Core socket tooth 1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00013199983125862977
+        },
+        {
+          "part": "Core socket tooth 2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00013199999375501645
+        },
+        {
+          "part": "Core socket tooth 3",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00013199999375501645
+        },
+        {
+          "part": "Core socket tooth 4",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00013199983125862974
+        }
+      ]
+    },
+    {
+      "type": "gargoyle",
+      "file": "models/bosses/gargoyle.glb",
+      "sha256": "5fb7d90ea41f9b20995f6371aeed0edb086fe41ac7d7d345025bf379fe015533",
+      "bytes": 6032368,
+      "source": "source/bosses/gargoyle.blend",
+      "sourceSha256": "8d35e62c08a2d1966fd8e38cb025f5576c79e54e45be109598dd4804fd512543",
+      "bones": 23,
+      "triangles": 6112,
+      "clips": {
+        "Idle": 2,
+        "Walk": 1.1,
+        "Hover": 1.2,
+        "Dive": 2.8,
+        "Claw": 1.9,
+        "Stagger": 0.65,
+        "Death": 2.8
+      },
+      "detailMaps": [
+        {
+          "name": "MAGIC leather base-2048",
+          "width": 2048,
+          "height": 2048
+        },
+        {
+          "name": "MAGIC leather normal-1024",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "MAGIC leather roughness-1024",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "MAGIC stone base-2048",
+          "width": 2048,
+          "height": 2048
+        },
+        {
+          "name": "MAGIC stone normal-1024",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "MAGIC stone roughness-1024",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "exportedTextures": 9,
+      "materials": 6,
+      "solidSurfaceTopology": [
+        {
+          "part": "Sculpted torso",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.4496237432855803
+        },
+        {
+          "part": "Neck",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.032809749905330435
+        },
+        {
+          "part": "Bat skull",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.07078702550643357
+        },
+        {
+          "part": "Pointed muzzle",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.026025011240543936
+        },
+        {
+          "part": "Mouth slit",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0004853521152199392
+        },
+        {
+          "part": "Bell collar",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.010086491137662813
+        },
+        {
+          "part": "Belfry bell",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.004830716081111556
+        },
+        {
+          "part": "Deep orbital recess L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0003566932670461635
+        },
+        {
+          "part": "Amber eye L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00009890025345763812
+        },
+        {
+          "part": "Aggressive brow L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0023729236691455813
+        },
+        {
+          "part": "Swept horn L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.012077796125607181
+        },
+        {
+          "part": "Backward pointed ear L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.007352414687111045
+        },
+        {
+          "part": "Shoulder L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.07148566087804893
+        },
+        {
+          "part": "Anatomical upper arm L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.06263723289036233
+        },
+        {
+          "part": "Tapered forearm L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.04414063649846867
+        },
+        {
+          "part": "Palm L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.006119999413688977
+        },
+        {
+          "part": "Jointed grasping finger L-1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.002081877904448544
+        },
+        {
+          "part": "Hooked talon L-1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00023624748677419935
+        },
+        {
+          "part": "Jointed grasping finger L0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.002071567795596252
+        },
+        {
+          "part": "Hooked talon L0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00023624748677419935
+        },
+        {
+          "part": "Jointed grasping finger L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0020925005980707563
+        },
+        {
+          "part": "Hooked talon L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00023624725362795626
+        },
+        {
+          "part": "Opposing thumb L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0023486554732858878
+        },
+        {
+          "part": "Digitigrade thigh L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.09678830019826518
+        },
+        {
+          "part": "Slanted hind shin L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.012793961314552389
+        },
+        {
+          "part": "Hind foot L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.042366066891190705
+        },
+        {
+          "part": "Hind toe L-1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0013207836847186627
+        },
+        {
+          "part": "Hind toe L0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0013152448337147111
+        },
+        {
+          "part": "Hind toe L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.001320783275635525
+        },
+        {
+          "part": "Wing finger rib L2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.004665836596587998
+        },
+        {
+          "part": "Wing finger rib L3",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0066496313397999005
+        },
+        {
+          "part": "Wing finger rib L4",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.007277400306345309
+        },
+        {
+          "part": "Wing finger rib L5",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.005621132100074534
+        },
+        {
+          "part": "Wing finger rib L6",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.005721722620677382
+        },
+        {
+          "part": "Wing upper spar L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.021334928280945558
+        },
+        {
+          "part": "Wing outer spar L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.009688152549946
+        },
+        {
+          "part": "Deep orbital recess R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0003566932670461635
+        },
+        {
+          "part": "Amber eye R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00009890025345763812
+        },
+        {
+          "part": "Aggressive brow R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0025720075771327915
+        },
+        {
+          "part": "Swept horn R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.011903480579652147
+        },
+        {
+          "part": "Backward pointed ear R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.007461805775648145
+        },
+        {
+          "part": "Shoulder R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.07148566069372464
+        },
+        {
+          "part": "Anatomical upper arm R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.06149251131296294
+        },
+        {
+          "part": "Tapered forearm R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.04354934891618236
+        },
+        {
+          "part": "Palm R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.006119999413688978
+        },
+        {
+          "part": "Jointed grasping finger R-1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0021221636108776924
+        },
+        {
+          "part": "Hooked talon R-1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0002362472541578657
+        },
+        {
+          "part": "Jointed grasping finger R0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0020818778755110996
+        },
+        {
+          "part": "Hooked talon R0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0002362474977063804
+        },
+        {
+          "part": "Jointed grasping finger R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.002071567795596252
+        },
+        {
+          "part": "Hooked talon R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00023624749493574476
+        },
+        {
+          "part": "Opposing thumb R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.002548610118784822
+        },
+        {
+          "part": "Digitigrade thigh R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0967883004899098
+        },
+        {
+          "part": "Slanted hind shin R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.012793960508133749
+        },
+        {
+          "part": "Hind foot R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.04236606700457438
+        },
+        {
+          "part": "Hind toe R-1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.001320783143304046
+        },
+        {
+          "part": "Hind toe R0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0013152448580058542
+        },
+        {
+          "part": "Hind toe R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.001320783385873862
+        },
+        {
+          "part": "Wing finger rib R2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.004584648981320311
+        },
+        {
+          "part": "Wing finger rib R3",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00653162927375206
+        },
+        {
+          "part": "Wing finger rib R4",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0070207104223432735
+        },
+        {
+          "part": "Wing finger rib R5",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.005123553238110644
+        },
+        {
+          "part": "Wing finger rib R6",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.006502193570194471
+        },
+        {
+          "part": "Wing upper spar R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.021334933577842705
+        },
+        {
+          "part": "Wing outer spar R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.009688149899072114
+        },
+        {
+          "part": "Articulated tail 0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.02474325578805292
+        },
+        {
+          "part": "Articulated tail 1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.012944863872083563
+        },
+        {
+          "part": "Articulated tail 2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.004696352324723799
+        },
+        {
+          "part": "Articulated tail 3",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0008427578866208781
+        },
+        {
+          "part": "Tail arrow",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.003960000234656036
+        },
+        {
+          "part": "Thoracic muscle relief L0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.013000754269413049
+        },
+        {
+          "part": "Thoracic muscle relief L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.012561890455155359
+        },
+        {
+          "part": "Thoracic muscle relief L2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.012604527651561169
+        },
+        {
+          "part": "Shoulder stone crest L0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.005167998606339097
+        },
+        {
+          "part": "Shoulder stone crest L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.005168000080933174
+        },
+        {
+          "part": "Shoulder stone crest L2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.005168000236153603
+        },
+        {
+          "part": "Forearm ridge L0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.003626666186998288
+        },
+        {
+          "part": "Forearm ridge L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0036266661869982877
+        },
+        {
+          "part": "Exposed muzzle tooth L0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00005546957190760704
+        },
+        {
+          "part": "Exposed muzzle tooth L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000055469478993523224
+        },
+        {
+          "part": "Thoracic muscle relief R0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.013166338234346618
+        },
+        {
+          "part": "Thoracic muscle relief R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.012646592076706044
+        },
+        {
+          "part": "Thoracic muscle relief R2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.012538681070684747
+        },
+        {
+          "part": "Shoulder stone crest R0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.005167998606339097
+        },
+        {
+          "part": "Shoulder stone crest R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.005168000080933174
+        },
+        {
+          "part": "Shoulder stone crest R2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.005168000236153603
+        },
+        {
+          "part": "Forearm ridge R0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.003626666186998288
+        },
+        {
+          "part": "Forearm ridge R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0036266661869982877
+        },
+        {
+          "part": "Exposed muzzle tooth R0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000055469430294626435
+        },
+        {
+          "part": "Exposed muzzle tooth R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00005546946001557436
+        },
+        {
+          "part": "Dorsal slate spine 0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0042666673349837465
+        },
+        {
+          "part": "Dorsal slate spine 1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0042666673349837465
+        },
+        {
+          "part": "Dorsal slate spine 2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0042666674513990675
+        },
+        {
+          "part": "Dorsal slate spine 3",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.004266665705169241
+        },
+        {
+          "part": "Dorsal slate spine 4",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.004266665705169241
+        }
+      ]
+    },
+    {
+      "type": "wraith",
+      "file": "models/bosses/wraith.glb",
+      "sha256": "130d5baea65a44e46df459ccb71f54e2f28a381d6bb963744590fb3395a844e4",
+      "bytes": 2409068,
+      "source": "source/bosses/wraith.blend",
+      "sourceSha256": "9cebf84d8c10595d694d123d3f8b45950656576de4913311e55d58f18f91cfa0",
+      "bones": 21,
+      "triangles": 11825,
+      "clips": {
+        "Idle": 2.4,
+        "Walk": 1.6,
+        "Hover": 2.4,
+        "ChainSweep": 2.4,
+        "Binding": 2.6,
+        "Stagger": 0.7,
+        "Death": 3
+      },
+      "detailMaps": [
+        {
+          "name": "MAGIC cloth base-2048",
+          "width": 2048,
+          "height": 2048
+        },
+        {
+          "name": "MAGIC cloth normal-1024",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "MAGIC cloth roughness-1024",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "exportedTextures": 6,
+      "materials": 6,
+      "solidSurfaceTopology": [
+        {
+          "part": "Folded hood aperture",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.017161031574414266
+        },
+        {
+          "part": "Hood seam -1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0018089864612989002
+        },
+        {
+          "part": "Hood seam 1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0018046984632391627
+        },
+        {
+          "part": "Mint eye",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000020159961119740423
+        },
+        {
+          "part": "Mint eye.001",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000020159961119740426
+        },
+        {
+          "part": "Vulnerable bronze collar",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.034495737865850994
+        },
+        {
+          "part": "Layered mantle shoulder L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.09320946716002254
+        },
+        {
+          "part": "Spectral upper arm L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.025726695423751757
+        },
+        {
+          "part": "Angular forearm L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.01684527637523085
+        },
+        {
+          "part": "Iron wrist cuff L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.004248426685429835
+        },
+        {
+          "part": "Gaunt spectral hand L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.007500000415755416
+        },
+        {
+          "part": "Curled ghost finger L-1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00017146646212603164
+        },
+        {
+          "part": "Curled ghost finger L0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00017151681447780123
+        },
+        {
+          "part": "Curled ghost finger L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00017142756611924584
+        },
+        {
+          "part": "Curled ghost finger L2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00017119531762214515
+        },
+        {
+          "part": "Continuous chain link L0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0002847831950336397
+        },
+        {
+          "part": "Continuous chain link L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478369415659986
+        },
+        {
+          "part": "Continuous chain link L2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478312397900565
+        },
+        {
+          "part": "Continuous chain link L3",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478369532692905
+        },
+        {
+          "part": "Continuous chain link L4",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478315114087774
+        },
+        {
+          "part": "Continuous chain link L5",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478369532692905
+        },
+        {
+          "part": "Continuous chain link L6",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478315431799977
+        },
+        {
+          "part": "Continuous chain link L7",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478370124020917
+        },
+        {
+          "part": "Continuous chain link L8",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478315471481625
+        },
+        {
+          "part": "Continuous chain link L9",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478370014992256
+        },
+        {
+          "part": "Continuous chain link L10",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478315656930693
+        },
+        {
+          "part": "Continuous chain link L11",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478357548705427
+        },
+        {
+          "part": "Heavy polygonal chain weight L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.054021802705998795
+        },
+        {
+          "part": "Weight cross binding L-1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0001684801160687736
+        },
+        {
+          "part": "Weight cross binding L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0001684801160687736
+        },
+        {
+          "part": "Weight rune L",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0000659999817192632
+        },
+        {
+          "part": "Weight bronze rivet L0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00001916666603089349
+        },
+        {
+          "part": "Weight bronze rivet L1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000019166654359044816
+        },
+        {
+          "part": "Weight bronze rivet L2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000019166660270760378
+        },
+        {
+          "part": "Weight bronze rivet L3",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00001916666027076038
+        },
+        {
+          "part": "Weight bronze rivet L4",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000019166660270760378
+        },
+        {
+          "part": "Weight bronze rivet L5",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000019166654359044816
+        },
+        {
+          "part": "Layered mantle shoulder R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.09320946673009682
+        },
+        {
+          "part": "Spectral upper arm R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.025726689555691948
+        },
+        {
+          "part": "Angular forearm R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.01684527786862115
+        },
+        {
+          "part": "Iron wrist cuff R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0042484266951053045
+        },
+        {
+          "part": "Gaunt spectral hand R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.007500000358319879
+        },
+        {
+          "part": "Curled ghost finger R-1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00017146654450369186
+        },
+        {
+          "part": "Curled ghost finger R0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000171516806656058
+        },
+        {
+          "part": "Curled ghost finger R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00017142756611924584
+        },
+        {
+          "part": "Curled ghost finger R2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00017119524786846083
+        },
+        {
+          "part": "Continuous chain link R0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0002847831921114141
+        },
+        {
+          "part": "Continuous chain link R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478369433711096
+        },
+        {
+          "part": "Continuous chain link R2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0002847831190603843
+        },
+        {
+          "part": "Continuous chain link R3",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0002847836945064384
+        },
+        {
+          "part": "Continuous chain link R4",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0002847831460327021
+        },
+        {
+          "part": "Continuous chain link R5",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0002847836945064384
+        },
+        {
+          "part": "Continuous chain link R6",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0002847831445903111
+        },
+        {
+          "part": "Continuous chain link R7",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478370132917083
+        },
+        {
+          "part": "Continuous chain link R8",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0002847831517715265
+        },
+        {
+          "part": "Continuous chain link R9",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0002847836993246714
+        },
+        {
+          "part": "Continuous chain link R10",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478315871822144
+        },
+        {
+          "part": "Continuous chain link R11",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00028478357409853313
+        },
+        {
+          "part": "Heavy polygonal chain weight R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.05402180243921368
+        },
+        {
+          "part": "Weight cross binding R-1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0001684801160687736
+        },
+        {
+          "part": "Weight cross binding R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0001684801160687736
+        },
+        {
+          "part": "Weight rune R",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0000659999817192632
+        },
+        {
+          "part": "Weight bronze rivet R0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00001916666603089349
+        },
+        {
+          "part": "Weight bronze rivet R1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000019166654359044816
+        },
+        {
+          "part": "Weight bronze rivet R2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000019166660270760378
+        },
+        {
+          "part": "Weight bronze rivet R3",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00001916666027076038
+        },
+        {
+          "part": "Weight bronze rivet R4",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000019166660270760378
+        },
+        {
+          "part": "Weight bronze rivet R5",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000019166654359044816
+        },
+        {
+          "part": "Collar rune set 0",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000050474705252175525
+        },
+        {
+          "part": "Collar rune set 1",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00005047469191291991
+        },
+        {
+          "part": "Collar rune set 2",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00005047470040153712
+        },
+        {
+          "part": "Collar rune set 3",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0000504746919129199
+        },
+        {
+          "part": "Collar rune set 4",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.000050474705252175525
+        },
+        {
+          "part": "Collar rune set 5",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.0000504746919129199
+        },
+        {
+          "part": "Collar rune set 6",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00005047470040153712
+        },
+        {
+          "part": "Collar rune set 7",
+          "nonManifoldEdges": 0,
+          "inconsistentEdges": 0,
+          "degenerateTriangles": 0,
+          "signedVolume": 0.00005047469191291991
+        }
+      ]
+    }
+  ]
+}

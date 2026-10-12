@@ -145,7 +145,9 @@ self.addEventListener('fetch', event => {
 }
 
 async function main() {
-  if (path.basename(sourceDirectory) !== '_source' || path.basename(deployDirectory) !== 'magic') {
+  const projectName = path.basename(deployDirectory);
+  const expectedName = process.platform === 'win32' ? projectName.toLowerCase() : projectName;
+  if (path.basename(sourceDirectory) !== '_source' || expectedName !== 'magic') {
     throw new Error('Το script δημοσιεύει αποκλειστικά από magic/_source προς magic.');
   }
   await requirePlainDirectory(sourceDirectory);
@@ -161,6 +163,11 @@ async function main() {
     configFile: path.join(sourceDirectory, 'vite.config.js'),
     build: { outDir: releaseDirectory, emptyOutDir: true, assetsDir: 'engine' },
   });
+
+  // Vite's inserted asset tags use LF even when a Windows checkout uses CRLF.
+  // Normalize before hashing so mixed CR characters cannot enter the release.
+  const htmlFile = within(releaseDirectory, 'index.html');
+  await writeFile(htmlFile, (await readFile(htmlFile, 'utf8')).replace(/\r\n?/g, '\n'));
 
   const files = (await listFiles(releaseDirectory)).filter(file => file !== 'sw.js');
   for (const file of files) validateDeployFile(file);

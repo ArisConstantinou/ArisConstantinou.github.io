@@ -1,0 +1,349 @@
+{
+  "date": "2026-10-11T18:56:52.512Z",
+  "version": "1.2.0",
+  "url": "http://127.0.0.1:5173/",
+  "branch": "codex/trajectory-collision",
+  "assetFixCommit": "2ad8af1",
+  "baselineBossCommit": "a82353b",
+  "protectedPreBossCommit": "30717d7",
+  "defect": "Inverted XZ plate extrusion winding hid external faces. Corrected winding and surface-projected rune inlays; opaque backface culling retained.",
+  "models": [
+    {
+      "type": "colossus",
+      "sha256": "996105205afd33658b24cef3e8a77d65f9952d2e6aa4125c9864d2f06f149184",
+      "bytes": 2993552,
+      "bones": 15,
+      "triangles": 4830,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Slam",
+        "Sweep",
+        "Stagger",
+        "Death"
+      ],
+      "closedParts": 69,
+      "topologyPassed": true
+    },
+    {
+      "type": "gargoyle",
+      "sha256": "5fb7d90ea41f9b20995f6371aeed0edb086fe41ac7d7d345025bf379fe015533",
+      "bytes": 6032368,
+      "bones": 23,
+      "triangles": 6112,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Hover",
+        "Dive",
+        "Claw",
+        "Stagger",
+        "Death"
+      ],
+      "closedParts": 95,
+      "topologyPassed": true
+    },
+    {
+      "type": "wraith",
+      "sha256": "130d5baea65a44e46df459ccb71f54e2f28a381d6bb963744590fb3395a844e4",
+      "bytes": 2409068,
+      "bones": 21,
+      "triangles": 11825,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Hover",
+        "ChainSweep",
+        "Binding",
+        "Stagger",
+        "Death"
+      ],
+      "closedParts": 76,
+      "topologyPassed": true
+    }
+  ],
+  "checks": {
+    "primitiveRegression": {
+      "beforeFailed": [
+        "Sculpted stone armour",
+        "Manufactured brass bracket"
+      ],
+      "afterPassed": 7,
+      "total": 7
+    },
+    "closedSurfaces": 240,
+    "animations": 20,
+    "viewerUI": [
+      {
+        "type": "colossus",
+        "clipSelect": true,
+        "pause": true,
+        "orbit": true,
+        "zoom": true,
+        "mobileOverflow": false
+      },
+      {
+        "type": "gargoyle",
+        "clipSelect": true,
+        "pause": true,
+        "orbit": true,
+        "zoom": true,
+        "mobileOverflow": false
+      },
+      {
+        "type": "wraith",
+        "clipSelect": true,
+        "pause": true,
+        "orbit": true,
+        "zoom": true,
+        "mobileOverflow": false
+      }
+    ],
+    "browserEncounters": {
+      "passed": 63,
+      "total": 63,
+      "method": "Private compiled test fixture; production functions and physics, isolated browser storage, no second server. Position fixtures are explicit; this is not an unaided full playthrough."
+    },
+    "units": {
+      "passed": 59,
+      "total": 59,
+      "note": "Previously passed; gameplay source and engine bundle unchanged by this geometry correction."
+    },
+    "legacyPhysics": {
+      "ballisticPassed": 16,
+      "total": 16,
+      "note": "Previously passed; actual new bosses are covered separately by the browser encounter tests."
+    },
+    "liveAim": {
+      "aimPassed": 24,
+      "aimTotal": 24,
+      "throwsPassed": 36,
+      "throwsTotal": 36,
+      "regressionsPassed": 21,
+      "regressionsTotal": 21,
+      "errors": []
+    },
+    "liveTrajectory": {
+      "passed": 6,
+      "total": 6
+    },
+    "productionWorkers": [
+      {
+        "mode": "desktop",
+        "passed": true,
+        "version": "1.2.0"
+      },
+      {
+        "mode": "mobile",
+        "passed": true,
+        "version": "1.2.0"
+      },
+      {
+        "mode": "mobile-landscape",
+        "passed": true,
+        "version": "1.2.0"
+      }
+    ],
+    "servedAssets": [
+      {
+        "type": "colossus",
+        "bytes": 2993552,
+        "sha256": "996105205afd33658b24cef3e8a77d65f9952d2e6aa4125c9864d2f06f149184",
+        "matched": true,
+        "cacheControl": "no-cache"
+      },
+      {
+        "type": "gargoyle",
+        "bytes": 6032368,
+        "sha256": "5fb7d90ea41f9b20995f6371aeed0edb086fe41ac7d7d345025bf379fe015533",
+        "matched": true,
+        "cacheControl": "no-cache"
+      },
+      {
+        "type": "wraith",
+        "bytes": 2409068,
+        "sha256": "130d5baea65a44e46df459ccb71f54e2f28a381d6bb963744590fb3395a844e4",
+        "matched": true,
+        "cacheControl": "no-cache"
+      }
+    ]
+  },
+  "performance": {
+    "hardware": "Intel Core Ultra 9 285K / RTX 5080; actual Chrome GPU string below",
+    "conditions": "Same Chrome, seed, viewport, camera and paused enemy AI. Production builds; isolated browser interception on the existing 5173 origin. Synthetic desktop benchmark, not physical mobile proof.",
+    "comparisonBaseline": "Original 184acf6 with inward-facing boss plates; corrected candidate before integration.",
+    "frames": [
+      {
+        "label": "before",
+        "scene": "courtyard",
+        "fps": 240.0160010667377,
+        "p95": 4.300000000000182,
+        "p99": 4.399999999999636,
+        "max": 4.400000000000546,
+        "over50": 0,
+        "heap": 63987423,
+        "draw": {
+          "frame": 10594,
+          "calls": 427,
+          "triangles": 334077,
+          "points": 944,
+          "lines": 0
+        }
+      },
+      {
+        "label": "before",
+        "scene": "crypt",
+        "fps": 240,
+        "p95": 4.300000000000182,
+        "p99": 4.300000000001091,
+        "max": 4.5,
+        "over50": 0,
+        "heap": 67886111,
+        "draw": {
+          "frame": 19429,
+          "calls": 428,
+          "triangles": 343066,
+          "points": 944,
+          "lines": 66
+        }
+      },
+      {
+        "label": "after",
+        "scene": "courtyard",
+        "fps": 240.01600106673777,
+        "p95": 4.300000000000182,
+        "p99": 4.300000000000182,
+        "max": 4.400000000000091,
+        "over50": 0,
+        "heap": 76146419,
+        "draw": {
+          "frame": 11179,
+          "calls": 423,
+          "triangles": 331509,
+          "points": 944,
+          "lines": 0
+        }
+      },
+      {
+        "label": "after",
+        "scene": "crypt",
+        "fps": 240,
+        "p95": 4.300000000000182,
+        "p99": 4.300000000000182,
+        "max": 4.400000000000546,
+        "over50": 0,
+        "heap": 72520734,
+        "draw": {
+          "frame": 20824,
+          "calls": 430,
+          "triangles": 342798,
+          "points": 944,
+          "lines": 66
+        }
+      }
+    ],
+    "restartResources": [
+      {
+        "label": "before",
+        "restartMemory": {
+          "initial": {
+            "geometries": 135,
+            "textures": 119
+          },
+          "samples": [
+            {
+              "geometries": 119,
+              "textures": 113
+            },
+            {
+              "geometries": 119,
+              "textures": 118
+            },
+            {
+              "geometries": 119,
+              "textures": 113
+            },
+            {
+              "geometries": 119,
+              "textures": 117
+            },
+            {
+              "geometries": 119,
+              "textures": 113
+            },
+            {
+              "geometries": 119,
+              "textures": 115
+            }
+          ]
+        }
+      },
+      {
+        "label": "after",
+        "restartMemory": {
+          "initial": {
+            "geometries": 136,
+            "textures": 119
+          },
+          "samples": [
+            {
+              "geometries": 119,
+              "textures": 116
+            },
+            {
+              "geometries": 119,
+              "textures": 114
+            },
+            {
+              "geometries": 119,
+              "textures": 113
+            },
+            {
+              "geometries": 119,
+              "textures": 114
+            },
+            {
+              "geometries": 119,
+              "textures": 113
+            },
+            {
+              "geometries": 119,
+              "textures": 115
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "build": {
+    "files": 21,
+    "MiB": 14.43,
+    "cache": "0270a5d071a440158afa7763",
+    "warning": "Existing large JavaScript bundle warning."
+  },
+  "evidence": [
+    "output/bosses/topology-before.log",
+    "output/bosses/topology-after.log",
+    "output/bosses/live-models-final.log",
+    "output/bosses/asset-inspection.json",
+    "output/bosses/winding-runtime.log",
+    "output/bosses/runtime/verification.json",
+    "output/bosses/comparison/comparison.json",
+    "output/bosses/served-identity.json",
+    "output/bosses/colossus-before-winding-2k.png",
+    "output/bosses/colossus-front-2k.png"
+  ],
+  "limitations": {
+    "physicalPhonePerformance": "unverified",
+    "gpuVRAM": "not measured",
+    "coldLoadImprovement": "unproven due cache/order differences",
+    "deployment": "local only; no configured remote or public deployment"
+  },
+  "usage": {
+    "taskWeeklyPercent": null,
+    "taskCredits": null,
+    "accountAggregateWeeklyPercent": 11,
+    "ordinaryUsageAllowed": true,
+    "attribution": "Parallel account use prevents attribution to this task."
+  }
+}

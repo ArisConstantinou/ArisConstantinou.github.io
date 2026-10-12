@@ -1,0 +1,32 @@
+<!doctype html><html lang="el"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MAGIC · Boss animation inspection</title>
+<style>body{margin:0;background:#d9d8d3;font:16px system-ui}canvas{display:block}#info{position:absolute;top:16px;left:16px;color:#283036;background:#f1f0e9ee;padding:12px;border-radius:8px;max-width:calc(100% - 56px)}nav{display:flex;gap:8px;flex-wrap:wrap}a,button,select{font:inherit;min-height:44px;box-sizing:border-box;padding:10px;border:1px solid #8c948c;border-radius:6px;background:#fff;color:#283036}a{text-decoration:none}#status{margin:10px 0 0}</style>
+<div id="info"><nav><a href="?type=colossus">Κολοσσός</a><a href="?type=gargoyle">Gargoyle</a><a href="?type=wraith">Φάντασμα</a><select id="clip" aria-label="Animation"></select><button id="play">Παύση</button></nav><p id="status">Φόρτωση 3D…</p></div><canvas id="game-canvas"></canvas>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {loadBossCharacters,createBossCharacter} from '/src/boss-characters.js';
+const type=new URLSearchParams(location.search).get('type')||'colossus';
+await loadBossCharacters([type]);const boss=createBossCharacter(type);
+const renderer=new THREE.WebGLRenderer({canvas:document.querySelector('canvas'),antialias:true,preserveDrawingBuffer:true});
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(1);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xd9d8d3);scene.add(boss.group);
+scene.add(new THREE.HemisphereLight(0xffffff,0x647375,2.4));
+const sun=new THREE.DirectionalLight(0xfff6e3,3.8);sun.position.set(-4,7,5);sun.castShadow=true;sun.shadow.normalBias=.04;sun.shadow.bias=-.0001;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+const rim=new THREE.DirectionalLight(0xb9d3ec,1.7);rim.position.set(4,3,-4);scene.add(rim);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(16,16),new THREE.MeshStandardMaterial({color:0xbebeb6,roughness:1}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;floor.position.y=-.03;scene.add(floor);
+const grid=new THREE.GridHelper(12,24,0x92968f,0xc8c9c0);grid.position.y=-.02;scene.add(grid);
+const camera=new THREE.PerspectiveCamera(35,innerWidth/innerHeight,.1,40);camera.position.set(5.3,3.7,7.6);camera.lookAt(0,1.65,0);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.65,0);controls.minDistance=3;controls.maxDistance=16;controls.maxPolarAngle=Math.PI*.49;controls.update();
+let clip='Idle',elapsed=0,last=performance.now(),auto=true;
+const draw=()=>{renderer.render(scene,camera);document.querySelector('#status').textContent=`${type} · ${clip} · ${elapsed.toFixed(2)} s · σύρε για περιστροφή, scroll για zoom`;};
+const select=document.querySelector('#clip');for(const name of boss.clips.keys())select.add(new Option(name,name));select.value=clip;
+select.onchange=()=>{clip=select.value;elapsed=0;auto=true;boss.reset();document.querySelector('#play').textContent='Παύση';};
+document.querySelector('#play').onclick=e=>{auto=!auto;e.target.textContent=auto?'Παύση':'Αναπαραγωγή';};controls.addEventListener('change',draw);
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);draw();});
+window.__BOSS_VIEWER__={boss,scene,camera,renderer,set:(name,time)=>{auto=false;clip=name;elapsed=time;boss.update(.1,{clip:name,time});draw();},play:name=>{clip=name;elapsed=0;auto=true;boss.reset();},view:direction=>{camera.position.set(...direction);camera.lookAt(0,1.65,0);draw();}};
+window.render_game_to_text=()=>JSON.stringify({type,clip,elapsed,clips:[...boss.clips.keys()],render:renderer.info.render});
+window.advanceTime=ms=>{elapsed+=ms/1000;boss.update(ms/1000,{clip,time:elapsed});draw();};
+function frame(now){const dt=Math.max(0,Math.min(.04,(now-last)/1000));last=now;if(auto){const duration=boss.clips.get(clip).duration;elapsed=['Idle','Walk','Hover'].includes(clip)?(elapsed+dt)%duration:Math.min(duration,elapsed+dt);boss.update(dt,{clip,time:elapsed});draw();}requestAnimationFrame(frame);}requestAnimationFrame(frame);
+</script></html>

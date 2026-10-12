@@ -5,6 +5,12 @@ import { PointerMotion, gestureThrowVelocity, clampDragPoint, constrainDragPoint
 const close = (actual, expected, tolerance = 1e-7) => assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} differs from ${expected}`);
 const wall = (x = 5, y = 2, z = 0, w = 2, h = 4, d = 8) => ({ x, y, z, w, h, d });
 const finiteVector = vector => assert.ok(Object.values(vector).every(Number.isFinite));
+test('throw power preserves stroke speed when pointer travel reverses',()=>{
+ const motion=new PointerMotion().add(0,0,0).add(120,0,60).add(0,0,120);
+ close(motion.velocity(120,true).x,2000);
+ assert.ok(Math.abs(motion.velocity(120).x)<motion.velocity(120,true).x);
+ assert.deepEqual(motion.velocity(261,true),{x:0,y:0});
+});
 
 test('pointer velocity reports CSS pixels per second independently of event spacing', () => {
   const motion = new PointerMotion({ x: 0, y: 0, timeMs: 0 });
@@ -48,15 +54,16 @@ test('empty, single-sample and extreme pointer input always have finite output',
   finiteVector(motion.velocity(30));
 });
 
-test('swipe momentum preserves its world direction and receives a small natural upward arc', () => {
+test('swipe momentum controls power while pointer aim supplies the world direction and upward arc', () => {
   const velocity = gestureThrowVelocity({ x: 12, z: -16 }, { x: -1, z: 0 });
   close(velocity.speed, 18);
-  close(velocity.x / velocity.z, -12 / 16);
+  close(velocity.x, -18);
+  close(velocity.z, 0);
   close(Math.hypot(velocity.x, velocity.z), velocity.speed);
   close(velocity.y, 2.4 + 18 * .035);
 });
 
-test('a still or very slow release throws away from the mage at the baseline speed', () => {
+test('a still or slow release preserves pointer aim at the existing baseline speed', () => {
   for (const motion of [{ x: 0, z: 0 }, { x: 1.39, z: 0 }]) {
     const velocity = gestureThrowVelocity(motion, { x: 0, z: 8 });
     close(velocity.x, 0);
@@ -64,8 +71,8 @@ test('a still or very slow release throws away from the mage at the baseline spe
     close(velocity.speed, 16);
   }
   const deliberate = gestureThrowVelocity({ x: 1.4, z: 0 }, { x: 0, z: 8 });
-  close(deliberate.x, 9);
-  close(deliberate.z, 0);
+  close(deliberate.x, 0);
+  close(deliberate.z, 9);
 });
 
 test('grip upgrades increase release speed without exceeding the physics speed cap', () => {

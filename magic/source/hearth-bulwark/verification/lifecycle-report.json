@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "native E reaches piloted state"
+    },
+    {
+      "pass": true,
+      "label": "restart while mounted restores cold engine, player and input"
+    },
+    {
+      "pass": true,
+      "label": "native E reaches piloted state"
+    },
+    {
+      "pass": true,
+      "label": "real heavy attack defeats mounted pilot"
+    },
+    {
+      "pass": true,
+      "label": "result freezes heart fuel"
+    },
+    {
+      "pass": true,
+      "label": "restart after mounted death restores player and stable population"
+    },
+    {
+      "pass": true,
+      "label": "no lifecycle runtime errors"
+    }
+  ],
+  "errors": [],
+  "cleanup": {
+    "closed": true,
+    "remainingPids": []
+  }
+}

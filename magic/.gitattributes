@@ -1,0 +1,10 @@
+# Keep exported runtime bytes and their source assets identical across platforms.
+engine/** -text
+index.html -text
+sw.js -text
+assets-credit.json -text
+manifest.webmanifest -text
+icons/** -text
+licenses/** -text
+models/** -text
+_source/public/** -text

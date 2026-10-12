@@ -1,0 +1,50 @@
+{
+  "bones": 30,
+  "triangles": 12301,
+  "clips": {
+    "Sleep": 2,
+    "Wake": 2.1,
+    "Idle": 2.4,
+    "Walk": 1.4,
+    "Board": 2.4,
+    "Fire": 0.8,
+    "Throw": 0.85,
+    "Deplete": 2.1,
+    "Exit": 2.4
+  },
+  "bytes": 6664128,
+  "detailMaps": [
+    {
+      "name": "MAGIC leather base-2048",
+      "width": 2048,
+      "height": 2048
+    },
+    {
+      "name": "MAGIC leather normal-1024",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "name": "MAGIC leather roughness-1024",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "name": "MAGIC stone base-2048",
+      "width": 2048,
+      "height": 2048
+    },
+    {
+      "name": "MAGIC stone normal-1024",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "name": "MAGIC stone roughness-1024",
+      "width": 1024,
+      "height": 1024
+    }
+  ],
+  "exportedTextures": 9,
+  "materials": 7
+}

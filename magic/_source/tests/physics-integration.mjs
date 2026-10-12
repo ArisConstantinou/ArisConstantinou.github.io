@@ -13,6 +13,8 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { createWorld, createPropMesh } from '../src/world.js';
 import { ballisticVelocity, clamp, distance, lineClear, NavigationGrid, ProfileStore } from '../src/systems.js';
+import { impactDamage, propSelfDamage, knockbackXZ } from '../src/impact-rules.js';
+import {bodyguardTarget,freePosition,ENEMY_LIMIT,CHANNEL_DURATION,CHANNEL_COOLDOWN,MINION_LIMIT} from '../src/goliath.js';
 
 const main = fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
 const impactSource = main.slice(main.indexOf('function impact('), main.indexOf('function hurt('));
@@ -57,17 +59,20 @@ function createSimulation({phase='playing'}={}) {
   const rewards=[];
   const ends=[];
   const noop=()=>{};
-  const context={
-    phase,held:null,mobile:false,runTime:0,shake:0,kills:0,combo:0,comboUntil:0,
+  const context={FIRE_ENABLED:false,hearth:{mounted:false,interact:()=>false,throw:()=>true},
+    goliath:null,bodyguardTarget,freePosition,ENEMY_LIMIT,CHANNEL_DURATION,CHANNEL_COOLDOWN,MINION_LIMIT,rooms:map.rooms,
+    reinforcements:[],enteredRooms:new Set(['crypt']),cancelRitual:()=>{},
+    phase,held:null,mobile:false,runTime:0,shake:0,kills:0,combo:0,comboUntil:0,player:{gear:{damage:0,armor:0}},
     save:{profile:{upgrades:{}}},
     fx:{burst:noop,number:(position,amount)=>damageNumbers.push({time:context.runTime,amount,position:[position.x,position.y,position.z]})},
     sound:{sound:noop},ui:{toast:noop},
-    spawnPickup:(position,value)=>rewards.push({time:context.runTime,value}),
+    spawnPickup:(position,value)=>rewards.push({time:context.runTime,value}),spawnLoot:noop,
     endRun:(won,reason)=>ends.push({won,reason}),
-    clamp,distance,lineClear,nav,relicTaken:true,enemyAttack:()=>{},
+    clamp,distance,lineClear,impactDamage,propSelfDamage,knockbackXZ,nav,relicTaken:true,enemyAttack:()=>{},
   };
   vm.createContext(context);
-  vm.runInContext(`${impactSource}\n${hurtSource}\n${visibleLineSource}\n${enemySource}\nglobalThis.actualImpact=impact;globalThis.actualUpdateEnemy=updateEnemy;`,context);
+  const channelSource=main.slice(main.indexOf('function interruptChannel('),main.indexOf('function impact('));
+  vm.runInContext(`${channelSource}\n${impactSource}\n${hurtSource}\n${visibleLineSource}\n${enemySource}\nglobalThis.actualImpact=impact;globalThis.actualUpdateEnemy=updateEnemy;`,context);
   const entities=[];
   const staticBodies=[];
   for(const box of [...map.floors,...map.colliders]) {
@@ -103,6 +108,9 @@ function createSimulation({phase='playing'}={}) {
     const e={category:'actor',kind,isPlayer,body,cy,radius:r,hp:s.hp,maxHp:s.hp,speed:s.speed,mass:s.mass,
       dead:false,removed:false,stun:0,invulnerable:0,hitFlash:0,thrownUntil:0,thrownBy:null,collisionTimes:new Map(),
       windup:0,guardBreak:0,spawn:{x,z},deathTime:0,path:[],pathTick:0,yaw:0,attackCooldown:1,aggro:false};
+    // This harness isolates physical pursuit/throws. Boss channel completion
+    // and interruption are exercised in the real browser integration suite.
+    if(kind==='boss'){e.channel=0;e.channelCooldown=Infinity;e.minions=new Set();}
     return listen(e);
   }
   function prop(kind,x,z,options={}) {
@@ -200,7 +208,8 @@ for(const [name,start,end] of [
 for(const [name,start,velocity,inside] of [
   ['courtyard-east-wall',{x:10.5,z:12},{x:6,z:0},p=>p.x<=11.59],
   ['bridge-east-parapet',{x:1.2,z:24.5},{x:6,z:0},p=>p.x<=2.29],
-  ['crypt-north-wall',{x:0,z:-21},{x:0,z:-6},p=>p.z>=-22.59],
+  // The centre is now the approved catacomb doorway; test the retained wall.
+  ['crypt-north-wall',{x:3.5,z:-21},{x:0,z:-6},p=>p.z>=-22.59],
 ]) {
   const sim=createSimulation({phase:'loading'}),e=sim.actor('mage',start.x,start.z,true);sim.settle(.4);
   for(let i=0;i<180;i++)sim.frame(1/60,()=>{e.body.velocity.x=velocity.x;e.body.velocity.z=velocity.z;});
@@ -292,6 +301,7 @@ throwCase('crate',4.7,26,{wall:true});
     player,boss,entities:sim.entities,actor:sim.actor,save:store,
     relicTaken:false,alarmTime:0,nextWave:0,runShards:0,runTime:125,phase:'playing',
     worldMap:{
+      floors:map.floors,doorways:map.doorways,
       relic:map.relic,exit:map.exit,
       setRelicTaken:value=>{events.push(['relic',value]);map.setRelicTaken(value);},
       setAlarm:value=>{events.push(['alarm',value]);map.setAlarm(value);},
@@ -312,6 +322,8 @@ throwCase('crate',4.7,26,{wall:true});
   ctx.missionHurt(boss,boss.hp+1,player.body.position);
   mission.bossDeathRegistered=boss.dead&&boss.hp===0&&ctx.kills===1;
   ctx.missionInteract();
+  mission.warnedBeforeSpawn=ctx.reinforcements.length===3&&sim.entities.length===2;
+  ctx.runTime+=2.6;ctx.updateReinforcements();
   const reinforcements=sim.entities.filter(e=>e!==player&&e!==boss);
   mission.stolen=ctx.relicTaken&&ctx.runShards===5;
   mission.alarmEnabled=events.some(([name,value])=>name==='alarm'&&value===true);

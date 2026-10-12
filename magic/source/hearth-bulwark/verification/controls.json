@@ -1,0 +1,172 @@
+{
+  "errors": [],
+  "viewports": [
+    {
+      "name": "desktop",
+      "checks": [
+        {
+          "label": "native fire action absorbs torch",
+          "pass": true
+        },
+        {
+          "label": "native use boards engine",
+          "pass": true
+        },
+        {
+          "label": "held fire depletes fuel",
+          "pass": true
+        },
+        {
+          "label": "move and fire work simultaneously",
+          "pass": true
+        },
+        {
+          "label": "real forearm flame damages guard",
+          "pass": true
+        },
+        {
+          "label": "release clears held fire",
+          "pass": true
+        },
+        {
+          "label": "native drag grabs crate while piloting",
+          "pass": true
+        },
+        {
+          "label": "native release throws crate",
+          "pass": true
+        },
+        {
+          "label": "throw animation consumes heart fire",
+          "pass": true
+        },
+        {
+          "label": "no horizontal overflow",
+          "pass": true
+        },
+        {
+          "label": "native exit restores movement",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "portrait",
+      "checks": [
+        {
+          "label": "native fire action absorbs torch",
+          "pass": true
+        },
+        {
+          "label": "native use boards engine",
+          "pass": true
+        },
+        {
+          "label": "held fire depletes fuel",
+          "pass": true
+        },
+        {
+          "label": "move and fire work simultaneously",
+          "pass": true
+        },
+        {
+          "label": "real forearm flame damages guard",
+          "pass": true
+        },
+        {
+          "label": "release clears held fire",
+          "pass": true
+        },
+        {
+          "label": "native drag grabs crate while piloting",
+          "pass": true
+        },
+        {
+          "label": "native release throws crate",
+          "pass": true
+        },
+        {
+          "label": "throw animation consumes heart fire",
+          "pass": true
+        },
+        {
+          "label": "no horizontal overflow",
+          "pass": true
+        },
+        {
+          "label": "fire has a usable touch target",
+          "pass": true
+        },
+        {
+          "label": "touch cancellation clears fire",
+          "pass": true
+        },
+        {
+          "label": "native exit restores movement",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "landscape",
+      "checks": [
+        {
+          "label": "native fire action absorbs torch",
+          "pass": true
+        },
+        {
+          "label": "native use boards engine",
+          "pass": true
+        },
+        {
+          "label": "held fire depletes fuel",
+          "pass": true
+        },
+        {
+          "label": "move and fire work simultaneously",
+          "pass": true
+        },
+        {
+          "label": "real forearm flame damages guard",
+          "pass": true
+        },
+        {
+          "label": "release clears held fire",
+          "pass": true
+        },
+        {
+          "label": "native drag grabs crate while piloting",
+          "pass": true
+        },
+        {
+          "label": "native release throws crate",
+          "pass": true
+        },
+        {
+          "label": "throw animation consumes heart fire",
+          "pass": true
+        },
+        {
+          "label": "no horizontal overflow",
+          "pass": true
+        },
+        {
+          "label": "fire has a usable touch target",
+          "pass": true
+        },
+        {
+          "label": "touch cancellation clears fire",
+          "pass": true
+        },
+        {
+          "label": "native exit restores movement",
+          "pass": true
+        }
+      ]
+    }
+  ],
+  "cleanup": {
+    "closed": true,
+    "remainingPids": []
+  }
+}

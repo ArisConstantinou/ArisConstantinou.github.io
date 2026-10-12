@@ -1,0 +1,10 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {createHash} from 'node:crypto';
+const source=path.resolve('_source/.release');
+const serverRoot=String.raw`C:\Users\arz0r\Documents\ChatGPT\Magic\_source`;
+const target=path.join(serverRoot,'.cache/fire-main');
+if(path.dirname(target)!==path.join(serverRoot,'.cache'))throw new Error('Invalid preview destination');
+await fs.mkdir(target,{recursive:true});await fs.cp(source,target,{recursive:true});
+const html=await fs.readFile(path.join(target,'index.html'),'utf8'),main=html.match(/src="\.\/([^"]+\.js)"/)[1];
+console.log(JSON.stringify({url:'http://127.0.0.1:5173/.cache/fire-main/index.html',main,sha256:createHash('sha256').update(await fs.readFile(path.join(target,main))).digest('hex')}));

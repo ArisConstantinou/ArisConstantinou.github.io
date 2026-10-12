@@ -1,0 +1,199 @@
+{
+  "errors": [],
+  "samples": [
+    {
+      "label": "before",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "loadMs": 2924,
+      "fps": 240.01603447411927,
+      "p50": 4.199999999999818,
+      "p95": 4.300000000000182,
+      "max": 4.300000000000182,
+      "over50": 0,
+      "frames": 479
+    },
+    {
+      "label": "after",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "loadMs": 2765,
+      "fps": 240.0040084176771,
+      "p50": 4.199999999999818,
+      "p95": 4.300000000000182,
+      "max": 4.5,
+      "over50": 0,
+      "frames": 479
+    },
+    {
+      "label": "after",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "loadMs": 822,
+      "fps": 240.0040084176771,
+      "p50": 4.199999999999818,
+      "p95": 4.300000000000182,
+      "max": 4.5,
+      "over50": 0,
+      "frames": 479
+    },
+    {
+      "label": "before",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "loadMs": 650,
+      "fps": 239.99198356631086,
+      "p50": 4.199999999999818,
+      "p95": 4.300000000000182,
+      "max": 4.599999999999454,
+      "over50": 0,
+      "frames": 479
+    },
+    {
+      "label": "before",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "loadMs": 763,
+      "fps": 239.99198356631092,
+      "p50": 4.199999999999818,
+      "p95": 4.300000000000182,
+      "max": 4.5,
+      "over50": 0,
+      "frames": 479
+    },
+    {
+      "label": "after",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "loadMs": 877,
+      "fps": 239.99198356631098,
+      "p50": 4.199999999999818,
+      "p95": 4.300000000000182,
+      "max": 4.400000000000546,
+      "over50": 0,
+      "frames": 479
+    },
+    {
+      "label": "after",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "loadMs": 845,
+      "fps": 240.0040084176771,
+      "p50": 4.199999999999818,
+      "p95": 4.300000000000182,
+      "max": 4.300000000000182,
+      "over50": 0,
+      "frames": 479
+    },
+    {
+      "label": "before",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "loadMs": 645,
+      "fps": 239.99198356631098,
+      "p50": 4.199999999999818,
+      "p95": 4.300000000000182,
+      "max": 4.699999999999818,
+      "over50": 0,
+      "frames": 479
+    },
+    {
+      "label": "before",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "loadMs": 630,
+      "fps": 240.0040084176771,
+      "p50": 4.199999999999818,
+      "p95": 4.300000000000182,
+      "max": 4.400000000000546,
+      "over50": 0,
+      "frames": 479
+    },
+    {
+      "label": "after",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "loadMs": 723,
+      "fps": 239.97995991983973,
+      "p50": 4.199999999999818,
+      "p95": 4.299999999999727,
+      "max": 4.399999999999636,
+      "over50": 0,
+      "frames": 479
+    },
+    {
+      "label": "after",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "loadMs": 781,
+      "fps": 240.01603447411932,
+      "p50": 4.199999999999818,
+      "p95": 4.300000000000182,
+      "max": 4.400000000000546,
+      "over50": 0,
+      "frames": 479
+    },
+    {
+      "label": "before",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "loadMs": 673,
+      "fps": 123,
+      "p50": 4.2000000000000455,
+      "p95": 13,
+      "max": 475,
+      "over50": 2,
+      "frames": 246
+    }
+  ],
+  "conditions": "Chrome hardware renderer, DPR 1; seeded opening scene, native pause at 2 seconds, ABBA on same browser. Mobile dimensions are PC emulation.",
+  "activeFire": {
+    "fps": 160.6666666666667,
+    "p50": 4.200000000000728,
+    "p95": 12.5,
+    "max": 16.700000000000728,
+    "over50": 0,
+    "frames": 482
+  },
+  "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "memory": {
+    "before": {
+      "geometries": 140,
+      "textures": 132
+    },
+    "after": {
+      "geometries": 89,
+      "textures": 42
+    },
+    "entities": 52,
+    "bodies": 92
+  },
+  "cleanup": {
+    "closed": true,
+    "remainingPids": []
+  }
+}

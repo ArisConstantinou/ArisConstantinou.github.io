@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { existingRooms, newRooms, corridors } from './castle-layout.js';
+import { castleBoundaries } from './castle-boundaries.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // All distances are metres. North is -Z. Static detail is instanced; loose
@@ -137,7 +139,7 @@ function matrixAt(x, y, z, sx = 1, sy = 1, sz = 1, rx = 0, ry = 0, rz = 0) {
   return new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), q, new THREE.Vector3(sx, sy, sz));
 }
 
-export function createWorld(scene) {
+export function createWorld(scene,{fireEnabled=true}={}) {
   const rand = seeded(230619);
   const root = new THREE.Group();
   root.name = 'The Blackthorn Bastion';
@@ -145,6 +147,7 @@ export function createWorld(scene) {
   const colliders = [];
   const floors = [];
   const props = [];
+  const woodenSurfaces = [];
   const occluders = [];
   const batches = new Map();
   const stoneMap = grainTexture(703);
@@ -188,6 +191,7 @@ export function createWorld(scene) {
 
   function box(x, y, z, w, h, d, color = 0x69717a, mat = 'masonry', ry = 0, key = mat) {
     add(key, geo.block, materials[mat], matrixAt(x, y, z, w, h, d, 0, ry), color);
+    if(mat==='darkWood')woodenSurfaces.push({id:`wood-${woodenSurfaces.length}`,key,index:batches.get(key).matrices.length-1,position:new THREE.Vector3(x,y,z),ext:new THREE.Vector3(w/2,h/2,d/2),flammable:true,woodFraction:1,baseColor:new THREE.Color(color),rotation:ry});
   }
 
   function cylinder(x, y, z, radius, height, color = 0x899099, mat = 'cutStone', key = `${mat}-cylinder`) {
@@ -218,7 +222,7 @@ export function createWorld(scene) {
     }
     // A restrained brass line directs the eye along the route through the keep.
     if (zone !== 'bridge') {
-      for (const x of [-2.13, 2.13]) {
+      for (const x of [(x0+x1)/2-2.13, (x0+x1)/2+2.13]) {
         box(x, 0.016, (z0 + z1) / 2, 0.046, 0.023, z1 - z0 - 0.2, 0x88754e, 'bronze', 0, 'floor-inlay');
       }
     }
@@ -228,6 +232,8 @@ export function createWorld(scene) {
   floor(-10, 10, -10, 4, 0x63616c, 'hall');
   floor(-7, 7, -23, -10, 0x45475b, 'crypt');
   floor(-2.7, 2.7, 20, 27, 0x636a73, 'bridge');
+  for(const r of newRooms)floor(r.x,r.x+r.w,r.z,r.z+r.d,r.boss?0x555166:0x53616c,r.id);
+  for(const r of corridors)floor(r.x,r.x+r.w,r.z,r.z+r.d,0x56636d,'bridge');
 
   // Deep, layered foundations make the castle feel built into a cliff.
   for (const side of [-1, 1]) {
@@ -272,17 +278,19 @@ export function createWorld(scene) {
     }
   }
 
+  const boundary=castleBoundaries([...existingRooms,...newRooms,...corridors]);
+  for(const edge of boundary){
+    const alongX=edge.axis==='x',mid=(edge.lo+edge.hi)/2,at=edge.at+edge.normal*.4;
+    const bridge=edge.room==='bridge',courtyard=edge.room==='courtyard';
+    const low=bridge||courtyard&&alongX;
+    const height=bridge?.66:low?1.05:courtyard?3:edge.room==='crypt'&&alongX?5.4:3.65;
+    wall(alongX?mid:at,alongX?at:mid,edge.hi-edge.lo,height,alongX,
+      {low,crenels:courtyard&&!low,tag:'wall'});
+  }
   for (const side of [-1, 1]) {
-    wall(side * 12.4, 12, 16.8, 3.0, false, { crenels: true });
-    wall(side * 10.4, -3, 14.8, 3.65, false);
-    wall(side * 7.4, -16.5, 13.8, 4.0, false);
-    wall(side * 7.5, 20.4, 9.8, 1.05, true, { low: true });
     wall(side * 7.3, 4, 9.4, 1.2, true, { low: true, tag: 'courtyard-screen' });
     wall(side * 6.3, -10, 7.4, 1.1, true, { low: true, tag: 'hall-screen' });
-    wall(side * 2.96, 23.65, 7.3, 0.66, false, { thickness: 0.52, tag: 'bridge-parapet' });
   }
-  wall(0, -23.4, 15.6, 5.4, true);
-  wall(0, 27.4, 6.45, 0.85, true, { low: true, tag: 'bridge-end' });
 
   function buttress(x, z, ry) {
     box(x, 0.32, z, 1.5, 0.64, 1.35, 0x48535f, 'masonry', ry);
@@ -347,7 +355,7 @@ export function createWorld(scene) {
   pointedArch(0, -23.04, 3.35, 2.25, 2.8, 'reliquary', { physical: false, scale: 0.86 });
 
   // Tall lancet windows and leaded panes give the far crypt wall its silhouette.
-  for (const x of [-4.65, 0, 4.65]) {
+  for (const x of [-4.65, 4.65]) {
     box(x, 3.0, -22.97, 1.26, 3.25, 0.11, 0x101723, 'base');
     box(x, 3.0, -22.88, 0.84, 2.85, 0.045, 0x6b4e94, 'stainedGlass');
     box(x, 2.9, -22.82, 0.07, 2.9, 0.06, 0x5d555e, 'metal');
@@ -407,7 +415,7 @@ export function createWorld(scene) {
   // Distant towers are silhouette scenery; nothing lies inside the playable area.
   for (let i = 0; i < 12; i++) {
     const side = i % 2 ? -1 : 1;
-    const x = side * (22 + rand() * 16);
+    const x = side * (62 + rand() * 16);
     const z = -10 - rand() * 44;
     const h = 5 + rand() * 13;
     const r = 1.15 + rand() * 1.2;
@@ -417,7 +425,8 @@ export function createWorld(scene) {
   }
 
   const torchPositions = [];
-  function torch(x, z, y = 2.5, facing = 0, large = false) {
+  const torches = [];
+  function torch(x, z, y = 2.5, facing = 0, large = false, infinite = false) {
     const forward = new THREE.Vector3(0, 0, 1).applyAxisAngle(Y_AXIS, facing);
     const s = large ? 1.45 : 1;
     box(x - forward.x * 0.16, y - 0.41, z - forward.z * 0.16, 0.17 * s, 0.65 * s, 0.16 * s, 0x28343e, 'metal', facing);
@@ -428,18 +437,60 @@ export function createWorld(scene) {
       box(x + Math.cos(ang) * 0.18 * s, y + 0.11 * s, z + Math.sin(ang) * 0.18 * s, 0.035, 0.34 * s, 0.035, 0x6e5a3c, 'bronze');
     }
     torchPositions.push(new THREE.Vector3(x, y + 0.27 * s, z));
+    torches.push({id:torches.length,position:torchPositions.at(-1),lit:true,infinite,kind:infinite?'pylon':'torch'});
   }
 
   for (const side of [-1, 1]) {
-    torch(side * 11.86, 8.2, 2.35, -side * PI / 2);
-    torch(side * 11.86, 17.0, 2.35, -side * PI / 2);
-    torch(side * 9.87, -6.7, 2.8, -side * PI / 2);
-    torch(side * 9.87, 1.15, 2.8, -side * PI / 2);
-    torch(side * 6.86, -12.65, 2.65, -side * PI / 2);
-    torch(side * 3.8, -22.76, 2.3, 0);
-    torch(side * 3.2, 20.76, 1.5, 0, true);
+    torch(side * (fireEnabled?11.4:11.86), 8.2, 2.35, -side * PI / 2);
+    torch(side * (fireEnabled?11.4:11.86), 17.0, 2.35, -side * PI / 2);
+    torch(side * (fireEnabled?9.4:9.87), -6.7, 2.8, -side * PI / 2);
+    torch(side * (fireEnabled?9.4:9.87), 1.15, 2.8, -side * PI / 2);
+    torch(side * (fireEnabled?6.4:6.86), -12.65, 2.65, -side * PI / 2);
+    torch(side * 3.8, fireEnabled?-22.4:-22.76, 2.3, 0);
+    // The sample fixture faces the courtyard; its original decorative flame
+    // sits inside the gate pillar's collision volume.
+    torch(side * 3.2, fireEnabled?19.72:20.76, 1.5, fireEnabled?PI:0, true);
   }
 
+  // Matching stone/bronze architecture, one inexhaustible source per room.
+  if(fireEnabled)for(const [x,z] of [[-7.2,8.5],[-6.4,-8.4],[5.8,-19.3]]){
+    box(x,.1,z,1.05,.2,1.05,0x646b78,'cutStone');
+    cylinder(x,.62,z,.3,.95,0x8a9097);
+    cylinder(x,1.12,z,.4,.15,0xa28048,'bronze');
+    box(x,.52,z,.64,.06,.64,0x987d50,'bronze');
+    collider(x,.67,z,.95,1.34,.95,'fire-pylon');
+    torch(x,z,1.48,0,true,true);
+    add('pylon-runes',geo.torus,materials.flameCore,matrixAt(x,1.2,z,.29,.29,.29,PI/2));
+  }
+
+  for(const room of newRooms){
+    const cx=room.x+room.w/2,cz=room.z+room.d/2;
+    for(const s of [-1,1]){
+      const x=cx+s*(room.w/2-2.1),z=cz;
+      pillar(x,room.z+2,3.5,.33);
+      torch(x,z,2.3,-s*PI/2);
+      prop(room.id==='prison'?'door':room.id==='library'?'urn':room.id==='armoury'?'shield':'barrel',x,room.z+room.d-2,.15*s);
+      prop('crate',x,room.z+3.7,.25*s);prop('stone',cx+s*2.8,cz+2.5,.7);
+      if(['library','armoury','forge'].includes(room.id)){
+        collider(x,1,cz-2,1.2,2,2.2,'room-furniture');
+        box(x,1,cz-2,1.2,2,2.2,0x4f443b,'darkWood');
+        for(const y of [.25,.8,1.35,1.9])box(x+s*.05,y,cz-2,1.35,.12,2.35,0x776658,'darkWood');
+        if(room.id==='library')for(let i=0;i<12;i++)box(x-s*.62,.44+(i%3)*.55,cz-2.9+Math.floor(i/3)*.47,.18,.38,.3,[0x6b394d,0x485a4c,0x806d4d][i%3],'banner');
+        if(room.id==='armoury')for(let i=0;i<4;i++)box(x-s*.62,1.3,cz-2.7+i*.45,.08,1.3,.09,0x9ba5aa,'metal');
+      }
+      if(['barracks','prison','gatehouse'].includes(room.id)){
+        const bx=cx+s*(room.w/2-3),bz=cz+3.5;
+        collider(bx,.4,bz,1.5,.8,2.4,'bed');box(bx,.32,bz,1.6,.6,2.5,0x4d3f36,'darkWood');
+        box(bx,.67,bz,1.35,.15,2.3,0x59685b,'banner');box(bx,.8,bz- .75,1.1,.22,.58,0x9b9788,'banner');
+      }
+    }
+    if(room.boss||room.id==='catacombs'){
+      const ring=new THREE.Mesh(new THREE.RingGeometry(2.35,2.4,64),materials.rune);ring.rotation.x=-PI/2;ring.position.set(cx,.035,cz);root.add(ring);
+      for(let i=0;i<8;i++){const a=i*TAU/8;box(cx+Math.sin(a)*1.7,.03,cz+Math.cos(a)*1.7,.07,.02,.5,0x9b73af,'bronze',a);}
+    }
+    // Vault line and dressed buttresses reuse the existing castle materials.
+    for(const s of [-1,1])buttress(room.x+s*.1+(s>0?room.w:0),room.z+room.d-1,0);
+  }
   const flames = new THREE.InstancedMesh(geo.orb, materials.flame, torchPositions.length);
   const cores = new THREE.InstancedMesh(geo.orb, materials.flameCore, torchPositions.length);
   flames.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -451,6 +502,12 @@ export function createWorld(scene) {
   const torchGlowMat = new THREE.PointsMaterial({ color: 0xff8429, size: 1.95, map: glowMap, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
   const torchGlow = new THREE.Points(torchGlowGeo, torchGlowMat);
   root.add(torchGlow);
+  function setTorchLit(id,lit){
+    const torch=torches[id];if(!torch)return;
+    torch.lit=!!lit;
+    torchGlowGeo.attributes.position.setXYZ(id,torch.position.x,lit?torch.position.y:-100,torch.position.z);
+    torchGlowGeo.attributes.position.needsUpdate=true;
+  }
   const lights = [];
   for (const [x, y, z, power] of [[-8.7, 3.0, 12.7, 64], [8.7, 3.0, 12.7, 64], [-7.7, 3.0, -2.9, 53], [7.7, 3.0, -2.9, 53], [0, 3.5, -20.6, 41]]) {
     const light = new THREE.PointLight(0xffac5d, power, 14, 2);
@@ -636,6 +693,7 @@ export function createWorld(scene) {
     mesh.receiveShadow = !/distant|contact|candle/.test(key);
     mesh.computeBoundingSphere();
     root.add(mesh);
+    for(const wood of woodenSurfaces)if(wood.key===key)wood.mesh=mesh;
     if (archKeys.includes(key)) {
       mesh.userData.occluder = true;
       occluders.push(mesh);
@@ -661,12 +719,12 @@ export function createWorld(scene) {
   const temp = new THREE.Object3D();
   let alarm = false;
   let taken = false;
-  function update(dt, time) {
+  function update(dt, time, focus) {
     const t = Number.isFinite(time) ? time : 0;
     const delta = Math.min(Number.isFinite(dt) ? dt : 0, 0.05);
     for (let i = 0; i < torchPositions.length; i++) {
       const p = torchPositions[i];
-      const f = 0.84 + Math.sin(t * 11.6 + i * 8.3) * 0.1 + Math.sin(t * 23 + i) * 0.08;
+      const f = torches[i].lit ? 0.84 + Math.sin(t * 11.6 + i * 8.3) * 0.1 + Math.sin(t * 23 + i) * 0.08 : 0;
       temp.position.set(p.x + Math.sin(t * 7 + i) * 0.034, p.y, p.z + Math.cos(t * 6 + i) * 0.025);
       temp.rotation.set(0.04 * Math.cos(t * 7 + i), 0, 0.12 * Math.sin(t * 8 + i));
       temp.scale.set(0.135 * f, 0.38 * f, 0.135 * f);
@@ -679,6 +737,7 @@ export function createWorld(scene) {
     }
     flames.instanceMatrix.needsUpdate = true;
     cores.instanceMatrix.needsUpdate = true;
+    if(focus){const near=[...torchPositions].sort((a,b)=>(a.x-focus.x)**2+(a.z-focus.z)**2-((b.x-focus.x)**2+(b.z-focus.z)**2));lights.forEach((light,i)=>light.position.copy(near[i]).add(new THREE.Vector3(0,.3,0)));}
     lights.forEach((light, i) => { light.intensity = light.userData.baseIntensity * (0.93 + Math.sin(t * 7.7 + i * 3.7) * 0.045 + Math.sin(t * 17.5 + i) * 0.035); });
     sceptre.position.y = Math.sin(t * 1.65) * 0.095;
     sceptre.rotation.y = t * 0.36;
@@ -733,10 +792,19 @@ export function createWorld(scene) {
     colliders,
     floors,
     props,
+    woodenSurfaces,
+    torches,
+    setTorchLit,
+    resetWood(){for(const wood of woodenSurfaces){wood.burnUntil=0;wood.burnLastTime=undefined;wood.woodFuel=1;wood.woodExhausted=false;wood.mesh.setColorAt(wood.index,wood.baseColor);wood.mesh.instanceColor.needsUpdate=true;}},
+    scorchWood(wood){wood.mesh.setColorAt(wood.index,wood.baseColor.clone().lerp(new THREE.Color(0x171311),1-(wood.woodFuel??1)));wood.mesh.instanceColor.needsUpdate=true;},
+    rooms:[...existingRooms,...newRooms],
+    doorways:[{x:0,z:20,rooms:['bridge','courtyard']},{x:0,z:4,rooms:['courtyard','hall']},{x:0,z:-10,rooms:['hall','crypt']},
+      ...corridors.map(c=>({x:c.x+c.w/2,z:c.z+c.d/2,rooms:[c.from,c.to]}))],
     spawn: new THREE.Vector3(0, 0, 18),
     relic,
     exit,
     zones: [
+      ...newRooms.map(r=>({name:r.id,label:r.label,xMin:r.x,xMax:r.x+r.w,zMin:r.z,zMax:r.z+r.d})),
       { name: 'courtyard', label: 'Η Αυλή των Φρουρών', xMin: -12, xMax: 12, zMin: 4, zMax: 20 },
       { name: 'hall', label: 'Η Αίθουσα των Όρκων', xMin: -10, xMax: 10, zMin: -10, zMax: 4 },
       { name: 'crypt', label: 'Η Κρύπτη του Μαύρου Σκήπτρου', xMin: -7, xMax: 7, zMin: -23, zMax: -10 },
@@ -910,6 +978,7 @@ function buildPropPrefabs() {
     g.dispose();
     boss.dispose();
   });
+  mat.wood.userData.wood=true;mat.woodDark.userData.wood=true;
   unit.dispose();
   return prefabs;
 }
@@ -919,6 +988,8 @@ export function createPropMesh(kind) {
   if (!propPrefabs) propPrefabs = buildPropPrefabs();
   const spec = PROP_SPECS[safeKind];
   const mesh = propPrefabs[safeKind].clone(true);
+  let flammable=false;
+  mesh.traverse(o=>{if(o.material?.userData.wood){flammable=true;o.material=o.material.clone();o.material.userData.baseColor=o.material.color.clone();o.userData.ownedFireMaterial=true;}});
   mesh.userData.kind = safeKind;
   return {
     mesh,
@@ -926,5 +997,7 @@ export function createPropMesh(kind) {
     mass: spec.mass,
     health: spec.health,
     label: spec.label,
+    flammable,
+    woodFraction:safeKind==='shield'?.15:1,
   };
 }

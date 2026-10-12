@@ -1,0 +1,10 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {createHash} from 'node:crypto';
+const root=String.raw`C:\Users\arz0r\Documents\ChatGPT\Magic\_source`;
+const target=path.join(root,'.cache/hearth-bulwark');
+if(!target.startsWith(path.join(root,'.cache')+path.sep))throw new Error('Invalid owned preview path');
+await fs.mkdir(target,{recursive:true});await fs.cp('_source/.release',target,{recursive:true});
+const html=await fs.readFile(path.join(target,'index.html'),'utf8');
+const main=html.match(/src="\.\/([^\"]+\.js)"/)[1];
+console.log(JSON.stringify({url:'http://127.0.0.1:5173/.cache/hearth-bulwark/index.html',main,sha256:createHash('sha256').update(await fs.readFile(path.join(target,main))).digest('hex')}));

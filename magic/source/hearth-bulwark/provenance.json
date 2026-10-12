@@ -1,0 +1,99 @@
+{
+  "selectedConcept": "C — HEARTH BULWARK, final under-forearm version",
+  "approval": "use C and start implementing, place engine in a random room",
+  "sourceChat": "Compare magician fire abilities",
+  "fireCommit": "42df4e8a3935d8c7b77938f499e15d410c7b308b",
+  "baseCommit": "a82353b577b918ae3f1e854212ee97c9a4a1c612",
+  "branch": "codex/hearth-bulwark",
+  "preview": "http://127.0.0.1:5173/.cache/hearth-bulwark/index.html",
+  "viewer": "http://127.0.0.1:5173/.cache/hearth-viewer/hearth-viewer.html",
+  "tools": {
+    "blender": "5.1.2",
+    "three": "0.180.0",
+    "cannon": "0.20.0",
+    "vite": "7.1.7"
+  },
+  "units": "metres, Z-up in Blender, Y-up/+Z forward in runtime after 180 degree model rotation",
+  "rig": "30 rigid-weight joints; mechanical pivots, no squash/stretch",
+  "clips": {
+    "Sleep": 2,
+    "Wake": 2.1,
+    "Idle": 2.4,
+    "Walk": 1.4,
+    "Board": 2.4,
+    "Fire": 0.8,
+    "Throw": 0.85,
+    "Deplete": 2.1,
+    "Exit": 2.4
+  },
+  "origin": "Original authored Blender suit; project geometry helpers reused. Existing KayKit mage retains its original CC0 attribution. Approved generated concept retained unchanged.",
+  "deviations": [
+    "Game-scale stylized surfaces and fewer individual armor plates than the illustration",
+    "Cockpit front doors swing to the sides and rear gate opens for real boarding",
+    "No physics-driven flame fluid simulation; bounded shader flame pool and tested directional damage",
+    "Animations in place; runtime Cannon body drives world movement",
+    "Target engine is Three.js; no Unreal/FBX integration was requested or claimed"
+  ],
+  "files": [
+    {
+      "file": "source/hearth-bulwark/approved-C.png",
+      "bytes": 2419139,
+      "sha256": "22653460bd4b6b662ab4df7ce23a424487623e885c4d685dd7e497ae2fc3bdf9"
+    },
+    {
+      "file": "source/hearth-bulwark/hearth-bulwark.blend",
+      "bytes": 5818883,
+      "sha256": "11e7725b8c6c9a4bce6a72a877beeac9d866b93a70034b440718c53aeb7232b6"
+    },
+    {
+      "file": "source/hearth-bulwark/build_bulwark.py",
+      "bytes": 10117,
+      "sha256": "4efd1c6c1fdf08d27fb18d1d6ebe433edb4d9aefd42160ef6606002df9c677c8"
+    },
+    {
+      "file": "source/hearth-bulwark/asset-validation.json",
+      "bytes": 932,
+      "sha256": "fbb1dfb3a113bc0bd1596cd2d436918e8048e300aeae3eaf023e9c55759d93a5"
+    },
+    {
+      "file": "source/hearth-bulwark/textures/leather-base-2048.png",
+      "bytes": 1743649,
+      "sha256": "472858f14a1ba436902de727eead36061617da195ee15298dcae75f32535d96f"
+    },
+    {
+      "file": "source/hearth-bulwark/textures/leather-normal-1024.png",
+      "bytes": 1011052,
+      "sha256": "3b01f960121498c540d0571bb2904294592bd26ea7211bc83e852e0abf78d3d4"
+    },
+    {
+      "file": "source/hearth-bulwark/textures/leather-roughness-1024.png",
+      "bytes": 184467,
+      "sha256": "0f23b054c61b37b7d3b86718ac4cbfc34e3e751f8e2da5dd75c6fa123e01034c"
+    },
+    {
+      "file": "source/hearth-bulwark/textures/stone-base-2048.png",
+      "bytes": 1319974,
+      "sha256": "f962be566864a3c61091a14cb88814f86fb3e7d3dd9a3e4cff80d7f7ea701b0c"
+    },
+    {
+      "file": "source/hearth-bulwark/textures/stone-normal-1024.png",
+      "bytes": 921464,
+      "sha256": "6c46e624f452136225ade9a3653607cffc9c5ad8325fe2d2385747cdd9891d72"
+    },
+    {
+      "file": "source/hearth-bulwark/textures/stone-roughness-1024.png",
+      "bytes": 184249,
+      "sha256": "a71abee74e308e5f71b40544426d043084155287ae309ccc52881d9a2ce1c958"
+    },
+    {
+      "file": "_source/public/models/hearth-bulwark/hearth-bulwark.glb",
+      "bytes": 6664128,
+      "sha256": "aa0136fa40155b02cc1bb8d61b3237fc13f15c5255354f38bf639a94dd082633"
+    },
+    {
+      "file": "source/bosses/build_bosses.py",
+      "bytes": 38683,
+      "sha256": "a4fd764cca16527a9e1680b12e6f9c34bf74bce7b13ae02e685c1cc7a430466d"
+    }
+  ]
+}

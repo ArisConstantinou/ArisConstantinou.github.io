@@ -1,0 +1,36 @@
+import fs from 'node:fs/promises';import path from 'node:path';import {pathToFileURL} from 'node:url';
+const skill=path.join(process.env.USERPROFILE,'.codex/skills/develop-web-game');
+const {chromium}=await import(pathToFileURL(path.join(skill,'node_modules/playwright/index.mjs')));
+const {launchManagedBrowser}=await import(pathToFileURL(path.join(skill,'scripts/browser_lifecycle.mjs')));
+const out=path.resolve('output/hearth');await fs.mkdir(out,{recursive:true});const managed=await launchManagedBrowser(chromium,{channel:'chrome',headless:true,softwareRendering:false,screenshotDir:out});
+const report={errors:[],checks:[]};let context;
+const check=(condition,label)=>{report.checks.push({label,pass:!!condition});if(!condition)throw new Error(label);};
+try{
+ context=await managed.browser.newContext({viewport:{width:1280,height:900},serviceWorkers:'block',recordVideo:{dir:path.join(out,'motion'),size:{width:1280,height:900}}});const page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));page.on('response',r=>{if(r.status()>=400&&!r.url().endsWith('/favicon.ico'))report.errors.push(r.status()+' '+r.url())});
+ await page.goto('http://127.0.0.1:5173/.cache/hearth-viewer/hearth-viewer.html');await page.waitForFunction(()=>window.__HEARTH_VIEWER__);
+ report.asset=await page.evaluate(()=>{const v=__HEARTH_VIEWER__,s=v.suit;let triangles=0;const weights=new Set();s.model.traverse(o=>{if(o.isSkinnedMesh){triangles+=o.geometry.index.count/3;const w=o.geometry.attributes.skinWeight;for(let i=0;i<w.count;i++)if(Math.abs(w.getX(i)+w.getY(i)+w.getZ(i)+w.getW(i)-1)>.001)weights.add(i);}});return {bones:Object.keys(s.bones),clips:[...s.clips].map(([name,c])=>({name,duration:c.duration})),triangles,invalidWeights:weights.size};});
+ check(report.asset.clips.length===9&&report.asset.bones.length===30&&report.asset.invalidWeights===0,'30 bones, 9 clips, normalized rigid weights');
+ for(const [label,view] of [['front',[0,2.8,9]],['back',[0,2.8,-9]],['three-quarter',[6,4.7,7]]]){await page.evaluate(v=>{__HEARTH_VIEWER__.set('Idle',0);__HEARTH_VIEWER__.view(v);},view);await page.screenshot({path:path.join(out,`model-${label}.png`)});}
+ for(const [clip,t] of [['Sleep',0],['Wake',1],['Board',1.1],['Fire',.3],['Throw',.4],['Walk',.35],['Exit',1.2],['Deplete',1.6]]){await page.evaluate(([name,t])=>__HEARTH_VIEWER__.set(name,t),[clip,t]);await page.screenshot({path:path.join(out,`model-${clip}.png`)});}
+ report.poses=await page.evaluate(()=>{const THREE=__HEARTH_VIEWER__.THREE,s=__HEARTH_VIEWER__.suit,results=[];for(const [clip,c]of s.clips){const samples=[];for(const fraction of [0,.25,.5,.75,.999]){__HEARTH_VIEWER__.set(clip,c.duration*fraction);const bounds=new THREE.Box3();s.model.traverse(o=>{if(o.isSkinnedMesh){o.computeBoundingBox();const b=o.boundingBox.clone().applyMatrix4(o.matrixWorld);bounds.union(b);}});samples.push({t:fraction,min:bounds.min.toArray(),max:bounds.max.toArray(),nozzle:s.point('nozzle',.28).toArray()});}results.push({clip,samples});}return results;});
+ await page.goto('http://127.0.0.1:5173/.cache/hearth-bulwark/index.html?hearthQA=1');await page.waitForFunction(()=>window.__HEARTH_QA__);await page.locator('#start-button').click();
+ const state=()=>page.evaluate(()=>JSON.parse(render_game_to_text()));
+ let s=await state();check(s.hearth.state==='sleep'&&s.hearth.fuel===0,'random room engine starts cold');
+ // Preparation positions existing actors; all requested actions below use native controls.
+ await page.evaluate(()=>{const q=__HEARTH_QA__;q.entities.forEach(e=>{if(e.category==='actor'&&!e.isPlayer){e.stun=100;e.body.velocity.set(0,0,0);}});q.player.body.position.set(-3.2,q.player.cy+.08,18.5);q.player.body.velocity.set(0,0,0);});
+ await page.keyboard.press('KeyC');await page.waitForTimeout(650);s=await state();check(s.fire.charged&&s.fire.litTorches===13,'C absorbs a real torch and extinguishes it');
+ await page.evaluate(()=>{const q=__HEARTH_QA__,e=q.engine;q.player.body.position.set(e.body.position.x,e.body.position.y-q.player.cy+1,e.body.position.z+2.45);q.player.body.position.y=q.player.cy+.08;q.player.body.velocity.set(0,0,0);});await page.waitForTimeout(200);await page.screenshot({path:path.join(out,'game-sleep.png')});
+ await page.keyboard.press('KeyE');await page.waitForTimeout(1050);await page.screenshot({path:path.join(out,'game-wake.png')});await page.waitForTimeout(1400);s=await state();check(s.hearth.state==='ready'&&s.hearth.fuel===100&&!s.fire.charged,'E spends absorbed fire and wakes heart');
+ await page.keyboard.press('KeyE');await page.waitForTimeout(1250);await page.screenshot({path:path.join(out,'game-board.png')});await page.waitForTimeout(1450);s=await state();check(s.hearth.state==='piloted','rear stair entry reaches piloted state');
+ const start=s.hearth;await page.keyboard.down('KeyW');await page.waitForTimeout(450);await page.keyboard.up('KeyW');s=await state();check(Math.hypot(s.hearth.x-start.x,s.hearth.z-start.z)>.4,'W moves real engine body');
+ await page.mouse.move(640,350);await page.keyboard.down('KeyV');await page.waitForTimeout(800);await page.screenshot({path:path.join(out,'game-fire.png')});s=await state();check(s.hearth.firing&&s.hearth.fuel<98,'V fires and consumes finite heart fuel');await page.keyboard.up('KeyV');await page.waitForTimeout(150);check(!(await state()).hearth.firing,'release stops forearm fire');
+ await page.keyboard.press('KeyP');const paused=await state();await page.waitForTimeout(400);const afterPause=await state();check(afterPause.hearth.fuel===paused.hearth.fuel,'pause freezes engine fuel');await page.keyboard.press('KeyP');
+ await page.keyboard.press('KeyE');await page.waitForTimeout(1200);await page.screenshot({path:path.join(out,'game-exit.png')});await page.waitForTimeout(1500);s=await state();check(s.hearth.state==='ready'&&!s.hearth.occupied,'manual exit restores on-foot player');
+ await page.keyboard.press('KeyE');await page.waitForTimeout(2650);await page.evaluate(()=>__HEARTH_QA__.engine.heart.fuel=.05);await page.keyboard.down('KeyV');await page.waitForTimeout(100);await page.keyboard.up('KeyV');await page.waitForTimeout(4950);s=await state();check(s.hearth.state==='sleep'&&s.hearth.fuel===0&&!s.hearth.occupied,'depletion exits pilot then sleeps');await page.screenshot({path:path.join(out,'game-depleted.png')});
+ const rooms=[];for(let i=0;i<24;i++){await page.evaluate(()=>__HEARTH_QA__.startRun());rooms.push((await state()).hearth.room);}report.rooms=rooms;check(new Set(rooms).size>=2,'random room selection changes across restarts');
+ report.colliders=await page.evaluate(()=>__HEARTH_QA__.world.colliders);
+ check(new Set(rooms).size===3,'all three physical rooms have safe placement');
+ check(report.poses.every(p=>p.samples.every(s=>s.min[1]>=-.005&&s.max[1]<5.5)),'all nine clips keep geometry above ground and finite');
+ check(report.errors.length===0,'no browser errors');
+}catch(e){report.failure=e.stack;}finally{await fs.writeFile(path.join(out,'verification.json'),JSON.stringify(report,null,2));await context?.close();await managed.cleanup();console.log(JSON.stringify({checks:report.checks,rooms:report.rooms,errors:report.errors,failure:report.failure}));}
+if(report.failure||report.errors.length)process.exitCode=1;

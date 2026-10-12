@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MAGIC · Goliath & castle concept</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header>
+    <div><p class="eyebrow">MAGIC / ΕΠΕΚΤΑΣΗ ΚΑΣΤΡΟΥ</p><h1>Επτά πέτρες. Ένας προστάτης.</h1></div>
+    <span class="badge">ΟΠΤΙΚΟ CONCEPT</span>
+  </header>
+  <main>
+    <nav class="tabs" aria-label="Ενότητα concept">
+      <button id="creature-tab" class="active" aria-selected="true">Goliath & πλάσματα</button>
+      <button id="castle-tab" aria-selected="false">Μεγαλύτερο κάστρο</button>
+    </nav>
+    <section id="creature-panel">
+      <div class="toolbar">
+        <div class="controls" aria-label="Όψη"><button data-view="front" class="active">Εμπρός</button><button data-view="side">Πλάι</button><button data-view="back">Πίσω</button><button data-view="three-quarter">¾</button></div>
+        <div class="controls" aria-label="Στάση"><button data-pose="stand" class="active">Στάση</button><button data-pose="walk">Βάδισμα</button><button data-pose="protect">Προστασία</button></div>
+      </div>
+      <div class="assembly-bar">
+        <button id="assemble-button">▶ Συναρμολόγηση από 7 πέτρες</button>
+        <button id="assembly-pause" hidden>Παύση</button>
+        <div id="assembly-timeline" hidden><label for="assembly-time">Χρόνος</label><input id="assembly-time" type="range" min="0" max="6.13" step="0.01" value="0"><output id="assembly-label" for="assembly-time">0 / 7</output></div>
+      </div>
+      <div id="stage"><canvas aria-label="Τρισδιάστατο concept επτά πέτρινων μαζών"></canvas><span id="loading">Φόρτωση πραγματικών assets του MAGIC…</span></div>
+      <div class="cast-labels"><p><b>Μάγος</b><span>1,85 m · υπάρχον μοντέλο</span></p><p><b>Goliath</b><span id="height-label">~3,4 m · 7 πέτρινες μάζες</span></p><p><b>Επικαλούμενος φρουρός</b><span>1,85 m · υπάρχων εχθρός</span></p></div>
+      <div class="notes">
+        <article><span class="number">01</span><h2>Συναρμολόγηση, πέτρα προς πέτρα</h2><p>Πόδια → λεκάνη → θώρακας → χέρια → κεφάλι. Κάθε πέτρα σηκώνεται, περιστρέφεται και δένει στη θέση της. Οι ρούνοι ανάβουν όταν ενωθούν τα μέρη.</p></article>
+        <article><span class="number">02</span><h2>Σωματοφύλακας</h2><p>Μεγάλος θώρακας και βαριά χέρια για να μπαίνει μπροστά στον μάγο και να τραβά τα χτυπήματα των εχθρών.</p></article>
+        <article><span class="number">03</span><h2>Επίκληση εχθρών</h2><p>Οι bosses καλούν υπάρχοντες φρουρούς, τοξότες και βαρείς εχθρούς με ιώδη εφέ επίκλησης. Ο Goliath είναι ο σωματοφύλακας του μάγου.</p></article>
+      </div>
+      <p class="scope">Η συναρμολόγηση και ο σωματοφύλακας λειτουργούν πλέον στο <a href="../goliath-build/">δοκιμαστικό παιχνίδι MAGIC 1.2.0</a>.</p>
+    </section>
+    <section id="castle-panel" hidden>
+      <div class="map-heading"><div><h2>14 δωμάτια, 64 εχθροί, 4 bosses</h2><p>Έντεκα νέα δωμάτια, κύκλοι μεταξύ πτερύγων και η υπάρχουσα διαδρομή προς το κειμήλιο.</p></div><span class="area">≈ 4× επιφάνεια</span></div>
+      <div id="map" aria-label="Προτεινόμενη κάτοψη με συνδεδεμένα δωμάτια"></div>
+      <div class="map-legend"><span><i class="existing"></i>Υπάρχουσες περιοχές</span><span><i class="added"></i>Νέα δωμάτια & διάδρομοι</span><span><i class="spawn"></i>Είσοδοι ενισχύσεων</span><span><i class="boss"></i>4 bosses με channel</span></div>
+      <p class="map-pan">Σύρε την κάτοψη οριζόντια για όλες τις πτέρυγες.</p>
+      <div class="notes map-notes">
+        <article><h2>11 νέα δωμάτια</h2><p>Οπλοστάσιο, στρατώνες, φυλακή, αίθουσα τελετής, βιβλιοθήκη, σιδηρουργείο, κατακόμβες, άδυτο, στοά, φυλάκιο και φρουραρχείο.</p></article>
+        <article><h2>4 μάχες με bosses</h2><p>Κρύπτη, αίθουσα τελετής, σιδηρουργείο και άδυτο. Κάθε boss θα καλεί πλάσματα με ορατό channel που μπορεί να διακοπεί.</p></article>
+        <article><h2>64 αρχικοί εχθροί</h2><p>Ομάδες 4–6 ανά δωμάτιο, με ενισχύσεις από τις εισόδους. Η αυλή προβλέπει περισσότερη πίεση· οι δυνάμεις του μάγου διατηρούνται.</p></article>
+      </div>
+      <p class="scope">Η εγκεκριμένη κάτοψη κατασκευάστηκε στο δοκιμαστικό παιχνίδι: 3.473 m² με γέφυρα, από 884 m² στην προηγούμενη έκδοση.</p>
+    </section>
+  </main>
+  <footer><a href="/" target="_blank" rel="noopener">Άνοιγμα λειτουργικής έκδοσης MAGIC ↗</a><span>Ανεξάρτητο concept · τα saves δεν χρησιμοποιούνται</span></footer>
+  <script type="module" src="./viewer.js"></script>
+</body></html>

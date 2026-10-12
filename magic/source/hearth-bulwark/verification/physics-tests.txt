@@ -1,0 +1,67 @@
+
+> magic-the-exiled@1.3.0-hearth-preview test:physics
+> node tests/physics-integration.mjs
+
+{
+  "summary": {
+    "passed": true,
+    "failures": 0,
+    "navigationCases": 4,
+    "spawnActors": 12,
+    "spawnProps": 38,
+    "seamTraversals": 3,
+    "wallContainmentCases": 3,
+    "physicalPursuitCases": 2,
+    "ballisticCases": 16,
+    "successfulBallisticCases": 16,
+    "missionFlowPassed": true
+  },
+  "failures": [],
+  "movement": [
+    {
+      "name": "infiltration",
+      "passed": true,
+      "seconds": 7.067,
+      "minBodyY": 0.85897,
+      "maxBodyY": 0.85998
+    },
+    {
+      "name": "escape",
+      "passed": true,
+      "seconds": 8.083,
+      "minBodyY": 0.85998,
+      "maxBodyY": 0.85998
+    },
+    {
+      "name": "courtyard-to-bridge-left-gap",
+      "passed": true,
+      "seconds": 1.367,
+      "minBodyY": 0.85998,
+      "maxBodyY": 0.85998
+    }
+  ],
+  "pursuit": [
+    {
+      "kind": "boss",
+      "passed": true,
+      "seconds": 24.867,
+      "remaining": 3.299
+    },
+    {
+      "kind": "guard",
+      "passed": true,
+      "seconds": 11.283,
+      "remaining": 1.57
+    }
+  ],
+  "mission": {
+    "passed": true,
+    "livingBossDenied": true,
+    "stolen": true,
+    "alarmEnabled": true,
+    "reinforcements": 3,
+    "won": true,
+    "endRunIdempotent": true,
+    "finishCalls": 1
+  }
+}

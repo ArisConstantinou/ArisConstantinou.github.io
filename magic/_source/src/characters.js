@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkeleton } from 'three/addons/utils/SkeletonUtils.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // KayKit Adventurers, CC0. Original meshes, atlas textures, rigs and animation
 // data are bundled locally; see public/assets-credit.json for pinned sources.
@@ -13,6 +14,28 @@ const MODEL_FILES = {
 const HEIGHT = 1.85;
 const templates = new Map();
 let loadPromise;
+
+function combineCompatibleSkinParts(scene, animations) {
+  const skins=[];scene.updateMatrixWorld(true);scene.traverse(object=>{if(object.isSkinnedMesh)skins.push(object);});
+  const groups=[];
+  for(const skin of skins){
+    if(skin.children.length||animations.some(clip=>clip.tracks.some(track=>track.name.startsWith(skin.name+'.'))))continue;
+    const group=groups.find(g=>g[0].parent===skin.parent&&g[0].material===skin.material&&g[0].matrix.equals(skin.matrix)
+      &&g[0].bindMode===skin.bindMode&&g[0].bindMatrix.equals(skin.bindMatrix)
+      &&g[0].skeleton.bones.length===skin.skeleton.bones.length
+      &&g[0].skeleton.bones.every((bone,i)=>bone===skin.skeleton.bones[i]&&g[0].skeleton.boneInverses[i].equals(skin.skeleton.boneInverses[i])));
+    if(group)group.push(skin);else groups.push([skin]);
+  }
+  for(const group of groups){
+    if(group.length<2)continue;
+    const geometry=mergeGeometries(group.map(skin=>skin.geometry),false);
+    if(!geometry)continue;
+    // Exact concatenation retains all vertices, UVs, normals, indices, weights
+    // and joints. Accessories stay attached to their original bones.
+    group[0].geometry=geometry;group[0].name='Combined skin body';
+    for(const skin of group.slice(1))skin.removeFromParent();
+  }
+}
 
 function modelUrl(filename) {
   const base = import.meta.env?.BASE_URL || './';
@@ -76,6 +99,7 @@ export async function loadCharacters(onProgress = () => {}) {
     if (!skinnedCount || !gltf.animations.length) {
       throw new Error(`Character ${kind} is missing its rig or animation clips.`);
     }
+    combineCompatibleSkinParts(gltf.scene,gltf.animations);
     const clips = new Map(gltf.animations.map(clip => [clip.name, withoutHorizontalRootMotion(clip)]));
     if (kind === 'mage') {
       for (const [locomotion, name] of [['Walking_A', 'Walking_Casting'], ['Running_A', 'Running_Casting']]) {
@@ -145,6 +169,17 @@ export function createCharacter(kind = 'mage') {
       : cloneMaterial(object.material);
   });
 
+  // SkeletonUtils clones a skin per mesh even when all meshes in this actor
+  // use the same rig. Share identical rigs WITHIN this actor only: one bone
+  // update/texture upload per pass, with unchanged weights, clips and geometry.
+  const actorSkeletons=[];
+  model.traverse(object=>{
+    if(!object.isSkinnedMesh)return;
+    const skin=object.skeleton;
+    const same=actorSkeletons.find(other=>other.bones.length===skin.bones.length
+      &&other.bones.every((bone,i)=>bone===skin.bones[i]&&other.boneInverses[i].equals(skin.boneInverses[i])));
+    if(same){if(skin!==same)skin.dispose();object.skeleton=same;}else actorSkeletons.push(skin);
+  });
   const mixer = new THREE.AnimationMixer(model);
   const actions = new Map();
   const phase = Math.random();

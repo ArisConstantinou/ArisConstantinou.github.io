@@ -3,11 +3,12 @@
 const SCOPE = new URL(self.registration.scope);
 const INDEX_URL = new URL('index.html', SCOPE).href;
 const CACHE_PREFIX = 'magic-exiled:' + SCOPE.pathname + ':';
-const CACHE_NAME = CACHE_PREFIX + "633b93d96e8c819eb237d797";
+const CACHE_NAME = CACHE_PREFIX + "d1043c1bb58ccf56e7520b1e";
 const PRECACHE = [
   "assets-credit.json",
-  "engine/index-DxhRrE7E.css",
-  "engine/index-W8LbutyL.js",
+  "engine/index-BFPdowtO.css",
+  "engine/index-C6DXnHsT.js",
+  "engine/trajectory-worker-DexR-Kw-.js",
   "icons/apple-touch-icon.png",
   "icons/magic-192.png",
   "icons/magic-512.png",
@@ -18,7 +19,11 @@ const PRECACHE = [
   "manifest.webmanifest",
   "models/LICENSE-KayKit.txt",
   "models/archer.glb",
+  "models/bosses/colossus.glb",
+  "models/bosses/gargoyle.glb",
+  "models/bosses/wraith.glb",
   "models/guard.glb",
+  "models/hearth-bulwark/hearth-bulwark.glb",
   "models/heavy.glb",
   "models/mage.glb"
 ].map(file => new URL(file, SCOPE).href);

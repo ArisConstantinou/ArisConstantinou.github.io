@@ -1,0 +1,187 @@
+diff --git a/_source/src/audio.js b/_source/src/audio.js
+index ebbbcff..acf7e99 100644
+--- a/_source/src/audio.js
++++ b/_source/src/audio.js
+@@ -18,6 +18,7 @@ export class MagicAudio {
+     if(!this.ctx||this.muted)return;
+     const ctx=this.ctx,t=ctx.currentTime;
+     const specs={grab:[220,660,.25,'sine',.35],throw:[380,90,.18,'triangle',.45],
++      fireTake:[180,510,.45,'triangle',.25],fireIgnite:[100,290,.28,'sawtooth',.2],
+       impact:[90,34,.2,'triangle',.7],dash:[240,640,.13,'sine',.3],
+       pulse:[80,28,.55,'sawtooth',.38],hurt:[140,50,.25,'sawtooth',.3],
+       pickup:[660,880,.16,'sine',.24],relic:[220,880,.85,'sine',.4],
+@@ -27,7 +28,7 @@ export class MagicAudio {
+     o.type=s[3];o.frequency.setValueAtTime(s[0],t);o.frequency.exponentialRampToValueAtTime(s[1],t+s[2]);
+     g.gain.setValueAtTime(.001,t);g.gain.exponentialRampToValueAtTime(s[4],t+.015);g.gain.exponentialRampToValueAtTime(.001,t+s[2]);
+     o.connect(g);g.connect(this.master);o.start(t);o.stop(t+s[2]+.03);
+-    if(['throw','impact','pulse','dash','hurt'].includes(type)){
++    if(['throw','impact','pulse','dash','hurt','fireTake','fireIgnite'].includes(type)){
+       const n=ctx.createBufferSource(),f=ctx.createBiquadFilter(),ng=ctx.createGain();
+       n.buffer=this.noise;f.type='lowpass';f.frequency.setValueAtTime(type==='impact'?1700:3800,t);f.frequency.exponentialRampToValueAtTime(120,t+s[2]);
+       ng.gain.setValueAtTime(.25,t);ng.gain.exponentialRampToValueAtTime(.001,t+s[2]);n.connect(f);f.connect(ng);ng.connect(this.master);n.start(t);n.stop(t+s[2]);
+diff --git a/_source/src/systems.js b/_source/src/systems.js
+index f5e8943..e1c994a 100644
+--- a/_source/src/systems.js
++++ b/_source/src/systems.js
+@@ -129,10 +129,10 @@ export const UPGRADE_SPECS = [
+   {id:'dash',title:'Βήμα της σκιάς',description:'Το άλμα σκιάς επανέρχεται πιο γρήγορα.',cost:6,max:2},
+ ];
+ export class ProfileStore {
+-  constructor(storage) {
+-    this.storage=storage;this.available=!!storage;this.profile=FRESH();
++  constructor(storage,key='magic-exiled-v1') {
++    this.storage=storage;this.key=key;this.available=!!storage;this.profile=FRESH();
+     let serialized,raw;
+-    try {serialized=storage?.getItem('magic-exiled-v1');}
++    try {serialized=storage?.getItem(this.key);}
+     catch {this.available=false;return;}
+     // A damaged save does not imply that the browser denied storage access.
+     try {raw=JSON.parse(serialized||'null');}
+@@ -143,7 +143,7 @@ export class ProfileStore {
+       for(const s of UPGRADE_SPECS)this.profile.upgrades[s.id]=savedInteger(raw.upgrades?.[s.id],s.max);
+     }
+   }
+-  save(){try{if(!this.storage){this.available=false;return false;}this.storage.setItem('magic-exiled-v1',JSON.stringify(this.profile));this.available=true;return true;}catch{this.available=false;return false;}}
++  save(){try{if(!this.storage){this.available=false;return false;}this.storage.setItem(this.key,JSON.stringify(this.profile));this.available=true;return true;}catch{this.available=false;return false;}}
+   upgrades(){return UPGRADE_SPECS.map(s=>({...s,level:this.profile.upgrades[s.id]||0,cost:s.cost+4*(this.profile.upgrades[s.id]||0)}));}
+   buy(id){const u=this.upgrades().find(s=>s.id===id);if(!u||u.level>=u.max||this.profile.shards<u.cost)return false;
+     this.profile.shards-=u.cost;this.profile.upgrades[id]=u.level+1;this.save();return true;}
+diff --git a/_source/src/trajectory.js b/_source/src/trajectory.js
+index 51638c0..8a871c6 100644
+--- a/_source/src/trajectory.js
++++ b/_source/src/trajectory.js
+@@ -1,5 +1,6 @@
+ import * as CANNON from 'cannon-es';
+ import {impactDamage,propSelfDamage,knockbackXZ} from './impact-rules.js';
++import {igniteActor,consumeBurnDamage} from './fire.js';
+ 
+ export const TRAJECTORY_STEPS=180;
+ export const TRAJECTORY_DT=1/120;
+@@ -51,6 +52,7 @@ export class ThrowTrajectory {
+             body.previewContacts.set(event.body,now);
+             const entity=body.source.entity,victim=event.body.source.entity;
+             if(victim?.category==='actor'&&!victim.isPlayer&&!victim.dead){
++              if(entity?.fireSampleCrate&&body.previewFireState.burnUntil>now)igniteActor(event.body.previewFireState,now);
+               event.body.previewHealth-=impactDamage(speed,body.mass,this.grip);
+               const push=knockbackXZ(event.body.position,body.position);
+               event.body.velocity.x+=push.x;event.body.velocity.z+=push.z;
+@@ -78,6 +80,7 @@ export class ThrowTrajectory {
+       body.velocity.copy(source.velocity);body.angularVelocity.copy(source.angularVelocity);
+       body.force.setZero();body.torque.setZero();body.aabbNeedsUpdate=true;
+       body.linearDamping=source.linearDamping;body.previewHealth=source.entity?.hp??Infinity;body.previewBreak=false;body.previewContacts=new Map();
++      body.previewFireState={burnUntil:Math.max(0,(source.entity?.burnUntil||0)-(this.source.previewTime||0)),nextBurnTick:source.entity?.nextBurnTick===undefined?Infinity:source.entity.nextBurnTick-(this.source.previewTime||0)};
+       if(body.world!==this.world)this.world.addBody(body);
+     }
+     this.world.time=0;this.world.stepnumber=0;this.world.accumulator=0;
+@@ -105,6 +108,10 @@ export class ThrowTrajectory {
+     let landing=null,side=null,sideBody=null,sideAt=0,shotActive=true,broken=false;
+     for(let i=0;i<TRAJECTORY_STEPS;i++){
+       this.world.step(TRAJECTORY_DT);
++      for(const body of this.bodies.values())if(body.source.entity?.category==='actor'&&!body.source.entity.dead&&body.previewHealth>0){
++        body.previewHealth-=consumeBurnDamage(body.previewFireState,this.world.time);
++        if(body.previewHealth<=0)body.linearDamping=.7;
++      }
+       // An existing held contact still transfers momentum on release, even
+       // when Cannon correctly suppresses a new collide/damage event.
+       for(const contact of this.world.contacts){
+@@ -137,18 +144,18 @@ export class ThrowTrajectory {
+ }
+ 
+ // The render thread sends immutable numbers, never live physics objects.
+-export function captureTrajectoryWorld(world,heldBody=null){
++export function captureTrajectoryWorld(world,heldBody=null,time=0){
+   const materials=new Map();
+   for(const body of world.bodies)if(body.material)materials.set(body.material.id,body.material);
+   const vector=v=>({x:v.x,y:v.y,z:v.z}),quaternion=q=>({...vector(q),w:q.w});
+-  return {gravity:vector(world.gravity),iterations:world.solver.iterations,
++  return {time,gravity:vector(world.gravity),iterations:world.solver.iterations,
+     heldContacts:heldBody?world.bodies.filter(b=>b!==heldBody&&world.collisionMatrix.get(heldBody,b)).map(b=>b.id):[],
+     defaultContact:{friction:world.defaultContactMaterial.friction,restitution:world.defaultContactMaterial.restitution},
+     materials:[...materials.values()].map(m=>({id:m.id,name:m.name,friction:m.friction,restitution:m.restitution})),
+     contacts:world.contactmaterials.map(c=>({materials:c.materials.map(m=>m.id),friction:c.friction,restitution:c.restitution})),
+     bodies:world.bodies.map(b=>({id:b.id,mass:b.mass,type:b.type,material:b.material?.id,fixedRotation:b.fixedRotation,
+       allowSleep:b.allowSleep,sleepState:b.sleepState,linearDamping:b.linearDamping,angularDamping:b.angularDamping,
+-      group:b.collisionFilterGroup,mask:b.collisionFilterMask,response:b.collisionResponse,entity:b.entity?{kind:b.entity.kind,category:b.entity.category,isPlayer:b.entity.isPlayer,dead:b.entity.dead,hp:b.entity.hp,ephemeral:b.entity.ephemeral}:null,floor:!!b.previewFloor,
++      group:b.collisionFilterGroup,mask:b.collisionFilterMask,response:b.collisionResponse,entity:b.entity?{kind:b.entity.kind,category:b.entity.category,isPlayer:b.entity.isPlayer,dead:b.entity.dead,hp:b.entity.hp,ephemeral:b.entity.ephemeral,fireSampleCrate:b.entity.fireSampleCrate,burnUntil:b.entity.burnUntil,nextBurnTick:b.entity.nextBurnTick}:null,floor:!!b.previewFloor,
+       position:vector(b.position),velocity:vector(b.velocity),angularVelocity:vector(b.angularVelocity),quaternion:quaternion(b.quaternion),
+       shapes:b.shapes.map((shape,i)=>({type:shape.type,radius:shape.radius,extents:shape.halfExtents?vector(shape.halfExtents):undefined,
+         offset:vector(b.shapeOffsets[i]),orientation:quaternion(b.shapeOrientations[i])}))}))};
+@@ -164,6 +171,7 @@ export class TrajectorySnapshotWorld{
+     this.bodies=new Map();
+   }
+   apply(snapshot){
++    this.world.previewTime=snapshot.time||0;
+     this.world.previewHeldContacts=snapshot.heldContacts;
+     const live=new Set(snapshot.bodies.map(b=>b.id));
+     for(const [id,b] of this.bodies)if(!live.has(id)){this.world.removeBody(b);this.bodies.delete(id);}
+diff --git a/_source/src/world.js b/_source/src/world.js
+index 0aa442a..1056e07 100644
+--- a/_source/src/world.js
++++ b/_source/src/world.js
+@@ -137,7 +137,7 @@ function matrixAt(x, y, z, sx = 1, sy = 1, sz = 1, rx = 0, ry = 0, rz = 0) {
+   return new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), q, new THREE.Vector3(sx, sy, sz));
+ }
+ 
+-export function createWorld(scene) {
++export function createWorld(scene,{fireSample=false}={}) {
+   const rand = seeded(230619);
+   const root = new THREE.Group();
+   root.name = 'The Blackthorn Bastion';
+@@ -417,6 +417,7 @@ export function createWorld(scene) {
+   }
+ 
+   const torchPositions = [];
++  const torches = [];
+   function torch(x, z, y = 2.5, facing = 0, large = false) {
+     const forward = new THREE.Vector3(0, 0, 1).applyAxisAngle(Y_AXIS, facing);
+     const s = large ? 1.45 : 1;
+@@ -428,6 +429,7 @@ export function createWorld(scene) {
+       box(x + Math.cos(ang) * 0.18 * s, y + 0.11 * s, z + Math.sin(ang) * 0.18 * s, 0.035, 0.34 * s, 0.035, 0x6e5a3c, 'bronze');
+     }
+     torchPositions.push(new THREE.Vector3(x, y + 0.27 * s, z));
++    torches.push({id:torches.length,position:torchPositions.at(-1),lit:true});
+   }
+ 
+   for (const side of [-1, 1]) {
+@@ -437,7 +439,9 @@ export function createWorld(scene) {
+     torch(side * 9.87, 1.15, 2.8, -side * PI / 2);
+     torch(side * 6.86, -12.65, 2.65, -side * PI / 2);
+     torch(side * 3.8, -22.76, 2.3, 0);
+-    torch(side * 3.2, 20.76, 1.5, 0, true);
++    // The sample fixture faces the courtyard; its original decorative flame
++    // sits inside the gate pillar's collision volume.
++    torch(side * 3.2, fireSample&&side===-1?19.72:20.76, 1.5, fireSample&&side===-1?PI:0, true);
+   }
+ 
+   const flames = new THREE.InstancedMesh(geo.orb, materials.flame, torchPositions.length);
+@@ -451,6 +455,12 @@ export function createWorld(scene) {
+   const torchGlowMat = new THREE.PointsMaterial({ color: 0xff8429, size: 1.95, map: glowMap, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+   const torchGlow = new THREE.Points(torchGlowGeo, torchGlowMat);
+   root.add(torchGlow);
++  function setTorchLit(id,lit){
++    const torch=torches[id];if(!torch)return;
++    torch.lit=!!lit;
++    torchGlowGeo.attributes.position.setXYZ(id,torch.position.x,lit?torch.position.y:-100,torch.position.z);
++    torchGlowGeo.attributes.position.needsUpdate=true;
++  }
+   const lights = [];
+   for (const [x, y, z, power] of [[-8.7, 3.0, 12.7, 64], [8.7, 3.0, 12.7, 64], [-7.7, 3.0, -2.9, 53], [7.7, 3.0, -2.9, 53], [0, 3.5, -20.6, 41]]) {
+     const light = new THREE.PointLight(0xffac5d, power, 14, 2);
+@@ -666,7 +676,7 @@ export function createWorld(scene) {
+     const delta = Math.min(Number.isFinite(dt) ? dt : 0, 0.05);
+     for (let i = 0; i < torchPositions.length; i++) {
+       const p = torchPositions[i];
+-      const f = 0.84 + Math.sin(t * 11.6 + i * 8.3) * 0.1 + Math.sin(t * 23 + i) * 0.08;
++      const f = torches[i].lit ? 0.84 + Math.sin(t * 11.6 + i * 8.3) * 0.1 + Math.sin(t * 23 + i) * 0.08 : 0;
+       temp.position.set(p.x + Math.sin(t * 7 + i) * 0.034, p.y, p.z + Math.cos(t * 6 + i) * 0.025);
+       temp.rotation.set(0.04 * Math.cos(t * 7 + i), 0, 0.12 * Math.sin(t * 8 + i));
+       temp.scale.set(0.135 * f, 0.38 * f, 0.135 * f);
+@@ -733,6 +743,8 @@ export function createWorld(scene) {
+     colliders,
+     floors,
+     props,
++    torches,
++    setTorchLit,
+     spawn: new THREE.Vector3(0, 0, 18),
+     relic,
+     exit,

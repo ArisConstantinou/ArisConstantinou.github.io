@@ -18,6 +18,7 @@ export class MagicAudio {
     if(!this.ctx||this.muted)return;
     const ctx=this.ctx,t=ctx.currentTime;
     const specs={grab:[220,660,.25,'sine',.35],throw:[380,90,.18,'triangle',.45],
+      fireTake:[180,510,.45,'triangle',.25],fireIgnite:[100,290,.28,'sawtooth',.2],
       impact:[90,34,.2,'triangle',.7],dash:[240,640,.13,'sine',.3],
       pulse:[80,28,.55,'sawtooth',.38],hurt:[140,50,.25,'sawtooth',.3],
       pickup:[660,880,.16,'sine',.24],relic:[220,880,.85,'sine',.4],
@@ -27,7 +28,7 @@ export class MagicAudio {
     o.type=s[3];o.frequency.setValueAtTime(s[0],t);o.frequency.exponentialRampToValueAtTime(s[1],t+s[2]);
     g.gain.setValueAtTime(.001,t);g.gain.exponentialRampToValueAtTime(s[4],t+.015);g.gain.exponentialRampToValueAtTime(.001,t+s[2]);
     o.connect(g);g.connect(this.master);o.start(t);o.stop(t+s[2]+.03);
-    if(['throw','impact','pulse','dash','hurt'].includes(type)){
+    if(['throw','impact','pulse','dash','hurt','fireTake','fireIgnite'].includes(type)){
       const n=ctx.createBufferSource(),f=ctx.createBiquadFilter(),ng=ctx.createGain();
       n.buffer=this.noise;f.type='lowpass';f.frequency.setValueAtTime(type==='impact'?1700:3800,t);f.frequency.exponentialRampToValueAtTime(120,t+s[2]);
       ng.gain.setValueAtTime(.25,t);ng.gain.exponentialRampToValueAtTime(.001,t+s[2]);n.connect(f);f.connect(ng);ng.connect(this.master);n.start(t);n.stop(t+s[2]);
