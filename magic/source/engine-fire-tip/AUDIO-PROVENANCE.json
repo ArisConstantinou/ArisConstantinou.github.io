@@ -1,0 +1,36 @@
+{
+  "sourceUrl": "https://www.youtube.com/shorts/wO4Z7zM3Aag",
+  "title": "Dad Uses Flamethrower For Snow Removal",
+  "author": "Newsflare",
+  "selection": "User explicitly requested the audio from this exact video",
+  "acquisition": "Audio track captured directly from the selected video playback; no replacement sound",
+  "captureSeconds": [
+    1.999338,
+    8.468284
+  ],
+  "originalCaptureSha256": "268e1540366e56289f266ffe7dc1d68e0c61f05d48f920da89a67f0dff8b4025",
+  "originalCaptureBytes": 156464,
+  "originalPreserved": ".source/engine-fire-audio/original-capture.webm",
+  "processing": {
+    "ffmpegFilters": "highpass=f=90,lowpass=f=7500,afftdn=nr=6:nf=-28,equalizer=f=180:t=q:w=0.8:g=2,equalizer=f=1900:t=q:w=1:g=1.5,acompressor=threshold=0.16:ratio=2.5:attack=8:release=120",
+    "trimFromCaptureSeconds": [
+      0.3,
+      5.9
+    ],
+    "tailToHeadCrossfadeSeconds": 0.18,
+    "gain": 1.8239628228913582
+  },
+  "loop": {
+    "durationSeconds": 5.42,
+    "sampleRate": 48000,
+    "channels": 1,
+    "rms": 0.21035369209625543,
+    "peak": 0.88,
+    "seamStep": 0.03362040982304594,
+    "wavSha256": "18bfd4e11bc55e341b896d4ad2575fae374bcdf7bdcc28e3034418fcc6f5aab7",
+    "asset": "_source/src/assets/hearth-flamethrower.mp3",
+    "assetSha256": "e1a122a08a93a47e4dcaf3eac5e4c38ef5b6e69a4b9d0a52b52930f10c38583d",
+    "assetBytes": 87596
+  },
+  "rights": "User-selected third-party reference by Newsflare. No independent redistribution license verified. User explicitly authorized publishing the tested candidate to main on 2026-10-12."
+}

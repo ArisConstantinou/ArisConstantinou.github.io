@@ -13,6 +13,7 @@ float fbm(vec3 p){return .57*noise3(p)+.29*noise3(p*2.03+7.1)+.14*noise3(p*4.11+
 const volumeVertex=`varying vec3 localPosition;void main(){localPosition=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 const volumeFragment=`
 uniform float time,lengthM,lift,strength,steps;uniform vec3 boxSize;uniform mat4 inverseWorld;
+uniform mat4 projectionMatrix,modelViewMatrix;
 varying vec3 localPosition;
 ${noise3}
 void main(){
@@ -25,10 +26,11 @@ void main(){
  float stepSize=(leave-enter)/steps;
  float jitter=hash3(vec3(gl_FragCoord.xy,time*.01));
  float distanceM=length(ray*boxSize)*stepSize;
- vec3 color=vec3(0.);float opacity=0.;
+ vec3 color=vec3(0.);float opacity=0.,firstDepth=leave;
  for(int i=0;i<32;i++){
   if(float(i)>=steps||opacity>.985)break;
-  vec3 p=(origin+ray*(enter+(float(i)+jitter)*stepSize))*boxSize;
+  float sampleDepth=enter+(float(i)+jitter)*stepSize;
+  vec3 p=(origin+ray*sampleDepth)*boxSize;
   float s=clamp(p.z/lengthM+.5,0.,1.);
   // World-up lift is converted into the nozzle frame by the host.
   p.y+=lift*.5-lift*pow(s,1.65);
@@ -40,20 +42,27 @@ void main(){
   p.y+=(noise3(advect*.72+11.)-.5)*s*.64;
   float radius=.065+min(.61,lengthM*.09)*pow(s,.88);
   radius*=.42+1.2*lobe;
+  // Entrained air opens the fuel stream into a broad terminal fire plume.
+  radius*=1.+.65*smoothstep(.38,.88,s);
   float r=length(p.xy/vec2(1.,.91));
   float envelope=1.-smoothstep(radius*.66,radius,r);
   float breakup=smoothstep(.43,.66,rolling+.12*(1.-s));
   float core=exp(-r*r/(.012+.03*s))*(1.-smoothstep(.15,.72,s));
-  float tip=.72+.28*lobe;
-  float density=(envelope*breakup*1.05+core*.45)*smoothstep(0.,.025,s)*(1.-smoothstep(tip-.16,tip,s))*strength;
-  float temperature=clamp(.94-s*.59+(rolling-.5)*.4-r/max(radius,.01)*.19,0.,1.);
+  // Rolling tongues lose density at different distances without narrowing.
+  float tip=.88+.11*lobe;
+  float density=(envelope*breakup*1.05+core*.45)*smoothstep(0.,.025,s)*(1.-smoothstep(tip-.25,tip,s))*strength;
+  float temperature=clamp(.94-s*.36+(rolling-.5)*.5-r/max(radius,.01)*.19,0.,1.);
   vec3 emission=mix(vec3(1.,.055,.004),vec3(1.,.34,.018),smoothstep(.28,.58,temperature));
   emission=mix(emission,vec3(1.,.77,.16),smoothstep(.58,.83,temperature));
   emission=mix(emission,vec3(1.,.96,.66),smoothstep(.88,1.,temperature));
   float alpha=1.-exp(-density*distanceM*3.2);
   color+=(1.-opacity)*alpha*emission*1.25;opacity+=(1.-opacity)*alpha;
+  if(opacity>.006&&firstDepth==leave)firstDepth=sampleDepth;
  }
  if(opacity<.006)discard;
+ // Test the visible fire against the castle, not the back wall of its box.
+ vec4 fireDepth=projectionMatrix*modelViewMatrix*vec4(origin+ray*firstDepth,1.);
+ gl_FragDepth=clamp(fireDepth.z/fireDepth.w*.5+.5,0.,1.);
  gl_FragColor=vec4(color/max(opacity,.001),opacity);
 }`;
 const smokeVertex=`attribute vec3 puff;varying vec2 vUv;varying vec3 vPuff;
@@ -100,7 +109,7 @@ export function createHearthJet(scene){
    // Gameplay range is measured horizontally; preserve exactly the same endpoint.
    lastLength=Math.max(.1,hearth.jetLength||7);const physicalLength=lastLength*direction.length();direction.normalize();
    right.crossVectors(worldUp,direction).normalize();if(right.lengthSq()<.01)right.set(1,0,0);up.crossVectors(direction,right).normalize();
-   const lift=Math.min(1.25,lastLength*.18),diameter=.42+Math.min(.61,lastLength*.09)*3.8;
+   const lift=Math.min(1.8,lastLength*.25),diameter=.8+Math.min(.61,lastLength*.09)*6.2;
    basis.makeBasis(right,up,direction);volume.quaternion.setFromRotationMatrix(basis);
    volume.scale.set(diameter,diameter+lift,physicalLength);
    volume.position.copy(origin).addScaledVector(direction,physicalLength*.5).addScaledVector(up,lift*.5);

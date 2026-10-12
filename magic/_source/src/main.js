@@ -14,6 +14,7 @@ import { createEffects } from './effects.js';
 import { MagicAudio } from './audio.js';
 import { clamp, distance, lineClear, pointSegmentDistance, NavigationGrid, ProfileStore } from './systems.js';
 import { PointerMotion, gestureThrowVelocity, clampDragPoint, constrainDragPoint } from './drag.js';
+import {shieldGesture,nearestContext} from './context-controls.js';
 import { aimedThrowVelocity, floorThrowTarget } from './throw-aim.js';
 import {equipmentStats,isPotion,rollLoot,TIERS,itemName} from './loot.js';
 import {enemySpawnAllowed} from './spawn-rules.js';
@@ -33,6 +34,9 @@ import {createHearthSystem} from './hearth-system.js';
 import {createHearthEffects} from './hearth-effects.js';
 import {igniteActor} from './fire.js';
 import './style.css';
+import './context-controls.css';
+import './desktop-engine.css';
+import {engineEscort} from './engine-escort.js';
 import packageInfo from '../package.json';
 
 const mobile = matchMedia('(pointer: coarse)').matches;
@@ -43,7 +47,8 @@ const GROUP = {PLAYER:1, ENEMY:2, PROP:4, WORLD:8};
 let storage; try { storage = window.localStorage; } catch {}
 const lootCandidate=location.pathname.includes('/.cache/loot-');
 const candidate=FIRE_PREVIEW||lootCandidate||location.pathname.includes('/.cache/goliath-')||location.pathname.includes('/.cache/latest-');
-const save = new ProfileStore(storage,candidate?'magic-integrated-preview-v1':'magic-exiled-v1',[]), sound = new MagicAudio(save.profile.muted);
+const save = new ProfileStore(storage,candidate?(location.pathname.includes('/.cache/desktop-engine')?'magic-desktop-engine-preview-v1':location.pathname.includes('/.cache/context-controls')?'magic-context-controls-preview-v1':'magic-integrated-preview-v1'):'magic-exiled-v1',[]), sound = new MagicAudio(save.profile.muted);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)sound.setFlamethrower(false);});
 const ritual=new StoneRitual();
 let goliath=null, assemblyCreature=null, assemblyPlacement=null, ritualPressed=false, ritualStarted=0;
 let ritualPressedAt=0, ritualConjured=false, ritualAwaitingSeventh=false;
@@ -70,6 +75,8 @@ let aimPoint=new THREE.Vector3(0,.8,5), aimDirection=new THREE.Vector3(0,0,-1), 
 const raycaster=new THREE.Raycaster(), groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-.8);
 const dragPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-2.1);
 const tempV=new THREE.Vector3(), tempQ=new THREE.Quaternion();
+let contextTarget=null,contextAt=-Infinity,contextHighlight;
+const contextPoint=new THREE.Vector3();
 const ui=createUI({
   version:packageInfo.version,
   fireEnabled:FIRE_ENABLED,
@@ -326,12 +333,13 @@ function populate(){
   syncVisuals(0);
 }
 function startRun(){
+  contextTarget=null;contextAt=-Infinity;
   sound.start();populate();phase='playing';ui.start();cameraTarget.set(player.body.position.x,0,player.body.position.z-2);
   ui.toast(mobile?'Άγγιξε ένα αντικείμενο, κράτησε και σύρε. Άφησε το δάχτυλο για ρίψη.':'Κάνε κλικ πάνω σε ένα αντικείμενο, κράτησε και σύρε. Άφησε το κλικ για ρίψη.','info');
   if(!save.available)ui.toast('Η πρόοδος κρατιέται για αυτή τη συνεδρία. Ο browser δεν επιτρέπει αποθήκευση.','info');
 }
 function togglePause(){
-  if(phase==='playing'){cancelRitual();phase='paused';ui.showPause(true);}
+  if(phase==='playing'){cancelRitual();releaseHeld(false);hearth.engine.heart.firing=false;phase='paused';ui.showPause(true);}
   else if(phase==='paused'){phase='playing';ui.showPause(false);sound.start();}
 }
 function endRun(won,reason){
@@ -364,6 +372,7 @@ function pointerAtHeight(info,height){
   return raycaster.ray.intersectPlane(dragPlane,new THREE.Vector3());
 }
 function aimAtPointer(info){
+  if(held&&ui.getInput().shieldLatched)return;
   if(!player||!pointerRay(info)||!raycaster.ray.intersectPlane(groundPlane,tempV))return;
   aimPoint.copy(tempV);
   if(held){
@@ -435,11 +444,21 @@ function beginDrag(info){
   if(!point||(!held&&!holdEntity(e)))return false;
   const motion=new PointerMotion();motion.add(info.clientX,info.clientY,gestureTime(info));
   drag={pointerId:info.pointerId,clientX:info.clientX,clientY:info.clientY,height,motion,
-    offset:{x:e.body.position.x-point.x,z:e.body.position.z-point.z}};
+    start:{x:info.clientX,y:info.clientY},facing:aimDirection.clone(),offset:{x:e.body.position.x-point.x,z:e.body.position.z-point.z}};
+  if(info.pointerType==='touch')ui.setShieldMode(false);
   return true;
 }
 function moveDrag(info){
   if(phase!=='playing'||!drag||drag.pointerId!==info.pointerId)return;
+  const previous=drag.motion.samples.at(-1),point={x:info.clientX,y:info.clientY,time:gestureTime(info)};
+  const projected=player.body.position;contextPoint.set(projected.x,projected.y,projected.z).project(camera);
+  const rect=renderer.domElement.getBoundingClientRect(),character={x:rect.left+(contextPoint.x+1)*rect.width/2,y:rect.top+(1-contextPoint.y)*rect.height/2};
+  if(info.pointerType==='touch'){
+    const distanceToCharacter=Math.hypot(point.x-character.x,point.y-character.y);
+    if(ui.getInput().shieldLatched&&distanceToCharacter>82)ui.setShieldMode(false);
+    else if(shieldGesture({type:info.pointerType,start:drag.start,previous:previous&&{...previous,time:previous.timeMs},point,character}))ui.setShieldMode(true);
+    if(ui.getInput().shieldLatched)aimDirection.copy(drag.facing);
+  }
   drag.clientX=info.clientX;drag.clientY=info.clientY;
   drag.motion.add(info.clientX,info.clientY,gestureTime(info));
 }
@@ -472,7 +491,9 @@ function currentThrowVelocity(now=performance.now()){
 }
 function finishDrag(info){
   if(phase!=='playing'||!drag||drag.pointerId!==info.pointerId)return;
-  moveDrag(info);aimAtPointer(info);const velocity=currentThrowVelocity(gestureTime(info));
+  moveDrag(info);
+  if(held&&ui.getInput().shielding){drag=null;player.shielding=true;return;}
+  aimAtPointer(info);const velocity=currentThrowVelocity(gestureTime(info));
   if(held&&velocity)throwHeld(velocity);else drag=null;
 }
 function cancelDrag(){if(drag)releaseHeld(false);}
@@ -531,8 +552,10 @@ function cancelRitual(){
 }
 function startAssembly(){
   const p=player.body.position;
-  assemblyPlacement=freePosition({x:p.x+aimDirection.x*2.7,z:p.z+aimDirection.z*2.7},1.4,
-    worldMap.floors,nav.obstacles,entities.filter(e=>!ritual.stones.includes(e)),4.2,at=>visibleLine(p,at,1.0));
+  const preferred=hearth.occupied?engineEscort(hearth.engine.body.position,hearth.engine.yaw,p,1,
+    at=>goliathNav.isFree(at.x,at.z)):{x:p.x+aimDirection.x*2.7,z:p.z+aimDirection.z*2.7};
+  assemblyPlacement=preferred&&freePosition(preferred,1.4,
+    worldMap.floors,nav.obstacles,entities.filter(e=>!ritual.stones.includes(e)),4.2,at=>visibleLine(p,at,1.0)&&(!hearth.occupied||distance(at,hearth.engine.body.position)>3));
   if(!assemblyPlacement){cancelRitual();ui.toast('Δεν υπάρχει αρκετός ελεύθερος χώρος για Goliath.','info');return;}
   assemblyCreature=createStoneCreature();assemblyCreature.group.position.set(assemblyPlacement.x,0,assemblyPlacement.z);
   assemblyCreature.group.rotation.y=player.yaw;assemblyCreature.group.updateMatrixWorld(true);scene.add(assemblyCreature.group);
@@ -568,7 +591,7 @@ function activateGoliath(){
     removed:false,dead:false,stun:0,hitFlash:0,guardBreak:0,attackPulse:0,windup:0,thrownUntil:0,collisionTimes:new Map(),path:[],pathTick:0,
     expires:runTime+GOLIATH_LIFETIME,healthBar:createHealthBar(),strikeTime:0,strikeCooldown:0,strikeTarget:null,strikeSide:1};
   body.entity=e;physics.addBody(body);entities.push(e);goliath=e;
-  ui.toast('Ο Goliath παίρνει θέση μπροστά σου.','success');fx.ring(body.position,0x8bffda,2,.5);
+  ui.toast('Ο Goliath είναι στο πλευρό σου.','success');fx.ring(body.position,0x8bffda,2,.5);
 }
 function updateRitual(dt){
   if(ritual.phase==='idle'){
@@ -595,6 +618,15 @@ function updateGoliath(e,dt){
     &&visibleLine(pp,n.body.position,.1)).sort((a,b)=>distance(a.body.position,pp)-distance(b.body.position,pp))[0];
   let destination={x:pp.x+aimDirection.x*2.2,z:pp.z+aimDirection.z*2.2};
   if(threat){const t=threat.body.position,d=distance(pp,t)||1;destination={x:pp.x+(t.x-pp.x)/d*Math.min(2.5,d*.55),z:pp.z+(t.z-pp.z)/d*Math.min(2.5,d*.55)};}
+  const escorting=hearth.occupied;
+  // Only exclude the friendly engine group. Walls, props and enemies still collide.
+  e.body.collisionFilterMask=escorting?~8:-1;
+  if(escorting){
+    const slot=engineEscort(hearth.engine.body.position,hearth.engine.yaw,p,e.escortSide,
+      at=>goliathNav.isFree(at.x,at.z)&&entities.every(n=>n===e||n.isPlayer||n.removed||n.category!=='prop'||distance(n.body.position,at)>n.radius+1),threat?.body.position);
+    destination=slot||{x:p.x,z:p.z};if(slot)e.escortSide=slot.side;
+  }
+  if(e.escorting!==escorting){e.escorting=escorting;e.pathTick=0;e.path=[];}
   e.strikeCooldown=Math.max(0,e.strikeCooldown-dt);
   const facing=threat?Math.atan2(Math.sin(Math.atan2(threat.body.position.x-p.x,threat.body.position.z-p.z)-e.yaw),Math.cos(Math.atan2(threat.body.position.x-p.x,threat.body.position.z-p.z)-e.yaw)):Math.PI;
   if(!e.strikeTime&&threat&&Math.abs(facing)<.6&&Math.abs(threat.body.position.y-p.y)<1.8&&distance(p,threat.body.position)<2.3&&e.strikeCooldown<=0&&visibleLine(p,threat.body.position,.05)){
@@ -635,12 +667,13 @@ function conjure(){
 }
 function releaseHeld(thrown){
   drag=null;
+  ui.setShieldMode(false);
   if(!held)return;
   const e=held;held=null;
   if(player)player.shielding=false;
   e.body.collisionFilterMask=-1;
   if(e.category==='actor'){e.stun=thrown?2.5:1;e.body.fixedRotation=false;e.body.updateMassProperties();}
-  if(!thrown){e.body.velocity.scale(.25,e.body.velocity);e.thrownUntil=0;}
+  if(!thrown){e.body.velocity.set(0,0,0);e.body.angularVelocity.set(0,0,0);e.thrownUntil=0;}
   if(e.ephemeral)e.expireAt=runTime+(thrown?8:18);
   heldLight.intensity=0;fx.connect(null);
 }
@@ -680,6 +713,7 @@ function updateHeld(dt,input){
   if(Math.random()<dt*22)fx.burst(pos,0x78ffd0,1,.4);
 }
 function pulse(){
+  if(hearth.occupied){hearth.stomp();return;}
   if(player.pulseCooldown>0||player.mana<25)return;
   player.mana-=25;player.pulseCooldown=5.2*(1-player.gear.cooldown);castTime=.4;
   const radius=4.6+.65*(save.profile.upgrades.pulse||0),p=player.body.position;
@@ -703,8 +737,8 @@ function dash(input){
   player.dashDirection.set(len?dx/len:aimDirection.x,0,len?dz/len:aimDirection.z);
   sound.sound('dash');fx.ring(player.body.position,0x81ffda,1.7,.23);
 }
-function interact(){
-  if(hearth.interact(runTime))return;
+function interact(targetKind){
+  if((!targetKind||targetKind==='engine')&&hearth.interact(runTime))return;
   const p=player.body.position;
   if(!relicTaken&&distance(p,worldMap.relic.position)<3){
     if(entities.some(e=>e.kind==='boss'&&!e.dead&&!e.removed)){ui.toast('Νίκησε και τους τέσσερις φύλακες για να ελευθερώσεις το Σκήπτρο.','info');return;}
@@ -1176,7 +1210,9 @@ function syncVisuals(dt){
   trajectory.visible=false;
   impactMarker.visible=false;
   sideTrajectory.visible=sideArrow.visible=false;
-  if(held&&phase==='playing'){
+  const quietShield=held&&!drag&&ui.getInput().shielding;
+  if(quietShield){targetRing.visible=false;ui.updateThrowMark(null);}
+  if(held&&phase==='playing'&&!quietShield){
     const now=performance.now(),v=currentThrowVelocity();
     const changed=previewBody!==held.body||!previewVelocity||Math.hypot(v.x-previewVelocity.x,v.y-previewVelocity.y,v.z-previewVelocity.z)>1;
     if(!previewBusy&&(!throwPreview||changed||now-previewAt>=80)){
@@ -1258,6 +1294,45 @@ function updateCamera(dt){
     for(const mat of mats){mat.transparent=true;const opacity=behind&&playing?.17:1;mat.opacity+=(opacity-mat.opacity)*Math.min(1,dt*7);mat.depthWrite=mat.opacity>.8;}
   }
 }
+function findContext(fireOnly=false){
+  if(!player||phase!=='playing')return null;
+  const p=player.body.position,candidates=[],hs=hearth.snapshot();
+  const add=(id,kind,point,range,label,icon,enabled=true,priority=1,entity=null)=>{
+    const d=distance(p,point);if(d>range)return;
+    const reachable=fireLineClear(p,point);candidates.push({id,kind,point,range,label,icon,enabled,priority,entity,distance:d,reachable});
+  };
+  if(hs.occupied){return !fireOnly&&hs.state==='piloted'?{id:'engine-exit',kind:'engine',label:'ΕΞΟΔΟΣ',icon:'portal',enabled:true,point:hearth.engine.body.position}:null;}
+  if(!fireOnly){
+    if(hearth.near()&&['sleep','ready'].includes(hs.state))add('engine','engine',hearth.engine.visual.point('inlet'),3.7,hs.state==='ready'?'ΕΙΣΟΔΟΣ':fireSpell.charged?'ΦΟΡΤΙΣΗ':'ΠΑΡΕ ΦΩΤΙΑ','portal',!held&&(hs.state==='ready'||fireSpell.charged&&runTime>=fireSpell.readyAt),3);
+    if(!relicTaken)add('relic','relic',worldMap.relic.position,3,'ΣΚΗΠΤΡΟ','scepter',!entities.some(e=>e.kind==='boss'&&!e.dead&&!e.removed),3);
+    if(relicTaken)add('exit','exit',worldMap.exit.position,2.8,'ΠΥΛΗ','portal',true,3);
+  }
+  if(FIRE_ENABLED){
+    for(const source of fireSpell.sources)if(source.lit)add('flame-'+source.id,'flame',source.position,5,'ΦΩΤΙΑ','fire',player.mana>=3,1,source);
+    if(fireSpell.charged&&runTime>=fireSpell.readyAt)for(const wood of [...entities,...worldMap.woodenSurfaces])if(wood!==held&&wood.flammable&&!wood.removed&&!wood.woodExhausted&&!(wood.burnUntil>runTime))add('wood-'+(wood.body?.id??wood.id),'wood',wood.body?.position||wood.position,Math.min(3.5,telekinesisReach()),'ΑΝΑΨΕ','fire',true,1,wood);
+  }
+  return nearestContext(candidates,contextTarget?.id);
+}
+function useContext(fireOnly=false){
+  const target=findContext(fireOnly);if(!target?.enabled)return false;
+  contextAt=-Infinity;
+  if(target.kind==='flame'){
+    if(!fireSpell.take(player,fireLineClear,held,runTime,target.point))return false;
+    worldMap.setTorchLit(fireSpell.torch.id,fireSpell.torch.lit);castTime=.45;fx.burst(fireSpell.torch.position,0xffb44a,15,1.2);sound.sound('fireTake');return true;
+  }
+  if(target.kind==='wood')return igniteWithSpell(target.entity);
+  interact(target.kind);return true;
+}
+function renderContext(){
+  if(contextAt>runTime||runTime-contextAt>.1){contextTarget=findContext();contextAt=runTime;}
+  if(!contextHighlight){contextHighlight=new THREE.Mesh(new THREE.TorusGeometry(.7,.035,6,32),new THREE.MeshBasicMaterial({color:0xffdf9d,transparent:true,opacity:.85,depthWrite:false}));contextHighlight.rotation.x=-Math.PI/2;scene.add(contextHighlight);}
+  const current=phase==='playing'?contextTarget:null;contextHighlight.visible=!!current;
+  if(!current){ui.updateContext(null);return;}
+  const point=current.point;contextHighlight.position.set(point.x,Math.max(.1,point.y),point.z);contextHighlight.scale.setScalar(current.kind==='engine'?1.3:current.kind==='flame'?.5:1);
+  const rect=renderer.domElement.getBoundingClientRect();contextPoint.set(player.body.position.x,player.body.position.y-player.cy,player.body.position.z).project(camera);
+  const x=rect.left+(contextPoint.x+1)*rect.width/2,y=rect.top+(1-contextPoint.y)*rect.height/2+14;
+  ui.updateContext({...current,x:clamp(x,34,innerWidth-34),y:clamp(y,16,innerHeight-74)});
+}
 function updateHUD(){
   ui.updatePotions(potionCounts());
   if(!player)return;
@@ -1267,17 +1342,17 @@ function updateHUD(){
   let hint='';
   if(nearRelic)hint=entities.some(e=>e.kind==='boss'&&!e.dead&&!e.removed)?'Νίκησε και τους τέσσερις φύλακες · οι δυνατές ρίψεις σπάνε την άμυνά τους.':(mobile?'ΧΡΗΣΗ':'E')+' · Πάρε το Μαύρο Σκήπτρο';
   else if(nearExit)hint=(mobile?'ΧΡΗΣΗ':'E')+' · Πέρασε την πύλη';
-  else if(held)hint=mobile?'Σύρε ελεύθερα · Άφησε το δάχτυλο για ρίψη · ΑΦΗΣΕ: χωρίς ρίψη':'Σύρε το αντικείμενο · Άφησε το κλικ για ρίψη · Q: άφημα χωρίς ρίψη';
+  else if(held)hint=mobile?'Σύρε και άφησε για ρίψη · Γρήγορα προς τον μάγο για ασπίδα':'Σύρε και άφησε για ρίψη · Δεξί κλικ για ασπίδα';
   else if(target&&distance(p,target.body.position)>telekinesisReach())hint='Πλησίασε τον στόχο για να τον αρπάξεις.';
   else if(target&&!canGrab(target))hint='Αντιστέκεται στην άρπαξη. Χτύπησέ τον με ένα αντικείμενο.';
   else if(runTime<22)hint=mobile?'Άγγιξε ένα αντικείμενο → σύρε → άφησε για ρίψη.':'Κλικ πάνω σε αντικείμενο → κράτησε και σύρε → άφησε για ρίψη.';
   else if(!target)hint=mobile?'Πάτησε πάνω σε αντικείμενο ή φρουρό. ΠΕΤΡΑ: κάλεσε ένα θραύσμα.':'Πάτησε πάνω σε αντικείμενο ή φρουρό. R: κάλεσε μια πέτρα.';
   const hs=hearth.snapshot(),nearHearth=hearth.near(),fireAvailable=fireSpell.available(player,fireLineClear,held,aimPoint);
-  if(hs.occupied)hint=hs.state==='piloted'?(mobile?'ΠΥΡ: κράτησε · Σύρε και άφησε για ρίψη · ΧΡΗΣΗ: έξοδος':'V: κράτησε για φωτιά · Σύρε και άφησε για ρίψη · E: έξοδος'):'Η σκάλα χρησιμοποιείται · περίμενε να ολοκληρωθεί η κίνηση.';
-  else if(nearHearth)hint=hs.state==='sleep'?(fireSpell.charged?'E / ΧΡΗΣΗ · Δώσε τη φλόγα στην καρδιά':'Η στολή κοιμάται · πάρε φωτιά από πυρσό με C / ΦΛΟΓΑ'):hs.state==='ready'?'E / ΧΡΗΣΗ · Μπες στη στολή':'Η καρδιά ξυπνά τη στολή…';
-  else if(fireAvailable&&!fireSpell.charged&&!held)hint=(mobile?'ΦΛΟΓΑ':'C')+' · Απορρόφησε τον κοντινό πυρσό';
+  if(hs.occupied)hint=hs.state==='piloted'?(mobile?'ΠΥΡ: κράτησε · ΠΑΤΗΜΑ: χτύπημα εδάφους · ΕΞΟΔΟΣ κάτω από τον χαρακτήρα':'Αριστερό κλικ: φλογοβόλο · Δεξί κλικ: πάτημα · E: έξοδος'):'Η σκάλα χρησιμοποιείται · περίμενε να ολοκληρωθεί η κίνηση.';
+  else if(nearHearth)hint=hs.state==='sleep'?(fireSpell.charged?'ΦΟΡΤΙΣΗ κάτω από τον χαρακτήρα · Δώσε τη φλόγα στην καρδιά':'Η στολή κοιμάται · πλησίασε έναν πυρσό και πάτησε ΦΩΤΙΑ κάτω από τον χαρακτήρα'):hs.state==='ready'?'ΕΙΣΟΔΟΣ κάτω από τον χαρακτήρα · Μπες στη στολή':'Η καρδιά ξυπνά τη στολή…';
+  else if(fireAvailable&&!fireSpell.charged&&!held)hint='Πλησίασε τον πυρσό και πάτησε ΦΩΤΙΑ κάτω από τον χαρακτήρα';
   let zone='Η Αυλή';
-  if(FIRE_ENABLED&&!held&&!nearRelic&&!nearExit&&!nearHearth&&!hs.occupied)hint=fireSpell.charged?'Η φωτιά μένει μαζί σου · Σήκωσε ξύλο ή στόχευσέ το και πάτησε '+(mobile?'ΦΛΟΓΑ':'C')+'.':fireSpell.sourceFor(player,fireLineClear,aimPoint)?(mobile?'ΦΛΟΓΑ':'C')+' · Πάρε φωτιά από πυρσό ή πύρινο πυλώνα.':hint;
+  if(FIRE_ENABLED&&!held&&!nearRelic&&!nearExit&&!nearHearth&&!hs.occupied)hint=fireSpell.charged?'Η φωτιά μένει μαζί σου · Σήκωσε ξύλο ή πλησίασέ το και πάτησε ΑΝΑΨΕ κάτω από τον χαρακτήρα.':fireSpell.sourceFor(player,fireLineClear,aimPoint)?'Πλησίασε τη φωτιά και πάτησε το εικονίδιο κάτω από τον χαρακτήρα.':hint;
   for(const z of worldMap.zones)if(p.x>=z.xMin&&p.x<=z.xMax&&p.z>=z.zMin&&p.z<=z.zMax)zone=z.label||z.name;
   const defeatedBosses=entities.filter(e=>e.bossType&&e.dead).length;
   const nearestBoss=bosses.filter(e=>!e.dead&&!e.removed&&distance(p,e.body.position)<12).sort((a,b)=>distance(p,a.body.position)-distance(p,b.body.position))[0];
@@ -1287,13 +1362,14 @@ function updateHUD(){
     assembled:assemblyCreature?.assemble(ritual.elapsed).locked.length||0,goliathHP:ally?.hp||0,goliathTime:ally?ally.expires-runTime:0,
     goal:relicTaken?'ΕΠΙΣΤΡΟΦΗ ΣΤΗΝ ΠΥΛΗ':'ΤΟ ΜΑΥΡΟ ΣΚΗΠΤΡΟ',
     objective:relicTaken?'Δραπέτευσε από τη νότια πύλη · '+dist+' μ.':`Φύλακες ${bosses.filter(b=>b.dead).length}/4 · Σκήπτρο στην κρύπτη · ${dist} μ.`,
-    hint,nearRelic,nearExit,holding:!!held,dragging:!!drag,throwPower:held?currentThrowVelocity()?.speed:0,heldName:held?.label||'',
+    hint,nearRelic,nearExit,holding:!!held,shielding:!!player.shielding,dragging:!!drag,throwPower:held?currentThrowVelocity()?.speed:0,heldName:held?(player.shielding?'ΑΣΠΙΔΑ · ':'')+held.label:'',
     fireAvailable:FIRE_ENABLED&&(fireSpell.charged||fireSpell.available(player,fireLineClear,held,aimPoint)),fireCharged:FIRE_ENABLED&&fireSpell.charged,
     pulseCooldown:player.pulseCooldown,dashCooldown:player.dashCooldown,relic:relicTaken,shards:runShards,
     combo:runTime<comboUntil?combo:0,comboMultiplier:runTime<comboUntil?Math.min(4,combo):0,time:runTime,
     progress:relicTaken?.8:Math.max(bosses.filter(b=>b.dead).length*.15,clamp((18-p.z)/40,0,.55)),zone,
     bossHP:activeBoss&&distance(p,activeBoss.body.position)<12?activeBoss.hp:null,bossMaxHP:activeBoss?.maxHp||330,bossName:activeBoss?.label||'',bossChannel:(nearestBoss?.channel||0)/CHANNEL_DURATION,
     targetName:target?.label||'',quality,hearth:hs,nearHearth});
+  renderContext();
 }
 let controlledUntil=0;
 function frame(now,manual=false){
@@ -1308,12 +1384,11 @@ function frame(now,manual=false){
         runTime+=dt;castTime=Math.max(0,castTime-dt);
         const input=ui.getInput();updatePlayer(dt,input);
         for(const action of actions){
-          if(action==='drop')releaseHeld(false);
-          else if(action==='conjure')conjure();
+          if(action==='conjure')conjure();
           else if(action==='dash')dash(input);
           else if(action==='pulse')pulse();
-          else if(action==='interact')interact();
-          else if(action==='fire'&&FIRE_ENABLED)takeFire(input);
+          else if(action==='context')useContext();
+          else if(action==='contextFire'&&FIRE_ENABLED)useContext(true);
           else if(action==='healthPotion')usePotion('health');
           else if(action==='manaPotion')usePotion('mana');
         }
@@ -1334,11 +1409,13 @@ function frame(now,manual=false){
       if(!held)fx.connect(null);
       if(FIRE_ENABLED)fireFX.update({spell:fireSpell,player,entities,surfaces:worldMap.woodenSurfaces,time:runTime,camera,playing:['playing','paused'].includes(phase),source:fireSpell.sourceFor(player,fireLineClear,aimPoint)});
     }
+    sound.setFlamethrower(phase==='playing'&&!document.hidden&&!!hearth?.engine?.heart.firing);
     if(composer){renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);}
     if(!manual)requestAnimationFrame(frame);
   }catch(error){showError(error);}
 }
 function showError(error){
+  sound.setFlamethrower(false);
   console.error('Magic:',error);phase='error';
   const message='Το παιχνίδι δεν μπόρεσε να ξεκινήσει. Δοκίμασε ανανέωση ή άνοιξε τον σύνδεσμο σε Safari / Chrome.';
   if(ui.showError)ui.showError(message);
@@ -1366,7 +1443,7 @@ async function boot(){
     if(renderer.compileAsync)await renderer.compileAsync(scene,camera);
     ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
     window.__MAGIC__={version:packageInfo.version,snapshot:()=>({hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
-      kills,relicTaken,holding:held?.label||null,dragging:!!drag,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
+      kills,relicTaken,holding:held?.label||null,dragging:!!drag,shielding:!!player?.shielding,context:contextTarget?{id:contextTarget.id,label:contextTarget.label,enabled:contextTarget.enabled}:null,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
       pathToRelic:nav.path(worldMap.spawn,{x:worldMap.relic.position.x,z:worldMap.relic.position.z+3}).length,profile:{runs:save.profile.runs,wins:save.profile.wins},time:runTime,candidate,
       inventory:{items:save.profile.loot.items.map(i=>({...i})),equipped:{...save.profile.loot.equipped},shards:save.profile.shards,storage:save.available},gear:player?.gear,
       loot:lootDrops.filter(d=>d.mesh.visible).map(d=>({kind:d.item.kind,level:d.item.level,position:{x:d.mesh.position.x,z:d.mesh.position.z}})),

@@ -5,9 +5,10 @@ import {hearthSpawnRooms} from './spawn-rules.js';
 import {createHearth} from './hearth-character.js';
 import {igniteActor,igniteWood,consumeBurnDamage} from './fire.js';
 import {poseHearthPilot} from './hearth-pilot.js';
+import {STOMP} from './hearth-stomp.js';
 
 export function createHearthSystem({scene,physics,worldMap,nav,material,spell,getPlayer,getEntities,getHeld,releaseHeld,hurt,clear,sound,toast,fx}){
- let engine,previousRoom,fireSoundTime=-10;
+ let engine,previousRoom,jetBurstTime=-10;
  const p3=new THREE.Vector3(),q=new THREE.Quaternion();
  const footprintClear=(p,r)=>nav.isFree(p.x,p.z)&&worldMap.colliders.every(o=>Math.abs(p.x-o.x)>o.w/2+r+.1||Math.abs(p.z-o.z)>o.d/2+r+.1)&&getEntities().every(e=>e.removed||Math.hypot(p.x-e.body.position.x,p.z-e.body.position.z)>r+e.radius+.2);
  function reset(){
@@ -65,8 +66,11 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
   if(h.state==='piloted'){
    engine.body.mass=70;engine.body.type=CANNON.Body.DYNAMIC;engine.body.updateMassProperties();
    const n=Math.max(1,Math.hypot(input.moveX,input.moveZ)),blend=Math.min(1,dt*9);
-   b.velocity.x+=(input.moveX/n*HEARTH.speed-b.velocity.x)*blend;b.velocity.z+=(input.moveZ/n*HEARTH.speed-b.velocity.z)*blend;
-   const target=p.yaw,delta=Math.atan2(Math.sin(target-engine.yaw),Math.cos(target-engine.yaw));engine.yaw+=delta*Math.min(1,dt*8);
+   if(h.stompTime!==null){b.velocity.x=b.velocity.z=0;}
+   else{
+    b.velocity.x+=(input.moveX/n*HEARTH.speed-b.velocity.x)*blend;b.velocity.z+=(input.moveZ/n*HEARTH.speed-b.velocity.z)*blend;
+    const target=p.yaw,delta=Math.atan2(Math.sin(target-engine.yaw),Math.cos(target-engine.yaw));engine.yaw+=delta*Math.min(1,dt*8);
+   }
   }else{b.velocity.x=b.velocity.z=0;p.invulnerable=.3;}
   p.body.position.set(b.position.x,p.cy+.08,b.position.z);p.body.velocity.set(0,0,0);p.body.aabbNeedsUpdate=true;
   return true;
@@ -74,7 +78,18 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
  function update(dt,input,time){
   if(!engine)return;
   const h=engine.heart,event=h.update(dt,{moving:Math.hypot(input.moveX,input.moveZ)>.1,fire:input.firing&&!getHeld()});
-  if(event==='boardComplete'){freezePlayer();toast('WASD / μοχλός: βάδισμα · V / ΠΥΡ: φλογοβόλο · E: έξοδος','info');}
+  if(event==='boardComplete'){freezePlayer();toast('WASD / μοχλός: βάδισμα · αριστερό κλικ / ΠΥΡ: φλογοβόλο · δεξί κλικ / ΠΑΤΗΜΑ · E: έξοδος','info');}
+  if(event==='stompImpact'){
+   sync(0);const foot=engine.visual.point('foot_R'),origin={x:foot.x,y:.06,z:foot.z};
+   fx.ring(origin,0xd8b780,STOMP.radius,.45);fx.burst(origin,0xbca37b,28,2.4);sound.sound('impact');
+   for(const e of getEntities()){
+    if(e.removed||e.dead||e.isPlayer||e.ally||e===getHeld()||e.reserved||!['actor','prop'].includes(e.category))continue;
+    const p=e.body.position,dx=p.x-origin.x,dz=p.z-origin.z,d=Math.hypot(dx,dz);
+    if(d>STOMP.radius||Math.abs(p.y-origin.y)>3||!clear(origin,p))continue;
+    if(e.category==='actor'){hurt(e,STOMP.damage,origin);e.stun=Math.max(e.stun,.9);e.guardBreak=1.8;e.windup=0;}
+    const strength=7*(1-d/STOMP.radius)+2;e.body.velocity.x+=dx/(d||1)*strength;e.body.velocity.z+=dz/(d||1)*strength;e.body.velocity.y+=2;e.body.wakeUp();
+   }
+  }
   if(event==='empty'){
    engine.exitPoint=selectExit()||engine.exitPoint;releaseHeld(false);engine.body.velocity.set(0,0,0);toast('Η καρδιά άδειασε. Βγαίνεις και η στολή κοιμάται.','info');
   }
@@ -89,14 +104,14 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
     if(e.category==='actor'&&!e.dead&&!e.ally){hurt(e,HEARTH.damageRate*dt,null,{preserveAttack:true});if(e.burnUntil<=time||!e.burnUntil)igniteActor(e,time);}
     else if(e.flammable)igniteWood(e,time);
    }
-   if(time-fireSoundTime>.4){sound.sound('fireIgnite');fireSoundTime=time;fx.burst(origin,0xffa239,2,1.1);}
+   if(time-jetBurstTime>.4){jetBurstTime=time;fx.burst(origin,0xffa239,2,1.1);}
   }
  }
  function sync(dt){
   if(!engine)return;const {body,heart:h,visual}=engine;
   visual.group.position.set(body.position.x,body.position.y-1.22,body.position.z);visual.group.rotation.y=engine.yaw;
   const clip=h.state==='piloted'&&h.clip==='Idle'&&Math.hypot(body.velocity.x,body.velocity.z)>.15?'Walk':h.clip;
-  const time=['waking','boarding','exiting','depleting'].includes(h.state)?h.time:h.throwTime>0?.85-h.throwTime:undefined;
+  const time=['waking','boarding','exiting','depleting'].includes(h.state)?h.time:h.stompTime!==null?h.stompTime:h.throwTime>0?.85-h.throwTime:undefined;
   visual.update(dt,{clip,time,fuel:h.fuel});
   if(h.occupied){
    const p=getPlayer(),anchor=visual.point('pilot');p.mesh.scale.setScalar(.72);
@@ -111,7 +126,7 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
    p.mesh.position.copy(position);p.mesh.rotation.set(0,engine.yaw,0);const transition=['boarding','exiting'].includes(h.state),t=THREE.MathUtils.clamp(h.time/2.4,0,1),v=h.state==='boarding'?t:1-t,climbing=transition&&v>=.2&&v<=.85;p.visual.update(dt,{moving:transition&&!climbing,speed:1,casting:h.state==='piloted'});if(!transition||climbing)poseHearthPilot(p.visual,visual,{climbing,progress:(v-.2)/.65});if(p.shadow)p.shadow.visible=false;
   }else if(getPlayer()?.shadow)getPlayer().shadow.visible=true;
  }
- function snapshot(){return engine?{state:engine.heart.state,fuel:engine.heart.fuel,room:engine.location.room.name,roomLabel:engine.location.room.label||engine.location.room.name,x:engine.body.position.x,z:engine.body.position.z,clip:engine.visual.group.userData.animationState,firing:engine.heart.firing,occupied:engine.heart.occupied}:null;}
+ function snapshot(){return engine?{state:engine.heart.state,fuel:engine.heart.fuel,endless:engine.heart.endless,room:engine.location.room.name,roomLabel:engine.location.room.label||engine.location.room.name,x:engine.body.position.x,z:engine.body.position.z,clip:engine.visual.group.userData.animationState,firing:engine.heart.firing,occupied:engine.heart.occupied,stompCooldown:engine.heart.stompCooldown}:null;}
  function dispose(){if(!engine)return;if(engine.heart.occupied)dismount();physics.removeBody(engine.body);engine.visual.dispose();engine=null;}
- return {reset,propPosition,interact,drive,update,sync,near,dispose,snapshot,exit,get engine(){return engine;},get mounted(){return engine?.heart.state==='piloted';},get occupied(){return !!engine?.heart.occupied;},get blocked(){return engine?.heart.occupied&&!this.mounted;},throw:()=>!engine?.heart.occupied||engine.heart.throw()};
+ return {reset,propPosition,interact,drive,update,sync,near,dispose,snapshot,exit,stomp:()=>engine?.heart.stomp()||false,get engine(){return engine;},get mounted(){return engine?.heart.state==='piloted';},get occupied(){return !!engine?.heart.occupied;},get blocked(){return engine?.heart.occupied&&!this.mounted;},throw:()=>!engine?.heart.occupied||engine.heart.throw()};
 }

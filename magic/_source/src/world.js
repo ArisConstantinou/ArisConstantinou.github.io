@@ -345,7 +345,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   }
 
   for (const x of [-6.75, 6.75]) {
-    for (const z of [-6.85, 0.9]) pillar(x, z, 4.1);
+    for (const z of [-6.85, 2.0]) pillar(x, z, 4.1);
   }
   for (const x of [-9.15, 9.15]) pillar(x, 6.5, 3.45, 0.35);
 
@@ -405,16 +405,16 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     add('banner-emblems', geo.oct, materials.paleGold, matrixAt(x + crest.x, y + crest.y, z + crest.z, 0.2, 0.32, 0.028, 0, ry), 0xbda377);
   }
 
-  // Funerary monuments form useful cover while keeping the middle route open.
+  // Monuments provide cover south of the side entrances, leaving engine clearance.
   for (const side of [-1, 1]) {
-    const x = side * 5.22;
-    collider(x, 0.42, -16.6, 1.38, 0.84, 3.1, 'sarcophagus');
-    box(x, 0.12, -16.6, 1.65, 0.24, 3.36, 0x5c626e, 'cutStone');
-    box(x, 0.46, -16.6, 1.35, 0.5, 3.08, 0x676878, 'cutStone');
-    box(x, 0.8, -16.6, 1.49, 0.2, 3.18, 0x9492a1, 'cutStone');
-    box(x, 0.92, -16.65, 0.075, 0.07, 1.8, 0x8b794f, 'bronze');
-    box(x, 0.92, -16.27, 0.77, 0.07, 0.075, 0x8b794f, 'bronze');
-    for (const zz of [-17.6, -15.6]) {
+    const x = side * 5.22,z=-13.5;
+    collider(x, 0.49, z, 1.65, 0.98, 3.36, 'sarcophagus');
+    box(x, 0.12, z, 1.65, 0.24, 3.36, 0x5c626e, 'cutStone');
+    box(x, 0.46, z, 1.35, 0.5, 3.08, 0x676878, 'cutStone');
+    box(x, 0.8, z, 1.49, 0.2, 3.18, 0x9492a1, 'cutStone');
+    box(x, 0.92, z-.05, 0.075, 0.07, 1.8, 0x8b794f, 'bronze');
+    box(x, 0.92, z+.33, 0.77, 0.07, 0.075, 0x8b794f, 'bronze');
+    for (const zz of [z-1,z+1]) {
       add('coffin-handles', geo.torus, materials.bronze, matrixAt(x - side * 0.69, 0.45, zz, 0.13, 0.17, 0.12, 0, PI / 2), 0x8f7b54);
     }
     // Weathered robed sentinel: folded mantle, recessed hood, stone sword.
@@ -500,14 +500,15 @@ export function createWorld(scene,{fireEnabled=true}={}) {
       prop(room.id==='prison'?'door':room.id==='library'?'urn':room.id==='armoury'?'shield':'barrel',x,room.z+room.d-2,.15*s);
       prop('crate',x,room.z+3.7,.25*s);prop('stone',cx+s*2.8,cz+2.5,.7);
       if(['library','armoury','forge'].includes(room.id)){
-        collider(x,1,cz-2,1.2,2,2.2,'room-furniture');
-        box(x,1,cz-2,1.2,2,2.2,0x4f443b,'darkWood');
-        for(const y of [.25,.8,1.35,1.9])box(x+s*.05,y,cz-2,1.35,.12,2.35,0x776658,'darkWood');
-        if(room.id==='library')for(let i=0;i<12;i++)box(x-s*.62,.44+(i%3)*.55,cz-2.9+Math.floor(i/3)*.47,.18,.38,.3,[0x6b394d,0x485a4c,0x806d4d][i%3],'banner');
-        if(room.id==='armoury')for(let i=0;i<4;i++)box(x-s*.62,1.3,cz-2.7+i*.45,.08,1.3,.09,0x9ba5aa,'metal');
+        const fz=cz-(room.id==='forge'||room.id==='library'&&s<0?2:3.5);
+        collider(x,1,fz,1.2,2,2.2,'room-furniture');
+        box(x,1,fz,1.2,2,2.2,0x4f443b,'darkWood');
+        for(const y of [.25,.8,1.35,1.9])box(x+s*.05,y,fz,1.35,.12,2.35,0x776658,'darkWood');
+        if(room.id==='library')for(let i=0;i<12;i++)box(x-s*.62,.44+(i%3)*.55,fz-.9+Math.floor(i/3)*.47,.18,.38,.3,[0x6b394d,0x485a4c,0x806d4d][i%3],'banner');
+        if(room.id==='armoury')for(let i=0;i<4;i++)box(x-s*.62,1.3,fz-.7+i*.45,.08,1.3,.09,0x9ba5aa,'metal');
       }
       if(['barracks','prison','gatehouse'].includes(room.id)){
-        const bx=cx+s*(room.w/2-3),bz=cz+3.5;
+        const bx=cx+s*(room.w/2-3),bz=cz+(room.id==='gatehouse'?3.5:5);
         collider(bx,.4,bz,1.5,.8,2.4,'bed');box(bx,.32,bz,1.6,.6,2.5,0x4d3f36,'darkWood');
         box(bx,.67,bz,1.35,.15,2.3,0x59685b,'banner');box(bx,.8,bz- .75,1.1,.22,.58,0x9b9788,'banner');
       }

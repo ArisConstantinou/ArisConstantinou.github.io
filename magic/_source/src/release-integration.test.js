@@ -20,11 +20,12 @@ test('the engine has a clear physical placement in every expanded castle room',(
  }
  world.dispose();
 });
-test('persistent wizard fire charges the finite engine heart once and requires a new draw to refill',()=>{
+test('one real wizard flame charges an endless engine that can be reused without a new draw',()=>{
  const torch={lit:true,position:new THREE.Vector3()},spell=new FireSpell([torch]),player={mana:100,body:{position:new THREE.Vector3()}};
  assert.ok(spell.take(player,()=>true,null,0));const heart=new HearthHeart();assert.ok(heart.charge(spell,.5));assert.equal(spell.charged,false);
  assert.equal(heart.charge(spell,.6),false);heart.update(2.1);assert.equal(heart.state,'ready');assert.equal(heart.fuel,100);
- assert.ok(heart.board());heart.update(2.4);heart.update(1,{firing:true});assert.ok(heart.fuel<100);
+ assert.ok(heart.board());heart.update(2.4);heart.update(3600,{fire:true,moving:true});assert.equal(heart.firing,true);assert.equal(heart.fuel,100);assert.equal(heart.state,'piloted');
+ assert.ok(heart.exit());heart.update(2.4);assert.ok(heart.board());heart.update(2.4);assert.equal(heart.state,'piloted');assert.equal(spell.charged,false);
 });
 test('wood fire cannot ignite the allied stone Goliath',()=>{
  const source={burnUntil:10},ally={category:'actor',ally:true,dead:false};

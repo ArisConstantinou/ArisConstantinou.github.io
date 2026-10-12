@@ -1,4 +1,5 @@
 import {BAG_LIMIT,TIERS,SLOTS,LOOT_PATHS,itemStats,itemName,isPotion,salvageValue,STAT_LABELS,statText} from './loot.js';
+import {engineMouse} from './engine-mouse.js';
 const PATHS = {
   fire:'<path d="M13 2c1 5-4 5-2 9 1-2 3-2 4-4 1 3 5 5 5 9a8 8 0 0 1-16 0c0-4 3-6 4-9-1 4 1 5 2 5-2-5 3-6 3-10Z"/>',
   ...Object.fromEntries(Object.entries(LOOT_PATHS).map(([kind,path])=>['loot'+kind,`<path d="${path}"/>`])),
@@ -6,6 +7,7 @@ const PATHS = {
   grab: '<path d="M8 13V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-5a1.5 1.5 0 0 1 3 0v6-3a1.5 1.5 0 0 1 3 0v6c0 4-2.5 6-6 6h-2c-2 0-3.5-1.1-4.5-2.5L4 13.8a1.6 1.6 0 0 1 2.4-2.1L8 13Z"/><path d="M2 4 3 3M20 3l1 1M2 8H1"/>',
   throw: '<path d="m5 19 13-13M10 5h9v9"/><path d="M4 12v7h7M5 5l2 2M13 19l2-2"/>',
   pulse: '<circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M5 19l3-3m8-8 3-3"/>',
+  stomp: '<path d="M9 2h6v9l5 3v3H5v-4l4-2V2ZM2 21h7l2-2 2 3 3-2h6M7 5h8"/>',
   dash: '<path d="m14 3-7 10h6l-3 8 10-12h-7l1-6ZM2 6h5M1 11h4M3 17h3"/>',
   stone: '<path d="m5 8 7-5 7 5 2 8-6 5-10-3-2-6 2-4Z"/><path d="m5 8 7 3 7-3M12 11l3 10M5 18l7-7"/>',
   drop: '<path d="M12 3v13m-5-5 5 5 5-5M4 20h16"/>',
@@ -62,6 +64,7 @@ export function createUI(callbacks = {}) {
   let lastUpgrades = [];
   let touchShield = false;
   let mouseShield = false;
+  let mouseFire=false,mouseButtons=0,enginePointer=null,pulseMounted=null;
   let touchFire=false;
   const firePointers=new Map();
   let pointerX = 0;
@@ -118,28 +121,23 @@ export function createUI(callbacks = {}) {
       <div class="combo-display" id="combo-display" hidden><div class="combo-value" id="combo-value">×2</div><div class="combo-label">ΜΑΓΙΚΗ ΑΛΥΣΙΔΑ</div></div>
       <div class="context-strip" id="context-strip"><div class="context-main" id="context-main"></div><div class="context-sub" id="context-sub"></div></div>
       <div class="held-state" id="held-state" hidden>${icon('grab')}<span id="held-text"></span></div>
-      ${callbacks.fireEnabled?`<div class="fire-sample-control">${ability('fire','ΦΛΟΓΑ','fire','C')}<span class="fire-status" id="fire-status">Από πυρσό / πυλώνα</span></div>`:''}
+      ${callbacks.fireEnabled?`<span class="fire-status" id="fire-status" hidden></span>`:''}
       ${callbacks.hearth?`<div class="hearth-status" id="hearth-status"><strong id="hearth-title">HEARTH BULWARK</strong><span id="hearth-state">Κοιμάται</span><div class="hearth-fuel" role="meter" aria-label="Φωτιά καρδιάς" aria-valuemin="0" aria-valuemax="100" id="hearth-meter"><i id="hearth-fill"></i></div><span id="hearth-charge">Πάρε φωτιά από πυρσό</span></div><div class="hearth-actions">${ability('flamethrower','ΠΥΡ','pulse','V')}</div>`:''}
       <div class="run-meta"><span class="run-stat" title="Θραύσματα αυτής της προσπάθειας">${icon('shard')}<span id="hud-shards">0</span></span><span class="run-stat" title="Εχθροί που νικήθηκαν">${icon('skull')}<span id="hud-kills">0</span></span><span class="run-stat time" id="hud-time">0:00</span></div>
       <div class="potion-tools"><button id="quick-health" data-potion="health" type="button" aria-label="Χρήση φίλτρου ζωής, 1">${icon('heart')}<span>ΖΩΗ <b id="health-potions">0</b></span><kbd>1</kbd></button><button id="quick-mana" data-potion="mana" type="button" aria-label="Χρήση φίλτρου ενέργειας, 2">${icon('mana')}<span>ΕΝΕΡΓΕΙΑ <b id="mana-potions">0</b></span><kbd>2</kbd></button></div>
       <div class="desktop-controls" aria-label="Δυνάμεις και πλήκτρα">
         ${ability('conjure', 'ΠΕΤΡΑ', 'stone', 'R')}
-        ${ability('drop', 'ΑΦΗΣΕ', 'drop', 'Q')}
         ${ability('pulse', 'ΩΣΤΙΚΟ ΚΥΜΑ', 'pulse', 'F')}
         ${ability('dash', 'ΕΦΟΡΜΗΣΗ', 'dash', 'SPACE')}
-        ${ability('shield', 'ΑΣΠΙΔΑ', 'shield', 'SHIFT')}
-        ${ability('interact', 'ΧΡΗΣΗ', 'interact', 'E')}
       </div>
-      <div class="movement-hint"><div class="wasd" aria-label="W A S D"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div><div class="movement-caption">ΚΙΝΗΣΗ<small>Πάτησε · σύρε · άφησε</small></div></div>
+      <div class="movement-hint"><div class="wasd" aria-label="W A S D"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div><div class="movement-caption"><span id="movement-mode">ΜΑΓΟΣ</span><small id="movement-action">ΚΙΝΗΣΗ · W A S D</small></div></div>
+      <div class="mouse-hint" aria-label="Χειρισμοί ποντικιού"><div class="mouse-caption"><b>ΑΡΙΣΤΕΡΟ</b><span id="mouse-left-label">Πιάσε · σύρε · άφησε</span></div><svg class="mouse-diagram" viewBox="0 0 64 96" aria-hidden="true"><path id="mouse-left" d="M32 4C17 4 8 15 8 30v12h24Z"/><path id="mouse-right" d="M32 4c15 0 24 11 24 26v12H32Z"/><path d="M8 42v26a24 24 0 0 0 48 0V42M29 15h6v15h-6Z"/></svg><div class="mouse-caption"><b>ΔΕΞΙ</b><span id="mouse-right-label">Κράτησε ασπίδα</span></div></div>
       <div class="touch-controls">
         <div class="joystick move-stick" id="move-stick" role="application" aria-label="Αριστερός μοχλός κίνησης"><span class="stick-knob"></span><span class="stick-label">ΚΙΝΗΣΗ</span></div>
         <div class="touch-actions">
           ${ability('conjure', 'ΠΕΤΡΑ', 'stone')}
-          ${ability('drop', 'ΑΦΗΣΕ', 'drop')}
           ${ability('pulse', 'ΚΥΜΑ', 'pulse')}
           ${ability('dash', 'ΕΦΟΔΟΣ', 'dash')}
-          ${ability('shield', 'ΑΣΠΙΔΑ', 'shield')}
-          ${ability('interact', 'ΧΡΗΣΗ', 'interact')}
         </div>
       </div>
     </section>
@@ -155,6 +153,7 @@ export function createUI(callbacks = {}) {
 
   const $ = (id) => document.getElementById(id);
   const el = Object.fromEntries([...host.querySelectorAll('[id]')].map((node) => [node.id, node]));
+  const contextUse=document.createElement('button');contextUse.id='context-use';contextUse.className='context-use';contextUse.type='button';contextUse.hidden=true;contextUse.innerHTML=icon('interact')+'<span></span><kbd>E</kbd>';host.append(contextUse);
   const allAbilities = [...host.querySelectorAll('[data-action]')];
   const byAction = (name) => allAbilities.filter((button) => button.dataset.action === name);
   const actionGroups = Object.fromEntries(['conjure', 'drop', 'pulse', 'dash', 'shield', 'interact','fire'].map((name) => [name, byAction(name)]));
@@ -196,7 +195,8 @@ export function createUI(callbacks = {}) {
     if(conjurePointer){const {node,id}=conjurePointer;conjurePointer=null;node.classList.remove('is-held');if(node.hasPointerCapture?.(id))node.releasePointerCapture(id);}
     cancelPointer();
     keys.clear(); actions.length = 0; move = { x: 0, y: 0 };
-    mouseShield = false; touchShield = false; pointerActive = false;
+    mouseShield = false; touchShield = false; pointerActive = false;mouseFire=false;mouseButtons=0;
+    if(enginePointer!==null&&canvas.hasPointerCapture?.(enginePointer))canvas.releasePointerCapture(enginePointer);enginePointer=null;
     touchFire=false;for(const [button,id] of firePointers){if(button.hasPointerCapture?.(id))button.releasePointerCapture(id);button.classList.remove('is-held');}firePointers.clear();
     for (const stick of stickStates) {
       if (stick.id !== null && stick.node.hasPointerCapture?.(stick.id)) stick.node.releasePointerCapture(stick.id);
@@ -296,7 +296,7 @@ export function createUI(callbacks = {}) {
 
   function showHelp() {
     if (phase === 'playing') { requestPause(); if (phase === 'playing') showPause(true); }
-    openModal('help', `<p class="panel-eyebrow">Η ΤΕΧΝΗ ΤΗΣ ΤΗΛΕΚΙΝΗΣΗΣ</p><h2 class="panel-title" id="modal-title">Η δύναμη ακολουθεί το χέρι σου.</h2><ol class="help-list"><li><span class="step-index">1</span><div><strong>Πάτησε πάνω στο αντικείμενο.</strong><p>${touchMode ? 'Κινήσου με τον αριστερό μοχλό. Με άλλο δάχτυλο πάτησε πάνω στο αντικείμενο ή στον φρουρό που θέλεις να σηκώσεις.' : 'Κινήσου με W A S D. Κράτησε πατημένο το αριστερό κουμπί πάνω στο αντικείμενο ή στον φρουρό που θέλεις να σηκώσεις.'} Πλησίασε τον στόχο ώστε να τον φτάνει η μαγεία σου.</p></div></li><li><span class="step-index">2</span><div><strong>Σύρε. Άφησε για ρίψη.</strong><p>Όσο κρατάς πατημένο, μετακινείς το αντικείμενο ζωντανά στον αέρα. Άφησε για να το εκτοξεύσεις. Η θέση του δείκτη ή του δαχτύλου ορίζει την κατεύθυνση. Το γρήγορο σύρσιμο δίνει περισσότερη δύναμη στη ρίψη. Μπορείς να στοχεύεις και πάνω σε κενό έδαφος. Χτύπα εχθρούς με εχθρούς και συντρίμμια.</p></div></li><li><span class="step-index">3</span><div><strong>Πάρε το Μαύρο Σκήπτρο.</strong><p>Νίκησε τους τέσσερις φύλακες του κάστρου και χρησιμοποίησε ${touchMode ? 'το κουμπί ΧΡΗΣΗ' : 'το E'} κοντά στο σκήπτρο. Το κάστρο θα σημάνει συναγερμό.</p></div></li><li><span class="step-index">4</span><div><strong>Βρες τον δρόμο της επιστροφής.</strong><p>Γύρισε στη φωτεινή πύλη για να διαφύγεις. Τα θραύσματα ξεκλειδώνουν μόνιμες δυνάμεις για τις επόμενες εισβολές.</p></div></li></ol><div class="help-controls"><div class="help-control"><kbd>${touchMode ? 'ΠΕΤΡΑ' : 'R'}</kbd>Πέτρα έως 10 · κράτησε με 7 για Goliath</div><div class="help-control"><kbd>${touchMode ? 'ΑΦΗΣΕ' : 'Q'}</kbd>Άφημα χωρίς ρίψη</div><div class="help-control"><kbd>${touchMode ? 'ΑΣΠΙΔΑ' : 'SHIFT'}</kbd>Κράτησε ως ασπίδα</div><div class="help-control"><kbd>${touchMode ? 'ΚΥΜΑ' : 'F'}</kbd>Ωστικό κύμα</div><div class="help-control"><kbd>${touchMode ? 'ΕΦΟΔΟΣ' : 'SPACE'}</kbd>Εφόρμηση</div><div class="help-control"><kbd>${touchMode ? 'Ⅱ' : 'ESC / P'}</kbd>Παύση</div></div>`);
+    openModal('help', `<p class="panel-eyebrow">Η ΤΕΧΝΗ ΤΗΣ ΤΗΛΕΚΙΝΗΣΗΣ</p><h2 class="panel-title" id="modal-title">Η δύναμη ακολουθεί το χέρι σου.</h2><ol class="help-list"><li><span class="step-index">1</span><div><strong>Πάτησε πάνω στο αντικείμενο.</strong><p>${touchMode ? 'Κινήσου με τον αριστερό μοχλό. Με άλλο δάχτυλο πάτησε πάνω στο αντικείμενο ή στον φρουρό που θέλεις να σηκώσεις.' : 'Κινήσου με W A S D. Κράτησε πατημένο το αριστερό κουμπί πάνω στο αντικείμενο ή στον φρουρό που θέλεις να σηκώσεις.'} Πλησίασε τον στόχο ώστε να τον φτάνει η μαγεία σου.</p></div></li><li><span class="step-index">2</span><div><strong>Σύρε. Άφησε για ρίψη.</strong><p>Όσο κρατάς πατημένο, μετακινείς το αντικείμενο ζωντανά στον αέρα. Άφησε για να το εκτοξεύσεις. Η θέση του δείκτη ή του δαχτύλου ορίζει την κατεύθυνση. Το γρήγορο σύρσιμο δίνει περισσότερη δύναμη στη ρίψη. Μπορείς να στοχεύεις και πάνω σε κενό έδαφος. Χτύπα εχθρούς με εχθρούς και συντρίμμια.</p></div></li><li><span class="step-index">3</span><div><strong>Πάρε το Μαύρο Σκήπτρο.</strong><p>Νίκησε τους τέσσερις φύλακες του κάστρου και χρησιμοποίησε ${touchMode ? 'το εικονίδιο κάτω από τον χαρακτήρα' : 'το E'} κοντά στο σκήπτρο. Το κάστρο θα σημάνει συναγερμό.</p></div></li><li><span class="step-index">4</span><div><strong>Βρες τον δρόμο της επιστροφής.</strong><p>Γύρισε στη φωτεινή πύλη για να διαφύγεις. Τα θραύσματα ξεκλειδώνουν μόνιμες δυνάμεις για τις επόμενες εισβολές.</p></div></li></ol>${latestState.hearth?.occupied ? `<p class="panel-description">HEARTH: WASD για βάδισμα · αριστερό κλικ / R για πυρ · δεξί κλικ / F για πάτημα · E για είσοδο / έξοδο. Στο mobile κράτησε ΠΥΡ, πάτησε ΠΑΤΗΜΑ ή ΕΞΟΔΟΣ.</p>` : ''}${latestState.hearth?.occupied ? `<div class="help-controls"><div class="help-control"><kbd>W A S D</kbd>Βάδισμα μηχανής</div><div class="help-control"><kbd>R / ΑΡΙΣΤΕΡΟ ΚΛΙΚ</kbd>Κράτησε για φλογοβόλο</div><div class="help-control"><kbd>F / ΔΕΞΙ ΚΛΙΚ</kbd>Πάτημα εδάφους</div><div class="help-control"><kbd>E</kbd>Είσοδος / έξοδος από τη μηχανή</div><div class="help-control"><kbd>ESC / P</kbd>Παύση</div></div>` : `<div class="help-controls"><div class="help-control"><kbd>${touchMode ? 'ΠΕΤΡΑ' : 'R'}</kbd>Πέτρα έως 10 · κράτησε με 7 για Goliath</div><div class="help-control"><kbd>${touchMode ? 'ΠΡΟΣ ΤΟΝ ΜΑΓΟ' : 'ΔΕΞΙ ΚΛΙΚ'}</kbd>Ασπίδα με το σηκωμένο αντικείμενο</div><div class="help-control"><kbd>${touchMode ? 'ΚΥΜΑ' : 'F'}</kbd>Ωστικό κύμα</div><div class="help-control"><kbd>${touchMode ? 'ΕΦΟΔΟΣ' : 'SPACE'}</kbd>Εφόρμηση</div><div class="help-control"><kbd>${touchMode ? 'Ⅱ' : 'ESC / P'}</kbd>Παύση</div></div>`}`);
   }
 
   function requestUpgrades() {
@@ -355,11 +355,11 @@ export function createUI(callbacks = {}) {
     const section = (title, body) => `<section class="status-section"><h3>${esc(title)}</h3>${body}</section>`;
     openModal('status', `<p class="panel-eyebrow">ΕΚΔΟΣΗ ${esc(callbacks.version || '')}</p><h2 class="panel-title" id="modal-title">Αποστολή & κατάσταση</h2>`
       + section('Η αποστολή σου', `<p>${esc(s.objective || s.goal)}</p>`)
-      + (h ? section('Στολή μάχης · HEARTH BULWARK', `<p>Τοποθεσία: <strong>${esc(h.roomLabel)}</strong></p><p>${esc(el['hearth-state'].textContent)}</p><p>Καρδιά <strong>${Math.ceil(h.fuel)}%</strong></p><p>Πάρε φλόγα από πυρσό. Στη στολή πάτησε ΧΡΗΣΗ για να φορτίσεις την καρδιά, έπειτα ξανά ΧΡΗΣΗ για είσοδο. Κράτησε ΠΥΡ για φλογοβόλο. ΧΡΗΣΗ για έξοδο.</p>`) : '')
+      + (h ? section('Στολή μάχης · HEARTH BULWARK', `<p>Τοποθεσία: <strong>${esc(h.roomLabel)}</strong></p><p>${esc(el['hearth-state'].textContent)}</p><p>Καρδιά <strong>${h.endless&&h.fuel>0?"∞":Math.ceil(h.fuel)+"%"}</strong></p><p>Πάρε φλόγα από πυρσό. Στη στολή πάτησε ΦΟΡΤΙΣΗ κάτω από τον χαρακτήρα, έπειτα ΕΙΣΟΔΟΣ. Μέσα στη στολή: αριστερό κλικ / R ή κράτησε ΠΥΡ για φλογοβόλο, δεξί κλικ / F ή ΠΑΤΗΜΑ για χτύπημα εδάφους. Μόνο E για είσοδο / έξοδο στο πληκτρολόγιο. Στο mobile χρησιμοποίησε ΕΞΟΔΟΣ ή το εικονίδιο κάτω από τον χαρακτήρα. Η αναμμένη καρδιά έχει απεριόριστη ενέργεια.</p>`) : '')
       + section('Πέτρες & Goliath', `<p>${esc(el['stone-count'].textContent)} · ${esc(el['goliath-state'].textContent)}</p><p>Με 7 κοντινές πέτρες, κράτησε ΠΕΤΡΑ για 2 δευτερόλεπτα.</p>`)
-      + (callbacks.fireEnabled ? section('Φλόγα', `<p>${s.fireCharged ? 'Η φλόγα είναι έτοιμη. Σήκωσε ξύλο για να το ανάψεις ή στόχευσέ το και πάτησε ΦΛΟΓΑ.' : 'Πλησίασε αναμμένο πυρσό ή πύρινο πυλώνα και πάτησε ΦΛΟΓΑ.'}</p>`) : '')
+      + (callbacks.fireEnabled ? section('Φλόγα', `<p>${s.fireCharged ? 'Η φλόγα είναι έτοιμη. Σήκωσε ξύλο για να το ανάψεις ή πλησίασέ το και πάτησε ΑΝΑΨΕ κάτω από τον χαρακτήρα.' : 'Πλησίασε αναμμένο πυρσό ή πύρινο πυλώνα και πάτησε ΦΩΤΙΑ κάτω από τον χαρακτήρα.'}</p>`) : '')
       + section('Αυτή η προσπάθεια', `<p>${formatNumber(s.shards)} θραύσματα · ${formatNumber(s.kills)} εχθροί · ${clock(s.time)}</p>`)
-      + section('Ρίψη', '<p>Κράτησε αντικείμενο ή ευάλωτο εχθρό και σύρε. Το σημάδι δείχνει τον στόχο. Άφησε το δάχτυλο για ρίψη· το γρήγορο σύρσιμο αυξάνει την ισχύ. ΑΦΗΣΕ για άφημα χωρίς ρίψη.</p>'));
+      + section('Ρίψη', '<p>Κράτησε αντικείμενο ή ευάλωτο εχθρό και σύρε. Το σημάδι δείχνει τον στόχο. Άφησε το δάχτυλο για ρίψη· το γρήγορο σύρσιμο αυξάνει την ισχύ. Για ασπίδα, σύρε γρήγορα προς τον μάγο στο κινητό ή κράτησε δεξί κλικ στον υπολογιστή.</p>'));
     el['modal-panel'].className = 'panel status-panel';
   }
 
@@ -373,20 +373,32 @@ export function createUI(callbacks = {}) {
   }
 
   function update(state = {}) {
+    if(Boolean(latestState.hearth?.occupied)!==Boolean(state.hearth?.occupied))clearInput();
     latestState = state;
-    const summary = state.hearth?.occupied ? `HEARTH · Καρδιά ${Math.ceil(state.hearth.fuel)}%`
+    const summary = state.hearth?.occupied ? `HEARTH · Καρδιά ${state.hearth.endless?"∞":Math.ceil(state.hearth.fuel)+"%"}`
       : state.ritualPhase === 'charge' ? `Goliath · Σύνδεση ${Math.ceil(number(state.ritualProgress) * 100)}%`
       : state.ritualPhase === 'assemble' ? `Goliath · Συναρμολόγηση ${number(state.assembled)}/7`
       : state.goliathHP > 0 ? `Goliath · ${Math.ceil(state.goliathHP)} ζωή · ${Math.ceil(state.goliathTime)}s`
       : state.relic ? 'Επιστροφή στην πύλη' : (state.objective || 'Φύλακες 0/4').split(' · ')[0];
     text('status-summary', summary);
     const mounted = Boolean(state.hearth?.occupied);
+    text('movement-mode',mounted?'HEARTH':'ΜΑΓΟΣ');text('movement-action',mounted?'ΒΑΔΙΣΜΑ · W A S D':'ΚΙΝΗΣΗ · W A S D');
+    text('mouse-left-label',mounted?'Κράτησε φλογοβόλο':'Πιάσε · σύρε · άφησε');
+    text('mouse-right-label',mounted?'Πάτημα εδάφους':'Κράτησε ασπίδα');
+    el['mouse-left'].classList.toggle('pressed',mouseFire||!!dragPointer);
+    el['mouse-right'].classList.toggle('pressed',!!(mouseButtons&2));
+    for(const kbd of host.querySelectorAll('.wasd kbd'))kbd.classList.toggle('pressed',keys.has('Key'+kbd.textContent));
+    if(pulseMounted!==mounted){pulseMounted=mounted;
+      for(const b of actionGroups.pulse){b.querySelector('.ability-name').textContent=mounted?'ΠΑΤΗΜΑ':b.closest('.desktop-controls')?'ΩΣΤΙΚΟ ΚΥΜΑ':'ΚΥΜΑ';b.querySelector('.ability-disc svg').innerHTML=PATHS[mounted?'stomp':'pulse'];const key=b.querySelector('.ability-key');if(key)key.textContent=mounted?'F / RMB':'F';b.setAttribute('aria-label',mounted?'Πάτημα εδάφους, δεξί κλικ ή F':'Ωστικό κύμα, F');}
+      for(const b of actionGroups.conjure){b.querySelector('.ability-name').textContent=mounted?'ΠΥΡ':'ΠΕΤΡΑ';b.querySelector('.ability-disc svg').innerHTML=PATHS[mounted?'fire':'stone'];const key=b.querySelector('.ability-key');if(key)key.textContent=mounted?'R / LMB':'R';}
+      for(const b of actionGroups.dash){b.querySelector('.ability-name').textContent=mounted?'ΕΞΟΔΟΣ':b.closest('.desktop-controls')?'ΕΦΟΡΜΗΣΗ':'ΕΦΟΔΟΣ';b.querySelector('.ability-disc svg').innerHTML=PATHS[mounted?'portal':'dash'];const key=b.querySelector('.ability-key');if(key)key.textContent=mounted?'E':'SPACE';b.setAttribute('aria-label',mounted?'Έξοδος από τη μηχανή, E':'Εφόρμηση, Space');}
+    }
     el['game-hud'].classList.toggle('is-mounted', mounted);
     const fireControl = host.querySelector('.fire-sample-control');
     if (fireControl) fireControl.classList.toggle('mobile-unavailable', mounted || !state.fireAvailable);
     const hearthActions = host.querySelector('.hearth-actions');
-    if (hearthActions) hearthActions.classList.toggle('mobile-unavailable', !mounted);
-    if(callbacks.hearth&&state.hearth){const h=state.hearth;const labels={sleep:'Κοιμάται · κρύα καρδιά',waking:'Ξυπνά…',ready:'Έτοιμη για είσοδο',boarding:'Είσοδος από τη σκάλα',piloted:'Οδηγείς τη στολή',exiting:'Έξοδος από τη σκάλα',depleting:'Η καρδιά άδειασε'};text('hearth-state',labels[h.state]+(h.occupied?'':' · '+h.roomLabel));text('hearth-charge',state.fireCharged?'Αποθηκευμένη φλόγα · E στην καρδιά':`Καρδιά ${Math.ceil(h.fuel)}%`);el['hearth-fill'].style.width=h.fuel+'%';el['hearth-meter'].setAttribute('aria-valuenow',String(Math.round(h.fuel)));el['hearth-status'].hidden=false;for(const b of byAction('fire'))b.disabled=!state.fireAvailable;for(const b of byAction('flamethrower'))b.disabled=h.state!=='piloted'||state.holding;for(const b of actionGroups.dash)b.disabled=h.occupied;}
+    if (hearthActions) {hearthActions.hidden=true;}
+    if(callbacks.hearth&&state.hearth){const h=state.hearth;const labels={sleep:'Κοιμάται · κρύα καρδιά',waking:'Ξυπνά…',ready:'Έτοιμη για είσοδο',boarding:'Είσοδος από τη σκάλα',piloted:'Οδηγείς τη στολή',exiting:'Έξοδος από τη σκάλα',depleting:'Η καρδιά άδειασε'};text('hearth-state',labels[h.state]+(h.occupied?'':' · '+h.roomLabel));text('hearth-charge',state.fireCharged?'Αποθηκευμένη φλόγα · E στην καρδιά':`Καρδιά ${h.endless&&h.fuel>0?"∞":Math.ceil(h.fuel)+"%"}`);el['hearth-fill'].style.width=h.fuel+'%';el['hearth-meter'].setAttribute('aria-valuenow',String(Math.round(h.fuel)));el['hearth-meter'].setAttribute('aria-valuetext',h.endless&&h.fuel>0?'Απεριόριστη ενέργεια':Math.round(h.fuel)+'%');el['hearth-status'].hidden=false;for(const b of byAction('fire'))b.disabled=!state.fireAvailable;for(const b of byAction('flamethrower'))b.disabled=h.state!=='piloted'||state.holding;for(const b of actionGroups.dash)b.disabled=h.occupied&&h.state!=='piloted';for(const b of actionGroups.pulse)b.disabled=h.occupied&&h.state!=='piloted';}
     if (state.hp !== undefined) {
       const hp = Math.max(0, number(state.hp)); const maxHp = Math.max(1, number(state.maxHp, 100));
       el['health-fill'].style.width = `${Math.min(1, hp / maxHp) * 100}%`;
@@ -415,7 +427,8 @@ export function createUI(callbacks = {}) {
     holdingObject = holding;
     el['held-state'].hidden = !holding && !target;
     el['held-state'].classList.toggle('target', !holding);
-    text('held-text', holding ? `${state.heldName || 'Στα χέρια σου'} · ${dragging ? 'άφησε για ρίψη' : 'πάτησέ το και σύρε'}` : (target ? `${target} · πάτησε και κράτησε` : ''));
+    el['held-state'].classList.toggle('is-shielding',!!state.shielding);
+    text('held-text', holding ? state.shielding ? (state.heldName || 'ΑΣΠΙΔΑ') : `${state.heldName || 'Στα χέρια σου'} · ${dragging ? 'άφησε για ρίψη' : 'πάτησέ το και σύρε'}` : (target ? `${target} · πάτησε και κράτησε` : ''));
     for (const button of actionGroups.drop) {
       button.disabled = !holding;
       button.setAttribute('aria-label', 'Άφησε το αντικείμενο χωρίς ρίψη');
@@ -426,10 +439,10 @@ export function createUI(callbacks = {}) {
       text('fire-status',state.fireCharged?'Φωτιά έτοιμη':state.fireAvailable?'Πάρε φωτιά':'Πλησίασε πυρσό / πυλώνα');
     }
     for (const button of actionGroups.conjure) {
-      button.disabled = holding && number(state.stones)<7;
-      button.setAttribute('aria-label', 'Πέτρα: έως 10. Με 7 κοντινές πέτρες κράτησε για Goliath.');
+      button.disabled = mounted?state.hearth.state!=='piloted':holding && number(state.stones)<7;
+      button.setAttribute('aria-label', mounted?'Κράτησε για φλογοβόλο, αριστερό κλικ ή R':'Πέτρα: έως 10. Με 7 κοντινές πέτρες κράτησε για Goliath.');
     }
-    for (const [action, cooldown] of [['pulse', state.pulseCooldown], ['dash', state.dashCooldown]]) {
+    for (const [action, cooldown] of [['pulse', mounted?state.hearth?.stompCooldown:state.pulseCooldown], ['dash', state.dashCooldown]]) {
       const remaining = Math.max(0, number(cooldown));
       for (const button of actionGroups[action]) {
         button.classList.toggle('cooling', remaining > .05);
@@ -447,9 +460,9 @@ export function createUI(callbacks = {}) {
       ? dragging || !(state.nearHearth || mounted || state.nearRelic || state.nearExit || number(state.time) < 6)
       : !customHint && !tutorialVisible && !dragging;
     text('context-main', customHint || (dragging ? 'Σύρε το αντικείμενο · Άφησε για ρίψη' : 'Πάτησε πάνω στο αντικείμενο · Σύρε · Άφησε για ρίψη'));
-    text('context-sub', customHint&&!dragging ? '' : (dragging ? `Στόχευσε το σημάδι · Δύναμη ${Math.round(number(state.throwPower))} · Γρήγορο σύρσιμο για ισχυρότερη ρίψη.` : (touchMode ? 'Κίνηση με τον αριστερό μοχλό. Η μαγεία ακολουθεί το άλλο δάχτυλο.' : 'W A S D: κίνηση · Q: άφημα χωρίς ρίψη · R: δημιούργησε πέτρα')));
+    text('context-sub', customHint&&!dragging ? '' : (dragging ? `Στόχευσε το σημάδι · Δύναμη ${Math.round(number(state.throwPower))} · Γρήγορο σύρσιμο για ισχυρότερη ρίψη.` : (touchMode ? 'Κίνηση με τον αριστερό μοχλό. Η μαγεία ακολουθεί το άλλο δάχτυλο.' : 'W A S D: κίνηση · δεξί κλικ: ασπίδα · R: δημιούργησε πέτρα')));
     el['context-sub'].hidden = touchMode || Boolean(customHint)&&!dragging;
-    if (touchMode && holding) text('held-text', `${state.heldName || 'Αντικείμενο'} · στόχευσε το σημάδι · άφησε`);
+    if (touchMode && holding && !state.shielding) text('held-text', `${state.heldName || 'Αντικείμενο'} · στόχευσε το σημάδι · άφησε`);
     const bossVisible = state.bossHP !== undefined && number(state.bossMaxHP) > 0 && number(state.bossHP) > 0;
     text('stone-count', `${number(state.stones)} / 10 πέτρες`);
     text('goliath-state', state.ritualPhase==='charge'?'Κράτησε · '+Math.ceil(number(state.ritualProgress)*100)+'%':state.ritualPhase==='assemble'?'Συναρμολόγηση · '+number(state.assembled)+' / 7':state.goliathHP>0?'Goliath · '+Math.ceil(state.goliathHP)+' ΖΩΗ · '+Math.ceil(state.goliathTime)+'s':number(state.readyStones)>=7?'Κράτησε R / ΠΕΤΡΑ για 2s → Goliath':number(state.readyStones)+' / 7 κοντινές πέτρες');
@@ -461,7 +474,7 @@ export function createUI(callbacks = {}) {
     el['boss-track'].hidden = !bossVisible;
     if (bossVisible) { el['boss-fill'].style.width = `${Math.max(0, Math.min(1, number(state.bossHP) / number(state.bossMaxHP))) * 100}%`; if (state.bossName) text('boss-name', state.bossName); }
     if (state.quality !== undefined && state.quality !== quality) setQuality(state.quality);
-    const shielding = keys.has('ShiftLeft') || keys.has('ShiftRight') || mouseShield || touchShield;
+    const shielding = mouseShield || touchShield;
     for (const button of actionGroups.shield) button.classList.toggle('is-held', shielding);
   }
 
@@ -469,6 +482,7 @@ export function createUI(callbacks = {}) {
     if (!message) return;
     const value = String(message), now = performance.now();
     const priority = ['error', 'danger'].includes(type) ? 3 : ['gold', 'success'].includes(type) ? 2 : 1;
+    if(touchMode&&phase==='playing'&&priority===1)return;
     if (touchMode) {
       if (latestState.holding && priority === 1) return;
       if (now - (recentToasts.get(value) ?? -Infinity) < 5000) return;
@@ -490,7 +504,7 @@ export function createUI(callbacks = {}) {
     let x = move.x + (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) - (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0);
     let z = move.y + (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) - (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0);
     const length = Math.hypot(x, z); if (length > 1) { x /= length; z /= length; }
-    return { moveX: x, moveZ: z, aimX: 0, aimY: 0, aimActive: false, pointerX, pointerY, pointerActive, firing:touchFire||keys.has('KeyV'),shielding: keys.has('ShiftLeft') || keys.has('ShiftRight') || mouseShield || touchShield };
+    return { moveX: x, moveZ: z, aimX: 0, aimY: 0, aimActive: false, pointerX, pointerY, pointerActive, firing:mouseFire||touchFire||keys.has('KeyV')||(latestState.hearth?.state==='piloted'&&keys.has('KeyR')),shielding:!latestState.hearth?.occupied&&(mouseShield||touchShield),shieldLatched:touchShield };
   }
 
   function consumeActions() { return actions.splice(0); }
@@ -540,18 +554,19 @@ export function createUI(callbacks = {}) {
       listen(button, 'pointerup', release); listen(button, 'pointercancel', release); listen(button, 'lostpointercapture', release);
       listen(button, 'click', prevent);
     } else if(action==='conjure') {
-      listen(button,'pointerdown',event=>{if(event.button!==0||!live()||button.disabled||conjurePointer)return;prevent(event);conjurePointer={node:button,id:event.pointerId};button.setPointerCapture(event.pointerId);button.classList.add('is-held');invoke('onConjureStart');});
-      const release=event=>{if(conjurePointer?.id!==event.pointerId)return;const current=conjurePointer;conjurePointer=null;button.classList.remove('is-held');invoke(event.type==='pointerup'?'onConjureEnd':'onConjureCancel');if(button.hasPointerCapture?.(current.id))button.releasePointerCapture(current.id);};
+      listen(button,'pointerdown',event=>{if(event.button!==0||!live()||button.disabled||conjurePointer)return;prevent(event);conjurePointer={node:button,id:event.pointerId,mounted:!!latestState.hearth?.occupied};button.setPointerCapture(event.pointerId);button.classList.add('is-held');if(conjurePointer.mounted)touchFire=true;else invoke('onConjureStart');});
+      const release=event=>{if(conjurePointer?.id!==event.pointerId)return;const current=conjurePointer;conjurePointer=null;button.classList.remove('is-held');if(current.mounted)touchFire=false;else invoke(event.type==='pointerup'?'onConjureEnd':'onConjureCancel');if(button.hasPointerCapture?.(current.id))button.releasePointerCapture(current.id);};
       listen(button,'pointerup',release);listen(button,'pointercancel',release);listen(button,'lostpointercapture',release);
-      listen(button,'click',event=>{prevent(event);if(event.detail===0&&!button.disabled){invoke('onConjureStart');invoke('onConjureEnd');}});
+      listen(button,'click',event=>{prevent(event);if(event.detail===0&&!button.disabled&&!latestState.hearth?.occupied){invoke('onConjureStart');invoke('onConjureEnd');}});
     } else {
-      listen(button, 'pointerdown', (event) => { if (event.button !== 0 || !live() || button.disabled) return; prevent(event); queueAction(action); });
-      listen(button, 'click', (event) => { prevent(event); if (event.detail === 0 && !button.disabled) queueAction(action); });
+      const mapped=()=>action==='dash'&&latestState.hearth?.occupied?'context':action;
+      listen(button, 'pointerdown', (event) => { if (event.button !== 0 || !live() || button.disabled) return; prevent(event); queueAction(mapped()); });
+      listen(button, 'click', (event) => { prevent(event); if (event.detail === 0 && !button.disabled) queueAction(mapped()); });
     }
   }
 
   const editable = (target) => target?.closest?.('input, textarea, select, [contenteditable="true"]');
-  const gameKeys = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyQ', 'KeyR', 'KeyF', 'KeyE', 'Space', 'ShiftLeft', 'ShiftRight', 'Escape', 'KeyP','Digit1','Digit2','KeyV',...(callbacks.fireEnabled?['KeyC']:[])]);
+  const gameKeys = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyR', 'KeyF', 'KeyE', 'Space', 'Escape', 'KeyP','Digit1','Digit2','KeyV',...(callbacks.fireEnabled?['KeyC']:[])]);
   listen(window, 'keydown', (event) => {
     if (editable(event.target) || event.metaKey || event.ctrlKey || event.altKey) return;
     if(event.code==='KeyI'&&!event.repeat&&loaded){prevent(event);if(modal==='inventory')hideModal();else if(!modal)invoke('onInventory');return;}
@@ -577,18 +592,27 @@ export function createUI(callbacks = {}) {
     if (!live() || !gameKeys.has(event.code)) return;
     event.preventDefault(); keys.add(event.code);
     if (!event.repeat) {
-      if(event.code==='KeyR')invoke('onConjureStart');
-      const action = { KeyQ: 'drop', KeyF: 'pulse', KeyE: 'interact', Space: 'dash',KeyC:'fire',Digit1:'healthPotion',Digit2:'manaPotion' }[event.code];
-      if (action) queueAction(action);
+      if(event.code==='KeyR'&&!latestState.hearth?.occupied)invoke('onConjureStart');
+      const action = { KeyF: 'pulse', KeyE: 'context', Space: 'dash',KeyC:'contextFire',Digit1:'healthPotion',Digit2:'manaPotion' }[event.code];
+      if (action&&!(event.code==='Space'&&latestState.hearth?.occupied)) queueAction(action);
     }
   });
-  listen(window, 'keyup', (event) => { keys.delete(event.code);if(event.code==='KeyR'&&live())invoke('onConjureEnd'); if (live() && gameKeys.has(event.code) && !editable(event.target)) event.preventDefault(); });
+  listen(window, 'keyup', (event) => { keys.delete(event.code);if(event.code==='KeyR'&&live()&&!latestState.hearth?.occupied)invoke('onConjureEnd'); if (live() && gameKeys.has(event.code) && !editable(event.target)) event.preventDefault(); });
   listen(window, 'blur', () => { clearInput(); if (phase === 'playing') requestPause(); });
   listen(document, 'visibilitychange', () => { if (document.hidden) { clearInput(); if (phase === 'playing') requestPause(); } });
   listen(window, 'resize', clearInput);
 
+  function mouseState(event){
+    const binding=engineMouse(event.buttons,mouseButtons,latestState.hearth?.state==='piloted');
+    mouseButtons=event.buttons;mouseFire=binding.fire;mouseShield=binding.shield;
+    if(binding.stomp)queueAction('pulse');
+  }
   listen(canvas, 'pointermove', (event) => {
     if (!live()) return;
+    if(event.pointerType==='mouse'){
+      mouseState(event);
+      if(dragPointer&&!(event.buttons&1)){endDrag(event);return;}
+    }
     const tracked = dragPointer || aimPointer;
     if (tracked) {
       if (event.pointerId !== tracked.pointerId) return;
@@ -603,6 +627,10 @@ export function createUI(callbacks = {}) {
   });
   listen(canvas, 'pointerdown', (event) => {
     if (!live()) return;
+    if(event.pointerType==='mouse'){
+      mouseState(event);
+      if(latestState.hearth?.occupied){prevent(event);setPointer(dragInfo(event));enginePointer=event.pointerId;canvas.setPointerCapture(event.pointerId);return;}
+    }
     if (event.button === 2 && event.pointerType === 'mouse') {
       prevent(event); mouseShield = true;
       return;
@@ -635,10 +663,10 @@ export function createUI(callbacks = {}) {
     releaseDragCapture(info);
   };
   listen(canvas, 'pointerup', endDrag);
-  listen(window, 'pointerup', (event) => { if (event.button === 2) mouseShield = false; endDrag(event); });
+  listen(window, 'pointerup', (event) => { if(event.pointerType==='mouse')mouseState(event);endDrag(event); });
   listen(canvas, 'pointercancel', cancelPointer);
-  listen(canvas, 'lostpointercapture', cancelPointer);
-  listen(window, 'pointercancel', (event) => { if (event.pointerType === 'mouse') mouseShield = false; cancelPointer(event); });
+  listen(canvas, 'lostpointercapture', event=>{if(enginePointer===event.pointerId){enginePointer=null;mouseButtons=0;mouseFire=mouseShield=false;}cancelPointer(event);});
+  listen(window, 'pointercancel', (event) => { if (event.pointerType === 'mouse'){mouseShield=mouseFire=false;mouseButtons=0;}cancelPointer(event); });
   listen(canvas, 'pointerleave', () => { if (!dragPointer && !aimPointer) pointerActive = false; });
   listen(canvas, 'contextmenu', (event) => event.preventDefault());
 
@@ -651,6 +679,7 @@ export function createUI(callbacks = {}) {
   for (const id of ['menu-help', 'pause-help']) listen(el[id], 'click', () => { showHelp(); invoke('onHelp'); });
   for (const id of ['menu-upgrades', 'result-upgrades']) listen(el[id], 'click', requestUpgrades);
   listen(el['hud-pause'], 'click', requestPause);
+  listen(contextUse,'click',()=>queueAction('context'));
   for(const id of ['hud-inventory','menu-inventory'])listen(el[id],'click',()=>invoke('onInventory'));
   for(const button of host.querySelectorAll('[data-potion]'))listen(button,'click',()=>{if(live())invoke('onPotion',button.dataset.potion);});
   listen(el['resume-button'], 'click', requestResume);
@@ -678,6 +707,7 @@ export function createUI(callbacks = {}) {
   }
 
   updateProfile(profile); update({ hp: 100, maxHp: 100, mana: 100, maxMana: 100, time: 0 });
-  return { setLoading, ready, showMenu, start, update, toast, showPause, showResult, showUpgrades, showInventory, showStatus, updateThrowMark, hideModal, setMuted, getInput, consumeActions, destroy, showError, showHelp, setQuality,
+  function updateContext(value){contextUse.hidden=!value||phase!=='playing';if(!value)return;contextUse.style.left=value.x+'px';contextUse.style.top=value.y+'px';contextUse.disabled=!value.enabled;if(contextUse.dataset.icon!==value.icon){contextUse.querySelector('.icon').outerHTML=icon(value.icon);contextUse.dataset.icon=value.icon;}if(contextUse.getAttribute('aria-label')!==value.label){contextUse.setAttribute('aria-label',value.label);contextUse.querySelector('span').textContent=value.label;}}
+  return { setLoading, ready, showMenu, start, update, toast, showPause, showResult, showUpgrades, showInventory, showStatus, updateThrowMark, hideModal, setMuted, getInput, consumeActions, destroy, showError, showHelp, setQuality,updateContext,setShieldMode:value=>{touchShield=!!value;},
     updatePotions:counts=>{text('health-potions',counts.health);text('mana-potions',counts.mana);el['quick-health'].disabled=!counts.health;el['quick-mana'].disabled=!counts.mana;el['quick-health'].classList.toggle('mobile-unavailable',!counts.health);el['quick-mana'].classList.toggle('mobile-unavailable',!counts.mana);} };
 }

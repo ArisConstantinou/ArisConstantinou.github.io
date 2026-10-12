@@ -71,7 +71,7 @@ function createSimulation({phase='playing'}={}) {
     phase,held:null,mobile:false,runTime:0,shake:0,kills:0,combo:0,comboUntil:0,player:{gear:{damage:0,armor:0}},
     save:{profile:{upgrades:{}}},
     fx:{burst:noop,number:(position,amount)=>damageNumbers.push({time:context.runTime,amount,position:[position.x,position.y,position.z]})},
-    sound:{sound:noop},ui:{toast:noop},
+    sound:{sound:noop},ui:{toast:noop,setShieldMode:noop},
     spawnPickup:(position,value)=>rewards.push({time:context.runTime,value}),spawnLoot:noop,
     endRun:(won,reason)=>ends.push({won,reason}),
     clamp,distance,lineClear,impactDamage,propSelfDamage,knockbackXZ,nav,relicTaken:true,enemyAttack:()=>{},

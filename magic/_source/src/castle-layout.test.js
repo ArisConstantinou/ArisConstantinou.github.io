@@ -22,6 +22,18 @@ test('all main rooms and three 3x4 loot alcoves are reachable on the actual coll
  }
  world.dispose();
 });
+test('all fourteen main rooms remain connected with full HEARTH arm clearance',()=>{
+ const world=createWorld(new THREE.Scene()),nav=new NavigationGrid(world.floors,world.colliders,.35,1.65);
+ for(const r of world.rooms.filter(r=>r.id!=='bridge')){
+  const point=nav.point(nav.nearest(r.x+r.w/2,r.z+r.d/2));assert.ok(nav.path(world.spawn,point).length,r.id+' engine route');
+ }
+ world.dispose();
+});
+test('crypt side approaches leave room for the engine instead of meeting sarcophagi',()=>{
+ const world=createWorld(new THREE.Scene()),nav=new NavigationGrid(world.floors,world.colliders,.35,1.65);
+ for(const side of [-1,1])for(let x=3.6;x<=12;x+=.1)assert.ok(nav.isFree(x*side,-20.625),'crypt approach '+side+' '+x);
+ assert.equal(world.colliders.filter(o=>o.tag==='sarcophagus').length,2);world.dispose();
+});
 test('spatial batches preserve individual wood scorch/reset colors and arch occlusion',()=>{
  const world=createWorld(new THREE.Scene());assert.ok(world.occluders.length>=4);
  const matrix=new THREE.Matrix4(),point=new THREE.Vector3();

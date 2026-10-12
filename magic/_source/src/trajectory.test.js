@@ -151,7 +151,7 @@ test('enemy side prediction matches the actual game impact and hurt callbacks',(
   const context={phase:'playing',FIRE_ENABLED:false,hearth:{mounted:false,throw:()=>true},held:null,runTime:0,player:{gear:{damage:0}},save:{profile:{upgrades:{}}},impactDamage,propSelfDamage,knockbackXZ,
     fx:{burst:noop,number:noop,connect:noop},sound:{sound:noop},shake:0,clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),
     physics:world,heldLight:{intensity:0},castTime:0,drag:null,
-    distance:(a,b)=>Math.hypot(a.x-b.x,a.z-b.z),spawnPickup:noop,spawnLoot:noop,kills:0,combo:0,comboUntil:0,ui:{toast:noop},mobile:false};
+    distance:(a,b)=>Math.hypot(a.x-b.x,a.z-b.z),spawnPickup:noop,spawnLoot:noop,kills:0,combo:0,comboUntil:0,ui:{toast:noop,setShieldMode:noop},mobile:false};
   vm.createContext(context);vm.runInContext(main.slice(main.indexOf('function impact('),main.indexOf('function spawnPickup(')),context);
   let touched=false;shot.addEventListener('collide',event=>{context.impact(shot.entity,event);if(event.body===enemy)touched=true;});
   vm.runInContext(main.slice(main.indexOf('function releaseHeld('),main.indexOf('function updateHeld(')),context);

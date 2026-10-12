@@ -1,5 +1,7 @@
+import flamethrowerUrl from './assets/hearth-flamethrower.mp3?url';
+
 export class MagicAudio {
-  constructor(muted=false){this.muted=muted;this.ctx=null;this.master=null;this.ambient=null;}
+  constructor(muted=false){this.muted=muted;this.ctx=null;this.master=null;this.ambient=null;this.flameWanted=false;this.flameBuffer=null;this.flameLoading=null;this.flameVoice=null;this.flameStopTimer=null;this.flamePlaying=false;this.flameError=null;}
   async start(){
     try{
       if(!this.ctx){
@@ -11,9 +13,37 @@ export class MagicAudio {
         for(const hz of [55,82.41,110.4]){const o=this.ctx.createOscillator();o.type='sine';o.frequency.value=hz;o.connect(ag);o.start();}
       }
       if(this.ctx.state==='suspended')await this.ctx.resume();
+      this.loadFlamethrower();
+      this.syncFlamethrower();
     }catch{}
   }
-  setMuted(value){this.muted=value;if(this.master)this.master.gain.setTargetAtTime(value?0:.24,this.ctx.currentTime,.08);}
+  loadFlamethrower(){
+    if(!this.ctx||this.flameLoading)return this.flameLoading;
+    this.flameLoading=fetch(flamethrowerUrl).then(response=>{if(!response.ok)throw new Error('Flamethrower audio '+response.status);return response.arrayBuffer();})
+      .then(data=>this.ctx.decodeAudioData(data)).then(buffer=>{this.flameBuffer=buffer;this.syncFlamethrower();})
+      .catch(error=>{this.flameError=error.message;console.warn(error);});
+    return this.flameLoading;
+  }
+  setFlamethrower(active){this.flameWanted=!!active;this.syncFlamethrower();}
+  syncFlamethrower(){
+    const active=this.flameWanted&&!this.muted&&this.ctx?.state==='running'&&!!this.flameBuffer;
+    if(active===this.flamePlaying)return;
+    this.flamePlaying=active;
+    if(!this.ctx)return;
+    const t=this.ctx.currentTime;
+    if(active){
+      if(this.flameStopTimer){clearTimeout(this.flameStopTimer);this.flameStopTimer=null;}
+      if(!this.flameVoice){
+        const source=this.ctx.createBufferSource(),gain=this.ctx.createGain();source.buffer=this.flameBuffer;source.loop=true;gain.gain.value=0;
+        source.connect(gain);gain.connect(this.master);source.start();this.flameVoice={source,gain};
+      }
+      const g=this.flameVoice.gain.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(.85,t+.045);
+    }else if(this.flameVoice){
+      const voice=this.flameVoice,g=voice.gain.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(0,t+.065);
+      this.flameStopTimer=setTimeout(()=>{voice.source.stop();voice.source.disconnect();voice.gain.disconnect();if(this.flameVoice===voice)this.flameVoice=null;this.flameStopTimer=null;},85);
+    }
+  }
+  setMuted(value){this.muted=value;if(this.master)this.master.gain.setTargetAtTime(value?0:.24,this.ctx.currentTime,.08);this.syncFlamethrower();}
   sound(type){
     if(!this.ctx||this.muted)return;
     const ctx=this.ctx,t=ctx.currentTime;
