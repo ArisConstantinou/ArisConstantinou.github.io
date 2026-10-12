@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { existingRooms, newRooms, corridors } from './castle-layout.js';
+import { existingRooms, newRooms, corridors, secretAreas, layoutScale } from './castle-layout.js';
 import { castleBoundaries } from './castle-boundaries.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
@@ -183,15 +183,24 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   };
 
   function add(key, geometry, material, transform, color) {
-    if (!batches.has(key)) batches.set(key, { geometry, material, matrices: [], colors: [] });
-    const batch = batches.get(key);
+    if(positionScale!==1){transform=transform.clone();transform.elements[12]*=positionScale;transform.elements[14]*=positionScale;}
+    // Keep the original geometry/materials, but give each nearby group its own
+    // bounds. One castle-wide instance bound used to submit every stone to
+    // both the camera and shadow pass, even several rooms away.
+    const cell = `${Math.floor(transform.elements[12] / 12)},${Math.floor(transform.elements[14] / 12)}`;
+    const castShadow=!/distant|contact|inlay|candle/.test(key),receiveShadow=!/distant|contact|candle/.test(key);
+    const occluder=key.startsWith('arch-')&&key!=='arch-crown';
+    const batchKey = `${geometry.id}:${material.id}:${+castShadow}${+receiveShadow}${+occluder}@${cell}`;
+    if (!batches.has(batchKey)) batches.set(batchKey, { key, castShadow, receiveShadow, occluder, geometry, material, matrices: [], colors: [] });
+    const batch = batches.get(batchKey);
     batch.matrices.push(transform);
     batch.colors.push(color === undefined ? null : new THREE.Color(color));
+    return { key: batchKey, index: batch.matrices.length - 1 };
   }
 
   function box(x, y, z, w, h, d, color = 0x69717a, mat = 'masonry', ry = 0, key = mat) {
-    add(key, geo.block, materials[mat], matrixAt(x, y, z, w, h, d, 0, ry), color);
-    if(mat==='darkWood')woodenSurfaces.push({id:`wood-${woodenSurfaces.length}`,key,index:batches.get(key).matrices.length-1,position:new THREE.Vector3(x,y,z),ext:new THREE.Vector3(w/2,h/2,d/2),flammable:true,woodFraction:1,baseColor:new THREE.Color(color),rotation:ry});
+    const instance=add(key, geo.block, materials[mat], matrixAt(x, y, z, w, h, d, 0, ry), color);
+    if(mat==='darkWood')woodenSurfaces.push({id:`wood-${woodenSurfaces.length}`,...instance,position:new THREE.Vector3(x*positionScale,y,z*positionScale),ext:new THREE.Vector3(w/2,h/2,d/2),flammable:true,woodFraction:1,baseColor:new THREE.Color(color),rotation:ry});
   }
 
   function cylinder(x, y, z, radius, height, color = 0x899099, mat = 'cutStone', key = `${mat}-cylinder`) {
@@ -199,7 +208,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   }
 
   function collider(x, y, z, w, h, d, tag) {
-    colliders.push({ x, y, z, w, h, d, tag });
+    colliders.push({ x:x*positionScale, y, z:z*positionScale, w, h, d, tag });
   }
 
   function shade(base, spread = 0.13) {
@@ -228,12 +237,12 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     }
   }
 
-  floor(-12, 12, 4, 20, 0x53616c, 'courtyard');
-  floor(-10, 10, -10, 4, 0x63616c, 'hall');
-  floor(-7, 7, -23, -10, 0x45475b, 'crypt');
-  floor(-2.7, 2.7, 20, 27, 0x636a73, 'bridge');
+  let positionScale=1;
+  for(const r of existingRooms)floor(r.x,r.x+r.w,r.z,r.z+r.d,({courtyard:0x53616c,hall:0x63616c,crypt:0x45475b,bridge:0x636a73})[r.id],r.id);
   for(const r of newRooms)floor(r.x,r.x+r.w,r.z,r.z+r.d,r.boss?0x555166:0x53616c,r.id);
   for(const r of corridors)floor(r.x,r.x+r.w,r.z,r.z+r.d,0x56636d,'bridge');
+  for(const r of secretAreas)floor(r.x,r.x+r.w,r.z,r.z+r.d,0x45475b,r.id);
+  positionScale=layoutScale;
 
   // Deep, layered foundations make the castle feel built into a cliff.
   for (const side of [-1, 1]) {
@@ -249,7 +258,8 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   }
 
   // A wall has an unbroken physical core and individually dressed stones.
-  function wall(x, z, length, height, alongX, { low = false, tag = 'wall', thickness = 0.8, crenels = false } = {}) {
+  function wall(x,z,length,...rest){const s=positionScale;return atLayoutPoint(wallShape,x,z,[length*s,...rest]);}
+  function wallShape(x, z, length, height, alongX, { low = false, tag = 'wall', thickness = 0.8, crenels = false } = {}) {
     const actualH = low ? Math.min(height, 1.08) : height;
     collider(x, actualH / 2, z, alongX ? length : thickness, actualH, alongX ? thickness : length, tag);
     box(x, actualH / 2 - 0.025, z, alongX ? length : thickness - 0.06, actualH, alongX ? thickness - 0.06 : length, 0x333d49, 'base');
@@ -278,7 +288,8 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     }
   }
 
-  const boundary=castleBoundaries([...existingRooms,...newRooms,...corridors]);
+  positionScale=1;
+  const boundary=castleBoundaries([...existingRooms,...newRooms,...corridors,...secretAreas]);
   for(const edge of boundary){
     const alongX=edge.axis==='x',mid=(edge.lo+edge.hi)/2,at=edge.at+edge.normal*.4;
     const bridge=edge.room==='bridge',courtyard=edge.room==='courtyard';
@@ -287,12 +298,25 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     wall(alongX?mid:at,alongX?at:mid,edge.hi-edge.lo,height,alongX,
       {low,crenels:courtyard&&!low,tag:'wall'});
   }
+  // Narrow, offset alcoves sit behind the room's furniture and wall returns.
+  for(const r of secretAreas){
+    const opening=1.65,span=r.axis==='z'?r.d:r.w,section=(span-opening)/2;
+    for(const sign of [-1,1]){
+      const offset=sign*(opening/2+section/2);
+      wall(r.entrance.x+(r.axis==='x'?offset:0),r.entrance.z+(r.axis==='z'?offset:0),section,3.65,r.axis==='x');
+    }
+    prop(r.axis==='x'?'urn':'crate',r.axis==='z'?r.x+1:r.x+.5,r.axis==='z'?r.z+.7:r.z+.65,.1);
+    cylinder(r.loot.x,.15,r.loot.z,.42,.3,0x827753,'bronze');
+  }
+  positionScale=layoutScale;
   for (const side of [-1, 1]) {
     wall(side * 7.3, 4, 9.4, 1.2, true, { low: true, tag: 'courtyard-screen' });
     wall(side * 6.3, -10, 7.4, 1.1, true, { low: true, tag: 'hall-screen' });
   }
 
-  function buttress(x, z, ry) {
+  function atLayoutPoint(fn,x,z,args){const previous=positionScale;positionScale=1;try{return fn(x*previous,z*previous,...args);}finally{positionScale=previous;}}
+  function buttress(x,z,...rest){return atLayoutPoint(buttressShape,x,z,rest);}
+  function buttressShape(x, z, ry) {
     box(x, 0.32, z, 1.5, 0.64, 1.35, 0x48535f, 'masonry', ry);
     box(x, 1.48, z, 1.02, 2.0, 1.05, 0x66717d, 'masonry', ry);
     box(x, 2.58, z, 1.15, 0.2, 1.2, 0x89919b, 'cutStone', ry);
@@ -305,7 +329,8 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     for (const z of [-21.8, -16, -11.3]) buttress(side * 7.8, z, 0);
   }
 
-  function pillar(x, z, height = 3.7, radius = 0.38, physical = true) {
+  function pillar(x,z,...rest){return atLayoutPoint(pillarShape,x,z,rest);}
+  function pillarShape(x, z, height = 3.7, radius = 0.38, physical = true) {
     if (physical) collider(x, height / 2, z, radius * 2 + 0.45, height, radius * 2 + 0.45, 'pillar');
     box(x, 0.12, z, radius * 2 + 0.48, 0.24, radius * 2 + 0.48, 0x727c88, 'cutStone');
     cylinder(x, 0.32, z, radius + 0.16, 0.18, 0x808b97);
@@ -325,7 +350,8 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   for (const x of [-9.15, 9.15]) pillar(x, 6.5, 3.45, 0.35);
 
   const archKeys = [];
-  function pointedArch(x, z, span, spring, rise, key, { physical = true, scale = 1 } = {}) {
+  function pointedArch(x,z,...rest){return atLayoutPoint(archShape,x,z,rest);}
+  function archShape(x, z, span, spring, rise, key, { physical = true, scale = 1 } = {}) {
     const a = span / 2;
     const radius = (a * a + rise * rise) / (2 * a);
     const cx = a - radius;
@@ -426,7 +452,8 @@ export function createWorld(scene,{fireEnabled=true}={}) {
 
   const torchPositions = [];
   const torches = [];
-  function torch(x, z, y = 2.5, facing = 0, large = false, infinite = false) {
+  function torch(x,z,...rest){return atLayoutPoint(torchShape,x,z,rest);}
+  function torchShape(x, z, y = 2.5, facing = 0, large = false, infinite = false) {
     const forward = new THREE.Vector3(0, 0, 1).applyAxisAngle(Y_AXIS, facing);
     const s = large ? 1.45 : 1;
     box(x - forward.x * 0.16, y - 0.41, z - forward.z * 0.16, 0.17 * s, 0.65 * s, 0.16 * s, 0x28343e, 'metal', facing);
@@ -463,6 +490,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     add('pylon-runes',geo.torus,materials.flameCore,matrixAt(x,1.2,z,.29,.29,.29,PI/2));
   }
 
+  positionScale=1;
   for(const room of newRooms){
     const cx=room.x+room.w/2,cz=room.z+room.d/2;
     for(const s of [-1,1]){
@@ -491,6 +519,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     // Vault line and dressed buttresses reuse the existing castle materials.
     for(const s of [-1,1])buttress(room.x+s*.1+(s>0?room.w:0),room.z+room.d-1,0);
   }
+  positionScale=layoutScale;
   const flames = new THREE.InstancedMesh(geo.orb, materials.flame, torchPositions.length);
   const cores = new THREE.InstancedMesh(geo.orb, materials.flameCore, torchPositions.length);
   flames.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -522,7 +551,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   for (const [r, width] of [[3.7, 0.04], [3.55, 0.03], [0.72, 0.045]]) {
     const g = new THREE.RingGeometry(r - width, r, 64);
     g.rotateX(-PI / 2);
-    g.translate(0, 0.019, 11.7);
+    g.translate(0, 0.019, 11.7*layoutScale);
     mosaicGeo.push(g);
   }
   const mosaicMat = new THREE.MeshStandardMaterial({ color: 0x9b8c62, metalness: 0.6, roughness: 0.78, side: THREE.DoubleSide });
@@ -536,7 +565,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
 
   const relic = new THREE.Group();
   relic.name = 'The Obsidian Sceptre';
-  relic.position.set(0, 0, -19);
+  relic.position.set(0, 0, -19*layoutScale);
   root.add(relic);
   collider(0, 0.4, -19, 1.85, 0.8, 1.85, 'relic-pedestal');
   const plinthMat = materials.cutStone.clone();
@@ -580,7 +609,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   sceptre.add(gemGlow);
 
   const ritual = new THREE.Group();
-  ritual.position.set(0, 0.045, -19);
+  ritual.position.set(0, 0.045, -19*layoutScale);
   ritual.name = 'The ward beneath the relic';
   root.add(ritual);
   const ringParts = [];
@@ -617,7 +646,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
 
   const exit = new THREE.Group();
   exit.name = 'The escape rift';
-  exit.position.set(0, 0, 23);
+  exit.position.set(0, 0, 23*layoutScale);
   root.add(exit);
   const exitMat = new THREE.MeshStandardMaterial({ color: 0x65747c, emissive: 0x3cdccc, emissiveIntensity: 0.18, metalness: 0.72, roughness: 0.32 });
   const exitRing = new THREE.Mesh(new THREE.TorusGeometry(1.58, 0.09, 8, 64), exitMat);
@@ -654,7 +683,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
 
   function prop(kind, x, z, rotation = 0) {
     const spec = PROP_SPECS[kind];
-    props.push({ kind, x, y: spec.h / 2 + 0.025, z, rotation, mass: spec.mass, w: spec.w, h: spec.h, d: spec.d });
+    props.push({ kind, x:x*positionScale, y: spec.h / 2 + 0.025, z:z*positionScale, rotation, mass: spec.mass, w: spec.w, h: spec.h, d: spec.d });
   }
   // The first six objects are deliberately within reach of the opening skirmish.
   prop('crate', -3.8, 17.0, 0.14);
@@ -684,17 +713,18 @@ export function createWorld(scene,{fireEnabled=true}={}) {
 
   for (const [key, batch] of batches) {
     const mesh = new THREE.InstancedMesh(batch.geometry, batch.material, batch.matrices.length);
-    mesh.name = key;
+    mesh.name = `${batch.key}@${key.split('@').at(-1)}`;
     for (let i = 0; i < batch.matrices.length; i++) {
       mesh.setMatrixAt(i, batch.matrices[i]);
       if (batch.colors[i]) mesh.setColorAt(i, batch.colors[i]);
     }
-    mesh.castShadow = !/distant|contact|inlay|candle/.test(key);
-    mesh.receiveShadow = !/distant|contact|candle/.test(key);
+    mesh.castShadow = batch.castShadow;
+    mesh.receiveShadow = batch.receiveShadow;
     mesh.computeBoundingSphere();
     root.add(mesh);
+    mesh.updateMatrixWorld(true);mesh.matrixAutoUpdate=false;mesh.matrixWorldAutoUpdate=false;
     for(const wood of woodenSurfaces)if(wood.key===key)wood.mesh=mesh;
-    if (archKeys.includes(key)) {
+    if (batch.occluder) {
       mesh.userData.occluder = true;
       occluders.push(mesh);
     }
@@ -798,18 +828,13 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     resetWood(){for(const wood of woodenSurfaces){wood.burnUntil=0;wood.burnLastTime=undefined;wood.woodFuel=1;wood.woodExhausted=false;wood.mesh.setColorAt(wood.index,wood.baseColor);wood.mesh.instanceColor.needsUpdate=true;}},
     scorchWood(wood){wood.mesh.setColorAt(wood.index,wood.baseColor.clone().lerp(new THREE.Color(0x171311),1-(wood.woodFuel??1)));wood.mesh.instanceColor.needsUpdate=true;},
     rooms:[...existingRooms,...newRooms],
-    doorways:[{x:0,z:20,rooms:['bridge','courtyard']},{x:0,z:4,rooms:['courtyard','hall']},{x:0,z:-10,rooms:['hall','crypt']},
+    secrets:secretAreas,
+    doorways:[{x:0,z:20*layoutScale,rooms:['bridge','courtyard']},{x:0,z:4*layoutScale,rooms:['courtyard','hall']},{x:0,z:-10*layoutScale,rooms:['hall','crypt']},
       ...corridors.map(c=>({x:c.x+c.w/2,z:c.z+c.d/2,rooms:[c.from,c.to]}))],
-    spawn: new THREE.Vector3(0, 0, 18),
+    spawn: new THREE.Vector3(0, 0, 18*layoutScale),
     relic,
     exit,
-    zones: [
-      ...newRooms.map(r=>({name:r.id,label:r.label,xMin:r.x,xMax:r.x+r.w,zMin:r.z,zMax:r.z+r.d})),
-      { name: 'courtyard', label: 'Η Αυλή των Φρουρών', xMin: -12, xMax: 12, zMin: 4, zMax: 20 },
-      { name: 'hall', label: 'Η Αίθουσα των Όρκων', xMin: -10, xMax: 10, zMin: -10, zMax: 4 },
-      { name: 'crypt', label: 'Η Κρύπτη του Μαύρου Σκήπτρου', xMin: -7, xMax: 7, zMin: -23, zMax: -10 },
-      { name: 'bridge', label: 'Η Γέφυρα της Διαφυγής', xMin: -2.7, xMax: 2.7, zMin: 20, zMax: 27 },
-    ],
+    zones: [...secretAreas.map(r=>({...r,secret:true})),...existingRooms,...newRooms].map(r=>({name:r.id,label:r.label,secret:!!r.secret,xMin:r.x,xMax:r.x+r.w,zMin:r.z,zMax:r.z+r.d})),
     occluders,
     update,
     setAlarm,

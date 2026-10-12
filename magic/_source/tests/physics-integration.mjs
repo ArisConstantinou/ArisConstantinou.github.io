@@ -9,12 +9,17 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import crypto from 'node:crypto';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { createWorld, createPropMesh } from '../src/world.js';
 import { ballisticVelocity, clamp, distance, lineClear, NavigationGrid, ProfileStore } from '../src/systems.js';
 import { impactDamage, propSelfDamage, knockbackXZ } from '../src/impact-rules.js';
 import {bodyguardTarget,freePosition,ENEMY_LIMIT,CHANNEL_DURATION,CHANNEL_COOLDOWN,MINION_LIMIT} from '../src/goliath.js';
+import {layoutScale} from '../src/castle-layout.js';
+import {enemySpawnAllowed} from '../src/spawn-rules.js';
+import {fastCollisionTracking,CastleBroadphase} from '../src/physics-config.js';
 
 const main = fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
 const impactSource = main.slice(main.indexOf('function impact('), main.indexOf('function hurt('));
@@ -40,12 +45,13 @@ const report = {
     method:'Production main.js impact() and hurt() executed unchanged through node:vm. Rendering, sound, toast and reward-pickup visual effects were stubbed. Cannon shapes, gravity, broadphase, solver, damping, throw velocity and angular velocity match main.js. Contact materials match main.js: actor/solid and actor/actor friction 0; solid/solid friction .55. No browser, geometry-budget or rendering checks are performed.',
     limitations:'This is headless physics and geometry verification. It does not exercise browser input, actual WebGL rendering, sound output or animated character appearance. Stationary-target cases suppress AI motion deliberately; the separate moving-target case applies a guard-speed approach.',
   },
-  failures:[], navigation:[], spawns:{}, seamMovement:[], containment:[], throws:[], physicalPursuit:[],
+  failures:[], navigation:[], spawns:{}, seamMovement:[], secretTraversals:[], containment:[], throws:[], physicalPursuit:[],
 };
 
 function createSimulation({phase='playing'}={}) {
   const physics = new CANNON.World({gravity:new CANNON.Vec3(0,-20,0),allowSleep:true});
-  physics.broadphase = new CANNON.SAPBroadphase(physics);
+  fastCollisionTracking(physics);
+  physics.broadphase = new CastleBroadphase(physics);
   physics.solver.iterations = 8;
   physics.defaultContactMaterial.friction=.55;
   physics.defaultContactMaterial.restitution=.15;
@@ -60,7 +66,7 @@ function createSimulation({phase='playing'}={}) {
   const ends=[];
   const noop=()=>{};
   const context={FIRE_ENABLED:false,hearth:{mounted:false,interact:()=>false,throw:()=>true},
-    goliath:null,bodyguardTarget,freePosition,ENEMY_LIMIT,CHANNEL_DURATION,CHANNEL_COOLDOWN,MINION_LIMIT,rooms:map.rooms,
+    goliath:null,bodyguardTarget,freePosition,enemySpawnAllowed,ENEMY_LIMIT,CHANNEL_DURATION,CHANNEL_COOLDOWN,MINION_LIMIT,rooms:map.rooms,
     reinforcements:[],enteredRooms:new Set(['crypt']),cancelRitual:()=>{},
     phase,held:null,mobile:false,runTime:0,shake:0,kills:0,combo:0,comboUntil:0,player:{gear:{damage:0,armor:0}},
     save:{profile:{upgrades:{}}},
@@ -101,7 +107,7 @@ function createSimulation({phase='playing'}={}) {
   function actor(kind,x,z,isPlayer=false) {
     const scale=kind==='boss'?1.3:1;
     const cy=.88*scale,r=.43*scale,s=stats[kind];
-    const body=new CANNON.Body({mass:s.mass,material:actorMaterial,position:new CANNON.Vec3(x,cy+.08,z),linearDamping:.3,angularDamping:.7,fixedRotation:true,allowSleep:false});
+    const body=new CANNON.Body({mass:s.mass,material:actorMaterial,position:new CANNON.Vec3(x,cy+.08,z),linearDamping:.3,angularDamping:.7,fixedRotation:true,allowSleep:!isPlayer,sleepSpeedLimit:.1,sleepTimeLimit:1.2});
     body.addShape(new CANNON.Sphere(r),new CANNON.Vec3(0,-.43*scale,0));
     body.addShape(new CANNON.Sphere(r*.92),new CANNON.Vec3(0,.32*scale,0));
     body.collisionFilterGroup=isPlayer?GROUP.PLAYER:GROUP.ENEMY;
@@ -181,16 +187,16 @@ for(const [name,a,b] of [
 
 // Traversal uses the same two-sphere player shape, floor boxes and 120 Hz substeps.
 for(const [name,start,end] of [
-  ['infiltration',{x:0,z:18},{x:0,z:-16.5}],
-  ['escape',{x:0,z:-16.5},{x:0,z:23}],
-  ['courtyard-to-bridge-left-gap',{x:-1.0,z:18.5},{x:-1.0,z:25}],
+  ['infiltration',{x:0,z:map.spawn.z},{x:0,z:map.relic.position.z+3}],
+  ['escape',{x:0,z:map.relic.position.z+3},{x:0,z:map.exit.position.z}],
+  ['courtyard-to-bridge-left-gap',{x:-1.0,z:18.5*layoutScale},{x:-1.0,z:25*layoutScale}],
 ]) {
   const sim=createSimulation({phase:'loading'});
   const e=sim.actor('mage',start.x,start.z,true);sim.settle(.45);
   const dir=Math.sign(end.z-start.z);
   let frames=0,minY=Infinity,maxY=-Infinity;
   const seamSamples=[];
-  for(;frames<720;frames++) {
+  for(;frames<900;frames++) {
     if(dir*(e.body.position.z-end.z)>=0)break;
     sim.frame(1/60,()=>{
       const factor=Math.min(1,(1/60)*19);
@@ -198,18 +204,35 @@ for(const [name,start,end] of [
       e.body.velocity.z+=(dir*5-e.body.velocity.z)*factor;
     });
     minY=Math.min(minY,e.body.position.y);maxY=Math.max(maxY,e.body.position.y);
-    if([4,-10,20].some(z=>Math.abs(e.body.position.z-z)<.18))seamSamples.push(e.body.position.toArray().map(n=>+n.toFixed(4)));
+    if([4,-10,20].some(z=>Math.abs(e.body.position.z-z*layoutScale)<.18))seamSamples.push(e.body.position.toArray().map(n=>+n.toFixed(4)));
   }
-  const result={name,passed:frames<720,seconds:+(frames/60).toFixed(3),end:e.body.position.toArray().map(n=>+n.toFixed(4)),minBodyY:+minY.toFixed(5),maxBodyY:+maxY.toFixed(5),seamSamples};
+  const result={name,passed:frames<900,seconds:+(frames/60).toFixed(3),end:e.body.position.toArray().map(n=>+n.toFixed(4)),minBodyY:+minY.toFixed(5),maxBodyY:+maxY.toFixed(5),seamSamples};
   report.seamMovement.push(result);
   if(!result.passed||minY<.78||maxY>1.05)report.failures.push(`Threshold traversal failed or snagged: ${name}`);
 }
 
+// Walk into each alcove with the production player shape and dynamic clutter.
+for(const secret of map.secrets){
+  const sim=createSimulation({phase:'loading'}),parent=map.rooms.find(r=>r.id===secret.parent);
+  const start=nav.point(nav.nearest(parent.x+parent.w/2,parent.z+parent.d/2));
+  const e=sim.actor('mage',start.x,start.z,true);
+  for(const d of map.props)sim.prop(d.kind,d.x,d.z,d);
+  sim.settle(.45);const path=nav.path(start,secret.loot);let frames=0,minY=Infinity;
+  for(;frames<1200&&distance(e.body.position,secret.loot)>.45;frames++){
+    while(path.length>1&&distance(e.body.position,path[0])<.35)path.shift();
+    const to=path[0]||secret.loot,d=distance(e.body.position,to)||1,speed=Math.min(5,d*6);
+    sim.frame(1/60,()=>{const k=19/60;e.body.velocity.x+=((to.x-e.body.position.x)/d*speed-e.body.velocity.x)*k;e.body.velocity.z+=((to.z-e.body.position.z)/d*speed-e.body.velocity.z)*k;});
+    minY=Math.min(minY,e.body.position.y);
+  }
+  const passed=frames<1200&&minY>.75;report.secretTraversals.push({id:secret.id,passed,seconds:frames/60,minY,remaining:distance(e.body.position,secret.loot),position:e.body.position.toArray(),waypoints:path,contacts:sim.physics.contacts.filter(c=>c.bi===e.body||c.bj===e.body).map(c=>({other:(c.bi===e.body?c.bj:c.bi).worldTag||(c.bi===e.body?c.bj:c.bi).entity?.kind}))});
+  if(!passed)report.failures.push('Physical secret entry failed: '+secret.id);
+}
+
 for(const [name,start,velocity,inside] of [
-  ['courtyard-east-wall',{x:10.5,z:12},{x:6,z:0},p=>p.x<=11.59],
-  ['bridge-east-parapet',{x:1.2,z:24.5},{x:6,z:0},p=>p.x<=2.29],
+  ['courtyard-east-wall',{x:10.5*layoutScale,z:12*layoutScale},{x:6,z:0},p=>p.x<=12*layoutScale-.4],
+  ['bridge-east-parapet',{x:1.2*layoutScale,z:24.5*layoutScale},{x:6,z:0},p=>p.x<=2.7*layoutScale-.4],
   // The centre is now the approved catacomb doorway; test the retained wall.
-  ['crypt-north-wall',{x:3.5,z:-21},{x:0,z:-6},p=>p.z>=-22.59],
+  ['crypt-north-wall',{x:3.5*layoutScale,z:-21*layoutScale},{x:0,z:-6},p=>p.z>=-23*layoutScale+.4],
 ]) {
   const sim=createSimulation({phase:'loading'}),e=sim.actor('mage',start.x,start.z,true);sim.settle(.4);
   for(let i=0;i<180;i++)sim.frame(1/60,()=>{e.body.velocity.x=velocity.x;e.body.velocity.z=velocity.z;});
@@ -284,7 +307,7 @@ throwCase('crate',4.7,26,{wall:true});
 {
   const sim=createSimulation();
   const ctx=sim.context;
-  const player=sim.actor('mage',0,-17,true);
+  const player=sim.actor('mage',0,map.relic.position.z+2.3,true);
   const boss=sim.actor('boss',0,-20.5);
   const storageData=new Map();
   const store=new ProfileStore({
@@ -301,7 +324,7 @@ throwCase('crate',4.7,26,{wall:true});
     player,boss,entities:sim.entities,actor:sim.actor,save:store,
     relicTaken:false,alarmTime:0,nextWave:0,runShards:0,runTime:125,phase:'playing',
     worldMap:{
-      floors:map.floors,doorways:map.doorways,
+      floors:map.floors,doorways:map.doorways,zones:map.zones,spawn:map.spawn,
       relic:map.relic,exit:map.exit,
       setRelicTaken:value=>{events.push(['relic',value]);map.setRelicTaken(value);},
       setAlarm:value=>{events.push(['alarm',value]);map.setAlarm(value);},
@@ -337,7 +360,12 @@ throwCase('crate',4.7,26,{wall:true});
   mission.relicRewardOnce=ctx.runShards===5&&sim.entities.length===5;
 
   // Returning to the portal resolves the run and persists exactly one victory.
-  player.body.position.set(0,.86,23);
+  player.body.position.set(map.spawn.x,.86,map.spawn.z);
+  const countBefore=sim.entities.length;ctx.reinforcements=[];ctx.spawnReinforcements();ctx.runTime+=2.6;ctx.updateReinforcements();
+  mission.safeCourtyardWave=ctx.reinforcements.length===0&&sim.entities.length===countBefore;
+  boss.body.position.set(0,boss.cy,15);boss.minions=new Set();ctx.finishChannel(boss);
+  mission.safeCourtyardSummon=boss.minions.size===0&&sim.entities.length===countBefore;
+  player.body.position.set(map.exit.position.x,.86,map.exit.position.z);
   ctx.runTime=160;
   ctx.missionInteract();
   const firstProfile=JSON.stringify(store.profile);
@@ -351,6 +379,7 @@ throwCase('crate',4.7,26,{wall:true});
     mission.livingBossDenied,mission.bossDeathRegistered,mission.stolen,
     mission.alarmEnabled,mission.relicVisualUpdated,mission.reinforcementsSpawned,
     mission.nextWaveScheduled,mission.relicRewardOnce,mission.won,mission.endRunIdempotent,
+    mission.safeCourtyardWave,mission.safeCourtyardSummon,
   ].every(Boolean);
   report.mission=mission;
   if(!mission.passed)report.failures.push('Production mission flow failed; inspect report.mission.');
@@ -359,7 +388,7 @@ throwCase('crate',4.7,26,{wall:true});
 report.summary={
   passed:report.failures.length===0,failures:report.failures.length,
   navigationCases:report.navigation.length,spawnActors:report.spawns.actors.length,
-  spawnProps:report.spawns.props.length,seamTraversals:report.seamMovement.length,
+  spawnProps:report.spawns.props.length,seamTraversals:report.seamMovement.length,secretTraversals:report.secretTraversals.length,
   wallContainmentCases:report.containment.length,physicalPursuitCases:report.physicalPursuit.length,
   ballisticCases:report.throws.length,successfulBallisticCases:report.throws.filter(x=>x.hit).length,
   missionFlowPassed:report.mission.passed,
@@ -367,9 +396,9 @@ report.summary={
 const outputArgument=process.argv.find(arg=>arg.startsWith('--report='));
 if(outputArgument){
   const outputPath=outputArgument.slice('--report='.length);
-  if(!outputPath.startsWith('/'))throw new Error('--report requires an absolute output path outside the repository.');
-  const repoRoot=new URL('..',import.meta.url).pathname;
-  if(outputPath.startsWith(repoRoot))throw new Error('Keep generated reports outside the source repository.');
+  if(!path.isAbsolute(outputPath))throw new Error('--report requires an absolute output path outside the source tree.');
+  const repoRoot=fileURLToPath(new URL('..',import.meta.url));
+  if(path.resolve(outputPath).toLowerCase().startsWith(repoRoot.toLowerCase()))throw new Error('Keep generated reports outside the source tree.');
   fs.writeFileSync(outputPath,JSON.stringify(report,null,2));
 }
 console.log(JSON.stringify({

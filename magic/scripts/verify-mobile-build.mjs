@@ -21,7 +21,7 @@ try {
   const page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));page.on('console',m=>{if(m.type()==='error')report.errors.push(m.text());});
   await page.goto(url);await page.waitForFunction(()=>window.__MAGIC__?.snapshot().phase==='menu');
   check(mode,'exact compiled version',await page.evaluate(v=>__MAGIC__.version===v,version));
-  if(touch)check(mode,'visible version label readable',await page.locator('#loading-label').evaluate(e=>e.textContent.includes('1.4.1')&&parseFloat(getComputedStyle(e).fontSize)>=12));
+  if(touch)check(mode,'visible version label readable',await page.locator('#loading-label').evaluate((e,v)=>e.textContent.includes(v)&&parseFloat(getComputedStyle(e).fontSize)>=12,version));
   await page.screenshot({path:path.join(output,mode+'-menu.png')});
   await page.locator('#start-button').click();await page.waitForTimeout(300);
   let normalSave='protected-normal-save';if(!localArtifact){await page.locator('#hud-mute').click();normalSave=await page.evaluate(()=>localStorage.getItem('magic-exiled-v1'));assert.ok(normalSave,'Create real public save in owned browser');}

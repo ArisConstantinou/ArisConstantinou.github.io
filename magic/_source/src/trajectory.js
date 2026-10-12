@@ -1,4 +1,5 @@
 import * as CANNON from 'cannon-es';
+import {fastCollisionTracking,CastleBroadphase} from './physics-config.js';
 import {impactDamage,propSelfDamage,knockbackXZ} from './impact-rules.js';
 import {igniteActor,consumeBurnDamage,consumeWoodDamage,spreadFire} from './fire.js';
 
@@ -17,7 +18,8 @@ export class ThrowTrajectory {
   constructor(source){
     this.source=source;
     this.world=new CANNON.World({gravity:source.gravity.clone(),allowSleep:true});
-    this.world.broadphase=new CANNON.SAPBroadphase(this.world);
+    fastCollisionTracking(this.world);
+    this.world.broadphase=new CastleBroadphase(this.world);
     this.world.solver.iterations=source.solver.iterations;
     Object.assign(this.world.defaultContactMaterial,{
       friction:source.defaultContactMaterial.friction,
@@ -169,6 +171,8 @@ export function captureTrajectoryWorld(world,heldBody=null,time=0){
 export class TrajectorySnapshotWorld{
   constructor(snapshot){
     this.world=new CANNON.World({gravity:new CANNON.Vec3(snapshot.gravity.x,snapshot.gravity.y,snapshot.gravity.z),allowSleep:true});
+    fastCollisionTracking(this.world);
+    this.world.broadphase=new CastleBroadphase(this.world);
     this.world.solver.iterations=snapshot.iterations;
     Object.assign(this.world.defaultContactMaterial,snapshot.defaultContact);
     this.materials=new Map(snapshot.materials.map(m=>[m.id,new CANNON.Material({name:m.name,friction:m.friction,restitution:m.restitution})]));

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import {HearthHeart,HEARTH,placeHearth,flameHits} from './hearth-rules.js';
+import {hearthSpawnRooms} from './spawn-rules.js';
 import {createHearth} from './hearth-character.js';
 import {igniteActor,igniteWood,consumeBurnDamage} from './fire.js';
 import {poseHearthPilot} from './hearth-pilot.js';
@@ -10,7 +11,7 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
  const p3=new THREE.Vector3(),q=new THREE.Quaternion();
  const footprintClear=(p,r)=>nav.isFree(p.x,p.z)&&worldMap.colliders.every(o=>Math.abs(p.x-o.x)>o.w/2+r+.1||Math.abs(p.z-o.z)>o.d/2+r+.1)&&getEntities().every(e=>e.removed||Math.hypot(p.x-e.body.position.x,p.z-e.body.position.z)>r+e.radius+.2);
  function reset(){
-  dispose();const location=placeHearth(Math.random,footprintClear,previousRoom,worldMap.zones.filter(r=>r.name!=='bridge'));previousRoom=location.room.name;
+  dispose();const location=placeHearth(Math.random,footprintClear,previousRoom,hearthSpawnRooms(worldMap.zones,worldMap.spawn));previousRoom=location.room.name;
   const visual=createHearth(),heart=new HearthHeart();scene.add(visual.group);
   const body=new CANNON.Body({mass:0,material,position:new CANNON.Vec3(location.x,1.24,location.z),fixedRotation:true,allowSleep:false,linearDamping:.3});
   body.addShape(new CANNON.Sphere(1.22));body.addShape(new CANNON.Sphere(.94),new CANNON.Vec3(0,1.6,0));

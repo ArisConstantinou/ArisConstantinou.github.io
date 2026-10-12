@@ -16,6 +16,8 @@ import { clamp, distance, lineClear, pointSegmentDistance, NavigationGrid, Profi
 import { PointerMotion, gestureThrowVelocity, clampDragPoint, constrainDragPoint } from './drag.js';
 import { aimedThrowVelocity, floorThrowTarget } from './throw-aim.js';
 import {equipmentStats,isPotion,rollLoot,TIERS,itemName} from './loot.js';
+import {enemySpawnAllowed} from './spawn-rules.js';
+import {fastCollisionTracking,CastleBroadphase} from './physics-config.js';
 import {createLootVisual} from './loot-visuals.js';
 import {pathAroundProps} from './goliath-navigation.js';
 import { captureTrajectoryWorld, TRAJECTORY_STEPS } from './trajectory.js';
@@ -198,7 +200,10 @@ function staticBox(box,isFloor=false){
 }
 function setupPhysics(){
   physics=new CANNON.World({gravity:new CANNON.Vec3(0,-20,0),allowSleep:true});
-  physics.broadphase=new CANNON.SAPBroadphase(physics);physics.solver.iterations=8;
+  // Cannon's sparse matrix tracks actual contacts, avoiding an O(bodies²)
+  // array clear at every 120 Hz step. Contact events and the solver are unchanged.
+  fastCollisionTracking(physics);
+  physics.broadphase=new CastleBroadphase(physics);physics.solver.iterations=8;
   physics.defaultContactMaterial.friction=.55;physics.defaultContactMaterial.restitution=.15;
   actorMaterial=new CANNON.Material('actor');solidMaterial=new CANNON.Material('solid');
   // Upright characters are driven by velocity; floor friction must not cancel every step.
@@ -231,7 +236,7 @@ function actor(kind,x,z,isPlayer=false,bossType=null,room=null){
     heavy:{hp:135,speed:1.65,mass:9,label:'Σιδερόφρακτος'},boss:{hp:330,speed:1.55,mass:13,label:'Ο Δεσμοφύλακας'}}[kind];
   const hp=stats.hp+(isPlayer?25*(save.profile.upgrades.vitality||0):0);
   const cy=definition?.cy||.88*scale,r=definition?.radius||.43*scale;
-  const body=new CANNON.Body({mass:stats.mass,material:actorMaterial,position:new CANNON.Vec3(x,cy+.08,z),linearDamping:.3,angularDamping:.7,fixedRotation:true,allowSleep:false});
+  const body=new CANNON.Body({mass:stats.mass,material:actorMaterial,position:new CANNON.Vec3(x,cy+.08,z),linearDamping:.3,angularDamping:.7,fixedRotation:true,allowSleep:!isPlayer,sleepSpeedLimit:.1,sleepTimeLimit:1.2});
   body.addShape(new CANNON.Sphere(r),new CANNON.Vec3(0,definition?r-cy:-.43*scale,0));
   body.addShape(new CANNON.Sphere(r*.92),new CANNON.Vec3(0,definition ? .65 : .32*scale,0));
   if(definition)body.addShape(new CANNON.Sphere(.34),new CANNON.Vec3(0,definition.height-cy-.45,0));
@@ -304,7 +309,7 @@ function populate(){
     const spots=roomSpawnPoints(room);
     for(let i=0;i<room.enemies;i++){const p=spots[i];if(!p)throw new Error('No safe spawn in '+room.id);const free=hearth.propPosition(p,.5);const e=actor(i%4===2?'archer':i%5===4?'heavy':'guard',free.x,free.z);e.room=room.id;}
     if(room.boss){
-      const p=room.id==='crypt'?{x:0,z:-20.5}:spots[room.enemies];
+      const p=room.id==='crypt'?{x:0,z:room.z+2.5}:spots[room.enemies];
       const bounds={name:room.id,xMin:room.x+.7,xMax:room.x+room.w-.7,zMin:room.z+.7,zMax:room.z+room.d-.7};
       const type=bossTypes[bossIndex++],preferred=hearth.propPosition(p,.9);
       const free=freePosition(preferred,.9,worldMap.floors,nav.obstacles,entities,4.2,at=>insideBossRoom(at,bounds,1)&&distance(at,hearth.engine.body.position)>2.8);
@@ -314,7 +319,8 @@ function populate(){
       bosses.push(e);if(room.id==='crypt')boss=e;
     }
   }
-  aimPoint.set(0,.8,10);aimDirection.set(0,0,-1);targetRing.visible=false;heldLight.intensity=0;
+  for(const secret of worldMap.secrets){const mesh=createLootVisual(secret.item);mesh.position.set(secret.loot.x,0,secret.loot.z);scene.add(mesh);lootDrops.push({item:{...secret.item},mesh,age:0,nextHint:0,secret:secret.id});}
+  aimPoint.set(player.body.position.x,.8,player.body.position.z-8);aimDirection.set(0,0,-1);targetRing.visible=false;heldLight.intensity=0;
   // Settle dynamic props before input begins. No simulation timers advance here.
   for(let i=0;i<35;i++)physics.step(1/120);
   syncVisuals(0);
@@ -717,11 +723,11 @@ function absorbFire(){
 }
 function spawnReinforcements(){
   const room=rooms.find(r=>player.body.position.x>=r.x&&player.body.position.x<=r.x+r.w&&player.body.position.z>=r.z&&player.body.position.z<=r.z+r.d);
-  if(!room||livingEnemies()+reinforcements.length>=ENEMY_LIMIT)return;
+  if(!room||room.id==='courtyard'||room.id==='bridge'||livingEnemies()+reinforcements.length>=ENEMY_LIMIT)return;
   const doors=worldMap.doorways.filter(d=>d.rooms.includes(room.id));
   let added=0;
   for(const door of doors.slice(0,3)){
-    const p=freePosition(door,.65,worldMap.floors,nav.obstacles,entities,2.4);
+    const p=freePosition(door,.65,worldMap.floors,nav.obstacles,entities,2.4,at=>enemySpawnAllowed(at,worldMap.zones,worldMap.spawn));
     if(!p||distance(p,player.body.position)<3.5||reinforcements.some(w=>distance(w,p)<2))continue;
     reinforcements.push({...p,at:runTime+2.5,room:room.id});added++;fx.ring({x:p.x,y:.05,z:p.z},0xe4a37e,1,2.5);
   }
@@ -733,7 +739,7 @@ function updateReinforcements(){
   if(room&&!enteredRooms.has(room.id)){enteredRooms.add(room.id);if(room.id!=='courtyard'&&room.id!=='bridge')spawnReinforcements();}
   for(let i=reinforcements.length-1;i>=0;i--){const w=reinforcements[i];if(runTime<w.at)continue;reinforcements.splice(i,1);
     if(livingEnemies()>=ENEMY_LIMIT)continue;
-    const p=freePosition(w,.65,worldMap.floors,nav.obstacles,entities,1.2);
+    const p=freePosition(w,.65,worldMap.floors,nav.obstacles,entities,1.2,at=>enemySpawnAllowed(at,worldMap.zones,worldMap.spawn));
     if(!p||distance(p,player.body.position)<2.5)continue;
     const e=actor(i%3===1?'archer':'guard',p.x,p.z);e.aggro=true;e.room=w.room;fx.burst(e.body.position,0xe2a47d,20,2);
   }
@@ -751,7 +757,7 @@ function finishChannel(e){
   const count=Math.min(3,MINION_LIMIT-e.minions.size,ENEMY_LIMIT-livingEnemies());
   for(let i=0;i<count;i++){
     const a=i*Math.PI*2/3,origin={x:e.body.position.x+Math.sin(a)*2.6,z:e.body.position.z+Math.cos(a)*2.6};
-    const p=freePosition(origin,.65,worldMap.floors,nav.obstacles,entities,4.2,at=>distance(at,player.body.position)>=2&&visibleLine(e.body.position,at,.5));if(!p)continue;
+    const p=freePosition(origin,.65,worldMap.floors,nav.obstacles,entities,4.2,at=>enemySpawnAllowed(at,worldMap.zones,worldMap.spawn)&&distance(at,player.body.position)>=2&&visibleLine(e.body.position,at,.5));if(!p)continue;
     const m=actor(['guard','archer','heavy'][i],p.x,p.z);m.aggro=true;m.room=e.room;m.summoner=e;e.minions.add(m);
     fx.ring(m.body.position,0xc192ed,1.6,.8);fx.burst(m.body.position,0xc192ed,28,3);
   }
@@ -847,6 +853,7 @@ function hurt(e,amount,origin,isBurn=false){
     fx.burst(e.body.position,0xff9d85,14,2);
   }else{
     fx.number(e.body.position,Math.round(amount));
+    e.body.wakeUp();
     e.aggro=true;e.stun=Math.max(e.stun,.28);e.windup=0;
     e.hitFlash=.1;
     if(e.bossType&&!isBurn){e.bossAttack=null;e.bossTime=0;e.attackCooldown=Math.max(e.attackCooldown,1.2);if(amount>=35){e.stun=Math.max(e.stun,.65);e.guardBreak=Math.max(e.guardBreak,1.6);}}
@@ -963,6 +970,7 @@ function updateBossEnemy(e,dt){
   const sameRoom=insideBossRoom(pp,e.room),d=distance(p,pp),sight=visibleLine(p,pp,.12);
   e.aggro=sameRoom&&d<12;
   if(!sameRoom){interruptChannel(e);e.bossAttack=null;e.bossClip='Idle';e.windup=0;e.body.velocity.x*=.8;e.body.velocity.z*=.8;return;}
+  e.body.wakeUp();
   e.channelCooldown=Math.max(0,e.channelCooldown-dt);
   if(e.channel>0){
     e.channel+=dt;e.body.velocity.x=e.body.velocity.z=0;e.bossClip='Idle';
@@ -1014,6 +1022,7 @@ function updateEnemy(e,dt){
   const pp=victim.body.position,p=e.body.position,d=distance(p,pp),sight=visibleLine(p,pp,.12);
   if(d<10.5&&sight||relicTaken)e.aggro=true;
   if(!e.aggro){e.body.velocity.x*=.8;e.body.velocity.z*=.8;return;}
+  e.body.wakeUp();
   if(e.kind==='boss'){
     if(e.channel>0){e.channel+=dt;e.body.velocity.x=e.body.velocity.z=0;
       e.channelRing.position.set(p.x,.07,p.z);e.channelRing.scale.setScalar(.8+.4*e.channel/CHANNEL_DURATION);e.channelRing.rotation.z+=dt;
@@ -1124,6 +1133,9 @@ function syncVisuals(dt){
     else{e.mesh.position.set(p.x,p.y-e.cy,p.z);e.mesh.rotation.set(0,e.yaw,0);}
     const speed=Math.hypot(e.body.velocity.x,e.body.velocity.z);
     e.mesh.visible=e.isPlayer||e.ally||e===held||distance(e.body.position,player.body.position)<29;
+    // Invisible rigs still had every bone's world matrix traversed by Three.
+    // Attach them again before they become visible; physics and AI stay live.
+    if(e.mesh.visible){if(e.mesh.parent!==scene)scene.add(e.mesh);}else if(e.mesh.parent===scene)scene.remove(e.mesh);
     if(e.ally){
       e.gait=e.creature.animate(dt,{attack:e.strikeTime,attackSide:e.strikeSide,protecting:e.protecting});
       if(e.dead){const t=clamp((runTime-e.deathTime)/1.2,0,1);for(const part of e.creature.parts.values()){part.root.position.y*=1-t;part.root.position.x*=1+t*.4;part.root.rotation.z+=t*.45;}}
@@ -1355,7 +1367,7 @@ async function boot(){
     ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
     window.__MAGIC__={version:packageInfo.version,snapshot:()=>({hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
       kills,relicTaken,holding:held?.label||null,dragging:!!drag,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
-      pathToRelic:nav.path({x:0,z:18},{x:0,z:-16}).length,profile:{runs:save.profile.runs,wins:save.profile.wins},time:runTime,candidate,
+      pathToRelic:nav.path(worldMap.spawn,{x:worldMap.relic.position.x,z:worldMap.relic.position.z+3}).length,profile:{runs:save.profile.runs,wins:save.profile.wins},time:runTime,candidate,
       inventory:{items:save.profile.loot.items.map(i=>({...i})),equipped:{...save.profile.loot.equipped},shards:save.profile.shards,storage:save.available},gear:player?.gear,
       loot:lootDrops.filter(d=>d.mesh.visible).map(d=>({kind:d.item.kind,level:d.item.level,position:{x:d.mesh.position.x,z:d.mesh.position.z}})),
       stones:activeStones(entities).map(e=>({id:e.body.id,mesh:e.assemblyRestore?assemblyCreature?.parts.get(e.assemblyRestore.part).mesh.uuid:e.mesh.children[0]?.uuid,reserved:!!e.reserved,position:{x:e.body.position.x,y:e.body.position.y,z:e.body.position.z}})),
@@ -1371,7 +1383,7 @@ async function boot(){
     if(FIRE_ENABLED&&FIRE_BENCHMARK)window.__FIRE_BENCHMARK__=enabled=>{fireFX.setEnabled(enabled);renderer.info.autoReset=false;};
     window.advanceTime=ms=>{controlledUntil=performance.now()+1000;const steps=Math.max(1,Math.ceil(ms/(1000/60)));for(let i=0;i<steps;i++)frame(lastTime+ms/steps,true);lastTime=performance.now();};
     if(!candidate&&!import.meta.env.DEV&&'serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});
-    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,get time(){return runTime;},pause:togglePause,step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);syncVisuals(dt);hearth.sync(dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
+    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get nav(){return nav;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,get time(){return runTime;},pause:togglePause,step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);syncVisuals(dt);hearth.sync(dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
   }catch(error){showError(error);}
 }
 boot();

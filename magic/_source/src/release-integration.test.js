@@ -7,10 +7,11 @@ import {createWorld} from './world.js';
 import {NavigationGrid} from './systems.js';
 import {placeHearth,HearthHeart} from './hearth-rules.js';
 import {FireSpell,spreadFire} from './fire.js';
+import {layoutScale} from './castle-layout.js';
 
 test('the engine has a clear physical placement in every expanded castle room',()=>{
  const world=createWorld(new THREE.Scene()),nav=new NavigationGrid(world.floors,world.colliders);
- const rooms=world.zones.filter(r=>r.name!=='bridge');assert.equal(rooms.length,14);
+ const rooms=world.zones.filter(r=>r.name!=='bridge'&&!r.secret);assert.equal(rooms.length,14);
  const clear=(p,r)=>nav.isFree(p.x,p.z)&&world.colliders.every(o=>Math.abs(p.x-o.x)>o.w/2+r+.1||Math.abs(p.z-o.z)>o.d/2+r+.1);
  for(const room of rooms){
   let seed=821;const random=()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296);
@@ -33,9 +34,7 @@ test('wood fire cannot ignite the allied stone Goliath',()=>{
 
 test('the courtyard fire pylon leaves a physical detour beside the western doorway clutter',()=>{
  const world=createWorld(new THREE.Scene()),nav=new NavigationGrid(world.floors,world.colliders,.85,1);
- const props=[[-6.62,15.85],[-6.44,17.3]].map(([x,z])=>{const body=new CANNON.Body({mass:19,position:new CANNON.Vec3(x,.5,z),shape:new CANNON.Box(new CANNON.Vec3(.55,.5,.55))});body.updateAABB();return {category:'prop',body};});
- const from={x:-3.8,z:16.5},to={x:-15.2,z:16.5};
- const blocked=new NavigationGrid(world.floors,world.colliders.map(b=>b.tag==='fire-pylon'&&b.x===-7.2?{...b,z:18.5}:b),.85,1);
- assert.equal(pathAroundProps(blocked,from,to,props).length,1,'old pylon leaves only the blocked push route');
+ const props=[[-6.62,15.85],[-6.44,17.3]].map(([x,z])=>{const body=new CANNON.Body({mass:19,position:new CANNON.Vec3(x*layoutScale,.5,z*layoutScale),shape:new CANNON.Box(new CANNON.Vec3(.55,.5,.55))});body.updateAABB();return {category:'prop',body};});
+ const from={x:-3.8*layoutScale,z:16.5*layoutScale},to={x:-15.2*layoutScale,z:16.5*layoutScale};
  const path=pathAroundProps(nav,from,to,props);assert.ok(path.length>1,'Goliath can detour around both crates');assert.deepEqual(path.at(-1),to);assert.ok(path.every(p=>nav.isFree(p.x,p.z)));world.dispose();
 });

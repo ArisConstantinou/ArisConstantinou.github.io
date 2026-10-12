@@ -1,0 +1,318 @@
+{
+  "version": "1.4.2",
+  "status": "Approved release 1.4.2; public deployment verification in progress",
+  "date": "2026-10-12T07:42:53.376Z",
+  "baseCommit": "088be53",
+  "branch": "codex/mobile-performance-castle",
+  "publicBase": "1.4.1",
+  "port": 5173,
+  "preview": "http://127.0.0.1:5173/.cache/mobile-game/",
+  "changes": [
+    "Safe courtyard: zero initial, reinforcement or summoned enemy spawns; HEARTH starts in another room",
+    "14 main rooms are 25 percent wider and deeper; connected corridors and bridge adjusted",
+    "Three 3x4 metre alcoves with level 3 equipment, collected once per run",
+    "Local instance bounds, compatible batches, idle actor sleep with combat wake-up, invisible rig detachment, native collision reset, ordered broadphase bounds and SAP worker"
+  ],
+  "tests": {
+    "unit": 111,
+    "physics": {
+      "passed": true,
+      "failures": 0,
+      "navigationCases": 4,
+      "spawnActors": 2,
+      "spawnProps": 107,
+      "seamTraversals": 3,
+      "secretTraversals": 3,
+      "wallContainmentCases": 3,
+      "physicalPursuitCases": 2,
+      "ballisticCases": 16,
+      "successfulBallisticCases": 16,
+      "missionFlowPassed": true
+    },
+    "secretTraversal": [
+      {
+        "id": "library-secret",
+        "passed": true,
+        "seconds": 3.1166666666666667
+      },
+      {
+        "id": "forge-secret",
+        "passed": true,
+        "seconds": 3.4
+      },
+      {
+        "id": "catacombs-secret",
+        "passed": true,
+        "seconds": 2.783333333333333
+      }
+    ],
+    "safeCourtyardWave": true,
+    "safeCourtyardSummon": true,
+    "compiledUI": 38,
+    "actualSourcePreview": 49,
+    "restarts": 40,
+    "offline": 5,
+    "offlineCachedFiles": 21,
+    "nativeSuitFire": true,
+    "browserErrors": 0
+  },
+  "performance": {
+    "cpu": "Intel(R) Core(TM) Ultra 9 285K",
+    "conditions": "Desktop Chrome/GPU; touch 390x844 DPR3, native low quality; active enemy AI; seeded 821; CPU throttle is a surrogate, not physical phone proof",
+    "sceneDifferences": "Native idle and held scenes use each release spawn position; expanded map and safe-spawn redistribution are part of the change. Battle fixture puts three active guards near the wizard in the hall. No enemy stun in performance runs. Earlier ABBA repeats retained in output/playwright/castle-performance-stress-142 and castle-performance-broadphase.",
+    "comparison": [
+      {
+        "scene": "idle",
+        "cpuThrottle": 1,
+        "before": {
+          "fps": 60,
+          "p95Ms": 16.800000000000182,
+          "maxMs": 16.899999999999636,
+          "over50ms": 0,
+          "drawCalls": 426,
+          "triangles": 893228
+        },
+        "after": {
+          "fps": 60.00400026668446,
+          "p95Ms": 16.800000000000182,
+          "maxMs": 16.899999999999636,
+          "over50ms": 0,
+          "drawCalls": 490,
+          "triangles": 386310
+        },
+        "regression": false
+      },
+      {
+        "scene": "idle",
+        "cpuThrottle": 4,
+        "before": {
+          "fps": 24.769505985963946,
+          "p95Ms": 50.100000000000364,
+          "maxMs": 66.69999999999891,
+          "over50ms": 5,
+          "drawCalls": 425,
+          "triangles": 892922
+        },
+        "after": {
+          "fps": 40.600893219650835,
+          "p95Ms": 33.400000000000546,
+          "maxMs": 33.5,
+          "over50ms": 0,
+          "drawCalls": 490,
+          "triangles": 386310
+        },
+        "regression": false
+      },
+      {
+        "scene": "battle",
+        "cpuThrottle": 1,
+        "before": {
+          "fps": 60.00400026668446,
+          "p95Ms": 16.80000000000109,
+          "maxMs": 16.899999999999636,
+          "over50ms": 0,
+          "drawCalls": 681,
+          "triangles": 1120872
+        },
+        "after": {
+          "fps": 60.00400026668446,
+          "p95Ms": 16.80000000000109,
+          "maxMs": 16.899999999999636,
+          "over50ms": 0,
+          "drawCalls": 882,
+          "triangles": 744542
+        },
+        "regression": false
+      },
+      {
+        "scene": "battle",
+        "cpuThrottle": 4,
+        "before": {
+          "fps": 17.880913118629927,
+          "p95Ms": 66.70000000000073,
+          "maxMs": 83.5,
+          "over50ms": 48,
+          "drawCalls": 708,
+          "triangles": 1141888
+        },
+        "after": {
+          "fps": 22.978527842316232,
+          "p95Ms": 50.100000000000364,
+          "maxMs": 50.19999999999891,
+          "over50ms": 15,
+          "drawCalls": 917,
+          "triangles": 775124
+        },
+        "regression": false
+      },
+      {
+        "scene": "held",
+        "cpuThrottle": 1,
+        "before": {
+          "fps": 60,
+          "p95Ms": 16.799999999999272,
+          "maxMs": 16.899999999997817,
+          "over50ms": 0,
+          "drawCalls": 437,
+          "triangles": 893482
+        },
+        "after": {
+          "fps": 60.00800106680894,
+          "p95Ms": 16.799999999999272,
+          "maxMs": 16.900000000001455,
+          "over50ms": 0,
+          "drawCalls": 501,
+          "triangles": 386518
+        },
+        "regression": false
+      },
+      {
+        "scene": "held",
+        "cpuThrottle": 4,
+        "before": {
+          "fps": 20.689179559090604,
+          "p95Ms": 66.59999999999854,
+          "maxMs": 66.79999999999927,
+          "over50ms": 21,
+          "drawCalls": 437,
+          "triangles": 893282
+        },
+        "after": {
+          "fps": 29.999000033332237,
+          "p95Ms": 49.89999999999782,
+          "maxMs": 50,
+          "over50ms": 0,
+          "drawCalls": 501,
+          "triangles": 386518
+        },
+        "regression": false
+      }
+    ]
+  },
+  "runtime": [
+    {
+      "file": "assets-credit.json",
+      "bytes": 10624,
+      "sha256": "d922327df5f7db8017790255b74c472337b851201c6e127942dcf253040fc700"
+    },
+    {
+      "file": "engine/index-D0N1EqVz.css",
+      "bytes": 49026,
+      "sha256": "9d81373f0b4918f3012e88785947d02a59249ce8f50f7f10135ee3c6c422b270"
+    },
+    {
+      "file": "engine/index-dTiM8k7I.js",
+      "bytes": 962919,
+      "sha256": "6bbb34701acdd6a98d799d4b9a38e334423e86d18762927bfa8bfa4272bca428"
+    },
+    {
+      "file": "engine/trajectory-worker-_YoJ0cwY.js",
+      "bytes": 95211,
+      "sha256": "b4518e35dcae8bd2ef10e51efe618135cba9a22c5d04d47b70a707fd50e8634d"
+    },
+    {
+      "file": "icons/apple-touch-icon.png",
+      "bytes": 18260,
+      "sha256": "387cfceeb659a2c870b5b979c63ade3e813f0301a6e3ebd27bc56ee22addbaf9"
+    },
+    {
+      "file": "icons/magic-192.png",
+      "bytes": 20095,
+      "sha256": "503f250b988f16aa5c7804bb3277355578e4f65b713ae26a4b0ce5c2e7245821"
+    },
+    {
+      "file": "icons/magic-512.png",
+      "bytes": 64067,
+      "sha256": "f66cbdf839bad63fabceb57030ab5d008ea837883437c5625765ccabe724f24b"
+    },
+    {
+      "file": "icons/magic-rune.svg",
+      "bytes": 1515,
+      "sha256": "e504e0221112a0843a4c5a5dd1aa684776a95b0283094ca89fc5cacd5f0afa13"
+    },
+    {
+      "file": "index.html",
+      "bytes": 1323,
+      "sha256": "67ff948d1694588024aabcbe0d0237597293173f30929e298eab65b5b86cbb84"
+    },
+    {
+      "file": "licenses/cannon-es-MIT.txt",
+      "bytes": 1125,
+      "sha256": "4714d0272f50cb21fe46fe29333c7c600d3c85b5ebd2a80f4db07e8cfccbf5b2"
+    },
+    {
+      "file": "licenses/three-MIT.txt",
+      "bytes": 1081,
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+    },
+    {
+      "file": "manifest.webmanifest",
+      "bytes": 831,
+      "sha256": "2ac19389d8ed0535ce5800eed33d1edf44c6261f792d37154eb536ab117275eb"
+    },
+    {
+      "file": "models/LICENSE-KayKit.txt",
+      "bytes": 891,
+      "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629"
+    },
+    {
+      "file": "models/archer.glb",
+      "bytes": 629888,
+      "sha256": "a6e697ee7a25ea78250bf777199977eab4ffb96ec7b0eb9ba7f2112a30d900c3"
+    },
+    {
+      "file": "models/bosses/colossus.glb",
+      "bytes": 2993552,
+      "sha256": "996105205afd33658b24cef3e8a77d65f9952d2e6aa4125c9864d2f06f149184"
+    },
+    {
+      "file": "models/bosses/gargoyle.glb",
+      "bytes": 6032368,
+      "sha256": "5fb7d90ea41f9b20995f6371aeed0edb086fe41ac7d7d345025bf379fe015533"
+    },
+    {
+      "file": "models/bosses/wraith.glb",
+      "bytes": 2409068,
+      "sha256": "130d5baea65a44e46df459ccb71f54e2f28a381d6bb963744590fb3395a844e4"
+    },
+    {
+      "file": "models/guard.glb",
+      "bytes": 643104,
+      "sha256": "d76a67ac8d44a83f9af356a27b4d4b8f7b3f310bfa260a580294db59f5b2e5a1"
+    },
+    {
+      "file": "models/hearth-bulwark/hearth-bulwark.glb",
+      "bytes": 6664128,
+      "sha256": "aa0136fa40155b02cc1bb8d61b3237fc13f15c5255354f38bf639a94dd082633"
+    },
+    {
+      "file": "models/heavy.glb",
+      "bytes": 623808,
+      "sha256": "d470a4623c91bb51723cc286178eaea45d365aae1135c7c57b9c07f550cc794c"
+    },
+    {
+      "file": "models/mage.glb",
+      "bytes": 687872,
+      "sha256": "b298bc24b4ae8fe3221af28cb9c2630791f6dbc5d5dc1d31130869b61a36a0a6"
+    },
+    {
+      "file": "sw.js",
+      "bytes": 3333,
+      "sha256": "366a691b02f53a79a029abcceadf222bcf9f5dc0aa671618dfd46e2f7fb7740b"
+    }
+  ],
+  "evidence": {
+    "before": "output/playwright/castle-performance-final-worker/before-start.png",
+    "after": "output/playwright/castle-performance-final-worker/after-start.png",
+    "rooms": "output/playwright/castle-source-preview/wide-library.png",
+    "secrets": "output/playwright/castle-source-preview/library-secret.png",
+    "offline": "output/playwright/castle-offline/offline-aim.png"
+  },
+  "limitations": [
+    "Physical phone FPS, load time, touch latency, CPU/GPU utilization and RAM/VRAM are not measured",
+    "4x CPU throttle is a desktop surrogate, not a device benchmark",
+    "Draw calls increase with local instance bounds; submitted triangles fall and measured CPU frame times improve",
+    "Public cache migration and final deployment checks are running for the approved release",
+    "Live inventory / 3D wizard and unified suit keys remain separate pending work"
+  ]
+}
