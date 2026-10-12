@@ -1,7 +1,7 @@
 {
   "version": "1.4.1",
-  "verifiedAt": "2026-10-12T05:14:12.486Z",
-  "status": "User approved primary integration and public publication; deployment verification in progress",
+  "verifiedAt": "2026-10-12T06:24:34.225Z",
+  "status": "Published 1.4.1; public runtime, native mobile UI, cache/save update and offline checks verified",
   "protectedBase": {
     "branch": "codex/trajectory-collision",
     "commit": "6caca2f",
@@ -202,6 +202,12 @@
       "runtimeFilesVerified": 22,
       "sourceUnchangedFrom": "4ea478a",
       "report": "output/playwright/mobile-build/report.json"
+    },
+    "primaryPromotionSmoke": {
+      "passed": true,
+      "version": "1.4.1",
+      "sourceRuntime": "http://127.0.0.1:5173/",
+      "report": "primary output/playwright/mobile-primary-promoted-corrected/report.json"
     }
   },
   "publicObservation": {
@@ -541,5 +547,87 @@
   "approval": {
     "date": "2026-10-12T06:13:53.969Z",
     "scope": "Publish existing verified 1.4.1 mobile HUD; live inventory and unified suit keys remain pending"
+  },
+  "publication": {
+    "websiteRepository": "ArisConstantinou/ArisConstantinou.github.io",
+    "branch": "main",
+    "scope": "magic/",
+    "commit": "300219a33d0836b9ab61a1abd3873010704cf3fd",
+    "previousPublicCommit": "6db4adadd8800ae70a84b85ed65b8a7d1e1aade7",
+    "pagesRun": 38211902224,
+    "pagesConclusion": "success",
+    "promotedSource": "bed5602c7c176ab5c4f19a763d3c37c71dfd4671",
+    "runtimeFiles": 22,
+    "allRuntimeHashesMatch": true,
+    "versionBefore": "1.4.0",
+    "versionAfter": "1.4.1",
+    "saveMigration": true,
+    "completeOfflinePrecache": 21,
+    "offline": true,
+    "otherAppCachePreserved": true,
+    "onlyMagicCacheReplaced": true,
+    "frameTimesBefore": {
+      "samples": 180,
+      "median": 16.699999999999818,
+      "p95": 16.800000000000182,
+      "max": 16.899999999999636,
+      "over50ms": 0
+    },
+    "frameTimesAfter": {
+      "samples": 180,
+      "median": 16.699999999999818,
+      "p95": 16.800000000000182,
+      "max": 16.899999999999636,
+      "over50ms": 0
+    },
+    "nativePublicUI": {
+      "passed": 38,
+      "total": 38,
+      "errors": 0,
+      "cleanup": {
+        "closed": true,
+        "remainingPids": []
+      }
+    },
+    "reportPaths": [
+      "output/playwright/pages-release-141/report.json",
+      "output/playwright/mobile-public-141-serial/report.json",
+      "output/playwright/mobile-public-hearth-141-serial/report.json"
+    ],
+    "pendingSeparateWork": [
+      "Live inventory with equipped 3D wizard",
+      "Unified wizard and HEARTH action keys"
+    ],
+    "nativePublicHearth": {
+      "passed": true,
+      "version": "1.4.1",
+      "naturalRoom": "library",
+      "stateBefore": "sleep",
+      "stateAfter": "piloted",
+      "firing": true,
+      "files": [
+        {
+          "file": "engine/index-C7WJ2aeD.js",
+          "bytes": 959836,
+          "sha256": "1f2a9c359e09cc620818652576910000d6ab5a142a54e3c30b7694ef06065966"
+        },
+        {
+          "file": "models/hearth-bulwark/hearth-bulwark.glb",
+          "bytes": 6664128,
+          "sha256": "aa0136fa40155b02cc1bb8d61b3237fc13f15c5255354f38bf639a94dd082633"
+        }
+      ],
+      "errors": 0,
+      "cleanup": {
+        "closed": true,
+        "remainingPids": []
+      }
+    },
+    "qaEnvironmentCorrections": [
+      "Primary readiness predicate now tolerates initial boot",
+      "Canonical primary build synchronized ignored .release before staged-byte comparison",
+      "Concurrent managed-browser close timeout, no owned PIDs remaining; reran sequentially with durable results before cleanup",
+      "Windows Node/libuv shutdown assertion after successful publication signal; independently verified Pages commit and public runtime"
+    ]
   }
 }

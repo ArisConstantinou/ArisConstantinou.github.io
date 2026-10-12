@@ -70,7 +70,8 @@ try {
   assert.equal(report.errors.length,0,report.errors.join('\n'));report.passed=true;
 } catch(error) {report.failure=error.stack;process.exitCode=1;}
 finally {
-  await context?.close();await managed.cleanup();
+  await context?.close();await fs.writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2));
+  try{await managed.cleanup();}catch(error){report.cleanupFailure=managed.report.cleanupErrors;process.exitCode=1;}
   report.cleanup={closed:managed.report.closed,remainingPids:managed.report.remainingPids};
   await fs.writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2));
   console.log(JSON.stringify(report,null,2));

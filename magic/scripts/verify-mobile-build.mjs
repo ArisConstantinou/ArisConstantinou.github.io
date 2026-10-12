@@ -17,13 +17,14 @@ try {
  for(const [mode,width,height,touch] of [['desktop',1440,900,false],['portrait',390,676,true],['landscape',844,390,true]]) {
   context=await managed.browser.newContext({viewport:{width,height},hasTouch:touch,isMobile:touch,deviceScaleFactor:1,serviceWorkers:'block'});
   if(localArtifact)await installArtifactFixture(context,root,new URL(url).pathname);
-  await context.addInitScript(()=>{let seed=821;Math.random=()=>((seed=Math.imul(seed,1664525)+1013904223|0)>>>0)/4294967296;localStorage.setItem('magic-exiled-v1','protected-normal-save');});
+  await context.addInitScript(local=>{let seed=821;Math.random=()=>((seed=Math.imul(seed,1664525)+1013904223|0)>>>0)/4294967296;if(local)localStorage.setItem('magic-exiled-v1','protected-normal-save');},localArtifact);
   const page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));page.on('console',m=>{if(m.type()==='error')report.errors.push(m.text());});
   await page.goto(url);await page.waitForFunction(()=>window.__MAGIC__?.snapshot().phase==='menu');
   check(mode,'exact compiled version',await page.evaluate(v=>__MAGIC__.version===v,version));
   if(touch)check(mode,'visible version label readable',await page.locator('#loading-label').evaluate(e=>e.textContent.includes('1.4.1')&&parseFloat(getComputedStyle(e).fontSize)>=12));
   await page.screenshot({path:path.join(output,mode+'-menu.png')});
   await page.locator('#start-button').click();await page.waitForTimeout(300);
+  let normalSave='protected-normal-save';if(!localArtifact){await page.locator('#hud-mute').click();normalSave=await page.evaluate(()=>localStorage.getItem('magic-exiled-v1'));assert.ok(normalSave,'Create real public save in owned browser');}
   await page.evaluate(()=>{for(const e of __HEARTH_QA__.entities)if(e.category==='actor'&&!e.isPlayer)e.stun=1e6;});
   const cdp=touch?await context.newCDPSession(page):null,send=(type,points=[])=>cdp.send('Input.dispatchTouchEvent',{type,touchPoints:points});
   const fire=page.locator('[data-action="fire"]').filter({visible:true}).first();if(touch)await fire.tap();else await page.keyboard.press('c');
@@ -53,9 +54,9 @@ try {
     check(mode,'native action spam remains one notice',await page.locator('#toasts .toast').count()<=1);
   }else{await page.keyboard.press('Escape');check(mode,'desktop pause preserved',await page.evaluate(()=>__MAGIC__.snapshot().phase==='paused'));}
   check(mode,'no overflow',await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-  check(mode,'normal save preserved',await page.evaluate(()=>localStorage.getItem('magic-exiled-v1')==='protected-normal-save'));
+  check(mode,'normal save preserved',await page.evaluate(expected=>localStorage.getItem('magic-exiled-v1')===expected,normalSave));
   await context.close();context=null;
  }
  check('all','no browser errors',report.errors.length===0);report.passed=true;
 }catch(error){report.failure=error.stack;process.exitCode=1;}
-finally{await context?.close();await managed.cleanup();report.cleanup={closed:managed.report.closed,remainingPids:managed.report.remainingPids};await fs.writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({passed:report.passed,checks:report.cases.length,failures:report.cases.filter(c=>!c.pass),errors:report.errors,failure:report.failure,cleanup:report.cleanup},null,2));}
+finally{await context?.close();await fs.writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2));try{await managed.cleanup();}catch(error){report.cleanupFailure=managed.report.cleanupErrors;process.exitCode=1;}report.cleanup={closed:managed.report.closed,remainingPids:managed.report.remainingPids};await fs.writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({passed:report.passed,checks:report.cases.length,failures:report.cases.filter(c=>!c.pass),errors:report.errors,failure:report.failure,cleanupFailure:report.cleanupFailure,cleanup:report.cleanup},null,2));}
