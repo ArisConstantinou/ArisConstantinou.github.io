@@ -190,6 +190,8 @@ body[data-input="touch"] .held-state { bottom: calc(176px + var(--safe-bottom));
 .pause-panel .panel-description { margin-bottom: 22px; font-family: var(--serif); font-style: italic; }
 .settings-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 16px; border-top: 1px solid var(--line); margin-top: 25px; padding-top: 13px; }
 .settings-row .text-button { font-size: 10px; }
+#pause-status { min-height:44px; padding:8px 12px; font-size:14px; }
+body:not(.is-playing) .context-use { display:none; }
 .result-panel { width: 520px; text-align: center; }
 .result-sigil { display: flex; width: 74px; height: 74px; align-items: center; justify-content: center; border: 1px solid rgba(198, 182, 126, .38); border-radius: 50%; margin: 0 auto 22px; color: var(--gold); box-shadow: 0 0 37px rgba(214, 182, 98, .1); }
 .result-sigil .icon { width: 39px; height: 39px; }

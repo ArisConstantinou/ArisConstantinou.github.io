@@ -50,7 +50,6 @@ export function createUI(callbacks = {}) {
   const signal = abort.signal;
   const keys = new Set();
   const actions = [];
-  const timers = new Set();
   const stickStates = [];
   const shieldStates = [];
   const changed = new Map();
@@ -76,8 +75,6 @@ export function createUI(callbacks = {}) {
   let holdingObject = false;
   let inventorySelected=null;
   let latestState = {};
-  let activeToast = null;
-  const recentToasts = new Map();
   const coarseMedia = window.matchMedia('(pointer: coarse)');
   let touchMode = coarseMedia.matches || (navigator.maxTouchPoints > 0 && window.matchMedia('(hover: none)').matches);
   document.body.dataset.input = touchMode ? 'touch' : 'keyboard';
@@ -112,14 +109,11 @@ export function createUI(callbacks = {}) {
           <div class="vital-row">${icon('heart', 'vital-icon health-icon')}<div class="vital-track" role="meter" aria-label="Ζωή" aria-valuemin="0" aria-valuemax="100" id="health-meter"><div class="vital-fill health-fill" id="health-fill"></div></div><span class="vital-value" id="health-value">100</span></div>
           <div class="vital-row">${icon('mana', 'vital-icon mana-icon')}<div class="vital-track" role="meter" aria-label="Μαγική ενέργεια" aria-valuemin="0" aria-valuemax="100" id="mana-meter"><div class="vital-fill mana-fill" id="mana-fill"></div></div><span class="vital-value" id="mana-value">100</span></div>
         </div>
-        <div class="objective-block" id="objective-block"><span id="objective-symbol">${icon('scepter', 'objective-glyph')}</span><div><span class="objective-label" id="objective-label">Η ΑΠΟΣΤΟΛΗ ΣΟΥ</span><div class="objective-text" id="objective-text">Βρες το Μαύρο Σκήπτρο στην κρύπτη</div><div class="objective-progress" id="objective-progress" hidden><span id="objective-fill"></span></div></div></div>
         <div class="header-tools"><button class="inventory-tool" id="hud-inventory" type="button" aria-label="Inventory και εξοπλισμός, I">${icon('book')}<span>ΣΑΚΟΣ</span><kbd>I</kbd></button><button class="icon-button" id="hud-mute" type="button" aria-label="Σίγαση ήχου" aria-pressed="false">${icon('sound')}</button><button class="icon-button" id="hud-pause" type="button" aria-label="Παύση παιχνιδιού">${icon('pause')}</button></div>
       </header>
-      <button class="mobile-status-button" id="hud-status" type="button" aria-label="Αποστολή, στολή μάχης και κατάσταση"><span>${icon('scepter')}<span id="status-summary">Φύλακες 0/4</span></span><span>ΛΕΠΤΟΜΕΡΕΙΕΣ ›</span></button>
       <div class="boss-track" id="boss-track" hidden><div class="boss-name" id="boss-name">Ο Φύλακας της Κρύπτης</div><div class="boss-bar"><span id="boss-fill"></span></div><div id="boss-channel"></div><div class="summon-bar" id="boss-channel-bar" hidden><span id="boss-channel-fill"></span></div></div>
       <div class="stone-status"><span id="stone-count">0 / 10 πέτρες</span><span id="goliath-state">7 κοντινές πέτρες → Goliath</span><div class="summon-bar" id="goliath-bar" hidden><span id="goliath-fill"></span></div></div>
       <div class="combo-display" id="combo-display" hidden><div class="combo-value" id="combo-value">×2</div><div class="combo-label">ΜΑΓΙΚΗ ΑΛΥΣΙΔΑ</div></div>
-      <div class="context-strip" id="context-strip"><div class="context-main" id="context-main"></div><div class="context-sub" id="context-sub"></div></div>
       <div class="held-state" id="held-state" hidden>${icon('grab')}<span id="held-text"></span></div>
       ${callbacks.fireEnabled?`<span class="fire-status" id="fire-status" hidden></span>`:''}
       ${callbacks.hearth?`<div class="hearth-status" id="hearth-status"><strong id="hearth-title">HEARTH BULWARK</strong><span id="hearth-state">Κοιμάται</span><div class="hearth-fuel" role="meter" aria-label="Φωτιά καρδιάς" aria-valuemin="0" aria-valuemax="100" id="hearth-meter"><i id="hearth-fill"></i></div><span id="hearth-charge">Πάρε φωτιά από πυρσό</span></div><div class="hearth-actions">${ability('flamethrower','ΠΥΡ','pulse','V')}</div>`:''}
@@ -142,12 +136,11 @@ export function createUI(callbacks = {}) {
       </div>
     </section>
 
-    <section class="screen overlay-screen" id="pause-screen" hidden><div class="panel pause-panel" role="dialog" aria-modal="true" aria-labelledby="pause-title">${icon('rune', 'rune')}<p class="panel-eyebrow">ΜΙΑ ΣΤΙΓΜΗ ΗΣΥΧΙΑΣ</p><h2 class="panel-title" id="pause-title">Η δύναμη περιμένει.</h2><p class="panel-description">Το κάστρο κρατά την ανάσα του.</p><div class="panel-buttons"><button class="primary-button" id="resume-button" type="button"><span>ΣΥΝΕΧΙΣΕ</span>${icon('play')}</button><button class="secondary-button" id="pause-restart" type="button"><span>ΝΕΑ ΠΡΟΣΠΑΘΕΙΑ</span>${icon('arrow')}</button></div><div class="settings-row"><button class="text-button" id="pause-help" type="button">Χειρισμός</button><button class="text-button" id="pause-mute" type="button">Ήχος ενεργός</button><button class="text-button" id="pause-quality" type="button">Γραφικά: υψηλά</button></div></div></section>
+    <section class="screen overlay-screen" id="pause-screen" hidden><div class="panel pause-panel" role="dialog" aria-modal="true" aria-labelledby="pause-title">${icon('rune', 'rune')}<p class="panel-eyebrow">ΜΙΑ ΣΤΙΓΜΗ ΗΣΥΧΙΑΣ</p><h2 class="panel-title" id="pause-title">Η δύναμη περιμένει.</h2><p class="panel-description">Το κάστρο κρατά την ανάσα του.</p><div class="panel-buttons"><button class="primary-button" id="resume-button" type="button"><span>ΣΥΝΕΧΙΣΕ</span>${icon('play')}</button><button class="secondary-button" id="pause-restart" type="button"><span>ΝΕΑ ΠΡΟΣΠΑΘΕΙΑ</span>${icon('arrow')}</button></div><div class="settings-row"><button class="text-button" id="pause-status" type="button">Αποστολή & κατάσταση</button><button class="text-button" id="pause-help" type="button">Χειρισμός</button><button class="text-button" id="pause-mute" type="button">Ήχος ενεργός</button><button class="text-button" id="pause-quality" type="button">Γραφικά: υψηλά</button></div></div></section>
 
     <section class="screen overlay-screen" id="result-screen" hidden><div class="panel result-panel" id="result-panel" role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="result-sigil" id="result-sigil">${icon('scepter')}</div><p class="panel-eyebrow" id="result-eyebrow">Η ΑΠΟΣΤΟΛΗ ΟΛΟΚΛΗΡΩΘΗΚΕ</p><h2 class="panel-title" id="result-title">Το σκήπτρο είναι δικό σου.</h2><p class="panel-description" id="result-description">Η πύλη έκλεισε. Η δύναμή σου μόλις μεγάλωσε.</p><div class="result-stats"><div class="result-stat"><strong id="result-shards">0</strong><span>ΘΡΑΥΣΜΑΤΑ</span></div><div class="result-stat"><strong id="result-kills">0</strong><span>ΕΧΘΡΟΙ</span></div><div class="result-stat"><strong id="result-time">0:00</strong><span>ΧΡΟΝΟΣ</span></div></div><div class="score-line"><span>Βαθμολογία <strong id="result-score">0</strong></span><span>Ρεκόρ <strong id="result-best">0</strong></span></div><p class="result-reason" id="result-reason" hidden></p><div class="panel-buttons"><button class="primary-button" id="result-restart" type="button"><span>ΑΚΟΜΗ ΜΙΑ ΕΙΣΒΟΛΗ</span>${icon('arrow')}</button><button class="secondary-button" id="result-upgrades" type="button"><span class="button-name">${icon('rune')}ΜΟΝΙΜΕΣ ΔΥΝΑΜΕΙΣ</span><span class="shard-pill" id="result-wallet">0 ◇</span></button></div><button class="text-button" id="result-menu" type="button">Επιστροφή στην αρχή</button></div></section>
 
     <section class="screen overlay-screen" id="modal-screen" hidden><div class="panel upgrades-panel" id="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button class="icon-button panel-close" id="modal-close" type="button" aria-label="Κλείσιμο">${icon('close')}</button><div id="modal-content"></div></div></section>
-    <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
     <div class="throw-mark" id="throw-mark" hidden aria-hidden="true"><i></i><b></b></div>
   `;
 
@@ -159,7 +152,6 @@ export function createUI(callbacks = {}) {
   const actionGroups = Object.fromEntries(['conjure', 'drop', 'pulse', 'dash', 'shield', 'interact','fire'].map((name) => [name, byAction(name)]));
   const text = (id, value) => { const output = String(value ?? ''); if (changed.get(id) !== output) { el[id].textContent = output; changed.set(id, output); } };
   const listen = (node, type, handler, options = {}) => node.addEventListener(type, handler, { ...options, signal });
-  const later = (handler, delay) => { const timer = window.setTimeout(() => { timers.delete(timer); handler(); }, delay); timers.add(timer); return timer; };
   const live = () => phase === 'playing' && !modal;
   const prevent = (event) => { event.preventDefault(); event.stopPropagation(); };
   const invoke = (name, ...args) => { if (typeof callbacks[name] === 'function') return callbacks[name](...args); };
@@ -212,9 +204,6 @@ export function createUI(callbacks = {}) {
   function setPhase(next) {
     document.body.classList.remove('is-status-open');
     el['throw-mark'].hidden = true;
-    if (next === 'playing' && phase !== 'paused') {
-      el.toasts.replaceChildren(); activeToast = null; recentToasts.clear();
-    }
     clearInput(); phase = next; modal = null; el['modal-screen'].hidden = true;
     el['menu-screen'].hidden = next !== 'menu';
     el['game-hud'].hidden = next !== 'playing' && next !== 'paused';
@@ -375,12 +364,6 @@ export function createUI(callbacks = {}) {
   function update(state = {}) {
     if(Boolean(latestState.hearth?.occupied)!==Boolean(state.hearth?.occupied))clearInput();
     latestState = state;
-    const summary = state.hearth?.occupied ? `HEARTH · Καρδιά ${state.hearth.endless?"∞":Math.ceil(state.hearth.fuel)+"%"}`
-      : state.ritualPhase === 'charge' ? `Goliath · Σύνδεση ${Math.ceil(number(state.ritualProgress) * 100)}%`
-      : state.ritualPhase === 'assemble' ? `Goliath · Συναρμολόγηση ${number(state.assembled)}/7`
-      : state.goliathHP > 0 ? `Goliath · ${Math.ceil(state.goliathHP)} ζωή · ${Math.ceil(state.goliathTime)}s`
-      : state.relic ? 'Επιστροφή στην πύλη' : (state.objective || 'Φύλακες 0/4').split(' · ')[0];
-    text('status-summary', summary);
     const mounted = Boolean(state.hearth?.occupied);
     text('movement-mode',mounted?'HEARTH':'ΜΑΓΟΣ');text('movement-action',mounted?'ΒΑΔΙΣΜΑ · W A S D':'ΚΙΝΗΣΗ · W A S D');
     text('mouse-left-label',mounted?'Κράτησε φλογοβόλο':'Πιάσε · σύρε · άφησε');
@@ -411,18 +394,8 @@ export function createUI(callbacks = {}) {
       text('mana-value', Math.ceil(mana)); el['mana-meter'].setAttribute('aria-valuenow', String(Math.ceil(mana))); el['mana-meter'].setAttribute('aria-valuemax', String(maxMana));
     }
     if (state.zone !== undefined) text('zone-name', state.zone);
-    const relic = Boolean(state.relic);
-    text('objective-text', state.objective || state.goal || (relic ? 'Επέστρεψε στη φωτεινή πύλη και δραπέτευσε' : 'Βρες το Μαύρο Σκήπτρο στην κρύπτη'));
-    text('objective-label', relic ? 'ΩΡΑ ΝΑ ΔΙΑΦΥΓΕΙΣ' : 'Η ΑΠΟΣΤΟΛΗ ΣΟΥ');
-    el['objective-block'].classList.toggle('extraction', relic);
-    if (changed.get('relic') !== relic) { el['objective-symbol'].innerHTML = icon(relic ? 'portal' : 'scepter', 'objective-glyph'); changed.set('relic', relic); }
-    if (typeof state.progress === 'number') { el['objective-progress'].hidden = false; el['objective-fill'].style.width = `${Math.max(0, Math.min(100, state.progress <= 1 ? state.progress * 100 : state.progress))}%`; }
-    else el['objective-progress'].hidden = true;
     text('hud-shards', formatNumber(state.shards)); text('hud-kills', formatNumber(state.kills)); text('hud-time', clock(state.time));
     const holding = Boolean(state.holding); const target = state.targetName;
-    if (touchMode && holding && activeToast?.priority === 1) {
-      activeToast.node.remove(); activeToast = null;
-    }
     const dragging = holding && Boolean(state.dragging || dragPointer);
     holdingObject = holding;
     el['held-state'].hidden = !holding && !target;
@@ -454,14 +427,6 @@ export function createUI(callbacks = {}) {
     const combo = number(state.combo); const multiplier = number(state.comboMultiplier, combo);
     el['combo-display'].hidden = combo < 2 && multiplier < 2;
     text('combo-value', `×${Math.max(1, multiplier).toLocaleString('el-GR', { maximumFractionDigits: 1 })}`);
-    const customHint = state.hint ? String(state.hint) : '';
-    const tutorialVisible = number(state.time) < 32;
-    el['context-strip'].hidden = touchMode
-      ? dragging || !(state.nearHearth || mounted || state.nearRelic || state.nearExit || number(state.time) < 6)
-      : !customHint && !tutorialVisible && !dragging;
-    text('context-main', customHint || (dragging ? 'Σύρε το αντικείμενο · Άφησε για ρίψη' : 'Πάτησε πάνω στο αντικείμενο · Σύρε · Άφησε για ρίψη'));
-    text('context-sub', customHint&&!dragging ? '' : (dragging ? `Στόχευσε το σημάδι · Δύναμη ${Math.round(number(state.throwPower))} · Γρήγορο σύρσιμο για ισχυρότερη ρίψη.` : (touchMode ? 'Κίνηση με τον αριστερό μοχλό. Η μαγεία ακολουθεί το άλλο δάχτυλο.' : 'W A S D: κίνηση · δεξί κλικ: ασπίδα · R: δημιούργησε πέτρα')));
-    el['context-sub'].hidden = touchMode || Boolean(customHint)&&!dragging;
     if (touchMode && holding && !state.shielding) text('held-text', `${state.heldName || 'Αντικείμενο'} · στόχευσε το σημάδι · άφησε`);
     const bossVisible = state.bossHP !== undefined && number(state.bossMaxHP) > 0 && number(state.bossHP) > 0;
     text('stone-count', `${number(state.stones)} / 10 πέτρες`);
@@ -478,26 +443,8 @@ export function createUI(callbacks = {}) {
     for (const button of actionGroups.shield) button.classList.toggle('is-held', shielding);
   }
 
-  function toast(message, type = '') {
-    if (!message) return;
-    const value = String(message), now = performance.now();
-    const priority = ['error', 'danger'].includes(type) ? 3 : ['gold', 'success'].includes(type) ? 2 : 1;
-    if(touchMode&&phase==='playing'&&priority===1)return;
-    if (touchMode) {
-      if (latestState.holding && priority === 1) return;
-      if (now - (recentToasts.get(value) ?? -Infinity) < 5000) return;
-      if (activeToast?.node.isConnected && now < activeToast.until && priority <= activeToast.priority) return;
-      el.toasts.replaceChildren();
-      recentToasts.set(value, now);
-      while (recentToasts.size > 32) recentToasts.delete(recentToasts.keys().next().value);
-    }
-    while (el.toasts.children.length >= 3) el.toasts.firstElementChild.remove();
-    const node = document.createElement('div'); node.className = `toast ${['error', 'danger', 'gold', 'success'].includes(type) ? type : ''}`; node.textContent = value;
-    el.toasts.append(node);
-    const duration = touchMode ? priority > 1 ? 3000 : 2100 : 3300;
-    if (touchMode) activeToast = {node, priority, until: now + duration};
-    later(() => { if (node.isConnected) { node.classList.add('leaving'); later(() => node.remove(), 220); } }, duration);
-  }
+  // Gameplay systems keep this callback; notifications are disabled on every device.
+  function toast() {}
 
   function getInput() {
     if (!live()) return { moveX: 0, moveZ: 0, aimX: 0, aimY: 0, aimActive: false, pointerX, pointerY, pointerActive: false, shielding: false };
@@ -686,10 +633,7 @@ export function createUI(callbacks = {}) {
   for (const id of ['pause-restart', 'result-restart']) listen(el[id], 'click', () => { clearInput(); invoke(callbacks.onRestart ? 'onRestart' : 'onStart'); });
   listen(el['result-menu'], 'click', () => { if (callbacks.onMenu) invoke('onMenu'); else showMenu(profile); });
   listen(el['modal-close'], 'click', hideModal);
-  listen(el['hud-status'], 'click', () => { if (live()) invoke('onStatus'); });
-  listen(el['hud-status'], 'pointerdown', event => {
-    if (event.button === 0 && live()) { prevent(event); invoke('onStatus'); }
-  });
+  listen(el['pause-status'], 'click', showStatus);
   listen(el['modal-screen'], 'click', (event) => { if (event.target === el['modal-screen']) hideModal(); });
   listen(el['modal-content'], 'click', (event) => { const button = event.target.closest('[data-upgrade]'); if (button && !button.disabled) { button.disabled = true; invoke('onUpgrade', button.dataset.upgrade); } });
   listen(el['modal-content'],'click',event=>{const item=event.target.closest('[data-item]'),action=event.target.closest('[data-loot-action]');if(item)invoke('onInventoryAction','select',Number(item.dataset.item));else if(action&&!action.disabled)invoke('onInventoryAction',action.dataset.lootAction,Number(action.dataset.id));});
@@ -702,7 +646,6 @@ export function createUI(callbacks = {}) {
 
   function destroy() {
     clearInput(); abort.abort(); coarseMedia.removeEventListener('change', setTouchMode);
-    for (const timer of timers) window.clearTimeout(timer); timers.clear();
     host.innerHTML = ''; delete document.body.dataset.input; document.body.classList.remove('is-playing', 'is-status-open');
   }
 

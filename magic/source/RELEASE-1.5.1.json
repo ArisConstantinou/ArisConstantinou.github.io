@@ -1,0 +1,136 @@
+{
+  "version": "1.5.1",
+  "date": "2026-10-13T03:22:43.660Z",
+  "sourceCommit": "a633444531b518302f4109373e5c429022646026",
+  "publicBase": "b85f1dd2fe4c72d640a50faf352660384b80ff71",
+  "cache": "dc74257339aa1dc57fa701e7",
+  "changes": [
+    "Remove guard/objective HUD banner",
+    "Disable all popup notifications and automatic center instruction messages",
+    "Keep mission details available through pause",
+    "Preserve Gothic castle 1.5.0 and existing gameplay"
+  ],
+  "runtime": [
+    {
+      "file": "assets-credit.json",
+      "sha256": "d922327df5f7db8017790255b74c472337b851201c6e127942dcf253040fc700",
+      "bytes": 10624
+    },
+    {
+      "file": "engine/hearth-flamethrower-BwYq4Cmf.mp3",
+      "sha256": "e1a122a08a93a47e4dcaf3eac5e4c38ef5b6e69a4b9d0a52b52930f10c38583d",
+      "bytes": 87596
+    },
+    {
+      "file": "engine/index-C5pwjtIJ.js",
+      "sha256": "35cc6e599ffbde60cea3ccc873605f01ec3b6337844a11248ae219264104f236",
+      "bytes": 1005556
+    },
+    {
+      "file": "engine/index-CApdkRC1.css",
+      "sha256": "2c282b8e9e2d45a23d4d44a18a7303ef1542b69ff61ddcf68335229b2e1bf9bf",
+      "bytes": 52223
+    },
+    {
+      "file": "engine/trajectory-worker-_YoJ0cwY.js",
+      "sha256": "b4518e35dcae8bd2ef10e51efe618135cba9a22c5d04d47b70a707fd50e8634d",
+      "bytes": 95211
+    },
+    {
+      "file": "icons/apple-touch-icon.png",
+      "sha256": "387cfceeb659a2c870b5b979c63ade3e813f0301a6e3ebd27bc56ee22addbaf9",
+      "bytes": 18260
+    },
+    {
+      "file": "icons/magic-192.png",
+      "sha256": "503f250b988f16aa5c7804bb3277355578e4f65b713ae26a4b0ce5c2e7245821",
+      "bytes": 20095
+    },
+    {
+      "file": "icons/magic-512.png",
+      "sha256": "f66cbdf839bad63fabceb57030ab5d008ea837883437c5625765ccabe724f24b",
+      "bytes": 64067
+    },
+    {
+      "file": "icons/magic-rune.svg",
+      "sha256": "e504e0221112a0843a4c5a5dd1aa684776a95b0283094ca89fc5cacd5f0afa13",
+      "bytes": 1515
+    },
+    {
+      "file": "index.html",
+      "sha256": "7863a4116ecf9c1e7937daa799b8305422d9eaaeaa72cef72c6774cf461c9b9d",
+      "bytes": 1323
+    },
+    {
+      "file": "licenses/cannon-es-MIT.txt",
+      "sha256": "4714d0272f50cb21fe46fe29333c7c600d3c85b5ebd2a80f4db07e8cfccbf5b2",
+      "bytes": 1125
+    },
+    {
+      "file": "licenses/three-MIT.txt",
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601",
+      "bytes": 1081
+    },
+    {
+      "file": "manifest.webmanifest",
+      "sha256": "2ac19389d8ed0535ce5800eed33d1edf44c6261f792d37154eb536ab117275eb",
+      "bytes": 831
+    },
+    {
+      "file": "models/LICENSE-KayKit.txt",
+      "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629",
+      "bytes": 891
+    },
+    {
+      "file": "models/archer.glb",
+      "sha256": "a6e697ee7a25ea78250bf777199977eab4ffb96ec7b0eb9ba7f2112a30d900c3",
+      "bytes": 629888
+    },
+    {
+      "file": "models/bosses/colossus.glb",
+      "sha256": "896276d0eb8bf405eb053286cee918bd553fd5765a81521d459c7e91735125b9",
+      "bytes": 2997788
+    },
+    {
+      "file": "models/bosses/gargoyle.glb",
+      "sha256": "cde17b9bedfaa9be42b4e6660ceca4a63a97e580fe8c6f725107c77f721bd387",
+      "bytes": 6050968
+    },
+    {
+      "file": "models/bosses/wraith.glb",
+      "sha256": "130d5baea65a44e46df459ccb71f54e2f28a381d6bb963744590fb3395a844e4",
+      "bytes": 2409068
+    },
+    {
+      "file": "models/guard.glb",
+      "sha256": "d76a67ac8d44a83f9af356a27b4d4b8f7b3f310bfa260a580294db59f5b2e5a1",
+      "bytes": 643104
+    },
+    {
+      "file": "models/hearth-bulwark/hearth-bulwark.glb",
+      "sha256": "685c005fb358f6229baacb88f1a0691ec8c0362a66c2cc03a61ed25dfbd7f0bb",
+      "bytes": 6697584
+    },
+    {
+      "file": "models/heavy.glb",
+      "sha256": "d470a4623c91bb51723cc286178eaea45d365aae1135c7c57b9c07f550cc794c",
+      "bytes": 623808
+    },
+    {
+      "file": "models/mage.glb",
+      "sha256": "b298bc24b4ae8fe3221af28cb9c2630791f6dbc5d5dc1d31130869b61a36a0a6",
+      "bytes": 687872
+    },
+    {
+      "file": "sw.js",
+      "sha256": "ab5d6062d846b58f7824ce12c44b2d4e519c3eaef6c68af58a8393c13faf5d9d",
+      "bytes": 3378
+    }
+  ],
+  "checks": {
+    "unit": 141,
+    "compiled": 45,
+    "errors": []
+  },
+  "oldRuntimeRetained": true
+}

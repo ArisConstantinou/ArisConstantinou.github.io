@@ -164,11 +164,14 @@ async function main() {
     build: { outDir: releaseDirectory, emptyOutDir: true, assetsDir: 'engine', copyPublicDir: false },
   });
 
-  // Local static QA previews live under public/.cache on the shared server.
-  // Copy deliverable public assets explicitly so those previews cannot enter a release.
+  // Local QA/concept previews also live under public/ on the shared server.
+  // Only the declared runtime files/directories belong in a release.
   const publicDirectory = path.join(sourceDirectory, 'public');
-  const publicFiles = (await listFiles(publicDirectory)).filter(file =>
-    !file.split('/').some(part => part.startsWith('.')));
+  const publicFiles = (await listFiles(publicDirectory)).filter(file => {
+    const parts = file.split('/');
+    return !parts.some(part => part.startsWith('.'))
+      && (parts.length === 1 ? allowedFiles.has(file) : allowedDirectories.has(parts[0]));
+  });
   for (const file of publicFiles) {
     validateDeployFile(file);
     const target = within(releaseDirectory, file);
