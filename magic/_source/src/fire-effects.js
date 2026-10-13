@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {createStoredFire} from './stored-fire.js';
 // One fixed instanced pool covers every burnable object and actor in this map.
 const CAPACITY=512;
 const vertex=`attribute float flameSeed;varying vec2 vUv;varying float seed;void main(){vUv=uv;seed=flameSeed;gl_Position=projectionMatrix*modelViewMatrix*instanceMatrix*vec4(position,1.);}`;
@@ -17,27 +18,26 @@ void main(){
 }`;
 export function createFireEffects(scene){
  let enabled=true,count=0;
+ const stored=createStoredFire(scene);
  const geometry=new THREE.PlaneGeometry(1,1);
  geometry.setAttribute('flameSeed',new THREE.InstancedBufferAttribute(Float32Array.from({length:CAPACITY},(_,i)=>i*2.71),1));
  const material=new THREE.ShaderMaterial({uniforms:{time:{value:0}},vertexShader:vertex,fragmentShader:fragment,transparent:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});
  const flames=new THREE.InstancedMesh(geometry,material,CAPACITY);flames.instanceMatrix.setUsage(THREE.DynamicDrawUsage);flames.frustumCulled=false;flames.renderOrder=2;flames.count=0;scene.add(flames);
  const light=new THREE.PointLight(0xff8a24,0,5,2);scene.add(light);
  const marker=new THREE.Mesh(new THREE.RingGeometry(.32,.37,40),new THREE.MeshBasicMaterial({color:0xffbf60,side:THREE.DoubleSide,transparent:true,opacity:.8,depthWrite:false,toneMapped:false}));marker.rotation.x=-Math.PI/2;marker.visible=false;scene.add(marker);
- const matrix=new THREE.Matrix4(),point=new THREE.Vector3(),offset=new THREE.Vector3(),scale=new THREE.Vector3(),anchor=new THREE.Vector3();
+ const matrix=new THREE.Matrix4(),offset=new THREE.Vector3(),scale=new THREE.Vector3();
  function plane(p,camera,width,height){
   if(count>=CAPACITY)throw new Error('Fire effect capacity exceeded');
   scale.set(width,height,1);matrix.compose(p,camera.quaternion,scale);flames.setMatrixAt(count++,matrix);
  }
  function update({spell,player,entities,surfaces,time,camera,playing,source}){
-  count=0;light.intensity=0;marker.visible=false;flames.visible=enabled&&playing;
+  count=0;light.intensity=0;marker.visible=false;stored.clear();flames.visible=enabled&&playing;
   if(!enabled||!playing||!player){flames.count=0;return;}
   material.uniforms.time.value=time;
   if(source){marker.visible=true;marker.position.set(source.position.x,.05,source.position.z-.35);}
-  anchor.set(player.body.position.x+.65,1.55,player.body.position.z-.25);
-  if(spell.charged){
-   const t=THREE.MathUtils.clamp((time-spell.takenAt)/.45,0,1);point.copy(spell.torch.position).lerp(anchor,t);point.y+=Math.sin(t*Math.PI)*.7;
-   for(let i=0;i<3;i++){offset.copy(point);offset.x+=(i-1)*.07;offset.y+=.3;plane(offset,camera,.32,.7);}
-   light.position.copy(point);light.intensity=3;
+  stored.update(spell,player,time);
+  if(stored.visible){
+   light.position.copy(stored.position);light.color.setHex(0xff6b16);light.distance=2.5;light.intensity=1.7;
   }
   let nearest=Infinity;
   for(const e of [...entities,...surfaces])if(!e.removed&&e.burnUntil>time){
@@ -53,9 +53,10 @@ export function createFireEffects(scene){
     offset.add(pos);offset.y+=height*.5;plane(offset,camera,width,height);
    }
    const d=Math.hypot(pos.x-player.body.position.x,pos.z-player.body.position.z);
-   if(d<nearest){nearest=d;light.position.copy(pos);light.intensity=5.5+Math.sin(time*17)*.5;}
+   if(d<nearest){nearest=d;light.position.copy(pos);light.color.setHex(0xff8a24);light.distance=5;light.intensity=5.5+Math.sin(time*17)*.5;}
   }
   flames.count=count;flames.instanceMatrix.needsUpdate=true;
  }
- return{update,clear(){flames.count=0;light.intensity=0;marker.visible=false;},setEnabled:value=>{enabled=!!value;},counts:()=>({flamePlanes:count,capacity:CAPACITY,drawCalls:count?1:0,lights:1})};
+ function clear(){count=0;flames.count=0;light.intensity=0;marker.visible=false;stored.clear();}
+ return{update,clear,setEnabled(value){enabled=!!value;if(!enabled)clear();},counts:()=>({flamePlanes:count,capacity:CAPACITY,drawCalls:(count?1:0)+(stored.visible?3:0),lights:1,stored:stored.snapshot()})};
 }
