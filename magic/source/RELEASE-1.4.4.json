@@ -1,0 +1,826 @@
+{
+  "date": "2026-10-13T02:22:11.320Z",
+  "version": "1.4.4",
+  "candidate": "6425a57840c620fae02c35271136b29c8529f759",
+  "publicBase": "20a74c1b1bdd8616fc20a05a0888729fc31b6b3c",
+  "cache": "be5059f68cd156f805326d94",
+  "changes": [
+    "Combined latest planted-foot locomotion with current public controls, endless engine, Goliath escort and reference flamethrower audio.",
+    "Expanded rolling terminal fire lobes replace planar cut-off.",
+    "A version-specific service worker must finish activation before model loading, preventing mixed old/new assets.",
+    "Heavy stomp damage/effects synchronize with the right-foot landing; stationary aim uses the waist."
+  ],
+  "runtime": [
+    {
+      "file": "assets-credit.json",
+      "bytes": 10624,
+      "sha256": "d922327df5f7db8017790255b74c472337b851201c6e127942dcf253040fc700"
+    },
+    {
+      "file": "engine/hearth-flamethrower-BwYq4Cmf.mp3",
+      "bytes": 87596,
+      "sha256": "e1a122a08a93a47e4dcaf3eac5e4c38ef5b6e69a4b9d0a52b52930f10c38583d"
+    },
+    {
+      "file": "engine/index-Da-be7GY.css",
+      "bytes": 52113,
+      "sha256": "d3880cea5be4ecf8eddb785f400f83ac197595c28c639163096df32248b52298"
+    },
+    {
+      "file": "engine/index-DbCDvlyF.js",
+      "bytes": 995558,
+      "sha256": "cf7d33d3a06dee5ac5a9ce9f9dd677916e94b5405c27b306591b9f5a50c33339"
+    },
+    {
+      "file": "engine/trajectory-worker-_YoJ0cwY.js",
+      "bytes": 95211,
+      "sha256": "b4518e35dcae8bd2ef10e51efe618135cba9a22c5d04d47b70a707fd50e8634d"
+    },
+    {
+      "file": "icons/apple-touch-icon.png",
+      "bytes": 18260,
+      "sha256": "387cfceeb659a2c870b5b979c63ade3e813f0301a6e3ebd27bc56ee22addbaf9"
+    },
+    {
+      "file": "icons/magic-192.png",
+      "bytes": 20095,
+      "sha256": "503f250b988f16aa5c7804bb3277355578e4f65b713ae26a4b0ce5c2e7245821"
+    },
+    {
+      "file": "icons/magic-512.png",
+      "bytes": 64067,
+      "sha256": "f66cbdf839bad63fabceb57030ab5d008ea837883437c5625765ccabe724f24b"
+    },
+    {
+      "file": "icons/magic-rune.svg",
+      "bytes": 1515,
+      "sha256": "e504e0221112a0843a4c5a5dd1aa684776a95b0283094ca89fc5cacd5f0afa13"
+    },
+    {
+      "file": "index.html",
+      "bytes": 1323,
+      "sha256": "d70afe6023d875f89dfdf337c9638dd592262c43f5e7adf2f735c92f90839c1c"
+    },
+    {
+      "file": "licenses/cannon-es-MIT.txt",
+      "bytes": 1125,
+      "sha256": "4714d0272f50cb21fe46fe29333c7c600d3c85b5ebd2a80f4db07e8cfccbf5b2"
+    },
+    {
+      "file": "licenses/three-MIT.txt",
+      "bytes": 1081,
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+    },
+    {
+      "file": "manifest.webmanifest",
+      "bytes": 831,
+      "sha256": "2ac19389d8ed0535ce5800eed33d1edf44c6261f792d37154eb536ab117275eb"
+    },
+    {
+      "file": "models/LICENSE-KayKit.txt",
+      "bytes": 891,
+      "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629"
+    },
+    {
+      "file": "models/archer.glb",
+      "bytes": 629888,
+      "sha256": "a6e697ee7a25ea78250bf777199977eab4ffb96ec7b0eb9ba7f2112a30d900c3"
+    },
+    {
+      "file": "models/bosses/colossus.glb",
+      "bytes": 2997788,
+      "sha256": "896276d0eb8bf405eb053286cee918bd553fd5765a81521d459c7e91735125b9"
+    },
+    {
+      "file": "models/bosses/gargoyle.glb",
+      "bytes": 6050968,
+      "sha256": "cde17b9bedfaa9be42b4e6660ceca4a63a97e580fe8c6f725107c77f721bd387"
+    },
+    {
+      "file": "models/bosses/wraith.glb",
+      "bytes": 2409068,
+      "sha256": "130d5baea65a44e46df459ccb71f54e2f28a381d6bb963744590fb3395a844e4"
+    },
+    {
+      "file": "models/guard.glb",
+      "bytes": 643104,
+      "sha256": "d76a67ac8d44a83f9af356a27b4d4b8f7b3f310bfa260a580294db59f5b2e5a1"
+    },
+    {
+      "file": "models/hearth-bulwark/hearth-bulwark.glb",
+      "bytes": 6697584,
+      "sha256": "685c005fb358f6229baacb88f1a0691ec8c0362a66c2cc03a61ed25dfbd7f0bb"
+    },
+    {
+      "file": "models/heavy.glb",
+      "bytes": 623808,
+      "sha256": "d470a4623c91bb51723cc286178eaea45d365aae1135c7c57b9c07f550cc794c"
+    },
+    {
+      "file": "models/mage.glb",
+      "bytes": 687872,
+      "sha256": "b298bc24b4ae8fe3221af28cb9c2630791f6dbc5d5dc1d31130869b61a36a0a6"
+    },
+    {
+      "file": "sw.js",
+      "bytes": 3378,
+      "sha256": "289f2495d4d0a294e71865aff644e8a48ba627fe9cc2b52a9db6919c3db83673"
+    }
+  ],
+  "verification": {
+    "date": "2026-10-13T02:22:03.577Z",
+    "status": "Verified combined candidate before publication",
+    "version": "1.4.4",
+    "recovery": {
+      "public": "f814665b597b8192ecd501430204d8e9303465c8",
+      "localPrimary": "1c1abe7077d12cde7bb10c72b9c39c474078bade",
+      "fireBranch": "bbc890bc259f005f21b62f20d5489062a7cf67c8"
+    },
+    "cacheTransition": [
+      {
+        "label": "before",
+        "version": "1.4.3",
+        "controller": "http://127.0.0.1:5173/release-worker-qa/sw.js",
+        "stomp": false,
+        "clips": [
+          "Board",
+          "Deplete",
+          "Exit",
+          "Fire",
+          "Idle",
+          "Sleep",
+          "Throw",
+          "Wake",
+          "Walk"
+        ],
+        "caches": [
+          "magic-exiled:/release-worker-qa/:f5e094f5e05619a95ff9c3cb"
+        ],
+        "saved": "{\"version\":1,\"shards\":0,\"best\":0,\"wins\":0,\"runs\":0,\"upgrades\":{\"grip\":0,\"focus\":0,\"vitality\":0,\"pulse\":0,\"reach\":0,\"dash\":0},\"muted\":true,\"loot\":{\"version\":1,\"items\":[],\"equipped\":{},\"nextId\":1}}",
+        "models": [
+          {
+            "url": "http://127.0.0.1:5173/release-worker-qa/models/bosses/colossus.glb",
+            "sha256": "996105205afd33658b24cef3e8a77d65f9952d2e6aa4125c9864d2f06f149184",
+            "worker": true
+          },
+          {
+            "url": "http://127.0.0.1:5173/release-worker-qa/models/bosses/gargoyle.glb",
+            "sha256": "5fb7d90ea41f9b20995f6371aeed0edb086fe41ac7d7d345025bf379fe015533",
+            "worker": true
+          },
+          {
+            "url": "http://127.0.0.1:5173/release-worker-qa/models/hearth-bulwark/hearth-bulwark.glb",
+            "sha256": "aa0136fa40155b02cc1bb8d61b3237fc13f15c5255354f38bf639a94dd082633",
+            "worker": true
+          }
+        ]
+      },
+      {
+        "label": "after",
+        "version": "1.4.4",
+        "controller": "http://127.0.0.1:5173/release-worker-qa/sw.js?release=1.4.4",
+        "stomp": true,
+        "clips": [
+          "Board",
+          "Deplete",
+          "Exit",
+          "Fire",
+          "Idle",
+          "Sleep",
+          "Stomp",
+          "Throw",
+          "Wake",
+          "Walk"
+        ],
+        "caches": [
+          "magic-exiled:/release-worker-qa/:be5059f68cd156f805326d94"
+        ],
+        "saved": "{\"version\":1,\"shards\":0,\"best\":0,\"wins\":0,\"runs\":0,\"upgrades\":{\"grip\":0,\"focus\":0,\"vitality\":0,\"pulse\":0,\"reach\":0,\"dash\":0},\"muted\":true,\"loot\":{\"version\":1,\"items\":[],\"equipped\":{},\"nextId\":1}}",
+        "models": [
+          {
+            "url": "http://127.0.0.1:5173/release-worker-qa/models/bosses/colossus.glb",
+            "sha256": "896276d0eb8bf405eb053286cee918bd553fd5765a81521d459c7e91735125b9",
+            "worker": true
+          },
+          {
+            "url": "http://127.0.0.1:5173/release-worker-qa/models/bosses/gargoyle.glb",
+            "sha256": "cde17b9bedfaa9be42b4e6660ceca4a63a97e580fe8c6f725107c77f721bd387",
+            "worker": true
+          },
+          {
+            "url": "http://127.0.0.1:5173/release-worker-qa/models/hearth-bulwark/hearth-bulwark.glb",
+            "sha256": "685c005fb358f6229baacb88f1a0691ec8c0362a66c2cc03a61ed25dfbd7f0bb",
+            "worker": true
+          }
+        ]
+      }
+    ],
+    "cacheFix": "Await exact release service worker activation and controller before loading fixed-path models. Old boot was reproduced with missing Stomp clip; new boot preserves saves, loads matching model hashes and starts offline.",
+    "cause": "The prior public promotion included the fire/audio branch but omitted the separate planted-locomotion integration. This release merges both ancestors.",
+    "unit": 141,
+    "physics": {
+      "passed": true,
+      "failures": 0,
+      "navigationCases": 4,
+      "spawnActors": 2,
+      "spawnProps": 107,
+      "seamTraversals": 3,
+      "secretTraversals": 3,
+      "wallContainmentCases": 3,
+      "physicalPursuitCases": 2,
+      "ballisticCases": 16,
+      "successfulBallisticCases": 16,
+      "missionFlowPassed": true
+    },
+    "browserChecks": {
+      "cacheTransition": 8,
+      "contacts": 32,
+      "behavior": 20,
+      "flight": 11,
+      "flame": 19,
+      "compiledFlame": 34,
+      "audio": 29,
+      "controls": 73,
+      "goliath": 9,
+      "firstShot": 6,
+      "desktopPerformance": 15
+    },
+    "contacts": {
+      "cases": 256,
+      "maxStanceError": 3.0249283766802833e-7,
+      "maxStanceDrift": 2.925069576169975e-7,
+      "toleranceMetres": 0.005
+    },
+    "firstShot": [
+      {
+        "label": "unprimed",
+        "width": 1440,
+        "height": 900,
+        "touch": false,
+        "loading": 3497,
+        "first": 103,
+        "programsBefore": 101,
+        "programsAfter": 102,
+        "programsAdded": 1,
+        "nextMax": 9.800000011920929,
+        "firing": true
+      },
+      {
+        "label": "unprimed",
+        "width": 390,
+        "height": 844,
+        "touch": true,
+        "loading": 1636,
+        "first": 8.199999988079071,
+        "programsBefore": 72,
+        "programsAfter": 72,
+        "programsAdded": 0,
+        "nextMax": 12.700000047683716,
+        "firing": true
+      },
+      {
+        "label": "unprimed",
+        "width": 844,
+        "height": 390,
+        "touch": true,
+        "loading": 948,
+        "first": 12.100000023841858,
+        "programsBefore": 70,
+        "programsAfter": 70,
+        "programsAdded": 0,
+        "nextMax": 8,
+        "firing": true
+      },
+      {
+        "label": "build",
+        "width": 1440,
+        "height": 900,
+        "touch": false,
+        "loading": 3792,
+        "first": 10.099999964237213,
+        "programsBefore": 110,
+        "programsAfter": 110,
+        "programsAdded": 0,
+        "nextMax": 11.099999964237213,
+        "firing": true
+      },
+      {
+        "label": "build",
+        "width": 390,
+        "height": 844,
+        "touch": true,
+        "loading": 1631,
+        "first": 10.600000023841858,
+        "programsBefore": 104,
+        "programsAfter": 104,
+        "programsAdded": 0,
+        "nextMax": 12.199999988079071,
+        "firing": true
+      },
+      {
+        "label": "build",
+        "width": 844,
+        "height": 390,
+        "touch": true,
+        "loading": 989,
+        "first": 9.800000011920929,
+        "programsBefore": 102,
+        "programsAfter": 102,
+        "programsAdded": 0,
+        "nextMax": 9.099999964237213,
+        "firing": true
+      }
+    ],
+    "performance": {
+      "cpu": "Intel(R) Core(TM) Ultra 9 285K",
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "conditions": "Sequential ABBA. Existing Chrome GPU, desktop 1440x900 DPR1; portrait 390x844 and landscape 844x390 DPR3 with native low quality on this PC. Active enemy AI, real Cannon physics, mounted native R, actual composer/frame calls. CPU samples measure JS+render submission; GPU frame times/VRAM/physical phone performance unavailable.",
+      "finalDesktop": [
+        {
+          "mode": "desktop",
+          "label": "before",
+          "order": 0,
+          "cpuP50": 3.600000023841858,
+          "cpuP95": 4.899999976158142,
+          "cpuMax": 5.599999964237213,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "max": 16.900000000000546,
+          "over50": 0,
+          "render": {
+            "frame": 5194,
+            "calls": 689,
+            "triangles": 567050,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 90,
+            "textures": 62
+          },
+          "heap": 129214901,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        },
+        {
+          "mode": "desktop",
+          "label": "preview",
+          "order": 1,
+          "cpuP50": 5.399999976158142,
+          "cpuP95": 8.100000023841858,
+          "cpuMax": 11.400000035762787,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "max": 16.800000000000182,
+          "over50": 0,
+          "render": {
+            "frame": 5164,
+            "calls": 692,
+            "triangles": 574556,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 90,
+            "textures": 58
+          },
+          "heap": 108627253,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        },
+        {
+          "mode": "desktop",
+          "label": "preview",
+          "order": 2,
+          "cpuP50": 4.800000011920929,
+          "cpuP95": 7.199999988079071,
+          "cpuMax": 9,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "max": 16.800000000000182,
+          "over50": 0,
+          "render": {
+            "frame": 5239,
+            "calls": 684,
+            "triangles": 564400,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 90,
+            "textures": 57
+          },
+          "heap": 94240863,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        },
+        {
+          "mode": "desktop",
+          "label": "before",
+          "order": 3,
+          "cpuP50": 4.899999976158142,
+          "cpuP95": 7.299999952316284,
+          "cpuMax": 13.799999952316284,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "max": 16.900000000000546,
+          "over50": 0,
+          "render": {
+            "frame": 5209,
+            "calls": 695,
+            "triangles": 567240,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 90,
+            "textures": 66
+          },
+          "heap": 98707625,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        }
+      ],
+      "mobile": [
+        {
+          "mode": "portrait",
+          "label": "before",
+          "order": 0,
+          "cpuP50": 3.800000011920929,
+          "cpuP95": 5.199999988079071,
+          "cpuMax": 22,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.799999999999272,
+          "max": 16.800000000000182,
+          "over50": 0,
+          "render": {
+            "frame": 380,
+            "calls": 732,
+            "triangles": 610620,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 99,
+            "textures": 61
+          },
+          "heap": 113482995,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        },
+        {
+          "mode": "portrait",
+          "label": "preview",
+          "order": 1,
+          "cpuP50": 4.400000035762787,
+          "cpuP95": 5.899999976158142,
+          "cpuMax": 9.199999988079071,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.799999999999727,
+          "max": 16.800000000000182,
+          "over50": 0,
+          "render": {
+            "frame": 381,
+            "calls": 706,
+            "triangles": 606928,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 97,
+            "textures": 44
+          },
+          "heap": 104045406,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        },
+        {
+          "mode": "portrait",
+          "label": "preview",
+          "order": 2,
+          "cpuP50": 4.5,
+          "cpuP95": 6.100000023841858,
+          "cpuMax": 8.100000023841858,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.799999999999727,
+          "max": 16.800000000000182,
+          "over50": 0,
+          "render": {
+            "frame": 380,
+            "calls": 706,
+            "triangles": 606928,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 97,
+            "textures": 44
+          },
+          "heap": 113993291,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        },
+        {
+          "mode": "portrait",
+          "label": "before",
+          "order": 3,
+          "cpuP50": 3.800000011920929,
+          "cpuP95": 5,
+          "cpuMax": 21.5,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "max": 16.800000000000182,
+          "over50": 0,
+          "render": {
+            "frame": 386,
+            "calls": 730,
+            "triangles": 609976,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 99,
+            "textures": 62
+          },
+          "heap": 110027179,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        },
+        {
+          "mode": "landscape",
+          "label": "before",
+          "order": 0,
+          "cpuP50": 4.199999988079071,
+          "cpuP95": 5.300000011920929,
+          "cpuMax": 13.800000011920929,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "max": 16.800000000000182,
+          "over50": 0,
+          "render": {
+            "frame": 380,
+            "calls": 761,
+            "triangles": 602764,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 113,
+            "textures": 51
+          },
+          "heap": 121039946,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        },
+        {
+          "mode": "landscape",
+          "label": "preview",
+          "order": 1,
+          "cpuP50": 4.199999988079071,
+          "cpuP95": 6,
+          "cpuMax": 10.100000023841858,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "max": 16.800000000000182,
+          "over50": 0,
+          "render": {
+            "frame": 379,
+            "calls": 751,
+            "triangles": 599718,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 113,
+            "textures": 44
+          },
+          "heap": 103253629,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        },
+        {
+          "mode": "landscape",
+          "label": "preview",
+          "order": 2,
+          "cpuP50": 4.200000047683716,
+          "cpuP95": 5.600000023841858,
+          "cpuMax": 8.699999988079071,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "max": 16.800000000000182,
+          "over50": 0,
+          "render": {
+            "frame": 388,
+            "calls": 751,
+            "triangles": 599688,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 113,
+            "textures": 44
+          },
+          "heap": 117510806,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        },
+        {
+          "mode": "landscape",
+          "label": "before",
+          "order": 3,
+          "cpuP50": 4,
+          "cpuP95": 5.199999988079071,
+          "cpuMax": 13.200000047683716,
+          "cpuOver50": 0,
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "max": 16.899999999999636,
+          "over50": 0,
+          "render": {
+            "frame": 382,
+            "calls": 762,
+            "triangles": 602766,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 113,
+            "textures": 52
+          },
+          "heap": 98452930,
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "firing": true,
+          "actors": 69
+        }
+      ],
+      "initialFailure": "A repeatable 103-108ms first-fire HDR shader compilation was reproduced. Both screen and HDR variants are now compiled before Start; first-shot regression and final desktop ABBA pass.",
+      "gpuFlame": {
+        "before": {
+          "samples": 179,
+          "mean": 2.3269543687150827,
+          "p95": 3.23552,
+          "max": 3.745888,
+          "over50": 0
+        },
+        "after": {
+          "samples": 179,
+          "mean": 3.36763405586592,
+          "p95": 4.37776,
+          "max": 4.58256,
+          "over50": 0
+        }
+      },
+      "physicalPhoneVerified": false
+    },
+    "motion": "Actual native input before/after recordings, plus eight-rig gallery and Gargoyle flight. Matching camera/resolution and initial positions; original rig proportions differ as part of the approved longer-leg integration. No audio in recordings.",
+    "runtime": [
+      {
+        "file": "assets-credit.json",
+        "bytes": 10624,
+        "sha256": "d922327df5f7db8017790255b74c472337b851201c6e127942dcf253040fc700"
+      },
+      {
+        "file": "engine/hearth-flamethrower-BwYq4Cmf.mp3",
+        "bytes": 87596,
+        "sha256": "e1a122a08a93a47e4dcaf3eac5e4c38ef5b6e69a4b9d0a52b52930f10c38583d"
+      },
+      {
+        "file": "engine/index-Da-be7GY.css",
+        "bytes": 52113,
+        "sha256": "d3880cea5be4ecf8eddb785f400f83ac197595c28c639163096df32248b52298"
+      },
+      {
+        "file": "engine/index-DbCDvlyF.js",
+        "bytes": 995558,
+        "sha256": "cf7d33d3a06dee5ac5a9ce9f9dd677916e94b5405c27b306591b9f5a50c33339"
+      },
+      {
+        "file": "engine/trajectory-worker-_YoJ0cwY.js",
+        "bytes": 95211,
+        "sha256": "b4518e35dcae8bd2ef10e51efe618135cba9a22c5d04d47b70a707fd50e8634d"
+      },
+      {
+        "file": "icons/apple-touch-icon.png",
+        "bytes": 18260,
+        "sha256": "387cfceeb659a2c870b5b979c63ade3e813f0301a6e3ebd27bc56ee22addbaf9"
+      },
+      {
+        "file": "icons/magic-192.png",
+        "bytes": 20095,
+        "sha256": "503f250b988f16aa5c7804bb3277355578e4f65b713ae26a4b0ce5c2e7245821"
+      },
+      {
+        "file": "icons/magic-512.png",
+        "bytes": 64067,
+        "sha256": "f66cbdf839bad63fabceb57030ab5d008ea837883437c5625765ccabe724f24b"
+      },
+      {
+        "file": "icons/magic-rune.svg",
+        "bytes": 1515,
+        "sha256": "e504e0221112a0843a4c5a5dd1aa684776a95b0283094ca89fc5cacd5f0afa13"
+      },
+      {
+        "file": "index.html",
+        "bytes": 1323,
+        "sha256": "d70afe6023d875f89dfdf337c9638dd592262c43f5e7adf2f735c92f90839c1c"
+      },
+      {
+        "file": "licenses/cannon-es-MIT.txt",
+        "bytes": 1125,
+        "sha256": "4714d0272f50cb21fe46fe29333c7c600d3c85b5ebd2a80f4db07e8cfccbf5b2"
+      },
+      {
+        "file": "licenses/three-MIT.txt",
+        "bytes": 1081,
+        "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+      },
+      {
+        "file": "manifest.webmanifest",
+        "bytes": 831,
+        "sha256": "2ac19389d8ed0535ce5800eed33d1edf44c6261f792d37154eb536ab117275eb"
+      },
+      {
+        "file": "models/LICENSE-KayKit.txt",
+        "bytes": 891,
+        "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629"
+      },
+      {
+        "file": "models/archer.glb",
+        "bytes": 629888,
+        "sha256": "a6e697ee7a25ea78250bf777199977eab4ffb96ec7b0eb9ba7f2112a30d900c3"
+      },
+      {
+        "file": "models/bosses/colossus.glb",
+        "bytes": 2997788,
+        "sha256": "896276d0eb8bf405eb053286cee918bd553fd5765a81521d459c7e91735125b9"
+      },
+      {
+        "file": "models/bosses/gargoyle.glb",
+        "bytes": 6050968,
+        "sha256": "cde17b9bedfaa9be42b4e6660ceca4a63a97e580fe8c6f725107c77f721bd387"
+      },
+      {
+        "file": "models/bosses/wraith.glb",
+        "bytes": 2409068,
+        "sha256": "130d5baea65a44e46df459ccb71f54e2f28a381d6bb963744590fb3395a844e4"
+      },
+      {
+        "file": "models/guard.glb",
+        "bytes": 643104,
+        "sha256": "d76a67ac8d44a83f9af356a27b4d4b8f7b3f310bfa260a580294db59f5b2e5a1"
+      },
+      {
+        "file": "models/hearth-bulwark/hearth-bulwark.glb",
+        "bytes": 6697584,
+        "sha256": "685c005fb358f6229baacb88f1a0691ec8c0362a66c2cc03a61ed25dfbd7f0bb"
+      },
+      {
+        "file": "models/heavy.glb",
+        "bytes": 623808,
+        "sha256": "d470a4623c91bb51723cc286178eaea45d365aae1135c7c57b9c07f550cc794c"
+      },
+      {
+        "file": "models/mage.glb",
+        "bytes": 687872,
+        "sha256": "b298bc24b4ae8fe3221af28cb9c2630791f6dbc5d5dc1d31130869b61a36a0a6"
+      },
+      {
+        "file": "sw.js",
+        "bytes": 3378,
+        "sha256": "289f2495d4d0a294e71865aff644e8a48ba627fe9cc2b52a9db6919c3db83673"
+      }
+    ],
+    "cache": "be5059f68cd156f805326d94",
+    "limitations": [
+      "Mobile viewports run on desktop Chrome, not physical phone hardware.",
+      "Flame remains a bounded procedural volume, not fluid simulation.",
+      "CPU/GPU utilization and VRAM unavailable."
+    ],
+    "weeklyTaskUsage": "unavailable",
+    "creditsForTask": "unavailable"
+  },
+  "oldRuntimeRetained": true,
+  "otherApplicationsAndConceptGalleriesPreserved": true
+}
