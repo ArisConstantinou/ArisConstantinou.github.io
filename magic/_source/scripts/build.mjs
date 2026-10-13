@@ -161,8 +161,20 @@ async function main() {
   await build({
     root: sourceDirectory,
     configFile: path.join(sourceDirectory, 'vite.config.js'),
-    build: { outDir: releaseDirectory, emptyOutDir: true, assetsDir: 'engine' },
+    build: { outDir: releaseDirectory, emptyOutDir: true, assetsDir: 'engine', copyPublicDir: false },
   });
+
+  // Local static QA previews live under public/.cache on the shared server.
+  // Copy deliverable public assets explicitly so those previews cannot enter a release.
+  const publicDirectory = path.join(sourceDirectory, 'public');
+  const publicFiles = (await listFiles(publicDirectory)).filter(file =>
+    !file.split('/').some(part => part.startsWith('.')));
+  for (const file of publicFiles) {
+    validateDeployFile(file);
+    const target = within(releaseDirectory, file);
+    await mkdir(path.dirname(target), { recursive: true });
+    await copyFile(within(publicDirectory, file), target);
+  }
 
   // Vite's inserted asset tags use LF even when a Windows checkout uses CRLF.
   // Normalize before hashing so mixed CR characters cannot enter the release.

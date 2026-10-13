@@ -1,0 +1,20 @@
+# MAGIC bosses: verified local delivery
+
+User authorization: implement all three approved concepts; randomize their room assignments and safe positions each run, one per courtyard/hall/crypt; improve actual GLB resolution/detail; fix reported hollow armour.
+
+Active project: C:/Users/arz0r/Documents/ChatGPT/Magic, codex/trajectory-collision. Boss implementation a82353b; visual correction 2ad8af1; protected pre-boss base 30717d7. Version 1.2.0 at http://127.0.0.1:5173/, original Vite PID 29964 unchanged. No additional server, remote or public deployment. Unrelated untracked concepts/fire-battle-suits-2026-10-11/ preserved and excluded.
+Attached isolated worktree: C:/Users/arz0r/.codex/worktrees/magic-bosses/Magic, codex/magic-bosses; reusable recovery/asset source checkout.
+
+Actual geometry defect was inverted winding in both plate extrusion cap variants and bevels. Corrected face order makes opaque stone/metal outward-facing; backface culling is retained. Raised caps previously hid rune strips after correction; arm/strike rune strips now follow the actual cap facets. 7/7 primitive fixtures pass (both plate fixtures fail before); all 240 closed parts pass manifold, edge orientation, triangle area and positive signed-volume checks. Intentional open cloth/wing/hood surfaces remain separate.
+
+Editable meshes, named rigs, UVs, packed original 2048 base /1024 normal/roughness maps and authored actions are retained in source/bosses/*.blend. Final Colossus: 4,830 triangles/15 bones/6 clips; Gargoyle 6,112/23/7; Wraith 11,825/21/7. Blender 5.1.2, Three.js 0.180.0, cannon-es 0.20.0, Vite 7.1.7; no dependency upgrades, third-party model services, new downloads or agents.
+
+Final validation passed: all 20 GLB clips with finite deformations, loop continuity and ground/contact samples; all three live Vite-served viewer UI tests (clip/pause/orbit/zoom/390px layout); same-camera front/back/detail 2560x1920 captures; 63/63 new-boss encounter checks including 12 randomized starts, both attacks/hit timing, native throws, stunned-knockback room confinement and three-death relic/victory. Prior unchanged-engine tests: 59 units, 16 legacy ballistic cases, live aim 24/24, throws 36/36, controls 21/21, trajectory 6/6, production workers in three viewports and required real-input game-skill smoke.
+
+Original source GLBs, built root GLBs and live HTTP bytes all match the updated provenance SHA256 for all three assets. Production build: 21 files/14.43 MiB/cache 0270a5d071a440158afa7763; existing bundle warning. Final same-camera desktop comparison (broken original assets vs correction): Core Ultra 9 285K/RTX5080, high/1440x900, p95 4.3ms before and after; zero >50ms frames; six restart resource samples bounded. This is desktop/touch emulation; physical phone performance and total GPU VRAM remain unverified. Load timing is cache/order dependent.
+
+Evidence and source-linked metrics: source/bosses/validation-summary.json and ignored output/bosses/. Compare colossus-before-winding-2k.png with colossus-front-2k.png; actual renderer images and motion are retained. The viewer test restores viewport between characters and waits for its canvas resize before asserting overflow. UI assertions remain enabled.
+
+The old ambient in-app tab was not available to the browser provider for reload; open_in_codex queued the verified viewer for this chat. Do not claim an automatic visible refresh. Link: http://127.0.0.1:5173/boss-viewer.html?type=colossus . No required implementation work remains. Physical-device profiling is a possible separate follow-up, not a completed phone-performance claim.
+
+Latest account usage read: ordinary use allowed, aggregate weekly consumption 11%; task-attributed weekly percentage and credits unavailable because of parallel account activity. No model/reasoning change or paid-asset service use for this correction. User's latest default is GPT-6.1 Sol, with GPT-6 Astra proposed only for a specific critical unmet need.

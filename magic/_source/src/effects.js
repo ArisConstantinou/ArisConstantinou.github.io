@@ -1,6 +1,8 @@
 import * as THREE from 'three';
+import {createStompEffects} from './stomp-effects.js';
 const color=new THREE.Color();
 export function createEffects(scene) {
+  const stompEffects=createStompEffects(scene);
   const N=700,positions=new Float32Array(N*3),colors=new Float32Array(N*3),life=new Float32Array(N),size=new Float32Array(N);
   const velocity=new Float32Array(N*3),age=new Float32Array(N),duration=new Float32Array(N);
   const geo=new THREE.BufferGeometry();
@@ -47,13 +49,14 @@ export function createEffects(scene) {
       data[i*3+1]=from.y+(to.y-from.y)*t+arc*.32;data[i*3+2]=from.z+(to.z-from.z)*t+Math.cos(time*12+t*16)*arc*.065;}
     tetherGeo.attributes.position.needsUpdate=true;
   }
-  function update(dt){
+  function update(dt,camera,impactDt=dt){
+    stompEffects.update(impactDt,camera);
     for(let i=0;i<N;i++){if(life[i]<=0)continue;age[i]+=dt;life[i]=Math.max(0,1-age[i]/duration[i]);const k=i*3;
       positions[k]+=velocity[k]*dt;positions[k+1]+=velocity[k+1]*dt;positions[k+2]+=velocity[k+2]*dt;velocity[k+1]-=3*dt;velocity[k]*=1-dt*.7;velocity[k+2]*=1-dt*.7;}
     geo.attributes.position.needsUpdate=geo.attributes.aLife.needsUpdate=true;
     for(let i=rings.length-1;i>=0;i--){const r=rings[i];r.age+=dt;const t=r.age/r.duration;r.mesh.scale.setScalar(.15+r.radius*Math.sqrt(Math.min(1,t)));r.mesh.material.opacity=.75*(1-t);if(t>=1){scene.remove(r.mesh);r.mesh.geometry.dispose();r.mesh.material.dispose();rings.splice(i,1);}}
     for(let i=texts.length-1;i>=0;i--){const t=texts[i];t.age+=dt;t.mesh.position.y+=dt*.85;t.mesh.material.opacity=Math.min(1,(1-t.age)*2);if(t.age>=1){scene.remove(t.mesh);t.mesh.material.map.dispose();t.mesh.material.dispose();texts.splice(i,1);}}
   }
-  function clear(){life.fill(0);tether.visible=false;for(const r of rings){scene.remove(r.mesh);r.mesh.geometry.dispose();r.mesh.material.dispose();}rings.length=0;for(const t of texts){scene.remove(t.mesh);t.mesh.material.map.dispose();t.mesh.material.dispose();}texts.length=0;}
-  return {burst,ring,number,connect,update,clear};
+  function clear(){stompEffects.clear();life.fill(0);tether.visible=false;for(const r of rings){scene.remove(r.mesh);r.mesh.geometry.dispose();r.mesh.material.dispose();}rings.length=0;for(const t of texts){scene.remove(t.mesh);t.mesh.material.map.dispose();t.mesh.material.dispose();}texts.length=0;}
+  return {burst,ring,number,connect,update,clear,stomp:stompEffects.impact,stompSnapshot:stompEffects.snapshot};
 }

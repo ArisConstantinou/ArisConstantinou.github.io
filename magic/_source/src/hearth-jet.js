@@ -12,7 +12,7 @@ float fbm(vec3 p){return .57*noise3(p)+.29*noise3(p*2.03+7.1)+.14*noise3(p*4.11+
 `;
 const volumeVertex=`varying vec3 localPosition;void main(){localPosition=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 const volumeFragment=`
-uniform float time,lengthM,lift,strength,steps;uniform vec3 boxSize;uniform mat4 inverseWorld;
+uniform float time,lengthM,lift,strength,steps,axialOffset;uniform vec3 boxSize;uniform mat4 inverseWorld;
 uniform mat4 projectionMatrix,modelViewMatrix;
 varying vec3 localPosition;
 ${noise3}
@@ -31,7 +31,8 @@ void main(){
   if(float(i)>=steps||opacity>.985)break;
   float sampleDepth=enter+(float(i)+jitter)*stepSize;
   vec3 p=(origin+ray*sampleDepth)*boxSize;
-  float s=clamp(p.z/lengthM+.5,0.,1.);
+  float axial=p.z+axialOffset;
+  float s=max(0.,axial/lengthM);
   // World-up lift is converted into the nozzle frame by the host.
   p.y+=lift*.5-lift*pow(s,1.65);
   vec3 advect=vec3(p.xy*3.6,s*9.-time*9.5);
@@ -40,7 +41,7 @@ void main(){
   float curl=sin(s*17.-time*8.2)*s;
   p.x+=curl*.11+(lobe-.5)*s*.60;
   p.y+=(noise3(advect*.72+11.)-.5)*s*.64;
-  float radius=.065+min(.61,lengthM*.09)*pow(s,.88);
+  float radius=.065+min(.61,lengthM*.09)*pow(min(s,1.),.88);
   radius*=.42+1.2*lobe;
   // Entrained air opens the fuel stream into a broad terminal fire plume.
   radius*=1.+.65*smoothstep(.38,.88,s);
@@ -48,9 +49,20 @@ void main(){
   float envelope=1.-smoothstep(radius*.66,radius,r);
   float breakup=smoothstep(.43,.66,rolling+.12*(1.-s));
   float core=exp(-r*r/(.012+.03*s))*(1.-smoothstep(.15,.72,s));
-  // Rolling tongues lose density at different distances without narrowing.
-  float tip=.88+.11*lobe;
-  float density=(envelope*breakup*1.05+core*.45)*smoothstep(0.,.025,s)*(1.-smoothstep(tip-.25,tip,s))*strength;
+  // The end is a rolling volume of burning fuel, not a cone sliced by one
+  // axial fade plane. Overlapping irregular lobes keep its broad silhouette
+  // while their outer density dissipates into the smoke.
+  float tailRadius=(.065+min(.61,lengthM*.09))*1.92;
+  float roll=time*3.6;
+  vec3 bulb=vec3((p.x-.18*sin(roll))/tailRadius,
+                 (p.y-.12*cos(roll*.8))/(tailRadius*.94),
+                 (axial-lengthM*.79-.12*sin(roll*.7))/(tailRadius*.92));
+  vec3 tongue=vec3((p.x+tailRadius*.34*cos(roll*.65))/(tailRadius*.79),
+                   (p.y-tailRadius*.22)/(tailRadius*.77),
+                   (axial-lengthM*.87-.16*cos(roll*.9))/(tailRadius*.82));
+  float billow=1.-smoothstep(.42,1.,min(length(bulb),length(tongue))+(rolling-.5)*.30);
+  float jetFade=1.-smoothstep(.62,.92,s);
+  float density=(envelope*breakup*1.05*jetFade+core*.45+billow*breakup*.92)*smoothstep(0.,.025,s)*strength;
   float temperature=clamp(.94-s*.36+(rolling-.5)*.5-r/max(radius,.01)*.19,0.,1.);
   vec3 emission=mix(vec3(1.,.055,.004),vec3(1.,.34,.018),smoothstep(.28,.58,temperature));
   emission=mix(emission,vec3(1.,.77,.16),smoothstep(.58,.83,temperature));
@@ -82,7 +94,7 @@ void main(){
 }`;
 
 export function createHearthJet(scene){
- const uniforms={time:{value:0},lengthM:{value:7},lift:{value:.6},strength:{value:0},steps:{value:28},boxSize:{value:new THREE.Vector3()},inverseWorld:{value:new THREE.Matrix4()}};
+ const uniforms={time:{value:0},lengthM:{value:7},lift:{value:.6},strength:{value:0},steps:{value:28},axialOffset:{value:3.5},boxSize:{value:new THREE.Vector3()},inverseWorld:{value:new THREE.Matrix4()}};
  const material=new THREE.ShaderMaterial({uniforms,vertexShader:volumeVertex,fragmentShader:volumeFragment,transparent:true,depthWrite:false,side:THREE.BackSide,toneMapped:false});
  const volume=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),material);volume.name='hearth-jet-volume';volume.visible=false;volume.renderOrder=3;scene.add(volume);
  const capacity=48,geometry=new THREE.PlaneGeometry(1,1);
@@ -109,12 +121,15 @@ export function createHearthJet(scene){
    // Gameplay range is measured horizontally; preserve exactly the same endpoint.
    lastLength=Math.max(.1,hearth.jetLength||7);const physicalLength=lastLength*direction.length();direction.normalize();
    right.crossVectors(worldUp,direction).normalize();if(right.lengthSq()<.01)right.set(1,0,0);up.crossVectors(direction,right).normalize();
-   const lift=Math.min(1.8,lastLength*.25),diameter=.8+Math.min(.61,lastLength*.09)*6.2;
+   const lift=Math.min(1.8,lastLength*.25),diameter=1.1+Math.min(.61,lastLength*.09)*7.1;
+   // Extra empty space contains moving terminal lobes in every camera angle.
+   // lengthM and the gameplay ray stay unchanged; this is only a render bound.
+   const renderLength=physicalLength+(.065+Math.min(.61,lastLength*.09))*2.5;
    basis.makeBasis(right,up,direction);volume.quaternion.setFromRotationMatrix(basis);
-   volume.scale.set(diameter,diameter+lift,physicalLength);
-   volume.position.copy(origin).addScaledVector(direction,physicalLength*.5).addScaledVector(up,lift*.5);
+   volume.scale.set(diameter,diameter+lift,renderLength);
+   volume.position.copy(origin).addScaledVector(direction,renderLength*.5).addScaledVector(up,lift*.5);
    volume.updateMatrixWorld(true);uniforms.inverseWorld.value.copy(volume.matrixWorld).invert();
-   uniforms.boxSize.value.copy(volume.scale);uniforms.lengthM.value=physicalLength;uniforms.lift.value=lift;uniforms.time.value=time;uniforms.strength.value=strength;
+   uniforms.boxSize.value.copy(volume.scale);uniforms.lengthM.value=physicalLength;uniforms.axialOffset.value=renderLength*.5;uniforms.lift.value=lift;uniforms.time.value=time;uniforms.strength.value=strength;
    light.position.copy(origin).addScaledVector(direction,Math.min(1.5,physicalLength*.3));
    light.intensity=firing?(8.5+noiseLight(time)*1.4)*strength:0;
    if(firing&&dt>0){

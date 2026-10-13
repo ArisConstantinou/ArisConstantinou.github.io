@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {HearthHeart,placeHearth,flameHits} from './hearth-rules.js';
+import {HEARTH_STOMP} from './hearth-rules.js';
+test('stomp braces the piloted suit, finishes once and keeps the existing fuel rates',()=>{
+ const h=new HearthHeart({endless:false});assert.equal(h.stomp(),false);h.state='piloted';h.fuel=100;assert.equal(h.stomp(),true);assert.equal(h.clip,'Stomp');assert.equal(h.throw(),false);h.update(.5,{fire:true});assert.equal(h.firing,false);assert.ok(h.stompTime>0);h.update(HEARTH_STOMP.duration-.5);assert.equal(h.stompTime,0);assert.equal(h.clip,'Idle');assert.ok(Math.abs(h.fuel-(100-.2*HEARTH_STOMP.duration))<1e-8);assert.equal(h.exit(),true);
+});
+test('an empty heart safely cancels stomp and starts its ordinary automatic exit',()=>{
+ const h=new HearthHeart({endless:false});h.state='piloted';h.fuel=.01;h.stomp();assert.equal(h.update(.1),'empty');assert.equal(h.stompTime,0);assert.equal(h.state,'exiting');assert.equal(h.emptyExit,true);
+});
 test('heart requires absorbed fire and completed transfer; one flame wakes it',()=>{const h=new HearthHeart(),s={charged:false,readyAt:.45};assert.equal(h.board(),false);assert.equal(h.charge(s,1),false);s.charged=true;assert.equal(h.charge(s,.2),false);assert.equal(h.charge(s,.5),true);assert.equal(s.charged,false);assert.equal(h.fuel,100);assert.equal(h.board(),false);h.update(2.1);assert.equal(h.state,'ready');assert.equal(h.board(),true);});
 test('optional finite policy retains entry, depletion, automatic exit and sleep',()=>{const h=new HearthHeart({endless:false});h.charge({charged:true,readyAt:0},0);h.update(2.1);h.board();h.update(2.4);assert.equal(h.state,'piloted');h.update(1,{fire:true});assert.ok(h.fuel<88);assert.equal(h.firing,true);assert.equal(h.throw(),true);assert.equal(h.clip,'Throw');h.fuel=.01;assert.equal(h.update(.1,{fire:true}),'empty');assert.equal(h.state,'exiting');assert.equal(h.firing,false);assert.equal(h.update(2.4),'exitComplete');assert.equal(h.state,'depleting');h.update(2.1);assert.equal(h.state,'sleep');assert.equal(h.fuel,0);assert.equal(h.charge({charged:true,readyAt:0},100),true);});
 test('manual exit keeps remaining fuel; unoccupied readiness does not drain',()=>{const h=new HearthHeart();h.charge({charged:true,readyAt:0},0);h.update(2.1);h.board();h.update(2.4);h.update(1,{moving:true});const fuel=h.fuel;h.exit();h.update(2.4);assert.equal(h.state,'ready');h.update(100);assert.equal(h.fuel,fuel);assert.equal(h.throw(),false);});
@@ -14,7 +21,7 @@ test('default engine runs for hours while idle, moving and firing without automa
 });
 test('endless throws and stomps preserve energy and manual exit leaves reusable charged engine',()=>{
  const h=new HearthHeart();h.charge({charged:true,readyAt:0},0);h.update(2.1);h.board();h.update(2.4);
- for(let i=0;i<200;i++){assert.equal(h.throw(),true);h.update(1);assert.equal(h.stomp(),true);assert.equal(h.update(.5),'stompImpact');h.update(3);assert.equal(h.fuel,100);}
+ for(let i=0;i<200;i++){assert.equal(h.throw(),true);h.update(1);assert.equal(h.stomp(),true);assert.equal(h.update(HEARTH_STOMP.hit),'stompImpact');h.update(3);assert.equal(h.fuel,100);}
  for(let i=0;i<10;i++){
   assert.equal(h.exit(),true);assert.equal(h.update(2.4),'exitComplete');assert.equal(h.state,'ready');
   h.update(3600);assert.equal(h.fuel,100);assert.equal(h.board(),true);assert.equal(h.update(2.4),'boardComplete');

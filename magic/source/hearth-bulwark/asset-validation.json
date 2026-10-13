@@ -10,9 +10,10 @@
     "Fire": 0.8,
     "Throw": 0.85,
     "Deplete": 2.1,
-    "Exit": 2.4
+    "Exit": 2.4,
+    "Stomp": 1.28
   },
-  "bytes": 6664128,
+  "bytes": 6697584,
   "detailMaps": [
     {
       "name": "MAGIC leather base-2048",
@@ -46,5 +47,47 @@
     }
   ],
   "exportedTextures": 9,
-  "materials": 7
+  "materials": 7,
+  "exportedClips": [
+    {
+      "name": "Board",
+      "duration": 2.4000000953674316
+    },
+    {
+      "name": "Deplete",
+      "duration": 2.0999999046325684
+    },
+    {
+      "name": "Exit",
+      "duration": 2.4000000953674316
+    },
+    {
+      "name": "Fire",
+      "duration": 0.800000011920929
+    },
+    {
+      "name": "Idle",
+      "duration": 2.4000000953674316
+    },
+    {
+      "name": "Sleep",
+      "duration": 2
+    },
+    {
+      "name": "Stomp",
+      "duration": 1.2666666507720947
+    },
+    {
+      "name": "Throw",
+      "duration": 0.8666666746139526
+    },
+    {
+      "name": "Wake",
+      "duration": 2.0999999046325684
+    },
+    {
+      "name": "Walk",
+      "duration": 1.399999976158142
+    }
+  ]
 }

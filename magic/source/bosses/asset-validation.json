@@ -10,7 +10,7 @@
       "Stagger": 0.65,
       "Death": 2.6
     },
-    "bytes": 2993552,
+    "bytes": 2997788,
     "detailMaps": [
       {
         "name": "MAGIC stone base-2048",
@@ -365,14 +365,14 @@
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 6.066659746769195e-05
+        "signedVolume": 0.00006066659746769195
       },
       {
         "part": "Eyes.001",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 6.0666597467691943e-05
+        "signedVolume": 0.000060666597467691943
       },
       {
         "part": "Nose bridge",
@@ -407,28 +407,28 @@
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 4.083340536453761e-05
+        "signedVolume": 0.00004083340536453761
       },
       {
         "part": "Retaining stud L1.30.19",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 4.083340536453761e-05
+        "signedVolume": 0.00004083340536453761
       },
       {
         "part": "Retaining stud L1.68-0.19",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 4.083340536453761e-05
+        "signedVolume": 0.00004083340536453761
       },
       {
         "part": "Retaining stud L1.680.19",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 4.083340536453761e-05
+        "signedVolume": 0.00004083340536453761
       },
       {
         "part": "Cheekbone ridge L",
@@ -442,28 +442,28 @@
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 4.083340536453761e-05
+        "signedVolume": 0.00004083340536453761
       },
       {
         "part": "Retaining stud R1.30.19",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 4.083340536453761e-05
+        "signedVolume": 0.00004083340536453761
       },
       {
         "part": "Retaining stud R1.68-0.19",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 4.083340536453761e-05
+        "signedVolume": 0.00004083340536453761
       },
       {
         "part": "Retaining stud R1.680.19",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 4.083340536453761e-05
+        "signedVolume": 0.00004083340536453761
       },
       {
         "part": "Cheekbone ridge R",
@@ -514,6 +514,32 @@
         "degenerateTriangles": 0,
         "signedVolume": 0.00013199983125862974
       }
+    ],
+    "exportedClips": [
+      {
+        "name": "Death",
+        "duration": 2.5999999046325684
+      },
+      {
+        "name": "Idle",
+        "duration": 2
+      },
+      {
+        "name": "Slam",
+        "duration": 2.4000000953674316
+      },
+      {
+        "name": "Stagger",
+        "duration": 0.6666666865348816
+      },
+      {
+        "name": "Sweep",
+        "duration": 2.200000047683716
+      },
+      {
+        "name": "Walk",
+        "duration": 1.399999976158142
+      }
     ]
   },
   "gargoyle": {
@@ -528,7 +554,7 @@
       "Stagger": 0.65,
       "Death": 2.8
     },
-    "bytes": 6032368,
+    "bytes": 6050968,
     "detailMaps": [
       {
         "name": "MAGIC leather base-2048",
@@ -625,7 +651,7 @@
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 9.890025345763812e-05
+        "signedVolume": 0.00009890025345763812
       },
       {
         "part": "Aggressive brow L",
@@ -828,7 +854,7 @@
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 9.890025345763812e-05
+        "signedVolume": 0.00009890025345763812
       },
       {
         "part": "Aggressive brow R",
@@ -1115,14 +1141,14 @@
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.546957190760704e-05
+        "signedVolume": 0.00005546957190760704
       },
       {
         "part": "Exposed muzzle tooth L1",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.5469478993523224e-05
+        "signedVolume": 0.000055469478993523224
       },
       {
         "part": "Thoracic muscle relief R0",
@@ -1185,14 +1211,14 @@
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.5469430294626435e-05
+        "signedVolume": 0.000055469430294626435
       },
       {
         "part": "Exposed muzzle tooth R1",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.546946001557436e-05
+        "signedVolume": 0.00005546946001557436
       },
       {
         "part": "Dorsal slate spine 0",
@@ -1228,6 +1254,36 @@
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
         "signedVolume": 0.004266665705169241
+      }
+    ],
+    "exportedClips": [
+      {
+        "name": "Claw",
+        "duration": 1.899999976158142
+      },
+      {
+        "name": "Death",
+        "duration": 2.799999952316284
+      },
+      {
+        "name": "Dive",
+        "duration": 2.799999952316284
+      },
+      {
+        "name": "Hover",
+        "duration": 1.2000000476837158
+      },
+      {
+        "name": "Idle",
+        "duration": 2
+      },
+      {
+        "name": "Stagger",
+        "duration": 0.6666666865348816
+      },
+      {
+        "name": "Walk",
+        "duration": 1.100000023841858
       }
     ]
   },
@@ -1290,14 +1346,14 @@
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 2.0159961119740423e-05
+        "signedVolume": 0.000020159961119740423
       },
       {
         "part": "Mint eye.001",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 2.0159961119740426e-05
+        "signedVolume": 0.000020159961119740426
       },
       {
         "part": "Vulnerable bronze collar",
@@ -1479,49 +1535,49 @@
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 6.59999817192632e-05
+        "signedVolume": 0.0000659999817192632
       },
       {
         "part": "Weight bronze rivet L0",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.916666603089349e-05
+        "signedVolume": 0.00001916666603089349
       },
       {
         "part": "Weight bronze rivet L1",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.9166654359044816e-05
+        "signedVolume": 0.000019166654359044816
       },
       {
         "part": "Weight bronze rivet L2",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.9166660270760378e-05
+        "signedVolume": 0.000019166660270760378
       },
       {
         "part": "Weight bronze rivet L3",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.916666027076038e-05
+        "signedVolume": 0.00001916666027076038
       },
       {
         "part": "Weight bronze rivet L4",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.9166660270760378e-05
+        "signedVolume": 0.000019166660270760378
       },
       {
         "part": "Weight bronze rivet L5",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.9166654359044816e-05
+        "signedVolume": 0.000019166654359044816
       },
       {
         "part": "Layered mantle shoulder R",
@@ -1696,105 +1752,105 @@
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 6.59999817192632e-05
+        "signedVolume": 0.0000659999817192632
       },
       {
         "part": "Weight bronze rivet R0",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.916666603089349e-05
+        "signedVolume": 0.00001916666603089349
       },
       {
         "part": "Weight bronze rivet R1",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.9166654359044816e-05
+        "signedVolume": 0.000019166654359044816
       },
       {
         "part": "Weight bronze rivet R2",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.9166660270760378e-05
+        "signedVolume": 0.000019166660270760378
       },
       {
         "part": "Weight bronze rivet R3",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.916666027076038e-05
+        "signedVolume": 0.00001916666027076038
       },
       {
         "part": "Weight bronze rivet R4",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.9166660270760378e-05
+        "signedVolume": 0.000019166660270760378
       },
       {
         "part": "Weight bronze rivet R5",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 1.9166654359044816e-05
+        "signedVolume": 0.000019166654359044816
       },
       {
         "part": "Collar rune set 0",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.0474705252175525e-05
+        "signedVolume": 0.000050474705252175525
       },
       {
         "part": "Collar rune set 1",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.047469191291991e-05
+        "signedVolume": 0.00005047469191291991
       },
       {
         "part": "Collar rune set 2",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.047470040153712e-05
+        "signedVolume": 0.00005047470040153712
       },
       {
         "part": "Collar rune set 3",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.04746919129199e-05
+        "signedVolume": 0.0000504746919129199
       },
       {
         "part": "Collar rune set 4",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.0474705252175525e-05
+        "signedVolume": 0.000050474705252175525
       },
       {
         "part": "Collar rune set 5",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.04746919129199e-05
+        "signedVolume": 0.0000504746919129199
       },
       {
         "part": "Collar rune set 6",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.047470040153712e-05
+        "signedVolume": 0.00005047470040153712
       },
       {
         "part": "Collar rune set 7",
         "nonManifoldEdges": 0,
         "inconsistentEdges": 0,
         "degenerateTriangles": 0,
-        "signedVolume": 5.047469191291991e-05
+        "signedVolume": 0.00005047469191291991
       }
     ]
   }

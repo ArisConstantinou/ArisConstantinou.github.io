@@ -3,12 +3,12 @@
 const SCOPE = new URL(self.registration.scope);
 const INDEX_URL = new URL('index.html', SCOPE).href;
 const CACHE_PREFIX = 'magic-exiled:' + SCOPE.pathname + ':';
-const CACHE_NAME = CACHE_PREFIX + "f5e094f5e05619a95ff9c3cb";
+const CACHE_NAME = CACHE_PREFIX + "fdf8e628fcfed3de21e606dc";
 const PRECACHE = [
   "assets-credit.json",
   "engine/hearth-flamethrower-BwYq4Cmf.mp3",
-  "engine/index-BTIQQQrm.js",
-  "engine/index-DTG-53_D.css",
+  "engine/index-D8nDlK4u.js",
+  "engine/index-Da-be7GY.css",
   "engine/trajectory-worker-_YoJ0cwY.js",
   "icons/apple-touch-icon.png",
   "icons/magic-192.png",

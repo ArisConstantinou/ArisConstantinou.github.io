@@ -541,6 +541,8 @@ body[data-input="touch"] .stick-label { font-size:12px; bottom:-18px; }
 body[data-input="touch"] .touch-actions { right:max(12px,var(--safe-right)); bottom:calc(14px + var(--safe-bottom)); grid-template-columns:repeat(3,52px); gap:8px 7px; }
 body[data-input="touch"] .touch-actions .ability { width:52px; min-height:72px; gap:4px; }
 body[data-input="touch"] .touch-actions .ability-disc { width:50px; height:50px; background:#123026bd; }
+body[data-input="touch"] #game-hud.is-mounted .touch-actions .ability[data-action="pulse"] { width:56px; min-height:76px; }
+body[data-input="touch"] #game-hud.is-mounted .touch-actions [data-action="pulse"] .ability-disc { width:56px; height:56px; border-color:#d5a477; }
 body[data-input="touch"] .touch-actions .ability-name { font-size:12px; letter-spacing:0; }
 body[data-input="touch"] .fire-sample-control,
 body[data-input="touch"] .hearth-actions { left:auto; right:max(12px,var(--safe-right)); bottom:calc(176px + var(--safe-bottom)); gap:0; }

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkeleton } from 'three/addons/utils/SkeletonUtils.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { createRigLocomotion } from './locomotion.js';
 
 // KayKit Adventurers, CC0. Original meshes, atlas textures, rigs and animation
 // data are bundled locally; see public/assets-credit.json for pinned sources.
@@ -101,6 +102,13 @@ export async function loadCharacters(onProgress = () => {}) {
     }
     combineCompatibleSkinParts(gltf.scene,gltf.animations);
     const clips = new Map(gltf.animations.map(clip => [clip.name, withoutHorizontalRootMotion(clip)]));
+    // Combat clips author a forward hip lunge. Applying that full-body lunge
+    // during backwards travel makes a planted ankle physically unreachable.
+    // Keep the authored strike/recoil above the waist; grounded legs/hips are
+    // owned by the contact solver, including movement during the whole attack.
+    for(const name of ['Spellcast_Shoot','1H_Melee_Attack_Slice_Horizontal','2H_Ranged_Shoot','2H_Melee_Attack_Chop','Hit_A']){
+      const source=clips.get(name);if(source)clips.set(name,new THREE.AnimationClip(name,source.duration,source.tracks.filter(isUpperBody).map(track=>track.clone())));
+    }
     if (kind === 'mage') {
       for (const [locomotion, name] of [['Walking_A', 'Walking_Casting'], ['Running_A', 'Running_Casting']]) {
         clips.set(name, movementWithCasting(clips.get(locomotion), clips.get('Spellcasting'), name));
@@ -244,6 +252,12 @@ export function createCharacter(kind = 'mage') {
   group.userData.sourceHeight = sourceHeight;
   group.userData.normalizationScale = normalization;
   model.updateMatrixWorld(true);
+  const legBones = {};
+  model.traverse(o => { if(o.isBone) legBones[o.name] = o; });
+  const locomotion = createRigLocomotion(group, model, ['l','r'].map(side => ({
+    upper: legBones['upperleg'+side], lower: legBones['lowerleg'+side], foot: legBones['foot'+side]
+  })), { stride: .72, lift: .16 });
+  let dashOffset = 0;
   currentAction.time = phase * currentAction.getClip().duration;
   mixer.update(0);
 
@@ -256,6 +270,7 @@ export function createCharacter(kind = 'mage') {
 
   function update(dt, options = {}) {
     if (disposed) return;
+    locomotion.beforeAnimation(); model.position.y -= dashOffset; dashOffset = 0;
     const step = THREE.MathUtils.clamp(Number.isFinite(dt) ? dt : 0, 0, 0.1);
     const { moving = false, casting = false, attack = false, dead = false, stunned = false } = options;
     const worldSpeed = Math.max(0, Number.isFinite(options.speed) ? options.speed : (moving ? 2 : 0));
@@ -284,7 +299,7 @@ export function createCharacter(kind = 'mage') {
         let name;
         let animationSpeed = 1;
         if (walking) {
-          const running = worldSpeed >= 2.7;
+          const running = worldSpeed >= locomotion.gait.runningThreshold*group.scale.y;
           name = running ? 'Running_A' : 'Walking_A';
           animationSpeed = running
             ? THREE.MathUtils.clamp(worldSpeed / 3.3, 0.72, 1.55)
@@ -307,6 +322,9 @@ export function createCharacter(kind = 'mage') {
     wasStunned = isStunned;
     wasDead = isDead;
     mixer.update(step);
+    const dash = Math.max(0, options.dash || 0);
+    if (dash > 0) { dashOffset = Math.sin(Math.PI * Math.min(1, 1-dash)) * .48; model.position.y += dashOffset; }
+    locomotion.update(step, { grounded: options.grounded !== false, airborne: options.airborne || dash > 0, dead: isDead,align:alignGait });
   }
 
   function setTint(value = 0xffffff, amount = 1) {
@@ -315,9 +333,11 @@ export function createCharacter(kind = 'mage') {
     const multiplier = new THREE.Color(0xffffff).lerp(tint, THREE.MathUtils.clamp(amount, 0, 1));
     for (const [material, original] of baseColors) material.color.copy(original).multiply(multiplier);
   }
+  function alignGait(gait){if(/^(Walking|Running)/.test(currentName)){currentAction.time=(gait.phase%1)*currentAction.getClip().duration;mixer.update(0);}}
 
   function reset() {
     if (disposed) return;
+    locomotion.reset(); model.position.y -= dashOffset; dashOffset = 0;
     mixer.stopAllAction();
     currentAction = undefined;
     currentName = '';
@@ -343,5 +363,5 @@ export function createCharacter(kind = 'mage') {
     group.clear();
   }
 
-  return { group, update, setTint, reset, dispose };
+  return { group, model, locomotion, update, setTint, reset, dispose };
 }

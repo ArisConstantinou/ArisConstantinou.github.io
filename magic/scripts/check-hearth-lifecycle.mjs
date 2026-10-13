@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';import path from 'node:path';import {pathToFileURL} from 'node:url';
 const skill=path.join(process.env.USERPROFILE,'.codex/skills/develop-web-game'),{chromium}=await import(pathToFileURL(path.join(skill,'node_modules/playwright/index.mjs'))),{launchManagedBrowser}=await import(pathToFileURL(path.join(skill,'scripts/browser_lifecycle.mjs')));
-const out=path.resolve('output/hearth/final');await fs.mkdir(out,{recursive:true});const managed=await launchManagedBrowser(chromium,{channel:'chrome',headless:true,softwareRendering:false,screenshotDir:out}),report={checks:[],errors:[]};let context;
+const out=path.resolve(process.env.MAGIC_TEST_OUTPUT||'output/hearth/final');await fs.mkdir(out,{recursive:true});const managed=await launchManagedBrowser(chromium,{channel:'chrome',headless:true,softwareRendering:false,screenshotDir:out}),report={checks:[],errors:[]};let context;
 const check=(pass,label)=>{report.checks.push({pass:!!pass,label});if(!pass)throw new Error(label);};
 try{
  context=await managed.browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});const page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));

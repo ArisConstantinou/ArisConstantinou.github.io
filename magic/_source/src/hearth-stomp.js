@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-export const STOMP={duration:.95,impact:.46,cooldown:2.8,radius:4.2,damage:28};
+export const STOMP={duration:1.28,impact:.62,cooldown:2.8,radius:4.2,damage:28};
 
 // Author the move on the existing rig. Both planted feet use two-bone IK,
 // so shifting the body's weight does not slide the support foot.
@@ -12,7 +12,7 @@ export function createStompClip(model,bones,idle){
   const axis=a.clone().sub(h).normalize(),pole=k.clone().sub(h).addScaledVector(axis,-k.clone().sub(h).dot(axis)).normalize();
   return {thigh,shin,foot,target:a,rotation:foot.getWorldQuaternion(new THREE.Quaternion()),upper:h.distanceTo(k),lower:k.distanceTo(a),pole};
  });
- const times=[0,.12,.28,.4,STOMP.impact,.55,.72,STOMP.duration],lift=[0,.05,.52,.38,0,0,0,0],sink=[0,-.03,-.04,-.015,-.12,-.07,-.02,0];
+ const times=[0,.12,.28,.48,STOMP.impact,.78,1.02,STOMP.duration],lift=[0,.05,.52,.38,0,0,0,0],sink=[0,-.03,-.04,-.015,-.12,-.07,-.02,0];
  const tracks=new Map(idle.tracks.map(t=>[t.name,[]]));
  function point(b){return b.getWorldPosition(new THREE.Vector3());}
  function aim(b,child,target){

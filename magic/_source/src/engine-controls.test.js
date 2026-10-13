@@ -23,7 +23,7 @@ test('stomp hits once on foot contact, pauses fire and observes cooldown',()=>{
 test('exiting cancels pending stomp damage and boarding cannot stomp',()=>{
  const h=new HearthHeart();h.state='boarding';assert.equal(h.stomp(),false);
  h.state='piloted';h.fuel=100;h.stomp();h.update(.2);h.exit();assert.equal(h.update(.4),null);
- assert.equal(h.stompTime,null);assert.equal(h.stomp(),false);
+ assert.equal(h.stompTime,0);assert.equal(h.stomp(),false);
 });
 test('engine escort stays behind and sideways for all eight headings',()=>{
  for(let i=0;i<8;i++){const yaw=i*Math.PI/4,p=engineEscort({x:4,z:9},yaw,{x:0,z:0});

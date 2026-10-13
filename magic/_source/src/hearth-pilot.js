@@ -7,7 +7,7 @@ export function poseHearthPilot(visual,suit,{climbing=false,progress=0}={}){
  if(!bones){bones={};visual.group.traverse(o=>{if(o.isBone)bones[o.name]=o;});visual.group.userData.hearthPilotBones=bones;}
  const getBone=name=>bones[name]||bones[name.replaceAll('.','')]; // GLTFLoader sanitizes dots.
  visual.group.updateMatrixWorld(true);suit.group.updateMatrixWorld(true);
- const worldPoint=(x,y,z)=>suit.group.localToWorld(new THREE.Vector3(x,y,z));
+ const worldPoint=(x,y,z)=>climbing?suit.group.localToWorld(new THREE.Vector3(x,y,z)):suit.controlPoint(Math.sign(x));
  const targets=[];
  function solve(chain,endName,target){
   const end=getBone(endName);if(!end)throw new Error('Missing pilot bone '+endName);
@@ -23,15 +23,15 @@ export function poseHearthPilot(visual,suit,{climbing=false,progress=0}={}){
  }
  for(const side of ['l','r']){
   const upper=getBone('upperarm.'+side);if(!upper)throw new Error('Missing pilot upper arm '+side);
-  const local=suit.group.worldToLocal(upper.getWorldPosition(new THREE.Vector3()));const sign=local.x>=0?1:-1;
+  const local=suit.group.worldToLocal(upper.getWorldPosition(new THREE.Vector3()));const sign=climbing?(local.x>=0?1:-1):(side==='l'?1:-1);
   if(climbing){
-   const step=.274,height=.05+2.27*progress;
+   const step=(2.27+suit.rise)/8.3,height=.05+(2.27+suit.rise)*progress;
    const rung=Math.max(0,Math.min(8,Math.ceil((height-.05)/step)));
    const footY=.05+Math.min(8,rung+(side==='l'?0:1))*step;
-   const footZ=-1.32+(footY-.04)*(.56/2.4);
+   const footZ=-1.32+(footY-.04)*(.56/(2.4+suit.rise));
    solve(['lowerleg.'+side,'upperleg.'+side],'foot.'+side,worldPoint(sign*.12,footY,footZ));
-   const handY=Math.min(2.44,.05+Math.round((height+.55)/step)*step);
-   const handZ=-1.32+(handY-.04)*(.56/2.4);
+   const handY=Math.min(2.44+suit.rise,.05+Math.round((height+.55)/step)*step);
+   const handZ=-1.32+(handY-.04)*(.56/(2.4+suit.rise));
    solve(['lowerarm.'+side,'upperarm.'+side],'hand.'+side,worldPoint(sign*.26,handY,handZ));
   }else solve(['lowerarm.'+side,'upperarm.'+side],'hand.'+side,worldPoint(sign*.29,2.85,.22));
  }

@@ -3,7 +3,8 @@
   "authorization": [
     "User approved all three concepts: implement them",
     "All three in every run; random room assignment, each in its own room",
-    "Increase actual model resolution and detail"
+    "Increase actual model resolution and detail",
+    "2026-10-12: Proper all-unit animation; Gargoyle mostly flies; Galio selected as movement reference"
   ],
   "tools": {
     "blender": "5.1.2",
@@ -16,10 +17,10 @@
     {
       "type": "colossus",
       "file": "models/bosses/colossus.glb",
-      "sha256": "996105205afd33658b24cef3e8a77d65f9952d2e6aa4125c9864d2f06f149184",
-      "bytes": 2993552,
+      "sha256": "896276d0eb8bf405eb053286cee918bd553fd5765a81521d459c7e91735125b9",
+      "bytes": 2997788,
       "source": "source/bosses/colossus.blend",
-      "sourceSha256": "688d940bf6bf13356a9ddd5e5721bd7f0b9a0183079934d62a67f414b659e81b",
+      "sourceSha256": "34062ea27a1ec2102275b4fe6a6aa17291d88f712549f6cb83c9d05e09141634",
       "bones": 15,
       "triangles": 4830,
       "clips": {
@@ -533,15 +534,41 @@
           "degenerateTriangles": 0,
           "signedVolume": 0.00013199983125862974
         }
+      ],
+      "exportedClips": [
+        {
+          "name": "Death",
+          "duration": 2.5999999046325684
+        },
+        {
+          "name": "Idle",
+          "duration": 2
+        },
+        {
+          "name": "Slam",
+          "duration": 2.4000000953674316
+        },
+        {
+          "name": "Stagger",
+          "duration": 0.6666666865348816
+        },
+        {
+          "name": "Sweep",
+          "duration": 2.200000047683716
+        },
+        {
+          "name": "Walk",
+          "duration": 1.399999976158142
+        }
       ]
     },
     {
       "type": "gargoyle",
       "file": "models/bosses/gargoyle.glb",
-      "sha256": "5fb7d90ea41f9b20995f6371aeed0edb086fe41ac7d7d345025bf379fe015533",
-      "bytes": 6032368,
+      "sha256": "cde17b9bedfaa9be42b4e6660ceca4a63a97e580fe8c6f725107c77f721bd387",
+      "bytes": 6050968,
       "source": "source/bosses/gargoyle.blend",
-      "sourceSha256": "8d35e62c08a2d1966fd8e38cb025f5576c79e54e45be109598dd4804fd512543",
+      "sourceSha256": "5d5a27d31ee2072e9c2485d539acec3cc6e4cb1efa65df2b6cfa5e4bd097fa27",
       "bones": 23,
       "triangles": 6112,
       "clips": {
@@ -1253,6 +1280,36 @@
           "degenerateTriangles": 0,
           "signedVolume": 0.004266665705169241
         }
+      ],
+      "exportedClips": [
+        {
+          "name": "Claw",
+          "duration": 1.899999976158142
+        },
+        {
+          "name": "Death",
+          "duration": 2.799999952316284
+        },
+        {
+          "name": "Dive",
+          "duration": 2.799999952316284
+        },
+        {
+          "name": "Hover",
+          "duration": 1.2000000476837158
+        },
+        {
+          "name": "Idle",
+          "duration": 2
+        },
+        {
+          "name": "Stagger",
+          "duration": 0.6666666865348816
+        },
+        {
+          "name": "Walk",
+          "duration": 1.100000023841858
+        }
       ]
     },
     {
@@ -1827,5 +1884,34 @@
         }
       ]
     }
-  ]
+  ],
+  "animationRevision": {
+    "date": "2026-10-12",
+    "source": {
+      "file": "source/bosses/update_locomotion.py",
+      "bytes": 5655,
+      "sha256": "22225858f58ae9d638ce24e09e3f0d51069ecaabbd61f487fd026aa87996dece"
+    },
+    "changedActions": {
+      "colossus": [
+        "Walk"
+      ],
+      "gargoyle": [
+        "Walk",
+        "Hover",
+        "Dive"
+      ]
+    },
+    "reference": {
+      "page": "https://www.leagueoflegends.com/en-us/champions/galio/",
+      "ability": "Hero’s Entrance",
+      "inspectedVideoSeconds": [
+        2.6,
+        3.65,
+        4.15
+      ],
+      "use": "Compact airborne pose, broad wing stroke, low impact brace and planted recovery; original Gargoyle geometry retained"
+    },
+    "verification": "source/UNIT-ANIMATION-VERIFICATION.json"
+  }
 }

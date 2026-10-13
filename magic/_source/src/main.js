@@ -9,6 +9,7 @@ import { createWorld, createPropMesh } from './world.js';
 import { loadCharacters, createCharacter } from './characters.js';
 import { loadBossCharacters, createBossCharacter } from './boss-characters.js';
 import { BOSS_DEFINITIONS, createBossLayout, insideBossRoom, bossAttackCrossed } from './boss-rules.js';
+import {gargoyleFlightHeight,gargoyleLiftAcceleration} from './gargoyle-flight.js';
 import { createUI } from './ui.js';
 import { createEffects } from './effects.js';
 import { MagicAudio } from './audio.js';
@@ -716,9 +717,12 @@ function pulse(){
   if(hearth.occupied){hearth.stomp();return;}
   if(player.pulseCooldown>0||player.mana<25)return;
   player.mana-=25;player.pulseCooldown=5.2*(1-player.gear.cooldown);castTime=.4;
-  const radius=4.6+.65*(save.profile.upgrades.pulse||0),p=player.body.position;
+  applyPulse(player.body.position,false);
+}
+function applyPulse(p,stomp){
+  const radius=4.6+.65*(save.profile.upgrades.pulse||0);
   fx.ring(p,0x92ffe0,radius,.5);fx.burst({x:p.x,y:1,z:p.z},0x9cffdf,65,7);
-  sound.sound('pulse');shake=.3;
+  if(!stomp)sound.sound('pulse');shake=stomp?.5:.3;
   for(const e of entities){
     if(e.removed||e.isPlayer||e.ally||e.reserved||e===held)continue;
     const d=distance(p,e.body.position);
@@ -1134,6 +1138,12 @@ function updateEntities(dt){
     if(e.removed)continue;
     e.stun=Math.max(0,(e.stun||0)-dt);e.hitFlash=Math.max(0,(e.hitFlash||0)-dt);e.attackPulse=Math.max(0,(e.attackPulse||0)-dt);
     if(e.reserved)continue;
+    if(e.bossType==='gargoyle'){
+      const target=gargoyleFlightHeight(e.bossClip,e.bossTime),disabled=e===held||e.dead||e.stun>0||!e.body.fixedRotation||e.thrownUntil>runTime;
+      const lift=gargoyleLiftAcceleration({height:e.body.position.y-e.cy,velocity:e.body.velocity.y,target,gravity:physics.gravity.y,disabled});
+      e.flying=lift!==null&&target>.15;
+      if(lift!==null){e.body.wakeUp();e.body.force.y+=e.body.mass*lift;}
+    }
     if(e.ally)updateGoliath(e,dt);
     else if(e.category==='actor'&&!e.isPlayer)updateEnemy(e,dt);
     if(e.category==='actor'&&e!==held&&e.stun<=0&&e.body.position.y<e.cy+.45){
@@ -1166,6 +1176,7 @@ function syncVisuals(dt){
     if(airborne){e.mesh.quaternion.copy(e.body.quaternion);tempV.set(0,e.cy,0).applyQuaternion(e.mesh.quaternion);e.mesh.position.copy(p).sub(tempV);}
     else{e.mesh.position.set(p.x,p.y-e.cy,p.z);e.mesh.rotation.set(0,e.yaw,0);}
     const speed=Math.hypot(e.body.velocity.x,e.body.velocity.z);
+    const flying=e.bossType==='gargoyle'&&!e.dead&&(e.flying||p.y>e.cy+.2);
     e.mesh.visible=e.isPlayer||e.ally||e===held||distance(e.body.position,player.body.position)<29;
     // Invisible rigs still had every bone's world matrix traversed by Three.
     // Attach them again before they become visible; physics and AI stay live.
@@ -1174,7 +1185,7 @@ function syncVisuals(dt){
       e.gait=e.creature.animate(dt,{attack:e.strikeTime,attackSide:e.strikeSide,protecting:e.protecting});
       if(e.dead){const t=clamp((runTime-e.deathTime)/1.2,0,1);for(const part of e.creature.parts.values()){part.root.position.y*=1-t;part.root.position.x*=1+t*.4;part.root.rotation.z+=t*.45;}}
     }else if(e.mesh.visible){
-    const animationOptions={moving:!airborne&&speed>.18,speed,casting:e.isPlayer&&(!!held||castTime>0),attack:e.isPlayer?castTime>.27:e.attackPulse>0,dead:e.dead&&!airborne,stunned:e.stun>.01&&!airborne};
+    const animationOptions={moving:!airborne&&speed>.18,speed,grounded:!airborne&&!flying,airborne,flying:e.flying,dash:e.isPlayer?e.dashTime/.19:0,casting:e.isPlayer&&(!!held||castTime>0),attack:e.isPlayer?castTime>.27:e.attackPulse>0,dead:e.dead&&!airborne,stunned:e.stun>.01&&!airborne};
     if(e.bossType){animationOptions.clip=e.bossClip;animationOptions.time=e.dead?runTime-e.deathTime:e.stun>.01?(e.bossStaggerTime||0):e.bossAttack?e.bossTime:undefined;}
     e.visual.update(dt,animationOptions);
     }
@@ -1403,7 +1414,7 @@ function frame(now,manual=false){
         }
       }
       const animate=['playing','menu'].includes(phase)?dt:0;
-      syncVisuals(animate);updateCamera(dt);updateHUD();fx.update(animate||dt*.25);
+      syncVisuals(animate);updateCamera(dt);updateHUD();fx.update(animate||dt*.25,camera,animate);
       hearth.sync(animate);
       hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera,quality});
       if(!held)fx.connect(null);
@@ -1440,7 +1451,16 @@ async function boot(){
     await loadHearth();hearthFX=createHearthEffects(scene);
     hearth=createHearthSystem({scene,physics,worldMap,nav,material:actorMaterial,spell:fireSpell,getPlayer:()=>player,getEntities:()=>entities,getHeld:()=>held,releaseHeld,hurt,clear:(a,b)=>visibleLine(a,b,.01),sound,toast:ui.toast,fx});
     ui.setLoading(.9,'Η μαγεία σχηματίζεται…');populate();
-    if(renderer.compileAsync)await renderer.compileAsync(scene,camera);
+    if(renderer.compileAsync){
+      await renderer.compileAsync(scene,camera);
+      // Desktop renders through a linear HDR target. Precompile that variant
+      // too: compiling only the screen/sRGB variant stalls on the first shot.
+      const target=renderer.getRenderTarget();
+      renderer.setRenderTarget(composer.readBuffer);
+      const pending=renderer.compileAsync(scene,camera);
+      renderer.setRenderTarget(target);
+      await pending;
+    }
     ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
     window.__MAGIC__={version:packageInfo.version,snapshot:()=>({hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
       kills,relicTaken,holding:held?.label||null,dragging:!!drag,shielding:!!player?.shielding,context:contextTarget?{id:contextTarget.id,label:contextTarget.label,enabled:contextTarget.enabled}:null,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
@@ -1460,7 +1480,7 @@ async function boot(){
     if(FIRE_ENABLED&&FIRE_BENCHMARK)window.__FIRE_BENCHMARK__=enabled=>{fireFX.setEnabled(enabled);renderer.info.autoReset=false;};
     window.advanceTime=ms=>{controlledUntil=performance.now()+1000;const steps=Math.max(1,Math.ceil(ms/(1000/60)));for(let i=0;i<steps;i++)frame(lastTime+ms/steps,true);lastTime=performance.now();};
     if(!candidate&&!import.meta.env.DEV&&'serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});
-    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get nav(){return nav;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,get time(){return runTime;},pause:togglePause,step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);syncVisuals(dt);hearth.sync(dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
+    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get nav(){return nav;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,pulse,stoneFixture:createStoneCreature,get time(){return runTime;},pause:togglePause,render:()=>{controlledUntil=performance.now()+60000;composer.render();},impactSnapshot:()=>fx.stompSnapshot(),step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);syncVisuals(dt);hearth.sync(dt);fx.update(dt,camera,dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
   }catch(error){showError(error);}
 }
 boot();
