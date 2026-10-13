@@ -9,6 +9,16 @@ export function createHearth(){
  const group=new THREE.Group(),model=clone(template.scene);model.rotation.y=Math.PI;group.add(model);
  const materials=[],bones={};
  model.traverse(o=>{if(o.isBone)bones[o.name]=o;if(o.isMesh){o.castShadow=o.receiveShadow=true;const copy=m=>{const n=m.clone();materials.push(n);return n;};o.material=Array.isArray(o.material)?o.material.map(copy):copy(o.material);}});
+ const highlightMaterials=materials.filter(m=>m.emissive&&m.name!=='Heart embers').map(material=>({material,color:material.emissive.clone(),intensity:material.emissiveIntensity}));
+ const highlightColor=new THREE.Color(0xe9c778);
+ function setHighlight(active,time=0){
+  group.userData.interactionHighlighted=!!active;
+  for(const {material,color,intensity} of highlightMaterials){
+   material.emissive.copy(color);
+   if(active)material.emissive.lerp(highlightColor,.55);
+   material.emissiveIntensity=active?.36+Math.sin(time*3)*.035:intensity;
+  }
+ }
  const mixer=new THREE.AnimationMixer(model),clips=new Map(template.animations.map(c=>[c.name,c]));let action,name='',locomotion;
  const worldQ=new THREE.Quaternion(),parentQ=new THREE.Quaternion(),yawQ=new THREE.Quaternion(),up=new THREE.Vector3(0,1,0),overrides=[new THREE.Vector3(),new THREE.Vector3()];
  let stompFeet=null,controlTargets,waistPose=null,rise=0;
@@ -50,5 +60,5 @@ export function createHearth(){
  controlTargets=[.29,-.29].map(x=>bones.torso.worldToLocal(group.localToWorld(new THREE.Vector3(x,2.85+rise,.22))));
  locomotion=createRigLocomotion(group,model,['L','R'].map(side=>({upper:bones['thigh_'+side],lower:bones['shin_'+side],foot:bones['foot_'+side]})),{mechanical:true,stride:.82,lift:.29});
  update(0);
- return {group,model,bones,mixer,clips,locomotion,rise,update,point,controlPoint,dispose};
+ return {group,model,bones,mixer,clips,locomotion,rise,update,point,controlPoint,setHighlight,dispose};
 }

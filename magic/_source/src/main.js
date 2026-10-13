@@ -1338,9 +1338,13 @@ function useContext(fireOnly=false){
 function renderContext(){
   if(contextAt>runTime||runTime-contextAt>.1){contextTarget=findContext();contextAt=runTime;}
   if(!contextHighlight){contextHighlight=new THREE.Mesh(new THREE.TorusGeometry(.7,.035,6,32),new THREE.MeshBasicMaterial({color:0xffdf9d,transparent:true,opacity:.85,depthWrite:false}));contextHighlight.rotation.x=-Math.PI/2;scene.add(contextHighlight);}
-  const current=phase==='playing'?contextTarget:null;contextHighlight.visible=!!current;
+  const nearbyEngine=phase==='playing'&&!hearth.snapshot().occupied&&hearth.near();
+  hearth.engine?.visual.setHighlight(nearbyEngine,runTime);
+  // Keep E and the mobile action-bar exit operational, without an exit badge
+  // following the pilot around the battlefield at any viewport size.
+  const current=phase==='playing'&&contextTarget?.id!=='engine-exit'?contextTarget:null;contextHighlight.visible=!!current;
   if(!current){ui.updateContext(null);return;}
-  const point=current.point;contextHighlight.position.set(point.x,Math.max(.1,point.y),point.z);contextHighlight.scale.setScalar(current.kind==='engine'?1.3:current.kind==='flame'?.5:1);
+  const point=current.kind==='engine'?hearth.engine.body.position:current.point;contextHighlight.position.set(point.x,current.kind==='engine'?.09:Math.max(.1,point.y),point.z);contextHighlight.scale.setScalar(current.kind==='engine'?2.8:current.kind==='flame'?.5:1);
   const rect=renderer.domElement.getBoundingClientRect();contextPoint.set(player.body.position.x,player.body.position.y-player.cy,player.body.position.z).project(camera);
   const x=rect.left+(contextPoint.x+1)*rect.width/2,y=rect.top+(1-contextPoint.y)*rect.height/2+14;
   ui.updateContext({...current,x:clamp(x,34,innerWidth-34),y:clamp(y,16,innerHeight-74)});
@@ -1360,7 +1364,7 @@ function updateHUD(){
   else if(runTime<22)hint=mobile?'Άγγιξε ένα αντικείμενο → σύρε → άφησε για ρίψη.':'Κλικ πάνω σε αντικείμενο → κράτησε και σύρε → άφησε για ρίψη.';
   else if(!target)hint=mobile?'Πάτησε πάνω σε αντικείμενο ή φρουρό. ΠΕΤΡΑ: κάλεσε ένα θραύσμα.':'Πάτησε πάνω σε αντικείμενο ή φρουρό. R: κάλεσε μια πέτρα.';
   const hs=hearth.snapshot(),nearHearth=hearth.near(),fireAvailable=fireSpell.available(player,fireLineClear,held,aimPoint);
-  if(hs.occupied)hint=hs.state==='piloted'?(mobile?'ΠΥΡ: κράτησε · ΠΑΤΗΜΑ: χτύπημα εδάφους · ΕΞΟΔΟΣ κάτω από τον χαρακτήρα':'Αριστερό κλικ: φλογοβόλο · Δεξί κλικ: πάτημα · E: έξοδος'):'Η σκάλα χρησιμοποιείται · περίμενε να ολοκληρωθεί η κίνηση.';
+  if(hs.occupied)hint=hs.state==='piloted'?(mobile?'ΠΥΡ: κράτησε · ΠΑΤΗΜΑ: χτύπημα εδάφους · ΕΞΟΔΟΣ στα χειριστήρια':'Αριστερό κλικ: φλογοβόλο · Δεξί κλικ: πάτημα · E: έξοδος'):'Η σκάλα χρησιμοποιείται · περίμενε να ολοκληρωθεί η κίνηση.';
   else if(nearHearth)hint=hs.state==='sleep'?(fireSpell.charged?'ΦΟΡΤΙΣΗ κάτω από τον χαρακτήρα · Δώσε τη φλόγα στην καρδιά':'Η στολή κοιμάται · πλησίασε έναν πυρσό και πάτησε ΦΩΤΙΑ κάτω από τον χαρακτήρα'):hs.state==='ready'?'ΕΙΣΟΔΟΣ κάτω από τον χαρακτήρα · Μπες στη στολή':'Η καρδιά ξυπνά τη στολή…';
   else if(fireAvailable&&!fireSpell.charged&&!held)hint='Πλησίασε τον πυρσό και πάτησε ΦΩΤΙΑ κάτω από τον χαρακτήρα';
   let zone='Η Αυλή';

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { existingRooms, newRooms, corridors, secretAreas, layoutScale } from './castle-layout.js';
 import { castleBoundaries } from './castle-boundaries.js';
+import { createCastleArt,dressCastle,roomArt,wallArt } from './castle-art.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // All distances are metres. North is -Z. Static detail is instanced; loose
@@ -144,6 +145,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   const root = new THREE.Group();
   root.name = 'The Blackthorn Bastion';
   scene.add(root);
+  const castleArt=createCastleArt(root);
   const colliders = [];
   const floors = [];
   const props = [];
@@ -162,6 +164,9 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     paleGold: new THREE.MeshStandardMaterial({ color: 0xc9aa70, metalness: 0.8, roughness: 0.32 }),
     darkWood: new THREE.MeshStandardMaterial({ color: 0x51413b, map: woodMap, roughness: 0.94 }),
     banner: new THREE.MeshStandardMaterial({ color: 0x711d3b, roughness: 1, side: THREE.DoubleSide }),
+    textile: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, side: THREE.DoubleSide }),
+    garden: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .94 }),
+    glass: new THREE.MeshStandardMaterial({ color: 0xffffff, emissive:0x839da0,emissiveIntensity:.24,roughness:.35,metalness:.18,side:THREE.DoubleSide }),
     shadow: new THREE.MeshBasicMaterial({ color: 0x080d16, transparent: true, opacity: 0.3, depthWrite: false }),
     flame: new THREE.MeshBasicMaterial({ color: 0xffa23d, toneMapped: false }),
     flameCore: new THREE.MeshBasicMaterial({ color: 0xffecd0, toneMapped: false }),
@@ -218,22 +223,12 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   function floor(x0, x1, z0, z1, color, zone) {
     floors.push({ x: (x0 + x1) / 2, y: -0.3, z: (z0 + z1) / 2, w: x1 - x0, h: 0.6, d: z1 - z0, tag: zone });
     box((x0 + x1) / 2, -0.35, (z0 + z1) / 2, x1 - x0, 0.7, z1 - z0, 0x454c57, 'base');
-    const tile = 1.28;
-    let row = 0;
-    for (let z = z0; z < z1 - 0.05; z += tile, row++) {
-      const depth = Math.min(tile, z1 - z);
-      for (let x = x0 - (row % 2) * tile / 2; x < x1 - 0.05; x += tile) {
-        const left = Math.max(x, x0);
-        const width = Math.min(x + tile, x1) - left;
-        if (width < 0.04) continue;
-        box(left + width / 2, -0.027 + rand() * 0.008, z + depth / 2, width - 0.036, 0.07, depth - 0.036, shade(color, 0.28), 'cutStone', (rand() - 0.5) * 0.008, 'paving');
-      }
-    }
-    // A restrained brass line directs the eye along the route through the keep.
-    if (zone !== 'bridge') {
-      for (const x of [(x0+x1)/2-2.13, (x0+x1)/2+2.13]) {
-        box(x, 0.016, (z0 + z1) / 2, 0.046, 0.023, z1 - z0 - 0.2, 0x88754e, 'bronze', 0, 'floor-inlay');
-      }
+    castleArt.surface({id:zone,x:x0,z:z0,w:x1-x0,d:z1-z0});
+    // Dressed edge stones give the material transition actual depth. Centres
+    // remain continuous physical floors for feet, rolling objects and engine.
+    if(zone!=='bridge')for(const s of [-1,1]){
+      box((x0+x1)/2,.008,s<0?z0+.16:z1-.16,x1-x0,.035,.29,roomArt(zone).tone,'cutStone',0,'floor-inlay');
+      box(s<0?x0+.16:x1-.16,.008,(z0+z1)/2,.29,.035,z1-z0,roomArt(zone).tone,'cutStone',0,'floor-inlay');
     }
   }
 
@@ -259,31 +254,46 @@ export function createWorld(scene,{fireEnabled=true}={}) {
 
   // A wall has an unbroken physical core and individually dressed stones.
   function wall(x,z,length,...rest){const s=positionScale;return atLayoutPoint(wallShape,x,z,[length*s,...rest]);}
-  function wallShape(x, z, length, height, alongX, { low = false, tag = 'wall', thickness = 0.8, crenels = false } = {}) {
+  function wallShape(x, z, length, height, alongX, { low = false, tag = 'wall', thickness = 0.8, crenels = false, room='bridge' } = {}) {
+    const style=wallArt(room);
     const actualH = low ? Math.min(height, 1.08) : height;
     collider(x, actualH / 2, z, alongX ? length : thickness, actualH, alongX ? thickness : length, tag);
-    box(x, actualH / 2 - 0.025, z, alongX ? length : thickness - 0.06, actualH, alongX ? thickness - 0.06 : length, 0x333d49, 'base');
-    const rows = Math.max(2, Math.ceil(actualH / 0.45));
+    box(x, actualH / 2 - 0.025, z, alongX ? length : thickness - 0.06, actualH, alongX ? thickness - 0.06 : length, style.base, 'base');
+    const rows = Math.max(2, Math.ceil(actualH / style.course));
     const course = actualH / rows;
     for (let row = 0; row < rows; row++) {
       let at = -length / 2;
       while (at < length / 2 - 0.025) {
-        const raw = 0.84 + rand() * 0.64;
+        const raw = (at===-length/2&&row%2?.5:1)*style.block*(.75+rand()*.45);
         const len = Math.min(raw, length / 2 - at);
         const center = at + len / 2;
         box(x + (alongX ? center : 0), row * course + course / 2, z + (alongX ? 0 : center),
           alongX ? len - 0.028 : thickness + (rand() - 0.5) * 0.09,
           course - 0.03,
           alongX ? thickness + (rand() - 0.5) * 0.09 : len - 0.028,
-          shade(row < 1 ? 0x4c5762 : 0x66717d, 0.26));
+          shade(row < 1 ? style.base : style.stone, style.variation));
         at += raw;
       }
     }
-    box(x, actualH + 0.07, z, alongX ? length + 0.12 : thickness + 0.2, 0.16, alongX ? thickness + 0.2 : length + 0.12, 0x85909c, 'cutStone');
+    // Dressed courses and carved piers also apply to screens and parapets.
+    for(const [y,h,depth,color] of [[.15,.22,.9,style.base],[actualH-.19,.10,.86,style.trim],[actualH+.015,.13,.96,style.trim],[actualH+.10,.04,.84,style.stone]]){
+      box(x,y,z,alongX?length:depth,h,alongX?depth:length,color,'cutStone',0,'gothic-wall-courses');
+    }
+    const piers=Math.max(1,Math.floor(length/3.3));
+    for(let i=0;i<=piers;i++){
+      const at=-length/2+.26+(length-.52)*i/piers,px=x+(alongX?at:0),pz=z+(alongX?0:at);
+      if(length<.85)continue;
+      box(px,actualH/2,pz,alongX?.32:.89,actualH,alongX?.89:.32,style.iron?0x606a6a:style.trim,style.wood?'darkWood':style.iron?'metal':'cutStone',0,'gothic-wall-piers');
+      for(const y of [.24,actualH-.34])box(px,y,pz,alongX?.52:.98,.14,alongX?.98:.52,style.trim,'cutStone',0,'gothic-wall-capitals');
+      if(style.iron)for(const y of [.47,actualH-.58])for(const sign of [-1,1]){
+        const rx=px+(alongX?0:sign*.46),rz=pz+(alongX?sign*.46:0);
+        add('gothic-wall-rivets',geo.orb,materials.metal,matrixAt(rx,y,rz,.045,.045,.045),0xb2b7ab);
+      }
+    }
     if (crenels && !low) {
       for (let at = -length / 2 + 0.55; at < length / 2; at += 1.95) {
-        box(x + (alongX ? at : 0), actualH + 0.45, z + (alongX ? 0 : at), alongX ? 0.92 : thickness + 0.02, 0.65, alongX ? thickness + 0.02 : 0.92, shade(0x6c7783));
-        box(x + (alongX ? at : 0), actualH + 0.8, z + (alongX ? 0 : at), alongX ? 1.04 : thickness + 0.14, 0.12, alongX ? thickness + 0.14 : 1.04, 0x88919c, 'cutStone');
+        box(x + (alongX ? at : 0), actualH + 0.45, z + (alongX ? 0 : at), alongX ? 0.92 : thickness + 0.02, 0.65, alongX ? thickness + 0.02 : 0.92, shade(style.stone));
+        box(x + (alongX ? at : 0), actualH + 0.8, z + (alongX ? 0 : at), alongX ? 1.04 : thickness + 0.14, 0.12, alongX ? thickness + 0.14 : 1.04, style.trim, 'cutStone');
       }
     }
   }
@@ -296,22 +306,22 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     const low=bridge||courtyard&&alongX;
     const height=bridge?.66:low?1.05:courtyard?3:edge.room==='crypt'&&alongX?5.4:3.65;
     wall(alongX?mid:at,alongX?at:mid,edge.hi-edge.lo,height,alongX,
-      {low,crenels:courtyard&&!low,tag:'wall'});
+      {low,crenels:courtyard&&!low,tag:'wall',room:edge.room});
   }
   // Narrow, offset alcoves sit behind the room's furniture and wall returns.
   for(const r of secretAreas){
     const opening=1.65,span=r.axis==='z'?r.d:r.w,section=(span-opening)/2;
     for(const sign of [-1,1]){
       const offset=sign*(opening/2+section/2);
-      wall(r.entrance.x+(r.axis==='x'?offset:0),r.entrance.z+(r.axis==='z'?offset:0),section,3.65,r.axis==='x');
+      wall(r.entrance.x+(r.axis==='x'?offset:0),r.entrance.z+(r.axis==='z'?offset:0),section,3.65,r.axis==='x',{room:r.parent});
     }
     prop(r.axis==='x'?'urn':'crate',r.axis==='z'?r.x+1:r.x+.5,r.axis==='z'?r.z+.7:r.z+.65,.1);
     cylinder(r.loot.x,.15,r.loot.z,.42,.3,0x827753,'bronze');
   }
   positionScale=layoutScale;
   for (const side of [-1, 1]) {
-    wall(side * 7.3, 4, 9.4, 1.2, true, { low: true, tag: 'courtyard-screen' });
-    wall(side * 6.3, -10, 7.4, 1.1, true, { low: true, tag: 'hall-screen' });
+    wall(side * 7.3, 4, 9.4, 1.2, true, { low: true, tag: 'courtyard-screen',room:'courtyard' });
+    wall(side * 6.3, -10, 7.4, 1.1, true, { low: true, tag: 'hall-screen',room:'hall' });
   }
 
   function atLayoutPoint(fn,x,z,args){const previous=positionScale;positionScale=1;try{return fn(x*previous,z*previous,...args);}finally{positionScale=previous;}}
@@ -502,15 +512,43 @@ export function createWorld(scene,{fireEnabled=true}={}) {
       if(['library','armoury','forge'].includes(room.id)){
         const fz=cz-(room.id==='forge'||room.id==='library'&&s<0?2:3.5);
         collider(x,1,fz,1.2,2,2.2,'room-furniture');
-        box(x,1,fz,1.2,2,2.2,0x4f443b,'darkWood');
-        for(const y of [.25,.8,1.35,1.9])box(x+s*.05,y,fz,1.35,.12,2.35,0x776658,'darkWood');
-        if(room.id==='library')for(let i=0;i<12;i++)box(x-s*.62,.44+(i%3)*.55,fz-.9+Math.floor(i/3)*.47,.18,.38,.3,[0x6b394d,0x485a4c,0x806d4d][i%3],'banner');
-        if(room.id==='armoury')for(let i=0;i<4;i++)box(x-s*.62,1.3,fz-.7+i*.45,.08,1.3,.09,0x9ba5aa,'metal');
+        if(room.id==='forge'){
+          // Brick hearth / steel anvil occupy the old furniture footprints.
+          if(s<0){
+            box(x,.17,fz,1.2,.34,2.2,0x71675b,'cutStone');
+            for(const dz of [-.85,.85])box(x,1.02,fz+dz,1.12,1.7,.35,0x78624c,'masonry');
+            box(x+s*.45,1.03,fz,.24,1.65,1.4,0x67594e,'masonry');
+            box(x,.65,fz,.95,.12,1.35,0xeb6b2a,'flame');
+            box(x,1.79,fz,1.25,.38,2.2,0x616c6d,'metal');
+            for(let i=0;i<5;i++)box(x-s*.58,.8,fz-.65+i*.3,.065,.17,.07,0xffbd58,'flameCore');
+          }else{
+            cylinder(x,.42,fz,.52,.84,0x604b35,'darkWood');
+            box(x,.96,fz,.82,.34,1.5,0x7d8585,'metal');
+            box(x,1.21,fz,.9,.16,1.9,0xacb0a6,'metal');
+            add('anvil-horn',geo.cone,materials.metal,matrixAt(x,1.13,fz+1,.24,.75,.24,PI/2),0xa8afab);
+            box(x+.16,1.36,fz-.4,.18,.14,.6,0x80613c,'darkWood',.25);box(x+.12,1.4,fz-.63,.47,.24,.25,0x747d7d,'metal',.25);
+          }
+        }else{
+          box(x+s*.48,1,fz,.16,2,2.2,0x4f443b,'darkWood');
+          for(const dz of [-1.06,1.06])box(x,1,fz+dz,1.2,2,.13,0x81633f,'darkWood');
+          for(const y of [.19,.78,1.37,1.96])box(x,y,fz,1.25,.1,2.3,0x967747,'darkWood');
+          if(room.id==='library')for(let row=0;row<3;row++)for(let i=0;i<9;i++){
+            const h=.29+(i*7%5)*.035,zz=fz-.89+i*.215,yy=.25+row*.59+h/2;
+            box(x-s*.35,yy,zz,.6,h,.16,[0x8b4050,0x536e62,0xb39255,0x5c678a][(i+row)%4],'banner');
+            for(const sign of [-1,1])box(x-s*.66,yy+sign*h*.3,zz,.016,.025,.15,0xc3ac72,'paleGold');
+          }
+          if(room.id==='armoury')for(let i=0;i<4;i++){
+            const zz=fz-.72+i*.48;
+            box(x-s*.6,1.32,zz,.075,.95,.12,0xbdc4c2,'metal');box(x-s*.6,.91,zz,.1,.055,.39,0xb8a47c,'bronze');box(x-s*.6,.76,zz,.1,.24,.085,0x5b4536,'darkWood');
+          }
+        }
       }
       if(['barracks','prison','gatehouse'].includes(room.id)){
         const bx=cx+s*(room.w/2-3),bz=cz+(room.id==='gatehouse'?3.5:5);
         collider(bx,.4,bz,1.5,.8,2.4,'bed');box(bx,.32,bz,1.6,.6,2.5,0x4d3f36,'darkWood');
-        box(bx,.67,bz,1.35,.15,2.3,0x59685b,'banner');box(bx,.8,bz- .75,1.1,.22,.58,0x9b9788,'banner');
+        box(bx,.67,bz,1.35,.15,2.3,room.id==='prison'?0x93815d:room.id==='gatehouse'?0x963e39:0x526e55,'banner');box(bx,.8,bz- .75,1.1,.22,.58,0xb3ad94,'banner');
+        if(room.id==='prison')for(let i=0;i<6;i++)box(bx+s*.75,1.13,bz-1.12+i*.44,.045,1.5,.045,0x727e7a,'metal');
+        else for(const sign of [-1,1])box(bx,.81,bz+sign*1.2,1.63,.6,.12,0x796343,'darkWood');
       }
     }
     if(room.boss||room.id==='catacombs'){
@@ -712,6 +750,9 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     ['urn', -2.8, -21.7, 0.4], ['urn', 2.8, -21.7, -0.4],
   ]) prop(...p);
 
+  positionScale=1;
+  const art=dressCastle({root,rooms:[...existingRooms,...newRooms],boundary,box,cylinder,add,geo,materials,matrixAt,collider});
+
   for (const [key, batch] of batches) {
     const mesh = new THREE.InstancedMesh(batch.geometry, batch.material, batch.matrices.length);
     mesh.name = `${batch.key}@${key.split('@').at(-1)}`;
@@ -829,6 +870,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     resetWood(){for(const wood of woodenSurfaces){wood.burnUntil=0;wood.burnLastTime=undefined;wood.woodFuel=1;wood.woodExhausted=false;wood.mesh.setColorAt(wood.index,wood.baseColor);wood.mesh.instanceColor.needsUpdate=true;}},
     scorchWood(wood){wood.mesh.setColorAt(wood.index,wood.baseColor.clone().lerp(new THREE.Color(0x171311),1-(wood.woodFuel??1)));wood.mesh.instanceColor.needsUpdate=true;},
     rooms:[...existingRooms,...newRooms],
+    art:art.rooms,
     secrets:secretAreas,
     doorways:[{x:0,z:20*layoutScale,rooms:['bridge','courtyard']},{x:0,z:4*layoutScale,rooms:['courtyard','hall']},{x:0,z:-10*layoutScale,rooms:['hall','crypt']},
       ...corridors.map(c=>({x:c.x+c.w/2,z:c.z+c.d/2,rooms:[c.from,c.to]}))],
@@ -841,6 +883,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     setAlarm,
     setRelicTaken,
     dispose() {
+      castleArt.dispose();
       scene.remove(root);
       const geometries = new Set();
       const mats = new Set();
