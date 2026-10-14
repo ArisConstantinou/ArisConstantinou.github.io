@@ -1,0 +1,415 @@
+{
+  "date": "2026-10-14T08:19:53.105Z",
+  "status": "Public preview of verified prop and material sample. Full environment B remains incomplete.",
+  "url": "https://arisconstantinou.github.io/magic/previews/environment-b/review.html",
+  "unitTests": {
+    "passed": 191,
+    "total": 191,
+    "log": "unit-test.log"
+  },
+  "physicsIntegration": {
+    "passed": true,
+    "log": "physics-test.log"
+  },
+  "browserChecks": [
+    {
+      "pass": true,
+      "name": "Native WASD walks on the upgraded floor",
+      "data": {
+        "start": {
+          "x": 0,
+          "z": 22.5
+        },
+        "moved": {
+          "x": 0,
+          "z": 20.222392230444797
+        }
+      }
+    },
+    {
+      "pass": true,
+      "name": "All six prop types use complete local PBR meshes with finite physical bounds",
+      "data": [
+        {
+          "kind": "crate",
+          "asset": "wooden_crate_02",
+          "ext": [
+            0.22228734547238563,
+            0.19491786042815457,
+            0.49000000000000005
+          ],
+          "mass": 19,
+          "flammable": true,
+          "meshes": [
+            {
+              "triangles": 4492,
+              "normal": true,
+              "uv": true,
+              "texture": true
+            },
+            {
+              "triangles": 684,
+              "normal": true,
+              "uv": true,
+              "texture": true
+            }
+          ]
+        },
+        {
+          "kind": "barrel",
+          "asset": "wooden_barrels_01",
+          "ext": [
+            0.46,
+            0.5675896040159994,
+            0.4599984685701295
+          ],
+          "mass": 25,
+          "flammable": true,
+          "meshes": [
+            {
+              "triangles": 11184,
+              "normal": true,
+              "uv": true,
+              "texture": true
+            }
+          ]
+        },
+        {
+          "kind": "shield",
+          "asset": "kite_shield",
+          "ext": [
+            0.22211106885600826,
+            0.57,
+            0.05508788002336928
+          ],
+          "mass": 9,
+          "flammable": true,
+          "meshes": [
+            {
+              "triangles": 3144,
+              "normal": true,
+              "uv": true,
+              "texture": true
+            },
+            {
+              "triangles": 2108,
+              "normal": true,
+              "uv": true,
+              "texture": true
+            },
+            {
+              "triangles": 5054,
+              "normal": true,
+              "uv": true,
+              "texture": true
+            }
+          ]
+        },
+        {
+          "kind": "door",
+          "asset": "large_castle_door",
+          "ext": [
+            0.36648171839400845,
+            1.06,
+            0.08603724554069647
+          ],
+          "mass": 34,
+          "flammable": true,
+          "meshes": [
+            {
+              "triangles": 5439,
+              "normal": true,
+              "uv": true,
+              "texture": true
+            }
+          ]
+        },
+        {
+          "kind": "stone",
+          "asset": "stone_01",
+          "ext": [
+            0.43,
+            0.20865756334306948,
+            0.262408230829178
+          ],
+          "mass": 32,
+          "flammable": false,
+          "meshes": [
+            {
+              "triangles": 4014,
+              "normal": true,
+              "uv": true,
+              "texture": true
+            }
+          ]
+        },
+        {
+          "kind": "urn",
+          "asset": "antique_ceramic_vase_01",
+          "ext": [
+            0.3350000195737366,
+            0.5773842443990869,
+            0.335
+          ],
+          "mass": 12,
+          "flammable": false,
+          "meshes": [
+            {
+              "triangles": 9408,
+              "normal": true,
+              "uv": true,
+              "texture": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "pass": true,
+      "name": "Stone and ceramic remain nonflammable"
+    },
+    {
+      "pass": true,
+      "name": "crate: real hold, throw and floor collision",
+      "data": {
+        "grabbed": true,
+        "held": "Κιβώτιο",
+        "released": true,
+        "position": [
+          2.508987613933189,
+          0.22227211883298773,
+          17.6630962336366
+        ],
+        "removed": false
+      }
+    },
+    {
+      "pass": true,
+      "name": "barrel: real hold, throw and floor collision",
+      "data": {
+        "grabbed": true,
+        "held": "Βαρέλι",
+        "released": true,
+        "position": [
+          1.8144020892972372,
+          0.6715828840414091,
+          18.307006394564148
+        ],
+        "removed": false
+      }
+    },
+    {
+      "pass": true,
+      "name": "shield: real hold, throw and floor collision",
+      "data": {
+        "grabbed": true,
+        "held": "Ασπίδα",
+        "released": true,
+        "position": [
+          3.259671652649046,
+          0.05271456747102565,
+          18.596119830688444
+        ],
+        "removed": false
+      }
+    },
+    {
+      "pass": true,
+      "name": "door: real hold, throw and floor collision",
+      "data": {
+        "grabbed": true,
+        "held": "Πόρτα",
+        "released": true,
+        "position": [
+          2.857728770536276,
+          0.4365616608558277,
+          19.562341697678825
+        ],
+        "removed": false
+      }
+    },
+    {
+      "pass": true,
+      "name": "stone: real hold, throw and floor collision",
+      "data": {
+        "grabbed": true,
+        "held": "Πέτρα",
+        "released": true,
+        "position": [
+          2.5242958124274644,
+          0.2712328575162326,
+          18.852145056568506
+        ],
+        "removed": false
+      }
+    },
+    {
+      "pass": true,
+      "name": "urn: real hold, throw and floor collision",
+      "data": {
+        "grabbed": true,
+        "held": "Τεφροδόχος",
+        "released": true,
+        "position": [
+          2.251012137292184,
+          0.7982571244938128,
+          17.874703507138076
+        ],
+        "removed": false
+      }
+    },
+    {
+      "pass": true,
+      "name": "Existing fire spell ignites imported wooden crate",
+      "data": {
+        "charged": true,
+        "grabbed": true,
+        "burning": true,
+        "source": 0,
+        "extinguishedScale": 0,
+        "relitscale": 0.448900022363663
+      }
+    },
+    {
+      "pass": true,
+      "name": "New flame visuals follow source extinction and relighting",
+      "data": {
+        "charged": true,
+        "grabbed": true,
+        "burning": true,
+        "source": 0,
+        "extinguishedScale": 0,
+        "relitscale": 0.448900022363663
+      }
+    },
+    {
+      "pass": true,
+      "name": "Native pause remains available"
+    },
+    {
+      "pass": true,
+      "name": "390x844 touch viewport has no horizontal overflow"
+    },
+    {
+      "pass": true,
+      "name": "No runtime or shader errors",
+      "data": []
+    }
+  ],
+  "browserErrors": [],
+  "performance": {
+    "before": {
+      "frames": {
+        "median": 17.800000071525574,
+        "p95": 18.600000023841858,
+        "max": 18.700000047683716
+      },
+      "renderSubmissionMs": {
+        "median": 2.399999976158142,
+        "p95": 3,
+        "max": 4.600000023841858
+      },
+      "render": {
+        "frame": 5584,
+        "calls": 565,
+        "triangles": 784076,
+        "points": 969,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 85,
+        "textures": 60
+      },
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "samples": 180,
+      "conditions": "1440x1000 desktop, fixed overview camera, warmed shaders, static deterministic world time=1, RAF sampling; browser GPU shared with other work."
+    },
+    "after": {
+      "frames": {
+        "median": 17.799999952316284,
+        "p95": 18.600000023841858,
+        "max": 18.800000071525574
+      },
+      "renderSubmissionMs": {
+        "median": 2.399999976158142,
+        "p95": 3.100000023841858,
+        "max": 4.100000023841858
+      },
+      "render": {
+        "frame": 5584,
+        "calls": 524,
+        "triangles": 1157007,
+        "points": 969,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 83,
+        "textures": 84
+      },
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "samples": 180,
+      "conditions": "1440x1000 desktop, fixed overview camera, warmed shaders, static deterministic world time=1, RAF sampling; browser GPU shared with other work."
+    },
+    "caveat": "Desktop RTX 5080 only. No physical mobile validation. Full-frame counters include shadows and postprocessing."
+  },
+  "mobile": "390x844 desktop touch emulation: no horizontal overflow; screenshot inspected.",
+  "sources": {
+    "date": "2026-10-14T07:29:41.397Z",
+    "provider": "Poly Haven",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "assets": [
+      {
+        "id": "wooden_barrels_01",
+        "url": "https://polyhaven.com/a/wooden_barrels_01",
+        "authors": {
+          "James Ray Cock": "All"
+        }
+      },
+      {
+        "id": "kite_shield",
+        "url": "https://polyhaven.com/a/kite_shield",
+        "authors": {
+          "Ulan Cabanilla": "All"
+        }
+      },
+      {
+        "id": "large_castle_door",
+        "url": "https://polyhaven.com/a/large_castle_door",
+        "authors": {
+          "Tina": "All"
+        }
+      },
+      {
+        "id": "monastery_stone_floor",
+        "url": "https://polyhaven.com/a/monastery_stone_floor",
+        "authors": {
+          "Amal Kumar": "All"
+        }
+      },
+      {
+        "id": "castle_wall_slates",
+        "url": "https://polyhaven.com/a/castle_wall_slates",
+        "authors": {
+          "Rob Tuytel": "All"
+        }
+      }
+    ]
+  },
+  "pending": [
+    "Courtyard architecture, window detail, heraldry and rubble composition closer to approved concept B",
+    "Small item assets: hand-authored prototype rejected in visual review and removed from active build",
+    "Hinged doors and treasure chest integration are not implemented",
+    "Full castle rollout and physical mobile performance"
+  ],
+  "paidMeshyCalls": 0,
+  "saveKey": "magic-siege-environment-b-v1",
+  "modelAttribution": {
+    "provider": "Meshy",
+    "url": "https://www.meshy.ai/",
+    "terms": "https://www.meshy.ai/terms-of-use",
+    "note": "Mage, Guard, Heavy, Colossus and HEARTH reuse the project model preview snapshot. Generated assets remain subject to provider terms; no CC0 claim is made for these character models."
+  }
+}
