@@ -13,3 +13,5 @@ Caryatid, Venus and Artemision marble replicas occupy courtyard, gallery and san
 The present ground footprints are rectangular and the Greek/Gothic regional art, ruined Parthenon and broader upper-floor combat verification are still pending. This is a playable integration candidate, not a completed art release. Desktop browser checks do not establish physical-phone performance.
 
 Room-equipment refinement: forge side bays now contain metal billets, hammer/tongs and work basins; prison bays hold plain water/linen supplies; the council hall has a scroll/marker table. These reuse the existing kit and occupy the same physical reservations. See room-work-furniture.js. No asset download, material-resolution reduction or collision shrink was used.
+
+Pressure carry correction: pressure-snap.js uses actual resting occupants to skip an occupied socket during carry auto-snap. The carried second weight keeps its height above the first; empty sockets retain normal lowering/release. Run node --test pressure-snap.test.js.

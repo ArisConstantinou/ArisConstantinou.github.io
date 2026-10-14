@@ -1,0 +1,434 @@
+{
+  "mode": "after",
+  "url": "http://127.0.0.1:5173/previews/greek-sanctuary/full-map.htm?hearthQA=1",
+  "checks": [
+    {
+      "name": "Native pick weight1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 497.8987516146323,
+            "y": 512.7540378654128
+          },
+          "expected": 1057,
+          "offset": {
+            "x": -1.122492280031203,
+            "z": -1.7977190884398535
+          }
+        },
+        "actual": 1057
+      }
+    },
+    {
+      "name": "First weight rests and activates slot1",
+      "pass": true,
+      "data": {
+        "id": "gallery-upper",
+        "kind": "pressure",
+        "phase": "locked",
+        "open": 0,
+        "charge": 0,
+        "blocked": true,
+        "plates": [
+          {
+            "x": 54.8,
+            "z": -8.081999999999999,
+            "y": 4.8,
+            "active": true
+          },
+          {
+            "x": 56.4,
+            "z": -8.081999999999999,
+            "y": 4.8,
+            "active": false
+          }
+        ],
+        "weights": [
+          {
+            "id": 1057,
+            "position": {
+              "x": 54.799618778533535,
+              "y": 5.319990931028603,
+              "z": -8.081502947183484
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1058,
+            "position": {
+              "x": 44.649659286576956,
+              "y": 5.239990931063722,
+              "z": -7.081519065421404
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "Native pick weight2",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 437.2233935547541,
+            "y": 498.7557657635982
+          },
+          "expected": 1058,
+          "offset": {
+            "x": -1.2656078898223697,
+            "z": -1.797702997123019
+          }
+        },
+        "actual": 1058
+      }
+    },
+    {
+      "name": "Occupied socket is excluded from auto-snap",
+      "pass": true,
+      "data": {
+        "candidate": null,
+        "held": {
+          "x": 54.79999271661699,
+          "y": 6.9699766334036415,
+          "z": -8.081999695480077
+        },
+        "gate": {
+          "id": "gallery-upper",
+          "kind": "pressure",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [
+            {
+              "x": 54.8,
+              "z": -8.081999999999999,
+              "y": 4.8,
+              "active": true
+            },
+            {
+              "x": 56.4,
+              "z": -8.081999999999999,
+              "y": 4.8,
+              "active": false
+            }
+          ],
+          "weights": [
+            {
+              "id": 1057,
+              "position": {
+                "x": 54.799618778533535,
+                "y": 5.319990931028603,
+                "z": -8.081502947183484
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1058,
+              "position": {
+                "x": 54.79999271661699,
+                "y": 6.9699766334036415,
+                "z": -8.081999695480077
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Second weight remains at carry height above occupied slot",
+      "pass": true,
+      "data": {
+        "x": 54.79999271661699,
+        "y": 6.9699766334036415,
+        "z": -8.081999695480077
+      }
+    },
+    {
+      "name": "First resting weight remains active while second passes above",
+      "pass": true,
+      "data": {
+        "id": "gallery-upper",
+        "kind": "pressure",
+        "phase": "locked",
+        "open": 0,
+        "charge": 0,
+        "blocked": true,
+        "plates": [
+          {
+            "x": 54.8,
+            "z": -8.081999999999999,
+            "y": 4.8,
+            "active": true
+          },
+          {
+            "x": 56.4,
+            "z": -8.081999999999999,
+            "y": 4.8,
+            "active": false
+          }
+        ],
+        "weights": [
+          {
+            "id": 1057,
+            "position": {
+              "x": 54.799618778533535,
+              "y": 5.319990931028603,
+              "z": -8.081502947183484
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1058,
+            "position": {
+              "x": 54.79999271661699,
+              "y": 6.9699766334036415,
+              "z": -8.081999695480077
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "Both native placements activate both slots and open the gate",
+      "pass": true,
+      "data": {
+        "id": "gallery-upper",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.40000000000002917,
+        "blocked": false,
+        "plates": [
+          {
+            "x": 54.8,
+            "z": -8.081999999999999,
+            "y": 4.8,
+            "active": true
+          },
+          {
+            "x": 56.4,
+            "z": -8.081999999999999,
+            "y": 4.8,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1057,
+            "position": {
+              "x": 54.799618778533535,
+              "y": 5.319990931028603,
+              "z": -8.081502947183484
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1058,
+            "position": {
+              "x": 56.39957716326429,
+              "y": 5.319990931031699,
+              "z": -8.081402149867607
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "No browser errors",
+      "pass": true,
+      "data": []
+    }
+  ],
+  "errors": [],
+  "conditions": "Same gallery-upper camera and player fixture,1440x1000. Native mouse carries first weight into slot1, then deliberately carries second across occupied slot1 before slot2. NPC attacks/contacts frozen, original weights/fence/physics retained. No object repositioning, synthetic hold, or seeded plate contact.",
+  "touch": false,
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "fixture": {
+    "runtime": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-D2CdJbcC.js",
+    "player": {
+      "x": 50.8,
+      "y": 5.659976533669711,
+      "z": -7.982
+    },
+    "camera": {
+      "x": 58.79999922631702,
+      "y": 23.7999999268961,
+      "z": 13.018000462026622
+    },
+    "gate": {
+      "id": "gallery-upper",
+      "kind": "pressure",
+      "phase": "locked",
+      "open": 0,
+      "charge": 0,
+      "blocked": true,
+      "plates": [
+        {
+          "x": 54.8,
+          "z": -8.081999999999999,
+          "y": 4.8,
+          "active": false
+        },
+        {
+          "x": 56.4,
+          "z": -8.081999999999999,
+          "y": 4.8,
+          "active": false
+        }
+      ],
+      "weights": [
+        {
+          "id": 1057,
+          "position": {
+            "x": 46.249786576887765,
+            "y": 5.239990931063709,
+            "z": -7.081698435885727
+          },
+          "recoveries": 0,
+          "hp": 1000000
+        },
+        {
+          "id": 1058,
+          "position": {
+            "x": 44.649786576887756,
+            "y": 5.23999093106371,
+            "z": -7.081698435885727
+          },
+          "recoveries": 0,
+          "hp": 1000000
+        }
+      ]
+    }
+  },
+  "overOccupied": {
+    "candidate": null,
+    "held": {
+      "x": 54.79999271661699,
+      "y": 6.9699766334036415,
+      "z": -8.081999695480077
+    },
+    "gate": {
+      "id": "gallery-upper",
+      "kind": "pressure",
+      "phase": "locked",
+      "open": 0,
+      "charge": 0,
+      "blocked": true,
+      "plates": [
+        {
+          "x": 54.8,
+          "z": -8.081999999999999,
+          "y": 4.8,
+          "active": true
+        },
+        {
+          "x": 56.4,
+          "z": -8.081999999999999,
+          "y": 4.8,
+          "active": false
+        }
+      ],
+      "weights": [
+        {
+          "id": 1057,
+          "position": {
+            "x": 54.799618778533535,
+            "y": 5.319990931028603,
+            "z": -8.081502947183484
+          },
+          "recoveries": 0,
+          "hp": 1000000
+        },
+        {
+          "id": 1058,
+          "position": {
+            "x": 54.79999271661699,
+            "y": 6.9699766334036415,
+            "z": -8.081999695480077
+          },
+          "recoveries": 0,
+          "hp": 1000000
+        }
+      ]
+    }
+  },
+  "performance": {
+    "samples": 120,
+    "p95": 16,
+    "max": 18.90000009536743,
+    "over33ms": 0,
+    "cpuP95": 15.300000071525574,
+    "render": {
+      "frame": 11659,
+      "calls": 1390,
+      "triangles": 4096524,
+      "points": 969,
+      "lines": 27
+    },
+    "memory": {
+      "geometries": 560,
+      "textures": 118
+    }
+  },
+  "end": {
+    "id": "gallery-upper",
+    "kind": "pressure",
+    "phase": "open",
+    "open": 1,
+    "charge": 0.40000000000002917,
+    "blocked": false,
+    "plates": [
+      {
+        "x": 54.8,
+        "z": -8.081999999999999,
+        "y": 4.8,
+        "active": true
+      },
+      {
+        "x": 56.4,
+        "z": -8.081999999999999,
+        "y": 4.8,
+        "active": true
+      }
+    ],
+    "weights": [
+      {
+        "id": 1057,
+        "position": {
+          "x": 54.799618778533535,
+          "y": 5.319990931028603,
+          "z": -8.081502947183484
+        },
+        "recoveries": 0,
+        "hp": 1000000
+      },
+      {
+        "id": 1058,
+        "position": {
+          "x": 56.39957716326429,
+          "y": 5.319990931031699,
+          "z": -8.081402149867607
+        },
+        "recoveries": 0,
+        "hp": 1000000
+      }
+    ]
+  }
+}
