@@ -7,7 +7,7 @@ import {createGreekGate} from '../../../_source/src/greek-environment.js';
 // Metres, Y up. Editable, deterministic construction; no generated artwork.
 // The reference buildings inform distinct construction systems, not a literal
 // archaeological reconstruction. All circulation is sized for HEARTH.
-export async function loadThresholdMaterials(){const loader=new T.TextureLoader(),surfaces={};await Promise.all(['white_plaster_02','marble_rock_03','slate_floor','old_sandstone_02'].map(async id=>{const [map,normalMap,arm]=await Promise.all(['diff','normal','arm'].map(k=>loader.loadAsync(new URL('threshold-materials/'+id+'/'+k+'.jpg',document.baseURI).href)));for(const t of [map,normalMap,arm]){t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=8;}map.colorSpace=T.SRGBColorSpace;surfaces[id]={map,normalMap,arm};}));return surfaces;}
+export async function loadThresholdMaterials(){const loader=new T.TextureLoader(),surfaces={};await Promise.all(['white_plaster_02','marble_rock_03','slate_floor'].map(async id=>{const [map,normalMap,arm]=await Promise.all(['diff','normal','arm'].map(k=>loader.loadAsync(new URL('threshold-materials/'+id+'/'+k+'.jpg',document.baseURI).href)));for(const t of [map,normalMap,arm]){t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=8;}map.colorSpace=T.SRGBColorSpace;surfaces[id]={map,normalMap,arm};}));return surfaces;}
 export function buildThreshold(surfaces){
  const root=new T.Group(),roof=new T.Group(),details=new T.Group();root.name='Threshold · Malbork to the ruined sanctuary';root.add(roof,details);
  const cutaway={rear:new T.Group(),left:new T.Group(),right:new T.Group()};for(const [name,g]of Object.entries(cutaway)){g.name='Castle cutaway '+name;root.add(g);}let buildGroup=details;

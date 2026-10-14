@@ -1,0 +1,78 @@
+{
+  "checks": [
+    {
+      "name": "Same 2 MiB/s cold conditions; startup improved",
+      "pass": true,
+      "before": 63245,
+      "after": 40802
+    },
+    {
+      "name": "Unused models/materials no longer requested",
+      "pass": true
+    },
+    {
+      "name": "Transferred bytes reduced with the same visible models/materials",
+      "pass": true,
+      "before": 125251283,
+      "after": 80205972
+    },
+    {
+      "name": "Loading screen shows completed asset groups",
+      "pass": true
+    },
+    {
+      "name": "Failed download exposes retry",
+      "pass": true
+    },
+    {
+      "name": "Native retry reaches ready scene",
+      "pass": true
+    },
+    {
+      "name": "No errors in successful cold loads",
+      "pass": true
+    }
+  ],
+  "runs": [
+    {
+      "variant": "threshold-loading-before.html",
+      "readyMs": 63245,
+      "requests": 99,
+      "bytes": 125251283,
+      "progress": {
+        "text": "Το κατώφλι των δύο κόσμωνΦόρτωση των πραγματικών μοντέλων και υλικών…"
+      },
+      "unused": [
+        "http://127.0.0.1:5173/previews/greek-sanctuary/environment-b/large_castle_door/large_castle_door.gltf",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/environment-b/stone_01/stone_01-runtime.glb",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/models/redesign/guard-meshy-lods.glb",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/models/archer.glb",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/models/redesign/heavy-meshy-native-lods.glb",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/threshold-materials/old_sandstone_02/diff.jpg",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/threshold-materials/old_sandstone_02/normal.jpg",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/threshold-materials/old_sandstone_02/arm.jpg",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/environment-b/large_castle_door/large_castle_door.bin",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/environment-b/large_castle_door/textures/large_castle_door_diff_1k.jpg",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/environment-b/large_castle_door/textures/large_castle_door_arm_1k.jpg",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/environment-b/large_castle_door/textures/large_castle_door_nor_gl_1k.jpg",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/environment-b/castle_wall_slates/diff.jpg",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/environment-b/castle_wall_slates/normal.jpg",
+        "http://127.0.0.1:5173/previews/greek-sanctuary/environment-b/castle_wall_slates/arm.jpg"
+      ],
+      "errors": []
+    },
+    {
+      "variant": "threshold.html",
+      "readyMs": 40802,
+      "requests": 67,
+      "bytes": 80205972,
+      "progress": {
+        "text": "Το κατώφλι των δύο κόσμων1 από 5 ομάδες έτοιμες · Πέτρα και σοβάς · Αντικείμενα · Μάγος · HEARTHΕπανάληψη φόρτωσης",
+        "value": 1
+      },
+      "unused": [],
+      "errors": []
+    }
+  ],
+  "errors": []
+}

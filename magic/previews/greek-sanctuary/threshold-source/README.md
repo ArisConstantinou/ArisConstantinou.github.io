@@ -51,3 +51,8 @@ The GLB is intentionally a large editable archival export, not the web payload. 
 ## Remaining goal
 
 Review this concrete sample before extending it to the whole stage. The full 70/30 distribution, fourteen-room dressing, elevated AI/navigation/loot/aim integration and final physical-device validation are not complete. Preserve the primary release, unit-redesign worktree, original assets and fixed port 5173.
+
+## Loading correction (2026-10-14)
+The reported static loading mask was reproduced: at 25 seconds unused stone textures were still pending; the original scene appeared only after roughly a minute. The sample now loads only the mage, required props/Greek gate pieces and three used material sets. The full game keeps the original loader defaults; no visible textures, geometry or rigs were reduced. A sample-only build transform excludes unused character declarations without changing the shared character source.
+
+Cold-cache comparison at the same 2 MiB/s and 30ms latency: 125,251,283 -> 80,205,972 encoded bytes, 99 -> 67 requests; 63,245 -> 40,802 ms until playable. This is a controlled network comparison on PC, not a claim about every public connection. Loading now shows five actual completed asset groups plus lighting preparation. Failed files and the 90-second asset deadline offer an explicit retry. The 90-second stalled-request path was exercised with Playwright's virtual clock; native retry loaded the scene after both failure cases. Seven loading checks, four error/deadline/retry checks and 23 gameplay checks passed. Final public verification is recorded separately in the owned source folder. Large local GLB export remains unchanged.

@@ -1,0 +1,22 @@
+{
+  "checks": [
+    {
+      "name": "Failed texture retains error message",
+      "pass": true,
+      "text": "Σφάλμα φόρτωσης · Πέτρα και σοβάς. Δοκίμασε ξανά· όσα αρχεία έχουν ληφθεί παραμένουν στην cache του browser."
+    },
+    {
+      "name": "Failure retry loads actual scene",
+      "pass": true
+    },
+    {
+      "name": "Stalled request reaches 90s deadline",
+      "pass": true,
+      "text": "Σφάλμα φόρτωσης. Δοκίμασε ξανά· όσα αρχεία έχουν ληφθεί παραμένουν στην cache του browser."
+    },
+    {
+      "name": "Deadline retry loads actual scene",
+      "pass": true
+    }
+  ]
+}
