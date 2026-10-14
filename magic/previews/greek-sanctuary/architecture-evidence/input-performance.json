@@ -1,0 +1,305 @@
+{
+  "checks": [
+    {
+      "name": "keyboard no overflow",
+      "pass": true
+    },
+    {
+      "name": "keyboard whole",
+      "pass": true
+    },
+    {
+      "name": "keyboard temple",
+      "pass": true
+    },
+    {
+      "name": "keyboard stoa",
+      "pass": true
+    },
+    {
+      "name": "keyboard tholos",
+      "pass": true
+    },
+    {
+      "name": "keyboard plan",
+      "pass": true
+    },
+    {
+      "name": "keyboard driving mode",
+      "pass": true
+    },
+    {
+      "name": "keyboard climbs actual staircase",
+      "pass": true,
+      "data": {
+        "x": -47.210000311421105,
+        "foot": 5.399887090865401,
+        "z": 22
+      }
+    },
+    {
+      "name": "keyboard descends actual staircase",
+      "pass": true,
+      "data": {
+        "x": -22.41103716691884,
+        "foot": -0.020169238619875962,
+        "z": 22
+      }
+    },
+    {
+      "name": "keyboard holds on staircase for 10 seconds",
+      "pass": true,
+      "data": {
+        "drift": 0.000003748771312260354,
+        "foot": 2.974834720595732
+      }
+    },
+    {
+      "name": "keyboard physical stair railing -1",
+      "pass": true,
+      "data": {
+        "x": -33.76637135161803,
+        "z": 20.399999999999995,
+        "foot": 2.97428376349243,
+        "drop": 0.0005521469201985596,
+        "lateral": 1.600000000000005
+      }
+    },
+    {
+      "name": "keyboard physical stair railing 1",
+      "pass": true,
+      "data": {
+        "x": -33.76637135161803,
+        "z": 23.600000000000005,
+        "foot": 2.97428376349243,
+        "drop": 0.0005521469201985596,
+        "lateral": 1.600000000000005
+      }
+    },
+    {
+      "name": "keyboard stop and reverse on stairs",
+      "pass": true,
+      "data": {
+        "uphill": {
+          "x": -37.336973640567486,
+          "y": 5.766586672756585
+        },
+        "downhill": {
+          "x": -33.0839128427024,
+          "y": 3.9294432317757066
+        },
+        "facing": 1.5707963267948966
+      }
+    },
+    {
+      "name": "keyboard frame budget",
+      "pass": true,
+      "data": {
+        "mobileEmulation": false,
+        "frames": {
+          "median": 18,
+          "p95": 18.699999928474426,
+          "max": 19,
+          "over33": 0
+        },
+        "simulationRender": {
+          "median": 1.1999999284744263,
+          "p95": 1.4000000953674316,
+          "max": 1.7000000476837158,
+          "over33": 0
+        },
+        "render": {
+          "frame": 1241,
+          "calls": 97,
+          "triangles": 1871496,
+          "points": 0,
+          "lines": 0
+        },
+        "heap": 62544072,
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "name": "keyboard research page",
+      "pass": true
+    },
+    {
+      "name": "touch no overflow",
+      "pass": true
+    },
+    {
+      "name": "touch whole",
+      "pass": true
+    },
+    {
+      "name": "touch temple",
+      "pass": true
+    },
+    {
+      "name": "touch stoa",
+      "pass": true
+    },
+    {
+      "name": "touch tholos",
+      "pass": true
+    },
+    {
+      "name": "touch plan",
+      "pass": true
+    },
+    {
+      "name": "touch driving mode",
+      "pass": true
+    },
+    {
+      "name": "touch climbs actual staircase",
+      "pass": true,
+      "data": {
+        "x": -47.210000540283495,
+        "foot": 5.399887090865401,
+        "z": 22
+      }
+    },
+    {
+      "name": "touch descends actual staircase",
+      "pass": true,
+      "data": {
+        "x": -22.311595709924028,
+        "foot": -0.020169238619875962,
+        "z": 22
+      }
+    },
+    {
+      "name": "touch holds on staircase for 10 seconds",
+      "pass": true,
+      "data": {
+        "drift": 0.000003748771312260354,
+        "foot": 2.974834720595732
+      }
+    },
+    {
+      "name": "touch physical stair railing -1",
+      "pass": true,
+      "data": {
+        "x": -33.76637135161803,
+        "z": 20.399999999999995,
+        "foot": 2.97428376349243,
+        "drop": 0.0005521469201985596,
+        "lateral": 1.600000000000005
+      }
+    },
+    {
+      "name": "touch physical stair railing 1",
+      "pass": true,
+      "data": {
+        "x": -33.76637135161803,
+        "z": 23.600000000000005,
+        "foot": 2.97428376349243,
+        "drop": 0.0005521469201985596,
+        "lateral": 1.600000000000005
+      }
+    },
+    {
+      "name": "touch stop and reverse on stairs",
+      "pass": true,
+      "data": {
+        "uphill": {
+          "x": -37.336973640567486,
+          "y": 5.766586672756585
+        },
+        "downhill": {
+          "x": -33.0839128427024,
+          "y": 3.9294432317757066
+        },
+        "facing": 1.5707963267948966
+      }
+    },
+    {
+      "name": "touch frame budget",
+      "pass": true,
+      "data": {
+        "mobileEmulation": true,
+        "frames": {
+          "median": 17.800000071525574,
+          "p95": 18.600000023841858,
+          "max": 19,
+          "over33": 0
+        },
+        "simulationRender": {
+          "median": 1.100000023841858,
+          "p95": 1.2999999523162842,
+          "max": 1.600000023841858,
+          "over33": 0
+        },
+        "render": {
+          "frame": 1233,
+          "calls": 35,
+          "triangles": 1811872,
+          "points": 0,
+          "lines": 0
+        },
+        "heap": 72932099,
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "name": "touch research page",
+      "pass": true
+    },
+    {
+      "name": "zero browser errors",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "performance": [
+    {
+      "mobileEmulation": false,
+      "frames": {
+        "median": 18,
+        "p95": 18.699999928474426,
+        "max": 19,
+        "over33": 0
+      },
+      "simulationRender": {
+        "median": 1.1999999284744263,
+        "p95": 1.4000000953674316,
+        "max": 1.7000000476837158,
+        "over33": 0
+      },
+      "render": {
+        "frame": 1241,
+        "calls": 97,
+        "triangles": 1871496,
+        "points": 0,
+        "lines": 0
+      },
+      "heap": 62544072,
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "mobileEmulation": true,
+      "frames": {
+        "median": 17.800000071525574,
+        "p95": 18.600000023841858,
+        "max": 19,
+        "over33": 0
+      },
+      "simulationRender": {
+        "median": 1.100000023841858,
+        "p95": 1.2999999523162842,
+        "max": 1.600000023841858,
+        "over33": 0
+      },
+      "render": {
+        "frame": 1233,
+        "calls": 35,
+        "triangles": 1811872,
+        "points": 0,
+        "lines": 0
+      },
+      "heap": 72932099,
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  ]
+}
