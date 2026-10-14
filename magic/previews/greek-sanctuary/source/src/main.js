@@ -310,7 +310,7 @@ function populate(){
   clearDynamic();kills=runShards=runTime=combo=0;comboUntil=0;relicTaken=false;nextWave=0;alarmTime=0;shake=0;castTime=0;
   worldMap.setAlarm(false);worldMap.setRelicTaken(false);
   if(FIRE_ENABLED){fireSpell.reset();for(const s of fireSpell.sources)worldMap.setTorchLit(s.id,true);worldMap.resetWood();fireFX.clear();fireLastSpark=0;}
-  greekPuzzles?.reset();hearth.reset();
+  greekPuzzles?.reset();hearth.reset();greekPuzzles?.configureForEngine(hearth.engine.location.room.name,hearth.engine.body.position);
   for(const original of worldMap.props){const d=hearth.propPosition(original);prop(d.kind,d.x,d.z,d);}
   player=actor('mage',worldMap.spawn.x,worldMap.spawn.z,true);greekPuzzles?.spawnWeights();
   applyEquipment();player.hp=player.maxHp;player.mana=player.maxMana;

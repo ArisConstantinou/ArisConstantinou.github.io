@@ -1,4 +1,4 @@
-import {greekEnabled,greekFloor} from './greek-environment.js';
+import {greekEnabled,greekFloor,dressGreekRooms} from './greek-environment.js';
 import * as THREE from 'three';
 import {siegeFloor} from './siege-environment.js';
 
@@ -103,13 +103,13 @@ export function createCastleArt(root){
   const art=roomArt(room.id),style=art.floor;
   // Headless physics callers still construct the identical floor geometry.
   // Browser rendering owns Canvas textures; no DOM shim is needed for physics.
-  let map=null;
-  if(typeof document!=='undefined'){
+  const greek=greekFloor(room);let map=null;
+  if(!greek&&typeof document!=='undefined'){
    if(!textures.has(style))textures.set(style,floorTexture(style));
    map=textures.get(style).clone();map.needsUpdate=true;map.repeat.set(room.w/5.12,room.d/5.12);
   }
   const smooth=['marble','ivory','obsidian','mosaic'].includes(style),iron=style==='iron';
-  const mat=greekFloor(room)||siegeFloor(room)||new THREE.MeshStandardMaterial({map,color:art.tone,roughness:smooth?.48:iron?.65:.94,metalness:iron?.55:smooth?.12:0,bumpMap:map,bumpScale:iron?.024:smooth?.014:.026});materials.add(mat);
+  const mat=greek||siegeFloor(room)||new THREE.MeshStandardMaterial({map,color:art.tone,roughness:smooth?.48:iron?.65:.94,metalness:iron?.55:smooth?.12:0,bumpMap:map,bumpScale:iron?.024:smooth?.014:.026});materials.add(mat);
   const mesh=new THREE.Mesh(new THREE.PlaneGeometry(room.w,room.d),mat);mesh.rotation.x=-Math.PI/2;mesh.position.set(room.x+room.w/2,.007,room.z+room.d/2);mesh.receiveShadow=true;mesh.name='Room floor · '+art.name;mesh.userData.room=room.id;mesh.userData.surface=style;root.add(mesh);
  }
  return {surface,dispose(){for(const m of materials){m.map?.dispose();m.dispose();}for(const t of textures.values())t.dispose();}};
@@ -118,6 +118,7 @@ export function createCastleArt(root){
 // All sculptural details are built into existing walls/furniture footprints.
 // Low garden beds are the only added solid footprints, explicitly collidable.
 export function dressCastle({root,rooms,boundary,box,cylinder,add,geo,materials,matrixAt,collider}){
+ if(greekEnabled)return dressGreekRooms(root,rooms,boundary);
  const PI=Math.PI,TAU=PI*2;
  const trim=(x,y,z,w,h,d,c=0xbda371,mat='paleGold',ry=0,key='gothic-trim')=>box(x,y,z,w,h,d,c,mat,ry,key);
  const ring=(x,z,r,w,color)=>{const m=new THREE.Mesh(new THREE.RingGeometry(r-w,r,64),new THREE.MeshStandardMaterial({color,metalness:.4,roughness:.6,side:THREE.DoubleSide}));m.rotation.x=-PI/2;m.position.set(x,.024,z);m.receiveShadow=true;root.add(m);};

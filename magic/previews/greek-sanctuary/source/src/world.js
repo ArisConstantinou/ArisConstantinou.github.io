@@ -258,7 +258,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   // A wall has an unbroken physical core and individually dressed stones.
   function wall(x,z,length,...rest){const s=positionScale;return atLayoutPoint(wallShape,x,z,[length*s,...rest]);}
   function wallShape(x, z, length, height, alongX, { low = false, tag = 'wall', thickness = 0.8, crenels = false, room='bridge' } = {}) {
-    if(greekEnabled&&['courtyard','hall'].includes(room)){const h=low?Math.min(height,1.08):height;collider(x,h/2,z,alongX?length:.8,h,alongX?.8:length,tag);greekWall(root,x,z,length,h,alongX);return;}
+    if(greekEnabled){const h=low?Math.min(height,1.08):height;collider(x,h/2,z,alongX?length:.8,h,alongX?.8:length,tag);greekWall(root,x,z,length,h,alongX,room);return;}
     const style=wallArt(room);
     const actualH = low ? Math.min(height, 1.08) : height;
     collider(x, actualH / 2, z, alongX ? length : thickness, actualH, alongX ? thickness : length, tag);
@@ -314,7 +314,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   }
   // Narrow, offset alcoves sit behind the room's furniture and wall returns.
   for(const r of secretAreas){
-    const opening=1.65,span=r.axis==='z'?r.d:r.w,section=(span-opening)/2;
+    const opening=greekEnabled&&r.id!=='library-secret'?2.1:1.65,span=r.axis==='z'?r.d:r.w,section=(span-opening)/2;
     for(const sign of [-1,1]){
       const offset=sign*(opening/2+section/2);
       wall(r.entrance.x+(r.axis==='x'?offset:0),r.entrance.z+(r.axis==='z'?offset:0),section,3.65,r.axis==='x',{room:r.parent});
@@ -331,7 +331,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   function atLayoutPoint(fn,x,z,args){const previous=positionScale;positionScale=1;try{return fn(x*previous,z*previous,...args);}finally{positionScale=previous;}}
   function buttress(x,z,...rest){return atLayoutPoint(buttressShape,x,z,rest);}
   function buttressShape(x, z, ry) {
-    if(greekEnabled&&z>=-10){greekColumn(root,x,z,3.5);return;}
+    if(greekEnabled){greekColumn(root,x,z,3.5);return;}
     box(x, 0.32, z, 1.5, 0.64, 1.35, 0x48535f, 'masonry', ry);
     box(x, 1.48, z, 1.02, 2.0, 1.05, 0x66717d, 'masonry', ry);
     box(x, 2.58, z, 1.15, 0.2, 1.2, 0x89919b, 'cutStone', ry);
@@ -398,7 +398,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
   pointedArch(0, -23.04, 3.35, 2.25, 2.8, 'reliquary', { physical: false, scale: 0.86 });
 
   // Tall lancet windows and leaded panes give the far crypt wall its silhouette.
-  for (const x of [-4.65, 4.65]) {
+  if(!greekEnabled)for (const x of [-4.65, 4.65]) {
     box(x, 3.0, -22.97, 1.26, 3.25, 0.11, 0x101723, 'base');
     box(x, 3.0, -22.88, 0.84, 2.85, 0.045, 0x6b4e94, 'stainedGlass');
     box(x, 2.9, -22.82, 0.07, 2.9, 0.06, 0x5d555e, 'metal');
@@ -463,7 +463,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     const h = 5 + rand() * 13;
     const r = 1.15 + rand() * 1.2;
     add('distant-towers', geo.cylinder, materials.distant, matrixAt(x, h / 2 - 5, z, r, h, r), shade(0x364356, 0.15));
-    add('distant-spires', geo.cone, materials.distant, matrixAt(x, h - 5 + r * 1.55, z, r * 1.3, r * 3.1, r * 1.3, 0, rand()), 0x1e2b40);
+    if(!greekEnabled)add('distant-spires', geo.cone, materials.distant, matrixAt(x, h - 5 + r * 1.55, z, r * 1.3, r * 3.1, r * 1.3, 0, rand()), 0x1e2b40);
     box(x, h - 5, z, r * 2.25, 0.5, r * 2.25, 0x344256, 'distant', 0, 'distant-crowns');
   }
 
