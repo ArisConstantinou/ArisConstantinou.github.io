@@ -1,0 +1,118 @@
+[
+  {
+    "id": "white_plaster_02",
+    "source": "https://polyhaven.com/a/white_plaster_02",
+    "license": "CC0",
+    "licenseURL": "https://polyhaven.com/license",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "files": [
+      {
+        "file": "white_plaster_02/diff.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/white_plaster_02/white_plaster_02_diff_2k.jpg",
+        "bytes": 2568315,
+        "sha256": "0ca5245ba70777d3e41ff4566c9f8d363855461891802c55cb7dc0f6f85f084e"
+      },
+      {
+        "file": "white_plaster_02/normal.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/white_plaster_02/white_plaster_02_nor_gl_2k.jpg",
+        "bytes": 3379814,
+        "sha256": "083579b03a8f31ec1886512e5972f3b893610bf26a2098f97910e0f46745cdc9"
+      },
+      {
+        "file": "white_plaster_02/arm.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/white_plaster_02/white_plaster_02_arm_2k.jpg",
+        "bytes": 894383,
+        "sha256": "acdb65bfabb3613812bdad9156021400e518bdf4998c011921ce43695a5e24d4"
+      }
+    ]
+  },
+  {
+    "id": "marble_rock_03",
+    "source": "https://polyhaven.com/a/marble_rock_03",
+    "license": "CC0",
+    "licenseURL": "https://polyhaven.com/license",
+    "authors": {
+      "Amal Kumar": "All"
+    },
+    "files": [
+      {
+        "file": "marble_rock_03/diff.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/marble_rock_03/marble_rock_03_diff_2k.jpg",
+        "bytes": 2833296,
+        "sha256": "ca050b8481d62fb91d50a5e2eb81c2e85bd75b0218b707e4061bf358ef78b06c"
+      },
+      {
+        "file": "marble_rock_03/normal.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/marble_rock_03/marble_rock_03_nor_gl_2k.jpg",
+        "bytes": 4030790,
+        "sha256": "95a7e05b6f59a2c542428710cbfb6220f794f3acb3e2a61fca85033d874b9872"
+      },
+      {
+        "file": "marble_rock_03/arm.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/marble_rock_03/marble_rock_03_arm_2k.jpg",
+        "bytes": 2504863,
+        "sha256": "83bbe99ce446ca7e3087e0f4668ff6c2e969cddcc83515ed7fbab81031ba66be"
+      }
+    ]
+  },
+  {
+    "id": "slate_floor",
+    "source": "https://polyhaven.com/a/slate_floor",
+    "license": "CC0",
+    "licenseURL": "https://polyhaven.com/license",
+    "authors": {
+      "Dimitrios Savva": "All"
+    },
+    "files": [
+      {
+        "file": "slate_floor/diff.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/slate_floor/slate_floor_diff_2k.jpg",
+        "bytes": 3009643,
+        "sha256": "a50c8f5aa3a78195cc001997dfc7b2ff0aef8fca0d30b0fdab115c03ad949e71"
+      },
+      {
+        "file": "slate_floor/normal.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/slate_floor/slate_floor_nor_gl_2k.jpg",
+        "bytes": 3408456,
+        "sha256": "cfa50bd8c911030d5aed7e611f7a07eef51829ccabf1c0a424c2e0fc605a5515"
+      },
+      {
+        "file": "slate_floor/arm.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/slate_floor/slate_floor_arm_2k.jpg",
+        "bytes": 4210784,
+        "sha256": "4cbfac8cb8b4e71567a41b6a6b5e132768e293fc434081fdb4672d90ba6ab80b"
+      }
+    ]
+  },
+  {
+    "id": "old_sandstone_02",
+    "source": "https://polyhaven.com/a/old_sandstone_02",
+    "license": "CC0",
+    "licenseURL": "https://polyhaven.com/license",
+    "authors": {
+      "Dimitrios Savva": "All"
+    },
+    "files": [
+      {
+        "file": "old_sandstone_02/diff.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/old_sandstone_02/old_sandstone_02_diff_2k.jpg",
+        "bytes": 3149934,
+        "sha256": "6cb1d16af8cbcfccc72e1466e3f288f1e74a8befb1281460b8520ab754becb0a"
+      },
+      {
+        "file": "old_sandstone_02/normal.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/old_sandstone_02/old_sandstone_02_nor_gl_2k.jpg",
+        "bytes": 4060255,
+        "sha256": "79a498bba79483ce16d2d7271bf2e120a069fd6829bc0e0f38fe8ed1ce681a75"
+      },
+      {
+        "file": "old_sandstone_02/arm.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/old_sandstone_02/old_sandstone_02_arm_2k.jpg",
+        "bytes": 2754193,
+        "sha256": "4678924b71bad4fbe3dc80ac3db24dd26ce828f74936c355055dbed0d0322ca0"
+      }
+    ]
+  }
+]
