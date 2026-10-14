@@ -1,0 +1,1224 @@
+{
+  "checks": [
+    {
+      "name": "All fourteen room roles rendered",
+      "pass": true
+    },
+    {
+      "name": "courtyard preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "courtyard preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "olive-urn",
+        "bench",
+        "olive-urn",
+        "bench"
+      ]
+    },
+    {
+      "name": "courtyard uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · Cloister garden",
+        "profile": {
+          "id": "courtyard",
+          "pattern": "flags",
+          "label": "Weathered outdoor limestone flags",
+          "weather": "worn",
+          "resolution": 2048,
+          "tileMetres": 3.6,
+          "seed": 11,
+          "photographic": "monastery_stone_floor"
+        },
+        "textureSize": [
+          2048,
+          2048
+        ],
+        "textureHash": "811c9dc5",
+        "repeat": [
+          8.333333333333334,
+          5.555555555555555
+        ]
+      }
+    },
+    {
+      "name": "courtyard bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 11.399999976158142,
+          "p95": 15,
+          "max": 16.899999976158142,
+          "over33ms": 0,
+          "render": {
+            "frame": 4924,
+            "calls": 1801,
+            "triangles": 5584832,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 392,
+            "textures": 96
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 11,
+          "p95": 14,
+          "max": 15.5,
+          "over33ms": 0,
+          "render": {
+            "frame": 4954,
+            "calls": 1801,
+            "triangles": 5584832,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 398,
+            "textures": 103
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "hall preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "hall preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "map-table"
+      ]
+    },
+    {
+      "name": "hall uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · Hall of the crimson crown",
+        "profile": {
+          "id": "hall",
+          "pattern": "pebbles",
+          "label": "Cream and charcoal pebble pavement",
+          "weather": "worn",
+          "resolution": 1024,
+          "tileMetres": 6,
+          "seed": 23,
+          "photographic": null
+        },
+        "textureSize": [
+          1024,
+          1024
+        ],
+        "textureHash": "a978d554",
+        "repeat": [
+          4.166666666666667,
+          2.9166666666666665
+        ]
+      }
+    },
+    {
+      "name": "hall bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 12.5,
+          "p95": 19.5,
+          "max": 27.799999952316284,
+          "over33ms": 0,
+          "render": {
+            "frame": 7864,
+            "calls": 2061,
+            "triangles": 6405367,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 494,
+            "textures": 130
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 12.600000023841858,
+          "p95": 18.700000047683716,
+          "max": 35.5,
+          "over33ms": 1,
+          "render": {
+            "frame": 7894,
+            "calls": 2051,
+            "triangles": 6407717,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 492,
+            "textures": 129
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "crypt preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "crypt preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "sarcophagus"
+      ]
+    },
+    {
+      "name": "crypt uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · Royal sepulchre",
+        "profile": {
+          "id": "crypt",
+          "pattern": "flags",
+          "label": "Dark funerary limestone",
+          "weather": "damp",
+          "resolution": 2048,
+          "tileMetres": 3.6,
+          "seed": 37,
+          "photographic": "monastery_stone_floor"
+        },
+        "textureSize": [
+          2048,
+          2048
+        ],
+        "textureHash": "811c9dc5",
+        "repeat": [
+          4.861111111111111,
+          4.513888888888888
+        ]
+      }
+    },
+    {
+      "name": "crypt bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 13.600000023841858,
+          "p95": 21.5,
+          "max": 27.09999990463257,
+          "over33ms": 0,
+          "render": {
+            "frame": 10804,
+            "calls": 1812,
+            "triangles": 5915545,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 529,
+            "textures": 152
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 12.600000023841858,
+          "p95": 21.699999928474426,
+          "max": 29.90000009536743,
+          "over33ms": 0,
+          "render": {
+            "frame": 10834,
+            "calls": 1796,
+            "triangles": 5811537,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 527,
+            "textures": 148
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "armoury preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "armoury preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "weapon-rack",
+        "weapon-rack",
+        "weapon-rack",
+        "supply-rack"
+      ]
+    },
+    {
+      "name": "armoury uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · Steel armoury",
+        "profile": {
+          "id": "armoury",
+          "pattern": "coursed",
+          "label": "Worn dark slate working-stone courses",
+          "weather": "worn",
+          "resolution": 2048,
+          "tileMetres": 3.6,
+          "seed": 41,
+          "photographic": "slate_floor"
+        },
+        "textureSize": [
+          2048,
+          2048
+        ],
+        "textureHash": "811c9dc5",
+        "repeat": [
+          6.25,
+          4.861111111111111
+        ]
+      }
+    },
+    {
+      "name": "armoury bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 12.599999904632568,
+          "p95": 16.200000047683716,
+          "max": 25.300000071525574,
+          "over33ms": 0,
+          "render": {
+            "frame": 13744,
+            "calls": 1872,
+            "triangles": 5131680,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 648,
+            "textures": 171
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 12.900000095367432,
+          "p95": 15.5,
+          "max": 25.100000023841858,
+          "over33ms": 0,
+          "render": {
+            "frame": 13774,
+            "calls": 1875,
+            "triangles": 5190572,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 646,
+            "textures": 167
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "barracks preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "barracks preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "kline",
+        "kline",
+        "supply-rack",
+        "bench",
+        "supply-rack",
+        "bench"
+      ]
+    },
+    {
+      "name": "barracks uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · Oak barracks",
+        "profile": {
+          "id": "barracks",
+          "pattern": "clay",
+          "label": "Worn terracotta sleeping-quarters pavement",
+          "weather": "worn",
+          "resolution": 1024,
+          "tileMetres": 6,
+          "seed": 53,
+          "photographic": null
+        },
+        "textureSize": [
+          1024,
+          1024
+        ],
+        "textureHash": "a67df681",
+        "repeat": [
+          3.75,
+          2.9166666666666665
+        ]
+      }
+    },
+    {
+      "name": "barracks bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 12.299999952316284,
+          "p95": 15.5,
+          "max": 24.09999990463257,
+          "over33ms": 0,
+          "render": {
+            "frame": 16684,
+            "calls": 1792,
+            "triangles": 5691836,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 814,
+            "textures": 185
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 12.199999928474426,
+          "p95": 15.299999952316284,
+          "max": 22.600000023841858,
+          "over33ms": 0,
+          "render": {
+            "frame": 16714,
+            "calls": 1787,
+            "triangles": 5630386,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 812,
+            "textures": 181
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "prison preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "prison preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "pallet",
+        "pallet",
+        "prison-supplies",
+        "bench",
+        "prison-supplies",
+        "bench"
+      ]
+    },
+    {
+      "name": "prison uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · Iron cells",
+        "profile": {
+          "id": "prison",
+          "pattern": "flags",
+          "label": "Dusty coarse limestone",
+          "weather": "dust",
+          "resolution": 2048,
+          "tileMetres": 3.6,
+          "seed": 67,
+          "photographic": "monastery_stone_floor"
+        },
+        "textureSize": [
+          2048,
+          2048
+        ],
+        "textureHash": "811c9dc5",
+        "repeat": [
+          4.861111111111111,
+          4.166666666666667
+        ]
+      }
+    },
+    {
+      "name": "prison bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 11.900000095367432,
+          "p95": 17.800000071525574,
+          "max": 20.200000047683716,
+          "over33ms": 0,
+          "render": {
+            "frame": 19624,
+            "calls": 1448,
+            "triangles": 4309952,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 823,
+            "textures": 190
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 11.600000023841858,
+          "p95": 16.199999928474426,
+          "max": 18.399999976158142,
+          "over33ms": 0,
+          "render": {
+            "frame": 19654,
+            "calls": 1441,
+            "triangles": 4371194,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 821,
+            "textures": 186
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "ritual preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "ritual preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "offering",
+        "altar",
+        "offering"
+      ]
+    },
+    {
+      "name": "ritual uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · Obsidian ritual chamber",
+        "profile": {
+          "id": "ritual",
+          "pattern": "pebbles",
+          "label": "Red and cream ritual pebble pavement",
+          "weather": "worn",
+          "resolution": 1024,
+          "tileMetres": 6,
+          "seed": 79,
+          "photographic": null
+        },
+        "textureSize": [
+          1024,
+          1024
+        ],
+        "textureHash": "776379b5",
+        "repeat": [
+          2.9166666666666665,
+          2.5
+        ]
+      }
+    },
+    {
+      "name": "ritual bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 14.200000047683716,
+          "p95": 19.799999952316284,
+          "max": 35.39999997615814,
+          "over33ms": 1,
+          "render": {
+            "frame": 22564,
+            "calls": 1725,
+            "triangles": 5637635,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 846,
+            "textures": 199
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 12.5,
+          "p95": 18,
+          "max": 28.299999952316284,
+          "over33ms": 0,
+          "render": {
+            "frame": 22594,
+            "calls": 1711,
+            "triangles": 5591727,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 844,
+            "textures": 195
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "library preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "library preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "scroll-cabinet",
+        "scroll-cabinet",
+        "reading-table",
+        "scroll-cabinet",
+        "reading-table"
+      ]
+    },
+    {
+      "name": "library uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · The oak archive",
+        "profile": {
+          "id": "library",
+          "pattern": "coursed",
+          "label": "Dark slate reading-room courses",
+          "weather": "worn",
+          "resolution": 2048,
+          "tileMetres": 3.6,
+          "seed": 83,
+          "photographic": "slate_floor"
+        },
+        "textureSize": [
+          2048,
+          2048
+        ],
+        "textureHash": "811c9dc5",
+        "repeat": [
+          4.861111111111111,
+          5.555555555555555
+        ]
+      }
+    },
+    {
+      "name": "library bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 11.599999904632568,
+          "p95": 15.399999976158142,
+          "max": 19.100000023841858,
+          "over33ms": 0,
+          "render": {
+            "frame": 25504,
+            "calls": 1196,
+            "triangles": 3237192,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 866,
+            "textures": 203
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 11.800000071525574,
+          "p95": 14.899999976158142,
+          "max": 19.300000071525574,
+          "over33ms": 0,
+          "render": {
+            "frame": 25534,
+            "calls": 1210,
+            "triangles": 3323422,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 870,
+            "textures": 210
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "forge preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "forge preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "furnace",
+        "anvil",
+        "forge-stock",
+        "quench-station",
+        "forge-stock",
+        "quench-station"
+      ]
+    },
+    {
+      "name": "forge uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · Ember foundry",
+        "profile": {
+          "id": "forge",
+          "pattern": "clay",
+          "label": "Fired-clay workshop pavement with local soot",
+          "weather": "soot",
+          "resolution": 1024,
+          "tileMetres": 6,
+          "seed": 97,
+          "photographic": null
+        },
+        "textureSize": [
+          1024,
+          1024
+        ],
+        "textureHash": "12185938",
+        "repeat": [
+          3.3333333333333335,
+          2.9166666666666665
+        ]
+      }
+    },
+    {
+      "name": "forge bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 10.399999976158142,
+          "p95": 15.699999928474426,
+          "max": 21,
+          "over33ms": 0,
+          "render": {
+            "frame": 28444,
+            "calls": 842,
+            "triangles": 2485275,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 872,
+            "textures": 206
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 10,
+          "p95": 15,
+          "max": 18.799999952316284,
+          "over33ms": 0,
+          "render": {
+            "frame": 28474,
+            "calls": 858,
+            "triangles": 2825611,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 876,
+            "textures": 216
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "catacombs preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "catacombs preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "ossuary",
+        "sarcophagus",
+        "ossuary",
+        "sarcophagus"
+      ]
+    },
+    {
+      "name": "catacombs uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · Ossuary vaults",
+        "profile": {
+          "id": "catacombs",
+          "pattern": "coursed",
+          "label": "Moist dark slate burial-passage flags",
+          "weather": "damp",
+          "resolution": 2048,
+          "tileMetres": 3.6,
+          "seed": 101,
+          "photographic": "slate_floor"
+        },
+        "textureSize": [
+          2048,
+          2048
+        ],
+        "textureHash": "811c9dc5",
+        "repeat": [
+          4.861111111111111,
+          4.513888888888888
+        ]
+      }
+    },
+    {
+      "name": "catacombs bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 11.799999952316284,
+          "p95": 17.600000023841858,
+          "max": 22.5,
+          "over33ms": 0,
+          "render": {
+            "frame": 31384,
+            "calls": 1069,
+            "triangles": 3660466,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 878,
+            "textures": 208
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 10.799999952316284,
+          "p95": 15.399999976158142,
+          "max": 17.600000023841858,
+          "over33ms": 0,
+          "render": {
+            "frame": 31414,
+            "calls": 1053,
+            "triangles": 3545032,
+            "points": 969,
+            "lines": 66
+          },
+          "memory": {
+            "geometries": 882,
+            "textures": 218
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "sanctum preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "sanctum preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "altar",
+        "offering",
+        "altar",
+        "offering"
+      ]
+    },
+    {
+      "name": "sanctum uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · Ivory sanctum",
+        "profile": {
+          "id": "sanctum",
+          "pattern": "marble",
+          "label": "Honed pale marble with grey-green veins",
+          "weather": "worn",
+          "resolution": 1024,
+          "tileMetres": 6,
+          "seed": 113,
+          "photographic": null
+        },
+        "textureSize": [
+          1024,
+          1024
+        ],
+        "textureHash": "2858ac46",
+        "repeat": [
+          3.75,
+          2.9166666666666665
+        ]
+      }
+    },
+    {
+      "name": "sanctum bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 10.799999952316284,
+          "p95": 15.299999952316284,
+          "max": 18.100000023841858,
+          "over33ms": 0,
+          "render": {
+            "frame": 34324,
+            "calls": 832,
+            "triangles": 3158010,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 888,
+            "textures": 215
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 11.299999952316284,
+          "p95": 16,
+          "max": 19.600000023841858,
+          "over33ms": 0,
+          "render": {
+            "frame": 34354,
+            "calls": 828,
+            "triangles": 3069430,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 891,
+            "textures": 221
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "gallery preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "gallery preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "vase-display",
+        "bench",
+        "vase-display",
+        "bench"
+      ]
+    },
+    {
+      "name": "gallery uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · Gallery of houses",
+        "profile": {
+          "id": "gallery",
+          "pattern": "pebbles",
+          "label": "Light and dark geometric pebble mosaic",
+          "weather": "worn",
+          "resolution": 1024,
+          "tileMetres": 6,
+          "seed": 127,
+          "photographic": null
+        },
+        "textureSize": [
+          1024,
+          1024
+        ],
+        "textureHash": "49928fe8",
+        "repeat": [
+          2.9166666666666665,
+          3.3333333333333335
+        ]
+      }
+    },
+    {
+      "name": "gallery bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 12.400000095367432,
+          "p95": 16.399999976158142,
+          "max": 24.300000071525574,
+          "over33ms": 0,
+          "render": {
+            "frame": 37264,
+            "calls": 1357,
+            "triangles": 3856934,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 939,
+            "textures": 219
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 12.5,
+          "p95": 15.399999976158142,
+          "max": 19.800000071525574,
+          "over33ms": 0,
+          "render": {
+            "frame": 37294,
+            "calls": 1357,
+            "triangles": 3856934,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 942,
+            "textures": 225
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "watchtower preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "watchtower preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "observatory",
+        "map-table",
+        "observatory",
+        "map-table"
+      ]
+    },
+    {
+      "name": "watchtower uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · The celestial watch",
+        "profile": {
+          "id": "watchtower",
+          "pattern": "flags",
+          "label": "Exposed blue-grey stone paving",
+          "weather": "worn",
+          "resolution": 2048,
+          "tileMetres": 3.6,
+          "seed": 139,
+          "photographic": "monastery_stone_floor"
+        },
+        "textureSize": [
+          2048,
+          2048
+        ],
+        "textureHash": "811c9dc5",
+        "repeat": [
+          5.555555555555555,
+          4.861111111111111
+        ]
+      }
+    },
+    {
+      "name": "watchtower bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 11.5,
+          "p95": 15.300000071525574,
+          "max": 20.899999976158142,
+          "over33ms": 0,
+          "render": {
+            "frame": 40204,
+            "calls": 1066,
+            "triangles": 3386522,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 953,
+            "textures": 223
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 11.799999952316284,
+          "p95": 15.900000095367432,
+          "max": 23.700000047683716,
+          "over33ms": 0,
+          "render": {
+            "frame": 40234,
+            "calls": 1066,
+            "triangles": 3397948,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 956,
+            "textures": 229
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "gatehouse preserves every physical reservation",
+      "pass": true,
+      "data": {
+        "before": 526,
+        "after": 526
+      }
+    },
+    {
+      "name": "gatehouse preserves its fitting furniture",
+      "pass": true,
+      "data": [
+        "kline",
+        "kline",
+        "map-table",
+        "supply-rack",
+        "map-table",
+        "supply-rack"
+      ]
+    },
+    {
+      "name": "gatehouse uses a finished PBR room surface",
+      "pass": true,
+      "data": {
+        "name": "Room floor · The iron gate",
+        "profile": {
+          "id": "gatehouse",
+          "pattern": "clay",
+          "label": "Ochre bonded-clay guardhouse paving",
+          "weather": "worn",
+          "resolution": 1024,
+          "tileMetres": 6,
+          "seed": 149,
+          "photographic": null
+        },
+        "textureSize": [
+          1024,
+          1024
+        ],
+        "textureHash": "b639a121",
+        "repeat": [
+          3.3333333333333335,
+          2.9166666666666665
+        ]
+      }
+    },
+    {
+      "name": "gatehouse bounded desktop frame comparison",
+      "pass": true,
+      "data": {
+        "before": {
+          "median": 12.599999904632568,
+          "p95": 15.800000071525574,
+          "max": 17.800000071525574,
+          "over33ms": 0,
+          "render": {
+            "frame": 43144,
+            "calls": 1551,
+            "triangles": 4040655,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 971,
+            "textures": 223
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "after": {
+          "median": 12.600000023841858,
+          "p95": 15.299999952316284,
+          "max": 19.5,
+          "over33ms": 0,
+          "render": {
+            "frame": 43174,
+            "calls": 1555,
+            "triangles": 4099631,
+            "points": 969,
+            "lines": 0
+          },
+          "memory": {
+            "geometries": 974,
+            "textures": 229
+          },
+          "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      }
+    },
+    {
+      "name": "No browser or shader errors",
+      "pass": true,
+      "data": []
+    }
+  ],
+  "errors": [],
+  "conditions": "Chrome1440x1000 DPR1; seed571 reset immediately before native Start. NPC attacks/contacts frozen; actual furniture and original materials. Same camera/standing fixtures, live game frames, 30 warm frames and150 measured frames per room. Desktop GPU; no physical-phone proof.",
+  "scope": "Fourteen room-specific furniture sets and actual PBR floor planes, all static collider reservations, native game frames; no claim of completed Greek/Gothic building art, continuous campaign or physical-phone performance.",
+  "methodLimitations": "Independent compiled runs retain live idle/LOD state and may vary procedural actor selections. Their frame bands are observations; controlled/report.json separately compares only materials within one fixed world and actor cast.",
+  "visualReview": "All14 before/after images must be inspected separately; profile metadata alone is not visual proof."
+}

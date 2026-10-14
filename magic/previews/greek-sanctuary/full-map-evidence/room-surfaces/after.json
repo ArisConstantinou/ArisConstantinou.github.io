@@ -1,0 +1,1273 @@
+{
+  "fullLocalReportSha256": "f56eed76ed1cba951bc9c753af90e6c959742c1c3e215e4a90217d4e5284ef06",
+  "url": "http://127.0.0.1:5173/previews/greek-sanctuary/full-map.htm?hearthQA=1",
+  "runtime": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-49RyXkFs.js",
+  "conditions": "Chrome1440x1000 DPR1; seed571 reset immediately before native Start. NPC attacks/contacts frozen; actual furniture and original materials. Same camera/standing fixtures, live game frames, 30 warm frames and150 measured frames per room. Desktop GPU; no physical-phone proof.",
+  "errors": [],
+  "rooms": [
+    {
+      "id": "courtyard",
+      "fixture": {
+        "x": 0,
+        "z": 15,
+        "furniture": [
+          {
+            "kind": "olive-urn",
+            "x": 13.55,
+            "y": 1.2,
+            "z": 15,
+            "w": 1.2,
+            "h": 2.4,
+            "d": 2.7
+          },
+          {
+            "kind": "bench",
+            "x": -13.55,
+            "y": 0.85,
+            "z": 9.4375,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "kind": "olive-urn",
+            "x": -11.09375,
+            "y": 1.2,
+            "z": 23.55,
+            "w": 2.7,
+            "h": 2.4,
+            "d": 1.2
+          },
+          {
+            "kind": "bench",
+            "x": -7.28125,
+            "y": 0.85,
+            "z": 23.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · Cloister garden",
+            "profile": {
+              "id": "courtyard",
+              "pattern": "flags",
+              "label": "Weathered outdoor limestone flags",
+              "weather": "worn",
+              "resolution": 2048,
+              "tileMetres": 3.6,
+              "seed": 11,
+              "photographic": "monastery_stone_floor"
+            },
+            "textureSize": [
+              2048,
+              2048
+            ],
+            "textureHash": "811c9dc5",
+            "repeat": [
+              8.333333333333334,
+              5.555555555555555
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 11,
+        "p95": 14,
+        "max": 15.5,
+        "over33ms": 0,
+        "render": {
+          "frame": 4954,
+          "calls": 1801,
+          "triangles": 5584832,
+          "points": 969,
+          "lines": 66
+        },
+        "memory": {
+          "geometries": 398,
+          "textures": 103
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "hall",
+      "fixture": {
+        "x": 0,
+        "z": -3.75,
+        "furniture": [
+          {
+            "kind": "map-table",
+            "x": -11.05,
+            "y": 0.85,
+            "z": -6,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · Hall of the crimson crown",
+            "profile": {
+              "id": "hall",
+              "pattern": "pebbles",
+              "label": "Cream and charcoal pebble pavement",
+              "weather": "worn",
+              "resolution": 1024,
+              "tileMetres": 6,
+              "seed": 23,
+              "photographic": null
+            },
+            "textureSize": [
+              1024,
+              1024
+            ],
+            "textureHash": "a978d554",
+            "repeat": [
+              4.166666666666667,
+              2.9166666666666665
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 12.600000023841858,
+        "p95": 18.700000047683716,
+        "max": 35.5,
+        "over33ms": 1,
+        "render": {
+          "frame": 7894,
+          "calls": 2051,
+          "triangles": 6407717,
+          "points": 969,
+          "lines": 66
+        },
+        "memory": {
+          "geometries": 492,
+          "textures": 129
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "crypt",
+      "fixture": {
+        "x": 0,
+        "z": -20.625,
+        "furniture": [
+          {
+            "kind": "sarcophagus",
+            "x": -0.4499999999999993,
+            "y": 0.6,
+            "z": -27.25,
+            "w": 2.75,
+            "h": 1.2,
+            "d": 1.3
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · Royal sepulchre",
+            "profile": {
+              "id": "crypt",
+              "pattern": "flags",
+              "label": "Dark funerary limestone",
+              "weather": "damp",
+              "resolution": 2048,
+              "tileMetres": 3.6,
+              "seed": 37,
+              "photographic": "monastery_stone_floor"
+            },
+            "textureSize": [
+              2048,
+              2048
+            ],
+            "textureHash": "811c9dc5",
+            "repeat": [
+              4.861111111111111,
+              4.513888888888888
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 12.600000023841858,
+        "p95": 21.699999928474426,
+        "max": 29.90000009536743,
+        "over33ms": 0,
+        "render": {
+          "frame": 10834,
+          "calls": 1796,
+          "triangles": 5811537,
+          "points": 969,
+          "lines": 66
+        },
+        "memory": {
+          "geometries": 527,
+          "textures": 148
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "armoury",
+      "fixture": {
+        "x": -28.75,
+        "z": -1.25,
+        "furniture": [
+          {
+            "kind": "weapon-rack",
+            "x": -37.9,
+            "y": 1.15,
+            "z": -4.75,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "kind": "weapon-rack",
+            "x": -19.6,
+            "y": 1.15,
+            "z": -4.75,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "kind": "weapon-rack",
+            "x": -33.5,
+            "y": 1.15,
+            "z": 6.05,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "kind": "supply-rack",
+            "x": -23.0625,
+            "y": 0.85,
+            "z": 6.05,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · Steel armoury",
+            "profile": {
+              "id": "armoury",
+              "pattern": "coursed",
+              "label": "Worn dark slate working-stone courses",
+              "weather": "worn",
+              "resolution": 2048,
+              "tileMetres": 3.6,
+              "seed": 41,
+              "photographic": "slate_floor"
+            },
+            "textureSize": [
+              2048,
+              2048
+            ],
+            "textureHash": "811c9dc5",
+            "repeat": [
+              6.25,
+              4.861111111111111
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 12.900000095367432,
+        "p95": 15.5,
+        "max": 25.100000023841858,
+        "over33ms": 0,
+        "render": {
+          "frame": 13774,
+          "calls": 1875,
+          "triangles": 5190572,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 646,
+          "textures": 167
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "barracks",
+      "fixture": {
+        "x": 28.75,
+        "z": -1.25,
+        "furniture": [
+          {
+            "kind": "kline",
+            "x": 20.5,
+            "y": 0.65,
+            "z": 3.75,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "kind": "kline",
+            "x": 37,
+            "y": 0.65,
+            "z": 3.75,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "kind": "supply-rack",
+            "x": 24.125,
+            "y": 0.85,
+            "z": -8.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "bench",
+            "x": 33.375,
+            "y": 0.85,
+            "z": -8.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "supply-rack",
+            "x": 28.75,
+            "y": 0.85,
+            "z": -8.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "bench",
+            "x": 24.125,
+            "y": 0.85,
+            "z": 6.05,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · Oak barracks",
+            "profile": {
+              "id": "barracks",
+              "pattern": "clay",
+              "label": "Worn terracotta sleeping-quarters pavement",
+              "weather": "worn",
+              "resolution": 1024,
+              "tileMetres": 6,
+              "seed": 53,
+              "photographic": null
+            },
+            "textureSize": [
+              1024,
+              1024
+            ],
+            "textureHash": "a67df681",
+            "repeat": [
+              3.75,
+              2.9166666666666665
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 12.199999928474426,
+        "p95": 15.299999952316284,
+        "max": 22.600000023841858,
+        "over33ms": 0,
+        "render": {
+          "frame": 16714,
+          "calls": 1787,
+          "triangles": 5630386,
+          "points": 969,
+          "lines": 66
+        },
+        "memory": {
+          "geometries": 812,
+          "textures": 181
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "prison",
+      "fixture": {
+        "x": -22.5,
+        "z": -22.5,
+        "furniture": [
+          {
+            "kind": "pallet",
+            "x": -28.25,
+            "y": 0.65,
+            "z": -17.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "kind": "pallet",
+            "x": -16.75,
+            "y": 0.65,
+            "z": -17.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "kind": "prison-supplies",
+            "x": -25.875,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "bench",
+            "x": -19.125,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "prison-supplies",
+            "x": -22.5,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "bench",
+            "x": -22.5,
+            "y": 0.85,
+            "z": -16.45,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · Iron cells",
+            "profile": {
+              "id": "prison",
+              "pattern": "flags",
+              "label": "Dusty coarse limestone",
+              "weather": "dust",
+              "resolution": 2048,
+              "tileMetres": 3.6,
+              "seed": 67,
+              "photographic": "monastery_stone_floor"
+            },
+            "textureSize": [
+              2048,
+              2048
+            ],
+            "textureHash": "811c9dc5",
+            "repeat": [
+              4.861111111111111,
+              4.166666666666667
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 11.600000023841858,
+        "p95": 16.199999928474426,
+        "max": 18.399999976158142,
+        "over33ms": 0,
+        "render": {
+          "frame": 19654,
+          "calls": 1441,
+          "triangles": 4371194,
+          "points": 969,
+          "lines": 66
+        },
+        "memory": {
+          "geometries": 821,
+          "textures": 186
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "ritual",
+      "fixture": {
+        "x": 22.5,
+        "z": -22.5,
+        "furniture": [
+          {
+            "kind": "offering",
+            "x": 19.125,
+            "y": 0.85,
+            "z": -16.45,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "altar",
+            "x": 25.875,
+            "y": 0.85,
+            "z": -16.45,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "offering",
+            "x": 22.5,
+            "y": 0.85,
+            "z": -16.45,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · Obsidian ritual chamber",
+            "profile": {
+              "id": "ritual",
+              "pattern": "pebbles",
+              "label": "Red and cream ritual pebble pavement",
+              "weather": "worn",
+              "resolution": 1024,
+              "tileMetres": 6,
+              "seed": 79,
+              "photographic": null
+            },
+            "textureSize": [
+              1024,
+              1024
+            ],
+            "textureHash": "776379b5",
+            "repeat": [
+              2.9166666666666665,
+              2.5
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 12.5,
+        "p95": 18,
+        "max": 28.299999952316284,
+        "over33ms": 0,
+        "render": {
+          "frame": 22594,
+          "calls": 1711,
+          "triangles": 5591727,
+          "points": 969,
+          "lines": 66
+        },
+        "memory": {
+          "geometries": 844,
+          "textures": 195
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "library",
+      "fixture": {
+        "x": -51.25,
+        "z": -3.75,
+        "furniture": [
+          {
+            "kind": "scroll-cabinet",
+            "x": -57.9,
+            "y": 1.15,
+            "z": -5.75,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "kind": "scroll-cabinet",
+            "x": -44.6,
+            "y": 1.15,
+            "z": -7.25,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "kind": "reading-table",
+            "x": -54.625,
+            "y": 0.85,
+            "z": 4.8,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "scroll-cabinet",
+            "x": -58.55,
+            "y": 1.15,
+            "z": -1.7125000000000008,
+            "w": 2.2,
+            "h": 2.3,
+            "d": 1.2
+          },
+          {
+            "kind": "reading-table",
+            "x": -47.125,
+            "y": 0.85,
+            "z": -12.3,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · The oak archive",
+            "profile": {
+              "id": "library",
+              "pattern": "coursed",
+              "label": "Dark slate reading-room courses",
+              "weather": "worn",
+              "resolution": 2048,
+              "tileMetres": 3.6,
+              "seed": 83,
+              "photographic": "slate_floor"
+            },
+            "textureSize": [
+              2048,
+              2048
+            ],
+            "textureHash": "811c9dc5",
+            "repeat": [
+              4.861111111111111,
+              5.555555555555555
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 11.800000071525574,
+        "p95": 14.899999976158142,
+        "max": 19.300000071525574,
+        "over33ms": 0,
+        "render": {
+          "frame": 25534,
+          "calls": 1210,
+          "triangles": 3323422,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 870,
+          "textures": 210
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "forge",
+      "fixture": {
+        "x": -51.25,
+        "z": -27.5,
+        "furniture": [
+          {
+            "kind": "furnace",
+            "x": -59.15,
+            "y": 1.15,
+            "z": -29.5,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "kind": "anvil",
+            "x": -43.35,
+            "y": 1.15,
+            "z": -29.5,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "kind": "forge-stock",
+            "x": -59.8,
+            "y": 0.85,
+            "z": -24.125,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "kind": "quench-station",
+            "x": -50.18749999999999,
+            "y": 0.85,
+            "z": -34.8,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "forge-stock",
+            "x": -46.8125,
+            "y": 0.85,
+            "z": -20.2,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "quench-station",
+            "x": -56.625,
+            "y": 0.85,
+            "z": -20.2,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · Ember foundry",
+            "profile": {
+              "id": "forge",
+              "pattern": "clay",
+              "label": "Fired-clay workshop pavement with local soot",
+              "weather": "soot",
+              "resolution": 1024,
+              "tileMetres": 6,
+              "seed": 97,
+              "photographic": null
+            },
+            "textureSize": [
+              1024,
+              1024
+            ],
+            "textureHash": "12185938",
+            "repeat": [
+              3.3333333333333335,
+              2.9166666666666665
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 10,
+        "p95": 15,
+        "max": 18.799999952316284,
+        "over33ms": 0,
+        "render": {
+          "frame": 28474,
+          "calls": 858,
+          "triangles": 2825611,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 876,
+          "textures": 216
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "catacombs",
+      "fixture": {
+        "x": 0,
+        "z": -41.875,
+        "furniture": [
+          {
+            "kind": "ossuary",
+            "x": -3.375,
+            "y": 0.85,
+            "z": -48.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "sarcophagus",
+            "x": 3.375,
+            "y": 0.85,
+            "z": -48.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "ossuary",
+            "x": 0,
+            "y": 0.85,
+            "z": -48.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "sarcophagus",
+            "x": 7.3,
+            "y": 0.85,
+            "z": -38.375,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · Ossuary vaults",
+            "profile": {
+              "id": "catacombs",
+              "pattern": "coursed",
+              "label": "Moist dark slate burial-passage flags",
+              "weather": "damp",
+              "resolution": 2048,
+              "tileMetres": 3.6,
+              "seed": 101,
+              "photographic": "slate_floor"
+            },
+            "textureSize": [
+              2048,
+              2048
+            ],
+            "textureHash": "811c9dc5",
+            "repeat": [
+              4.861111111111111,
+              4.513888888888888
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 10.799999952316284,
+        "p95": 15.399999976158142,
+        "max": 17.600000023841858,
+        "over33ms": 0,
+        "render": {
+          "frame": 31414,
+          "calls": 1053,
+          "triangles": 3545032,
+          "points": 969,
+          "lines": 66
+        },
+        "memory": {
+          "geometries": 882,
+          "textures": 218
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "sanctum",
+      "fixture": {
+        "x": 25,
+        "z": -46.25,
+        "furniture": [
+          {
+            "kind": "altar",
+            "x": 20.375,
+            "y": 0.85,
+            "z": -53.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "offering",
+            "x": 29.625,
+            "y": 0.85,
+            "z": -53.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "altar",
+            "x": 25,
+            "y": 0.85,
+            "z": -53.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "offering",
+            "x": 34.8,
+            "y": 0.85,
+            "z": -42.875,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · Ivory sanctum",
+            "profile": {
+              "id": "sanctum",
+              "pattern": "marble",
+              "label": "Honed pale marble with grey-green veins",
+              "weather": "worn",
+              "resolution": 1024,
+              "tileMetres": 6,
+              "seed": 113,
+              "photographic": null
+            },
+            "textureSize": [
+              1024,
+              1024
+            ],
+            "textureHash": "2858ac46",
+            "repeat": [
+              3.75,
+              2.9166666666666665
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 11.299999952316284,
+        "p95": 16,
+        "max": 19.600000023841858,
+        "over33ms": 0,
+        "render": {
+          "frame": 34354,
+          "calls": 828,
+          "triangles": 3069430,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 891,
+          "textures": 221
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "gallery",
+      "fixture": {
+        "x": 51.25,
+        "z": -3.75,
+        "furniture": [
+          {
+            "kind": "vase-display",
+            "x": 58.55,
+            "y": 0.85,
+            "z": 0.25,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "kind": "bench",
+            "x": 58.55,
+            "y": 0.85,
+            "z": -3.75,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "kind": "vase-display",
+            "x": 47.875,
+            "y": 0.85,
+            "z": 4.8,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "bench",
+            "x": 54.625,
+            "y": 0.85,
+            "z": 4.8,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · Gallery of houses",
+            "profile": {
+              "id": "gallery",
+              "pattern": "pebbles",
+              "label": "Light and dark geometric pebble mosaic",
+              "weather": "worn",
+              "resolution": 1024,
+              "tileMetres": 6,
+              "seed": 127,
+              "photographic": null
+            },
+            "textureSize": [
+              1024,
+              1024
+            ],
+            "textureHash": "49928fe8",
+            "repeat": [
+              2.9166666666666665,
+              3.3333333333333335
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 12.5,
+        "p95": 15.399999976158142,
+        "max": 19.800000071525574,
+        "over33ms": 0,
+        "render": {
+          "frame": 37294,
+          "calls": 1357,
+          "triangles": 3856934,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 942,
+          "textures": 225
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "watchtower",
+      "fixture": {
+        "x": 51.25,
+        "z": -27.5,
+        "furniture": [
+          {
+            "kind": "observatory",
+            "x": 59.8,
+            "y": 1.25,
+            "z": -24.125,
+            "w": 1.2,
+            "h": 2.5,
+            "d": 2.7
+          },
+          {
+            "kind": "map-table",
+            "x": 59.8,
+            "y": 0.85,
+            "z": -27.5,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "kind": "observatory",
+            "x": 42.7,
+            "y": 1.25,
+            "z": -28.8125,
+            "w": 1.2,
+            "h": 2.5,
+            "d": 2.7
+          },
+          {
+            "kind": "map-table",
+            "x": 56.625,
+            "y": 0.85,
+            "z": -20.2,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · The celestial watch",
+            "profile": {
+              "id": "watchtower",
+              "pattern": "flags",
+              "label": "Exposed blue-grey stone paving",
+              "weather": "worn",
+              "resolution": 2048,
+              "tileMetres": 3.6,
+              "seed": 139,
+              "photographic": "monastery_stone_floor"
+            },
+            "textureSize": [
+              2048,
+              2048
+            ],
+            "textureHash": "811c9dc5",
+            "repeat": [
+              5.555555555555555,
+              4.861111111111111
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 11.799999952316284,
+        "p95": 15.900000095367432,
+        "max": 23.700000047683716,
+        "over33ms": 0,
+        "render": {
+          "frame": 40234,
+          "calls": 1066,
+          "triangles": 3397948,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 956,
+          "textures": 229
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "gatehouse",
+      "fixture": {
+        "x": -30,
+        "z": 20,
+        "furniture": [
+          {
+            "kind": "kline",
+            "x": -37,
+            "y": 0.65,
+            "z": 23.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "kind": "kline",
+            "x": -23,
+            "y": 0.65,
+            "z": 23.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "kind": "map-table",
+            "x": -34,
+            "y": 0.85,
+            "z": 27.3,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "supply-rack",
+            "x": -26,
+            "y": 0.85,
+            "z": 27.3,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "map-table",
+            "x": -30,
+            "y": 0.85,
+            "z": 27.3,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "supply-rack",
+            "x": -38.55,
+            "y": 0.85,
+            "z": 20,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          }
+        ],
+        "floors": [
+          {
+            "name": "Room floor · The iron gate",
+            "profile": {
+              "id": "gatehouse",
+              "pattern": "clay",
+              "label": "Ochre bonded-clay guardhouse paving",
+              "weather": "worn",
+              "resolution": 1024,
+              "tileMetres": 6,
+              "seed": 149,
+              "photographic": null
+            },
+            "textureSize": [
+              1024,
+              1024
+            ],
+            "textureHash": "b639a121",
+            "repeat": [
+              3.3333333333333335,
+              2.9166666666666665
+            ]
+          }
+        ],
+        "physicalCount": 526,
+        "physicalSha256": "308d7dcd020f5c014d089dd2693bc800de4fac44a42e68712a60fd76ccf619e6"
+      },
+      "performance": {
+        "median": 12.600000023841858,
+        "p95": 15.299999952316284,
+        "max": 19.5,
+        "over33ms": 0,
+        "render": {
+          "frame": 43174,
+          "calls": 1555,
+          "triangles": 4099631,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 974,
+          "textures": 229
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    }
+  ]
+}

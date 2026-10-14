@@ -1,0 +1,26 @@
+{
+  "id": "slate_floor",
+  "source": "https://polyhaven.com/a/slate_floor",
+  "license": "CC0",
+  "licenseURL": "https://polyhaven.com/license",
+  "files": [
+    {
+      "file": "threshold-materials/slate_floor/diff.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/slate_floor/slate_floor_diff_2k.jpg",
+      "bytes": 3009643,
+      "sha256": "a50c8f5aa3a78195cc001997dfc7b2ff0aef8fca0d30b0fdab115c03ad949e71"
+    },
+    {
+      "file": "threshold-materials/slate_floor/normal.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/slate_floor/slate_floor_nor_gl_2k.jpg",
+      "bytes": 3408456,
+      "sha256": "cfa50bd8c911030d5aed7e611f7a07eef51829ccabf1c0a424c2e0fc605a5515"
+    },
+    {
+      "file": "threshold-materials/slate_floor/arm.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/slate_floor/slate_floor_arm_2k.jpg",
+      "bytes": 4210784,
+      "sha256": "4cbfac8cb8b4e71567a41b6a6b5e132768e293fc434081fdb4672d90ba6ab80b"
+    }
+  ]
+}

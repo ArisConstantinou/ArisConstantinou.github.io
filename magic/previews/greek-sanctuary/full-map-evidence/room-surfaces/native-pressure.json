@@ -1,0 +1,7464 @@
+{
+  "url": "http://127.0.0.1:5173/previews/greek-sanctuary/full-map.htm?hearthQA=1",
+  "checks": [
+    {
+      "name": "Fourteen room-specific furniture scenes captured in the actual connected game",
+      "pass": true,
+      "data": [
+        {
+          "id": "courtyard",
+          "kinds": [
+            "olive-urn",
+            "bench",
+            "olive-urn",
+            "bench"
+          ]
+        },
+        {
+          "id": "hall",
+          "kinds": [
+            "map-table"
+          ]
+        },
+        {
+          "id": "crypt",
+          "kinds": [
+            "sarcophagus"
+          ]
+        },
+        {
+          "id": "armoury",
+          "kinds": [
+            "weapon-rack",
+            "weapon-rack",
+            "weapon-rack",
+            "supply-rack"
+          ]
+        },
+        {
+          "id": "barracks",
+          "kinds": [
+            "kline",
+            "kline",
+            "supply-rack",
+            "bench",
+            "supply-rack",
+            "bench"
+          ]
+        },
+        {
+          "id": "prison",
+          "kinds": [
+            "pallet",
+            "pallet",
+            "prison-supplies",
+            "bench",
+            "prison-supplies",
+            "bench"
+          ]
+        },
+        {
+          "id": "ritual",
+          "kinds": [
+            "offering",
+            "altar",
+            "offering"
+          ]
+        },
+        {
+          "id": "library",
+          "kinds": [
+            "scroll-cabinet",
+            "scroll-cabinet",
+            "reading-table",
+            "scroll-cabinet",
+            "reading-table"
+          ]
+        },
+        {
+          "id": "forge",
+          "kinds": [
+            "furnace",
+            "anvil",
+            "forge-stock",
+            "quench-station",
+            "forge-stock",
+            "quench-station"
+          ]
+        },
+        {
+          "id": "catacombs",
+          "kinds": [
+            "ossuary",
+            "sarcophagus",
+            "ossuary",
+            "sarcophagus"
+          ]
+        },
+        {
+          "id": "sanctum",
+          "kinds": [
+            "altar",
+            "offering",
+            "altar",
+            "offering"
+          ]
+        },
+        {
+          "id": "gallery",
+          "kinds": [
+            "vase-display",
+            "bench",
+            "vase-display",
+            "bench"
+          ]
+        },
+        {
+          "id": "watchtower",
+          "kinds": [
+            "observatory",
+            "map-table",
+            "observatory",
+            "map-table"
+          ]
+        },
+        {
+          "id": "gatehouse",
+          "kinds": [
+            "kline",
+            "kline",
+            "map-table",
+            "supply-rack",
+            "map-table",
+            "supply-rack"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hall-pressure native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 607.2765664640605,
+            "y": 572.7822561301549
+          },
+          "end": {
+            "x": 687.0460602353261,
+            "y": 477.37666472528906
+          },
+          "expected": 1064,
+          "picked": 1064,
+          "plate": {
+            "x": -4.8,
+            "z": 9,
+            "y": 0
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -3.9000000000000052,
+            "y": 0.8599765161253408,
+            "z": 10.499999999999995
+          }
+        },
+        "picked": 1064
+      }
+    },
+    {
+      "name": "hall-pressure native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1064,
+          "position": {
+            "x": -4.800000082108077,
+            "y": 1.0499759556264172,
+            "z": 9.000000717944983
+          },
+          "drop": {
+            "x": -4.8,
+            "z": 9,
+            "y": 0
+          }
+        },
+        "after": {
+          "id": "hall-pressure",
+          "kind": "pressure",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [
+            {
+              "x": -4.8,
+              "z": 9,
+              "y": 0,
+              "active": true
+            },
+            {
+              "x": -3.2,
+              "z": 9,
+              "y": 0,
+              "active": false
+            }
+          ],
+          "weights": [
+            {
+              "id": 1064,
+              "position": {
+                "x": -4.800418149499591,
+                "y": 0.519990931030134,
+                "z": 9.000593135847597
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1065,
+              "position": {
+                "x": -2.800342908084096,
+                "y": 0.43999093106372106,
+                "z": 12.500484027172417
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "hall-pressure native pick 2",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 709.7633663540503,
+            "y": 597.2298008635512
+          },
+          "end": {
+            "x": 746.7030081227765,
+            "y": 490.1133074887694
+          },
+          "expected": 1065,
+          "picked": 1065,
+          "plate": {
+            "x": -3.2,
+            "z": 9,
+            "y": 0
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -3.9000000000000052,
+            "y": 0.8599765336818725,
+            "z": 10.499999999999995
+          }
+        },
+        "picked": 1065
+      }
+    },
+    {
+      "name": "hall-pressure native release activates plate 2",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1065,
+          "position": {
+            "x": -3.1999998450301663,
+            "y": 1.0502698895302263,
+            "z": 9.000001357333986
+          },
+          "drop": {
+            "x": -3.2,
+            "z": 9,
+            "y": 0
+          }
+        },
+        "after": {
+          "id": "hall-pressure",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.40000000000002917,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -4.8,
+              "z": 9,
+              "y": 0,
+              "active": true
+            },
+            {
+              "x": -3.2,
+              "z": 9,
+              "y": 0,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1064,
+              "position": {
+                "x": -4.800418149499591,
+                "y": 0.519990931030134,
+                "z": 9.000593135847597
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1065,
+              "position": {
+                "x": -3.2004148427896215,
+                "y": 0.519990931028985,
+                "z": 9.000587583316046
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "hall-pressure opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "hall-pressure",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.40000000000002917,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -4.8,
+            "z": 9,
+            "y": 0,
+            "active": true
+          },
+          {
+            "x": -3.2,
+            "z": 9,
+            "y": 0,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1064,
+            "position": {
+              "x": -4.800418149499591,
+              "y": 0.519990931030134,
+              "z": 9.000593135847597
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1065,
+            "position": {
+              "x": -3.2004148427896215,
+              "y": 0.519990931028985,
+              "z": 9.000587583316046
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "archive-secret native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 618.5442599890637,
+            "y": 562.5239557146267
+          },
+          "end": {
+            "x": 648.9372421807388,
+            "y": 491.07049905735835
+          },
+          "expected": 1066,
+          "picked": 1066,
+          "plate": {
+            "x": -55.5,
+            "z": -4.3,
+            "y": 0
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -53.99999999999997,
+            "y": 0.8599765161253408,
+            "z": -3.500000000000006
+          }
+        },
+        "picked": 1066
+      }
+    },
+    {
+      "name": "archive-secret native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1066,
+          "position": {
+            "x": -55.49999996456369,
+            "y": 1.049975428120798,
+            "z": -4.299999716122008
+          },
+          "drop": {
+            "x": -55.5,
+            "z": -4.3,
+            "y": 0
+          }
+        },
+        "after": {
+          "id": "archive-secret",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4166666666666059,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -55.5,
+              "z": -4.3,
+              "y": 0,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1066,
+              "position": {
+                "x": -55.50042386928739,
+                "y": 0.5199909310306144,
+                "z": -4.299399796133522
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "archive-secret opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "archive-secret",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4166666666666059,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -55.5,
+            "z": -4.3,
+            "y": 0,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1066,
+            "position": {
+              "x": -55.50042386928739,
+              "y": 0.5199909310306144,
+              "z": -4.299399796133522
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "passage-prison-crypt native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 624.4386561590849,
+            "y": 534.0413534991925
+          },
+          "end": {
+            "x": 626.7921147526724,
+            "y": 468.03746604047365
+          },
+          "expected": 1067,
+          "picked": 1067,
+          "plate": {
+            "x": -7.29,
+            "y": 0,
+            "z": -24.040000000000006
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -4.990000000000007,
+            "y": 0.8599765161253408,
+            "z": -22.539999999999978
+          }
+        },
+        "picked": 1067
+      }
+    },
+    {
+      "name": "passage-prison-crypt native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1067,
+          "position": {
+            "x": -7.289999900264658,
+            "y": 1.0502679413702714,
+            "z": -24.0399997457535
+          },
+          "drop": {
+            "x": -7.29,
+            "y": 0,
+            "z": -24.040000000000006
+          }
+        },
+        "after": {
+          "id": "passage-prison-crypt",
+          "kind": "pressure",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [
+            {
+              "x": -7.29,
+              "y": 0,
+              "z": -24.040000000000006,
+              "active": true
+            },
+            {
+              "x": -5.69,
+              "y": 0,
+              "z": -24.040000000000006,
+              "active": false
+            }
+          ],
+          "weights": [
+            {
+              "id": 1067,
+              "position": {
+                "x": -7.290423713829222,
+                "y": 0.5199909310306206,
+                "z": -24.039399911676163
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1068,
+              "position": {
+                "x": -7.750342908084098,
+                "y": 0.43999093106372106,
+                "z": -25.7995159728276
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-prison-crypt native pick 2",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 636.5475483703657,
+            "y": 430.68450836662765
+          },
+          "end": {
+            "x": 693.7236928452778,
+            "y": 492.78461076417034
+          },
+          "expected": 1068,
+          "picked": 1068,
+          "plate": {
+            "x": -5.69,
+            "y": 0,
+            "z": -24.040000000000006
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -4.990000000000007,
+            "y": 0.8599765336818725,
+            "z": -22.539999999999978
+          }
+        },
+        "picked": 1068
+      }
+    },
+    {
+      "name": "passage-prison-crypt native release activates plate 2",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1068,
+          "position": {
+            "x": -5.690276041656597,
+            "y": 1.0504078091299538,
+            "z": -24.04023573613357
+          },
+          "drop": {
+            "x": -5.69,
+            "y": 0,
+            "z": -24.040000000000006
+          }
+        },
+        "after": {
+          "id": "passage-prison-crypt",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4166666666666059,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -7.29,
+              "y": 0,
+              "z": -24.040000000000006,
+              "active": true
+            },
+            {
+              "x": -5.69,
+              "y": 0,
+              "z": -24.040000000000006,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1067,
+              "position": {
+                "x": -7.290423713829222,
+                "y": 0.5199909310306206,
+                "z": -24.039399911676163
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1068,
+              "position": {
+                "x": -5.690541931634917,
+                "y": 0.519990930974124,
+                "z": -24.039872575232618
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-prison-crypt opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "passage-prison-crypt",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4166666666666059,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -7.29,
+            "y": 0,
+            "z": -24.040000000000006,
+            "active": true
+          },
+          {
+            "x": -5.69,
+            "y": 0,
+            "z": -24.040000000000006,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1067,
+            "position": {
+              "x": -7.290423713829222,
+              "y": 0.5199909310306206,
+              "z": -24.039399911676163
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1068,
+            "position": {
+              "x": -5.690541931634917,
+              "y": 0.519990930974124,
+              "z": -24.039872575232618
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "passage-forge-library native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 624.4384888786952,
+            "y": 534.0413500652868
+          },
+          "end": {
+            "x": 626.7919581621632,
+            "y": 468.0374630317067
+          },
+          "expected": 1069,
+          "picked": 1069,
+          "plate": {
+            "x": -55.940000000000005,
+            "y": 0,
+            "z": -12.290000000000001
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -53.63999999999998,
+            "y": 0.8599765161253408,
+            "z": -10.789999999999997
+          }
+        },
+        "picked": 1069
+      }
+    },
+    {
+      "name": "passage-forge-library native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1069,
+          "position": {
+            "x": -55.93999990026594,
+            "y": 1.0502679413702714,
+            "z": -12.289999745752274
+          },
+          "drop": {
+            "x": -55.940000000000005,
+            "y": 0,
+            "z": -12.290000000000001
+          }
+        },
+        "after": {
+          "id": "passage-forge-library",
+          "kind": "pressure",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [
+            {
+              "x": -55.940000000000005,
+              "y": 0,
+              "z": -12.290000000000001,
+              "active": true
+            },
+            {
+              "x": -54.34000000000001,
+              "y": 0,
+              "z": -12.290000000000001,
+              "active": false
+            }
+          ],
+          "weights": [
+            {
+              "id": 1069,
+              "position": {
+                "x": -55.94042371383747,
+                "y": 0.5199909310306207,
+                "z": -12.289399911683262
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1070,
+              "position": {
+                "x": -52.500342908084136,
+                "y": 0.439990931063721,
+                "z": -12.099515972827582
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-forge-library native pick 2",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 758.8808308637016,
+            "y": 507.38639147035013
+          },
+          "end": {
+            "x": 681.5224348730585,
+            "y": 484.92634638456576
+          },
+          "expected": 1070,
+          "picked": 1070,
+          "plate": {
+            "x": -54.34000000000001,
+            "y": 0,
+            "z": -12.290000000000001
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -53.63999999999998,
+            "y": 0.8599765336818725,
+            "z": -10.789999999999997
+          }
+        },
+        "picked": 1070
+      }
+    },
+    {
+      "name": "passage-forge-library native release activates plate 2",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1070,
+          "position": {
+            "x": -54.33999994138708,
+            "y": 1.0499750221537585,
+            "z": -12.289999993930985
+          },
+          "drop": {
+            "x": -54.34000000000001,
+            "y": 0,
+            "z": -12.290000000000001
+          }
+        },
+        "after": {
+          "id": "passage-forge-library",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4166666666666059,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -55.940000000000005,
+              "y": 0,
+              "z": -12.290000000000001,
+              "active": true
+            },
+            {
+              "x": -54.34000000000001,
+              "y": 0,
+              "z": -12.290000000000001,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1069,
+              "position": {
+                "x": -55.94042371383747,
+                "y": 0.5199909310306207,
+                "z": -12.289399911683262
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1070,
+              "position": {
+                "x": -54.34042518278295,
+                "y": 0.5199909310309978,
+                "z": -12.289398874374431
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-forge-library opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "passage-forge-library",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4166666666666059,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -55.940000000000005,
+            "y": 0,
+            "z": -12.290000000000001,
+            "active": true
+          },
+          {
+            "x": -54.34000000000001,
+            "y": 0,
+            "z": -12.290000000000001,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1069,
+            "position": {
+              "x": -55.94042371383747,
+              "y": 0.5199909310306207,
+              "z": -12.289399911683262
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1070,
+            "position": {
+              "x": -54.34042518278295,
+              "y": 0.5199909310309978,
+              "z": -12.289398874374431
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "passage-ritual-watchtower native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 712.5182288709566,
+            "y": 446.3003130186389
+          },
+          "end": {
+            "x": 677.2065898787547,
+            "y": 489.20776235664323
+          },
+          "expected": 1071,
+          "picked": 1071,
+          "plate": {
+            "x": 45.309999999999995,
+            "y": 0,
+            "z": -21.790000000000028
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": 46.210000000000015,
+            "y": 0.8599765161253408,
+            "z": -20.29
+          }
+        },
+        "picked": 1071
+      }
+    },
+    {
+      "name": "passage-ritual-watchtower native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1071,
+          "position": {
+            "x": 45.31000000665802,
+            "y": 1.0502675531538779,
+            "z": -21.79000006176628
+          },
+          "drop": {
+            "x": 45.309999999999995,
+            "y": 0,
+            "z": -21.790000000000028
+          }
+        },
+        "after": {
+          "id": "passage-ritual-watchtower",
+          "kind": "pressure",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [
+            {
+              "x": 45.309999999999995,
+              "y": 0,
+              "z": -21.790000000000028,
+              "active": true
+            },
+            {
+              "x": 46.90999999999999,
+              "y": 0,
+              "z": -21.790000000000028,
+              "active": false
+            }
+          ],
+          "weights": [
+            {
+              "id": 1071,
+              "position": {
+                "x": 45.30957904791193,
+                "y": 0.5199909310310313,
+                "z": -21.78940514589014
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1072,
+              "position": {
+                "x": 47.44965709191587,
+                "y": 0.439990931063721,
+                "z": -23.54951597282762
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-ritual-watchtower native pick 2",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 787.1919618626955,
+            "y": 461.6495470998176
+          },
+          "end": {
+            "x": 739.2410237193227,
+            "y": 502.64155418520073
+          },
+          "expected": 1072,
+          "picked": 1072,
+          "plate": {
+            "x": 46.90999999999999,
+            "y": 0,
+            "z": -21.790000000000028
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": 46.210000000000015,
+            "y": 0.8599765336818725,
+            "z": -20.29
+          }
+        },
+        "picked": 1072
+      }
+    },
+    {
+      "name": "passage-ritual-watchtower native release activates plate 2",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1072,
+          "position": {
+            "x": 46.91000001645767,
+            "y": 1.04997501926186,
+            "z": -21.790000053659234
+          },
+          "drop": {
+            "x": 46.90999999999999,
+            "y": 0,
+            "z": -21.790000000000028
+          }
+        },
+        "after": {
+          "id": "passage-ritual-watchtower",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000001162,
+          "blocked": false,
+          "plates": [
+            {
+              "x": 45.309999999999995,
+              "y": 0,
+              "z": -21.790000000000028,
+              "active": true
+            },
+            {
+              "x": 46.90999999999999,
+              "y": 0,
+              "z": -21.790000000000028,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1071,
+              "position": {
+                "x": 45.30957904791193,
+                "y": 0.5199909310310313,
+                "z": -21.78940514589014
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1072,
+              "position": {
+                "x": 46.909579152707586,
+                "y": 0.5199909310310016,
+                "z": -21.78940510193014
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-ritual-watchtower opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "passage-ritual-watchtower",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": 45.309999999999995,
+            "y": 0,
+            "z": -21.790000000000028,
+            "active": true
+          },
+          {
+            "x": 46.90999999999999,
+            "y": 0,
+            "z": -21.790000000000028,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1071,
+            "position": {
+              "x": 45.30957904791193,
+              "y": 0.5199909310310313,
+              "z": -21.78940514589014
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1072,
+            "position": {
+              "x": 46.909579152707586,
+              "y": 0.5199909310310016,
+              "z": -21.78940510193014
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "passage-watchtower-gallery native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 624.4385698943717,
+            "y": 534.041366072105
+          },
+          "end": {
+            "x": 626.7920340312314,
+            "y": 468.03747705678103
+          },
+          "expected": 1073,
+          "picked": 1073,
+          "plate": {
+            "x": 47.85999999999999,
+            "y": 0,
+            "z": -12.290000000000001
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": 50.16000000000002,
+            "y": 0.8599765161253408,
+            "z": -10.789999999999997
+          }
+        },
+        "picked": 1073
+      }
+    },
+    {
+      "name": "passage-watchtower-gallery native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1073,
+          "position": {
+            "x": 47.86000009784153,
+            "y": 1.0499754252289135,
+            "z": -12.28999975057857
+          },
+          "drop": {
+            "x": 47.85999999999999,
+            "y": 0,
+            "z": -12.290000000000001
+          }
+        },
+        "after": {
+          "id": "passage-watchtower-gallery",
+          "kind": "pressure",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [
+            {
+              "x": 47.85999999999999,
+              "y": 0,
+              "z": -12.290000000000001,
+              "active": true
+            },
+            {
+              "x": 49.45999999999999,
+              "y": 0,
+              "z": -12.290000000000001,
+              "active": false
+            }
+          ],
+          "weights": [
+            {
+              "id": 1073,
+              "position": {
+                "x": 47.85958067545269,
+                "y": 0.5199909310306144,
+                "z": -12.289406102354862
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1074,
+              "position": {
+                "x": 46.09965709191587,
+                "y": 0.439990931063721,
+                "z": -12.099515972827582
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-watchtower-gallery native pick 2",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 557.3084872757162,
+            "y": 463.7138086652375
+          },
+          "end": {
+            "x": 701.5084583715699,
+            "y": 489.2315488376311
+          },
+          "expected": 1074,
+          "picked": 1074,
+          "plate": {
+            "x": 49.45999999999999,
+            "y": 0,
+            "z": -12.290000000000001
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": 50.16000000000002,
+            "y": 0.8599765336818725,
+            "z": -10.789999999999997
+          }
+        },
+        "picked": 1074
+      }
+    },
+    {
+      "name": "passage-watchtower-gallery native release activates plate 2",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1074,
+          "position": {
+            "x": 49.45999937628555,
+            "y": 1.0499756388303212,
+            "z": -12.289999964644124
+          },
+          "drop": {
+            "x": 49.45999999999999,
+            "y": 0,
+            "z": -12.290000000000001
+          }
+        },
+        "after": {
+          "id": "passage-watchtower-gallery",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000001162,
+          "blocked": false,
+          "plates": [
+            {
+              "x": 47.85999999999999,
+              "y": 0,
+              "z": -12.290000000000001,
+              "active": true
+            },
+            {
+              "x": 49.45999999999999,
+              "y": 0,
+              "z": -12.290000000000001,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1073,
+              "position": {
+                "x": 47.85958067545269,
+                "y": 0.5199909310306144,
+                "z": -12.289406102354862
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1074,
+              "position": {
+                "x": 49.45958145783946,
+                "y": 0.5199909310299872,
+                "z": -12.289409393141893
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-watchtower-gallery opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "passage-watchtower-gallery",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": 47.85999999999999,
+            "y": 0,
+            "z": -12.290000000000001,
+            "active": true
+          },
+          {
+            "x": 49.45999999999999,
+            "y": 0,
+            "z": -12.290000000000001,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1073,
+            "position": {
+              "x": 47.85958067545269,
+              "y": 0.5199909310306144,
+              "z": -12.289406102354862
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1074,
+            "position": {
+              "x": 49.45958145783946,
+              "y": 0.5199909310299872,
+              "z": -12.289409393141893
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "passage-catacombs-crypt native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 647.5078215694026,
+            "y": 432.93737698782684
+          },
+          "end": {
+            "x": 609.8082348987097,
+            "y": 474.6123899094235
+          },
+          "expected": 1075,
+          "picked": 1075,
+          "plate": {
+            "x": -4.039999999999999,
+            "y": 0,
+            "z": -35.54000000000003
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -1.3900000000000023,
+            "y": 0.8599765161253408,
+            "z": -34.04
+          }
+        },
+        "picked": 1075
+      }
+    },
+    {
+      "name": "passage-catacombs-crypt native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1075,
+          "position": {
+            "x": -4.039999994223891,
+            "y": 1.0499747053569997,
+            "z": -35.54000005358852
+          },
+          "drop": {
+            "x": -4.039999999999999,
+            "y": 0,
+            "z": -35.54000000000003
+          }
+        },
+        "after": {
+          "id": "passage-catacombs-crypt",
+          "kind": "pressure",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [
+            {
+              "x": -4.039999999999999,
+              "y": 0,
+              "z": -35.54000000000003,
+              "active": true
+            },
+            {
+              "x": -2.4399999999999995,
+              "y": 0,
+              "z": -35.54000000000003,
+              "active": false
+            }
+          ],
+          "weights": [
+            {
+              "id": 1075,
+              "position": {
+                "x": -4.040425358520925,
+                "y": 0.5199909310310318,
+                "z": -35.53939892704306
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1076,
+              "position": {
+                "x": -1.9003429080840961,
+                "y": 0.439990931063721,
+                "z": -37.29951597282761
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-catacombs-crypt native pick 2",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 720.0668381327114,
+            "y": 447.85194247523555
+          },
+          "end": {
+            "x": 670.0102411684977,
+            "y": 487.6493766235256
+          },
+          "expected": 1076,
+          "picked": 1076,
+          "plate": {
+            "x": -2.4399999999999995,
+            "y": 0,
+            "z": -35.54000000000003
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -1.3900000000000023,
+            "y": 0.8599765336818725,
+            "z": -34.04
+          }
+        },
+        "picked": 1076
+      }
+    },
+    {
+      "name": "passage-catacombs-crypt native release activates plate 2",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1076,
+          "position": {
+            "x": -2.439999981014484,
+            "y": 1.0501942615713213,
+            "z": -35.54000006190079
+          },
+          "drop": {
+            "x": -2.4399999999999995,
+            "y": 0,
+            "z": -35.54000000000003
+          }
+        },
+        "after": {
+          "id": "passage-catacombs-crypt",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000001162,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -4.039999999999999,
+              "y": 0,
+              "z": -35.54000000000003,
+              "active": true
+            },
+            {
+              "x": -2.4399999999999995,
+              "y": 0,
+              "z": -35.54000000000003,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1075,
+              "position": {
+                "x": -4.040425358520925,
+                "y": 0.5199909310310318,
+                "z": -35.53939892704306
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1076,
+              "position": {
+                "x": -2.4404251985454697,
+                "y": 0.5199909310309937,
+                "z": -35.53939897877002
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-catacombs-crypt opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "passage-catacombs-crypt",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -4.039999999999999,
+            "y": 0,
+            "z": -35.54000000000003,
+            "active": true
+          },
+          {
+            "x": -2.4399999999999995,
+            "y": 0,
+            "z": -35.54000000000003,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1075,
+            "position": {
+              "x": -4.040425358520925,
+              "y": 0.5199909310310318,
+              "z": -35.53939892704306
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1076,
+            "position": {
+              "x": -2.4404251985454697,
+              "y": 0.5199909310309937,
+              "z": -35.53939897877002
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "passage-catacombs-sanctum native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 660.3623574200714,
+            "y": 435.57964496251094
+          },
+          "end": {
+            "x": 623.128070713769,
+            "y": 477.4968612466276
+          },
+          "expected": 1077,
+          "picked": 1077,
+          "plate": {
+            "x": 15.21,
+            "y": 0,
+            "z": -46.390000000000015
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": 17.51,
+            "y": 0.8599765161253408,
+            "z": -44.889999999999986
+          }
+        },
+        "picked": 1077
+      }
+    },
+    {
+      "name": "passage-catacombs-sanctum native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1077,
+          "position": {
+            "x": 15.210000006660124,
+            "y": 1.050194261570918,
+            "z": -46.390000061787845
+          },
+          "drop": {
+            "x": 15.21,
+            "y": 0,
+            "z": -46.390000000000015
+          }
+        },
+        "after": {
+          "id": "passage-catacombs-sanctum",
+          "kind": "pressure",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [
+            {
+              "x": 15.21,
+              "y": 0,
+              "z": -46.390000000000015,
+              "active": true
+            },
+            {
+              "x": 16.810000000000002,
+              "y": 0,
+              "z": -46.390000000000015,
+              "active": false
+            }
+          ],
+          "weights": [
+            {
+              "id": 1077,
+              "position": {
+                "x": 15.209574654622603,
+                "y": 0.5199909310310317,
+                "z": -46.38939895443495
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1078,
+              "position": {
+                "x": 16.04965709191591,
+                "y": 0.439990931063721,
+                "z": -44.24951597282761
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-catacombs-sanctum native pick 2",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 624.4385699369757,
+            "y": 534.0413553200269
+          },
+          "end": {
+            "x": 694.2599456072141,
+            "y": 482.49447025735606
+          },
+          "expected": 1078,
+          "picked": 1078,
+          "plate": {
+            "x": 16.810000000000002,
+            "y": 0,
+            "z": -46.390000000000015
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": 17.51,
+            "y": 0.8599765336818725,
+            "z": -44.889999999999986
+          }
+        },
+        "picked": 1078
+      }
+    },
+    {
+      "name": "passage-catacombs-sanctum native release activates plate 2",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1078,
+          "position": {
+            "x": 16.809999910660082,
+            "y": 1.0501946497876813,
+            "z": -46.389999748495725
+          },
+          "drop": {
+            "x": 16.810000000000002,
+            "y": 0,
+            "z": -46.390000000000015
+          }
+        },
+        "after": {
+          "id": "passage-catacombs-sanctum",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000001162,
+          "blocked": false,
+          "plates": [
+            {
+              "x": 15.21,
+              "y": 0,
+              "z": -46.390000000000015,
+              "active": true
+            },
+            {
+              "x": 16.810000000000002,
+              "y": 0,
+              "z": -46.390000000000015,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1077,
+              "position": {
+                "x": 15.209574654622603,
+                "y": 0.5199909310310317,
+                "z": -46.38939895443495
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1078,
+              "position": {
+                "x": 16.809576025805985,
+                "y": 0.5199909310305351,
+                "z": -46.38940064700047
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-catacombs-sanctum opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "passage-catacombs-sanctum",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": 15.21,
+            "y": 0,
+            "z": -46.390000000000015,
+            "active": true
+          },
+          {
+            "x": 16.810000000000002,
+            "y": 0,
+            "z": -46.390000000000015,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1077,
+            "position": {
+              "x": 15.209574654622603,
+              "y": 0.5199909310310317,
+              "z": -46.38939895443495
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1078,
+            "position": {
+              "x": 16.809576025805985,
+              "y": 0.5199909310305351,
+              "z": -46.38940064700047
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "passage-sanctum-ritual native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 624.4385635444397,
+            "y": 534.0413740768133
+          },
+          "end": {
+            "x": 626.7920281044468,
+            "y": 468.0374840704568
+          },
+          "expected": 1079,
+          "picked": 1079,
+          "plate": {
+            "x": 18.459999999999994,
+            "y": 0,
+            "z": -28.54
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": 20.760000000000012,
+            "y": 0.8599765161253408,
+            "z": -27.03999999999997
+          }
+        },
+        "picked": 1079
+      }
+    },
+    {
+      "name": "passage-sanctum-ritual native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1079,
+          "position": {
+            "x": 18.460000099734817,
+            "y": 1.0501396439193502,
+            "z": -28.539999745752638
+          },
+          "drop": {
+            "x": 18.459999999999994,
+            "y": 0,
+            "z": -28.54
+          }
+        },
+        "after": {
+          "id": "passage-sanctum-ritual",
+          "kind": "pressure",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [
+            {
+              "x": 18.459999999999994,
+              "y": 0,
+              "z": -28.54,
+              "active": true
+            },
+            {
+              "x": 20.059999999999995,
+              "y": 0,
+              "z": -28.54,
+              "active": false
+            }
+          ],
+          "weights": [
+            {
+              "id": 1079,
+              "position": {
+                "x": 18.45957627900175,
+                "y": 0.5199909310306207,
+                "z": -28.539399900463152
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1080,
+              "position": {
+                "x": 21.8996570919159,
+                "y": 0.439990931063721,
+                "z": -28.349515972827596
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-sanctum-ritual native pick 2",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 758.8808308637059,
+            "y": 507.38639147035
+          },
+          "end": {
+            "x": 681.5224348730611,
+            "y": 484.9263463845658
+          },
+          "expected": 1080,
+          "picked": 1080,
+          "plate": {
+            "x": 20.059999999999995,
+            "y": 0,
+            "z": -28.54
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": 20.760000000000012,
+            "y": 0.8599765336818725,
+            "z": -27.03999999999997
+          }
+        },
+        "picked": 1080
+      }
+    },
+    {
+      "name": "passage-sanctum-ritual native release activates plate 2",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1080,
+          "position": {
+            "x": 20.060000058558895,
+            "y": 1.049974469769686,
+            "z": -28.539999993936576
+          },
+          "drop": {
+            "x": 20.059999999999995,
+            "y": 0,
+            "z": -28.54
+          }
+        },
+        "after": {
+          "id": "passage-sanctum-ritual",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000001162,
+          "blocked": false,
+          "plates": [
+            {
+              "x": 18.459999999999994,
+              "y": 0,
+              "z": -28.54,
+              "active": true
+            },
+            {
+              "x": 20.059999999999995,
+              "y": 0,
+              "z": -28.54,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1079,
+              "position": {
+                "x": 18.45957627900175,
+                "y": 0.5199909310306207,
+                "z": -28.539399900463152
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1080,
+              "position": {
+                "x": 20.05957480553246,
+                "y": 0.5199909310310018,
+                "z": -28.53939885708501
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "passage-sanctum-ritual opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "passage-sanctum-ritual",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": 18.459999999999994,
+            "y": 0,
+            "z": -28.54,
+            "active": true
+          },
+          {
+            "x": 20.059999999999995,
+            "y": 0,
+            "z": -28.54,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1079,
+            "position": {
+              "x": 18.45957627900175,
+              "y": 0.5199909310306207,
+              "z": -28.539399900463152
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1080,
+            "position": {
+              "x": 20.05957480553246,
+              "y": 0.5199909310310018,
+              "z": -28.53939885708501
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "forge-secret native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 624.0165483065075,
+            "y": 460.8901839034035
+          },
+          "end": {
+            "x": 690.4961140579792,
+            "y": 488.59532420704784
+          },
+          "expected": 1081,
+          "picked": 1081,
+          "plate": {
+            "x": -53.29000000000001,
+            "y": 0,
+            "z": -34.14
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -52.48999999999999,
+            "y": 0.8599765161253408,
+            "z": -32.63999999999997
+          }
+        },
+        "picked": 1081
+      }
+    },
+    {
+      "name": "forge-secret native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1081,
+          "position": {
+            "x": -53.29000005416722,
+            "y": 1.0499742929591112,
+            "z": -34.1400000141397
+          },
+          "drop": {
+            "x": -53.29000000000001,
+            "y": 0,
+            "z": -34.14
+          }
+        },
+        "after": {
+          "id": "forge-secret",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000001162,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -53.29000000000001,
+              "y": 0,
+              "z": -34.14,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1081,
+              "position": {
+                "x": -53.290425538050535,
+                "y": 0.5199909310310316,
+                "z": -34.139398744016006
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "forge-secret opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "forge-secret",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -53.29000000000001,
+            "y": 0,
+            "z": -34.14,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1081,
+            "position": {
+              "x": -53.290425538050535,
+              "y": 0.5199909310310316,
+              "z": -34.139398744016006
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "catacombs-secret native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 768.00888719834,
+            "y": 494.2371091026362
+          },
+          "end": {
+            "x": 763.4192900859814,
+            "y": 548.4667639439888
+          },
+          "expected": 1082,
+          "picked": 1082,
+          "plate": {
+            "x": -5.339999999999999,
+            "y": 0,
+            "z": -40.740000000000016
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -6.990000000000004,
+            "y": 0.8599765161253408,
+            "z": -40.63999999999999
+          }
+        },
+        "picked": 1082
+      }
+    },
+    {
+      "name": "catacombs-secret native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1082,
+          "position": {
+            "x": -5.340000016064063,
+            "y": 1.0501392557029565,
+            "z": -40.7400000614004
+          },
+          "drop": {
+            "x": -5.339999999999999,
+            "y": 0,
+            "z": -40.740000000000016
+          }
+        },
+        "after": {
+          "id": "catacombs-secret",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000001162,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -5.339999999999999,
+              "y": 0,
+              "z": -40.740000000000016,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1082,
+              "position": {
+                "x": -5.340425421874856,
+                "y": 0.5199909310310316,
+                "z": -40.73939893602316
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "catacombs-secret opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "catacombs-secret",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -5.339999999999999,
+            "y": 0,
+            "z": -40.740000000000016,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1082,
+            "position": {
+              "x": -5.340425421874856,
+              "y": 0.5199909310310316,
+              "z": -40.73939893602316
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "library-upper native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 785.7746203990095,
+            "y": 499.66280751726026
+          },
+          "end": {
+            "x": 761.592325153493,
+            "y": 547.8775616576459
+          },
+          "expected": 1083,
+          "picked": 1083,
+          "plate": {
+            "x": -46.05,
+            "y": 0,
+            "z": 2.5
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": -47.69999999999998,
+            "y": 0.8599765161253408,
+            "z": 2.6000000000000005
+          }
+        },
+        "picked": 1083
+      }
+    },
+    {
+      "name": "library-upper native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1083,
+          "position": {
+            "x": -46.05000000000579,
+            "y": 1.0499744155823005,
+            "z": 2.4999999715458987
+          },
+          "drop": {
+            "x": -46.05,
+            "y": 0,
+            "z": 2.5
+          }
+        },
+        "after": {
+          "id": "library-upper",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.41666666666642405,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -46.05,
+              "y": 0,
+              "z": 2.5,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1083,
+              "position": {
+                "x": -46.05042559922778,
+                "y": 0.5199909310311137,
+                "z": 2.5006015155689636
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "library-upper opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "library-upper",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.41666666666642405,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -46.05,
+            "y": 0,
+            "z": 2.5,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1083,
+            "position": {
+              "x": -46.05042559922778,
+              "y": 0.5199909310311137,
+              "z": 2.5006015155689636
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "gallery-upper native pick 1",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 497.8902829841209,
+            "y": 512.7575274213124
+          },
+          "end": {
+            "x": 902.8691557893175,
+            "y": 571.5263751188653
+          },
+          "expected": 1084,
+          "picked": 1084,
+          "plate": {
+            "x": 54.8,
+            "z": -8.081999999999999,
+            "y": 4.8
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": 50.8,
+            "y": 5.65997651612534,
+            "z": -7.982000000000005
+          }
+        },
+        "picked": 1084
+      }
+    },
+    {
+      "name": "gallery-upper native release activates plate 1",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1084,
+          "position": {
+            "x": 54.799995059653,
+            "y": 5.850144952730917,
+            "z": -8.081999421922173
+          },
+          "drop": {
+            "x": 54.8,
+            "z": -8.081999999999999,
+            "y": 4.8
+          }
+        },
+        "after": {
+          "id": "gallery-upper",
+          "kind": "pressure",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [
+            {
+              "x": 54.8,
+              "z": -8.081999999999999,
+              "y": 4.8,
+              "active": true
+            },
+            {
+              "x": 56.4,
+              "z": -8.081999999999999,
+              "y": 4.8,
+              "active": false
+            }
+          ],
+          "weights": [
+            {
+              "id": 1084,
+              "position": {
+                "x": 54.79957014490136,
+                "y": 5.31999093102765,
+                "z": -8.081407736467527
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1085,
+              "position": {
+                "x": 44.64965709191588,
+                "y": 5.239990931063722,
+                "z": -7.081515972827588
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "gallery-upper native pick 2",
+      "pass": true,
+      "data": {
+        "points": {
+          "start": {
+            "x": 437.22324668577465,
+            "y": 498.75582288652106
+          },
+          "end": {
+            "x": 989.4942595169967,
+            "y": 590.8909586503975
+          },
+          "expected": 1085,
+          "picked": 1085,
+          "plate": {
+            "x": 56.4,
+            "z": -8.081999999999999,
+            "y": 4.8
+          },
+          "pointerSurface": "CANVAS",
+          "pointerElement": "game-canvas",
+          "player": {
+            "x": 50.8,
+            "y": 5.6599765336818715,
+            "z": -7.982000000000005
+          }
+        },
+        "picked": 1085
+      }
+    },
+    {
+      "name": "gallery-upper native release activates plate 2",
+      "pass": true,
+      "data": {
+        "held": {
+          "body": 1085,
+          "position": {
+            "x": 56.3999933960112,
+            "y": 5.850144952731285,
+            "z": -8.081999437705187
+          },
+          "drop": {
+            "x": 56.4,
+            "z": -8.081999999999999,
+            "y": 4.8
+          }
+        },
+        "after": {
+          "id": "gallery-upper",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.41666666666642405,
+          "blocked": false,
+          "plates": [
+            {
+              "x": 54.8,
+              "z": -8.081999999999999,
+              "y": 4.8,
+              "active": true
+            },
+            {
+              "x": 56.4,
+              "z": -8.081999999999999,
+              "y": 4.8,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1084,
+              "position": {
+                "x": 54.79957014490136,
+                "y": 5.31999093102765,
+                "z": -8.081407736467527
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1085,
+              "position": {
+                "x": 56.399579047831224,
+                "y": 5.319990931027236,
+                "z": -8.081414478236876
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "gallery-upper opens through complete native pointer puzzle",
+      "pass": true,
+      "data": {
+        "id": "gallery-upper",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.41666666666642405,
+        "blocked": false,
+        "plates": [
+          {
+            "x": 54.8,
+            "z": -8.081999999999999,
+            "y": 4.8,
+            "active": true
+          },
+          {
+            "x": 56.4,
+            "z": -8.081999999999999,
+            "y": 4.8,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1084,
+            "position": {
+              "x": 54.79957014490136,
+              "y": 5.31999093102765,
+              "z": -8.081407736467527
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1085,
+            "position": {
+              "x": 56.399579047831224,
+              "y": 5.319990931027236,
+              "z": -8.081414478236876
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "All pressure puzzles including upper floors verified",
+      "pass": true,
+      "data": {
+        "verified": 13,
+        "expected": 13
+      }
+    },
+    {
+      "name": "No browser errors",
+      "pass": true,
+      "data": []
+    }
+  ],
+  "errors": [],
+  "rooms": [
+    {
+      "id": "courtyard",
+      "x": 0,
+      "z": 15,
+      "w": 30,
+      "d": 20,
+      "camera": {
+        "x": 8.000000000000007,
+        "y": 24,
+        "z": 41.000002249859065
+      },
+      "player": {
+        "x": 0,
+        "y": 0.96,
+        "z": 15
+      },
+      "furniture": [
+        {
+          "kind": "olive-urn",
+          "x": 13.55,
+          "y": 1.2,
+          "z": 15,
+          "w": 1.2,
+          "h": 2.4,
+          "d": 2.7
+        },
+        {
+          "kind": "bench",
+          "x": -13.55,
+          "y": 0.85,
+          "z": 9.4375,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "kind": "olive-urn",
+          "x": -11.09375,
+          "y": 1.2,
+          "z": 23.55,
+          "w": 2.7,
+          "h": 2.4,
+          "d": 1.2
+        },
+        {
+          "kind": "bench",
+          "x": -7.28125,
+          "y": 0.85,
+          "z": 23.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        }
+      ],
+      "statues": [
+        {
+          "room": "courtyard",
+          "id": "caryatid",
+          "x": 12.949999999999992,
+          "z": 10.099999999999998,
+          "w": 1.3,
+          "d": 1.2,
+          "floorY": 0.62,
+          "height": 2.284536078106612,
+          "fragments": 9
+        }
+      ],
+      "render": {
+        "frame": 2014,
+        "calls": 3689,
+        "triangles": 11585406,
+        "points": 2907,
+        "lines": 66
+      }
+    },
+    {
+      "id": "hall",
+      "x": 0,
+      "z": -3.75,
+      "w": 25,
+      "d": 17.5,
+      "camera": {
+        "x": 7.999999999999993,
+        "y": 24,
+        "z": 22.250005735668726
+      },
+      "player": {
+        "x": 0,
+        "y": 0.96,
+        "z": -3.75
+      },
+      "furniture": [
+        {
+          "kind": "map-table",
+          "x": -11.05,
+          "y": 0.85,
+          "z": -6,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        }
+      ],
+      "statues": [],
+      "render": {
+        "frame": 2194,
+        "calls": 3763,
+        "triangles": 11724279,
+        "points": 1938,
+        "lines": 132
+      }
+    },
+    {
+      "id": "crypt",
+      "x": 0,
+      "z": -20.625,
+      "w": 17.5,
+      "d": 16.25,
+      "camera": {
+        "x": 7.999999999999993,
+        "y": 24,
+        "z": 5.375005162102237
+      },
+      "player": {
+        "x": 0,
+        "y": 0.96,
+        "z": -20.625
+      },
+      "furniture": [
+        {
+          "kind": "sarcophagus",
+          "x": -0.4499999999999993,
+          "y": 0.6,
+          "z": -27.25,
+          "w": 2.75,
+          "h": 1.2,
+          "d": 1.3
+        }
+      ],
+      "statues": [],
+      "render": {
+        "frame": 2374,
+        "calls": 3783,
+        "triangles": 12023120,
+        "points": 1938,
+        "lines": 132
+      }
+    },
+    {
+      "id": "armoury",
+      "x": -28.75,
+      "z": -1.25,
+      "w": 22.5,
+      "d": 17.5,
+      "camera": {
+        "x": -20.74999120530829,
+        "y": 24,
+        "z": 24.749994073143068
+      },
+      "player": {
+        "x": -28.75,
+        "y": 0.96,
+        "z": -1.25
+      },
+      "furniture": [
+        {
+          "kind": "weapon-rack",
+          "x": -37.9,
+          "y": 1.15,
+          "z": -4.75,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "kind": "weapon-rack",
+          "x": -19.6,
+          "y": 1.15,
+          "z": -4.75,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "kind": "weapon-rack",
+          "x": -33.5,
+          "y": 1.15,
+          "z": 6.05,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "kind": "supply-rack",
+          "x": -23.0625,
+          "y": 0.85,
+          "z": 6.05,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        }
+      ],
+      "statues": [],
+      "render": {
+        "frame": 2554,
+        "calls": 3567,
+        "triangles": 10854905,
+        "points": 1938,
+        "lines": 66
+      }
+    },
+    {
+      "id": "barracks",
+      "x": 28.75,
+      "z": -1.25,
+      "w": 22.5,
+      "d": 17.5,
+      "camera": {
+        "x": 36.7499824106174,
+        "y": 24,
+        "z": 24.74999999999939
+      },
+      "player": {
+        "x": 28.75,
+        "y": 0.96,
+        "z": -1.25
+      },
+      "furniture": [
+        {
+          "kind": "kline",
+          "x": 20.5,
+          "y": 0.65,
+          "z": 3.75,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "kind": "kline",
+          "x": 37,
+          "y": 0.65,
+          "z": 3.75,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "kind": "supply-rack",
+          "x": 24.125,
+          "y": 0.85,
+          "z": -8.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "bench",
+          "x": 33.375,
+          "y": 0.85,
+          "z": -8.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "supply-rack",
+          "x": 28.75,
+          "y": 0.85,
+          "z": -8.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "bench",
+          "x": 24.125,
+          "y": 0.85,
+          "z": 6.05,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        }
+      ],
+      "statues": [],
+      "render": {
+        "frame": 2734,
+        "calls": 3601,
+        "triangles": 10919438,
+        "points": 1938,
+        "lines": 66
+      }
+    },
+    {
+      "id": "prison",
+      "x": -22.5,
+      "z": -22.5,
+      "w": 17.5,
+      "d": 15,
+      "camera": {
+        "x": -14.499984322507908,
+        "y": 24,
+        "z": 3.500006500424309
+      },
+      "player": {
+        "x": -22.5,
+        "y": 0.96,
+        "z": -22.5
+      },
+      "furniture": [
+        {
+          "kind": "pallet",
+          "x": -28.25,
+          "y": 0.65,
+          "z": -17.5,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "kind": "pallet",
+          "x": -16.75,
+          "y": 0.65,
+          "z": -17.5,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "kind": "prison-supplies",
+          "x": -25.875,
+          "y": 0.85,
+          "z": -28.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "bench",
+          "x": -19.125,
+          "y": 0.85,
+          "z": -28.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "prison-supplies",
+          "x": -22.5,
+          "y": 0.85,
+          "z": -28.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "bench",
+          "x": -22.5,
+          "y": 0.85,
+          "z": -16.45,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        }
+      ],
+      "statues": [],
+      "render": {
+        "frame": 2914,
+        "calls": 3180,
+        "triangles": 9926768,
+        "points": 1938,
+        "lines": 132
+      }
+    },
+    {
+      "id": "ritual",
+      "x": 22.5,
+      "z": -22.5,
+      "w": 17.5,
+      "d": 15,
+      "camera": {
+        "x": 30.49998623439721,
+        "y": 24,
+        "z": 3.5000000000006573
+      },
+      "player": {
+        "x": 22.5,
+        "y": 0.96,
+        "z": -22.5
+      },
+      "furniture": [
+        {
+          "kind": "offering",
+          "x": 19.125,
+          "y": 0.85,
+          "z": -16.45,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "altar",
+          "x": 25.875,
+          "y": 0.85,
+          "z": -16.45,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "offering",
+          "x": 22.5,
+          "y": 0.85,
+          "z": -16.45,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        }
+      ],
+      "statues": [],
+      "render": {
+        "frame": 3094,
+        "calls": 3044,
+        "triangles": 9592329,
+        "points": 1938,
+        "lines": 132
+      }
+    },
+    {
+      "id": "library",
+      "x": -51.25,
+      "z": -3.75,
+      "w": 17.5,
+      "d": 20,
+      "camera": {
+        "x": -43.24997743970529,
+        "y": 24,
+        "z": 22.249994264331477
+      },
+      "player": {
+        "x": -51.25,
+        "y": 0.96,
+        "z": -3.75
+      },
+      "furniture": [
+        {
+          "kind": "scroll-cabinet",
+          "x": -57.9,
+          "y": 1.15,
+          "z": -5.75,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "kind": "scroll-cabinet",
+          "x": -44.6,
+          "y": 1.15,
+          "z": -7.25,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "kind": "reading-table",
+          "x": -54.625,
+          "y": 0.85,
+          "z": 4.8,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "scroll-cabinet",
+          "x": -58.55,
+          "y": 1.15,
+          "z": -1.7125000000000008,
+          "w": 2.2,
+          "h": 2.3,
+          "d": 1.2
+        },
+        {
+          "kind": "reading-table",
+          "x": -47.125,
+          "y": 0.85,
+          "z": -12.3,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        }
+      ],
+      "statues": [],
+      "render": {
+        "frame": 3274,
+        "calls": 2828,
+        "triangles": 8824919,
+        "points": 1938,
+        "lines": 66
+      }
+    },
+    {
+      "id": "forge",
+      "x": -51.25,
+      "z": -27.5,
+      "w": 20,
+      "d": 17.5,
+      "camera": {
+        "x": -43.24999999999764,
+        "y": 24,
+        "z": -1.4999927348204878
+      },
+      "player": {
+        "x": -51.25,
+        "y": 0.96,
+        "z": -27.5
+      },
+      "furniture": [
+        {
+          "kind": "furnace",
+          "x": -59.15,
+          "y": 1.15,
+          "z": -29.5,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "kind": "anvil",
+          "x": -43.35,
+          "y": 1.15,
+          "z": -29.5,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "kind": "forge-stock",
+          "x": -59.8,
+          "y": 0.85,
+          "z": -24.125,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "kind": "quench-station",
+          "x": -50.18749999999999,
+          "y": 0.85,
+          "z": -34.8,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "forge-stock",
+          "x": -46.8125,
+          "y": 0.85,
+          "z": -20.2,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "quench-station",
+          "x": -56.625,
+          "y": 0.85,
+          "z": -20.2,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        }
+      ],
+      "statues": [],
+      "render": {
+        "frame": 3454,
+        "calls": 1998,
+        "triangles": 5625997,
+        "points": 1938,
+        "lines": 0
+      }
+    },
+    {
+      "id": "catacombs",
+      "x": 0,
+      "z": -41.875,
+      "w": 17.5,
+      "d": 16.25,
+      "camera": {
+        "x": 7.999984322506075,
+        "y": 24,
+        "z": -15.8749956026534
+      },
+      "player": {
+        "x": 0,
+        "y": 0.96,
+        "z": -41.875
+      },
+      "furniture": [
+        {
+          "kind": "ossuary",
+          "x": -3.375,
+          "y": 0.85,
+          "z": -48.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "sarcophagus",
+          "x": 3.375,
+          "y": 0.85,
+          "z": -48.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "ossuary",
+          "x": 0,
+          "y": 0.85,
+          "z": -48.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "sarcophagus",
+          "x": 7.3,
+          "y": 0.85,
+          "z": -38.375,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        }
+      ],
+      "statues": [],
+      "render": {
+        "frame": 3634,
+        "calls": 1807,
+        "triangles": 5765335,
+        "points": 1938,
+        "lines": 66
+      }
+    },
+    {
+      "id": "sanctum",
+      "x": 25,
+      "z": -46.25,
+      "w": 22.5,
+      "d": 17.5,
+      "camera": {
+        "x": 32.999992352440344,
+        "y": 24,
+        "z": -20.24999866167689
+      },
+      "player": {
+        "x": 25,
+        "y": 0.96,
+        "z": -46.25
+      },
+      "furniture": [
+        {
+          "kind": "altar",
+          "x": 20.375,
+          "y": 0.85,
+          "z": -53.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "offering",
+          "x": 29.625,
+          "y": 0.85,
+          "z": -53.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "altar",
+          "x": 25,
+          "y": 0.85,
+          "z": -53.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "offering",
+          "x": 34.8,
+          "y": 0.85,
+          "z": -42.875,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        }
+      ],
+      "statues": [
+        {
+          "room": "sanctum",
+          "id": "artemision",
+          "x": 33.92664080619816,
+          "z": -49.29999999999999,
+          "w": 2.55328161239624,
+          "d": 1.2,
+          "floorY": 0.62,
+          "height": 2.0898767908875016,
+          "fragments": 9
+        }
+      ],
+      "render": {
+        "frame": 3814,
+        "calls": 1830,
+        "triangles": 6424672,
+        "points": 1938,
+        "lines": 66
+      }
+    },
+    {
+      "id": "gallery",
+      "x": 51.25,
+      "z": -3.75,
+      "w": 17.5,
+      "d": 20,
+      "camera": {
+        "x": 59.24999197006328,
+        "y": 24,
+        "z": 22.249986999151503
+      },
+      "player": {
+        "x": 51.25,
+        "y": 0.96,
+        "z": -3.75
+      },
+      "furniture": [
+        {
+          "kind": "vase-display",
+          "x": 58.55,
+          "y": 0.85,
+          "z": 0.25,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "kind": "bench",
+          "x": 58.55,
+          "y": 0.85,
+          "z": -3.75,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "kind": "vase-display",
+          "x": 47.875,
+          "y": 0.85,
+          "z": 4.8,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "bench",
+          "x": 54.625,
+          "y": 0.85,
+          "z": 4.8,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        }
+      ],
+      "statues": [
+        {
+          "room": "gallery",
+          "id": "venus",
+          "x": 56.050000000000026,
+          "z": -12.25,
+          "w": 1.3,
+          "d": 1.2,
+          "floorY": 0.62,
+          "height": 2.0350000858306885,
+          "fragments": 9
+        }
+      ],
+      "render": {
+        "frame": 3994,
+        "calls": 2158,
+        "triangles": 7418750,
+        "points": 1938,
+        "lines": 0
+      }
+    },
+    {
+      "id": "watchtower",
+      "x": 51.25,
+      "z": -27.5,
+      "w": 20,
+      "d": 17.5,
+      "camera": {
+        "x": 59.249999999999154,
+        "y": 24,
+        "z": -1.499992734821241
+      },
+      "player": {
+        "x": 51.25,
+        "y": 0.96,
+        "z": -27.5
+      },
+      "furniture": [
+        {
+          "kind": "observatory",
+          "x": 59.8,
+          "y": 1.25,
+          "z": -24.125,
+          "w": 1.2,
+          "h": 2.5,
+          "d": 2.7
+        },
+        {
+          "kind": "map-table",
+          "x": 59.8,
+          "y": 0.85,
+          "z": -27.5,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "kind": "observatory",
+          "x": 42.7,
+          "y": 1.25,
+          "z": -28.8125,
+          "w": 1.2,
+          "h": 2.5,
+          "d": 2.7
+        },
+        {
+          "kind": "map-table",
+          "x": 56.625,
+          "y": 0.85,
+          "z": -20.2,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        }
+      ],
+      "statues": [],
+      "render": {
+        "frame": 4174,
+        "calls": 2444,
+        "triangles": 7626176,
+        "points": 1938,
+        "lines": 0
+      }
+    },
+    {
+      "id": "gatehouse",
+      "x": -30,
+      "z": 20,
+      "w": 20,
+      "d": 17.5,
+      "camera": {
+        "x": -21.99997514543647,
+        "y": 24,
+        "z": 45.9999854696405
+      },
+      "player": {
+        "x": -30,
+        "y": 0.96,
+        "z": 20
+      },
+      "furniture": [
+        {
+          "kind": "kline",
+          "x": -37,
+          "y": 0.65,
+          "z": 23.5,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "kind": "kline",
+          "x": -23,
+          "y": 0.65,
+          "z": 23.5,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "kind": "map-table",
+          "x": -34,
+          "y": 0.85,
+          "z": 27.3,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "supply-rack",
+          "x": -26,
+          "y": 0.85,
+          "z": 27.3,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "map-table",
+          "x": -30,
+          "y": 0.85,
+          "z": 27.3,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "kind": "supply-rack",
+          "x": -38.55,
+          "y": 0.85,
+          "z": 20,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        }
+      ],
+      "statues": [],
+      "render": {
+        "frame": 4354,
+        "calls": 2538,
+        "triangles": 7507375,
+        "points": 1938,
+        "lines": 0
+      }
+    }
+  ],
+  "puzzles": [
+    {
+      "gate": {
+        "id": "hall-pressure",
+        "count": 2,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": -3.9000000000000052,
+          "y": 0.9586111111111111,
+          "z": 10.499999999999995
+        },
+        "camera": {
+          "x": 4.099992015952012,
+          "y": 19,
+          "z": 31.500002906070527
+        },
+        "weights": [
+          {
+            "id": 1064,
+            "position": {
+              "x": -5.200342908084098,
+              "y": 0.43999093106372106,
+              "z": 12.500484027172417
+            }
+          },
+          {
+            "id": 1065,
+            "position": {
+              "x": -2.800342908084096,
+              "y": 0.43999093106372106,
+              "z": 12.500484027172417
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": -4.8,
+            "z": 9,
+            "y": 0
+          },
+          {
+            "x": -3.2,
+            "z": 9,
+            "y": 0
+          }
+        ],
+        "candidates": [
+          {
+            "x": -3.9000000000000052,
+            "z": 10.499999999999995,
+            "score": 1.5033296378372853
+          },
+          {
+            "x": -3.9000000000000052,
+            "z": 10.849999999999994,
+            "score": 1.8527007313648844
+          },
+          {
+            "x": -3.550000000000005,
+            "z": 10.849999999999994,
+            "score": 1.9039432764659703
+          },
+          {
+            "x": -3.200000000000005,
+            "z": 10.849999999999994,
+            "score": 2.01556443707463
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 607.2765664640605,
+              "y": 572.7822561301549
+            },
+            "end": {
+              "x": 687.0460602353261,
+              "y": 477.37666472528906
+            },
+            "expected": 1064,
+            "picked": 1064,
+            "plate": {
+              "x": -4.8,
+              "z": 9,
+              "y": 0
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -3.9000000000000052,
+              "y": 0.8599765161253408,
+              "z": 10.499999999999995
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 607.2765664640605,
+                "y": 572.7822561301549
+              },
+              "end": {
+                "x": 687.0460602353261,
+                "y": 477.37666472528906
+              },
+              "expected": 1064,
+              "picked": 1064,
+              "plate": {
+                "x": -4.8,
+                "z": 9,
+                "y": 0
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -3.9000000000000052,
+                "y": 0.8599765161253408,
+                "z": 10.499999999999995
+              }
+            }
+          ],
+          "held": {
+            "body": 1064,
+            "position": {
+              "x": -4.800000082108077,
+              "y": 1.0499759556264172,
+              "z": 9.000000717944983
+            },
+            "drop": {
+              "x": -4.8,
+              "z": 9,
+              "y": 0
+            }
+          },
+          "after": {
+            "id": "hall-pressure",
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
+            "charge": 0,
+            "blocked": true,
+            "plates": [
+              {
+                "x": -4.8,
+                "z": 9,
+                "y": 0,
+                "active": true
+              },
+              {
+                "x": -3.2,
+                "z": 9,
+                "y": 0,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1064,
+                "position": {
+                  "x": -4.800418149499591,
+                  "y": 0.519990931030134,
+                  "z": 9.000593135847597
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1065,
+                "position": {
+                  "x": -2.800342908084096,
+                  "y": 0.43999093106372106,
+                  "z": 12.500484027172417
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        },
+        {
+          "points": {
+            "start": {
+              "x": 709.7633663540503,
+              "y": 597.2298008635512
+            },
+            "end": {
+              "x": 746.7030081227765,
+              "y": 490.1133074887694
+            },
+            "expected": 1065,
+            "picked": 1065,
+            "plate": {
+              "x": -3.2,
+              "z": 9,
+              "y": 0
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -3.9000000000000052,
+              "y": 0.8599765336818725,
+              "z": 10.499999999999995
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 709.7633663540503,
+                "y": 597.2298008635512
+              },
+              "end": {
+                "x": 746.7030081227765,
+                "y": 490.1133074887694
+              },
+              "expected": 1065,
+              "picked": 1065,
+              "plate": {
+                "x": -3.2,
+                "z": 9,
+                "y": 0
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -3.9000000000000052,
+                "y": 0.8599765336818725,
+                "z": 10.499999999999995
+              }
+            }
+          ],
+          "held": {
+            "body": 1065,
+            "position": {
+              "x": -3.1999998450301663,
+              "y": 1.0502698895302263,
+              "z": 9.000001357333986
+            },
+            "drop": {
+              "x": -3.2,
+              "z": 9,
+              "y": 0
+            }
+          },
+          "after": {
+            "id": "hall-pressure",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.40000000000002917,
+            "blocked": false,
+            "plates": [
+              {
+                "x": -4.8,
+                "z": 9,
+                "y": 0,
+                "active": true
+              },
+              {
+                "x": -3.2,
+                "z": 9,
+                "y": 0,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1064,
+                "position": {
+                  "x": -4.800418149499591,
+                  "y": 0.519990931030134,
+                  "z": 9.000593135847597
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1065,
+                "position": {
+                  "x": -3.2004148427896215,
+                  "y": 0.519990931028985,
+                  "z": 9.000587583316046
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "hall-pressure",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.40000000000002917,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -4.8,
+            "z": 9,
+            "y": 0,
+            "active": true
+          },
+          {
+            "x": -3.2,
+            "z": 9,
+            "y": 0,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1064,
+            "position": {
+              "x": -4.800418149499591,
+              "y": 0.519990931030134,
+              "z": 9.000593135847597
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1065,
+            "position": {
+              "x": -3.2004148427896215,
+              "y": 0.519990931028985,
+              "z": 9.000587583316046
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "archive-secret",
+        "count": 1,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": -53.99999999999997,
+          "y": 0.9586111111111111,
+          "z": -3.500000000000006
+        },
+        "camera": {
+          "x": -45.99998467429372,
+          "y": 19,
+          "z": 17.500004282632478
+        },
+        "weights": [
+          {
+            "id": 1066,
+            "position": {
+              "x": -55.200342908084124,
+              "y": 0.43999093106372106,
+              "z": -1.899515972827587
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": -55.5,
+            "z": -4.3,
+            "y": 0
+          }
+        ],
+        "candidates": [
+          {
+            "x": -53.99999999999997,
+            "z": -3.500000000000006,
+            "score": 1.7000000000000222
+          },
+          {
+            "x": -57.149999999999984,
+            "z": -3.8500000000000063,
+            "score": 1.7102631376486903
+          },
+          {
+            "x": -56.44999999999998,
+            "z": -2.800000000000006,
+            "score": 1.7755280904564552
+          },
+          {
+            "x": -57.149999999999984,
+            "z": -3.500000000000006,
+            "score": 1.8337120820892079
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 618.5442599890637,
+              "y": 562.5239557146267
+            },
+            "end": {
+              "x": 648.9372421807388,
+              "y": 491.07049905735835
+            },
+            "expected": 1066,
+            "picked": 1066,
+            "plate": {
+              "x": -55.5,
+              "z": -4.3,
+              "y": 0
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -53.99999999999997,
+              "y": 0.8599765161253408,
+              "z": -3.500000000000006
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 618.5442599890637,
+                "y": 562.5239557146267
+              },
+              "end": {
+                "x": 648.9372421807388,
+                "y": 491.07049905735835
+              },
+              "expected": 1066,
+              "picked": 1066,
+              "plate": {
+                "x": -55.5,
+                "z": -4.3,
+                "y": 0
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -53.99999999999997,
+                "y": 0.8599765161253408,
+                "z": -3.500000000000006
+              }
+            }
+          ],
+          "held": {
+            "body": 1066,
+            "position": {
+              "x": -55.49999996456369,
+              "y": 1.049975428120798,
+              "z": -4.299999716122008
+            },
+            "drop": {
+              "x": -55.5,
+              "z": -4.3,
+              "y": 0
+            }
+          },
+          "after": {
+            "id": "archive-secret",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.4166666666666059,
+            "blocked": false,
+            "plates": [
+              {
+                "x": -55.5,
+                "z": -4.3,
+                "y": 0,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1066,
+                "position": {
+                  "x": -55.50042386928739,
+                  "y": 0.5199909310306144,
+                  "z": -4.299399796133522
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "archive-secret",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4166666666666059,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -55.5,
+            "z": -4.3,
+            "y": 0,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1066,
+            "position": {
+              "x": -55.50042386928739,
+              "y": 0.5199909310306144,
+              "z": -4.299399796133522
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "passage-prison-crypt",
+        "count": 2,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": -4.990000000000007,
+          "y": 0.9586111111111111,
+          "z": -22.539999999999978
+        },
+        "camera": {
+          "x": 3.0099850077272654,
+          "y": 19,
+          "z": -1.5399941756197961
+        },
+        "weights": [
+          {
+            "id": 1067,
+            "position": {
+              "x": -6.450342908084098,
+              "y": 0.43999093106372106,
+              "z": -21.899515972827608
+            }
+          },
+          {
+            "id": 1068,
+            "position": {
+              "x": -7.750342908084098,
+              "y": 0.43999093106372106,
+              "z": -25.7995159728276
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": -7.29,
+            "y": 0,
+            "z": -24.040000000000006
+          },
+          {
+            "x": -5.69,
+            "y": 0,
+            "z": -24.040000000000006
+          }
+        ],
+        "candidates": [
+          {
+            "x": -4.990000000000007,
+            "z": -22.539999999999978,
+            "score": 2.1213203435596575
+          },
+          {
+            "x": -8.140000000000004,
+            "z": -22.539999999999978,
+            "score": 2.2299103120977977
+          },
+          {
+            "x": -7.7900000000000045,
+            "z": -22.189999999999976,
+            "score": 2.2610838109190294
+          },
+          {
+            "x": -8.140000000000004,
+            "z": -22.189999999999976,
+            "score": 2.4789110512481325
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 624.4386561590849,
+              "y": 534.0413534991925
+            },
+            "end": {
+              "x": 626.7921147526724,
+              "y": 468.03746604047365
+            },
+            "expected": 1067,
+            "picked": 1067,
+            "plate": {
+              "x": -7.29,
+              "y": 0,
+              "z": -24.040000000000006
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -4.990000000000007,
+              "y": 0.8599765161253408,
+              "z": -22.539999999999978
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 624.4386561590849,
+                "y": 534.0413534991925
+              },
+              "end": {
+                "x": 626.7921147526724,
+                "y": 468.03746604047365
+              },
+              "expected": 1067,
+              "picked": 1067,
+              "plate": {
+                "x": -7.29,
+                "y": 0,
+                "z": -24.040000000000006
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -4.990000000000007,
+                "y": 0.8599765161253408,
+                "z": -22.539999999999978
+              }
+            }
+          ],
+          "held": {
+            "body": 1067,
+            "position": {
+              "x": -7.289999900264658,
+              "y": 1.0502679413702714,
+              "z": -24.0399997457535
+            },
+            "drop": {
+              "x": -7.29,
+              "y": 0,
+              "z": -24.040000000000006
+            }
+          },
+          "after": {
+            "id": "passage-prison-crypt",
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
+            "charge": 0,
+            "blocked": true,
+            "plates": [
+              {
+                "x": -7.29,
+                "y": 0,
+                "z": -24.040000000000006,
+                "active": true
+              },
+              {
+                "x": -5.69,
+                "y": 0,
+                "z": -24.040000000000006,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1067,
+                "position": {
+                  "x": -7.290423713829222,
+                  "y": 0.5199909310306206,
+                  "z": -24.039399911676163
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1068,
+                "position": {
+                  "x": -7.750342908084098,
+                  "y": 0.43999093106372106,
+                  "z": -25.7995159728276
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        },
+        {
+          "points": {
+            "start": {
+              "x": 636.5475483703657,
+              "y": 430.68450836662765
+            },
+            "end": {
+              "x": 693.7236928452778,
+              "y": 492.78461076417034
+            },
+            "expected": 1068,
+            "picked": 1068,
+            "plate": {
+              "x": -5.69,
+              "y": 0,
+              "z": -24.040000000000006
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -4.990000000000007,
+              "y": 0.8599765336818725,
+              "z": -22.539999999999978
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 636.5475483703657,
+                "y": 430.68450836662765
+              },
+              "end": {
+                "x": 693.7236928452778,
+                "y": 492.78461076417034
+              },
+              "expected": 1068,
+              "picked": 1068,
+              "plate": {
+                "x": -5.69,
+                "y": 0,
+                "z": -24.040000000000006
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -4.990000000000007,
+                "y": 0.8599765336818725,
+                "z": -22.539999999999978
+              }
+            }
+          ],
+          "held": {
+            "body": 1068,
+            "position": {
+              "x": -5.690276041656597,
+              "y": 1.0504078091299538,
+              "z": -24.04023573613357
+            },
+            "drop": {
+              "x": -5.69,
+              "y": 0,
+              "z": -24.040000000000006
+            }
+          },
+          "after": {
+            "id": "passage-prison-crypt",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.4166666666666059,
+            "blocked": false,
+            "plates": [
+              {
+                "x": -7.29,
+                "y": 0,
+                "z": -24.040000000000006,
+                "active": true
+              },
+              {
+                "x": -5.69,
+                "y": 0,
+                "z": -24.040000000000006,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1067,
+                "position": {
+                  "x": -7.290423713829222,
+                  "y": 0.5199909310306206,
+                  "z": -24.039399911676163
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1068,
+                "position": {
+                  "x": -5.690541931634917,
+                  "y": 0.519990930974124,
+                  "z": -24.039872575232618
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "passage-prison-crypt",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4166666666666059,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -7.29,
+            "y": 0,
+            "z": -24.040000000000006,
+            "active": true
+          },
+          {
+            "x": -5.69,
+            "y": 0,
+            "z": -24.040000000000006,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1067,
+            "position": {
+              "x": -7.290423713829222,
+              "y": 0.5199909310306206,
+              "z": -24.039399911676163
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1068,
+            "position": {
+              "x": -5.690541931634917,
+              "y": 0.519990930974124,
+              "z": -24.039872575232618
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "passage-forge-library",
+        "count": 2,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": -53.63999999999998,
+          "y": 0.9586111111111111,
+          "z": -10.789999999999997
+        },
+        "camera": {
+          "x": -45.639985117852085,
+          "y": 19,
+          "z": 10.209996405647736
+        },
+        "weights": [
+          {
+            "id": 1069,
+            "position": {
+              "x": -55.10034290808413,
+              "y": 0.439990931063721,
+              "z": -10.149515972827581
+            }
+          },
+          {
+            "id": 1070,
+            "position": {
+              "x": -52.500342908084136,
+              "y": 0.439990931063721,
+              "z": -12.099515972827582
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": -55.940000000000005,
+            "y": 0,
+            "z": -12.290000000000001
+          },
+          {
+            "x": -54.34000000000001,
+            "y": 0,
+            "z": -12.290000000000001
+          }
+        ],
+        "candidates": [
+          {
+            "x": -53.63999999999998,
+            "z": -10.789999999999997,
+            "score": 2.1213203435596655
+          },
+          {
+            "x": -56.78999999999999,
+            "z": -10.789999999999997,
+            "score": 2.2299103120977666
+          },
+          {
+            "x": -56.43999999999999,
+            "z": -10.439999999999998,
+            "score": 2.2610838109189957
+          },
+          {
+            "x": -53.63999999999998,
+            "z": -10.439999999999998,
+            "score": 2.3817010727629313
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 624.4384888786952,
+              "y": 534.0413500652868
+            },
+            "end": {
+              "x": 626.7919581621632,
+              "y": 468.0374630317067
+            },
+            "expected": 1069,
+            "picked": 1069,
+            "plate": {
+              "x": -55.940000000000005,
+              "y": 0,
+              "z": -12.290000000000001
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -53.63999999999998,
+              "y": 0.8599765161253408,
+              "z": -10.789999999999997
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 624.4384888786952,
+                "y": 534.0413500652868
+              },
+              "end": {
+                "x": 626.7919581621632,
+                "y": 468.0374630317067
+              },
+              "expected": 1069,
+              "picked": 1069,
+              "plate": {
+                "x": -55.940000000000005,
+                "y": 0,
+                "z": -12.290000000000001
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -53.63999999999998,
+                "y": 0.8599765161253408,
+                "z": -10.789999999999997
+              }
+            }
+          ],
+          "held": {
+            "body": 1069,
+            "position": {
+              "x": -55.93999990026594,
+              "y": 1.0502679413702714,
+              "z": -12.289999745752274
+            },
+            "drop": {
+              "x": -55.940000000000005,
+              "y": 0,
+              "z": -12.290000000000001
+            }
+          },
+          "after": {
+            "id": "passage-forge-library",
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
+            "charge": 0,
+            "blocked": true,
+            "plates": [
+              {
+                "x": -55.940000000000005,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": true
+              },
+              {
+                "x": -54.34000000000001,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1069,
+                "position": {
+                  "x": -55.94042371383747,
+                  "y": 0.5199909310306207,
+                  "z": -12.289399911683262
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1070,
+                "position": {
+                  "x": -52.500342908084136,
+                  "y": 0.439990931063721,
+                  "z": -12.099515972827582
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        },
+        {
+          "points": {
+            "start": {
+              "x": 758.8808308637016,
+              "y": 507.38639147035013
+            },
+            "end": {
+              "x": 681.5224348730585,
+              "y": 484.92634638456576
+            },
+            "expected": 1070,
+            "picked": 1070,
+            "plate": {
+              "x": -54.34000000000001,
+              "y": 0,
+              "z": -12.290000000000001
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -53.63999999999998,
+              "y": 0.8599765336818725,
+              "z": -10.789999999999997
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 758.8808308637016,
+                "y": 507.38639147035013
+              },
+              "end": {
+                "x": 681.5224348730585,
+                "y": 484.92634638456576
+              },
+              "expected": 1070,
+              "picked": 1070,
+              "plate": {
+                "x": -54.34000000000001,
+                "y": 0,
+                "z": -12.290000000000001
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -53.63999999999998,
+                "y": 0.8599765336818725,
+                "z": -10.789999999999997
+              }
+            }
+          ],
+          "held": {
+            "body": 1070,
+            "position": {
+              "x": -54.33999994138708,
+              "y": 1.0499750221537585,
+              "z": -12.289999993930985
+            },
+            "drop": {
+              "x": -54.34000000000001,
+              "y": 0,
+              "z": -12.290000000000001
+            }
+          },
+          "after": {
+            "id": "passage-forge-library",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.4166666666666059,
+            "blocked": false,
+            "plates": [
+              {
+                "x": -55.940000000000005,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": true
+              },
+              {
+                "x": -54.34000000000001,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1069,
+                "position": {
+                  "x": -55.94042371383747,
+                  "y": 0.5199909310306207,
+                  "z": -12.289399911683262
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1070,
+                "position": {
+                  "x": -54.34042518278295,
+                  "y": 0.5199909310309978,
+                  "z": -12.289398874374431
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "passage-forge-library",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4166666666666059,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -55.940000000000005,
+            "y": 0,
+            "z": -12.290000000000001,
+            "active": true
+          },
+          {
+            "x": -54.34000000000001,
+            "y": 0,
+            "z": -12.290000000000001,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1069,
+            "position": {
+              "x": -55.94042371383747,
+              "y": 0.5199909310306207,
+              "z": -12.289399911683262
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1070,
+            "position": {
+              "x": -54.34042518278295,
+              "y": 0.5199909310309978,
+              "z": -12.289398874374431
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "passage-ritual-watchtower",
+        "count": 2,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": 46.210000000000015,
+          "y": 0.9586111111111111,
+          "z": -20.29
+        },
+        "camera": {
+          "x": 54.209969455653315,
+          "y": 19,
+          "z": 0.7100029060720416
+        },
+        "weights": [
+          {
+            "id": 1071,
+            "position": {
+              "x": 45.49965709191587,
+              "y": 0.439990931063721,
+              "z": -23.54951597282762
+            }
+          },
+          {
+            "id": 1072,
+            "position": {
+              "x": 47.44965709191587,
+              "y": 0.439990931063721,
+              "z": -23.54951597282762
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": 45.309999999999995,
+            "y": 0,
+            "z": -21.790000000000028
+          },
+          {
+            "x": 46.90999999999999,
+            "y": 0,
+            "z": -21.790000000000028
+          }
+        ],
+        "candidates": [
+          {
+            "x": 46.210000000000015,
+            "z": -20.29,
+            "score": 1.5033296378373209
+          },
+          {
+            "x": 46.210000000000015,
+            "z": -19.939999999999998,
+            "score": 1.8527007313649213
+          },
+          {
+            "x": 45.860000000000014,
+            "z": -19.939999999999998,
+            "score": 1.8668154702594735
+          },
+          {
+            "x": 46.56000000000002,
+            "z": -19.939999999999998,
+            "score": 1.9039432764660118
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 712.5182288709566,
+              "y": 446.3003130186389
+            },
+            "end": {
+              "x": 677.2065898787547,
+              "y": 489.20776235664323
+            },
+            "expected": 1071,
+            "picked": 1071,
+            "plate": {
+              "x": 45.309999999999995,
+              "y": 0,
+              "z": -21.790000000000028
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": 46.210000000000015,
+              "y": 0.8599765161253408,
+              "z": -20.29
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 712.5182288709566,
+                "y": 446.3003130186389
+              },
+              "end": {
+                "x": 677.2065898787547,
+                "y": 489.20776235664323
+              },
+              "expected": 1071,
+              "picked": 1071,
+              "plate": {
+                "x": 45.309999999999995,
+                "y": 0,
+                "z": -21.790000000000028
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": 46.210000000000015,
+                "y": 0.8599765161253408,
+                "z": -20.29
+              }
+            }
+          ],
+          "held": {
+            "body": 1071,
+            "position": {
+              "x": 45.31000000665802,
+              "y": 1.0502675531538779,
+              "z": -21.79000006176628
+            },
+            "drop": {
+              "x": 45.309999999999995,
+              "y": 0,
+              "z": -21.790000000000028
+            }
+          },
+          "after": {
+            "id": "passage-ritual-watchtower",
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
+            "charge": 0,
+            "blocked": true,
+            "plates": [
+              {
+                "x": 45.309999999999995,
+                "y": 0,
+                "z": -21.790000000000028,
+                "active": true
+              },
+              {
+                "x": 46.90999999999999,
+                "y": 0,
+                "z": -21.790000000000028,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1071,
+                "position": {
+                  "x": 45.30957904791193,
+                  "y": 0.5199909310310313,
+                  "z": -21.78940514589014
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1072,
+                "position": {
+                  "x": 47.44965709191587,
+                  "y": 0.439990931063721,
+                  "z": -23.54951597282762
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        },
+        {
+          "points": {
+            "start": {
+              "x": 787.1919618626955,
+              "y": 461.6495470998176
+            },
+            "end": {
+              "x": 739.2410237193227,
+              "y": 502.64155418520073
+            },
+            "expected": 1072,
+            "picked": 1072,
+            "plate": {
+              "x": 46.90999999999999,
+              "y": 0,
+              "z": -21.790000000000028
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": 46.210000000000015,
+              "y": 0.8599765336818725,
+              "z": -20.29
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 787.1919618626955,
+                "y": 461.6495470998176
+              },
+              "end": {
+                "x": 739.2410237193227,
+                "y": 502.64155418520073
+              },
+              "expected": 1072,
+              "picked": 1072,
+              "plate": {
+                "x": 46.90999999999999,
+                "y": 0,
+                "z": -21.790000000000028
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": 46.210000000000015,
+                "y": 0.8599765336818725,
+                "z": -20.29
+              }
+            }
+          ],
+          "held": {
+            "body": 1072,
+            "position": {
+              "x": 46.91000001645767,
+              "y": 1.04997501926186,
+              "z": -21.790000053659234
+            },
+            "drop": {
+              "x": 46.90999999999999,
+              "y": 0,
+              "z": -21.790000000000028
+            }
+          },
+          "after": {
+            "id": "passage-ritual-watchtower",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.4000000000001162,
+            "blocked": false,
+            "plates": [
+              {
+                "x": 45.309999999999995,
+                "y": 0,
+                "z": -21.790000000000028,
+                "active": true
+              },
+              {
+                "x": 46.90999999999999,
+                "y": 0,
+                "z": -21.790000000000028,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1071,
+                "position": {
+                  "x": 45.30957904791193,
+                  "y": 0.5199909310310313,
+                  "z": -21.78940514589014
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1072,
+                "position": {
+                  "x": 46.909579152707586,
+                  "y": 0.5199909310310016,
+                  "z": -21.78940510193014
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "passage-ritual-watchtower",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": 45.309999999999995,
+            "y": 0,
+            "z": -21.790000000000028,
+            "active": true
+          },
+          {
+            "x": 46.90999999999999,
+            "y": 0,
+            "z": -21.790000000000028,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1071,
+            "position": {
+              "x": 45.30957904791193,
+              "y": 0.5199909310310313,
+              "z": -21.78940514589014
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1072,
+            "position": {
+              "x": 46.909579152707586,
+              "y": 0.5199909310310016,
+              "z": -21.78940510193014
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "passage-watchtower-gallery",
+        "count": 2,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": 50.16000000000002,
+          "y": 0.9586111111111111,
+          "z": -10.789999999999997
+        },
+        "camera": {
+          "x": 58.159998791685844,
+          "y": 19,
+          "z": 10.209997093927955
+        },
+        "weights": [
+          {
+            "id": 1073,
+            "position": {
+              "x": 48.69965709191587,
+              "y": 0.439990931063721,
+              "z": -10.149515972827581
+            }
+          },
+          {
+            "id": 1074,
+            "position": {
+              "x": 46.09965709191587,
+              "y": 0.439990931063721,
+              "z": -12.099515972827582
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": 47.85999999999999,
+            "y": 0,
+            "z": -12.290000000000001
+          },
+          {
+            "x": 49.45999999999999,
+            "y": 0,
+            "z": -12.290000000000001
+          }
+        ],
+        "candidates": [
+          {
+            "x": 50.16000000000002,
+            "z": -10.789999999999997,
+            "score": 2.1213203435596655
+          },
+          {
+            "x": 47.010000000000005,
+            "z": -10.789999999999997,
+            "score": 2.2299103120977666
+          },
+          {
+            "x": 47.36000000000001,
+            "z": -10.439999999999998,
+            "score": 2.2610838109189957
+          },
+          {
+            "x": 50.16000000000002,
+            "z": -10.439999999999998,
+            "score": 2.3817010727629313
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 624.4385698943717,
+              "y": 534.041366072105
+            },
+            "end": {
+              "x": 626.7920340312314,
+              "y": 468.03747705678103
+            },
+            "expected": 1073,
+            "picked": 1073,
+            "plate": {
+              "x": 47.85999999999999,
+              "y": 0,
+              "z": -12.290000000000001
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": 50.16000000000002,
+              "y": 0.8599765161253408,
+              "z": -10.789999999999997
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 624.4385698943717,
+                "y": 534.041366072105
+              },
+              "end": {
+                "x": 626.7920340312314,
+                "y": 468.03747705678103
+              },
+              "expected": 1073,
+              "picked": 1073,
+              "plate": {
+                "x": 47.85999999999999,
+                "y": 0,
+                "z": -12.290000000000001
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": 50.16000000000002,
+                "y": 0.8599765161253408,
+                "z": -10.789999999999997
+              }
+            }
+          ],
+          "held": {
+            "body": 1073,
+            "position": {
+              "x": 47.86000009784153,
+              "y": 1.0499754252289135,
+              "z": -12.28999975057857
+            },
+            "drop": {
+              "x": 47.85999999999999,
+              "y": 0,
+              "z": -12.290000000000001
+            }
+          },
+          "after": {
+            "id": "passage-watchtower-gallery",
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
+            "charge": 0,
+            "blocked": true,
+            "plates": [
+              {
+                "x": 47.85999999999999,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": true
+              },
+              {
+                "x": 49.45999999999999,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1073,
+                "position": {
+                  "x": 47.85958067545269,
+                  "y": 0.5199909310306144,
+                  "z": -12.289406102354862
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1074,
+                "position": {
+                  "x": 46.09965709191587,
+                  "y": 0.439990931063721,
+                  "z": -12.099515972827582
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        },
+        {
+          "points": {
+            "start": {
+              "x": 557.3084872757162,
+              "y": 463.7138086652375
+            },
+            "end": {
+              "x": 701.5084583715699,
+              "y": 489.2315488376311
+            },
+            "expected": 1074,
+            "picked": 1074,
+            "plate": {
+              "x": 49.45999999999999,
+              "y": 0,
+              "z": -12.290000000000001
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": 50.16000000000002,
+              "y": 0.8599765336818725,
+              "z": -10.789999999999997
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 557.3084872757162,
+                "y": 463.7138086652375
+              },
+              "end": {
+                "x": 701.5084583715699,
+                "y": 489.2315488376311
+              },
+              "expected": 1074,
+              "picked": 1074,
+              "plate": {
+                "x": 49.45999999999999,
+                "y": 0,
+                "z": -12.290000000000001
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": 50.16000000000002,
+                "y": 0.8599765336818725,
+                "z": -10.789999999999997
+              }
+            }
+          ],
+          "held": {
+            "body": 1074,
+            "position": {
+              "x": 49.45999937628555,
+              "y": 1.0499756388303212,
+              "z": -12.289999964644124
+            },
+            "drop": {
+              "x": 49.45999999999999,
+              "y": 0,
+              "z": -12.290000000000001
+            }
+          },
+          "after": {
+            "id": "passage-watchtower-gallery",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.4000000000001162,
+            "blocked": false,
+            "plates": [
+              {
+                "x": 47.85999999999999,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": true
+              },
+              {
+                "x": 49.45999999999999,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1073,
+                "position": {
+                  "x": 47.85958067545269,
+                  "y": 0.5199909310306144,
+                  "z": -12.289406102354862
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1074,
+                "position": {
+                  "x": 49.45958145783946,
+                  "y": 0.5199909310299872,
+                  "z": -12.289409393141893
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "passage-watchtower-gallery",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": 47.85999999999999,
+            "y": 0,
+            "z": -12.290000000000001,
+            "active": true
+          },
+          {
+            "x": 49.45999999999999,
+            "y": 0,
+            "z": -12.290000000000001,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1073,
+            "position": {
+              "x": 47.85958067545269,
+              "y": 0.5199909310306144,
+              "z": -12.289406102354862
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1074,
+            "position": {
+              "x": 49.45958145783946,
+              "y": 0.5199909310299872,
+              "z": -12.289409393141893
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "passage-catacombs-crypt",
+        "count": 2,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": -1.3900000000000023,
+          "y": 0.9586111111111111,
+          "z": -34.04
+        },
+        "camera": {
+          "x": 6.610015769264627,
+          "y": 19,
+          "z": -13.039992887771042
+        },
+        "weights": [
+          {
+            "id": 1075,
+            "position": {
+              "x": -3.8503429080840945,
+              "y": 0.439990931063721,
+              "z": -37.29951597282761
+            }
+          },
+          {
+            "id": 1076,
+            "position": {
+              "x": -1.9003429080840961,
+              "y": 0.439990931063721,
+              "z": -37.29951597282761
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": -4.039999999999999,
+            "y": 0,
+            "z": -35.54000000000003
+          },
+          {
+            "x": -2.4399999999999995,
+            "y": 0,
+            "z": -35.54000000000003
+          }
+        ],
+        "candidates": [
+          {
+            "x": -1.3900000000000023,
+            "z": -34.04,
+            "score": 2.381701072762926
+          },
+          {
+            "x": -1.0400000000000023,
+            "z": -34.39,
+            "score": 2.4824383174612916
+          },
+          {
+            "x": -5.590000000000002,
+            "z": -34.74,
+            "score": 2.482438317461292
+          },
+          {
+            "x": -0.6900000000000023,
+            "z": -35.440000000000005,
+            "score": 2.5519600310349673
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 647.5078215694026,
+              "y": 432.93737698782684
+            },
+            "end": {
+              "x": 609.8082348987097,
+              "y": 474.6123899094235
+            },
+            "expected": 1075,
+            "picked": 1075,
+            "plate": {
+              "x": -4.039999999999999,
+              "y": 0,
+              "z": -35.54000000000003
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -1.3900000000000023,
+              "y": 0.8599765161253408,
+              "z": -34.04
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 647.5078215694026,
+                "y": 432.93737698782684
+              },
+              "end": {
+                "x": 609.8082348987097,
+                "y": 474.6123899094235
+              },
+              "expected": 1075,
+              "picked": 1075,
+              "plate": {
+                "x": -4.039999999999999,
+                "y": 0,
+                "z": -35.54000000000003
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -1.3900000000000023,
+                "y": 0.8599765161253408,
+                "z": -34.04
+              }
+            }
+          ],
+          "held": {
+            "body": 1075,
+            "position": {
+              "x": -4.039999994223891,
+              "y": 1.0499747053569997,
+              "z": -35.54000005358852
+            },
+            "drop": {
+              "x": -4.039999999999999,
+              "y": 0,
+              "z": -35.54000000000003
+            }
+          },
+          "after": {
+            "id": "passage-catacombs-crypt",
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
+            "charge": 0,
+            "blocked": true,
+            "plates": [
+              {
+                "x": -4.039999999999999,
+                "y": 0,
+                "z": -35.54000000000003,
+                "active": true
+              },
+              {
+                "x": -2.4399999999999995,
+                "y": 0,
+                "z": -35.54000000000003,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1075,
+                "position": {
+                  "x": -4.040425358520925,
+                  "y": 0.5199909310310318,
+                  "z": -35.53939892704306
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1076,
+                "position": {
+                  "x": -1.9003429080840961,
+                  "y": 0.439990931063721,
+                  "z": -37.29951597282761
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        },
+        {
+          "points": {
+            "start": {
+              "x": 720.0668381327114,
+              "y": 447.85194247523555
+            },
+            "end": {
+              "x": 670.0102411684977,
+              "y": 487.6493766235256
+            },
+            "expected": 1076,
+            "picked": 1076,
+            "plate": {
+              "x": -2.4399999999999995,
+              "y": 0,
+              "z": -35.54000000000003
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -1.3900000000000023,
+              "y": 0.8599765336818725,
+              "z": -34.04
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 720.0668381327114,
+                "y": 447.85194247523555
+              },
+              "end": {
+                "x": 670.0102411684977,
+                "y": 487.6493766235256
+              },
+              "expected": 1076,
+              "picked": 1076,
+              "plate": {
+                "x": -2.4399999999999995,
+                "y": 0,
+                "z": -35.54000000000003
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -1.3900000000000023,
+                "y": 0.8599765336818725,
+                "z": -34.04
+              }
+            }
+          ],
+          "held": {
+            "body": 1076,
+            "position": {
+              "x": -2.439999981014484,
+              "y": 1.0501942615713213,
+              "z": -35.54000006190079
+            },
+            "drop": {
+              "x": -2.4399999999999995,
+              "y": 0,
+              "z": -35.54000000000003
+            }
+          },
+          "after": {
+            "id": "passage-catacombs-crypt",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.4000000000001162,
+            "blocked": false,
+            "plates": [
+              {
+                "x": -4.039999999999999,
+                "y": 0,
+                "z": -35.54000000000003,
+                "active": true
+              },
+              {
+                "x": -2.4399999999999995,
+                "y": 0,
+                "z": -35.54000000000003,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1075,
+                "position": {
+                  "x": -4.040425358520925,
+                  "y": 0.5199909310310318,
+                  "z": -35.53939892704306
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1076,
+                "position": {
+                  "x": -2.4404251985454697,
+                  "y": 0.5199909310309937,
+                  "z": -35.53939897877002
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "passage-catacombs-crypt",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -4.039999999999999,
+            "y": 0,
+            "z": -35.54000000000003,
+            "active": true
+          },
+          {
+            "x": -2.4399999999999995,
+            "y": 0,
+            "z": -35.54000000000003,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1075,
+            "position": {
+              "x": -4.040425358520925,
+              "y": 0.5199909310310318,
+              "z": -35.53939892704306
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1076,
+            "position": {
+              "x": -2.4404251985454697,
+              "y": 0.5199909310309937,
+              "z": -35.53939897877002
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "passage-catacombs-sanctum",
+        "count": 2,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": 17.51,
+          "y": 0.9586111111111111,
+          "z": -44.889999999999986
+        },
+        "camera": {
+          "x": 25.50999421844615,
+          "y": 19,
+          "z": -23.88999668095981
+        },
+        "weights": [
+          {
+            "id": 1077,
+            "position": {
+              "x": 15.399657091915897,
+              "y": 0.439990931063721,
+              "z": -48.1495159728276
+            }
+          },
+          {
+            "id": 1078,
+            "position": {
+              "x": 16.04965709191591,
+              "y": 0.439990931063721,
+              "z": -44.24951597282761
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": 15.21,
+            "y": 0,
+            "z": -46.390000000000015
+          },
+          {
+            "x": 16.810000000000002,
+            "y": 0,
+            "z": -46.390000000000015
+          }
+        ],
+        "candidates": [
+          {
+            "x": 17.51,
+            "z": -44.889999999999986,
+            "score": 2.121320343559663
+          },
+          {
+            "x": 14.359999999999998,
+            "z": -44.889999999999986,
+            "score": 2.2299103120977977
+          },
+          {
+            "x": 14.709999999999997,
+            "z": -44.539999999999985,
+            "score": 2.2610838109190294
+          },
+          {
+            "x": 17.860000000000003,
+            "z": -44.889999999999986,
+            "score": 2.38170107276293
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 660.3623574200714,
+              "y": 435.57964496251094
+            },
+            "end": {
+              "x": 623.128070713769,
+              "y": 477.4968612466276
+            },
+            "expected": 1077,
+            "picked": 1077,
+            "plate": {
+              "x": 15.21,
+              "y": 0,
+              "z": -46.390000000000015
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": 17.51,
+              "y": 0.8599765161253408,
+              "z": -44.889999999999986
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 660.3623574200714,
+                "y": 435.57964496251094
+              },
+              "end": {
+                "x": 623.128070713769,
+                "y": 477.4968612466276
+              },
+              "expected": 1077,
+              "picked": 1077,
+              "plate": {
+                "x": 15.21,
+                "y": 0,
+                "z": -46.390000000000015
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": 17.51,
+                "y": 0.8599765161253408,
+                "z": -44.889999999999986
+              }
+            }
+          ],
+          "held": {
+            "body": 1077,
+            "position": {
+              "x": 15.210000006660124,
+              "y": 1.050194261570918,
+              "z": -46.390000061787845
+            },
+            "drop": {
+              "x": 15.21,
+              "y": 0,
+              "z": -46.390000000000015
+            }
+          },
+          "after": {
+            "id": "passage-catacombs-sanctum",
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
+            "charge": 0,
+            "blocked": true,
+            "plates": [
+              {
+                "x": 15.21,
+                "y": 0,
+                "z": -46.390000000000015,
+                "active": true
+              },
+              {
+                "x": 16.810000000000002,
+                "y": 0,
+                "z": -46.390000000000015,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1077,
+                "position": {
+                  "x": 15.209574654622603,
+                  "y": 0.5199909310310317,
+                  "z": -46.38939895443495
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1078,
+                "position": {
+                  "x": 16.04965709191591,
+                  "y": 0.439990931063721,
+                  "z": -44.24951597282761
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        },
+        {
+          "points": {
+            "start": {
+              "x": 624.4385699369757,
+              "y": 534.0413553200269
+            },
+            "end": {
+              "x": 694.2599456072141,
+              "y": 482.49447025735606
+            },
+            "expected": 1078,
+            "picked": 1078,
+            "plate": {
+              "x": 16.810000000000002,
+              "y": 0,
+              "z": -46.390000000000015
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": 17.51,
+              "y": 0.8599765336818725,
+              "z": -44.889999999999986
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 624.4385699369757,
+                "y": 534.0413553200269
+              },
+              "end": {
+                "x": 694.2599456072141,
+                "y": 482.49447025735606
+              },
+              "expected": 1078,
+              "picked": 1078,
+              "plate": {
+                "x": 16.810000000000002,
+                "y": 0,
+                "z": -46.390000000000015
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": 17.51,
+                "y": 0.8599765336818725,
+                "z": -44.889999999999986
+              }
+            }
+          ],
+          "held": {
+            "body": 1078,
+            "position": {
+              "x": 16.809999910660082,
+              "y": 1.0501946497876813,
+              "z": -46.389999748495725
+            },
+            "drop": {
+              "x": 16.810000000000002,
+              "y": 0,
+              "z": -46.390000000000015
+            }
+          },
+          "after": {
+            "id": "passage-catacombs-sanctum",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.4000000000001162,
+            "blocked": false,
+            "plates": [
+              {
+                "x": 15.21,
+                "y": 0,
+                "z": -46.390000000000015,
+                "active": true
+              },
+              {
+                "x": 16.810000000000002,
+                "y": 0,
+                "z": -46.390000000000015,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1077,
+                "position": {
+                  "x": 15.209574654622603,
+                  "y": 0.5199909310310317,
+                  "z": -46.38939895443495
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1078,
+                "position": {
+                  "x": 16.809576025805985,
+                  "y": 0.5199909310305351,
+                  "z": -46.38940064700047
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "passage-catacombs-sanctum",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": 15.21,
+            "y": 0,
+            "z": -46.390000000000015,
+            "active": true
+          },
+          {
+            "x": 16.810000000000002,
+            "y": 0,
+            "z": -46.390000000000015,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1077,
+            "position": {
+              "x": 15.209574654622603,
+              "y": 0.5199909310310317,
+              "z": -46.38939895443495
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1078,
+            "position": {
+              "x": 16.809576025805985,
+              "y": 0.5199909310305351,
+              "z": -46.38940064700047
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "passage-sanctum-ritual",
+        "count": 2,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": 20.760000000000012,
+          "y": 0.9586111111111111,
+          "z": -27.03999999999997
+        },
+        "camera": {
+          "x": 28.759999005817473,
+          "y": 19,
+          "z": -6.040005460356394
+        },
+        "weights": [
+          {
+            "id": 1079,
+            "position": {
+              "x": 19.299657091915904,
+              "y": 0.439990931063721,
+              "z": -26.3995159728276
+            }
+          },
+          {
+            "id": 1080,
+            "position": {
+              "x": 21.8996570919159,
+              "y": 0.439990931063721,
+              "z": -28.349515972827596
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": 18.459999999999994,
+            "y": 0,
+            "z": -28.54
+          },
+          {
+            "x": 20.059999999999995,
+            "y": 0,
+            "z": -28.54
+          }
+        ],
+        "candidates": [
+          {
+            "x": 20.760000000000012,
+            "z": -27.03999999999997,
+            "score": 2.1213203435596752
+          },
+          {
+            "x": 17.61,
+            "z": -27.03999999999997,
+            "score": 2.2299103120977914
+          },
+          {
+            "x": 17.96,
+            "z": -26.68999999999997,
+            "score": 2.2610838109190237
+          },
+          {
+            "x": 21.110000000000014,
+            "z": -27.03999999999997,
+            "score": 2.3817010727629437
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 624.4385635444397,
+              "y": 534.0413740768133
+            },
+            "end": {
+              "x": 626.7920281044468,
+              "y": 468.0374840704568
+            },
+            "expected": 1079,
+            "picked": 1079,
+            "plate": {
+              "x": 18.459999999999994,
+              "y": 0,
+              "z": -28.54
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": 20.760000000000012,
+              "y": 0.8599765161253408,
+              "z": -27.03999999999997
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 624.4385635444397,
+                "y": 534.0413740768133
+              },
+              "end": {
+                "x": 626.7920281044468,
+                "y": 468.0374840704568
+              },
+              "expected": 1079,
+              "picked": 1079,
+              "plate": {
+                "x": 18.459999999999994,
+                "y": 0,
+                "z": -28.54
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": 20.760000000000012,
+                "y": 0.8599765161253408,
+                "z": -27.03999999999997
+              }
+            }
+          ],
+          "held": {
+            "body": 1079,
+            "position": {
+              "x": 18.460000099734817,
+              "y": 1.0501396439193502,
+              "z": -28.539999745752638
+            },
+            "drop": {
+              "x": 18.459999999999994,
+              "y": 0,
+              "z": -28.54
+            }
+          },
+          "after": {
+            "id": "passage-sanctum-ritual",
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
+            "charge": 0,
+            "blocked": true,
+            "plates": [
+              {
+                "x": 18.459999999999994,
+                "y": 0,
+                "z": -28.54,
+                "active": true
+              },
+              {
+                "x": 20.059999999999995,
+                "y": 0,
+                "z": -28.54,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1079,
+                "position": {
+                  "x": 18.45957627900175,
+                  "y": 0.5199909310306207,
+                  "z": -28.539399900463152
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1080,
+                "position": {
+                  "x": 21.8996570919159,
+                  "y": 0.439990931063721,
+                  "z": -28.349515972827596
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        },
+        {
+          "points": {
+            "start": {
+              "x": 758.8808308637059,
+              "y": 507.38639147035
+            },
+            "end": {
+              "x": 681.5224348730611,
+              "y": 484.9263463845658
+            },
+            "expected": 1080,
+            "picked": 1080,
+            "plate": {
+              "x": 20.059999999999995,
+              "y": 0,
+              "z": -28.54
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": 20.760000000000012,
+              "y": 0.8599765336818725,
+              "z": -27.03999999999997
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 758.8808308637059,
+                "y": 507.38639147035
+              },
+              "end": {
+                "x": 681.5224348730611,
+                "y": 484.9263463845658
+              },
+              "expected": 1080,
+              "picked": 1080,
+              "plate": {
+                "x": 20.059999999999995,
+                "y": 0,
+                "z": -28.54
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": 20.760000000000012,
+                "y": 0.8599765336818725,
+                "z": -27.03999999999997
+              }
+            }
+          ],
+          "held": {
+            "body": 1080,
+            "position": {
+              "x": 20.060000058558895,
+              "y": 1.049974469769686,
+              "z": -28.539999993936576
+            },
+            "drop": {
+              "x": 20.059999999999995,
+              "y": 0,
+              "z": -28.54
+            }
+          },
+          "after": {
+            "id": "passage-sanctum-ritual",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.4000000000001162,
+            "blocked": false,
+            "plates": [
+              {
+                "x": 18.459999999999994,
+                "y": 0,
+                "z": -28.54,
+                "active": true
+              },
+              {
+                "x": 20.059999999999995,
+                "y": 0,
+                "z": -28.54,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1079,
+                "position": {
+                  "x": 18.45957627900175,
+                  "y": 0.5199909310306207,
+                  "z": -28.539399900463152
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1080,
+                "position": {
+                  "x": 20.05957480553246,
+                  "y": 0.5199909310310018,
+                  "z": -28.53939885708501
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "passage-sanctum-ritual",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": 18.459999999999994,
+            "y": 0,
+            "z": -28.54,
+            "active": true
+          },
+          {
+            "x": 20.059999999999995,
+            "y": 0,
+            "z": -28.54,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1079,
+            "position": {
+              "x": 18.45957627900175,
+              "y": 0.5199909310306207,
+              "z": -28.539399900463152
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1080,
+            "position": {
+              "x": 20.05957480553246,
+              "y": 0.5199909310310018,
+              "z": -28.53939885708501
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "forge-secret",
+        "count": 1,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": -52.48999999999999,
+          "y": 0.9586111111111111,
+          "z": -32.63999999999997
+        },
+        "camera": {
+          "x": -44.489977592655016,
+          "y": 19,
+          "z": -11.639998286946977
+        },
+        "weights": [
+          {
+            "id": 1081,
+            "position": {
+              "x": -55.05034290808413,
+              "y": 0.439990931063721,
+              "z": -34.59951597282759
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": -53.29000000000001,
+            "y": 0,
+            "z": -34.14
+          }
+        ],
+        "candidates": [
+          {
+            "x": -52.48999999999999,
+            "z": -32.63999999999997,
+            "score": 1.7000000000000373
+          },
+          {
+            "x": -51.789999999999985,
+            "z": -33.339999999999975,
+            "score": 1.7000000000000373
+          },
+          {
+            "x": -54.239999999999995,
+            "z": -32.63999999999997,
+            "score": 1.7755280904564845
+          },
+          {
+            "x": -53.18999999999999,
+            "z": -32.28999999999997,
+            "score": 1.8527007313649213
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 624.0165483065075,
+              "y": 460.8901839034035
+            },
+            "end": {
+              "x": 690.4961140579792,
+              "y": 488.59532420704784
+            },
+            "expected": 1081,
+            "picked": 1081,
+            "plate": {
+              "x": -53.29000000000001,
+              "y": 0,
+              "z": -34.14
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -52.48999999999999,
+              "y": 0.8599765161253408,
+              "z": -32.63999999999997
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 624.0165483065075,
+                "y": 460.8901839034035
+              },
+              "end": {
+                "x": 690.4961140579792,
+                "y": 488.59532420704784
+              },
+              "expected": 1081,
+              "picked": 1081,
+              "plate": {
+                "x": -53.29000000000001,
+                "y": 0,
+                "z": -34.14
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -52.48999999999999,
+                "y": 0.8599765161253408,
+                "z": -32.63999999999997
+              }
+            }
+          ],
+          "held": {
+            "body": 1081,
+            "position": {
+              "x": -53.29000005416722,
+              "y": 1.0499742929591112,
+              "z": -34.1400000141397
+            },
+            "drop": {
+              "x": -53.29000000000001,
+              "y": 0,
+              "z": -34.14
+            }
+          },
+          "after": {
+            "id": "forge-secret",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.4000000000001162,
+            "blocked": false,
+            "plates": [
+              {
+                "x": -53.29000000000001,
+                "y": 0,
+                "z": -34.14,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1081,
+                "position": {
+                  "x": -53.290425538050535,
+                  "y": 0.5199909310310316,
+                  "z": -34.139398744016006
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "forge-secret",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -53.29000000000001,
+            "y": 0,
+            "z": -34.14,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1081,
+            "position": {
+              "x": -53.290425538050535,
+              "y": 0.5199909310310316,
+              "z": -34.139398744016006
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "catacombs-secret",
+        "count": 1,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": -6.990000000000004,
+          "y": 0.9586111111111111,
+          "z": -40.63999999999999
+        },
+        "camera": {
+          "x": 1.0099860814444135,
+          "y": 19,
+          "z": -19.63999755278143
+        },
+        "weights": [
+          {
+            "id": 1082,
+            "position": {
+              "x": -5.8003429080840965,
+              "y": 0.43999093106372106,
+              "z": -42.4995159728276
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": -5.339999999999999,
+            "y": 0,
+            "z": -40.740000000000016
+          }
+        ],
+        "candidates": [
+          {
+            "x": -6.990000000000004,
+            "z": -40.63999999999999,
+            "score": 1.65302752548166
+          },
+          {
+            "x": -3.8400000000000065,
+            "z": -39.93999999999999,
+            "score": 1.7000000000000053
+          },
+          {
+            "x": -4.540000000000006,
+            "z": -39.23999999999999,
+            "score": 1.7000000000000215
+          },
+          {
+            "x": -6.990000000000004,
+            "z": -40.28999999999999,
+            "score": 1.710263137648718
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 768.00888719834,
+              "y": 494.2371091026362
+            },
+            "end": {
+              "x": 763.4192900859814,
+              "y": 548.4667639439888
+            },
+            "expected": 1082,
+            "picked": 1082,
+            "plate": {
+              "x": -5.339999999999999,
+              "y": 0,
+              "z": -40.740000000000016
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -6.990000000000004,
+              "y": 0.8599765161253408,
+              "z": -40.63999999999999
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 768.00888719834,
+                "y": 494.2371091026362
+              },
+              "end": {
+                "x": 763.4192900859814,
+                "y": 548.4667639439888
+              },
+              "expected": 1082,
+              "picked": 1082,
+              "plate": {
+                "x": -5.339999999999999,
+                "y": 0,
+                "z": -40.740000000000016
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -6.990000000000004,
+                "y": 0.8599765161253408,
+                "z": -40.63999999999999
+              }
+            }
+          ],
+          "held": {
+            "body": 1082,
+            "position": {
+              "x": -5.340000016064063,
+              "y": 1.0501392557029565,
+              "z": -40.7400000614004
+            },
+            "drop": {
+              "x": -5.339999999999999,
+              "y": 0,
+              "z": -40.740000000000016
+            }
+          },
+          "after": {
+            "id": "catacombs-secret",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.4000000000001162,
+            "blocked": false,
+            "plates": [
+              {
+                "x": -5.339999999999999,
+                "y": 0,
+                "z": -40.740000000000016,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1082,
+                "position": {
+                  "x": -5.340425421874856,
+                  "y": 0.5199909310310316,
+                  "z": -40.73939893602316
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "catacombs-secret",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.4000000000001162,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -5.339999999999999,
+            "y": 0,
+            "z": -40.740000000000016,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1082,
+            "position": {
+              "x": -5.340425421874856,
+              "y": 0.5199909310310316,
+              "z": -40.73939893602316
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "library-upper",
+        "count": 1,
+        "floorY": 0
+      },
+      "fixture": {
+        "player": {
+          "x": -47.69999999999998,
+          "y": 0.9586111111111111,
+          "z": 2.6000000000000005
+        },
+        "camera": {
+          "x": -39.69998754671651,
+          "y": 19,
+          "z": 23.59998677278366
+        },
+        "weights": [
+          {
+            "id": 1083,
+            "position": {
+              "x": -46.05034290808412,
+              "y": 0.439990931063721,
+              "z": 0.8004840271724131
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": -46.05,
+            "y": 0,
+            "z": 2.5
+          }
+        ],
+        "candidates": [
+          {
+            "x": -47.69999999999998,
+            "z": 2.6000000000000005,
+            "score": 1.6530275254816384
+          },
+          {
+            "x": -44.54999999999997,
+            "z": 3.3000000000000007,
+            "score": 1.7000000000000255
+          },
+          {
+            "x": -47.69999999999998,
+            "z": 2.9500000000000006,
+            "score": 1.710263137648692
+          },
+          {
+            "x": -46.99999999999998,
+            "z": 4.000000000000001,
+            "score": 1.7755280904564612
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 785.7746203990095,
+              "y": 499.66280751726026
+            },
+            "end": {
+              "x": 761.592325153493,
+              "y": 547.8775616576459
+            },
+            "expected": 1083,
+            "picked": 1083,
+            "plate": {
+              "x": -46.05,
+              "y": 0,
+              "z": 2.5
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": -47.69999999999998,
+              "y": 0.8599765161253408,
+              "z": 2.6000000000000005
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 785.7746203990095,
+                "y": 499.66280751726026
+              },
+              "end": {
+                "x": 761.592325153493,
+                "y": 547.8775616576459
+              },
+              "expected": 1083,
+              "picked": 1083,
+              "plate": {
+                "x": -46.05,
+                "y": 0,
+                "z": 2.5
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": -47.69999999999998,
+                "y": 0.8599765161253408,
+                "z": 2.6000000000000005
+              }
+            }
+          ],
+          "held": {
+            "body": 1083,
+            "position": {
+              "x": -46.05000000000579,
+              "y": 1.0499744155823005,
+              "z": 2.4999999715458987
+            },
+            "drop": {
+              "x": -46.05,
+              "y": 0,
+              "z": 2.5
+            }
+          },
+          "after": {
+            "id": "library-upper",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.41666666666642405,
+            "blocked": false,
+            "plates": [
+              {
+                "x": -46.05,
+                "y": 0,
+                "z": 2.5,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1083,
+                "position": {
+                  "x": -46.05042559922778,
+                  "y": 0.5199909310311137,
+                  "z": 2.5006015155689636
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "library-upper",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.41666666666642405,
+        "blocked": false,
+        "plates": [
+          {
+            "x": -46.05,
+            "y": 0,
+            "z": 2.5,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1083,
+            "position": {
+              "x": -46.05042559922778,
+              "y": 0.5199909310311137,
+              "z": 2.5006015155689636
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "gate": {
+        "id": "gallery-upper",
+        "count": 2,
+        "floorY": 4.8
+      },
+      "fixture": {
+        "player": {
+          "x": 50.8,
+          "y": 5.758611111111111,
+          "z": -7.982000000000005
+        },
+        "camera": {
+          "x": 58.79996986862144,
+          "y": 23.799998531668862,
+          "z": 13.018003237058348
+        },
+        "weights": [
+          {
+            "id": 1084,
+            "position": {
+              "x": 46.249657091915886,
+              "y": 5.239990931063721,
+              "z": -7.081515972827585
+            }
+          },
+          {
+            "id": 1085,
+            "position": {
+              "x": 44.64965709191588,
+              "y": 5.239990931063722,
+              "z": -7.081515972827588
+            }
+          }
+        ],
+        "plates": [
+          {
+            "x": 54.8,
+            "z": -8.081999999999999,
+            "y": 4.8
+          },
+          {
+            "x": 56.4,
+            "z": -8.081999999999999,
+            "y": 4.8
+          }
+        ],
+        "candidates": [
+          {
+            "x": 50.8,
+            "z": -7.982000000000005,
+            "score": 4.801041553663119
+          },
+          {
+            "x": 50.8,
+            "z": -7.632000000000005,
+            "score": 4.8210476039964565
+          },
+          {
+            "x": 50.8,
+            "z": -7.282000000000005,
+            "score": 4.866210024238573
+          },
+          {
+            "x": 50.8,
+            "z": -6.932000000000006,
+            "score": 4.935838327984412
+          }
+        ]
+      },
+      "results": [
+        {
+          "points": {
+            "start": {
+              "x": 497.8902829841209,
+              "y": 512.7575274213124
+            },
+            "end": {
+              "x": 902.8691557893175,
+              "y": 571.5263751188653
+            },
+            "expected": 1084,
+            "picked": 1084,
+            "plate": {
+              "x": 54.8,
+              "z": -8.081999999999999,
+              "y": 4.8
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": 50.8,
+              "y": 5.65997651612534,
+              "z": -7.982000000000005
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 497.8902829841209,
+                "y": 512.7575274213124
+              },
+              "end": {
+                "x": 902.8691557893175,
+                "y": 571.5263751188653
+              },
+              "expected": 1084,
+              "picked": 1084,
+              "plate": {
+                "x": 54.8,
+                "z": -8.081999999999999,
+                "y": 4.8
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": 50.8,
+                "y": 5.65997651612534,
+                "z": -7.982000000000005
+              }
+            }
+          ],
+          "held": {
+            "body": 1084,
+            "position": {
+              "x": 54.799995059653,
+              "y": 5.850144952730917,
+              "z": -8.081999421922173
+            },
+            "drop": {
+              "x": 54.8,
+              "z": -8.081999999999999,
+              "y": 4.8
+            }
+          },
+          "after": {
+            "id": "gallery-upper",
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
+            "charge": 0,
+            "blocked": true,
+            "plates": [
+              {
+                "x": 54.8,
+                "z": -8.081999999999999,
+                "y": 4.8,
+                "active": true
+              },
+              {
+                "x": 56.4,
+                "z": -8.081999999999999,
+                "y": 4.8,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1084,
+                "position": {
+                  "x": 54.79957014490136,
+                  "y": 5.31999093102765,
+                  "z": -8.081407736467527
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1085,
+                "position": {
+                  "x": 44.64965709191588,
+                  "y": 5.239990931063722,
+                  "z": -7.081515972827588
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        },
+        {
+          "points": {
+            "start": {
+              "x": 437.22324668577465,
+              "y": 498.75582288652106
+            },
+            "end": {
+              "x": 989.4942595169967,
+              "y": 590.8909586503975
+            },
+            "expected": 1085,
+            "picked": 1085,
+            "plate": {
+              "x": 56.4,
+              "z": -8.081999999999999,
+              "y": 4.8
+            },
+            "pointerSurface": "CANVAS",
+            "pointerElement": "game-canvas",
+            "player": {
+              "x": 50.8,
+              "y": 5.6599765336818715,
+              "z": -7.982000000000005
+            }
+          },
+          "approaches": [
+            {
+              "start": {
+                "x": 437.22324668577465,
+                "y": 498.75582288652106
+              },
+              "end": {
+                "x": 989.4942595169967,
+                "y": 590.8909586503975
+              },
+              "expected": 1085,
+              "picked": 1085,
+              "plate": {
+                "x": 56.4,
+                "z": -8.081999999999999,
+                "y": 4.8
+              },
+              "pointerSurface": "CANVAS",
+              "pointerElement": "game-canvas",
+              "player": {
+                "x": 50.8,
+                "y": 5.6599765336818715,
+                "z": -7.982000000000005
+              }
+            }
+          ],
+          "held": {
+            "body": 1085,
+            "position": {
+              "x": 56.3999933960112,
+              "y": 5.850144952731285,
+              "z": -8.081999437705187
+            },
+            "drop": {
+              "x": 56.4,
+              "z": -8.081999999999999,
+              "y": 4.8
+            }
+          },
+          "after": {
+            "id": "gallery-upper",
+            "kind": "pressure",
+            "phase": "open",
+            "open": 1,
+            "charge": 0.41666666666642405,
+            "blocked": false,
+            "plates": [
+              {
+                "x": 54.8,
+                "z": -8.081999999999999,
+                "y": 4.8,
+                "active": true
+              },
+              {
+                "x": 56.4,
+                "z": -8.081999999999999,
+                "y": 4.8,
+                "active": true
+              }
+            ],
+            "weights": [
+              {
+                "id": 1084,
+                "position": {
+                  "x": 54.79957014490136,
+                  "y": 5.31999093102765,
+                  "z": -8.081407736467527
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1085,
+                "position": {
+                  "x": 56.399579047831224,
+                  "y": 5.319990931027236,
+                  "z": -8.081414478236876
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
+          }
+        }
+      ],
+      "end": {
+        "id": "gallery-upper",
+        "kind": "pressure",
+        "phase": "open",
+        "open": 1,
+        "charge": 0.41666666666642405,
+        "blocked": false,
+        "plates": [
+          {
+            "x": 54.8,
+            "z": -8.081999999999999,
+            "y": 4.8,
+            "active": true
+          },
+          {
+            "x": 56.4,
+            "z": -8.081999999999999,
+            "y": 4.8,
+            "active": true
+          }
+        ],
+        "weights": [
+          {
+            "id": 1084,
+            "position": {
+              "x": 54.79957014490136,
+              "y": 5.31999093102765,
+              "z": -8.081407736467527
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          },
+          {
+            "id": 1085,
+            "position": {
+              "x": 56.399579047831224,
+              "y": 5.319990931027236,
+              "z": -8.081414478236876
+            },
+            "recoveries": 0,
+            "hp": 1000000
+          }
+        ]
+      }
+    }
+  ],
+  "conditions": "Chrome 1440x1000 DPR1, seed571. Actual full game with frozen NPC attacks/contacts. Player is placed at a valid approach fixture for each puzzle; weights, furniture, stairs and physics remain. Native mouse pick/drag/release, normal held-object controller and gate contacts solve supplies. This is per-puzzle proof, not a continuous start-to-finish playthrough.",
+  "gates": [
+    {
+      "id": "hall-pressure",
+      "count": 2,
+      "floorY": 0
+    },
+    {
+      "id": "archive-secret",
+      "count": 1,
+      "floorY": 0
+    },
+    {
+      "id": "passage-prison-crypt",
+      "count": 2,
+      "floorY": 0
+    },
+    {
+      "id": "passage-forge-library",
+      "count": 2,
+      "floorY": 0
+    },
+    {
+      "id": "passage-ritual-watchtower",
+      "count": 2,
+      "floorY": 0
+    },
+    {
+      "id": "passage-watchtower-gallery",
+      "count": 2,
+      "floorY": 0
+    },
+    {
+      "id": "passage-catacombs-crypt",
+      "count": 2,
+      "floorY": 0
+    },
+    {
+      "id": "passage-catacombs-sanctum",
+      "count": 2,
+      "floorY": 0
+    },
+    {
+      "id": "passage-sanctum-ritual",
+      "count": 2,
+      "floorY": 0
+    },
+    {
+      "id": "forge-secret",
+      "count": 1,
+      "floorY": 0
+    },
+    {
+      "id": "catacombs-secret",
+      "count": 1,
+      "floorY": 0
+    },
+    {
+      "id": "library-upper",
+      "count": 1,
+      "floorY": 0
+    },
+    {
+      "id": "gallery-upper",
+      "count": 2,
+      "floorY": 4.8
+    }
+  ]
+}

@@ -1,0 +1,556 @@
+{
+  "fullLocalReportSha256": "a6138015e6e31820b5bed604c747e2497e2e6fc470c36f13ecfb942b76213314",
+  "componentSha256": "f6b889f4205600635d866f868f99b5977a73873ea25bd0ce83316e0b95c5337b",
+  "conditions": "Paired material A/B inside ONE live be00 world: same actor cast, camera, props, lights and floor planes. All objects stay visible; physics bodies held after initial settling solely for this rendering comparison. Idle animations remain live. Separate compiled-game captures retain full dynamic-prop physics and actual full-frame measurements. Three0.180 original component source imported through existing5173; only its Three import URL changes.",
+  "checks": [
+    {
+      "name": "courtyard same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "courtyard paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "hall same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "hall paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "crypt same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "crypt paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "armoury same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "armoury paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "barracks same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "barracks paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "prison same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "prison paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "ritual same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "ritual paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "library same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "library paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "forge same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "forge paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "catacombs same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "catacombs paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "sanctum same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "sanctum paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "gallery same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "gallery paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "watchtower same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "watchtower paired rendering stays within baseline band",
+      "pass": true
+    },
+    {
+      "name": "gatehouse same actor cast and physical scene",
+      "pass": true
+    },
+    {
+      "name": "gatehouse paired rendering stays within baseline band",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "rooms": [
+    {
+      "id": "courtyard",
+      "before": {
+        "p95": 13.599999904632568,
+        "max": 16,
+        "over33ms": 0,
+        "render": {
+          "frame": 6574,
+          "calls": 1881,
+          "triangles": 5886632,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "62343e72301c3bf92af9c1d80024aa59cc675435d42e5d474a5b655a8dc3654b",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 14.5,
+        "max": 16.200000047683716,
+        "over33ms": 0,
+        "render": {
+          "frame": 9724,
+          "calls": 1881,
+          "triangles": 5886632,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "62343e72301c3bf92af9c1d80024aa59cc675435d42e5d474a5b655a8dc3654b",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "hall",
+      "before": {
+        "p95": 19.600000023841858,
+        "max": 33.200000047683716,
+        "over33ms": 0,
+        "render": {
+          "frame": 12874,
+          "calls": 2114,
+          "triangles": 6607685,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "999af5d809bd40ad0daee1ef321caeb5805c4b10c488fcab5262cea431debbb5",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 19,
+        "max": 23.199999928474426,
+        "over33ms": 0,
+        "render": {
+          "frame": 16024,
+          "calls": 2114,
+          "triangles": 6607685,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "999af5d809bd40ad0daee1ef321caeb5805c4b10c488fcab5262cea431debbb5",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "crypt",
+      "before": {
+        "p95": 20.299999952316284,
+        "max": 25.799999952316284,
+        "over33ms": 0,
+        "render": {
+          "frame": 19174,
+          "calls": 1853,
+          "triangles": 5949093,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "62d12f024695589c26a16a457888af83d703f9ffac01b896d37e67b0d2f43cd2",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 21.399999976158142,
+        "max": 24.600000023841858,
+        "over33ms": 0,
+        "render": {
+          "frame": 22324,
+          "calls": 1853,
+          "triangles": 5949093,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "62d12f024695589c26a16a457888af83d703f9ffac01b896d37e67b0d2f43cd2",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "armoury",
+      "before": {
+        "p95": 16.799999952316284,
+        "max": 30.700000047683716,
+        "over33ms": 0,
+        "render": {
+          "frame": 25474,
+          "calls": 1999,
+          "triangles": 5870504,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "83d09186f1bd1d76f234cefed8a65cb66288b60678065af3ff9bc5bd070314d2",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 17.100000023841858,
+        "max": 26,
+        "over33ms": 0,
+        "render": {
+          "frame": 28624,
+          "calls": 1999,
+          "triangles": 5870504,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "83d09186f1bd1d76f234cefed8a65cb66288b60678065af3ff9bc5bd070314d2",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "barracks",
+      "before": {
+        "p95": 16.600000023841858,
+        "max": 21.300000071525574,
+        "over33ms": 0,
+        "render": {
+          "frame": 31774,
+          "calls": 1808,
+          "triangles": 5682016,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "c2bce8376eab1daa0a65a856e0e1d88bfd4f4c90292db800e2b043195e4d02ca",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 15.900000095367432,
+        "max": 17.799999952316284,
+        "over33ms": 0,
+        "render": {
+          "frame": 34924,
+          "calls": 1813,
+          "triangles": 5696028,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "c2bce8376eab1daa0a65a856e0e1d88bfd4f4c90292db800e2b043195e4d02ca",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "prison",
+      "before": {
+        "p95": 16.100000023841858,
+        "max": 23.200000047683716,
+        "over33ms": 0,
+        "render": {
+          "frame": 38074,
+          "calls": 1466,
+          "triangles": 4684432,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "e6402a642aabbed3f52c8df505c81ad6748c3c57af6e35ab5669ebd7a897d6b0",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 15.299999952316284,
+        "max": 17.90000009536743,
+        "over33ms": 0,
+        "render": {
+          "frame": 41224,
+          "calls": 1466,
+          "triangles": 4684432,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "e6402a642aabbed3f52c8df505c81ad6748c3c57af6e35ab5669ebd7a897d6b0",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "ritual",
+      "before": {
+        "p95": 16.199999928474426,
+        "max": 28.800000071525574,
+        "over33ms": 0,
+        "render": {
+          "frame": 44374,
+          "calls": 1727,
+          "triangles": 5606795,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "d03f69a3cfebe2999933af9c38ee3cdd15a79946e4c569808776bf550d84e63a",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 16.90000009536743,
+        "max": 19.199999928474426,
+        "over33ms": 0,
+        "render": {
+          "frame": 47524,
+          "calls": 1729,
+          "triangles": 5606955,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "d03f69a3cfebe2999933af9c38ee3cdd15a79946e4c569808776bf550d84e63a",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "library",
+      "before": {
+        "p95": 16.09999990463257,
+        "max": 19.5,
+        "over33ms": 0,
+        "render": {
+          "frame": 50674,
+          "calls": 1236,
+          "triangles": 3402732,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "0907350808120d1b436beeeec579fa3ad941590d6a7632d08be6eaa1e80e457a",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 15.199999928474426,
+        "max": 16.899999976158142,
+        "over33ms": 0,
+        "render": {
+          "frame": 53824,
+          "calls": 1236,
+          "triangles": 3402732,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "0907350808120d1b436beeeec579fa3ad941590d6a7632d08be6eaa1e80e457a",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "forge",
+      "before": {
+        "p95": 12.899999976158142,
+        "max": 26.399999976158142,
+        "over33ms": 0,
+        "render": {
+          "frame": 56974,
+          "calls": 828,
+          "triangles": 2451705,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "21bf099f84137cf49c4dce7097ef867dc57b75fddd4ab6652fc4b9f3e7a367fe",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 12.299999952316284,
+        "max": 14.299999952316284,
+        "over33ms": 0,
+        "render": {
+          "frame": 60124,
+          "calls": 828,
+          "triangles": 2451705,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "21bf099f84137cf49c4dce7097ef867dc57b75fddd4ab6652fc4b9f3e7a367fe",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "catacombs",
+      "before": {
+        "p95": 13.399999976158142,
+        "max": 20.899999976158142,
+        "over33ms": 0,
+        "render": {
+          "frame": 63274,
+          "calls": 1061,
+          "triangles": 3503292,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "5da27d56a6816e8fc0997c043f76f9356ed6eb130f4e32528612ca8a7ae9070a",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 15.5,
+        "max": 21.700000047683716,
+        "over33ms": 0,
+        "render": {
+          "frame": 66424,
+          "calls": 1061,
+          "triangles": 3503292,
+          "points": 969,
+          "lines": 66
+        },
+        "actorCastSha256": "5da27d56a6816e8fc0997c043f76f9356ed6eb130f4e32528612ca8a7ae9070a",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "sanctum",
+      "before": {
+        "p95": 15.399999976158142,
+        "max": 19.300000071525574,
+        "over33ms": 0,
+        "render": {
+          "frame": 69574,
+          "calls": 830,
+          "triangles": 3077428,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "5533999b10d5038e121f09617aa49454cf05d4d346b967ba737b108fd4f5f06c",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 13.799999952316284,
+        "max": 15.200000047683716,
+        "over33ms": 0,
+        "render": {
+          "frame": 72724,
+          "calls": 830,
+          "triangles": 3077428,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "5533999b10d5038e121f09617aa49454cf05d4d346b967ba737b108fd4f5f06c",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "gallery",
+      "before": {
+        "p95": 16.899999976158142,
+        "max": 20.100000023841858,
+        "over33ms": 0,
+        "render": {
+          "frame": 75874,
+          "calls": 1362,
+          "triangles": 3870946,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "24bb29ce791bf744af59226dffde44dee49c6b8464db2ab1a51bd7041ece9750",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 16.799999952316284,
+        "max": 19.399999976158142,
+        "over33ms": 0,
+        "render": {
+          "frame": 79024,
+          "calls": 1369,
+          "triangles": 3898942,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "24bb29ce791bf744af59226dffde44dee49c6b8464db2ab1a51bd7041ece9750",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "watchtower",
+      "before": {
+        "p95": 15.200000047683716,
+        "max": 22.399999976158142,
+        "over33ms": 0,
+        "render": {
+          "frame": 82174,
+          "calls": 1064,
+          "triangles": 3409556,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "90562365a7af5cd59258b004a3bf7c865f6f4466f2adfab67a7bb54bc9ace9a2",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 15.900000095367432,
+        "max": 21.5,
+        "over33ms": 0,
+        "render": {
+          "frame": 85324,
+          "calls": 1077,
+          "triangles": 3438436,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "90562365a7af5cd59258b004a3bf7c865f6f4466f2adfab67a7bb54bc9ace9a2",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    },
+    {
+      "id": "gatehouse",
+      "before": {
+        "p95": 16.600000023841858,
+        "max": 20.300000071525574,
+        "over33ms": 0,
+        "render": {
+          "frame": 88474,
+          "calls": 1662,
+          "triangles": 4502967,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "90562365a7af5cd59258b004a3bf7c865f6f4466f2adfab67a7bb54bc9ace9a2",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      },
+      "after": {
+        "p95": 16.699999928474426,
+        "max": 19.5,
+        "over33ms": 0,
+        "render": {
+          "frame": 91624,
+          "calls": 1662,
+          "triangles": 4502967,
+          "points": 969,
+          "lines": 0
+        },
+        "actorCastSha256": "90562365a7af5cd59258b004a3bf7c865f6f4466f2adfab67a7bb54bc9ace9a2",
+        "physicalSha256": "6831a27af41e2cac2cc9757e9a5cd6976275f50d317ea73eb2894417e4241a0c"
+      }
+    }
+  ]
+}
