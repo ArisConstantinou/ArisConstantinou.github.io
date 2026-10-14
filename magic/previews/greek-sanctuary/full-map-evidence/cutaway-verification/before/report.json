@@ -1,0 +1,363 @@
+{
+  "mode": "before",
+  "url": "http://127.0.0.1:5173/previews/greek-sanctuary/full-map-cutaway-before.htm?hearthQA=1",
+  "checks": [
+    {
+      "name": "Obstructing wall sections and all their parts are fully hidden",
+      "data": {
+        "hidden": 5,
+        "meshes": [
+          {
+            "name": "",
+            "opacity": 0.1800000001526748
+          },
+          {
+            "name": "",
+            "opacity": 0.18000000000108798
+          },
+          {
+            "name": "",
+            "opacity": 0.18000000001396896
+          },
+          {
+            "name": "",
+            "opacity": 0.18000000000561378
+          },
+          {
+            "name": "",
+            "opacity": 0.18000000000108798
+          }
+        ]
+      }
+    },
+    {
+      "name": "Attached wall decorations disappear with the wall",
+      "pass": false,
+      "data": []
+    },
+    {
+      "name": "Masonry is never rendered as a translucent glass wall",
+      "pass": false,
+      "data": {
+        "faded": 5
+      }
+    },
+    {
+      "name": "Previously hidden wall parts return after camera rotation",
+      "pass": false,
+      "data": []
+    },
+    {
+      "name": "Cutaway leaves all physical colliders intact",
+      "pass": true,
+      "data": {
+        "front": {
+          "colliders": 524,
+          "bodies": 849
+        },
+        "back": {
+          "colliders": 524,
+          "bodies": 849
+        }
+      }
+    },
+    {
+      "name": "Upper doorway returns and mouldings form a complete cutaway section",
+      "data": {
+        "hidden": 1,
+        "meshes": [
+          {
+            "name": "",
+            "opacity": 0.18000000000108798
+          }
+        ]
+      }
+    },
+    {
+      "name": "Native movement stops at the physical hidden wall boundary",
+      "pass": true,
+      "data": {
+        "boundary": {
+          "wall": {
+            "x": -51.25,
+            "z": 6.65,
+            "w": 17.5,
+            "d": 0.8,
+            "tag": "wall"
+          },
+          "stopZ": 5.82
+        },
+        "blocked": {
+          "x": -51.25,
+          "y": 0.8599765336818725,
+          "z": 5.821435590027978
+        }
+      }
+    },
+    {
+      "name": "A stationary camera keeps the wall hidden without flicker",
+      "pass": true,
+      "data": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "name": "Desktop render fixture p95 stays within 16.7 ms",
+      "pass": true,
+      "data": {
+        "frame": {
+          "median": 4.199999928474426,
+          "p95": 6.100000023841858,
+          "max": 7.600000023841858,
+          "over33ms": 0
+        },
+        "cpu": {
+          "median": 3.3000000715255737,
+          "p95": 5.899999976158142,
+          "max": 7.399999976158142,
+          "over33ms": 0
+        },
+        "render": {
+          "frame": 6229,
+          "calls": 713,
+          "triangles": 3712851,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 381,
+          "textures": 121
+        },
+        "heap": 314629066,
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "name": "Actual desktop gameplay frame p95 stays within 16.7 ms",
+      "pass": true,
+      "data": {
+        "frame": {
+          "median": 7.600000023841858,
+          "p95": 9.800000071525574,
+          "max": 16.699999928474426,
+          "over33ms": 0
+        },
+        "cpu": {
+          "median": 7.300000071525574,
+          "p95": 9.5,
+          "max": 16.299999952316284,
+          "over33ms": 0
+        },
+        "render": {
+          "frame": 9004,
+          "calls": 723,
+          "triangles": 3735973,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 385,
+          "textures": 123
+        },
+        "heap": 331766710
+      }
+    },
+    {
+      "name": "Portrait view also removes complete obstructing wall sections",
+      "data": {
+        "hidden": 5,
+        "meshes": [
+          {
+            "name": "",
+            "opacity": 0.18000000000000005
+          },
+          {
+            "name": "",
+            "opacity": 0.18000000000000005
+          },
+          {
+            "name": "",
+            "opacity": 0.18000000000000005
+          },
+          {
+            "name": "",
+            "opacity": 0.18000000000000005
+          },
+          {
+            "name": "",
+            "opacity": 0.18000000000000005
+          }
+        ]
+      }
+    },
+    {
+      "name": "No runtime errors",
+      "pass": true,
+      "data": []
+    }
+  ],
+  "errors": [],
+  "conditions": "Chrome desktop 1440x1000 DPR1. Identical library position, camera and gameplay fixtures before/after. 35 warmup and 150 measured frames. No phone or native GPU timing claim.",
+  "fixture": {
+    "player": {
+      "x": -51.25,
+      "y": 0.9586111111111111,
+      "z": 4.8
+    },
+    "camera": {
+      "x": -51.249984322506066,
+      "y": 18,
+      "z": 22.000005370062706
+    }
+  },
+  "front": {
+    "occlusion": {
+      "hidden": 5,
+      "meshes": [
+        {
+          "name": "",
+          "opacity": 0.1800000001526748
+        },
+        {
+          "name": "",
+          "opacity": 0.18000000000108798
+        },
+        {
+          "name": "",
+          "opacity": 0.18000000001396896
+        },
+        {
+          "name": "",
+          "opacity": 0.18000000000561378
+        },
+        {
+          "name": "",
+          "opacity": 0.18000000000108798
+        }
+      ]
+    },
+    "parts": [],
+    "faded": 5,
+    "colliders": 524,
+    "bodies": 849,
+    "render": {
+      "frame": 2299,
+      "calls": 1467,
+      "triangles": 7709286,
+      "points": 1938,
+      "lines": 0
+    }
+  },
+  "benchmark": {
+    "frame": {
+      "median": 4.199999928474426,
+      "p95": 6.100000023841858,
+      "max": 7.600000023841858,
+      "over33ms": 0
+    },
+    "cpu": {
+      "median": 3.3000000715255737,
+      "p95": 5.899999976158142,
+      "max": 7.399999976158142,
+      "over33ms": 0
+    },
+    "render": {
+      "frame": 6229,
+      "calls": 713,
+      "triangles": 3712851,
+      "points": 969,
+      "lines": 0
+    },
+    "memory": {
+      "geometries": 381,
+      "textures": 121
+    },
+    "heap": 314629066,
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "gameplayBenchmark": {
+    "frame": {
+      "median": 7.600000023841858,
+      "p95": 9.800000071525574,
+      "max": 16.699999928474426,
+      "over33ms": 0
+    },
+    "cpu": {
+      "median": 7.300000071525574,
+      "p95": 9.5,
+      "max": 16.299999952316284,
+      "over33ms": 0
+    },
+    "render": {
+      "frame": 9004,
+      "calls": 723,
+      "triangles": 3735973,
+      "points": 969,
+      "lines": 0
+    },
+    "memory": {
+      "geometries": 385,
+      "textures": 123
+    },
+    "heap": 331766710
+  }
+}

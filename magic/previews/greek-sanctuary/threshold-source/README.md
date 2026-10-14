@@ -1,6 +1,6 @@
 # MAGIC — Threshold sample A
 
-Approved by the human with “Go a”, 14 October 2026: Malbork + Pierrefonds, opening into an old Greek courtyard and a monumental ruined Parthenon-inspired sanctuary. This is the first integrated architectural/gameplay sample, not the complete fourteen-room release.
+The human selected the Malbork + Pierrefonds references with “Go a”, 14 October 2026. The sample's resulting art was subsequently rejected. Its controls and loading are maintained while work moves to the complete game map; it is not an accepted final appearance or the complete fourteen-room release.
 
 Local: http://127.0.0.1:5173/previews/greek-sanctuary/threshold.html
 
@@ -50,9 +50,13 @@ The GLB is intentionally a large editable archival export, not the web payload. 
 
 ## Remaining goal
 
-Review this concrete sample before extending it to the whole stage. The full 70/30 distribution, fourteen-room dressing, elevated AI/navigation/loot/aim integration and final physical-device validation are not complete. Preserve the primary release, unit-redesign worktree, original assets and fixed port 5173.
+The human prioritised the complete connected game map and selected an elevated perspective camera. Work continues in `../full-map`, within the real game rather than another isolated art sample. Final 70/30 art distribution, regional architecture, ruined temple and full integration remain required. Preserve the primary release, unit-redesign worktree, original assets and fixed port 5173.
 
 ## Loading correction (2026-10-14)
 The reported static loading mask was reproduced: at 25 seconds unused stone textures were still pending; the original scene appeared only after roughly a minute. The sample now loads only the mage, required props/Greek gate pieces and three used material sets. The full game keeps the original loader defaults; no visible textures, geometry or rigs were reduced. A sample-only build transform excludes unused character declarations without changing the shared character source.
 
 Cold-cache comparison at the same 2 MiB/s and 30ms latency: 125,251,283 -> 80,205,972 encoded bytes, 99 -> 67 requests; 63,245 -> 40,802 ms until playable. This is a controlled network comparison on PC, not a claim about every public connection. Loading now shows five actual completed asset groups plus lighting preparation. Failed files and the 90-second asset deadline offer an explicit retry. The 90-second stalled-request path was exercised with Playwright's virtual clock; native retry loaded the scene after both failure cases. Seven loading checks, four error/deadline/retry checks and 23 gameplay checks passed. Final public verification is recorded separately in the owned source folder. Large local GLB export remains unchanged.
+
+## Camera-relative movement correction
+
+Native W/A/S/D previously stayed on world X/Z after camera rotation. In the frozen before build, 25 of 34 checks fail, including all four keys at 90, 180 and 270 degrees for both mage and HEARTH. The corrected build passes all 34 identical cases, including actual right-drag camera rotation. `camera-movement.js` projects the live camera forward/right directions onto the horizontal ground plane and preserves analogue strength. Pointer aiming and physical collision stay in world coordinates. All 23 existing interaction checks and 215 source unit tests pass. Camera-facing facade geometry now has a separate cutaway group, so the castle exit no longer hides the moving character. This is a visibility change; physical wall returns and locked doors remain solid.

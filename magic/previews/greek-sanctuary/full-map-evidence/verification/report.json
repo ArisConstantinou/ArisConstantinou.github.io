@@ -1,0 +1,2917 @@
+{
+  "checks": [
+    {
+      "name": "Fourteen rooms plus bridge, three secrets and four bosses retained",
+      "pass": true,
+      "data": {
+        "rooms": 15,
+        "secrets": 3,
+        "bosses": 4,
+        "actors": 68,
+        "perspective": true,
+        "stairs": [
+          {
+            "id": "library",
+            "label": "Επάνω αρχείο",
+            "floorY": 5.2,
+            "count": 26,
+            "tread": 0.35,
+            "startZ": 2.5,
+            "gate": "single",
+            "x": -51.25,
+            "width": 5.4,
+            "rise": 0.2,
+            "endZ": -6.6,
+            "direction": -1
+          },
+          {
+            "id": "gallery",
+            "label": "Επάνω στοά",
+            "floorY": 4.8,
+            "count": 24,
+            "tread": 0.35,
+            "startZ": 2.5,
+            "gate": "double",
+            "x": 51.25,
+            "width": 5.4,
+            "rise": 0.19999999999999998,
+            "endZ": -5.899999999999999,
+            "direction": -1
+          },
+          {
+            "id": "watchtower",
+            "label": "Παρατηρητήριο",
+            "floorY": 6,
+            "count": 30,
+            "tread": 0.35,
+            "startZ": -22.2,
+            "backInset": 0.15,
+            "gate": null,
+            "x": 51.25,
+            "width": 5.4,
+            "rise": 0.2,
+            "endZ": -32.7,
+            "direction": -1
+          }
+        ],
+        "furniture": [
+          {
+            "room": "courtyard",
+            "kind": "olive-urn",
+            "x": 13.55,
+            "y": 1.2,
+            "z": 15,
+            "w": 1.2,
+            "h": 2.4,
+            "d": 2.7
+          },
+          {
+            "room": "courtyard",
+            "kind": "bench",
+            "x": -13.55,
+            "y": 0.85,
+            "z": 9.4375,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "room": "courtyard",
+            "kind": "olive-urn",
+            "x": -11.09375,
+            "y": 1.2,
+            "z": 23.55,
+            "w": 2.7,
+            "h": 2.4,
+            "d": 1.2
+          },
+          {
+            "room": "courtyard",
+            "kind": "bench",
+            "x": -7.28125,
+            "y": 0.85,
+            "z": 23.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "hall",
+            "kind": "bench",
+            "x": -11.05,
+            "y": 0.85,
+            "z": -6,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "room": "armoury",
+            "kind": "weapon-rack",
+            "x": -37.9,
+            "y": 1.15,
+            "z": -4.75,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "room": "armoury",
+            "kind": "weapon-rack",
+            "x": -19.6,
+            "y": 1.15,
+            "z": -4.75,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "room": "armoury",
+            "kind": "weapon-rack",
+            "x": -33.5,
+            "y": 1.15,
+            "z": 6.05,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "room": "armoury",
+            "kind": "supply-rack",
+            "x": -23.0625,
+            "y": 0.85,
+            "z": 6.05,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "barracks",
+            "kind": "kline",
+            "x": 20.5,
+            "y": 0.65,
+            "z": 3.75,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "room": "barracks",
+            "kind": "kline",
+            "x": 37,
+            "y": 0.65,
+            "z": 3.75,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "room": "barracks",
+            "kind": "supply-rack",
+            "x": 24.125,
+            "y": 0.85,
+            "z": -8.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "barracks",
+            "kind": "bench",
+            "x": 33.375,
+            "y": 0.85,
+            "z": -8.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "barracks",
+            "kind": "supply-rack",
+            "x": 28.75,
+            "y": 0.85,
+            "z": -8.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "barracks",
+            "kind": "bench",
+            "x": 24.125,
+            "y": 0.85,
+            "z": 6.05,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "prison",
+            "kind": "pallet",
+            "x": -28.25,
+            "y": 0.65,
+            "z": -17.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "room": "prison",
+            "kind": "pallet",
+            "x": -16.75,
+            "y": 0.65,
+            "z": -17.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "room": "prison",
+            "kind": "bench",
+            "x": -25.875,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "prison",
+            "kind": "offering",
+            "x": -19.125,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "prison",
+            "kind": "bench",
+            "x": -22.5,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "prison",
+            "kind": "offering",
+            "x": -22.5,
+            "y": 0.85,
+            "z": -16.45,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "ritual",
+            "kind": "offering",
+            "x": 19.125,
+            "y": 0.85,
+            "z": -16.45,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "ritual",
+            "kind": "altar",
+            "x": 25.875,
+            "y": 0.85,
+            "z": -16.45,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "ritual",
+            "kind": "offering",
+            "x": 22.5,
+            "y": 0.85,
+            "z": -16.45,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "library",
+            "kind": "scroll-cabinet",
+            "x": -57.9,
+            "y": 1.15,
+            "z": -5.75,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "room": "library",
+            "kind": "scroll-cabinet",
+            "x": -44.6,
+            "y": 1.15,
+            "z": -7.25,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "room": "library",
+            "kind": "reading-table",
+            "x": -54.625,
+            "y": 0.85,
+            "z": 4.8,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "library",
+            "kind": "scroll-cabinet",
+            "x": -58.55,
+            "y": 1.15,
+            "z": -2.3125,
+            "w": 2.2,
+            "h": 2.3,
+            "d": 1.2
+          },
+          {
+            "room": "library",
+            "kind": "reading-table",
+            "x": -47.125,
+            "y": 0.85,
+            "z": -12.3,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "forge",
+            "kind": "furnace",
+            "x": -59.15,
+            "y": 1.15,
+            "z": -29.5,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "room": "forge",
+            "kind": "anvil",
+            "x": -43.35,
+            "y": 1.15,
+            "z": -29.5,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "room": "forge",
+            "kind": "supply-rack",
+            "x": -59.8,
+            "y": 0.85,
+            "z": -24.125,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "room": "forge",
+            "kind": "offering",
+            "x": -51.162499999999994,
+            "y": 0.85,
+            "z": -34.8,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "forge",
+            "kind": "supply-rack",
+            "x": -45.8875,
+            "y": 0.85,
+            "z": -34.8,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "forge",
+            "kind": "offering",
+            "x": -46.8125,
+            "y": 0.85,
+            "z": -20.2,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "catacombs",
+            "kind": "ossuary",
+            "x": -3.375,
+            "y": 0.85,
+            "z": -48.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "catacombs",
+            "kind": "sarcophagus",
+            "x": 3.375,
+            "y": 0.85,
+            "z": -48.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "catacombs",
+            "kind": "ossuary",
+            "x": 0,
+            "y": 0.85,
+            "z": -48.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "catacombs",
+            "kind": "sarcophagus",
+            "x": -7.3,
+            "y": 0.85,
+            "z": -38.9375,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "room": "sanctum",
+            "kind": "altar",
+            "x": 20.375,
+            "y": 0.85,
+            "z": -53.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "sanctum",
+            "kind": "offering",
+            "x": 29.625,
+            "y": 0.85,
+            "z": -53.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "sanctum",
+            "kind": "altar",
+            "x": 25,
+            "y": 0.85,
+            "z": -53.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "sanctum",
+            "kind": "offering",
+            "x": 34.8,
+            "y": 0.85,
+            "z": -42.875,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "room": "gallery",
+            "kind": "vase-display",
+            "x": 58.55,
+            "y": 0.85,
+            "z": 0.25,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "room": "gallery",
+            "kind": "bench",
+            "x": 58.55,
+            "y": 0.85,
+            "z": -3.75,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "room": "gallery",
+            "kind": "vase-display",
+            "x": 47.875,
+            "y": 0.85,
+            "z": 4.8,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "gallery",
+            "kind": "bench",
+            "x": 54.625,
+            "y": 0.85,
+            "z": 4.8,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "watchtower",
+            "kind": "observatory",
+            "x": 59.8,
+            "y": 1.25,
+            "z": -24.125,
+            "w": 1.2,
+            "h": 2.5,
+            "d": 2.7
+          },
+          {
+            "room": "watchtower",
+            "kind": "map-table",
+            "x": 59.8,
+            "y": 0.85,
+            "z": -27.5,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "room": "watchtower",
+            "kind": "observatory",
+            "x": 42.7,
+            "y": 1.25,
+            "z": -28.8125,
+            "w": 1.2,
+            "h": 2.5,
+            "d": 2.7
+          },
+          {
+            "room": "watchtower",
+            "kind": "map-table",
+            "x": 56.625,
+            "y": 0.85,
+            "z": -20.2,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "gatehouse",
+            "kind": "kline",
+            "x": -37,
+            "y": 0.65,
+            "z": 23.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "room": "gatehouse",
+            "kind": "kline",
+            "x": -23,
+            "y": 0.65,
+            "z": 23.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "room": "gatehouse",
+            "kind": "map-table",
+            "x": -34,
+            "y": 0.85,
+            "z": 27.3,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "gatehouse",
+            "kind": "supply-rack",
+            "x": -26,
+            "y": 0.85,
+            "z": 27.3,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "gatehouse",
+            "kind": "map-table",
+            "x": -30,
+            "y": 0.85,
+            "z": 27.3,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "room": "gatehouse",
+            "kind": "supply-rack",
+            "x": -38.55,
+            "y": 0.85,
+            "z": 20,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "room": "crypt",
+            "kind": "sarcophagus",
+            "x": -0.4499999999999993,
+            "y": 0.6,
+            "z": -27.25,
+            "w": 2.75,
+            "h": 1.2,
+            "d": 1.3
+          }
+        ],
+        "upperGuards": [
+          {
+            "kind": "guard",
+            "room": "library",
+            "y": 6.059978442161746
+          },
+          {
+            "kind": "guard",
+            "room": "gallery",
+            "y": 5.659978442161746
+          },
+          {
+            "kind": "guard",
+            "room": "watchtower",
+            "y": 6.859978442161746
+          }
+        ]
+      }
+    },
+    {
+      "name": "Approved perspective camera is active",
+      "pass": true,
+      "data": true
+    },
+    {
+      "name": "Three different upper-floor heights in the actual game",
+      "pass": true,
+      "data": [
+        {
+          "id": "library",
+          "label": "Επάνω αρχείο",
+          "floorY": 5.2,
+          "count": 26,
+          "tread": 0.35,
+          "startZ": 2.5,
+          "gate": "single",
+          "x": -51.25,
+          "width": 5.4,
+          "rise": 0.2,
+          "endZ": -6.6,
+          "direction": -1
+        },
+        {
+          "id": "gallery",
+          "label": "Επάνω στοά",
+          "floorY": 4.8,
+          "count": 24,
+          "tread": 0.35,
+          "startZ": 2.5,
+          "gate": "double",
+          "x": 51.25,
+          "width": 5.4,
+          "rise": 0.19999999999999998,
+          "endZ": -5.899999999999999,
+          "direction": -1
+        },
+        {
+          "id": "watchtower",
+          "label": "Παρατηρητήριο",
+          "floorY": 6,
+          "count": 30,
+          "tread": 0.35,
+          "startZ": -22.2,
+          "backInset": 0.15,
+          "gate": null,
+          "x": 51.25,
+          "width": 5.4,
+          "rise": 0.2,
+          "endZ": -32.7,
+          "direction": -1
+        }
+      ]
+    },
+    {
+      "name": "Each main room has appropriate physical furniture",
+      "pass": true,
+      "data": [
+        {
+          "room": "courtyard",
+          "kind": "olive-urn",
+          "x": 13.55,
+          "y": 1.2,
+          "z": 15,
+          "w": 1.2,
+          "h": 2.4,
+          "d": 2.7
+        },
+        {
+          "room": "courtyard",
+          "kind": "bench",
+          "x": -13.55,
+          "y": 0.85,
+          "z": 9.4375,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "room": "courtyard",
+          "kind": "olive-urn",
+          "x": -11.09375,
+          "y": 1.2,
+          "z": 23.55,
+          "w": 2.7,
+          "h": 2.4,
+          "d": 1.2
+        },
+        {
+          "room": "courtyard",
+          "kind": "bench",
+          "x": -7.28125,
+          "y": 0.85,
+          "z": 23.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "hall",
+          "kind": "bench",
+          "x": -11.05,
+          "y": 0.85,
+          "z": -6,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "room": "armoury",
+          "kind": "weapon-rack",
+          "x": -37.9,
+          "y": 1.15,
+          "z": -4.75,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "room": "armoury",
+          "kind": "weapon-rack",
+          "x": -19.6,
+          "y": 1.15,
+          "z": -4.75,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "room": "armoury",
+          "kind": "weapon-rack",
+          "x": -33.5,
+          "y": 1.15,
+          "z": 6.05,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "room": "armoury",
+          "kind": "supply-rack",
+          "x": -23.0625,
+          "y": 0.85,
+          "z": 6.05,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "barracks",
+          "kind": "kline",
+          "x": 20.5,
+          "y": 0.65,
+          "z": 3.75,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "room": "barracks",
+          "kind": "kline",
+          "x": 37,
+          "y": 0.65,
+          "z": 3.75,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "room": "barracks",
+          "kind": "supply-rack",
+          "x": 24.125,
+          "y": 0.85,
+          "z": -8.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "barracks",
+          "kind": "bench",
+          "x": 33.375,
+          "y": 0.85,
+          "z": -8.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "barracks",
+          "kind": "supply-rack",
+          "x": 28.75,
+          "y": 0.85,
+          "z": -8.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "barracks",
+          "kind": "bench",
+          "x": 24.125,
+          "y": 0.85,
+          "z": 6.05,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "prison",
+          "kind": "pallet",
+          "x": -28.25,
+          "y": 0.65,
+          "z": -17.5,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "room": "prison",
+          "kind": "pallet",
+          "x": -16.75,
+          "y": 0.65,
+          "z": -17.5,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "room": "prison",
+          "kind": "bench",
+          "x": -25.875,
+          "y": 0.85,
+          "z": -28.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "prison",
+          "kind": "offering",
+          "x": -19.125,
+          "y": 0.85,
+          "z": -28.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "prison",
+          "kind": "bench",
+          "x": -22.5,
+          "y": 0.85,
+          "z": -28.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "prison",
+          "kind": "offering",
+          "x": -22.5,
+          "y": 0.85,
+          "z": -16.45,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "ritual",
+          "kind": "offering",
+          "x": 19.125,
+          "y": 0.85,
+          "z": -16.45,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "ritual",
+          "kind": "altar",
+          "x": 25.875,
+          "y": 0.85,
+          "z": -16.45,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "ritual",
+          "kind": "offering",
+          "x": 22.5,
+          "y": 0.85,
+          "z": -16.45,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "library",
+          "kind": "scroll-cabinet",
+          "x": -57.9,
+          "y": 1.15,
+          "z": -5.75,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "room": "library",
+          "kind": "scroll-cabinet",
+          "x": -44.6,
+          "y": 1.15,
+          "z": -7.25,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "room": "library",
+          "kind": "reading-table",
+          "x": -54.625,
+          "y": 0.85,
+          "z": 4.8,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "library",
+          "kind": "scroll-cabinet",
+          "x": -58.55,
+          "y": 1.15,
+          "z": -2.3125,
+          "w": 2.2,
+          "h": 2.3,
+          "d": 1.2
+        },
+        {
+          "room": "library",
+          "kind": "reading-table",
+          "x": -47.125,
+          "y": 0.85,
+          "z": -12.3,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "forge",
+          "kind": "furnace",
+          "x": -59.15,
+          "y": 1.15,
+          "z": -29.5,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "room": "forge",
+          "kind": "anvil",
+          "x": -43.35,
+          "y": 1.15,
+          "z": -29.5,
+          "w": 1.2,
+          "h": 2.3,
+          "d": 2.2
+        },
+        {
+          "room": "forge",
+          "kind": "supply-rack",
+          "x": -59.8,
+          "y": 0.85,
+          "z": -24.125,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "room": "forge",
+          "kind": "offering",
+          "x": -51.162499999999994,
+          "y": 0.85,
+          "z": -34.8,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "forge",
+          "kind": "supply-rack",
+          "x": -45.8875,
+          "y": 0.85,
+          "z": -34.8,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "forge",
+          "kind": "offering",
+          "x": -46.8125,
+          "y": 0.85,
+          "z": -20.2,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "catacombs",
+          "kind": "ossuary",
+          "x": -3.375,
+          "y": 0.85,
+          "z": -48.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "catacombs",
+          "kind": "sarcophagus",
+          "x": 3.375,
+          "y": 0.85,
+          "z": -48.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "catacombs",
+          "kind": "ossuary",
+          "x": 0,
+          "y": 0.85,
+          "z": -48.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "catacombs",
+          "kind": "sarcophagus",
+          "x": -7.3,
+          "y": 0.85,
+          "z": -38.9375,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "room": "sanctum",
+          "kind": "altar",
+          "x": 20.375,
+          "y": 0.85,
+          "z": -53.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "sanctum",
+          "kind": "offering",
+          "x": 29.625,
+          "y": 0.85,
+          "z": -53.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "sanctum",
+          "kind": "altar",
+          "x": 25,
+          "y": 0.85,
+          "z": -53.55,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "sanctum",
+          "kind": "offering",
+          "x": 34.8,
+          "y": 0.85,
+          "z": -42.875,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "room": "gallery",
+          "kind": "vase-display",
+          "x": 58.55,
+          "y": 0.85,
+          "z": 0.25,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "room": "gallery",
+          "kind": "bench",
+          "x": 58.55,
+          "y": 0.85,
+          "z": -3.75,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "room": "gallery",
+          "kind": "vase-display",
+          "x": 47.875,
+          "y": 0.85,
+          "z": 4.8,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "gallery",
+          "kind": "bench",
+          "x": 54.625,
+          "y": 0.85,
+          "z": 4.8,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "watchtower",
+          "kind": "observatory",
+          "x": 59.8,
+          "y": 1.25,
+          "z": -24.125,
+          "w": 1.2,
+          "h": 2.5,
+          "d": 2.7
+        },
+        {
+          "room": "watchtower",
+          "kind": "map-table",
+          "x": 59.8,
+          "y": 0.85,
+          "z": -27.5,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "room": "watchtower",
+          "kind": "observatory",
+          "x": 42.7,
+          "y": 1.25,
+          "z": -28.8125,
+          "w": 1.2,
+          "h": 2.5,
+          "d": 2.7
+        },
+        {
+          "room": "watchtower",
+          "kind": "map-table",
+          "x": 56.625,
+          "y": 0.85,
+          "z": -20.2,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "gatehouse",
+          "kind": "kline",
+          "x": -37,
+          "y": 0.65,
+          "z": 23.5,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "room": "gatehouse",
+          "kind": "kline",
+          "x": -23,
+          "y": 0.65,
+          "z": 23.5,
+          "w": 1.6,
+          "h": 1.3,
+          "d": 2.5
+        },
+        {
+          "room": "gatehouse",
+          "kind": "map-table",
+          "x": -34,
+          "y": 0.85,
+          "z": 27.3,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "gatehouse",
+          "kind": "supply-rack",
+          "x": -26,
+          "y": 0.85,
+          "z": 27.3,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "gatehouse",
+          "kind": "map-table",
+          "x": -30,
+          "y": 0.85,
+          "z": 27.3,
+          "w": 2.7,
+          "h": 1.7,
+          "d": 1.2
+        },
+        {
+          "room": "gatehouse",
+          "kind": "supply-rack",
+          "x": -38.55,
+          "y": 0.85,
+          "z": 20,
+          "w": 1.2,
+          "h": 1.7,
+          "d": 2.7
+        },
+        {
+          "room": "crypt",
+          "kind": "sarcophagus",
+          "x": -0.4499999999999993,
+          "y": 0.6,
+          "z": -27.25,
+          "w": 2.75,
+          "h": 1.2,
+          "d": 1.3
+        }
+      ]
+    },
+    {
+      "name": "Existing guards populate upper rooms",
+      "pass": true,
+      "data": [
+        {
+          "kind": "guard",
+          "room": "library",
+          "y": 6.059978442161746
+        },
+        {
+          "kind": "guard",
+          "room": "gallery",
+          "y": 5.659978442161746
+        },
+        {
+          "kind": "guard",
+          "room": "watchtower",
+          "y": 6.859978442161746
+        }
+      ]
+    },
+    {
+      "name": "Library upper door actually stops native W",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": -51.25,
+          "y": 6.059976533681872,
+          "z": -7.668132878027506
+        },
+        "engine": {
+          "x": -44.25,
+          "y": 1.24,
+          "z": 2.85
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": -51.24999990623596,
+          "y": 23.198016350777923,
+          "z": 9.548284418780609
+        },
+        "render": {
+          "frame": 5794,
+          "calls": 1107,
+          "triangles": 3577286,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "Real single and double elevated pressure gates open",
+      "pass": true,
+      "data": [
+        {
+          "id": "library-upper",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -46.05,
+              "y": 0,
+              "z": 2.5,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1084,
+              "position": {
+                "x": -46.05035283700809,
+                "y": 0.5199909310637473,
+                "z": 2.500497180570637
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "gallery-upper",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": 54.8,
+              "z": -8.081999999999999,
+              "y": 4.8,
+              "active": true
+            },
+            {
+              "x": 56.4,
+              "z": -8.081999999999999,
+              "y": 4.8,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1085,
+              "position": {
+                "x": 54.799647162991896,
+                "y": 5.319990931063747,
+                "z": -8.08150281942936
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1086,
+              "position": {
+                "x": 56.3996471629919,
+                "y": 5.319990931063747,
+                "z": -8.08150281942936
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "library mage climbs with native W",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": -51.25,
+          "y": 6.059976533681872,
+          "z": -11.15231592692306
+        },
+        "engine": {
+          "x": -44.25,
+          "y": 1.24,
+          "z": 2.85
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": -51.24999999999998,
+          "y": 23.198912008436633,
+          "z": 6.795255482554728
+        },
+        "render": {
+          "frame": 9409,
+          "calls": 1086,
+          "triangles": 3346895,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "library mage descends with native S",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": -51.444761963917564,
+          "y": 0.8599765336818713,
+          "z": 5.73331223395245
+        },
+        "engine": {
+          "x": -44.25,
+          "y": 1.24,
+          "z": 2.85
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": -51.444761959896574,
+          "y": 18.011715422269372,
+          "z": 22.176015496025553
+        },
+        "render": {
+          "frame": 13009,
+          "calls": 976,
+          "triangles": 3346037,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "library AI route uses stair heights",
+      "pass": true,
+      "data": [
+        {
+          "x": -51.325,
+          "y": 0.2,
+          "z": 2.1750000000000043
+        },
+        {
+          "x": -51.325,
+          "y": 0.6000000000000001,
+          "z": 1.5249999999999986
+        },
+        {
+          "x": -51.325,
+          "y": 1,
+          "z": 0.875
+        },
+        {
+          "x": -51.325,
+          "y": 1.4000000000000004,
+          "z": 0.22500000000000142
+        },
+        {
+          "x": -51.325,
+          "y": 1.8000000000000003,
+          "z": -0.42499999999999716
+        },
+        {
+          "x": -51.325,
+          "y": 2.2,
+          "z": -1.0749999999999957
+        },
+        {
+          "x": -51.325,
+          "y": 2.6,
+          "z": -1.7250000000000014
+        },
+        {
+          "x": -51.325,
+          "y": 2.8000000000000003,
+          "z": -2.375
+        },
+        {
+          "x": -51.325,
+          "y": 3.2,
+          "z": -3.0249999999999986
+        },
+        {
+          "x": -51.325,
+          "y": 3.6,
+          "z": -3.674999999999997
+        },
+        {
+          "x": -51.325,
+          "y": 4,
+          "z": -4.324999999999996
+        },
+        {
+          "x": -51.325,
+          "y": 4.4,
+          "z": -4.975000000000001
+        },
+        {
+          "x": -51.325,
+          "y": 4.800000000000001,
+          "z": -5.625
+        },
+        {
+          "x": -51.325,
+          "y": 5.2,
+          "z": -6.274999999999999
+        },
+        {
+          "x": -51.325,
+          "y": 5.2,
+          "z": -6.924999999999997
+        },
+        {
+          "x": -51.325,
+          "y": 5.2,
+          "z": -7.574999999999996
+        },
+        {
+          "x": -51.325,
+          "y": 5.2,
+          "z": -8.225000000000001
+        },
+        {
+          "x": -51.325,
+          "y": 5.2,
+          "z": -8.875
+        },
+        {
+          "x": -51.325,
+          "y": 5.2,
+          "z": -9.524999999999999
+        },
+        {
+          "x": -51.325,
+          "y": 5.2,
+          "z": -10.174999999999997
+        },
+        {
+          "x": -51.325,
+          "y": 5.2,
+          "z": -10.824999999999996
+        },
+        {
+          "x": -51.325,
+          "y": 5.2,
+          "z": -11.475000000000001
+        },
+        {
+          "x": -51.25,
+          "y": 5.2,
+          "z": -11.35
+        }
+      ]
+    },
+    {
+      "name": "library native E boards HEARTH",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": -51.25299693492241,
+          "y": 1.3351037483957016,
+          "z": 2.9516416196598154
+        },
+        "engine": {
+          "x": -51.253180198251044,
+          "y": 1.58779128184045,
+          "z": 2.953010151386491
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": -51.25152792236814,
+          "y": 18.0000000009765,
+          "z": 20.125456134001848
+        },
+        "render": {
+          "frame": 15484,
+          "calls": 1024,
+          "triangles": 3507571,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "library HEARTH climbs without ramps or teleport",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": -51.02542589790552,
+          "y": 6.1398461467092025,
+          "z": -11.492128468909279
+        },
+        "engine": {
+          "x": -51.02542589790552,
+          "y": 6.419846146709203,
+          "z": -11.492128468909279
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": -51.3200801685178,
+          "y": 23.19999276818644,
+          "z": 6.293864585679474
+        },
+        "render": {
+          "frame": 20389,
+          "calls": 1077,
+          "triangles": 3517741,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "library native E exits on the upper floor",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": -51.058016899657616,
+          "y": 6.059976528819121,
+          "z": -9.44238755196275
+        },
+        "engine": {
+          "x": -51.02542589790552,
+          "y": 6.419846146709203,
+          "z": -11.492128468909279
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": -51.34329931443955,
+          "y": 23.199999999999935,
+          "z": 7.734932840454681
+        },
+        "render": {
+          "frame": 23344,
+          "calls": 1094,
+          "triangles": 3585599,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "library reboards on upper floor",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": -51.02542589790552,
+          "y": 6.1398461467092025,
+          "z": -11.492128468909279
+        },
+        "engine": {
+          "x": -51.02542589790552,
+          "y": 6.419846146709203,
+          "z": -11.492128468909279
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": -51.314075362010634,
+          "y": 23.199999999999996,
+          "z": 5.896955244379237
+        },
+        "render": {
+          "frame": 25834,
+          "calls": 1070,
+          "triangles": 3511487,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "library HEARTH descends to ground",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": -51.42711218838949,
+          "y": 0.9398462129263261,
+          "z": 5.032565108060083
+        },
+        "engine": {
+          "x": -51.42803308274803,
+          "y": 1.2198461894916262,
+          "z": 5.031596731149339
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": -52.287516667504306,
+          "y": 18.00209736764412,
+          "z": 21.816243466110535
+        },
+        "render": {
+          "frame": 30754,
+          "calls": 995,
+          "triangles": 3440571,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "library exits normally after descent",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": -49.91412296973365,
+          "y": 0.8599765262219504,
+          "z": 3.6495903043685027
+        },
+        "engine": {
+          "x": -51.46127098365081,
+          "y": 1.2198465443989195,
+          "z": 5.030010463159366
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": -50.9631811448389,
+          "y": 18.000000000126892,
+          "z": 21.00985118537708
+        },
+        "render": {
+          "frame": 33244,
+          "calls": 1040,
+          "triangles": 3544061,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "gallery mage climbs with native W",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 51.8950886196453,
+          "y": 5.6599765336818715,
+          "z": -10.857560716432683
+        },
+        "engine": {
+          "x": 58.25,
+          "y": 1.24,
+          "z": 2.85
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": 50.9882697292439,
+          "y": 22.79950745446675,
+          "z": 6.97296860644105
+        },
+        "render": {
+          "frame": 36349,
+          "calls": 960,
+          "triangles": 3151230,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "gallery mage descends with native S",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 51.01233375898945,
+          "y": 0.8599765336818725,
+          "z": 5.813698001739914
+        },
+        "engine": {
+          "x": 58.25,
+          "y": 1.24,
+          "z": 2.85
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": 50.15918261435894,
+          "y": 18.006600628347407,
+          "z": 22.532922733324682
+        },
+        "render": {
+          "frame": 39979,
+          "calls": 776,
+          "triangles": 2836500,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "gallery AI route uses stair heights",
+      "pass": true,
+      "data": [
+        {
+          "x": 51.375,
+          "y": 0.19999999999999998,
+          "z": 2.1750000000000043
+        },
+        {
+          "x": 51.375,
+          "y": 0.6,
+          "z": 1.5249999999999986
+        },
+        {
+          "x": 51.375,
+          "y": 0.9999999999999999,
+          "z": 0.875
+        },
+        {
+          "x": 51.375,
+          "y": 1.4,
+          "z": 0.22500000000000142
+        },
+        {
+          "x": 51.375,
+          "y": 1.7999999999999998,
+          "z": -0.42499999999999716
+        },
+        {
+          "x": 51.375,
+          "y": 2.1999999999999997,
+          "z": -1.0749999999999957
+        },
+        {
+          "x": 51.375,
+          "y": 2.5999999999999996,
+          "z": -1.7250000000000014
+        },
+        {
+          "x": 51.375,
+          "y": 2.8,
+          "z": -2.375
+        },
+        {
+          "x": 51.375,
+          "y": 3.1999999999999997,
+          "z": -3.0249999999999986
+        },
+        {
+          "x": 51.375,
+          "y": 3.5999999999999996,
+          "z": -3.674999999999997
+        },
+        {
+          "x": 51.375,
+          "y": 3.9999999999999996,
+          "z": -4.324999999999996
+        },
+        {
+          "x": 51.375,
+          "y": 4.3999999999999995,
+          "z": -4.975000000000001
+        },
+        {
+          "x": 51.375,
+          "y": 4.8,
+          "z": -5.625
+        },
+        {
+          "x": 51.375,
+          "y": 4.8,
+          "z": -6.274999999999999
+        },
+        {
+          "x": 51.375,
+          "y": 4.8,
+          "z": -6.924999999999997
+        },
+        {
+          "x": 51.375,
+          "y": 4.8,
+          "z": -7.574999999999996
+        },
+        {
+          "x": 51.375,
+          "y": 4.8,
+          "z": -8.225000000000001
+        },
+        {
+          "x": 51.375,
+          "y": 4.8,
+          "z": -8.875
+        },
+        {
+          "x": 51.375,
+          "y": 4.8,
+          "z": -9.524999999999999
+        },
+        {
+          "x": 51.375,
+          "y": 4.8,
+          "z": -10.174999999999997
+        },
+        {
+          "x": 51.375,
+          "y": 4.8,
+          "z": -10.824999999999996
+        },
+        {
+          "x": 51.375,
+          "y": 4.8,
+          "z": -11.475000000000001
+        },
+        {
+          "x": 51.25,
+          "y": 4.8,
+          "z": -11.35
+        }
+      ]
+    },
+    {
+      "name": "gallery native E boards HEARTH",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 51.24789870691978,
+          "y": 1.3141487058687242,
+          "z": 2.953282479540865
+        },
+        "engine": {
+          "x": 51.24714394736719,
+          "y": 1.4827555882586199,
+          "z": 2.9577688688671966
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": 50.36009076423251,
+          "y": 18.00000000043045,
+          "z": 20.149389515939188
+        },
+        "render": {
+          "frame": 42469,
+          "calls": 866,
+          "triangles": 3176578,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "gallery HEARTH climbs without ramps or teleport",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 52.12281071937802,
+          "y": 5.739846146709204,
+          "z": -11.605932526056561
+        },
+        "engine": {
+          "x": 52.12281071937802,
+          "y": 6.019846146709204,
+          "z": -11.605932526056561
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": 50.93404071388121,
+          "y": 22.7999985891979,
+          "z": 6.077358436609316
+        },
+        "render": {
+          "frame": 47374,
+          "calls": 948,
+          "triangles": 3313124,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "gallery native E exits on the upper floor",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 51.99796555754757,
+          "y": 5.65997652622195,
+          "z": -9.559737597520297
+        },
+        "engine": {
+          "x": 52.12281071937802,
+          "y": 6.019846146709204,
+          "z": -11.605932526056561
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": 50.846268810271276,
+          "y": 22.799999999999983,
+          "z": 7.515937773454846
+        },
+        "render": {
+          "frame": 50389,
+          "calls": 954,
+          "triangles": 3324558,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "gallery reboards on upper floor",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 52.12281071937802,
+          "y": 5.739846146709204,
+          "z": -11.605932526056561
+        },
+        "engine": {
+          "x": 52.12281071937802,
+          "y": 6.019846146709204,
+          "z": -11.605932526056561
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": 50.95821593912209,
+          "y": 22.799999999999997,
+          "z": 5.681139820853259
+        },
+        "render": {
+          "frame": 52879,
+          "calls": 949,
+          "triangles": 3312000,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "gallery HEARTH descends to ground",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 51.158653705404376,
+          "y": 0.9398463227761842,
+          "z": 4.923436253964257
+        },
+        "engine": {
+          "x": 51.15767867556253,
+          "y": 1.2198462200289495,
+          "z": 4.95336305277275
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": 50.06911568067651,
+          "y": 18.00283136678062,
+          "z": 21.550989938956132
+        },
+        "render": {
+          "frame": 57799,
+          "calls": 783,
+          "triangles": 2934132,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "gallery exits normally after descent",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 49.7951262969043,
+          "y": 0.8599765222376443,
+          "z": 3.432576618034516
+        },
+        "engine": {
+          "x": 51.20933049358976,
+          "y": 1.2198469822158342,
+          "z": 4.989811383516191
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": 48.847652004570364,
+          "y": 18.000000000175884,
+          "z": 20.711728234645708
+        },
+        "render": {
+          "frame": 60289,
+          "calls": 824,
+          "triangles": 3118390,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "watchtower mage climbs with native W",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 51.82817282754797,
+          "y": 6.8599765336816105,
+          "z": -34.54675555118131
+        },
+        "engine": {
+          "x": 58.25,
+          "y": 1.24,
+          "z": -21.849999999999998
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": 50.708413463090544,
+          "y": 23.987176871006795,
+          "z": -16.86292851054716
+        },
+        "render": {
+          "frame": 63394,
+          "calls": 573,
+          "triangles": 2128632,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "watchtower mage descends with native S",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 50.771559124730466,
+          "y": 0.8599765336818725,
+          "z": -17.323979242101885
+        },
+        "engine": {
+          "x": 58.25,
+          "y": 1.24,
+          "z": -21.849999999999998
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": 49.705938575375626,
+          "y": 18.00139962045317,
+          "z": -0.9517316842344385
+        },
+        "render": {
+          "frame": 67024,
+          "calls": 932,
+          "triangles": 3256568,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "watchtower AI route uses stair heights",
+      "pass": true,
+      "data": [
+        {
+          "x": 51.375,
+          "y": 0.2,
+          "z": -22.525
+        },
+        {
+          "x": 51.375,
+          "y": 0.6000000000000001,
+          "z": -23.174999999999997
+        },
+        {
+          "x": 51.375,
+          "y": 1,
+          "z": -23.824999999999996
+        },
+        {
+          "x": 51.375,
+          "y": 1.4000000000000004,
+          "z": -24.474999999999998
+        },
+        {
+          "x": 51.375,
+          "y": 1.8000000000000003,
+          "z": -25.125
+        },
+        {
+          "x": 51.375,
+          "y": 2.2,
+          "z": -25.775
+        },
+        {
+          "x": 51.375,
+          "y": 2.6,
+          "z": -26.425
+        },
+        {
+          "x": 51.375,
+          "y": 2.8000000000000003,
+          "z": -27.075
+        },
+        {
+          "x": 51.375,
+          "y": 3.2,
+          "z": -27.724999999999998
+        },
+        {
+          "x": 51.375,
+          "y": 3.6,
+          "z": -28.375
+        },
+        {
+          "x": 51.375,
+          "y": 4,
+          "z": -29.025
+        },
+        {
+          "x": 51.375,
+          "y": 4.4,
+          "z": -29.675
+        },
+        {
+          "x": 51.375,
+          "y": 4.800000000000001,
+          "z": -30.325
+        },
+        {
+          "x": 51.375,
+          "y": 5.2,
+          "z": -30.974999999999998
+        },
+        {
+          "x": 51.375,
+          "y": 5.4,
+          "z": -31.625
+        },
+        {
+          "x": 51.375,
+          "y": 5.800000000000001,
+          "z": -32.275
+        },
+        {
+          "x": 51.375,
+          "y": 6,
+          "z": -32.925
+        },
+        {
+          "x": 51.375,
+          "y": 6,
+          "z": -33.575
+        },
+        {
+          "x": 51.375,
+          "y": 6,
+          "z": -34.224999999999994
+        },
+        {
+          "x": 51.25,
+          "y": 6,
+          "z": -34.300000000000004
+        }
+      ]
+    },
+    {
+      "name": "watchtower native E boards HEARTH",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 51.250659797617224,
+          "y": 1.3363440702952287,
+          "z": -21.749866908636207
+        },
+        "engine": {
+          "x": 51.25039618445782,
+          "y": 1.518766668556783,
+          "z": -21.745199558738094
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": 50.142361187563395,
+          "y": 18.000000000089056,
+          "z": -4.669834980277116
+        },
+        "render": {
+          "frame": 69514,
+          "calls": 886,
+          "triangles": 3129554,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "watchtower HEARTH climbs without ramps or teleport",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 52.12477209816664,
+          "y": 6.939902368844059,
+          "z": -34.71781413389709
+        },
+        "engine": {
+          "x": 52.12477209816664,
+          "y": 7.219853184529317,
+          "z": -34.714988002861794
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": 51.13800020120586,
+          "y": 23.999760626897963,
+          "z": -17.528934816649326
+        },
+        "render": {
+          "frame": 74419,
+          "calls": 564,
+          "triangles": 2325036,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "watchtower native E exits on the upper floor",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 52.020161218702434,
+          "y": 6.85997652886774,
+          "z": -32.66142244618438
+        },
+        "engine": {
+          "x": 52.12477209816664,
+          "y": 7.219846146709204,
+          "z": -34.71323071145867
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": 51.0644178214315,
+          "y": 23.999999999995847,
+          "z": -15.72404858610519
+        },
+        "render": {
+          "frame": 77329,
+          "calls": 611,
+          "triangles": 2410162,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "watchtower reboards on upper floor",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 52.12477209816664,
+          "y": 6.939846146709204,
+          "z": -34.71323071145867
+        },
+        "engine": {
+          "x": 52.12477209816664,
+          "y": 7.219846146709204,
+          "z": -34.71323071145867
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": 51.15822111688637,
+          "y": 23.999999999999996,
+          "z": -17.563261398473884
+        },
+        "render": {
+          "frame": 79819,
+          "calls": 564,
+          "triangles": 2325036,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "watchtower HEARTH descends to ground",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 51.569610685860546,
+          "y": 0.9398478039395282,
+          "z": -18.485973950580068
+        },
+        "engine": {
+          "x": 51.57020081449406,
+          "y": 1.2198463317127806,
+          "z": -18.485973950580068
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": 50.66060667313343,
+          "y": 18.00011251686773,
+          "z": -1.7464389907991489
+        },
+        "render": {
+          "frame": 84724,
+          "calls": 896,
+          "triangles": 2988672,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "watchtower exits normally after descent",
+      "pass": true,
+      "data": {
+        "player": {
+          "x": 51.47663112857636,
+          "y": 0.8599765262219504,
+          "z": -16.438117175943532
+        },
+        "engine": {
+          "x": 51.59305569112668,
+          "y": 1.2198468525310378,
+          "z": -18.374236755796186
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": 50.62227205863441,
+          "y": 18.000000000006644,
+          "z": 0.4439209528145689
+        },
+        "render": {
+          "frame": 87214,
+          "calls": 942,
+          "triangles": 3235372,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "Native W moves with perspective camera",
+      "pass": true,
+      "data": {
+        "before": {
+          "player": {
+            "x": 0,
+            "y": 0.96,
+            "z": 15
+          },
+          "engine": {
+            "x": 51.59305569112668,
+            "y": 1.2198468525310378,
+            "z": -18.374236755796186
+          },
+          "mounted": false,
+          "occupied": false,
+          "camera": {
+            "x": 50.62087538964117,
+            "y": 18.000000000005862,
+            "z": 0.46750688265238693
+          },
+          "render": {
+            "frame": 87244,
+            "calls": 1886,
+            "triangles": 6473424,
+            "points": 1938,
+            "lines": 0
+          }
+        },
+        "after": {
+          "player": {
+            "x": 0.0708837362816118,
+            "y": 0.8599765067484871,
+            "z": 13.454854938275025
+          },
+          "engine": {
+            "x": 51.59305569112668,
+            "y": 1.2198468525310378,
+            "z": -18.374236755796186
+          },
+          "mounted": false,
+          "occupied": false,
+          "camera": {
+            "x": 5.47947869285147,
+            "y": 18.000000000000718,
+            "z": 27.321931856782804
+          },
+          "render": {
+            "frame": 87559,
+            "calls": 1279,
+            "triangles": 4157535,
+            "points": 969,
+            "lines": 66
+          }
+        }
+      }
+    },
+    {
+      "name": "Native A moves with perspective camera",
+      "pass": true,
+      "data": {
+        "before": {
+          "player": {
+            "x": 0.0708837362816118,
+            "y": 0.8599765067484871,
+            "z": 13.454854938275025
+          },
+          "engine": {
+            "x": 51.59305569112668,
+            "y": 1.2198468525310378,
+            "z": -18.374236755796186
+          },
+          "mounted": false,
+          "occupied": false,
+          "camera": {
+            "x": 5.47947869285147,
+            "y": 18.000000000000718,
+            "z": 27.321931856782804
+          },
+          "render": {
+            "frame": 87559,
+            "calls": 1279,
+            "triangles": 4157535,
+            "points": 969,
+            "lines": 66
+          }
+        },
+        "after": {
+          "player": {
+            "x": -1.4663151971435122,
+            "y": 0.8599765336818722,
+            "z": 13.210759100791808
+          },
+          "engine": {
+            "x": 51.59305569112668,
+            "y": 1.2198468525310378,
+            "z": -18.374236755796186
+          },
+          "mounted": false,
+          "occupied": false,
+          "camera": {
+            "x": -0.9098916867140288,
+            "y": 18.00000000000009,
+            "z": 29.957311351906515
+          },
+          "render": {
+            "frame": 87874,
+            "calls": 1301,
+            "triangles": 4177870,
+            "points": 969,
+            "lines": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "Native S moves with perspective camera",
+      "pass": true,
+      "data": {
+        "before": {
+          "player": {
+            "x": -1.4663151971435122,
+            "y": 0.8599765336818722,
+            "z": 13.210759100791808
+          },
+          "engine": {
+            "x": 51.59305569112668,
+            "y": 1.2198468525310378,
+            "z": -18.374236755796186
+          },
+          "mounted": false,
+          "occupied": false,
+          "camera": {
+            "x": -0.9098916867140288,
+            "y": 18.00000000000009,
+            "z": 29.957311351906515
+          },
+          "render": {
+            "frame": 87874,
+            "calls": 1301,
+            "triangles": 4177870,
+            "points": 969,
+            "lines": 0
+          }
+        },
+        "after": {
+          "player": {
+            "x": -1.7104086729273231,
+            "y": 0.8599765336818725,
+            "z": 14.747906553181041
+          },
+          "engine": {
+            "x": 51.59305569112668,
+            "y": 1.2198468525310378,
+            "z": -18.374236755796186
+          },
+          "mounted": false,
+          "occupied": false,
+          "camera": {
+            "x": -2.3451504379758954,
+            "y": 18.00000000000001,
+            "z": 31.13548252456966
+          },
+          "render": {
+            "frame": 88189,
+            "calls": 1283,
+            "triangles": 4097366,
+            "points": 969,
+            "lines": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "Native D moves with perspective camera",
+      "pass": true,
+      "data": {
+        "before": {
+          "player": {
+            "x": -1.7104086729273231,
+            "y": 0.8599765336818725,
+            "z": 14.747906553181041
+          },
+          "engine": {
+            "x": 51.59305569112668,
+            "y": 1.2198468525310378,
+            "z": -18.374236755796186
+          },
+          "mounted": false,
+          "occupied": false,
+          "camera": {
+            "x": -2.3451504379758954,
+            "y": 18.00000000000001,
+            "z": 31.13548252456966
+          },
+          "render": {
+            "frame": 88189,
+            "calls": 1283,
+            "triangles": 4097366,
+            "points": 969,
+            "lines": 0
+          }
+        },
+        "after": {
+          "player": {
+            "x": -0.1732612198361635,
+            "y": 0.8599765336818725,
+            "z": 14.99200001366397
+          },
+          "engine": {
+            "x": 51.59305569112668,
+            "y": 1.2198468525310378,
+            "z": -18.374236755796186
+          },
+          "mounted": false,
+          "occupied": false,
+          "camera": {
+            "x": -1.6654550029920934,
+            "y": 18,
+            "z": 31.932594631686605
+          },
+          "render": {
+            "frame": 88504,
+            "calls": 1269,
+            "triangles": 4035102,
+            "points": 969,
+            "lines": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "No runtime errors",
+      "pass": true,
+      "data": []
+    }
+  ],
+  "errors": [],
+  "url": "http://127.0.0.1:5173/previews/greek-sanctuary/full-map.htm?hearthQA=1",
+  "stairStates": [
+    {
+      "id": "library",
+      "mode": "mage",
+      "up": {
+        "player": {
+          "x": -51.25,
+          "y": 6.059976533681872,
+          "z": -11.15231592692306
+        },
+        "engine": {
+          "x": -44.25,
+          "y": 1.24,
+          "z": 2.85
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": -51.24999999999998,
+          "y": 23.198912008436633,
+          "z": 6.795255482554728
+        },
+        "render": {
+          "frame": 9409,
+          "calls": 1086,
+          "triangles": 3346895,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "id": "library",
+      "mode": "engine",
+      "up": {
+        "player": {
+          "x": -51.02542589790552,
+          "y": 6.1398461467092025,
+          "z": -11.492128468909279
+        },
+        "engine": {
+          "x": -51.02542589790552,
+          "y": 6.419846146709203,
+          "z": -11.492128468909279
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": -51.3200801685178,
+          "y": 23.19999276818644,
+          "z": 6.293864585679474
+        },
+        "render": {
+          "frame": 20389,
+          "calls": 1077,
+          "triangles": 3517741,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "id": "gallery",
+      "mode": "mage",
+      "up": {
+        "player": {
+          "x": 51.8950886196453,
+          "y": 5.6599765336818715,
+          "z": -10.857560716432683
+        },
+        "engine": {
+          "x": 58.25,
+          "y": 1.24,
+          "z": 2.85
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": 50.9882697292439,
+          "y": 22.79950745446675,
+          "z": 6.97296860644105
+        },
+        "render": {
+          "frame": 36349,
+          "calls": 960,
+          "triangles": 3151230,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "id": "gallery",
+      "mode": "engine",
+      "up": {
+        "player": {
+          "x": 52.12281071937802,
+          "y": 5.739846146709204,
+          "z": -11.605932526056561
+        },
+        "engine": {
+          "x": 52.12281071937802,
+          "y": 6.019846146709204,
+          "z": -11.605932526056561
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": 50.93404071388121,
+          "y": 22.7999985891979,
+          "z": 6.077358436609316
+        },
+        "render": {
+          "frame": 47374,
+          "calls": 948,
+          "triangles": 3313124,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "id": "watchtower",
+      "mode": "mage",
+      "up": {
+        "player": {
+          "x": 51.82817282754797,
+          "y": 6.8599765336816105,
+          "z": -34.54675555118131
+        },
+        "engine": {
+          "x": 58.25,
+          "y": 1.24,
+          "z": -21.849999999999998
+        },
+        "mounted": false,
+        "occupied": false,
+        "camera": {
+          "x": 50.708413463090544,
+          "y": 23.987176871006795,
+          "z": -16.86292851054716
+        },
+        "render": {
+          "frame": 63394,
+          "calls": 573,
+          "triangles": 2128632,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "id": "watchtower",
+      "mode": "engine",
+      "up": {
+        "player": {
+          "x": 52.12477209816664,
+          "y": 6.939902368844059,
+          "z": -34.71781413389709
+        },
+        "engine": {
+          "x": 52.12477209816664,
+          "y": 7.219853184529317,
+          "z": -34.714988002861794
+        },
+        "mounted": true,
+        "occupied": true,
+        "camera": {
+          "x": 51.13800020120586,
+          "y": 23.999760626897963,
+          "z": -17.528934816649326
+        },
+        "render": {
+          "frame": 74419,
+          "calls": 564,
+          "triangles": 2325036,
+          "points": 969,
+          "lines": 0
+        }
+      }
+    }
+  ]
+}

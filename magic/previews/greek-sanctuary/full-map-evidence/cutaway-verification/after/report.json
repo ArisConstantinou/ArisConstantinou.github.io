@@ -1,0 +1,2407 @@
+{
+  "mode": "after",
+  "url": "http://127.0.0.1:5173/previews/greek-sanctuary/full-map.htm?hearthQA=1",
+  "checks": [
+    {
+      "name": "Obstructing wall sections and all their parts are fully hidden",
+      "pass": true,
+      "data": {
+        "hidden": 1,
+        "sections": [
+          {
+            "name": "Greek ashlar and continuous entablature",
+            "parts": 4,
+            "allHidden": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Attached wall decorations disappear with the wall",
+      "pass": true,
+      "data": [
+        {
+          "id": "af1b2368-121b-49f3-a6bc-38a91443d627",
+          "name": "Greek ashlar and continuous entablature",
+          "hidden": true,
+          "type": "wall"
+        },
+        {
+          "id": "1d1f1068-fa37-463e-879e-554575cc0008",
+          "name": "",
+          "hidden": true,
+          "type": "decoration"
+        },
+        {
+          "id": "d94cc3a8-5969-4dff-9bdf-7aeb5c8e9967",
+          "name": "",
+          "hidden": true,
+          "type": "decoration"
+        },
+        {
+          "id": "a4fdba0e-1dd7-4a51-a4af-4710f519a04f",
+          "name": "",
+          "hidden": true,
+          "type": "decoration"
+        }
+      ]
+    },
+    {
+      "name": "Masonry is never rendered as a translucent glass wall",
+      "pass": true,
+      "data": {
+        "faded": 0
+      }
+    },
+    {
+      "name": "Previously hidden wall parts return after camera rotation",
+      "pass": true,
+      "data": [
+        {
+          "id": "af1b2368-121b-49f3-a6bc-38a91443d627",
+          "name": "Greek ashlar and continuous entablature",
+          "hidden": true,
+          "type": "wall"
+        },
+        {
+          "id": "1d1f1068-fa37-463e-879e-554575cc0008",
+          "name": "",
+          "hidden": true,
+          "type": "decoration"
+        },
+        {
+          "id": "d94cc3a8-5969-4dff-9bdf-7aeb5c8e9967",
+          "name": "",
+          "hidden": true,
+          "type": "decoration"
+        },
+        {
+          "id": "a4fdba0e-1dd7-4a51-a4af-4710f519a04f",
+          "name": "",
+          "hidden": true,
+          "type": "decoration"
+        }
+      ]
+    },
+    {
+      "name": "Cutaway leaves all physical colliders intact",
+      "pass": true,
+      "data": {
+        "front": {
+          "colliders": 524,
+          "bodies": 849
+        },
+        "back": {
+          "colliders": 524,
+          "bodies": 849
+        }
+      }
+    },
+    {
+      "name": "Upper doorway returns and mouldings form a complete cutaway section",
+      "pass": true,
+      "data": {
+        "hidden": 1,
+        "sections": [
+          {
+            "name": "library · upper doorway and complete returns",
+            "parts": 1,
+            "allHidden": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Native movement stops at the physical hidden wall boundary",
+      "pass": true,
+      "data": {
+        "boundary": {
+          "wall": {
+            "x": -51.25,
+            "z": 6.65,
+            "w": 17.5,
+            "d": 0.8,
+            "tag": "wall"
+          },
+          "stopZ": 5.82
+        },
+        "blocked": {
+          "x": -51.25,
+          "y": 0.8599765336818725,
+          "z": 5.821435590027978
+        }
+      }
+    },
+    {
+      "name": "A stationary camera keeps the wall hidden without flicker",
+      "pass": true,
+      "data": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "Desktop render fixture p95 stays within 16.7 ms",
+      "pass": true,
+      "data": {
+        "frame": {
+          "median": 4.600000023841858,
+          "p95": 7,
+          "max": 8.399999976158142,
+          "over33ms": 0
+        },
+        "cpu": {
+          "median": 4.5,
+          "p95": 6.899999976158142,
+          "max": 8.199999928474426,
+          "over33ms": 0
+        },
+        "render": {
+          "frame": 5869,
+          "calls": 982,
+          "triangles": 3034569,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 477,
+          "textures": 122
+        },
+        "heap": 304820851,
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "name": "Actual desktop gameplay frame p95 stays within 16.7 ms",
+      "pass": true,
+      "data": {
+        "frame": {
+          "median": 8.699999928474426,
+          "p95": 11.699999928474426,
+          "max": 18.199999928474426,
+          "over33ms": 0
+        },
+        "cpu": {
+          "median": 8.399999976158142,
+          "p95": 11.399999976158142,
+          "max": 18,
+          "over33ms": 0
+        },
+        "render": {
+          "frame": 8644,
+          "calls": 992,
+          "triangles": 3057691,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 481,
+          "textures": 124
+        },
+        "heap": 302814443
+      }
+    },
+    {
+      "name": "Portrait touch view also removes complete obstructing wall sections",
+      "pass": true,
+      "data": {
+        "hidden": 1,
+        "sections": [
+          {
+            "name": "Greek ashlar and continuous entablature",
+            "parts": 4,
+            "allHidden": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "No runtime errors",
+      "pass": true,
+      "data": []
+    }
+  ],
+  "errors": [],
+  "conditions": "Chrome desktop 1440x1000 DPR1. Identical library position, camera and gameplay fixtures before/after. 35 warmup and 150 measured frames. No phone or native GPU timing claim.",
+  "fixture": {
+    "player": {
+      "x": -51.25,
+      "y": 0.9586111111111111,
+      "z": 4.8
+    },
+    "camera": {
+      "x": -51.249984322506066,
+      "y": 18,
+      "z": 22.000005371141825
+    }
+  },
+  "front": {
+    "occlusion": {
+      "hidden": 1,
+      "sections": [
+        {
+          "name": "Greek ashlar and continuous entablature",
+          "parts": 4,
+          "allHidden": true
+        }
+      ]
+    },
+    "parts": [
+      {
+        "id": "67d9b364-e61b-4c39-8391-65888bac973b",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "7ad98203-de30-4dc4-a8f4-647ebc843851",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "9131d48e-3268-4f40-962f-e968f851b83e",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "5d481476-c602-40dc-9884-7177f508bf37",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "4680e673-fd29-4b3a-9cb2-28ea6f2526ad",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "8f66a014-ecf6-4979-bd2c-c22c9b2e755b",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "08f46af5-2524-4281-b1e8-3e8ae01032e4",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "6d8747ca-2d4f-482d-b46a-700f1ece4b6a",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "932e60f0-60d1-4f4f-ac02-ae3525185b96",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "31895b0e-d868-4901-bed4-114c43151fb6",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d24867e6-ea25-49ed-8c59-076d26c34872",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "cb83f311-d027-4986-a82f-7391441543f3",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "e6019e2f-0131-44b6-9285-8d91e8e5ba5d",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "a8f78e8a-e1f3-4fcf-b1b3-701108bf0873",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "b40a5814-2a6d-43ce-9ec1-f0ffd2a6779b",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "ac8e5c52-ee6f-4fa2-a07a-c9f5f38e956c",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "c5890a05-2e8c-4cd9-836c-28e9bb3fc3b7",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "1178c9d1-131c-4c27-bc99-ec5c1cc54c3b",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "2a464ec3-fc41-40f6-8e73-f84886353351",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "8de2e03c-3a4f-4924-8321-0faa6e863223",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "a5efba6f-e7ea-4b94-8168-2de8cf7350cf",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "34db8abb-ffc8-47a3-a042-fa4dd2bb242a",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "7ba91b56-0a2e-40d4-8905-aeec63f62b1e",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "395d2b74-e414-46b8-8c0d-0117eef128ae",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "14a6e7df-29db-4edf-935e-0cf67712da91",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "0c70bd07-29ad-4f56-8660-52557862a817",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "de3de08e-f086-40d3-b2ac-1b351a43efc5",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d9891fc8-e08f-4b33-bb56-7657d7233014",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "68dc0672-b5d4-4c14-bb20-0e9737cea45d",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "107f4c8b-1cba-45f1-970c-ebfdf2d5b009",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "c638a42e-7337-4f28-a0c8-f356313e63e8",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "9b9150a6-8229-4002-a0f0-6baa5e1e9eda",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "6f802c93-92e6-476c-9ee3-a5906719ee7a",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "2bf2b379-71be-4e6a-be48-57efbe67d41d",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "0970a82e-d1f0-412b-aa92-490011c6646d",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "558d77f5-1016-4e7e-9a5a-eadc32fb4626",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "7c860d22-0a1b-4309-b244-9aa639a7001b",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "f037dbe2-04e4-426f-951e-9bb336205b40",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "5a042617-4b88-4c98-9095-51b082ee5951",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "dd5c114f-a39a-4d58-b0a3-d797df6e59ad",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "971b1201-8ed9-4b5e-b457-6fd1b454340b",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d4f80c00-cfb6-4558-bca6-9742790e5302",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "ad776df4-00f8-4b16-8aeb-07fa5e0e46e3",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "c42c6f85-ccfb-47c8-b1f7-89cdd835a6fd",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d64e1e1e-a61e-4988-8f6f-8a5d116b1302",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "e62cac12-5239-4325-aa6f-e4a68446c226",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "4ffa663f-154e-4d01-851b-609afda86287",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "6ae65b67-1eda-49cc-8cc2-569af514b4bc",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "f1896b6a-09e7-4744-8ed1-739257088ebe",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "5e0c49f0-2568-44f3-8058-75b3661cbbd2",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "af1b2368-121b-49f3-a6bc-38a91443d627",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": true,
+        "type": "wall"
+      },
+      {
+        "id": "6f733bcf-c956-4296-8589-3b1f001fb565",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "1b5a1e6d-4510-496f-b63c-5016a5592888",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "b63aa3a3-c467-4dfd-be93-4ab69e5e261a",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "f0e1c807-4f40-4a51-8fd3-c451428a88b7",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "48cc946f-eb8c-4808-a855-3dbdeb689fba",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "337595cc-438b-4104-be48-17a2f90469bf",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "7d878fc8-c464-4cd0-9b59-56cb31fbbc95",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "992531cb-234c-4231-b022-3138afbbfc14",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "16f3ee00-bc12-4bb7-ba72-7a4b988c92b4",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "ac0c251b-8e79-46ae-bf3b-75a847047582",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "ba39ca13-2028-481a-b9c7-ec58fa62bb4e",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "a0359964-9635-485d-82c8-59c8624c7722",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "4839f3a1-57d8-404f-b835-186a5f98cbe6",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "bef063f8-9846-49c0-9716-d7e7e62ba0ea",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "658c1ca9-ffb6-40aa-9a02-5f427b2e4815",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "b553c84f-4b24-4c8a-9fed-a1879ccae0d7",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d2c6ae33-8349-4429-9ac1-e96f6694b984",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "c66ff2c0-e65c-4b1d-b452-2439553fbea7",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "cbf60427-8169-4368-b9bf-00ab7c5d5bfb",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "c0c773c0-3127-4752-8b45-92f4469cbcfa",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "7e035cc3-2496-4bdd-bbd5-035ad767432d",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "290ce12d-1076-4702-b838-1fc9226628cd",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "c8ca7b36-8f25-4d91-82fd-1db781fa62ab",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "f294b1f0-8694-4613-a5a4-c589ad142939",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "de38c8b3-1237-4214-84f5-3ad1c1377531",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "caccd9b9-c608-491c-9ebf-38bd2803a833",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "b41e6705-81be-4741-83fe-ef5577dfd552",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d4e16511-f1b6-4f6a-9b01-2ebfd15d3fd9",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "1e5e7897-bff6-47bb-9ca4-9933edf44358",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "26e248c8-88dd-426b-a37a-23b5a628f50d",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "bf475d4b-6724-431f-8752-15b403a88388",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "0d8d3a6e-2031-4ab1-9f17-4b1aae6bd178",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "520db1f5-e3d2-4790-873c-c511b478e32e",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "cefb0682-1aef-4d8a-aaa7-67f07a65cfb7",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "16b88b47-7a4e-4b88-87d2-a23b826c3eed",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "19d19f2d-905b-42b5-a08d-dc1a2da7d1ac",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "7107bd80-708c-4f86-b551-fd3ad3a00efc",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d0dfb20b-866f-4fe9-b43a-354620d03b1d",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "be00e016-3fe5-4eb1-b786-d139733da068",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "51f609c3-331b-4d42-b7b3-6bd63769b80a",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "e3908d53-8827-44d0-8507-85abc63fe09f",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "408c107e-2447-4e63-9581-f605a4001334",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "4607c7d0-60ed-4c3d-bf4d-6fd00146e742",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "a5afeee4-ee91-4690-a5b5-820f5722b186",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "47d7dae4-ac69-4304-891e-94839d31a4b1",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "949b8523-7f2d-4e64-882c-b74b5e213728",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "cf71ccff-a1fc-45af-9f68-1847b164b468",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "4ac9396d-c3b3-4430-bd8f-a678a3131c6a",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "1b908fc5-026c-4149-a375-c671c8170228",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "67ed9282-02ce-4d7f-a545-0e494c189ec6",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "21f3043c-3a08-461b-b1f2-f84f2ee01b37",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d3496b0e-38a7-4d02-82f5-95ff4e551a61",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "bc6da187-6518-4f9d-9bce-933b8e2765f1",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "940505d4-c515-4a90-8115-af7812e27b04",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "15986d8e-643f-4420-8452-21c7480e9079",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "35ef816c-ad98-4d09-b2ab-16f678e0ffc1",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "2ce4d5cf-bfd0-4955-90fa-be935c931ade",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d6fddcda-d0d2-4eeb-9a05-a5fcb4bbcd78",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "89337955-b525-45f0-bf5f-51d75434bf41",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "1b302382-afad-4445-a271-663d6518cdcf",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "762d85d2-d0a8-4582-8a96-82fb5f71ab20",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d47904a8-0fb8-4454-a22d-ea98d0deb94c",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "2c391566-40ab-498b-8bef-1dccce6ac7df",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "8c37fae2-f603-4fab-b119-e5ae07917f08",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "5e33ae6d-eacc-44c2-9583-baa42ef5d033",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "da40fa9e-3244-40d6-90cf-668a6d47fed4",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "1595238c-ee51-43c7-9b5c-a9c0ee3c1411",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "71ffed89-e5e2-473c-b975-d46a61d515a8",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "e36b6518-d433-4a28-9a68-052210451713",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "1a55d725-d13e-40fd-8b77-92420ded89ce",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "01dd35e0-8bb2-4326-bf41-fac7b6cf88db",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "e7691351-8c54-46ed-bea8-638820c0e061",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "ce9db3f4-3332-41b8-94db-426ceb500ac2",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "2b59afe7-5bbe-43dd-9ffd-c45bda3cd70f",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "52b2b7df-9bc5-4755-a982-e59f2d111c7c",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "ba50e940-3a50-4842-9064-fbaa84ca3d01",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "e5231688-a627-4f61-b1a4-03df93f23168",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "5948cb69-f4c5-4a09-978c-8a44319b3039",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d13b5d76-3101-4be3-ae43-fe5b9b097d17",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "22a5e4fc-d50e-4811-89e2-67a7cfd6995b",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "b527f0fc-c293-497b-9528-b7b2cf83e058",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "d3bd9ed2-e21d-4fb9-9830-30c99deee81c",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "e1eafa61-1b21-4353-bc22-5368314eebc6",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "3bd4ea1c-dbe4-4f28-8a27-38290ab5518e",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "eaaafa38-44a4-4906-96d3-17402e1b0818",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "8c27d83f-5adb-4325-b02e-84a3e0f7af27",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "5df3c419-8630-4f9c-a2c0-d5f4e642529f",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "32f514a6-24ef-49a4-8856-585c38e5281d",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "59704840-cd2b-4ddc-a713-97e708f5d8f2",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "5d44e15c-cd59-48e2-8786-c6d535491d0c",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "a43b33e0-57c5-4e8b-bb96-fcc5d6185b86",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "5e2c5248-7153-4b43-9500-f42c4aa691a6",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "bdc4c901-b1d1-4e37-b955-2257debe5d78",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "e2e0162c-6d74-4996-a865-62fbb150be1d",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "fd615f50-8844-48cc-b3d0-898396e96369",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "0c428963-d4ff-461d-87a4-a1ab098a55e4",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "c73df750-3328-47b4-a34f-620fc2e4b820",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "5e7fe8d0-2f7f-4b24-ad4e-440204445b45",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "0700059d-cfd6-4388-8937-8be7f3cbf7c6",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "f393ab8e-f6d4-4671-852d-91e8ab07d5ec",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "33905af6-f706-4b66-b52c-48920eeea9a8",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "1219c6a5-fa17-4fa7-a22c-62c832a78c13",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "56296a94-8842-4914-9055-c41b24a051cc",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "3d85baf0-d890-41d7-975e-58583b3ffddc",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "ffc85b57-0f19-4b98-871c-78c133ae9ba0",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "1e0020e6-43ee-4c08-ada3-43325d5f0bc4",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "2ba828bf-a1fc-4952-b753-976141f4deff",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "9d8620a2-bfc9-4ab8-be21-7937dd83df9e",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "185c612a-30d7-481f-9356-b1f11e3c1a5a",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "017f461a-b9f3-4a60-92b9-8bc78da39c83",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "bf7d69b5-9cdc-4c57-bec9-0b01928e2f5b",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "1fee538b-8a9d-443f-abfa-dca282ed7028",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "cbd5015e-27e4-4ab8-bf8c-f54386f8947f",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "23acfb8d-8398-4dc2-9844-e1222baaf29d",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "2567dad1-6865-48e2-8c91-42817dd89cea",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "748207f4-a5c6-4058-bbed-47a6b9d3df08",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "22d9c466-067f-454b-ad7c-a20aa7fbc753",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "e1901aef-4d69-431d-9002-8ebf7ab53e79",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "9e4bbb69-c1f6-473f-84d9-ec85cb25d0a7",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "b6d8fc93-629b-4152-afd1-04c247f49442",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "d4b9e03d-0384-4b1a-9765-c8f60519d1d5",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "b2d918f1-1a68-483b-acd9-c5001e56cab6",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "6af7a62f-9494-4772-a4a2-376e6a2a94b6",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "d7463570-84ff-47ff-b4f5-7923cc766b68",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "6593e95e-1e3b-4c11-8d55-5f61e9b29fbf",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "795caf0f-cc25-4ddd-bbe9-e0d15e0bbfd8",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "56d7fd7c-cd3d-4ebb-a49f-190cfa874939",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "100385cf-cc87-4bf7-89bc-1aaef62e6091",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "9368c906-0060-476d-89d5-c7203caa4eb3",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "b91ea1cf-e252-475e-9fa7-f3f3bd8c5143",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "2b94d50a-e5e5-4141-8948-1626fdeaa4e9",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "e138c8cf-8637-4cd2-9b72-7e93de225e25",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "de3e02ce-5a67-411a-853b-a21cd95f7c8f",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "6b527b57-e416-4f59-a883-35b7ad7203ec",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "ed756440-6df6-4dab-9a5a-cf61c79505fe",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "08dd6742-ae92-4ab4-a20a-b30b0c1d65ef",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "2302cf14-efd7-467e-83f4-0a5bea4646f4",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "9e33528b-26c6-443d-8a2c-18e2bb5cc3c5",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "d595249d-87aa-464f-92db-f3ac6da2ee01",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "671f05af-14b3-465b-97d6-d40045913416",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "d59a21e4-96fd-4843-bd1d-25f3f5bd62ea",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "5c83f4e1-d8d2-4961-96a5-e154e029b65f",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "f886e805-8e57-46e4-896d-e65a94636c3c",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "021321ff-ef24-4c02-87af-5c85d30018fb",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "41d03010-2b9c-4be0-96a6-80f040a5f21d",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "9c1efdbe-b9a1-4e1a-9a27-7bc8f3657c4f",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "c7a184ff-ec6c-4b26-9a3e-a40b1b82ed8e",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "de6b9472-ac6d-469f-a6e0-1bfdf48d9a91",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "5e2ed592-3dcf-4003-a67a-aa99fe4fa732",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "c081d5a4-85ca-43e6-b047-18605ffd3336",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "4a062a21-1886-442d-8016-5803c74777c1",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "9a1ae017-2cb1-4bec-80a7-a8aa5c4f3d55",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "33092a28-5c6b-4b76-85a7-2a64f978ee43",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "8b5fa709-6371-4c8a-b9e3-91beced77907",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "4f1613f8-8887-4c07-ae5b-b8f70409123c",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "c499a868-5cde-454a-b0cc-5c0478276a94",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "3864ed29-a596-49b6-b122-e080e12e9e74",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "f81a1cdf-8395-4d09-8a24-b61d1f4acc55",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "060519f9-9423-4544-bea4-52cf932fcd34",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "ad317a27-4832-4fe6-b381-f1964c9775cd",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "8146219c-1458-49a3-a29d-8046b9bb1eaa",
+        "name": "Scene",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "0cb44a5f-8b83-42d2-9119-e6c52e9f2d21",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "07b2311f-5b36-42b3-9f7a-a4a9357d2b44",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "f0727a4e-1db7-48b9-8110-5f02259cceb9",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "51a9f628-f4a2-4cce-a312-9e5f1f662513",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "eaad900b-f3cb-439f-8ae9-18dd305fa507",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "76f401e3-4777-4c90-a45f-9d58a7847f6b",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "a6f73e38-76c9-40fd-95da-28ee1bc298b0",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "4e26bd5b-b166-4b5b-b6e7-962813a350b1",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "e61ceee1-15f4-4eef-ae7c-207a76ea074f",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "30f0ed81-8c25-4e52-8f78-6bfad768b8ad",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "4a2e70a2-19c6-4f92-b7c6-dcaed35ee6c8",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "c81dc92e-7d4f-400f-910e-ccfc38163a38",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "581b8e44-1d56-4005-a884-071ceb6efe07",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "a01b57ab-135c-4478-b8bd-d6fd416a0277",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "228b4a8b-bf52-4d42-91e7-81a929354ec7",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "08848bd8-c823-4d24-b2c5-0901b6a204f8",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "4e768b30-b9c4-4b7b-931b-cf25cd5a7b05",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "6792ef79-946f-4202-afeb-053d4ca80af0",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "2acbd705-2491-4812-9a79-5861a80fb700",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "8883b2e5-59be-423c-9d65-3d1424dd5603",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "2ad9dcdd-269d-453b-bd86-91c87c38b4f9",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "fa12765d-ee4d-4bf9-a206-001bd9fe6929",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "a9c10187-a2eb-41a0-b201-3e04a8c2eb72",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "0997b256-d672-47bb-a6d6-ece71d80ba00",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "950d8e19-b270-4afa-b7ef-95033ee1a3a6",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "26985e9b-3ceb-4859-98e7-7e5d316c4927",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "6ffe1c83-1670-4a9c-a790-4961350672b8",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "4bf0f11c-e982-4981-b0c5-cf422552184e",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "66e4226e-5c75-49b7-9821-a2741b0466eb",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "dff90f66-9174-40f2-a1b5-fd9b8cc58e60",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "868950df-2e2d-4704-8478-0d5907ef70cf",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "7a58ce7b-08b6-4c14-a575-b3d2dd800863",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "d065ce8f-bed1-4209-a499-6da1ea699a76",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "77774b5e-3463-41bf-b45b-ed248392c50c",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "88d0a334-e511-4bc9-b905-9359b7ef8963",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "b03e9cc4-5397-4c43-aa4c-e49db71277e4",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "2288588c-b163-4a3d-ba4d-7ea249490d4e",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "cc220dbd-c7cc-49c8-9d16-bdb43155d540",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "ef5dedb1-39fd-447b-a4e6-cac22f6b9a32",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "2d21013f-38ef-42b7-82ee-ff4e72966039",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "5d3d51c3-9fd6-4e8e-9524-e1fa3ab7fd1c",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "20193c0e-43ce-4d57-909b-4259eced43a3",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "175744ff-ddf2-4941-80a5-f3cd649d9b39",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "e9e144e9-6aea-4b65-bee5-9280f92715e9",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "a26bf213-f60d-416a-87b6-b287dd9df721",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "f5c272af-3842-408a-ac9a-7156883fdaec",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "d4f14d12-a5f7-4298-afce-418bfaeb5108",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "383c4334-8cc9-4ed1-b1f9-b2c0d02a8aad",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "3328e4a8-0dc9-481e-85b6-445c882e8fb6",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "05ba130a-8667-4e98-b04d-378c93c583b7",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "1d1f1068-fa37-463e-879e-554575cc0008",
+        "name": "",
+        "hidden": true,
+        "type": "decoration"
+      },
+      {
+        "id": "d94cc3a8-5969-4dff-9bdf-7aeb5c8e9967",
+        "name": "",
+        "hidden": true,
+        "type": "decoration"
+      },
+      {
+        "id": "a4fdba0e-1dd7-4a51-a4af-4710f519a04f",
+        "name": "",
+        "hidden": true,
+        "type": "decoration"
+      },
+      {
+        "id": "323a6bcd-6665-4785-ae23-4f89cc342c37",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "adf28ca0-f1a3-4859-ab50-6d2e370852bd",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "7310830d-c32f-4587-8f3f-946fb9609245",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "c62d46bd-1457-4795-9188-09bcf0e0c193",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "ae914434-7949-4f5d-af45-ad5ea97a953b",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "f7893fdd-2b4b-4f7d-94cd-e4a408137399",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "ccb6ead7-3d3e-4390-8eba-9052a3e5baa0",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "f21fc23a-e8aa-41f7-8eef-c7b5be0c2d3b",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "0232238f-2ff8-4c8c-987f-32ffc1b2a78a",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "e9d94959-c975-4780-b101-a31c7839faae",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "6ea035df-06d9-47d6-9642-4b2fa3e11534",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "e58dae9c-e662-422b-a0cb-c9c1108f0c25",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "bd004c84-15cc-4f04-a39b-e919c432444e",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "b688d924-af6b-4bf5-9dec-d1639f9f5386",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "b2b2fe45-9c2b-45da-87ca-c3eda34f92c4",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "b9a65028-fce8-43ab-a375-5ee679c39eb8",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "78bcc80d-1624-47a6-84c8-49d5d24a4242",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "b6a4e63c-4450-45b8-ab54-49a70cfc200c",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "c5a84817-96d0-457b-8080-1de96a631f41",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "3612d8fd-808d-4ba1-9ebb-e9bf25cd7ddd",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "5ef9e152-8bae-4bb2-96ab-db2ec77cb232",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "c4028e7e-b057-4cf4-8fdb-b51a2a871710",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "15133eaf-873c-4ff5-8c7d-0a90de78fff5",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "ade13f1f-7244-426b-bd88-c19c8ed20f3a",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "173b23a8-9224-463f-8895-5e0b43d57491",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "7d3b0bd4-4441-4d62-bb23-5a4f459cc0c7",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "335e4153-aa55-48a5-a35a-5d6c43f029b0",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "c4c47695-32b4-4a94-92ce-855d9e03325e",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "4b0963ff-40cc-41fd-9950-8a53a0d1d17a",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "afcf4bef-c8fd-4598-ad40-876137fcfe9c",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "b1a5bcc6-02bc-4263-8158-e9d41d254b72",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "7ac35876-20ff-4f49-8610-a7911d55e6d7",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "b1291bdf-c881-4cb5-a16d-cdf0c1392b37",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "8d433924-6de0-46ff-b985-ac163179b74c",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "f0671b8e-1745-496a-99d3-37d414c20ec6",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "42d90875-93a4-43c5-939f-cfae6cf3c43e",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "6504c395-2037-437b-b15d-091cca8f6530",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "4bf409d3-330d-48b0-8769-2d37d97d746c",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "a3b7d759-2b1f-484a-9b56-5e3ac4829b5a",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "6b2debbe-c576-41fc-9371-8e945b1efc3a",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "8e6e4154-3d3c-40a2-869f-24c797aabb84",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "aff8c956-956c-42b2-a3a9-baf3d5fdb2ed",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "5066c30c-e8d0-4c1d-9844-f0382e013797",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "ac444727-7148-48ea-91bd-7269078a2f48",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "c674fb02-9d31-4fcd-a190-523e66a90c21",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "54522893-38ab-4708-9391-56206a6317b4",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "c792b10b-0304-4e77-9f29-8117dbe4909f",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "bb0230f1-7249-4cbd-8349-e8f639aa0994",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "431a5f2c-bf81-4e54-866b-8a4d01157718",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "f77dd604-244f-4865-85d2-4e611c00085e",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "2e712431-f3eb-4cb9-8453-797f051a18cc",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "8f5269be-153c-4838-8d9f-c54133579912",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "a67cac30-a876-4b26-a483-5f4187aee543",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "a7bc149c-6bad-4abb-92e4-00c4ac5dd6c1",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "0072b8dd-e358-4bbb-8193-4bdc949e2273",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "bc55d134-ff12-462a-8151-7bd50649cb2a",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "d326db98-8679-4641-8e0c-9f52d98222d5",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "3bf280b9-0828-4f83-8421-41a81c973f50",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "17aa09af-8310-4838-b872-418d7c3bf71a",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "ea546e64-2ab1-45d7-be7d-94dc8f6082b6",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "25423545-dc05-4769-af2c-7c59e6af2cde",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "fa7065f3-ae95-47d1-a134-295c7a37a073",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "b0a0749f-a5e8-4e76-8d24-da6e293d0c82",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "2050cf3a-5ec6-4491-98ec-87664b99ee63",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "4a0b4353-4641-4464-933c-85ab3b50c6d2",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "e98b346b-cc3d-46dc-96d7-a566ed806677",
+        "name": "",
+        "hidden": false,
+        "type": "decoration"
+      },
+      {
+        "id": "53e95901-29e8-44e7-937b-428cfe814bae",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "cc3dabcd-d488-4823-b140-6d2d9c574748",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "0ce581ff-bd8b-4353-949a-e1d5728a4e57",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "42f82f7a-227c-46eb-b235-2b51328e3272",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "9f49eb5e-2c8a-4421-b2a7-22f22b2c42b7",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "30ef064e-e2bc-4c5a-a3cb-f1a4c979a4bb",
+        "name": "Greek ashlar and continuous entablature",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "b62774e8-8e27-46de-83b7-179a280c38f3",
+        "name": "library · upper doorway and complete returns",
+        "hidden": false,
+        "type": "wall"
+      },
+      {
+        "id": "5022e3d4-1315-4077-ac01-e26aeeab4279",
+        "name": "gallery · upper doorway and complete returns",
+        "hidden": false,
+        "type": "wall"
+      }
+    ],
+    "faded": 0,
+    "colliders": 524,
+    "bodies": 849,
+    "render": {
+      "frame": 1939,
+      "calls": 1920,
+      "triangles": 5957112,
+      "points": 1938,
+      "lines": 0
+    }
+  },
+  "benchmark": {
+    "frame": {
+      "median": 4.600000023841858,
+      "p95": 7,
+      "max": 8.399999976158142,
+      "over33ms": 0
+    },
+    "cpu": {
+      "median": 4.5,
+      "p95": 6.899999976158142,
+      "max": 8.199999928474426,
+      "over33ms": 0
+    },
+    "render": {
+      "frame": 5869,
+      "calls": 982,
+      "triangles": 3034569,
+      "points": 969,
+      "lines": 0
+    },
+    "memory": {
+      "geometries": 477,
+      "textures": 122
+    },
+    "heap": 304820851,
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "gameplayBenchmark": {
+    "frame": {
+      "median": 8.699999928474426,
+      "p95": 11.699999928474426,
+      "max": 18.199999928474426,
+      "over33ms": 0
+    },
+    "cpu": {
+      "median": 8.399999976158142,
+      "p95": 11.399999976158142,
+      "max": 18,
+      "over33ms": 0
+    },
+    "render": {
+      "frame": 8644,
+      "calls": 992,
+      "triangles": 3057691,
+      "points": 969,
+      "lines": 0
+    },
+    "memory": {
+      "geometries": 481,
+      "textures": 124
+    },
+    "heap": 302814443
+  }
+}

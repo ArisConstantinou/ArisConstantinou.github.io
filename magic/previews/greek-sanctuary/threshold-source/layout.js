@@ -10,7 +10,7 @@ import {createGreekGate} from '../../../_source/src/greek-environment.js';
 export async function loadThresholdMaterials(){const loader=new T.TextureLoader(),surfaces={};await Promise.all(['white_plaster_02','marble_rock_03','slate_floor'].map(async id=>{const [map,normalMap,arm]=await Promise.all(['diff','normal','arm'].map(k=>loader.loadAsync(new URL('threshold-materials/'+id+'/'+k+'.jpg',document.baseURI).href)));for(const t of [map,normalMap,arm]){t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=8;}map.colorSpace=T.SRGBColorSpace;surfaces[id]={map,normalMap,arm};}));return surfaces;}
 export function buildThreshold(surfaces){
  const root=new T.Group(),roof=new T.Group(),details=new T.Group();root.name='Threshold · Malbork to the ruined sanctuary';root.add(roof,details);
- const cutaway={rear:new T.Group(),left:new T.Group(),right:new T.Group()};for(const [name,g]of Object.entries(cutaway)){g.name='Castle cutaway '+name;root.add(g);}let buildGroup=details;
+ const cutaway={front:new T.Group(),rear:new T.Group(),left:new T.Group(),right:new T.Group()};for(const [name,g]of Object.entries(cutaway)){g.name='Castle cutaway '+name;root.add(g);}let buildGroup=details;
  const colliders=[],floors=[],torches=[],stairs=[],destinations=[];
  const materials={},batches=new Map();let seed=613;
  const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
@@ -31,7 +31,7 @@ export function buildThreshold(surfaces){
  function courses(x,z,w,h,d,m=stone,base=0){box(x,base+h/2,z,w-.12,h-.03,d-.12,dark,.01);solid(x,base+h/2,z,w,h,d);for(let row=0;row<h/.6;row++){const yy=base+Math.min(h,(row+1)*.6),lo=base+row*.6;let a=-w/2;while(a<w/2-.02){const size=Math.min(w/2-a,1.25+rnd()*.8);box(x+a+size/2,(lo+yy)/2,z,size-.028,yy-lo-.025,d+.03,tint(m,Math.floor(rnd()*6)),.045);a+=size;}}}
  function rib(points,r=.11,m=limestone,group=roof){const curve=new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p)));return mesh(new T.TubeGeometry(curve,40,r,8,false),m,0,0,0,0,group);}
  const archY=(x,half,spring,rise)=>spring+rise*Math.pow(Math.max(0,1-Math.abs(x)/half),.62);
- function pointedFrame(x,z,width,spring,rise,m=limestone,group=details){for(const side of [-1,1])for(let j=0;j<3;j++){box(x+side*(width/2+j*.15),spring/2,z+j*.08,.14,spring,.38,m,.03,group);}
+ function pointedFrame(x,z,width,spring,rise,m=limestone,group=buildGroup){for(const side of [-1,1])for(let j=0;j<3;j++){box(x+side*(width/2+j*.15),spring/2,z+j*.08,.14,spring,.38,m,.03,group);}
   for(let j=0;j<3;j++){const points=[];for(let k=0;k<=48;k++){const xx=-width/2-j*.15+(width+j*.3)*k/48;points.push([x+xx,archY(xx,width/2+j*.15,spring,rise+j*.11),z+j*.08]);}rib(points,.10-j*.015,m,group);}}
  function windowAt(side,z){const g=new T.Group();g.position.set(side*10.72,0,z);g.rotation.y=-side*Math.PI/2;buildGroup.add(g);pointedFrame(0,0,3.5,6.4,2.3,limestone,g);
   // Solid jamb returns fill the bay up to the shaped opening. The earlier
@@ -77,11 +77,13 @@ export function buildThreshold(surfaces){
   for(const zz of [zc-5,zc+5]){const pts=[];for(let i=0;i<=32;i++){const t=-1+i/16;pts.push([xc+t*5.5,7+4.5*Math.sqrt(Math.max(0,1-t*t)),zz]);}rib(pts,.15);}mesh(new T.SphereGeometry(.30,12,8),bronze,xc,11.42,zc,0,roof);
  }
  // Deep, continuous wall returns physically meet the double door.
+ buildGroup=cutaway.front;
  for(const side of [-1,1])courses(side*7.35,0,7.3,11.6,1.6);wall(0,0,7.4,4,1.6,stone,7.6);pointedFrame(0,1.0,7.6,7.6,3.2);
  for(const side of [-1,1]){box(side*4.4,3.8,1,1.15,7.6,1.2,limestone);for(let j=0;j<4;j++)mesh(new T.CylinderGeometry(.11,.13,6.8,12),limestone,side*(4.01+j*.22),3.8,1.65);box(side*4.4,7.5,1,1.5,.35,1.55,limestone);}
  // Tracery in the tympanum (solid backed, no false passage around the leaves).
  for(const x of [-2.2,0,2.2])pointedFrame(x,1.04,1.7,7.8,1.6,limestone);box(0,.08,.25,7.4,.16,2.2,limestone);
  // Accessible side gallery; stairs are individual physical treads.
+ buildGroup=details;
  steps({x:-7,z:3.5,width:5.5,count:24,direction:1,label:'Castle gallery'});floor(-7,4.2,22,6.4,13.9,floorMat);for(const z of [29]){wall(-7,z,6.4,1.15,.35,limestone,4.2);}wall(-3.8,22,.35,1.15,13.8,limestone,4.2);destinations.push({id:'gallery',point:[-7,4.2,21]});
  for(const z of [18,24,28]){box(-8.8,4.7,z,2.1,.15,.75,wood);for(const xx of [-9.6,-8])box(xx,4.45,z,.14,.5,.6,wood);}
  for(const z of [17,23,28]){mesh(new T.CylinderGeometry(.28,.36,3.95,16),limestone,-4.35,1.98,z);box(-4.35,3.95,z,1,.3,1,limestone);solid(-4.35,2,z,.72,4,.72,'gallery-support');box(-7,3.83,z,6.3,.38,.5,limestone);}

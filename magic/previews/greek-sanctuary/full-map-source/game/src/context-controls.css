@@ -1,0 +1,13 @@
+.context-use{position:fixed;z-index:32;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:72px;min-height:64px;padding:4px;border:0;background:none;color:#ffe2a6;pointer-events:auto;touch-action:manipulation;cursor:pointer;font:12px/1.2 Arial,sans-serif;text-shadow:0 1px 3px #000}
+.context-use[hidden]{display:none!important}
+.hearth-actions[hidden]{display:none!important}
+.context-use>.icon{width:44px;height:44px;padding:8px;border:1px solid #efd698;border-radius:50%;background:#132b28ee;box-shadow:0 0 10px #f1ca7455}
+.context-use>span{white-space:nowrap}
+.context-use>kbd{position:absolute;top:0;right:7px;background:#173731;border:1px solid #b7c7b777;padding:1px 3px;font-size:12px}
+.context-use:disabled{opacity:.6;cursor:default}
+.context-use:focus-visible>.icon{outline:2px solid #fff;outline-offset:3px}
+body[data-input="touch"] .context-use>kbd{display:none}
+body[data-input="touch"] .context-strip{display:none}
+body[data-input="touch"] .touch-actions{grid-template-columns:repeat(3,56px);gap:8px}
+body[data-input="touch"] .touch-actions .ability{width:56px}
+.held-state.is-shielding{color:#b9e4ff;border-color:#94d7ff;background:#102d3ddd}

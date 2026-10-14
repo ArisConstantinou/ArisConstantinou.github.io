@@ -1,0 +1,17 @@
+body[data-input="keyboard"] .movement-hint{left:max(28px,var(--safe-left));right:auto;bottom:calc(26px + var(--safe-bottom));gap:16px;pointer-events:none}
+body[data-input="keyboard"] .wasd{grid-template-columns:repeat(3,46px);grid-template-rows:repeat(2,46px);gap:6px}
+body[data-input="keyboard"] .wasd kbd{font:600 23px/1 system-ui;border-radius:8px;border:1px solid #90bca885;background:#0d1c19d9;box-shadow:0 3px 0 #02100f}
+body[data-input="keyboard"] .wasd kbd.pressed{background:#396957;color:#fff;border-color:#b6ffdd}
+body[data-input="keyboard"] .movement-caption{font-size:14px;letter-spacing:.1em}
+body[data-input="keyboard"] .movement-caption small{font-size:12px;margin-top:6px}
+.mouse-hint{position:absolute;right:max(24px,var(--safe-right));bottom:calc(22px + var(--safe-bottom));display:flex;align-items:center;gap:12px;pointer-events:none;color:#c4d9cf}
+.mouse-diagram{width:62px;height:94px;fill:#0d1c19d9;stroke:#8fb5a4;stroke-width:1.5}
+.mouse-diagram .pressed{fill:#396957;stroke:#c4ffe1}
+.mouse-caption{display:grid;gap:8px;max-width:112px;font-size:14px;line-height:1.3}
+.mouse-caption:first-child{text-align:right}.mouse-caption b{font-size:12px;letter-spacing:.08em;color:#f1e0b5}
+body[data-input="keyboard"] .hearth-actions{display:none!important}
+body[data-input="keyboard"] .run-meta{bottom:calc(144px + var(--safe-bottom))}
+body[data-input="keyboard"] .potion-tools{bottom:calc(140px + var(--safe-bottom))}
+body[data-input="keyboard"] .desktop-controls .ability-name,body[data-input="keyboard"] .desktop-controls .ability-key{font-size:12px}
+body[data-input="keyboard"] .desktop-controls .ability-disc{width:58px;height:58px}
+body[data-input="touch"] .mouse-hint{display:none}
