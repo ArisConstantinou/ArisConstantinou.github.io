@@ -8,7 +8,7 @@
       "data": {
         "hidden": [
           {
-            "id": "6181cd38-5891-4da2-a3ca-e9bcf21869cb",
+            "id": "59655910-f0f4-4495-9b69-70744a787440",
             "stairId": "library",
             "index": 4,
             "startTread": 12,
@@ -26,7 +26,7 @@
       "pass": true,
       "data": [
         {
-          "id": "a1325904-9811-45f0-a3ce-d4d532c3e303",
+          "id": "99ce814c-30cd-4104-9be4-f0768a3a569b",
           "stairId": "library",
           "index": 0,
           "startTread": 0,
@@ -36,7 +36,7 @@
           "hidden": false
         },
         {
-          "id": "51f8f2bf-883b-480a-938f-e3ffa2b24ce5",
+          "id": "4926d1e0-2061-49b9-8b08-55e1fa232158",
           "stairId": "library",
           "index": 1,
           "startTread": 3,
@@ -46,7 +46,7 @@
           "hidden": false
         },
         {
-          "id": "01f27c6c-7809-4629-83a4-34eb12e68b38",
+          "id": "f9316817-1019-4dd2-bbff-be916ad1afa9",
           "stairId": "library",
           "index": 2,
           "startTread": 6,
@@ -56,7 +56,7 @@
           "hidden": false
         },
         {
-          "id": "b11f4208-687b-4d18-b30d-4b6b825d48ed",
+          "id": "a9f1b1b1-00f5-4bc2-abca-d1abda424951",
           "stairId": "library",
           "index": 3,
           "startTread": 9,
@@ -66,7 +66,7 @@
           "hidden": false
         },
         {
-          "id": "6181cd38-5891-4da2-a3ca-e9bcf21869cb",
+          "id": "59655910-f0f4-4495-9b69-70744a787440",
           "stairId": "library",
           "index": 4,
           "startTread": 12,
@@ -76,7 +76,7 @@
           "hidden": true
         },
         {
-          "id": "1117eafa-484b-4580-93dc-13b6621815e3",
+          "id": "098d49e3-e018-47db-8bdc-bd81ba71f808",
           "stairId": "library",
           "index": 5,
           "startTread": 15,
@@ -86,7 +86,7 @@
           "hidden": false
         },
         {
-          "id": "c1e0a252-38a9-4347-8341-0cf6d25bb3fc",
+          "id": "b968add9-d060-419c-bb23-1deb2a2fdc4c",
           "stairId": "library",
           "index": 6,
           "startTread": 18,
@@ -96,7 +96,7 @@
           "hidden": false
         },
         {
-          "id": "71de42fb-28ab-475c-b3fa-551542e3ea08",
+          "id": "69f8ef51-c0cc-4244-ab3f-31799ab0662e",
           "stairId": "library",
           "index": 7,
           "startTread": 21,
@@ -106,7 +106,7 @@
           "hidden": false
         },
         {
-          "id": "21105517-1851-40e3-a307-b4d5b2aea290",
+          "id": "193cbc09-b05c-4a99-9b2e-ddd50af61ec0",
           "stairId": "library",
           "index": 8,
           "startTread": 24,
@@ -122,7 +122,7 @@
       "pass": true,
       "data": [
         {
-          "id": "6181cd38-5891-4da2-a3ca-e9bcf21869cb",
+          "id": "59655910-f0f4-4495-9b69-70744a787440",
           "stairId": "library",
           "index": 4,
           "startTread": 12,
@@ -143,8 +143,8 @@
       "pass": true,
       "data": {
         "floors": 80,
-        "colliders": 532,
-        "bodies": 863
+        "colliders": 538,
+        "bodies": 872
       }
     },
     {
@@ -157,7 +157,7 @@
       "pass": true,
       "data": [
         {
-          "id": "51a25c69-88dd-4158-93c9-bcffa2a4701a",
+          "id": "49904c6a-20c3-493b-8b02-e62dfad51969",
           "stairId": "gallery",
           "index": 0,
           "startTread": 0,
@@ -167,7 +167,7 @@
           "hidden": false
         },
         {
-          "id": "011c8874-782b-431e-835e-ab6d1258af50",
+          "id": "f91b955b-10fb-4007-bb79-7de76a03f8d2",
           "stairId": "gallery",
           "index": 1,
           "startTread": 3,
@@ -177,7 +177,7 @@
           "hidden": false
         },
         {
-          "id": "b1c98eab-681d-4e89-b347-fff5824f8b71",
+          "id": "a95b30c9-0057-43ac-abc4-5dccdaf40028",
           "stairId": "gallery",
           "index": 2,
           "startTread": 6,
@@ -187,7 +187,7 @@
           "hidden": false
         },
         {
-          "id": "61abfb4b-58b3-411b-a384-7b2df28aebbc",
+          "id": "594fc9ab-f0d6-4feb-9be3-69794aaabbd1",
           "stairId": "gallery",
           "index": 3,
           "startTread": 9,
@@ -197,7 +197,7 @@
           "hidden": false
         },
         {
-          "id": "11c199ea-48ed-4c43-9316-2342620af7ba",
+          "id": "09f74a4b-e07a-450d-8bd6-c4dcba23efd9",
           "stairId": "gallery",
           "index": 4,
           "startTread": 12,
@@ -207,7 +207,7 @@
           "hidden": true
         },
         {
-          "id": "c10a7423-38cb-4e52-83fb-382bd2cd14ac",
+          "id": "b952e0ee-d042-43d2-bb9d-d1652a61a25a",
           "stairId": "gallery",
           "index": 5,
           "startTread": 15,
@@ -217,7 +217,7 @@
           "hidden": false
         },
         {
-          "id": "7188d549-284d-4663-b334-40d942d5ebf8",
+          "id": "6962f48c-c02e-4860-ab39-33359a621cee",
           "stairId": "gallery",
           "index": 6,
           "startTread": 18,
@@ -227,7 +227,7 @@
           "hidden": false
         },
         {
-          "id": "213a4918-1873-4252-a3c1-fb65b22063a2",
+          "id": "1926327b-b03e-4331-9ba8-cc4c0a28e41e",
           "stairId": "gallery",
           "index": 7,
           "startTread": 21,
@@ -243,7 +243,7 @@
       "pass": true,
       "data": [
         {
-          "id": "2d057d2c-b48a-46d0-8f1c-c5d7aec6e284",
+          "id": "a511076a-ccfc-4829-8777-a29686b8f050",
           "stairId": "watchtower",
           "index": 0,
           "startTread": 0,
@@ -253,7 +253,7 @@
           "hidden": false
         },
         {
-          "id": "dd4f568a-a475-4173-bfaa-8e091e1f763d",
+          "id": "55ce1019-bcb1-455a-b747-5fbaf66a2ab1",
           "stairId": "watchtower",
           "index": 1,
           "startTread": 3,
@@ -263,7 +263,7 @@
           "hidden": false
         },
         {
-          "id": "8d8e64ad-94c4-4407-af4c-fdd28e7b6363",
+          "id": "05ff2e4c-ac4a-44bc-a7ac-4cc966a1d3d1",
           "stairId": "watchtower",
           "index": 2,
           "startTread": 6,
@@ -273,7 +273,7 @@
           "hidden": false
         },
         {
-          "id": "3dc142cd-8477-4f20-9f03-649dfedbe161",
+          "id": "b5a31c0c-9cc7-433f-97a4-ddbad65bc315",
           "stairId": "watchtower",
           "index": 3,
           "startTread": 9,
@@ -283,7 +283,7 @@
           "hidden": false
         },
         {
-          "id": "ede7cbd4-748e-40ef-8fcd-55276e406878",
+          "id": "65bcd48c-8c28-438c-8730-c513469a108c",
           "stairId": "watchtower",
           "index": 4,
           "startTread": 12,
@@ -293,7 +293,7 @@
           "hidden": true
         },
         {
-          "id": "9d021b12-6409-472c-bfab-a5b4dea8ad2a",
+          "id": "154992dd-7c6d-41e9-b750-f615b65c1260",
           "stairId": "watchtower",
           "index": 5,
           "startTread": 15,
@@ -303,7 +303,7 @@
           "hidden": false
         },
         {
-          "id": "4d118be6-54e8-410b-af9d-663e4e15a9b0",
+          "id": "c549d098-6c96-4d30-a704-a4f026a35f49",
           "stairId": "watchtower",
           "index": 6,
           "startTread": 18,
@@ -313,7 +313,7 @@
           "hidden": false
         },
         {
-          "id": "fd13b776-442b-4029-9fa3-eba2be859166",
+          "id": "75be4994-5ca3-46bf-974d-41f0966dcffb",
           "stairId": "watchtower",
           "index": 7,
           "startTread": 21,
@@ -323,7 +323,7 @@
           "hidden": false
         },
         {
-          "id": "ad0a7a5a-34d2-407f-8fbe-c7d52efadd3c",
+          "id": "25a7f990-4c94-4b64-8729-81ae06bc7897",
           "stairId": "watchtower",
           "index": 8,
           "startTread": 24,
@@ -333,7 +333,7 @@
           "hidden": false
         },
         {
-          "id": "5df5ee4c-24dd-4250-bfec-cd0f9e724528",
+          "id": "d5031beb-3c69-4b50-b799-5642768eb218",
           "stairId": "watchtower",
           "index": 9,
           "startTread": 27,
@@ -361,7 +361,7 @@
       "pass": true,
       "data": [
         {
-          "id": "a1325904-9811-45f0-a3ce-d4d532c3e303",
+          "id": "99ce814c-30cd-4104-9be4-f0768a3a569b",
           "stairId": "library",
           "index": 0,
           "startTread": 0,
@@ -371,7 +371,7 @@
           "hidden": false
         },
         {
-          "id": "51f8f2bf-883b-480a-938f-e3ffa2b24ce5",
+          "id": "4926d1e0-2061-49b9-8b08-55e1fa232158",
           "stairId": "library",
           "index": 1,
           "startTread": 3,
@@ -381,7 +381,7 @@
           "hidden": false
         },
         {
-          "id": "01f27c6c-7809-4629-83a4-34eb12e68b38",
+          "id": "f9316817-1019-4dd2-bbff-be916ad1afa9",
           "stairId": "library",
           "index": 2,
           "startTread": 6,
@@ -391,7 +391,7 @@
           "hidden": false
         },
         {
-          "id": "b11f4208-687b-4d18-b30d-4b6b825d48ed",
+          "id": "a9f1b1b1-00f5-4bc2-abca-d1abda424951",
           "stairId": "library",
           "index": 3,
           "startTread": 9,
@@ -401,7 +401,7 @@
           "hidden": false
         },
         {
-          "id": "6181cd38-5891-4da2-a3ca-e9bcf21869cb",
+          "id": "59655910-f0f4-4495-9b69-70744a787440",
           "stairId": "library",
           "index": 4,
           "startTread": 12,
@@ -411,7 +411,7 @@
           "hidden": false
         },
         {
-          "id": "1117eafa-484b-4580-93dc-13b6621815e3",
+          "id": "098d49e3-e018-47db-8bdc-bd81ba71f808",
           "stairId": "library",
           "index": 5,
           "startTread": 15,
@@ -421,7 +421,7 @@
           "hidden": true
         },
         {
-          "id": "c1e0a252-38a9-4347-8341-0cf6d25bb3fc",
+          "id": "b968add9-d060-419c-bb23-1deb2a2fdc4c",
           "stairId": "library",
           "index": 6,
           "startTread": 18,
@@ -431,7 +431,7 @@
           "hidden": true
         },
         {
-          "id": "71de42fb-28ab-475c-b3fa-551542e3ea08",
+          "id": "69f8ef51-c0cc-4244-ab3f-31799ab0662e",
           "stairId": "library",
           "index": 7,
           "startTread": 21,
@@ -441,7 +441,7 @@
           "hidden": false
         },
         {
-          "id": "21105517-1851-40e3-a307-b4d5b2aea290",
+          "id": "193cbc09-b05c-4a99-9b2e-ddd50af61ec0",
           "stairId": "library",
           "index": 8,
           "startTread": 24,
@@ -461,29 +461,29 @@
       "pass": true,
       "data": {
         "frame": {
-          "median": 6.100000023841858,
-          "p95": 8.5,
-          "max": 10.400000095367432,
+          "median": 5.5,
+          "p95": 7.800000071525574,
+          "max": 9.5,
           "over33ms": 0
         },
         "cpu": {
-          "median": 5.799999952316284,
-          "p95": 8.100000023841858,
-          "max": 10.200000047683716,
+          "median": 5.299999952316284,
+          "p95": 7.600000023841858,
+          "max": 9.299999952316284,
           "over33ms": 0
         },
         "render": {
-          "frame": 9769,
-          "calls": 1145,
-          "triangles": 3584135,
+          "frame": 9844,
+          "calls": 1090,
+          "triangles": 3402693,
           "points": 969,
           "lines": 0
         },
         "memory": {
-          "geometries": 764,
-          "textures": 167
+          "geometries": 758,
+          "textures": 152
         },
-        "heap": 352483383,
+        "heap": 351943788,
         "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
       }
     },
@@ -504,15 +504,15 @@
       "z": -4.1499999999999995
     },
     "camera": {
-      "x": -51.249984322506066,
+      "x": -51.24998432250606,
       "y": 18,
-      "z": 13.05000810786182
+      "z": 13.050008106755165
     }
   },
   "front": {
     "sections": [
       {
-        "id": "a1325904-9811-45f0-a3ce-d4d532c3e303",
+        "id": "99ce814c-30cd-4104-9be4-f0768a3a569b",
         "stairId": "library",
         "index": 0,
         "startTread": 0,
@@ -522,7 +522,7 @@
         "hidden": false
       },
       {
-        "id": "51f8f2bf-883b-480a-938f-e3ffa2b24ce5",
+        "id": "4926d1e0-2061-49b9-8b08-55e1fa232158",
         "stairId": "library",
         "index": 1,
         "startTread": 3,
@@ -532,7 +532,7 @@
         "hidden": false
       },
       {
-        "id": "01f27c6c-7809-4629-83a4-34eb12e68b38",
+        "id": "f9316817-1019-4dd2-bbff-be916ad1afa9",
         "stairId": "library",
         "index": 2,
         "startTread": 6,
@@ -542,7 +542,7 @@
         "hidden": false
       },
       {
-        "id": "b11f4208-687b-4d18-b30d-4b6b825d48ed",
+        "id": "a9f1b1b1-00f5-4bc2-abca-d1abda424951",
         "stairId": "library",
         "index": 3,
         "startTread": 9,
@@ -552,7 +552,7 @@
         "hidden": false
       },
       {
-        "id": "6181cd38-5891-4da2-a3ca-e9bcf21869cb",
+        "id": "59655910-f0f4-4495-9b69-70744a787440",
         "stairId": "library",
         "index": 4,
         "startTread": 12,
@@ -562,7 +562,7 @@
         "hidden": true
       },
       {
-        "id": "1117eafa-484b-4580-93dc-13b6621815e3",
+        "id": "098d49e3-e018-47db-8bdc-bd81ba71f808",
         "stairId": "library",
         "index": 5,
         "startTread": 15,
@@ -572,7 +572,7 @@
         "hidden": false
       },
       {
-        "id": "c1e0a252-38a9-4347-8341-0cf6d25bb3fc",
+        "id": "b968add9-d060-419c-bb23-1deb2a2fdc4c",
         "stairId": "library",
         "index": 6,
         "startTread": 18,
@@ -582,7 +582,7 @@
         "hidden": false
       },
       {
-        "id": "71de42fb-28ab-475c-b3fa-551542e3ea08",
+        "id": "69f8ef51-c0cc-4244-ab3f-31799ab0662e",
         "stairId": "library",
         "index": 7,
         "startTread": 21,
@@ -592,7 +592,7 @@
         "hidden": false
       },
       {
-        "id": "21105517-1851-40e3-a307-b4d5b2aea290",
+        "id": "193cbc09-b05c-4a99-9b2e-ddd50af61ec0",
         "stairId": "library",
         "index": 8,
         "startTread": 24,
@@ -602,7 +602,7 @@
         "hidden": false
       },
       {
-        "id": "51a25c69-88dd-4158-93c9-bcffa2a4701a",
+        "id": "49904c6a-20c3-493b-8b02-e62dfad51969",
         "stairId": "gallery",
         "index": 0,
         "startTread": 0,
@@ -612,7 +612,7 @@
         "hidden": false
       },
       {
-        "id": "011c8874-782b-431e-835e-ab6d1258af50",
+        "id": "f91b955b-10fb-4007-bb79-7de76a03f8d2",
         "stairId": "gallery",
         "index": 1,
         "startTread": 3,
@@ -622,7 +622,7 @@
         "hidden": false
       },
       {
-        "id": "b1c98eab-681d-4e89-b347-fff5824f8b71",
+        "id": "a95b30c9-0057-43ac-abc4-5dccdaf40028",
         "stairId": "gallery",
         "index": 2,
         "startTread": 6,
@@ -632,7 +632,7 @@
         "hidden": false
       },
       {
-        "id": "61abfb4b-58b3-411b-a384-7b2df28aebbc",
+        "id": "594fc9ab-f0d6-4feb-9be3-69794aaabbd1",
         "stairId": "gallery",
         "index": 3,
         "startTread": 9,
@@ -642,7 +642,7 @@
         "hidden": false
       },
       {
-        "id": "11c199ea-48ed-4c43-9316-2342620af7ba",
+        "id": "09f74a4b-e07a-450d-8bd6-c4dcba23efd9",
         "stairId": "gallery",
         "index": 4,
         "startTread": 12,
@@ -652,7 +652,7 @@
         "hidden": false
       },
       {
-        "id": "c10a7423-38cb-4e52-83fb-382bd2cd14ac",
+        "id": "b952e0ee-d042-43d2-bb9d-d1652a61a25a",
         "stairId": "gallery",
         "index": 5,
         "startTread": 15,
@@ -662,7 +662,7 @@
         "hidden": false
       },
       {
-        "id": "7188d549-284d-4663-b334-40d942d5ebf8",
+        "id": "6962f48c-c02e-4860-ab39-33359a621cee",
         "stairId": "gallery",
         "index": 6,
         "startTread": 18,
@@ -672,7 +672,7 @@
         "hidden": false
       },
       {
-        "id": "213a4918-1873-4252-a3c1-fb65b22063a2",
+        "id": "1926327b-b03e-4331-9ba8-cc4c0a28e41e",
         "stairId": "gallery",
         "index": 7,
         "startTread": 21,
@@ -682,7 +682,7 @@
         "hidden": false
       },
       {
-        "id": "2d057d2c-b48a-46d0-8f1c-c5d7aec6e284",
+        "id": "a511076a-ccfc-4829-8777-a29686b8f050",
         "stairId": "watchtower",
         "index": 0,
         "startTread": 0,
@@ -692,7 +692,7 @@
         "hidden": false
       },
       {
-        "id": "dd4f568a-a475-4173-bfaa-8e091e1f763d",
+        "id": "55ce1019-bcb1-455a-b747-5fbaf66a2ab1",
         "stairId": "watchtower",
         "index": 1,
         "startTread": 3,
@@ -702,7 +702,7 @@
         "hidden": false
       },
       {
-        "id": "8d8e64ad-94c4-4407-af4c-fdd28e7b6363",
+        "id": "05ff2e4c-ac4a-44bc-a7ac-4cc966a1d3d1",
         "stairId": "watchtower",
         "index": 2,
         "startTread": 6,
@@ -712,7 +712,7 @@
         "hidden": false
       },
       {
-        "id": "3dc142cd-8477-4f20-9f03-649dfedbe161",
+        "id": "b5a31c0c-9cc7-433f-97a4-ddbad65bc315",
         "stairId": "watchtower",
         "index": 3,
         "startTread": 9,
@@ -722,7 +722,7 @@
         "hidden": false
       },
       {
-        "id": "ede7cbd4-748e-40ef-8fcd-55276e406878",
+        "id": "65bcd48c-8c28-438c-8730-c513469a108c",
         "stairId": "watchtower",
         "index": 4,
         "startTread": 12,
@@ -732,7 +732,7 @@
         "hidden": false
       },
       {
-        "id": "9d021b12-6409-472c-bfab-a5b4dea8ad2a",
+        "id": "154992dd-7c6d-41e9-b750-f615b65c1260",
         "stairId": "watchtower",
         "index": 5,
         "startTread": 15,
@@ -742,7 +742,7 @@
         "hidden": false
       },
       {
-        "id": "4d118be6-54e8-410b-af9d-663e4e15a9b0",
+        "id": "c549d098-6c96-4d30-a704-a4f026a35f49",
         "stairId": "watchtower",
         "index": 6,
         "startTread": 18,
@@ -752,7 +752,7 @@
         "hidden": false
       },
       {
-        "id": "fd13b776-442b-4029-9fa3-eba2be859166",
+        "id": "75be4994-5ca3-46bf-974d-41f0966dcffb",
         "stairId": "watchtower",
         "index": 7,
         "startTread": 21,
@@ -762,7 +762,7 @@
         "hidden": false
       },
       {
-        "id": "ad0a7a5a-34d2-407f-8fbe-c7d52efadd3c",
+        "id": "25a7f990-4c94-4b64-8729-81ae06bc7897",
         "stairId": "watchtower",
         "index": 8,
         "startTread": 24,
@@ -772,7 +772,7 @@
         "hidden": false
       },
       {
-        "id": "5df5ee4c-24dd-4250-bfec-cd0f9e724528",
+        "id": "d5031beb-3c69-4b50-b799-5642768eb218",
         "stairId": "watchtower",
         "index": 9,
         "startTread": 27,
@@ -1516,41 +1516,41 @@
         "stairId": "watchtower"
       }
     ],
-    "colliders": 532,
-    "bodies": 863,
+    "colliders": 538,
+    "bodies": 872,
     "render": {
-      "frame": 1999,
-      "calls": 2079,
-      "triangles": 6401926,
+      "frame": 2074,
+      "calls": 2026,
+      "triangles": 6204044,
       "points": 1938,
       "lines": 0
     }
   },
   "benchmark": {
     "frame": {
-      "median": 6.100000023841858,
-      "p95": 8.5,
-      "max": 10.400000095367432,
+      "median": 5.5,
+      "p95": 7.800000071525574,
+      "max": 9.5,
       "over33ms": 0
     },
     "cpu": {
-      "median": 5.799999952316284,
-      "p95": 8.100000023841858,
-      "max": 10.200000047683716,
+      "median": 5.299999952316284,
+      "p95": 7.600000023841858,
+      "max": 9.299999952316284,
       "over33ms": 0
     },
     "render": {
-      "frame": 9769,
-      "calls": 1145,
-      "triangles": 3584135,
+      "frame": 9844,
+      "calls": 1090,
+      "triangles": 3402693,
       "points": 969,
       "lines": 0
     },
     "memory": {
-      "geometries": 764,
-      "textures": 167
+      "geometries": 758,
+      "textures": 152
     },
-    "heap": 352483383,
+    "heap": 351943788,
     "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
   }
 }

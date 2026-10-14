@@ -21,6 +21,12 @@ const integration={name:'magic-full-map-integration',async transform(input,id){
   code=replace(code,"const opening=greekEnabled&&r.id!=='library-secret'?2.1:1.65","const opening=3.8",'Wall returns match widened secret door leaves');
   code=replace(code,"section,3.65,r.axis==='x',{room:r.parent});","section,4.25,r.axis==='x',{room:r.parent});",'Secret door returns seal the complete frame height');
   code=replace(code,'const height=bridge?.66','const height=edge.room?.endsWith(\'-secret\')?4.25:bridge?.66','Secret perimeter masonry matches its tall doorway');
+ }else if(normalized.endsWith('/src/greek-furnishings.js')){
+  code=`import {addRoomWorkFurniture} from '${path.join(dir,'room-work-furniture.js').replaceAll('\\','/')}';\n`+code;
+  code=replace(code,"const g=new THREE.Group();g.name='Greek furniture · '+kind;","const g=new THREE.Group();g.name='Greek furniture · '+kind;\n if(addRoomWorkFurniture(g,kind,p,kit,{table,box,cylinder,beam,bowl,vase,wood,iron,bronze,clay,linen}))return g;",'Use room-specific workshop and prison equipment in the existing furniture bays');
+  code=replace(code,"hall:['bench','offering']","hall:['map-table','bench']",'Council hall has a working scroll and marker table');
+  code=replace(code,"prison:['bench','offering']","prison:['prison-supplies','bench']",'Prison supplies use water and everyday vessels instead of offering plinths');
+  code=replace(code,"forge:['supply-rack','offering']","forge:['forge-stock','quench-station']",'Forge bays contain metal stock, hand tools and working basins');
  }else if(normalized.endsWith('/src/greek-environment.js')){
   code=replace(code,'function queueStatic(root,g,x,z){','function queueStatic(root,g,x,z){\n if(g.userData.fullMapWall||g.userData.fullMapWallDecoration){const part=mergeStatic(g);part.userData={...g.userData};root.add(part);return;}','Keep complete wall sections separately addressable');
   code=replace(code,'g.rotation.y=alongX?0:Math.PI/2;g.position.set(x,floorY,z);queueStatic(root,g,x,z);','g.rotation.y=alongX?0:Math.PI/2;g.position.set(x,floorY,z);g.userData.fullMapWall={x,z,length,height,alongX,floorY};queueStatic(root,g,x,z);','Wall construction and trim share one cutaway unit');

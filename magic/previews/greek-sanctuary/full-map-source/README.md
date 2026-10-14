@@ -11,3 +11,5 @@ Camera movement follows its bearing for mage and HEARTH. Complete obstructing wa
 Caryatid, Venus and Artemision marble replicas occupy courtyard, gallery and sanctum respectively. Each has source-derived fracture geometry, collision damage, nine initial shards and native fragment pickup. Caryatid attribution and CC BY 4.0, Venus/Artemision CC0 provenance and Draco license accompany the runtime assets. See statues/LICENSES.md.
 
 The present ground footprints are rectangular and the Greek/Gothic regional art, ruined Parthenon and broader upper-floor combat verification are still pending. This is a playable integration candidate, not a completed art release. Desktop browser checks do not establish physical-phone performance.
+
+Room-equipment refinement: forge side bays now contain metal billets, hammer/tongs and work basins; prison bays hold plain water/linen supplies; the council hall has a scroll/marker table. These reuse the existing kit and occupy the same physical reservations. See room-work-furniture.js. No asset download, material-resolution reduction or collision shrink was used.

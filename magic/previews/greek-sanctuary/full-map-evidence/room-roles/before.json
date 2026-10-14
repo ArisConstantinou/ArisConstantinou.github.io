@@ -1,0 +1,329 @@
+{
+  "mode": "before",
+  "url": "http://127.0.0.1:5173/previews/greek-sanctuary/full-map-workshop-before.htm?hearthQA=1",
+  "errors": [],
+  "rooms": [
+    {
+      "id": "hall",
+      "fixture": {
+        "x": 0,
+        "z": -3.75,
+        "furniture": [
+          {
+            "kind": "bench",
+            "x": -11.05,
+            "y": 0.85,
+            "z": -6,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          }
+        ],
+        "physical": [
+          {
+            "x": -11.05,
+            "y": 0.85,
+            "z": -6,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7,
+            "tag": "greek-furniture"
+          }
+        ]
+      },
+      "performance": {
+        "median": 13.199999928474426,
+        "p95": 19.699999928474426,
+        "max": 27.5,
+        "over33ms": 0,
+        "render": {
+          "frame": 4969,
+          "calls": 2047,
+          "triangles": 6486847,
+          "points": 969,
+          "lines": 66
+        },
+        "memory": {
+          "geometries": 454,
+          "textures": 127
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "forge",
+      "fixture": {
+        "x": -51.25,
+        "z": -27.5,
+        "furniture": [
+          {
+            "kind": "furnace",
+            "x": -59.15,
+            "y": 1.15,
+            "z": -29.5,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "kind": "anvil",
+            "x": -43.35,
+            "y": 1.15,
+            "z": -29.5,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2
+          },
+          {
+            "kind": "supply-rack",
+            "x": -59.8,
+            "y": 0.85,
+            "z": -24.125,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7
+          },
+          {
+            "kind": "offering",
+            "x": -50.18749999999999,
+            "y": 0.85,
+            "z": -34.8,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "supply-rack",
+            "x": -46.8125,
+            "y": 0.85,
+            "z": -20.2,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "offering",
+            "x": -56.625,
+            "y": 0.85,
+            "z": -20.2,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          }
+        ],
+        "physical": [
+          {
+            "x": -59.15,
+            "y": 1.15,
+            "z": -29.5,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2,
+            "tag": "greek-furniture"
+          },
+          {
+            "x": -43.35,
+            "y": 1.15,
+            "z": -29.5,
+            "w": 1.2,
+            "h": 2.3,
+            "d": 2.2,
+            "tag": "greek-furniture"
+          },
+          {
+            "x": -59.8,
+            "y": 0.85,
+            "z": -24.125,
+            "w": 1.2,
+            "h": 1.7,
+            "d": 2.7,
+            "tag": "greek-furniture"
+          },
+          {
+            "x": -50.18749999999999,
+            "y": 0.85,
+            "z": -34.8,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2,
+            "tag": "greek-furniture"
+          },
+          {
+            "x": -46.8125,
+            "y": 0.85,
+            "z": -20.2,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2,
+            "tag": "greek-furniture"
+          },
+          {
+            "x": -56.625,
+            "y": 0.85,
+            "z": -20.2,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2,
+            "tag": "greek-furniture"
+          }
+        ]
+      },
+      "performance": {
+        "median": 8.699999928474426,
+        "p95": 12.899999976158142,
+        "max": 23.299999952316284,
+        "over33ms": 0,
+        "render": {
+          "frame": 7909,
+          "calls": 836,
+          "triangles": 2553007,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 559,
+          "textures": 144
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "id": "prison",
+      "fixture": {
+        "x": -22.5,
+        "z": -22.5,
+        "furniture": [
+          {
+            "kind": "pallet",
+            "x": -28.25,
+            "y": 0.65,
+            "z": -17.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "kind": "pallet",
+            "x": -16.75,
+            "y": 0.65,
+            "z": -17.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5
+          },
+          {
+            "kind": "bench",
+            "x": -25.875,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "offering",
+            "x": -19.125,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "bench",
+            "x": -22.5,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          },
+          {
+            "kind": "offering",
+            "x": -22.5,
+            "y": 0.85,
+            "z": -16.45,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2
+          }
+        ],
+        "physical": [
+          {
+            "x": -28.25,
+            "y": 0.65,
+            "z": -17.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5,
+            "tag": "greek-furniture"
+          },
+          {
+            "x": -16.75,
+            "y": 0.65,
+            "z": -17.5,
+            "w": 1.6,
+            "h": 1.3,
+            "d": 2.5,
+            "tag": "greek-furniture"
+          },
+          {
+            "x": -25.875,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2,
+            "tag": "greek-furniture"
+          },
+          {
+            "x": -19.125,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2,
+            "tag": "greek-furniture"
+          },
+          {
+            "x": -22.5,
+            "y": 0.85,
+            "z": -28.55,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2,
+            "tag": "greek-furniture"
+          },
+          {
+            "x": -22.5,
+            "y": 0.85,
+            "z": -16.45,
+            "w": 2.7,
+            "h": 1.7,
+            "d": 1.2,
+            "tag": "greek-furniture"
+          }
+        ]
+      },
+      "performance": {
+        "median": 11.299999952316284,
+        "p95": 15.100000023841858,
+        "max": 19.899999976158142,
+        "over33ms": 0,
+        "render": {
+          "frame": 10849,
+          "calls": 1433,
+          "triangles": 4371620,
+          "points": 969,
+          "lines": 66
+        },
+        "memory": {
+          "geometries": 587,
+          "textures": 149
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    }
+  ],
+  "conditions": "Chrome1440x1000 DPR1; seed571 reset immediately before native Start. NPC attacks/contacts frozen; actual furniture and original materials. Same camera/standing fixtures, live game frames, 30 warm frames and150 measured frames per room. Desktop GPU; no physical-phone proof."
+}

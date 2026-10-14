@@ -304,32 +304,32 @@
         {
           "hp": 160,
           "held": true,
-          "stone": 966,
-          "statueBody": 1068,
+          "stone": 956,
+          "statueBody": 1058,
           "after": 56.418344676065345,
           "projectile": {
             "x": 11.737660108983544,
             "y": 0.5035947794434598,
             "z": 9.503414892382718,
             "collisions": [
-              1068,
-              1044,
-              589
+              1058,
+              1034,
+              590
             ]
           }
         },
         {
           "hp": 56.418344676065345,
           "held": true,
-          "stone": 966,
-          "statueBody": 1068,
+          "stone": 956,
+          "statueBody": 1058,
           "after": 0,
           "projectile": {
-            "x": 11.20502043712278,
-            "y": 0.3917165803939215,
-            "z": 9.154300763889182,
+            "x": 11.19297094974309,
+            "y": 0.3871852665912612,
+            "z": 9.215582134369459,
             "collisions": [
-              1068,
+              1058,
               0
             ]
           }
@@ -341,55 +341,55 @@
       "pass": true,
       "data": [
         {
+          "id": 1154,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1155,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1156,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1157,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1158,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1159,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1160,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1161,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
           "id": 1162,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1163,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1164,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1165,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1166,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1167,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1168,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1169,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1170,
           "shapes": 1,
           "mass": 4,
           "hp": 50
@@ -403,32 +403,33 @@
         {
           "hp": 160,
           "held": true,
-          "stone": 966,
-          "statueBody": 1069,
-          "after": 54.44596794412539,
+          "stone": 956,
+          "statueBody": 1059,
+          "after": 54.429386743181034,
           "projectile": {
-            "x": 54.3222794497893,
-            "y": 0.35196317782090375,
-            "z": -11.572489834795402,
+            "x": 54.29764853508331,
+            "y": 0.3563685794372664,
+            "z": -11.553440672019757,
             "collisions": [
-              1069,
-              590,
+              1059,
+              591,
               12
             ]
           }
         },
         {
-          "hp": 54.44596794412539,
+          "hp": 54.429386743181034,
           "held": true,
-          "stone": 966,
-          "statueBody": 1069,
+          "stone": 956,
+          "statueBody": 1059,
           "after": 0,
           "projectile": {
-            "x": 53.49652971674343,
-            "y": 0.63954091231063,
-            "z": -11.39774226661191,
+            "x": 53.339222951032795,
+            "y": 0.27903037734084013,
+            "z": -12.302034835247714,
             "collisions": [
-              1069
+              1059,
+              12
             ]
           }
         }
@@ -438,6 +439,54 @@
       "name": "venus adds nine grabbable physical marble pieces",
       "pass": true,
       "data": [
+        {
+          "id": 1154,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1155,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1156,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1157,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1158,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1159,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1160,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1161,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
         {
           "id": 1162,
           "shapes": 1,
@@ -494,54 +543,6 @@
         },
         {
           "id": 1171,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1172,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1173,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1174,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1175,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1176,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1177,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1178,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1179,
           "shapes": 1,
           "mass": 4,
           "hp": 50
@@ -555,34 +556,32 @@
         {
           "hp": 160,
           "held": true,
-          "stone": 966,
-          "statueBody": 1070,
-          "after": 59.682707397207174,
+          "stone": 956,
+          "statueBody": 1060,
+          "after": 59.03516003968172,
           "projectile": {
-            "x": 30.689800725913397,
-            "y": 0.5829001536383401,
-            "z": -49.054472885506634,
+            "x": 31.231705600724336,
+            "y": 0.6067937446514057,
+            "z": -51.24704027091339,
             "collisions": [
-              1070,
-              591,
+              1060,
               11
             ]
           }
         },
         {
-          "hp": 59.682707397207174,
+          "hp": 59.03516003968172,
           "held": true,
-          "stone": 966,
-          "statueBody": 1070,
+          "stone": 956,
+          "statueBody": 1060,
           "after": 0,
           "projectile": {
-            "x": 32.91631156123928,
-            "y": 0.8416944568752452,
-            "z": -49.80658042799376,
+            "x": 31.78348110061465,
+            "y": 2.0024277241581703,
+            "z": -49.81788897421167,
             "collisions": [
-              1070,
-              1184,
-              591
+              1060,
+              1176
             ]
           }
         }
@@ -592,6 +591,54 @@
       "name": "artemision adds nine grabbable physical marble pieces",
       "pass": true,
       "data": [
+        {
+          "id": 1154,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1155,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1156,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1157,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1158,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1159,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1160,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1161,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
         {
           "id": 1162,
           "shapes": 1,
@@ -672,12 +719,6 @@
         },
         {
           "id": 1175,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1176,
           "shapes": 1,
           "mass": 4,
           "hp": 50
@@ -705,54 +746,6 @@
           "shapes": 1,
           "mass": 4,
           "hp": 50
-        },
-        {
-          "id": 1181,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1182,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1183,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1184,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 31.845350277425627
-        },
-        {
-          "id": 1185,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1186,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1187,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1188,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
         }
       ]
     },
@@ -760,33 +753,33 @@
       "name": "Native mouse picks up an actual marble fragment",
       "pass": true,
       "data": {
-        "id": 1163,
-        "x": 714.5669485755042,
-        "y": 647.3327245456921
+        "id": 1155,
+        "x": 713.8661102605233,
+        "y": 647.1645976052398
       }
     },
     {
       "name": "Desktop game with marble debris remains below 16.7ms p95",
       "pass": true,
       "data": {
-        "p95": 14.700000047683716,
-        "cpuP95": 14.5,
-        "max": 21.699999928474426,
+        "p95": 14.599999904632568,
+        "cpuP95": 14.399999976158142,
+        "max": 24.5,
         "over33ms": 0,
         "render": {
-          "frame": 9349,
-          "calls": 1237,
-          "triangles": 4153583,
+          "frame": 9274,
+          "calls": 1265,
+          "triangles": 4227551,
           "points": 969,
           "lines": 66
         },
         "memory": {
-          "geometries": 596,
-          "textures": 141
+          "geometries": 606,
+          "textures": 146
         },
         "fragments": 24,
-        "sleeping": 17,
-        "contacts": 27
+        "sleeping": 16,
+        "contacts": 31
       }
     },
     {
@@ -803,14 +796,31 @@
           "statueBodies": 3,
           "fragmentBodies": 0,
           "geometryIds": [
-            "09e49631-e083-4e24-8b4b-1006ba146270",
-            "85736ea8-2c35-4814-a794-0e79e66fcfb5",
-            "e19af7d6-d8dc-49ee-a3a0-de5b72f06844",
-            "f9c8302f-10c4-46b2-bbae-6e636ab45566"
+            "094a52fa-e0b1-46f7-8ba1-6e32ba7270ad",
+            "6d552432-f41d-4f9a-8f16-1002eefba6fa",
+            "cdbe1e33-d4b7-42b7-af27-3e52ce10e400",
+            "dd82ef0b-a40c-4b0d-bf55-05ce1ece9e32"
           ],
-          "bodies": 880,
+          "bodies": 872,
           "memory": {
-            "geometries": 544,
+            "geometries": 556,
+            "textures": 108
+          }
+        },
+        {
+          "statues": 3,
+          "fragments": 0,
+          "statueBodies": 3,
+          "fragmentBodies": 0,
+          "geometryIds": [
+            "094a52fa-e0b1-46f7-8ba1-6e32ba7270ad",
+            "6d552432-f41d-4f9a-8f16-1002eefba6fa",
+            "cdbe1e33-d4b7-42b7-af27-3e52ce10e400",
+            "dd82ef0b-a40c-4b0d-bf55-05ce1ece9e32"
+          ],
+          "bodies": 854,
+          "memory": {
+            "geometries": 550,
             "textures": 105
           }
         },
@@ -820,31 +830,14 @@
           "statueBodies": 3,
           "fragmentBodies": 0,
           "geometryIds": [
-            "09e49631-e083-4e24-8b4b-1006ba146270",
-            "85736ea8-2c35-4814-a794-0e79e66fcfb5",
-            "e19af7d6-d8dc-49ee-a3a0-de5b72f06844",
-            "f9c8302f-10c4-46b2-bbae-6e636ab45566"
+            "094a52fa-e0b1-46f7-8ba1-6e32ba7270ad",
+            "6d552432-f41d-4f9a-8f16-1002eefba6fa",
+            "cdbe1e33-d4b7-42b7-af27-3e52ce10e400",
+            "dd82ef0b-a40c-4b0d-bf55-05ce1ece9e32"
           ],
-          "bodies": 862,
+          "bodies": 854,
           "memory": {
-            "geometries": 542,
-            "textures": 105
-          }
-        },
-        {
-          "statues": 3,
-          "fragments": 0,
-          "statueBodies": 3,
-          "fragmentBodies": 0,
-          "geometryIds": [
-            "09e49631-e083-4e24-8b4b-1006ba146270",
-            "85736ea8-2c35-4814-a794-0e79e66fcfb5",
-            "e19af7d6-d8dc-49ee-a3a0-de5b72f06844",
-            "f9c8302f-10c4-46b2-bbae-6e636ab45566"
-          ],
-          "bodies": 853,
-          "memory": {
-            "geometries": 542,
+            "geometries": 550,
             "textures": 105
           }
         }
@@ -858,7 +851,7 @@
   ],
   "errors": [],
   "conditions": "Chrome 1440x1000 DPR1. Real game with seed 571; NPCs frozen to isolate statue impacts. Projectile positions/throw vectors are seeded fixtures, actual telekinesis/throw functions and Cannon collision damage used. Native pointer independently verifies shard pickup.",
-  "loadMs": 10638,
+  "loadMs": 10365,
   "initial": {
     "placements": [
       {
@@ -919,10 +912,10 @@
       }
     ],
     "memory": {
-      "geometries": 307,
-      "textures": 88
+      "geometries": 301,
+      "textures": 84
     },
-    "bodies": 862
+    "bodies": 872
   },
   "caryatid": {
     "fixture": {
@@ -944,32 +937,32 @@
       {
         "hp": 160,
         "held": true,
-        "stone": 966,
-        "statueBody": 1068,
+        "stone": 956,
+        "statueBody": 1058,
         "after": 56.418344676065345,
         "projectile": {
           "x": 11.737660108983544,
           "y": 0.5035947794434598,
           "z": 9.503414892382718,
           "collisions": [
-            1068,
-            1044,
-            589
+            1058,
+            1034,
+            590
           ]
         }
       },
       {
         "hp": 56.418344676065345,
         "held": true,
-        "stone": 966,
-        "statueBody": 1068,
+        "stone": 956,
+        "statueBody": 1058,
         "after": 0,
         "projectile": {
-          "x": 11.20502043712278,
-          "y": 0.3917165803939215,
-          "z": 9.154300763889182,
+          "x": 11.19297094974309,
+          "y": 0.3871852665912612,
+          "z": 9.215582134369459,
           "collisions": [
-            1068,
+            1058,
             0
           ]
         }
@@ -982,55 +975,55 @@
       ],
       "fragments": [
         {
+          "id": 1154,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1155,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1156,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1157,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1158,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1159,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1160,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1161,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
           "id": 1162,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1163,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1164,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1165,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1166,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1167,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1168,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1169,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1170,
           "shapes": 1,
           "mass": 4,
           "hp": 50
@@ -1061,7 +1054,7 @@
             ],
             "weights": [
               {
-                "id": 1072,
+                "id": 1062,
                 "position": {
                   "x": -5.200342908084098,
                   "y": 0.43999093106372106,
@@ -1071,7 +1064,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1073,
+                "id": 1063,
                 "position": {
                   "x": -2.800342908084096,
                   "y": 0.43999093106372106,
@@ -1109,7 +1102,7 @@
             ],
             "weights": [
               {
-                "id": 1074,
+                "id": 1064,
                 "position": {
                   "x": -55.200342908084124,
                   "y": 0.43999093106372106,
@@ -1163,7 +1156,7 @@
             ],
             "weights": [
               {
-                "id": 1075,
+                "id": 1065,
                 "position": {
                   "x": -6.450342908084098,
                   "y": 0.43999093106372106,
@@ -1173,7 +1166,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1076,
+                "id": 1066,
                 "position": {
                   "x": -7.750342908084098,
                   "y": 0.43999093106372106,
@@ -1196,47 +1189,13 @@
           },
           {
             "id": "passage-library-armoury",
-            "kind": "pressure",
-            "phase": "locked",
-            "open": 0,
+            "kind": "open",
+            "phase": "open",
+            "open": 1,
             "charge": 0,
-            "blocked": true,
-            "plates": [
-              {
-                "x": -38.54,
-                "y": 0,
-                "z": 2.5100000000000007,
-                "active": false
-              },
-              {
-                "x": -36.940000000000005,
-                "y": 0,
-                "z": 2.5100000000000007,
-                "active": false
-              }
-            ],
-            "weights": [
-              {
-                "id": 1077,
-                "position": {
-                  "x": -38.35034290808412,
-                  "y": 0.439990931063721,
-                  "z": 0.7504840271724152
-                },
-                "recoveries": 0,
-                "hp": 1000000
-              },
-              {
-                "id": 1078,
-                "position": {
-                  "x": -36.40034290808413,
-                  "y": 0.439990931063721,
-                  "z": 0.750484027172415
-                },
-                "recoveries": 0,
-                "hp": 1000000
-              }
-            ]
+            "blocked": false,
+            "plates": [],
+            "weights": []
           },
           {
             "id": "passage-forge-prison",
@@ -1271,7 +1230,7 @@
             ],
             "weights": [
               {
-                "id": 1079,
+                "id": 1067,
                 "position": {
                   "x": -55.10034290808413,
                   "y": 0.439990931063721,
@@ -1281,7 +1240,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1080,
+                "id": 1068,
                 "position": {
                   "x": -52.500342908084136,
                   "y": 0.439990931063721,
@@ -1294,13 +1253,47 @@
           },
           {
             "id": "passage-barracks-gallery",
-            "kind": "open",
-            "phase": "open",
-            "open": 1,
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
             "charge": 0,
-            "blocked": false,
-            "plates": [],
-            "weights": []
+            "blocked": true,
+            "plates": [
+              {
+                "x": 36.50999999999997,
+                "y": 0,
+                "z": -3.989999999999999,
+                "active": false
+              },
+              {
+                "x": 38.109999999999964,
+                "y": 0,
+                "z": -3.989999999999999,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1069,
+                "position": {
+                  "x": 37.34965709191584,
+                  "y": 0.439990931063721,
+                  "z": -1.849515972827585
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1070,
+                "position": {
+                  "x": 36.04965709191584,
+                  "y": 0.439990931063721,
+                  "z": -5.749515972827583
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
           },
           {
             "id": "passage-ritual-watchtower",
@@ -1325,7 +1318,7 @@
             ],
             "weights": [
               {
-                "id": 1081,
+                "id": 1071,
                 "position": {
                   "x": 45.49965709191587,
                   "y": 0.439990931063721,
@@ -1335,7 +1328,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1082,
+                "id": 1072,
                 "position": {
                   "x": 47.44965709191587,
                   "y": 0.439990931063721,
@@ -1348,13 +1341,47 @@
           },
           {
             "id": "passage-watchtower-gallery",
-            "kind": "open",
-            "phase": "open",
-            "open": 1,
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
             "charge": 0,
-            "blocked": false,
-            "plates": [],
-            "weights": []
+            "blocked": true,
+            "plates": [
+              {
+                "x": 47.85999999999999,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": false
+              },
+              {
+                "x": 49.45999999999999,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1073,
+                "position": {
+                  "x": 48.69965709191587,
+                  "y": 0.439990931063721,
+                  "z": -10.149515972827581
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1074,
+                "position": {
+                  "x": 46.09965709191587,
+                  "y": 0.439990931063721,
+                  "z": -12.099515972827582
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
           },
           {
             "id": "passage-catacombs-crypt",
@@ -1379,7 +1406,7 @@
             ],
             "weights": [
               {
-                "id": 1083,
+                "id": 1075,
                 "position": {
                   "x": -3.8503429080840945,
                   "y": 0.439990931063721,
@@ -1389,7 +1416,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1084,
+                "id": 1076,
                 "position": {
                   "x": -1.9003429080840961,
                   "y": 0.439990931063721,
@@ -1423,7 +1450,7 @@
             ],
             "weights": [
               {
-                "id": 1085,
+                "id": 1077,
                 "position": {
                   "x": 15.399657091915897,
                   "y": 0.439990931063721,
@@ -1433,7 +1460,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1086,
+                "id": 1078,
                 "position": {
                   "x": 16.04965709191591,
                   "y": 0.439990931063721,
@@ -1467,7 +1494,7 @@
             ],
             "weights": [
               {
-                "id": 1087,
+                "id": 1079,
                 "position": {
                   "x": 19.299657091915904,
                   "y": 0.439990931063721,
@@ -1477,7 +1504,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1088,
+                "id": 1080,
                 "position": {
                   "x": 21.8996570919159,
                   "y": 0.439990931063721,
@@ -1525,7 +1552,7 @@
             ],
             "weights": [
               {
-                "id": 1089,
+                "id": 1081,
                 "position": {
                   "x": -55.05034290808413,
                   "y": 0.439990931063721,
@@ -1553,7 +1580,7 @@
             ],
             "weights": [
               {
-                "id": 1090,
+                "id": 1082,
                 "position": {
                   "x": -5.8003429080840965,
                   "y": 0.43999093106372106,
@@ -1581,7 +1608,7 @@
             ],
             "weights": [
               {
-                "id": 1091,
+                "id": 1083,
                 "position": {
                   "x": -46.05034290808412,
                   "y": 0.439990931063721,
@@ -1615,7 +1642,7 @@
             ],
             "weights": [
               {
-                "id": 1092,
+                "id": 1084,
                 "position": {
                   "x": 46.249657091915886,
                   "y": 5.239990931063721,
@@ -1625,7 +1652,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1093,
+                "id": 1085,
                 "position": {
                   "x": 44.64965709191588,
                   "y": 5.239990931063722,
@@ -1642,10 +1669,10 @@
           "fuel": 0,
           "endless": true,
           "stompCooldown": 0,
-          "room": "library",
-          "roomLabel": "Βιβλιοθήκη",
-          "x": -45.45,
-          "z": -2.899999999999996,
+          "room": "gallery",
+          "roomLabel": "Στοά",
+          "x": 47.85,
+          "z": -7.4499999999999975,
           "yaw": 0,
           "aimYaw": 3.141592653589793,
           "stompTime": 0,
@@ -1667,11 +1694,11 @@
         "shielding": false,
         "context": null,
         "controls": "drag-release",
-        "entities": 209,
+        "entities": 211,
         "renderer": {
-          "frame": 3484,
-          "calls": 2018,
-          "triangles": 6957134,
+          "frame": 3409,
+          "calls": 2062,
+          "triangles": 7030170,
           "points": 1938,
           "lines": 0
         },
@@ -1680,7 +1707,7 @@
           "runs": 0,
           "wins": 0
         },
-        "time": 1.5823999999999483,
+        "time": 1.5782999999999496,
         "candidate": true,
         "inventory": {
           "items": [],
@@ -1708,7 +1735,7 @@
         "goliath": null,
         "enemies": [
           {
-            "id": 1094,
+            "id": 1086,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1721,7 +1748,7 @@
             }
           },
           {
-            "id": 1095,
+            "id": 1087,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1734,7 +1761,7 @@
             }
           },
           {
-            "id": 1096,
+            "id": 1088,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -1747,7 +1774,7 @@
             }
           },
           {
-            "id": 1097,
+            "id": 1089,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1760,7 +1787,7 @@
             }
           },
           {
-            "id": 1098,
+            "id": 1090,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -1773,7 +1800,7 @@
             }
           },
           {
-            "id": 1099,
+            "id": 1091,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1786,7 +1813,7 @@
             }
           },
           {
-            "id": 1100,
+            "id": 1092,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1799,7 +1826,7 @@
             }
           },
           {
-            "id": 1101,
+            "id": 1093,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -1812,7 +1839,7 @@
             }
           },
           {
-            "id": 1102,
+            "id": 1094,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1825,7 +1852,7 @@
             }
           },
           {
-            "id": 1103,
+            "id": 1095,
             "kind": "boss",
             "hp": 240,
             "dead": false,
@@ -1839,7 +1866,7 @@
             }
           },
           {
-            "id": 1104,
+            "id": 1096,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1852,7 +1879,7 @@
             }
           },
           {
-            "id": 1105,
+            "id": 1097,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1865,7 +1892,7 @@
             }
           },
           {
-            "id": 1106,
+            "id": 1098,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -1878,7 +1905,7 @@
             }
           },
           {
-            "id": 1107,
+            "id": 1099,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1891,7 +1918,7 @@
             }
           },
           {
-            "id": 1108,
+            "id": 1100,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -1904,7 +1931,7 @@
             }
           },
           {
-            "id": 1109,
+            "id": 1101,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1917,7 +1944,7 @@
             }
           },
           {
-            "id": 1110,
+            "id": 1102,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -1930,7 +1957,7 @@
             }
           },
           {
-            "id": 1111,
+            "id": 1103,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1943,7 +1970,7 @@
             }
           },
           {
-            "id": 1112,
+            "id": 1104,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1956,7 +1983,7 @@
             }
           },
           {
-            "id": 1113,
+            "id": 1105,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -1969,7 +1996,7 @@
             }
           },
           {
-            "id": 1114,
+            "id": 1106,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -1982,7 +2009,7 @@
             }
           },
           {
-            "id": 1115,
+            "id": 1107,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -1995,7 +2022,7 @@
             }
           },
           {
-            "id": 1116,
+            "id": 1108,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2008,7 +2035,7 @@
             }
           },
           {
-            "id": 1117,
+            "id": 1109,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -2021,7 +2048,7 @@
             }
           },
           {
-            "id": 1118,
+            "id": 1110,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2030,11 +2057,11 @@
             "target": null,
             "position": {
               "x": 34.9,
-              "z": -5.8
+              "z": -3.5999999999999996
             }
           },
           {
-            "id": 1119,
+            "id": 1111,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2047,7 +2074,7 @@
             }
           },
           {
-            "id": 1120,
+            "id": 1112,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2060,7 +2087,7 @@
             }
           },
           {
-            "id": 1121,
+            "id": 1113,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -2073,7 +2100,7 @@
             }
           },
           {
-            "id": 1122,
+            "id": 1114,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2086,7 +2113,7 @@
             }
           },
           {
-            "id": 1123,
+            "id": 1115,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2099,7 +2126,7 @@
             }
           },
           {
-            "id": 1124,
+            "id": 1116,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2112,7 +2139,7 @@
             }
           },
           {
-            "id": 1125,
+            "id": 1117,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -2125,7 +2152,7 @@
             }
           },
           {
-            "id": 1126,
+            "id": 1118,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2138,11 +2165,10 @@
             }
           },
           {
-            "id": 1127,
+            "id": 1119,
             "kind": "boss",
-            "hp": 210,
+            "hp": 330,
             "dead": false,
-            "room": "ritual",
             "channel": 0,
             "minions": 0,
             "target": null,
@@ -2152,7 +2178,7 @@
             }
           },
           {
-            "id": 1128,
+            "id": 1120,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2165,7 +2191,7 @@
             }
           },
           {
-            "id": 1129,
+            "id": 1121,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2178,7 +2204,7 @@
             }
           },
           {
-            "id": 1130,
+            "id": 1122,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -2191,7 +2217,7 @@
             }
           },
           {
-            "id": 1131,
+            "id": 1123,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2204,7 +2230,7 @@
             }
           },
           {
-            "id": 1132,
+            "id": 1124,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2217,7 +2243,7 @@
             }
           },
           {
-            "id": 1133,
+            "id": 1125,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2230,7 +2256,7 @@
             }
           },
           {
-            "id": 1134,
+            "id": 1126,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -2243,7 +2269,7 @@
             }
           },
           {
-            "id": 1135,
+            "id": 1127,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2256,7 +2282,7 @@
             }
           },
           {
-            "id": 1136,
+            "id": 1128,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -2269,7 +2295,7 @@
             }
           },
           {
-            "id": 1137,
+            "id": 1129,
             "kind": "boss",
             "hp": 240,
             "dead": false,
@@ -2283,7 +2309,7 @@
             }
           },
           {
-            "id": 1138,
+            "id": 1130,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2296,7 +2322,7 @@
             }
           },
           {
-            "id": 1139,
+            "id": 1131,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2309,7 +2335,7 @@
             }
           },
           {
-            "id": 1140,
+            "id": 1132,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -2322,7 +2348,7 @@
             }
           },
           {
-            "id": 1141,
+            "id": 1133,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2335,7 +2361,7 @@
             }
           },
           {
-            "id": 1142,
+            "id": 1134,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -2348,7 +2374,7 @@
             }
           },
           {
-            "id": 1143,
+            "id": 1135,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2361,7 +2387,7 @@
             }
           },
           {
-            "id": 1144,
+            "id": 1136,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2374,7 +2400,7 @@
             }
           },
           {
-            "id": 1145,
+            "id": 1137,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -2387,7 +2413,7 @@
             }
           },
           {
-            "id": 1146,
+            "id": 1138,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2400,10 +2426,11 @@
             }
           },
           {
-            "id": 1147,
+            "id": 1139,
             "kind": "boss",
-            "hp": 330,
+            "hp": 210,
             "dead": false,
+            "room": "sanctum",
             "channel": 0,
             "minions": 0,
             "target": null,
@@ -2413,7 +2440,7 @@
             }
           },
           {
-            "id": 1148,
+            "id": 1140,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2426,7 +2453,7 @@
             }
           },
           {
-            "id": 1149,
+            "id": 1141,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2439,7 +2466,7 @@
             }
           },
           {
-            "id": 1150,
+            "id": 1142,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -2452,7 +2479,7 @@
             }
           },
           {
-            "id": 1151,
+            "id": 1143,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2465,7 +2492,7 @@
             }
           },
           {
-            "id": 1152,
+            "id": 1144,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2478,7 +2505,7 @@
             }
           },
           {
-            "id": 1153,
+            "id": 1145,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2491,7 +2518,7 @@
             }
           },
           {
-            "id": 1154,
+            "id": 1146,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -2504,7 +2531,7 @@
             }
           },
           {
-            "id": 1155,
+            "id": 1147,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2517,7 +2544,7 @@
             }
           },
           {
-            "id": 1156,
+            "id": 1148,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2530,7 +2557,7 @@
             }
           },
           {
-            "id": 1157,
+            "id": 1149,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2543,7 +2570,7 @@
             }
           },
           {
-            "id": 1158,
+            "id": 1150,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -2556,7 +2583,7 @@
             }
           },
           {
-            "id": 1159,
+            "id": 1151,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2569,7 +2596,7 @@
             }
           },
           {
-            "id": 1160,
+            "id": 1152,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -2582,7 +2609,7 @@
             }
           },
           {
-            "id": 1161,
+            "id": 1153,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -2700,37 +2727,37 @@
         "coordinates": "metres: X east, Y up, Z south",
         "bosses": [
           {
-            "type": "colossus",
+            "type": "wraith",
             "room": "crypt",
             "hp": 240,
             "dead": false,
-            "clip": "Idle",
+            "clip": "Hover",
             "attackTime": 0,
             "guardBreak": 0,
             "x": 2.0784609690826525,
             "z": -25.05
           },
           {
+            "type": "colossus",
+            "room": "forge",
+            "hp": 240,
+            "dead": false,
+            "clip": "Idle",
+            "attackTime": 0,
+            "guardBreak": 0,
+            "x": -52.64999999999999,
+            "z": -23.25
+          },
+          {
             "type": "gargoyle",
-            "room": "ritual",
+            "room": "sanctum",
             "hp": 210,
             "dead": false,
             "clip": "Idle",
             "attackTime": 0,
             "guardBreak": 0,
-            "x": 24.549999999999997,
-            "z": -21.400000000000002
-          },
-          {
-            "type": "wraith",
-            "room": "forge",
-            "hp": 240,
-            "dead": false,
-            "clip": "Hover",
-            "attackTime": 0,
-            "guardBreak": 0,
-            "x": -52.64999999999999,
-            "z": -23.25
+            "x": 28.949999999999996,
+            "z": -50.8
           }
         ]
       }
@@ -2756,32 +2783,33 @@
       {
         "hp": 160,
         "held": true,
-        "stone": 966,
-        "statueBody": 1069,
-        "after": 54.44596794412539,
+        "stone": 956,
+        "statueBody": 1059,
+        "after": 54.429386743181034,
         "projectile": {
-          "x": 54.3222794497893,
-          "y": 0.35196317782090375,
-          "z": -11.572489834795402,
+          "x": 54.29764853508331,
+          "y": 0.3563685794372664,
+          "z": -11.553440672019757,
           "collisions": [
-            1069,
-            590,
+            1059,
+            591,
             12
           ]
         }
       },
       {
-        "hp": 54.44596794412539,
+        "hp": 54.429386743181034,
         "held": true,
-        "stone": 966,
-        "statueBody": 1069,
+        "stone": 956,
+        "statueBody": 1059,
         "after": 0,
         "projectile": {
-          "x": 53.49652971674343,
-          "y": 0.63954091231063,
-          "z": -11.39774226661191,
+          "x": 53.339222951032795,
+          "y": 0.27903037734084013,
+          "z": -12.302034835247714,
           "collisions": [
-            1069
+            1059,
+            12
           ]
         }
       }
@@ -2791,6 +2819,54 @@
         "artemision"
       ],
       "fragments": [
+        {
+          "id": 1154,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1155,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1156,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1157,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1158,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1159,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1160,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1161,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
         {
           "id": 1162,
           "shapes": 1,
@@ -2850,54 +2926,6 @@
           "shapes": 1,
           "mass": 4,
           "hp": 50
-        },
-        {
-          "id": 1172,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1173,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1174,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1175,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1176,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1177,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1178,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1179,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
         }
       ],
       "state": {
@@ -2925,7 +2953,7 @@
             ],
             "weights": [
               {
-                "id": 1072,
+                "id": 1062,
                 "position": {
                   "x": -5.200342908084098,
                   "y": 0.43999093106372106,
@@ -2935,7 +2963,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1073,
+                "id": 1063,
                 "position": {
                   "x": -2.800342908084096,
                   "y": 0.43999093106372106,
@@ -2973,7 +3001,7 @@
             ],
             "weights": [
               {
-                "id": 1074,
+                "id": 1064,
                 "position": {
                   "x": -55.200342908084124,
                   "y": 0.43999093106372106,
@@ -3027,7 +3055,7 @@
             ],
             "weights": [
               {
-                "id": 1075,
+                "id": 1065,
                 "position": {
                   "x": -6.450342908084098,
                   "y": 0.43999093106372106,
@@ -3037,7 +3065,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1076,
+                "id": 1066,
                 "position": {
                   "x": -7.750342908084098,
                   "y": 0.43999093106372106,
@@ -3060,47 +3088,13 @@
           },
           {
             "id": "passage-library-armoury",
-            "kind": "pressure",
-            "phase": "locked",
-            "open": 0,
+            "kind": "open",
+            "phase": "open",
+            "open": 1,
             "charge": 0,
-            "blocked": true,
-            "plates": [
-              {
-                "x": -38.54,
-                "y": 0,
-                "z": 2.5100000000000007,
-                "active": false
-              },
-              {
-                "x": -36.940000000000005,
-                "y": 0,
-                "z": 2.5100000000000007,
-                "active": false
-              }
-            ],
-            "weights": [
-              {
-                "id": 1077,
-                "position": {
-                  "x": -38.35034290808412,
-                  "y": 0.439990931063721,
-                  "z": 0.7504840271724152
-                },
-                "recoveries": 0,
-                "hp": 1000000
-              },
-              {
-                "id": 1078,
-                "position": {
-                  "x": -36.40034290808413,
-                  "y": 0.439990931063721,
-                  "z": 0.750484027172415
-                },
-                "recoveries": 0,
-                "hp": 1000000
-              }
-            ]
+            "blocked": false,
+            "plates": [],
+            "weights": []
           },
           {
             "id": "passage-forge-prison",
@@ -3135,7 +3129,7 @@
             ],
             "weights": [
               {
-                "id": 1079,
+                "id": 1067,
                 "position": {
                   "x": -55.10034290808413,
                   "y": 0.439990931063721,
@@ -3145,7 +3139,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1080,
+                "id": 1068,
                 "position": {
                   "x": -52.500342908084136,
                   "y": 0.439990931063721,
@@ -3158,13 +3152,47 @@
           },
           {
             "id": "passage-barracks-gallery",
-            "kind": "open",
-            "phase": "open",
-            "open": 1,
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
             "charge": 0,
-            "blocked": false,
-            "plates": [],
-            "weights": []
+            "blocked": true,
+            "plates": [
+              {
+                "x": 36.50999999999997,
+                "y": 0,
+                "z": -3.989999999999999,
+                "active": false
+              },
+              {
+                "x": 38.109999999999964,
+                "y": 0,
+                "z": -3.989999999999999,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1069,
+                "position": {
+                  "x": 37.34965709191584,
+                  "y": 0.439990931063721,
+                  "z": -1.849515972827585
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1070,
+                "position": {
+                  "x": 36.04965709191584,
+                  "y": 0.439990931063721,
+                  "z": -5.749515972827583
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
           },
           {
             "id": "passage-ritual-watchtower",
@@ -3189,7 +3217,7 @@
             ],
             "weights": [
               {
-                "id": 1081,
+                "id": 1071,
                 "position": {
                   "x": 45.49965709191587,
                   "y": 0.439990931063721,
@@ -3199,7 +3227,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1082,
+                "id": 1072,
                 "position": {
                   "x": 47.44965709191587,
                   "y": 0.439990931063721,
@@ -3212,13 +3240,47 @@
           },
           {
             "id": "passage-watchtower-gallery",
-            "kind": "open",
-            "phase": "open",
-            "open": 1,
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
             "charge": 0,
-            "blocked": false,
-            "plates": [],
-            "weights": []
+            "blocked": true,
+            "plates": [
+              {
+                "x": 47.85999999999999,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": false
+              },
+              {
+                "x": 49.45999999999999,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1073,
+                "position": {
+                  "x": 48.69965709191587,
+                  "y": 0.439990931063721,
+                  "z": -10.149515972827581
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1074,
+                "position": {
+                  "x": 46.09965709191587,
+                  "y": 0.439990931063721,
+                  "z": -12.099515972827582
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
           },
           {
             "id": "passage-catacombs-crypt",
@@ -3243,7 +3305,7 @@
             ],
             "weights": [
               {
-                "id": 1083,
+                "id": 1075,
                 "position": {
                   "x": -3.8503429080840945,
                   "y": 0.439990931063721,
@@ -3253,7 +3315,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1084,
+                "id": 1076,
                 "position": {
                   "x": -1.9003429080840961,
                   "y": 0.439990931063721,
@@ -3287,7 +3349,7 @@
             ],
             "weights": [
               {
-                "id": 1085,
+                "id": 1077,
                 "position": {
                   "x": 15.399657091915897,
                   "y": 0.439990931063721,
@@ -3297,7 +3359,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1086,
+                "id": 1078,
                 "position": {
                   "x": 16.04965709191591,
                   "y": 0.439990931063721,
@@ -3331,7 +3393,7 @@
             ],
             "weights": [
               {
-                "id": 1087,
+                "id": 1079,
                 "position": {
                   "x": 19.299657091915904,
                   "y": 0.439990931063721,
@@ -3341,7 +3403,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1088,
+                "id": 1080,
                 "position": {
                   "x": 21.8996570919159,
                   "y": 0.439990931063721,
@@ -3389,7 +3451,7 @@
             ],
             "weights": [
               {
-                "id": 1089,
+                "id": 1081,
                 "position": {
                   "x": -55.05034290808413,
                   "y": 0.439990931063721,
@@ -3417,7 +3479,7 @@
             ],
             "weights": [
               {
-                "id": 1090,
+                "id": 1082,
                 "position": {
                   "x": -5.8003429080840965,
                   "y": 0.43999093106372106,
@@ -3445,7 +3507,7 @@
             ],
             "weights": [
               {
-                "id": 1091,
+                "id": 1083,
                 "position": {
                   "x": -46.05034290808412,
                   "y": 0.439990931063721,
@@ -3479,7 +3541,7 @@
             ],
             "weights": [
               {
-                "id": 1092,
+                "id": 1084,
                 "position": {
                   "x": 46.249657091915886,
                   "y": 5.239990931063721,
@@ -3489,7 +3551,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1093,
+                "id": 1085,
                 "position": {
                   "x": 44.64965709191588,
                   "y": 5.239990931063722,
@@ -3506,10 +3568,10 @@
           "fuel": 0,
           "endless": true,
           "stompCooldown": 0,
-          "room": "library",
-          "roomLabel": "Βιβλιοθήκη",
-          "x": -45.45,
-          "z": -2.899999999999996,
+          "room": "gallery",
+          "roomLabel": "Στοά",
+          "x": 47.85,
+          "z": -7.4499999999999975,
           "yaw": 0,
           "aimYaw": 3.141592653589793,
           "stompTime": 0,
@@ -3531,11 +3593,11 @@
         "shielding": false,
         "context": null,
         "controls": "drag-release",
-        "entities": 217,
+        "entities": 219,
         "renderer": {
-          "frame": 4864,
-          "calls": 1784,
-          "triangles": 5376700,
+          "frame": 4789,
+          "calls": 1922,
+          "triangles": 6579904,
           "points": 1938,
           "lines": 0
         },
@@ -3544,7 +3606,7 @@
           "runs": 0,
           "wins": 0
         },
-        "time": 3.107399999999903,
+        "time": 3.103299999999904,
         "candidate": true,
         "inventory": {
           "items": [],
@@ -3581,7 +3643,7 @@
         "goliath": null,
         "enemies": [
           {
-            "id": 1094,
+            "id": 1086,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3594,7 +3656,7 @@
             }
           },
           {
-            "id": 1095,
+            "id": 1087,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3607,7 +3669,7 @@
             }
           },
           {
-            "id": 1096,
+            "id": 1088,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -3620,7 +3682,7 @@
             }
           },
           {
-            "id": 1097,
+            "id": 1089,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3633,7 +3695,7 @@
             }
           },
           {
-            "id": 1098,
+            "id": 1090,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -3646,7 +3708,7 @@
             }
           },
           {
-            "id": 1099,
+            "id": 1091,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3659,7 +3721,7 @@
             }
           },
           {
-            "id": 1100,
+            "id": 1092,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3672,7 +3734,7 @@
             }
           },
           {
-            "id": 1101,
+            "id": 1093,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -3685,7 +3747,7 @@
             }
           },
           {
-            "id": 1102,
+            "id": 1094,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3698,7 +3760,7 @@
             }
           },
           {
-            "id": 1103,
+            "id": 1095,
             "kind": "boss",
             "hp": 240,
             "dead": false,
@@ -3712,7 +3774,7 @@
             }
           },
           {
-            "id": 1104,
+            "id": 1096,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3725,7 +3787,7 @@
             }
           },
           {
-            "id": 1105,
+            "id": 1097,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3738,7 +3800,7 @@
             }
           },
           {
-            "id": 1106,
+            "id": 1098,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -3751,7 +3813,7 @@
             }
           },
           {
-            "id": 1107,
+            "id": 1099,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3764,7 +3826,7 @@
             }
           },
           {
-            "id": 1108,
+            "id": 1100,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -3777,7 +3839,7 @@
             }
           },
           {
-            "id": 1109,
+            "id": 1101,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3790,7 +3852,7 @@
             }
           },
           {
-            "id": 1110,
+            "id": 1102,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -3803,7 +3865,7 @@
             }
           },
           {
-            "id": 1111,
+            "id": 1103,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3816,7 +3878,7 @@
             }
           },
           {
-            "id": 1112,
+            "id": 1104,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3829,7 +3891,7 @@
             }
           },
           {
-            "id": 1113,
+            "id": 1105,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -3842,7 +3904,7 @@
             }
           },
           {
-            "id": 1114,
+            "id": 1106,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3855,7 +3917,7 @@
             }
           },
           {
-            "id": 1115,
+            "id": 1107,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -3868,7 +3930,7 @@
             }
           },
           {
-            "id": 1116,
+            "id": 1108,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3881,7 +3943,7 @@
             }
           },
           {
-            "id": 1117,
+            "id": 1109,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -3894,7 +3956,7 @@
             }
           },
           {
-            "id": 1118,
+            "id": 1110,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3903,11 +3965,11 @@
             "target": null,
             "position": {
               "x": 34.9,
-              "z": -5.8
+              "z": -3.5999999999999996
             }
           },
           {
-            "id": 1119,
+            "id": 1111,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3920,7 +3982,7 @@
             }
           },
           {
-            "id": 1120,
+            "id": 1112,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3933,7 +3995,7 @@
             }
           },
           {
-            "id": 1121,
+            "id": 1113,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -3946,7 +4008,7 @@
             }
           },
           {
-            "id": 1122,
+            "id": 1114,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3959,7 +4021,7 @@
             }
           },
           {
-            "id": 1123,
+            "id": 1115,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3972,7 +4034,7 @@
             }
           },
           {
-            "id": 1124,
+            "id": 1116,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -3985,7 +4047,7 @@
             }
           },
           {
-            "id": 1125,
+            "id": 1117,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -3998,7 +4060,7 @@
             }
           },
           {
-            "id": 1126,
+            "id": 1118,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4011,11 +4073,10 @@
             }
           },
           {
-            "id": 1127,
+            "id": 1119,
             "kind": "boss",
-            "hp": 210,
+            "hp": 330,
             "dead": false,
-            "room": "ritual",
             "channel": 0,
             "minions": 0,
             "target": null,
@@ -4025,7 +4086,7 @@
             }
           },
           {
-            "id": 1128,
+            "id": 1120,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4038,7 +4099,7 @@
             }
           },
           {
-            "id": 1129,
+            "id": 1121,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4051,7 +4112,7 @@
             }
           },
           {
-            "id": 1130,
+            "id": 1122,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -4064,7 +4125,7 @@
             }
           },
           {
-            "id": 1131,
+            "id": 1123,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4077,7 +4138,7 @@
             }
           },
           {
-            "id": 1132,
+            "id": 1124,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4090,7 +4151,7 @@
             }
           },
           {
-            "id": 1133,
+            "id": 1125,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4103,7 +4164,7 @@
             }
           },
           {
-            "id": 1134,
+            "id": 1126,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -4116,7 +4177,7 @@
             }
           },
           {
-            "id": 1135,
+            "id": 1127,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4129,7 +4190,7 @@
             }
           },
           {
-            "id": 1136,
+            "id": 1128,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -4142,7 +4203,7 @@
             }
           },
           {
-            "id": 1137,
+            "id": 1129,
             "kind": "boss",
             "hp": 240,
             "dead": false,
@@ -4156,7 +4217,7 @@
             }
           },
           {
-            "id": 1138,
+            "id": 1130,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4169,7 +4230,7 @@
             }
           },
           {
-            "id": 1139,
+            "id": 1131,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4182,7 +4243,7 @@
             }
           },
           {
-            "id": 1140,
+            "id": 1132,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -4195,7 +4256,7 @@
             }
           },
           {
-            "id": 1141,
+            "id": 1133,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4208,7 +4269,7 @@
             }
           },
           {
-            "id": 1142,
+            "id": 1134,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -4221,7 +4282,7 @@
             }
           },
           {
-            "id": 1143,
+            "id": 1135,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4234,7 +4295,7 @@
             }
           },
           {
-            "id": 1144,
+            "id": 1136,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4247,7 +4308,7 @@
             }
           },
           {
-            "id": 1145,
+            "id": 1137,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -4260,7 +4321,7 @@
             }
           },
           {
-            "id": 1146,
+            "id": 1138,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4273,10 +4334,11 @@
             }
           },
           {
-            "id": 1147,
+            "id": 1139,
             "kind": "boss",
-            "hp": 330,
+            "hp": 210,
             "dead": false,
+            "room": "sanctum",
             "channel": 0,
             "minions": 0,
             "target": null,
@@ -4286,7 +4348,7 @@
             }
           },
           {
-            "id": 1148,
+            "id": 1140,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4299,7 +4361,7 @@
             }
           },
           {
-            "id": 1149,
+            "id": 1141,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4312,7 +4374,7 @@
             }
           },
           {
-            "id": 1150,
+            "id": 1142,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -4325,7 +4387,7 @@
             }
           },
           {
-            "id": 1151,
+            "id": 1143,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4338,7 +4400,7 @@
             }
           },
           {
-            "id": 1152,
+            "id": 1144,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4351,7 +4413,7 @@
             }
           },
           {
-            "id": 1153,
+            "id": 1145,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4364,7 +4426,7 @@
             }
           },
           {
-            "id": 1154,
+            "id": 1146,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -4377,7 +4439,7 @@
             }
           },
           {
-            "id": 1155,
+            "id": 1147,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4390,7 +4452,7 @@
             }
           },
           {
-            "id": 1156,
+            "id": 1148,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4403,7 +4465,7 @@
             }
           },
           {
-            "id": 1157,
+            "id": 1149,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4416,7 +4478,7 @@
             }
           },
           {
-            "id": 1158,
+            "id": 1150,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -4429,7 +4491,7 @@
             }
           },
           {
-            "id": 1159,
+            "id": 1151,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4442,7 +4504,7 @@
             }
           },
           {
-            "id": 1160,
+            "id": 1152,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -4455,7 +4517,7 @@
             }
           },
           {
-            "id": 1161,
+            "id": 1153,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -4573,37 +4635,37 @@
         "coordinates": "metres: X east, Y up, Z south",
         "bosses": [
           {
-            "type": "colossus",
+            "type": "wraith",
             "room": "crypt",
             "hp": 240,
             "dead": false,
-            "clip": "Idle",
+            "clip": "Hover",
             "attackTime": 0,
             "guardBreak": 0,
             "x": 2.0784609690826525,
             "z": -25.05
           },
           {
-            "type": "gargoyle",
-            "room": "ritual",
-            "hp": 210,
-            "dead": false,
-            "clip": "Stagger",
-            "attackTime": 0,
-            "guardBreak": 0,
-            "x": 24.549999999999997,
-            "z": -21.400000000000002
-          },
-          {
-            "type": "wraith",
+            "type": "colossus",
             "room": "forge",
             "hp": 240,
             "dead": false,
-            "clip": "Hover",
+            "clip": "Idle",
             "attackTime": 0,
             "guardBreak": 0,
             "x": -52.64999999999999,
             "z": -23.25
+          },
+          {
+            "type": "gargoyle",
+            "room": "sanctum",
+            "hp": 210,
+            "dead": false,
+            "clip": "Idle",
+            "attackTime": 0,
+            "guardBreak": 0,
+            "x": 28.949999999999996,
+            "z": -50.8
           }
         ]
       }
@@ -4629,34 +4691,32 @@
       {
         "hp": 160,
         "held": true,
-        "stone": 966,
-        "statueBody": 1070,
-        "after": 59.682707397207174,
+        "stone": 956,
+        "statueBody": 1060,
+        "after": 59.03516003968172,
         "projectile": {
-          "x": 30.689800725913397,
-          "y": 0.5829001536383401,
-          "z": -49.054472885506634,
+          "x": 31.231705600724336,
+          "y": 0.6067937446514057,
+          "z": -51.24704027091339,
           "collisions": [
-            1070,
-            591,
+            1060,
             11
           ]
         }
       },
       {
-        "hp": 59.682707397207174,
+        "hp": 59.03516003968172,
         "held": true,
-        "stone": 966,
-        "statueBody": 1070,
+        "stone": 956,
+        "statueBody": 1060,
         "after": 0,
         "projectile": {
-          "x": 32.91631156123928,
-          "y": 0.8416944568752452,
-          "z": -49.80658042799376,
+          "x": 31.78348110061465,
+          "y": 2.0024277241581703,
+          "z": -49.81788897421167,
           "collisions": [
-            1070,
-            1184,
-            591
+            1060,
+            1176
           ]
         }
       }
@@ -4664,6 +4724,54 @@
     "broken": {
       "statues": [],
       "fragments": [
+        {
+          "id": 1154,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1155,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1156,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1157,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1158,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1159,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1160,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
+        {
+          "id": 1161,
+          "shapes": 1,
+          "mass": 4,
+          "hp": 50
+        },
         {
           "id": 1162,
           "shapes": 1,
@@ -4749,12 +4857,6 @@
           "hp": 50
         },
         {
-          "id": 1176,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
           "id": 1177,
           "shapes": 1,
           "mass": 4,
@@ -4774,54 +4876,6 @@
         },
         {
           "id": 1180,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1181,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1182,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1183,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1184,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 31.845350277425627
-        },
-        {
-          "id": 1185,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1186,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1187,
-          "shapes": 1,
-          "mass": 4,
-          "hp": 50
-        },
-        {
-          "id": 1188,
           "shapes": 1,
           "mass": 4,
           "hp": 50
@@ -4852,7 +4906,7 @@
             ],
             "weights": [
               {
-                "id": 1072,
+                "id": 1062,
                 "position": {
                   "x": -5.200342908084098,
                   "y": 0.43999093106372106,
@@ -4862,7 +4916,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1073,
+                "id": 1063,
                 "position": {
                   "x": -2.800342908084096,
                   "y": 0.43999093106372106,
@@ -4900,7 +4954,7 @@
             ],
             "weights": [
               {
-                "id": 1074,
+                "id": 1064,
                 "position": {
                   "x": -55.200342908084124,
                   "y": 0.43999093106372106,
@@ -4954,7 +5008,7 @@
             ],
             "weights": [
               {
-                "id": 1075,
+                "id": 1065,
                 "position": {
                   "x": -6.450342908084098,
                   "y": 0.43999093106372106,
@@ -4964,7 +5018,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1076,
+                "id": 1066,
                 "position": {
                   "x": -7.750342908084098,
                   "y": 0.43999093106372106,
@@ -4987,47 +5041,13 @@
           },
           {
             "id": "passage-library-armoury",
-            "kind": "pressure",
-            "phase": "locked",
-            "open": 0,
+            "kind": "open",
+            "phase": "open",
+            "open": 1,
             "charge": 0,
-            "blocked": true,
-            "plates": [
-              {
-                "x": -38.54,
-                "y": 0,
-                "z": 2.5100000000000007,
-                "active": false
-              },
-              {
-                "x": -36.940000000000005,
-                "y": 0,
-                "z": 2.5100000000000007,
-                "active": false
-              }
-            ],
-            "weights": [
-              {
-                "id": 1077,
-                "position": {
-                  "x": -38.35034290808412,
-                  "y": 0.439990931063721,
-                  "z": 0.7504840271724152
-                },
-                "recoveries": 0,
-                "hp": 1000000
-              },
-              {
-                "id": 1078,
-                "position": {
-                  "x": -36.40034290808413,
-                  "y": 0.439990931063721,
-                  "z": 0.750484027172415
-                },
-                "recoveries": 0,
-                "hp": 1000000
-              }
-            ]
+            "blocked": false,
+            "plates": [],
+            "weights": []
           },
           {
             "id": "passage-forge-prison",
@@ -5062,7 +5082,7 @@
             ],
             "weights": [
               {
-                "id": 1079,
+                "id": 1067,
                 "position": {
                   "x": -55.10034290808413,
                   "y": 0.439990931063721,
@@ -5072,7 +5092,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1080,
+                "id": 1068,
                 "position": {
                   "x": -52.500342908084136,
                   "y": 0.439990931063721,
@@ -5085,13 +5105,47 @@
           },
           {
             "id": "passage-barracks-gallery",
-            "kind": "open",
-            "phase": "open",
-            "open": 1,
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
             "charge": 0,
-            "blocked": false,
-            "plates": [],
-            "weights": []
+            "blocked": true,
+            "plates": [
+              {
+                "x": 36.50999999999997,
+                "y": 0,
+                "z": -3.989999999999999,
+                "active": false
+              },
+              {
+                "x": 38.109999999999964,
+                "y": 0,
+                "z": -3.989999999999999,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1069,
+                "position": {
+                  "x": 37.34965709191584,
+                  "y": 0.439990931063721,
+                  "z": -1.849515972827585
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1070,
+                "position": {
+                  "x": 36.04965709191584,
+                  "y": 0.439990931063721,
+                  "z": -5.749515972827583
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
           },
           {
             "id": "passage-ritual-watchtower",
@@ -5116,7 +5170,7 @@
             ],
             "weights": [
               {
-                "id": 1081,
+                "id": 1071,
                 "position": {
                   "x": 45.49965709191587,
                   "y": 0.439990931063721,
@@ -5126,7 +5180,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1082,
+                "id": 1072,
                 "position": {
                   "x": 47.44965709191587,
                   "y": 0.439990931063721,
@@ -5139,13 +5193,47 @@
           },
           {
             "id": "passage-watchtower-gallery",
-            "kind": "open",
-            "phase": "open",
-            "open": 1,
+            "kind": "pressure",
+            "phase": "locked",
+            "open": 0,
             "charge": 0,
-            "blocked": false,
-            "plates": [],
-            "weights": []
+            "blocked": true,
+            "plates": [
+              {
+                "x": 47.85999999999999,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": false
+              },
+              {
+                "x": 49.45999999999999,
+                "y": 0,
+                "z": -12.290000000000001,
+                "active": false
+              }
+            ],
+            "weights": [
+              {
+                "id": 1073,
+                "position": {
+                  "x": 48.69965709191587,
+                  "y": 0.439990931063721,
+                  "z": -10.149515972827581
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              },
+              {
+                "id": 1074,
+                "position": {
+                  "x": 46.09965709191587,
+                  "y": 0.439990931063721,
+                  "z": -12.099515972827582
+                },
+                "recoveries": 0,
+                "hp": 1000000
+              }
+            ]
           },
           {
             "id": "passage-catacombs-crypt",
@@ -5170,7 +5258,7 @@
             ],
             "weights": [
               {
-                "id": 1083,
+                "id": 1075,
                 "position": {
                   "x": -3.8503429080840945,
                   "y": 0.439990931063721,
@@ -5180,7 +5268,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1084,
+                "id": 1076,
                 "position": {
                   "x": -1.9003429080840961,
                   "y": 0.439990931063721,
@@ -5214,7 +5302,7 @@
             ],
             "weights": [
               {
-                "id": 1085,
+                "id": 1077,
                 "position": {
                   "x": 15.399657091915897,
                   "y": 0.439990931063721,
@@ -5224,7 +5312,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1086,
+                "id": 1078,
                 "position": {
                   "x": 16.04965709191591,
                   "y": 0.439990931063721,
@@ -5258,7 +5346,7 @@
             ],
             "weights": [
               {
-                "id": 1087,
+                "id": 1079,
                 "position": {
                   "x": 19.299657091915904,
                   "y": 0.439990931063721,
@@ -5268,7 +5356,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1088,
+                "id": 1080,
                 "position": {
                   "x": 21.8996570919159,
                   "y": 0.439990931063721,
@@ -5316,7 +5404,7 @@
             ],
             "weights": [
               {
-                "id": 1089,
+                "id": 1081,
                 "position": {
                   "x": -55.05034290808413,
                   "y": 0.439990931063721,
@@ -5344,7 +5432,7 @@
             ],
             "weights": [
               {
-                "id": 1090,
+                "id": 1082,
                 "position": {
                   "x": -5.8003429080840965,
                   "y": 0.43999093106372106,
@@ -5372,7 +5460,7 @@
             ],
             "weights": [
               {
-                "id": 1091,
+                "id": 1083,
                 "position": {
                   "x": -46.05034290808412,
                   "y": 0.439990931063721,
@@ -5406,7 +5494,7 @@
             ],
             "weights": [
               {
-                "id": 1092,
+                "id": 1084,
                 "position": {
                   "x": 46.249657091915886,
                   "y": 5.239990931063721,
@@ -5416,7 +5504,7 @@
                 "hp": 1000000
               },
               {
-                "id": 1093,
+                "id": 1085,
                 "position": {
                   "x": 44.64965709191588,
                   "y": 5.239990931063722,
@@ -5433,10 +5521,10 @@
           "fuel": 0,
           "endless": true,
           "stompCooldown": 0,
-          "room": "library",
-          "roomLabel": "Βιβλιοθήκη",
-          "x": -45.45,
-          "z": -2.899999999999996,
+          "room": "gallery",
+          "roomLabel": "Στοά",
+          "x": 47.85,
+          "z": -7.4499999999999975,
           "yaw": 0,
           "aimYaw": 3.141592653589793,
           "stompTime": 0,
@@ -5460,9 +5548,9 @@
         "controls": "drag-release",
         "entities": 227,
         "renderer": {
-          "frame": 6244,
-          "calls": 1080,
-          "triangles": 4050764,
+          "frame": 6169,
+          "calls": 1072,
+          "triangles": 4020164,
           "points": 1938,
           "lines": 0
         },
@@ -5471,7 +5559,7 @@
           "runs": 0,
           "wins": 0
         },
-        "time": 4.632399999999841,
+        "time": 4.628299999999842,
         "candidate": true,
         "inventory": {
           "items": [],
@@ -5499,7 +5587,7 @@
         "goliath": null,
         "enemies": [
           {
-            "id": 1094,
+            "id": 1086,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5512,7 +5600,7 @@
             }
           },
           {
-            "id": 1095,
+            "id": 1087,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5525,7 +5613,7 @@
             }
           },
           {
-            "id": 1096,
+            "id": 1088,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -5538,7 +5626,7 @@
             }
           },
           {
-            "id": 1097,
+            "id": 1089,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5551,7 +5639,7 @@
             }
           },
           {
-            "id": 1098,
+            "id": 1090,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -5564,7 +5652,7 @@
             }
           },
           {
-            "id": 1099,
+            "id": 1091,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5577,7 +5665,7 @@
             }
           },
           {
-            "id": 1100,
+            "id": 1092,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5590,7 +5678,7 @@
             }
           },
           {
-            "id": 1101,
+            "id": 1093,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -5603,7 +5691,7 @@
             }
           },
           {
-            "id": 1102,
+            "id": 1094,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5616,7 +5704,7 @@
             }
           },
           {
-            "id": 1103,
+            "id": 1095,
             "kind": "boss",
             "hp": 240,
             "dead": false,
@@ -5630,7 +5718,7 @@
             }
           },
           {
-            "id": 1104,
+            "id": 1096,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5643,7 +5731,7 @@
             }
           },
           {
-            "id": 1105,
+            "id": 1097,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5656,7 +5744,7 @@
             }
           },
           {
-            "id": 1106,
+            "id": 1098,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -5669,7 +5757,7 @@
             }
           },
           {
-            "id": 1107,
+            "id": 1099,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5682,7 +5770,7 @@
             }
           },
           {
-            "id": 1108,
+            "id": 1100,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -5695,7 +5783,7 @@
             }
           },
           {
-            "id": 1109,
+            "id": 1101,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5708,7 +5796,7 @@
             }
           },
           {
-            "id": 1110,
+            "id": 1102,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -5721,7 +5809,7 @@
             }
           },
           {
-            "id": 1111,
+            "id": 1103,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5734,7 +5822,7 @@
             }
           },
           {
-            "id": 1112,
+            "id": 1104,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5747,7 +5835,7 @@
             }
           },
           {
-            "id": 1113,
+            "id": 1105,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -5760,7 +5848,7 @@
             }
           },
           {
-            "id": 1114,
+            "id": 1106,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5773,7 +5861,7 @@
             }
           },
           {
-            "id": 1115,
+            "id": 1107,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -5786,7 +5874,7 @@
             }
           },
           {
-            "id": 1116,
+            "id": 1108,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5799,7 +5887,7 @@
             }
           },
           {
-            "id": 1117,
+            "id": 1109,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -5812,7 +5900,7 @@
             }
           },
           {
-            "id": 1118,
+            "id": 1110,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5821,11 +5909,11 @@
             "target": null,
             "position": {
               "x": 34.9,
-              "z": -5.8
+              "z": -3.5999999999999996
             }
           },
           {
-            "id": 1119,
+            "id": 1111,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5838,7 +5926,7 @@
             }
           },
           {
-            "id": 1120,
+            "id": 1112,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5851,7 +5939,7 @@
             }
           },
           {
-            "id": 1121,
+            "id": 1113,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -5864,7 +5952,7 @@
             }
           },
           {
-            "id": 1122,
+            "id": 1114,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5877,7 +5965,7 @@
             }
           },
           {
-            "id": 1123,
+            "id": 1115,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5890,7 +5978,7 @@
             }
           },
           {
-            "id": 1124,
+            "id": 1116,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5903,7 +5991,7 @@
             }
           },
           {
-            "id": 1125,
+            "id": 1117,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -5916,7 +6004,7 @@
             }
           },
           {
-            "id": 1126,
+            "id": 1118,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5929,11 +6017,10 @@
             }
           },
           {
-            "id": 1127,
+            "id": 1119,
             "kind": "boss",
-            "hp": 210,
+            "hp": 330,
             "dead": false,
-            "room": "ritual",
             "channel": 0,
             "minions": 0,
             "target": null,
@@ -5943,7 +6030,7 @@
             }
           },
           {
-            "id": 1128,
+            "id": 1120,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5956,7 +6043,7 @@
             }
           },
           {
-            "id": 1129,
+            "id": 1121,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5969,7 +6056,7 @@
             }
           },
           {
-            "id": 1130,
+            "id": 1122,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -5982,7 +6069,7 @@
             }
           },
           {
-            "id": 1131,
+            "id": 1123,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -5995,7 +6082,7 @@
             }
           },
           {
-            "id": 1132,
+            "id": 1124,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6008,7 +6095,7 @@
             }
           },
           {
-            "id": 1133,
+            "id": 1125,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6021,7 +6108,7 @@
             }
           },
           {
-            "id": 1134,
+            "id": 1126,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -6034,7 +6121,7 @@
             }
           },
           {
-            "id": 1135,
+            "id": 1127,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6047,7 +6134,7 @@
             }
           },
           {
-            "id": 1136,
+            "id": 1128,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -6060,7 +6147,7 @@
             }
           },
           {
-            "id": 1137,
+            "id": 1129,
             "kind": "boss",
             "hp": 240,
             "dead": false,
@@ -6074,7 +6161,7 @@
             }
           },
           {
-            "id": 1138,
+            "id": 1130,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6087,7 +6174,7 @@
             }
           },
           {
-            "id": 1139,
+            "id": 1131,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6100,7 +6187,7 @@
             }
           },
           {
-            "id": 1140,
+            "id": 1132,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -6113,7 +6200,7 @@
             }
           },
           {
-            "id": 1141,
+            "id": 1133,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6126,7 +6213,7 @@
             }
           },
           {
-            "id": 1142,
+            "id": 1134,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -6139,7 +6226,7 @@
             }
           },
           {
-            "id": 1143,
+            "id": 1135,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6152,7 +6239,7 @@
             }
           },
           {
-            "id": 1144,
+            "id": 1136,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6165,7 +6252,7 @@
             }
           },
           {
-            "id": 1145,
+            "id": 1137,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -6178,7 +6265,7 @@
             }
           },
           {
-            "id": 1146,
+            "id": 1138,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6191,10 +6278,11 @@
             }
           },
           {
-            "id": 1147,
+            "id": 1139,
             "kind": "boss",
-            "hp": 330,
+            "hp": 210,
             "dead": false,
+            "room": "sanctum",
             "channel": 0,
             "minions": 0,
             "target": null,
@@ -6204,7 +6292,7 @@
             }
           },
           {
-            "id": 1148,
+            "id": 1140,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6217,7 +6305,7 @@
             }
           },
           {
-            "id": 1149,
+            "id": 1141,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6230,7 +6318,7 @@
             }
           },
           {
-            "id": 1150,
+            "id": 1142,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -6243,7 +6331,7 @@
             }
           },
           {
-            "id": 1151,
+            "id": 1143,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6256,7 +6344,7 @@
             }
           },
           {
-            "id": 1152,
+            "id": 1144,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6269,7 +6357,7 @@
             }
           },
           {
-            "id": 1153,
+            "id": 1145,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6282,7 +6370,7 @@
             }
           },
           {
-            "id": 1154,
+            "id": 1146,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -6295,7 +6383,7 @@
             }
           },
           {
-            "id": 1155,
+            "id": 1147,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6308,7 +6396,7 @@
             }
           },
           {
-            "id": 1156,
+            "id": 1148,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6321,7 +6409,7 @@
             }
           },
           {
-            "id": 1157,
+            "id": 1149,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6334,7 +6422,7 @@
             }
           },
           {
-            "id": 1158,
+            "id": 1150,
             "kind": "archer",
             "hp": 48,
             "dead": false,
@@ -6347,7 +6435,7 @@
             }
           },
           {
-            "id": 1159,
+            "id": 1151,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6360,7 +6448,7 @@
             }
           },
           {
-            "id": 1160,
+            "id": 1152,
             "kind": "heavy",
             "hp": 135,
             "dead": false,
@@ -6373,7 +6461,7 @@
             }
           },
           {
-            "id": 1161,
+            "id": 1153,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6386,20 +6474,7 @@
             }
           },
           {
-            "id": 1189,
-            "kind": "archer",
-            "hp": 48,
-            "dead": false,
-            "room": "gallery",
-            "channel": 0,
-            "target": null,
-            "position": {
-              "x": 51.875,
-              "z": -16.25
-            }
-          },
-          {
-            "id": 1190,
+            "id": 1181,
             "kind": "guard",
             "hp": 65,
             "dead": false,
@@ -6407,8 +6482,8 @@
             "channel": 0,
             "target": null,
             "position": {
-              "x": 41.25,
-              "z": -0.625
+              "x": 42.28923048454133,
+              "z": -0.02499999999999991
             }
           }
         ],
@@ -6517,233 +6592,81 @@
         "coordinates": "metres: X east, Y up, Z south",
         "bosses": [
           {
-            "type": "colossus",
+            "type": "wraith",
             "room": "crypt",
             "hp": 240,
             "dead": false,
-            "clip": "Idle",
+            "clip": "Hover",
             "attackTime": 0,
             "guardBreak": 0,
             "x": 2.0784609690826525,
             "z": -25.05
           },
           {
+            "type": "colossus",
+            "room": "forge",
+            "hp": 240,
+            "dead": false,
+            "clip": "Idle",
+            "attackTime": 0,
+            "guardBreak": 0,
+            "x": -52.64999999999999,
+            "z": -23.25
+          },
+          {
             "type": "gargoyle",
-            "room": "ritual",
+            "room": "sanctum",
             "hp": 210,
             "dead": false,
             "clip": "Stagger",
             "attackTime": 0,
             "guardBreak": 0,
-            "x": 24.549999999999997,
-            "z": -21.400000000000002
-          },
-          {
-            "type": "wraith",
-            "room": "forge",
-            "hp": 240,
-            "dead": false,
-            "clip": "Hover",
-            "attackTime": 0,
-            "guardBreak": 0,
-            "x": -52.64999999999999,
-            "z": -23.25
+            "x": 28.949999999999996,
+            "z": -50.8
           }
         ]
       }
     }
   },
   "debrisBenchmark": {
-    "p95": 14.700000047683716,
-    "cpuP95": 14.5,
-    "max": 21.699999928474426,
+    "p95": 14.599999904632568,
+    "cpuP95": 14.399999976158142,
+    "max": 24.5,
     "over33ms": 0,
     "render": {
-      "frame": 9349,
-      "calls": 1237,
-      "triangles": 4153583,
+      "frame": 9274,
+      "calls": 1265,
+      "triangles": 4227551,
       "points": 969,
       "lines": 66
     },
     "memory": {
-      "geometries": 596,
-      "textures": 141
+      "geometries": 606,
+      "textures": 146
     },
     "fragments": 24,
-    "sleeping": 17,
-    "contacts": 27
+    "sleeping": 16,
+    "contacts": 31
   },
-  "cpuHotspots": [
-    {
-      "name": "(program)",
-      "line": -1,
-      "url": "",
-      "timeMs": 226.844
-    },
-    {
-      "name": "updateMatrixWorld",
-      "line": 4,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 88.532
-    },
-    {
-      "name": "updateMatrixWorld",
-      "line": 4,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 55.37
-    },
-    {
-      "name": "reset",
-      "line": 4107,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 49.238
-    },
-    {
-      "name": "collisionPairs",
-      "line": 4107,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 44.158
-    },
-    {
-      "name": "intersectsObject",
-      "line": 43,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 42.721
-    },
-    {
-      "name": "Ye",
-      "line": 3839,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 40.625
-    },
-    {
-      "name": "se",
-      "line": 3839,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 40.112
-    },
-    {
-      "name": "solve",
-      "line": 3865,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 36.701
-    },
-    {
-      "name": "renderBufferDirect",
-      "line": 3839,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 32.041
-    },
-    {
-      "name": "m",
-      "line": 3787,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 29.662
-    },
-    {
-      "name": "o",
-      "line": 3839,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 26.527
-    },
-    {
-      "name": "updateMatrixWorld",
-      "line": 4,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 25.968
-    },
-    {
-      "name": "v",
-      "line": 3815,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 24.967
-    },
-    {
-      "name": "bindVertexArray",
-      "line": -1,
-      "url": "",
-      "timeMs": 23.202
-    },
-    {
-      "name": "setValue",
-      "line": 3736,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 22.894
-    },
-    {
-      "name": "v",
-      "line": 3815,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 21.323
-    },
-    {
-      "name": "insertionSortX",
-      "line": 3865,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 21.131
-    },
-    {
-      "name": "se",
-      "line": 3839,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 20.933
-    },
-    {
-      "name": "hs",
-      "line": 3864,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 20.501
-    },
-    {
-      "name": "internalStep",
-      "line": 3865,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 20.179
-    },
-    {
-      "name": "upload",
-      "line": 3736,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 19.061
-    },
-    {
-      "name": "jh",
-      "line": 4257,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 18.37
-    },
-    {
-      "name": "le",
-      "line": 3839,
-      "url": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-Cie2EpDG.js",
-      "timeMs": 18.164
-    },
-    {
-      "name": "getBoundingClientRect",
-      "line": -1,
-      "url": "",
-      "timeMs": 17.368
-    }
-  ],
   "pointerOutsideBenchmark": {
-    "p95": 15.100000023841858,
-    "cpuP95": 14.700000047683716,
-    "max": 17,
+    "p95": 13.300000071525574,
+    "cpuP95": 13.100000023841858,
+    "max": 15.700000047683716,
     "over33ms": 0,
     "render": {
-      "frame": 12124,
-      "calls": 1240,
-      "triangles": 4153611,
+      "frame": 12049,
+      "calls": 1265,
+      "triangles": 4227551,
       "points": 969,
       "lines": 66
     },
     "memory": {
-      "geometries": 599,
-      "textures": 141
+      "geometries": 606,
+      "textures": 146
     },
     "fragments": 24,
-    "sleeping": 18,
-    "contacts": 20
+    "sleeping": 16,
+    "contacts": 30
   },
   "resets": [
     {
@@ -6752,14 +6675,31 @@
       "statueBodies": 3,
       "fragmentBodies": 0,
       "geometryIds": [
-        "09e49631-e083-4e24-8b4b-1006ba146270",
-        "85736ea8-2c35-4814-a794-0e79e66fcfb5",
-        "e19af7d6-d8dc-49ee-a3a0-de5b72f06844",
-        "f9c8302f-10c4-46b2-bbae-6e636ab45566"
+        "094a52fa-e0b1-46f7-8ba1-6e32ba7270ad",
+        "6d552432-f41d-4f9a-8f16-1002eefba6fa",
+        "cdbe1e33-d4b7-42b7-af27-3e52ce10e400",
+        "dd82ef0b-a40c-4b0d-bf55-05ce1ece9e32"
       ],
-      "bodies": 880,
+      "bodies": 872,
       "memory": {
-        "geometries": 544,
+        "geometries": 556,
+        "textures": 108
+      }
+    },
+    {
+      "statues": 3,
+      "fragments": 0,
+      "statueBodies": 3,
+      "fragmentBodies": 0,
+      "geometryIds": [
+        "094a52fa-e0b1-46f7-8ba1-6e32ba7270ad",
+        "6d552432-f41d-4f9a-8f16-1002eefba6fa",
+        "cdbe1e33-d4b7-42b7-af27-3e52ce10e400",
+        "dd82ef0b-a40c-4b0d-bf55-05ce1ece9e32"
+      ],
+      "bodies": 854,
+      "memory": {
+        "geometries": 550,
         "textures": 105
       }
     },
@@ -6769,31 +6709,14 @@
       "statueBodies": 3,
       "fragmentBodies": 0,
       "geometryIds": [
-        "09e49631-e083-4e24-8b4b-1006ba146270",
-        "85736ea8-2c35-4814-a794-0e79e66fcfb5",
-        "e19af7d6-d8dc-49ee-a3a0-de5b72f06844",
-        "f9c8302f-10c4-46b2-bbae-6e636ab45566"
+        "094a52fa-e0b1-46f7-8ba1-6e32ba7270ad",
+        "6d552432-f41d-4f9a-8f16-1002eefba6fa",
+        "cdbe1e33-d4b7-42b7-af27-3e52ce10e400",
+        "dd82ef0b-a40c-4b0d-bf55-05ce1ece9e32"
       ],
-      "bodies": 862,
+      "bodies": 854,
       "memory": {
-        "geometries": 542,
-        "textures": 105
-      }
-    },
-    {
-      "statues": 3,
-      "fragments": 0,
-      "statueBodies": 3,
-      "fragmentBodies": 0,
-      "geometryIds": [
-        "09e49631-e083-4e24-8b4b-1006ba146270",
-        "85736ea8-2c35-4814-a794-0e79e66fcfb5",
-        "e19af7d6-d8dc-49ee-a3a0-de5b72f06844",
-        "f9c8302f-10c4-46b2-bbae-6e636ab45566"
-      ],
-      "bodies": 853,
-      "memory": {
-        "geometries": 542,
+        "geometries": 550,
         "textures": 105
       }
     }
