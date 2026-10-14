@@ -1,0 +1,1136 @@
+{
+  "date": "2026-10-14T10:10:14.694Z",
+  "status": "Verified first Greek environment and gate-puzzle sample. Full castle rollout is pending user review.",
+  "unitTests": 198,
+  "physicsIntegration": "passed",
+  "browser": {
+    "mechanics": {
+      "checks": [
+        {
+          "name": "All three doors begin physically and navigationally closed",
+          "pass": true,
+          "data": [
+            {
+              "id": "hall-pressure",
+              "blocked": true,
+              "body": true,
+              "phase": "locked",
+              "weights": 2
+            },
+            {
+              "id": "crypt-fire",
+              "blocked": true,
+              "body": true,
+              "phase": "locked",
+              "weights": 0
+            },
+            {
+              "id": "archive-secret",
+              "blocked": true,
+              "body": true,
+              "phase": "locked",
+              "weights": 1
+            }
+          ]
+        },
+        {
+          "name": "Wizard cannot walk through leaf or either wall return",
+          "pass": true,
+          "data": [
+            {
+              "x": -10,
+              "z": 5.8785644099720225
+            },
+            {
+              "x": -5,
+              "z": 5.878452558148921
+            },
+            {
+              "x": 0,
+              "z": 5.578564409972023
+            },
+            {
+              "x": 5,
+              "z": 5.8785644099720225
+            },
+            {
+              "x": 10,
+              "z": 5.8785644099720225
+            }
+          ]
+        },
+        {
+          "name": "Two resting weights open both leaves; held weight cannot cheat; both nav grids and physics refresh",
+          "pass": true,
+          "data": {
+            "one": "locked",
+            "held": true,
+            "heldPhase": "locked",
+            "final": "open",
+            "nav": true,
+            "goliathNav": true,
+            "removedBody": true,
+            "parked": 2,
+            "positions": [
+              {
+                "x": -2.0003299519701843,
+                "y": 0.48999093106372005,
+                "z": 9.000465776139075
+              },
+              {
+                "x": 1.999674438470455,
+                "y": 0.48999093106371966,
+                "z": 9.000459590768008
+              }
+            ],
+            "snapshot": [
+              {
+                "id": "hall-pressure",
+                "kind": "pressure",
+                "phase": "open",
+                "open": 1,
+                "charge": 0.41666666666666663,
+                "blocked": false,
+                "plates": [
+                  {
+                    "x": -2,
+                    "z": 9,
+                    "active": true
+                  },
+                  {
+                    "x": 2,
+                    "z": 9,
+                    "active": true
+                  }
+                ],
+                "weights": [
+                  {
+                    "id": 527,
+                    "position": {
+                      "x": -2.0003299519701843,
+                      "y": 0.48999093106372005,
+                      "z": 9.000465776139075
+                    },
+                    "recoveries": 0,
+                    "hp": 1000000
+                  },
+                  {
+                    "id": 528,
+                    "position": {
+                      "x": 1.999674438470455,
+                      "y": 0.48999093106371966,
+                      "z": 9.000459590768008
+                    },
+                    "recoveries": 0,
+                    "hp": 1000000
+                  }
+                ]
+              },
+              {
+                "id": "crypt-fire",
+                "kind": "fire",
+                "phase": "locked",
+                "open": 0,
+                "charge": 0,
+                "blocked": true,
+                "plates": [],
+                "weights": []
+              },
+              {
+                "id": "archive-secret",
+                "kind": "pressure",
+                "phase": "locked",
+                "open": 0,
+                "charge": 0,
+                "blocked": true,
+                "plates": [
+                  {
+                    "x": -57.7,
+                    "z": -7.8,
+                    "active": false
+                  }
+                ],
+                "weights": [
+                  {
+                    "id": 529,
+                    "position": {
+                      "x": -55.80034729740633,
+                      "y": 0.4399909310637214,
+                      "z": -9.799509787639991
+                    },
+                    "recoveries": 0,
+                    "hp": 1000000
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "Puzzle weights survive charged grab, high-speed impact and damage; falling weight recovers; gate stays open",
+          "pass": true,
+          "data": {
+            "grabbed": true,
+            "intact": true,
+            "recovered": true,
+            "hp": 1000000,
+            "open": "open",
+            "position": {
+              "x": -4,
+              "y": 0.55,
+              "z": 13
+            },
+            "recoveries": 1
+          }
+        },
+        {
+          "name": "Wizard walks through the opened gate without an invisible collider",
+          "pass": true,
+          "data": {
+            "x": 0,
+            "y": 0.8599765336818725,
+            "z": -1.0179540311181081
+          }
+        },
+        {
+          "name": "Secret single gate opens from its one pressure plate",
+          "pass": true,
+          "data": {
+            "phase": "open",
+            "nav": true,
+            "physical": false
+          }
+        },
+        {
+          "name": "Only actual HEARTH nozzle fire burns the wooden gate after charge and boarding",
+          "pass": true,
+          "data": {
+            "wizard": "locked",
+            "charge": true,
+            "awake": "ready",
+            "board": true,
+            "mounted": true,
+            "state": "piloted",
+            "phase": "open",
+            "heat": 2.5,
+            "nav": true,
+            "streams": [
+              {
+                "origin": {
+                  "x": -0.8209269772309693,
+                  "y": 1.9646999753806138,
+                  "z": -9.336922386802291
+                },
+                "direction": {
+                  "x": -0.9999772747107979,
+                  "y": -0.3387735558725187,
+                  "z": -0.006741666112008662
+                },
+                "length": 5.700000000000003
+              },
+              {
+                "origin": {
+                  "x": -1.3246126311270203,
+                  "y": 1.9646405364014068,
+                  "z": -7.160223297076647
+                },
+                "direction": {
+                  "x": -0.9017777853418679,
+                  "y": -0.33884707512855056,
+                  "z": -0.43219998364636264
+                },
+                "length": 5.700000000000003
+              }
+            ],
+            "snapshot": {
+              "state": "piloted",
+              "fuel": 100,
+              "endless": true,
+              "stompCooldown": 0,
+              "room": "ritual",
+              "roomLabel": "Αίθουσα τελετής",
+              "x": 0,
+              "z": -8,
+              "yaw": 4.448702473693895,
+              "aimYaw": 4.48484521487997,
+              "stompTime": 0,
+              "clip": "Fire",
+              "firing": true,
+              "occupied": true
+            }
+          }
+        },
+        {
+          "name": "HEARTH crosses open gate, dismounts and can reboard",
+          "pass": true,
+          "data": {
+            "crossed": true,
+            "exit": true,
+            "dismounted": true,
+            "reboard": true,
+            "position": {
+              "x": 0,
+              "y": 1.2198461467092037,
+              "z": -17.369244425868896
+            },
+            "rise": 0.0800000953674318,
+            "contacts": [
+              {
+                "position": {
+                  "x": 0,
+                  "y": -0.3,
+                  "z": -20.625
+                },
+                "shapes": [
+                  {
+                    "halfExtents": {
+                      "x": 8.75,
+                      "y": 0.3,
+                      "z": 8.125
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "No runtime or shader errors",
+          "pass": true,
+          "data": []
+        }
+      ],
+      "errors": []
+    },
+    "input": {
+      "checks": [
+        {
+          "name": "Mouse native pick of weight 1",
+          "pass": true,
+          "data": {
+            "start": {
+              "x": 543.0048441336689,
+              "y": 556.1679295321819
+            },
+            "end": {
+              "x": 631.5044247787611,
+              "y": 419.1799402864816
+            }
+          }
+        },
+        {
+          "name": "Pre-release diagnostic",
+          "pass": true,
+          "data": {
+            "held": {
+              "x": -2.0000002913307164,
+              "y": 0.7899747304360989,
+              "z": 9.000000582655233
+            },
+            "slab": {
+              "x": -2,
+              "z": 9
+            },
+            "shielding": false
+          }
+        },
+        {
+          "name": "Mouse release places weight 1 on slab",
+          "pass": true,
+          "data": {
+            "holding": null,
+            "gate": {
+              "id": "hall-pressure",
+              "kind": "pressure",
+              "phase": "locked",
+              "open": 0,
+              "charge": 0,
+              "blocked": true,
+              "plates": [
+                {
+                  "x": -2,
+                  "z": 9,
+                  "active": true
+                },
+                {
+                  "x": 2,
+                  "z": 9,
+                  "active": false
+                }
+              ],
+              "weights": [
+                {
+                  "id": 527,
+                  "position": {
+                    "x": -2.000385335872484,
+                    "y": 0.4899909310333313,
+                    "z": 9.000545319295671
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                },
+                {
+                  "id": 528,
+                  "position": {
+                    "x": 3.9996527025936923,
+                    "y": 0.43999093106372134,
+                    "z": 13.00049021236001
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mouse native pick of weight 2",
+          "pass": true,
+          "data": {
+            "start": {
+              "x": 896.9757833006059,
+              "y": 556.1803149080002
+            },
+            "end": {
+              "x": 808.4955752212389,
+              "y": 419.1799343660767
+            }
+          }
+        },
+        {
+          "name": "Pre-release diagnostic",
+          "pass": true,
+          "data": {
+            "held": {
+              "x": 2.0000002912671015,
+              "y": 0.7899747304360989,
+              "z": 9.000000582707528
+            },
+            "slab": {
+              "x": 2,
+              "z": 9
+            },
+            "shielding": false
+          }
+        },
+        {
+          "name": "Mouse release places weight 2 on slab",
+          "pass": true,
+          "data": {
+            "holding": null,
+            "gate": {
+              "id": "hall-pressure",
+              "kind": "pressure",
+              "phase": "open",
+              "open": 1,
+              "charge": 0.41666666666666663,
+              "blocked": false,
+              "plates": [
+                {
+                  "x": -2,
+                  "z": 9,
+                  "active": true
+                },
+                {
+                  "x": 2,
+                  "z": 9,
+                  "active": true
+                }
+              ],
+              "weights": [
+                {
+                  "id": 527,
+                  "position": {
+                    "x": -2.000385335872484,
+                    "y": 0.4899909310333313,
+                    "z": 9.000545319295671
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                },
+                {
+                  "id": 528,
+                  "position": {
+                    "x": 1.9996211291678803,
+                    "y": 0.4899909310302713,
+                    "z": 9.000538652026785
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mouse complete two-weight puzzle through real pointer events",
+          "pass": true
+        },
+        {
+          "name": "1440px viewport has no horizontal overflow",
+          "pass": true
+        },
+        {
+          "name": "Touch native pick of weight 1",
+          "pass": true,
+          "data": {
+            "start": {
+              "x": 120.71244155450171,
+              "y": 445.57465839452846
+            },
+            "end": {
+              "x": 157.85714285714286,
+              "y": 388.07866453749824
+            }
+          }
+        },
+        {
+          "name": "Pre-release diagnostic",
+          "pass": true,
+          "data": {
+            "held": {
+              "x": -2.0000006891639255,
+              "y": 0.789976211956707,
+              "z": 9.000001378308806
+            },
+            "slab": {
+              "x": -2,
+              "z": 9
+            },
+            "shielding": false
+          }
+        },
+        {
+          "name": "Touch release places weight 1 on slab",
+          "pass": true,
+          "data": {
+            "holding": null,
+            "gate": {
+              "id": "hall-pressure",
+              "kind": "pressure",
+              "phase": "locked",
+              "open": 0,
+              "charge": 0,
+              "blocked": true,
+              "plates": [
+                {
+                  "x": -2,
+                  "z": 9,
+                  "active": true
+                },
+                {
+                  "x": 2,
+                  "z": 9,
+                  "active": false
+                }
+              ],
+              "weights": [
+                {
+                  "id": 527,
+                  "position": {
+                    "x": -2.0003835805852255,
+                    "y": 0.48999093103239394,
+                    "z": 9.00054410410786
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                },
+                {
+                  "id": 528,
+                  "position": {
+                    "x": 3.9996527025936923,
+                    "y": 0.43999093106372134,
+                    "z": 13.00049021236001
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Touch native pick of weight 2",
+          "pass": true,
+          "data": {
+            "start": {
+              "x": 269.27926447673997,
+              "y": 445.57968074281496
+            },
+            "end": {
+              "x": 232.14285714285714,
+              "y": 388.0786638810762
+            }
+          }
+        },
+        {
+          "name": "Pre-release diagnostic",
+          "pass": true,
+          "data": {
+            "held": {
+              "x": 2.000000689009789,
+              "y": 0.789976211956707,
+              "z": 9.000001378428413
+            },
+            "slab": {
+              "x": 2,
+              "z": 9
+            },
+            "shielding": false
+          }
+        },
+        {
+          "name": "Touch release places weight 2 on slab",
+          "pass": true,
+          "data": {
+            "holding": null,
+            "gate": {
+              "id": "hall-pressure",
+              "kind": "pressure",
+              "phase": "open",
+              "open": 1,
+              "charge": 0.41666666666666663,
+              "blocked": false,
+              "plates": [
+                {
+                  "x": -2,
+                  "z": 9,
+                  "active": true
+                },
+                {
+                  "x": 2,
+                  "z": 9,
+                  "active": true
+                }
+              ],
+              "weights": [
+                {
+                  "id": 527,
+                  "position": {
+                    "x": -2.0003835805852255,
+                    "y": 0.48999093103239394,
+                    "z": 9.00054410410786
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                },
+                {
+                  "id": 528,
+                  "position": {
+                    "x": 1.9996248949287745,
+                    "y": 0.48999093102945135,
+                    "z": 9.000536988994856
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Touch complete two-weight puzzle through real pointer events",
+          "pass": true
+        },
+        {
+          "name": "390px viewport has no horizontal overflow",
+          "pass": true
+        },
+        {
+          "name": "No browser errors",
+          "pass": true,
+          "data": []
+        }
+      ],
+      "errors": []
+    },
+    "routes": {
+      "checks": [
+        {
+          "name": "All 13 random HEARTH spawn rooms are physically reachable without burning the wood gate",
+          "pass": true,
+          "data": {
+            "rooms": [
+              {
+                "room": "hall",
+                "candidates": 60,
+                "unreachable": []
+              },
+              {
+                "room": "crypt",
+                "candidates": 26,
+                "unreachable": []
+              },
+              {
+                "room": "armoury",
+                "candidates": 72,
+                "unreachable": []
+              },
+              {
+                "room": "barracks",
+                "candidates": 65,
+                "unreachable": []
+              },
+              {
+                "room": "prison",
+                "candidates": 40,
+                "unreachable": []
+              },
+              {
+                "room": "ritual",
+                "candidates": 50,
+                "unreachable": []
+              },
+              {
+                "room": "library",
+                "candidates": 57,
+                "unreachable": []
+              },
+              {
+                "room": "forge",
+                "candidates": 56,
+                "unreachable": []
+              },
+              {
+                "room": "catacombs",
+                "candidates": 47,
+                "unreachable": []
+              },
+              {
+                "room": "sanctum",
+                "candidates": 80,
+                "unreachable": []
+              },
+              {
+                "room": "gallery",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "watchtower",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "gatehouse",
+                "candidates": 46,
+                "unreachable": []
+              }
+            ],
+            "pressureOpen": "locked",
+            "fireLocked": true,
+            "workerRemoved": true,
+            "parkedSeen": true,
+            "reset": true,
+            "weights": 3
+          }
+        },
+        {
+          "name": "Trajectory snapshot removes the open door and includes parked leaves",
+          "pass": true,
+          "data": {
+            "rooms": [
+              {
+                "room": "hall",
+                "candidates": 60,
+                "unreachable": []
+              },
+              {
+                "room": "crypt",
+                "candidates": 26,
+                "unreachable": []
+              },
+              {
+                "room": "armoury",
+                "candidates": 72,
+                "unreachable": []
+              },
+              {
+                "room": "barracks",
+                "candidates": 65,
+                "unreachable": []
+              },
+              {
+                "room": "prison",
+                "candidates": 40,
+                "unreachable": []
+              },
+              {
+                "room": "ritual",
+                "candidates": 50,
+                "unreachable": []
+              },
+              {
+                "room": "library",
+                "candidates": 57,
+                "unreachable": []
+              },
+              {
+                "room": "forge",
+                "candidates": 56,
+                "unreachable": []
+              },
+              {
+                "room": "catacombs",
+                "candidates": 47,
+                "unreachable": []
+              },
+              {
+                "room": "sanctum",
+                "candidates": 80,
+                "unreachable": []
+              },
+              {
+                "room": "gallery",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "watchtower",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "gatehouse",
+                "candidates": 46,
+                "unreachable": []
+              }
+            ],
+            "pressureOpen": "locked",
+            "fireLocked": true,
+            "workerRemoved": true,
+            "parkedSeen": true,
+            "reset": true,
+            "weights": 3
+          }
+        },
+        {
+          "name": "Restart restores all three doors and exactly three new weights without stale colliders",
+          "pass": true,
+          "data": {
+            "rooms": [
+              {
+                "room": "hall",
+                "candidates": 60,
+                "unreachable": []
+              },
+              {
+                "room": "crypt",
+                "candidates": 26,
+                "unreachable": []
+              },
+              {
+                "room": "armoury",
+                "candidates": 72,
+                "unreachable": []
+              },
+              {
+                "room": "barracks",
+                "candidates": 65,
+                "unreachable": []
+              },
+              {
+                "room": "prison",
+                "candidates": 40,
+                "unreachable": []
+              },
+              {
+                "room": "ritual",
+                "candidates": 50,
+                "unreachable": []
+              },
+              {
+                "room": "library",
+                "candidates": 57,
+                "unreachable": []
+              },
+              {
+                "room": "forge",
+                "candidates": 56,
+                "unreachable": []
+              },
+              {
+                "room": "catacombs",
+                "candidates": 47,
+                "unreachable": []
+              },
+              {
+                "room": "sanctum",
+                "candidates": 80,
+                "unreachable": []
+              },
+              {
+                "room": "gallery",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "watchtower",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "gatehouse",
+                "candidates": 46,
+                "unreachable": []
+              }
+            ],
+            "pressureOpen": "locked",
+            "fireLocked": true,
+            "workerRemoved": true,
+            "parkedSeen": true,
+            "reset": true,
+            "weights": 3
+          }
+        },
+        {
+          "name": "No runtime errors",
+          "pass": true,
+          "data": []
+        }
+      ],
+      "errors": []
+    }
+  },
+  "performance": {
+    "conditions": "Desktop Chrome on RTX 5080; DPR 1; 45 warm-up + 180 RAF samples. Full simulation/render via advanceTime; stationary player in same courtyard, enemy AI stunned identically. Mobile is emulation, not physical-device proof. GPU is shared. RAM/VRAM outside JS heap unavailable.",
+    "samples": [
+      {
+        "variant": "environment-b",
+        "mobileEmulation": false,
+        "loadMs": 6016,
+        "errors": [],
+        "interval": {
+          "median": 17.699999928474426,
+          "p95": 18.5,
+          "max": 18.799999952316284,
+          "over33ms": 0
+        },
+        "updateAndRenderMs": {
+          "median": 3.799999952316284,
+          "p95": 6.299999952316284,
+          "max": 6.800000071525574,
+          "over33ms": 0
+        },
+        "render": {
+          "frame": 4309,
+          "calls": 507,
+          "triangles": 1142127,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 70,
+          "textures": 83
+        },
+        "heap": 132709043,
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      {
+        "variant": "greek-sanctuary",
+        "mobileEmulation": false,
+        "loadMs": 3334,
+        "errors": [],
+        "interval": {
+          "median": 17.799999952316284,
+          "p95": 18.600000023841858,
+          "max": 18.700000047683716,
+          "over33ms": 0
+        },
+        "updateAndRenderMs": {
+          "median": 3.899999976158142,
+          "p95": 6.300000071525574,
+          "max": 7,
+          "over33ms": 0
+        },
+        "render": {
+          "frame": 4234,
+          "calls": 632,
+          "triangles": 1798939,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 134,
+          "textures": 81
+        },
+        "heap": 187341067,
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      {
+        "variant": "environment-b",
+        "mobileEmulation": true,
+        "loadMs": 3500,
+        "errors": [],
+        "interval": {
+          "median": 17.799999952316284,
+          "p95": 18.5,
+          "max": 18.899999976158142,
+          "over33ms": 0
+        },
+        "updateAndRenderMs": {
+          "median": 3.600000023841858,
+          "p95": 5.899999976158142,
+          "max": 6.899999976158142,
+          "over33ms": 0
+        },
+        "render": {
+          "frame": 318,
+          "calls": 503,
+          "triangles": 962371,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 88,
+          "textures": 68
+        },
+        "heap": 144372755,
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      {
+        "variant": "greek-sanctuary",
+        "mobileEmulation": true,
+        "loadMs": 2789,
+        "errors": [],
+        "interval": {
+          "median": 17.600000023841858,
+          "p95": 18.5,
+          "max": 19,
+          "over33ms": 0
+        },
+        "updateAndRenderMs": {
+          "median": 3.9000000953674316,
+          "p95": 6.399999976158142,
+          "max": 7.899999976158142,
+          "over33ms": 0
+        },
+        "render": {
+          "frame": 316,
+          "calls": 636,
+          "triangles": 1660368,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 149,
+          "textures": 66
+        },
+        "heap": 172222970,
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    ]
+  },
+  "staticComparison": {
+    "before": {
+      "frames": {
+        "median": 17.799999952316284,
+        "p95": 18.5,
+        "max": 18.700000047683716
+      },
+      "renderSubmissionMs": {
+        "median": 2.399999976158142,
+        "p95": 3,
+        "max": 6.599999904632568
+      },
+      "render": {
+        "frame": 5599,
+        "calls": 524,
+        "triangles": 1157007,
+        "points": 969,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 83,
+        "textures": 84
+      },
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "samples": 180,
+      "conditions": "1440x1000 desktop, fixed overview camera, warmed shaders, static deterministic world time=1, RAF sampling; browser GPU shared with other work."
+    },
+    "after": {
+      "frames": {
+        "median": 17.600000023841858,
+        "p95": 18.600000023841858,
+        "max": 18.700000047683716
+      },
+      "renderSubmissionMs": {
+        "median": 2.600000023841858,
+        "p95": 3.600000023841858,
+        "max": 4.5
+      },
+      "render": {
+        "frame": 5584,
+        "calls": 638,
+        "triangles": 1797864,
+        "points": 969,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 147,
+        "textures": 82
+      },
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "samples": 180,
+      "conditions": "1440x1000 desktop, fixed overview camera, warmed shaders, static deterministic world time=1, RAF sampling; browser GPU shared with other work."
+    }
+  },
+  "paidMeshyCalls": 0,
+  "purchases": 0,
+  "usage": "Per-task usage and credits unavailable",
+  "saveKey": "magic-greek-sanctuary-v1",
+  "limitations": [
+    "Physical phone/Safari performance not measured",
+    "This sample preserves alternative routes; final progression/boss gate assignment is not implemented",
+    "The rest of the castle retains parts of the previous art direction"
+  ],
+  "assets": {
+    "column": {
+      "url": "https://www.innerscene.com/api/library/doric-column-original-exterior-model-182607a5/download",
+      "page": "https://www.innerscene.com/tools/library/3d-parts/doric-column-original-exterior-model-182607a5",
+      "license": "CC0 as listed by original author Innerscene",
+      "bytes": 519852,
+      "sha256": "1d7e3a5ec5e009020031862e7d69e31fdd92dee8e5894c033ebdcea33226bd70"
+    },
+    "kit": {
+      "column": {
+        "bytes": 379248,
+        "meshes": 2,
+        "triangles": 5100
+      },
+      "entablature": {
+        "bytes": 2462616,
+        "meshes": 4,
+        "triangles": 41268
+      },
+      "bronze-leaf": {
+        "bytes": 1046208,
+        "meshes": 2,
+        "triangles": 20804
+      },
+      "wood-leaf": {
+        "bytes": 391108,
+        "meshes": 3,
+        "triangles": 6476
+      },
+      "weight": {
+        "bytes": 320980,
+        "meshes": 4,
+        "triangles": 6180
+      },
+      "plate": {
+        "bytes": 199416,
+        "meshes": 3,
+        "triangles": 2808
+      },
+      "shield": {
+        "bytes": 127584,
+        "meshes": 3,
+        "triangles": 3664
+      }
+    },
+    "characters": "Frozen previously approved model preview; Meshy terms retained; not claimed CC0"
+  }
+}

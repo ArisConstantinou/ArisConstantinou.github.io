@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-14T07:29:41.397Z",
+  "provider": "Poly Haven",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://polyhaven.com/license",
+  "assets": [
+    {
+      "id": "wooden_barrels_01",
+      "url": "https://polyhaven.com/a/wooden_barrels_01",
+      "authors": {
+        "James Ray Cock": "All"
+      }
+    },
+    {
+      "id": "kite_shield",
+      "url": "https://polyhaven.com/a/kite_shield",
+      "authors": {
+        "Ulan Cabanilla": "All"
+      }
+    },
+    {
+      "id": "large_castle_door",
+      "url": "https://polyhaven.com/a/large_castle_door",
+      "authors": {
+        "Tina": "All"
+      }
+    },
+    {
+      "id": "monastery_stone_floor",
+      "url": "https://polyhaven.com/a/monastery_stone_floor",
+      "authors": {
+        "Amal Kumar": "All"
+      }
+    },
+    {
+      "id": "castle_wall_slates",
+      "url": "https://polyhaven.com/a/castle_wall_slates",
+      "authors": {
+        "Rob Tuytel": "All"
+      }
+    }
+  ]
+}

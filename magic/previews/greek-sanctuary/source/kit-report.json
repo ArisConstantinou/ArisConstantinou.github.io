@@ -1,0 +1,37 @@
+{
+  "column": {
+    "bytes": 379248,
+    "meshes": 2,
+    "triangles": 5100
+  },
+  "entablature": {
+    "bytes": 2462616,
+    "meshes": 4,
+    "triangles": 41268
+  },
+  "bronze-leaf": {
+    "bytes": 1046208,
+    "meshes": 2,
+    "triangles": 20804
+  },
+  "wood-leaf": {
+    "bytes": 391108,
+    "meshes": 3,
+    "triangles": 6476
+  },
+  "weight": {
+    "bytes": 320980,
+    "meshes": 4,
+    "triangles": 6180
+  },
+  "plate": {
+    "bytes": 199416,
+    "meshes": 3,
+    "triangles": 2808
+  },
+  "shield": {
+    "bytes": 127584,
+    "meshes": 3,
+    "triangles": 3664
+  }
+}
