@@ -1,0 +1,7856 @@
+{
+  "mode": "after",
+  "url": "http://127.0.0.1:5173/previews/greek-sanctuary/full-map.htm?hearthQA=1",
+  "checks": [
+    {
+      "name": "All seeded pressure contacts open through the real gate controller",
+      "pass": true,
+      "data": [
+        {
+          "id": "hall-pressure",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -4.8,
+              "z": 9,
+              "y": 0,
+              "active": true
+            },
+            {
+              "x": -3.2,
+              "z": 9,
+              "y": 0,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1073,
+              "position": {
+                "x": -4.800361536029671,
+                "y": 0.5199909310637314,
+                "z": 9.000509436307015
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1074,
+              "position": {
+                "x": -3.200361536029673,
+                "y": 0.5199909310637314,
+                "z": 9.000509436307013
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "crypt-fire",
+          "kind": "fire",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [],
+          "weights": []
+        },
+        {
+          "id": "archive-secret",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -55.5,
+              "z": -4.3,
+              "y": 0,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1075,
+              "position": {
+                "x": -55.50036153602968,
+                "y": 0.5199909310637314,
+                "z": -4.299490563692983
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "passage-armoury-hall",
+          "kind": "open",
+          "phase": "open",
+          "open": 1,
+          "charge": 0,
+          "blocked": false,
+          "plates": [],
+          "weights": []
+        },
+        {
+          "id": "passage-hall-barracks",
+          "kind": "open",
+          "phase": "open",
+          "open": 1,
+          "charge": 0,
+          "blocked": false,
+          "plates": [],
+          "weights": []
+        },
+        {
+          "id": "passage-prison-crypt",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -7.29,
+              "y": 0,
+              "z": -24.040000000000006,
+              "active": true
+            },
+            {
+              "x": -5.69,
+              "y": 0,
+              "z": -24.040000000000006,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1076,
+              "position": {
+                "x": -7.290361536029672,
+                "y": 0.5199909310637313,
+                "z": -24.039490563692983
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1077,
+              "position": {
+                "x": -5.690361536029672,
+                "y": 0.5199909310637314,
+                "z": -24.039490563692983
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "passage-crypt-ritual",
+          "kind": "fire",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [],
+          "weights": []
+        },
+        {
+          "id": "passage-library-armoury",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -38.54,
+              "y": 0,
+              "z": 2.5100000000000007,
+              "active": true
+            },
+            {
+              "x": -36.940000000000005,
+              "y": 0,
+              "z": 2.5100000000000007,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1078,
+              "position": {
+                "x": -38.54036153602968,
+                "y": 0.5199909310637314,
+                "z": 2.510509436307013
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1079,
+              "position": {
+                "x": -36.940361536029684,
+                "y": 0.5199909310637314,
+                "z": 2.510509436307013
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "passage-forge-prison",
+          "kind": "fire",
+          "phase": "locked",
+          "open": 0,
+          "charge": 0,
+          "blocked": true,
+          "plates": [],
+          "weights": []
+        },
+        {
+          "id": "passage-forge-library",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -55.940000000000005,
+              "y": 0,
+              "z": -12.290000000000001,
+              "active": true
+            },
+            {
+              "x": -54.34000000000001,
+              "y": 0,
+              "z": -12.290000000000001,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1080,
+              "position": {
+                "x": -55.940361536029684,
+                "y": 0.5199909310637314,
+                "z": -12.289490563692986
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1081,
+              "position": {
+                "x": -54.34036153602969,
+                "y": 0.5199909310637314,
+                "z": -12.289490563692988
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "passage-barracks-gallery",
+          "kind": "open",
+          "phase": "open",
+          "open": 1,
+          "charge": 0,
+          "blocked": false,
+          "plates": [],
+          "weights": []
+        },
+        {
+          "id": "passage-ritual-watchtower",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": 45.309999999999995,
+              "y": 0,
+              "z": -21.790000000000028,
+              "active": true
+            },
+            {
+              "x": 46.90999999999999,
+              "y": 0,
+              "z": -21.790000000000028,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1082,
+              "position": {
+                "x": 45.309638463970316,
+                "y": 0.5199909310637314,
+                "z": -21.789490563693004
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1083,
+              "position": {
+                "x": 46.90963846397031,
+                "y": 0.5199909310637314,
+                "z": -21.789490563693004
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "passage-watchtower-gallery",
+          "kind": "open",
+          "phase": "open",
+          "open": 1,
+          "charge": 0,
+          "blocked": false,
+          "plates": [],
+          "weights": []
+        },
+        {
+          "id": "passage-catacombs-crypt",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -4.039999999999999,
+              "y": 0,
+              "z": -35.54000000000003,
+              "active": true
+            },
+            {
+              "x": -2.4399999999999995,
+              "y": 0,
+              "z": -35.54000000000003,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1084,
+              "position": {
+                "x": -4.040361536029671,
+                "y": 0.5199909310637314,
+                "z": -35.53949056369299
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1085,
+              "position": {
+                "x": -2.4403615360296724,
+                "y": 0.5199909310637314,
+                "z": -35.53949056369299
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "passage-catacombs-sanctum",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": 15.21,
+              "y": 0,
+              "z": -46.390000000000015,
+              "active": true
+            },
+            {
+              "x": 16.810000000000002,
+              "y": 0,
+              "z": -46.390000000000015,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1086,
+              "position": {
+                "x": 15.209638463970334,
+                "y": 0.5199909310637313,
+                "z": -46.38949056369298
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1087,
+              "position": {
+                "x": 16.809638463970334,
+                "y": 0.5199909310637313,
+                "z": -46.38949056369298
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "passage-sanctum-ritual",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": 18.459999999999994,
+              "y": 0,
+              "z": -28.54,
+              "active": true
+            },
+            {
+              "x": 20.059999999999995,
+              "y": 0,
+              "z": -28.54,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1088,
+              "position": {
+                "x": 18.45963846397032,
+                "y": 0.5199909310637314,
+                "z": -28.539490563692976
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1089,
+              "position": {
+                "x": 20.059638463970323,
+                "y": 0.5199909310637314,
+                "z": -28.539490563692976
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "passage-gatehouse-courtyard",
+          "kind": "open",
+          "phase": "open",
+          "open": 1,
+          "charge": 0,
+          "blocked": false,
+          "plates": [],
+          "weights": []
+        },
+        {
+          "id": "passage-armoury-gatehouse",
+          "kind": "open",
+          "phase": "open",
+          "open": 1,
+          "charge": 0,
+          "blocked": false,
+          "plates": [],
+          "weights": []
+        },
+        {
+          "id": "forge-secret",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -53.29000000000001,
+              "y": 0,
+              "z": -34.14,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1090,
+              "position": {
+                "x": -53.29036153602969,
+                "y": 0.5199909310637314,
+                "z": -34.139490563692966
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "catacombs-secret",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -5.339999999999999,
+              "y": 0,
+              "z": -40.740000000000016,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1091,
+              "position": {
+                "x": -5.340361536029671,
+                "y": 0.5199909310637314,
+                "z": -40.73949056369298
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "library-upper",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": -46.05,
+              "y": 0,
+              "z": 2.5,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1092,
+              "position": {
+                "x": -46.050361536029676,
+                "y": 0.5199909310637314,
+                "z": 2.5005094363070124
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        },
+        {
+          "id": "gallery-upper",
+          "kind": "pressure",
+          "phase": "open",
+          "open": 1,
+          "charge": 0.4000000000000004,
+          "blocked": false,
+          "plates": [
+            {
+              "x": 54.8,
+              "z": -8.081999999999999,
+              "y": 4.8,
+              "active": true
+            },
+            {
+              "x": 56.4,
+              "z": -8.081999999999999,
+              "y": 4.8,
+              "active": true
+            }
+          ],
+          "weights": [
+            {
+              "id": 1093,
+              "position": {
+                "x": 54.799638463970325,
+                "y": 5.319990931063731,
+                "z": -8.081490563692986
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            },
+            {
+              "id": 1094,
+              "position": {
+                "x": 56.39963846397032,
+                "y": 5.319990931063731,
+                "z": -8.08149056369299
+              },
+              "recoveries": 0,
+              "hp": 1000000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fire gates open through timed heat fixture before measuring final architectural clearance",
+      "pass": true,
+      "data": [
+        {
+          "id": "crypt-fire",
+          "kind": "fire",
+          "phase": "open",
+          "open": 1,
+          "charge": 2.5,
+          "blocked": false,
+          "plates": [],
+          "weights": []
+        },
+        {
+          "id": "passage-crypt-ritual",
+          "kind": "fire",
+          "phase": "open",
+          "open": 1,
+          "charge": 2.5,
+          "blocked": false,
+          "plates": [],
+          "weights": []
+        },
+        {
+          "id": "passage-forge-prison",
+          "kind": "fire",
+          "phase": "open",
+          "open": 1,
+          "charge": 2.5,
+          "blocked": false,
+          "plates": [],
+          "weights": []
+        }
+      ]
+    },
+    {
+      "name": "All fourteen rooms and bridge have a continuous HEARTH clearance route",
+      "pass": true,
+      "data": [
+        {
+          "room": "courtyard",
+          "secret": false,
+          "freePositions": 556,
+          "target": {
+            "x": 0.25000000000000333,
+            "y": 0,
+            "z": 14.650000000000006,
+            "d": 0.4301162633521286
+          },
+          "reachable": true,
+          "waypoints": 1
+        },
+        {
+          "room": "hall",
+          "secret": false,
+          "freePositions": 387,
+          "target": {
+            "x": 0.3500000000000012,
+            "y": 0,
+            "z": -3.6499999999999986,
+            "d": 0.36400549446402747
+          },
+          "reachable": true,
+          "waypoints": 1
+        },
+        {
+          "room": "crypt",
+          "secret": false,
+          "freePositions": 174,
+          "target": {
+            "x": 0.09999999999999942,
+            "y": 0,
+            "z": -20.699999999999996,
+            "d": 0.12499999999999699
+          },
+          "reachable": true,
+          "waypoints": 1
+        },
+        {
+          "room": "bridge",
+          "secret": false,
+          "freePositions": 21,
+          "target": {
+            "x": -0.125,
+            "y": 0,
+            "z": 29.05,
+            "d": 0.3482097069296023
+          },
+          "reachable": true,
+          "waypoints": 1
+        },
+        {
+          "room": "armoury",
+          "secret": false,
+          "freePositions": 352,
+          "target": {
+            "x": -28.750000000000018,
+            "y": 0,
+            "z": -1.1500000000000008,
+            "d": 0.0999999999999992
+          },
+          "reachable": true,
+          "waypoints": 171
+        },
+        {
+          "room": "barracks",
+          "secret": false,
+          "freePositions": 322,
+          "target": {
+            "x": 28.750000000000007,
+            "y": 0,
+            "z": -1.1500000000000008,
+            "d": 0.0999999999999992
+          },
+          "reachable": true,
+          "waypoints": 194
+        },
+        {
+          "room": "prison",
+          "secret": false,
+          "freePositions": 169,
+          "target": {
+            "x": -22.399999999999995,
+            "y": 0,
+            "z": -22.749999999999996,
+            "d": 0.26925824035672374
+          },
+          "reachable": true,
+          "waypoints": 240
+        },
+        {
+          "room": "ritual",
+          "secret": false,
+          "freePositions": 212,
+          "target": {
+            "x": 22.600000000000005,
+            "y": 0,
+            "z": -22.749999999999996,
+            "d": 0.26925824035672374
+          },
+          "reachable": true,
+          "waypoints": 241
+        },
+        {
+          "room": "library",
+          "secret": false,
+          "freePositions": 152,
+          "target": {
+            "x": -51.15000000000003,
+            "y": 0,
+            "z": -5.699999999999997,
+            "d": 1.952562418976659
+          },
+          "reachable": true,
+          "waypoints": 232
+        },
+        {
+          "room": "forge",
+          "secret": false,
+          "freePositions": 252,
+          "target": {
+            "x": -51.60000000000003,
+            "y": 0,
+            "z": -27.400000000000006,
+            "d": 0.36400549446405306
+          },
+          "reachable": true,
+          "waypoints": 309
+        },
+        {
+          "room": "catacombs",
+          "secret": false,
+          "freePositions": 201,
+          "target": {
+            "x": 0.09999999999999942,
+            "y": 0,
+            "z": -41.950000000000024,
+            "d": 0.12500000000001404
+          },
+          "reachable": true,
+          "waypoints": 372
+        },
+        {
+          "room": "sanctum",
+          "secret": false,
+          "freePositions": 324,
+          "target": {
+            "x": 25.000000000000007,
+            "y": 0,
+            "z": -46.15000000000003,
+            "d": 0.099999999999973
+          },
+          "reachable": true,
+          "waypoints": 314
+        },
+        {
+          "room": "gallery",
+          "secret": false,
+          "freePositions": 193,
+          "target": {
+            "x": 51.34999999999997,
+            "y": 0,
+            "z": -5.699999999999997,
+            "d": 1.952562418976659
+          },
+          "reachable": true,
+          "waypoints": 285
+        },
+        {
+          "room": "watchtower",
+          "secret": false,
+          "freePositions": 187,
+          "target": {
+            "x": 50.89999999999997,
+            "y": 0,
+            "z": -29.800000000000008,
+            "d": 2.3264780248263803
+          },
+          "reachable": true,
+          "waypoints": 357
+        },
+        {
+          "room": "gatehouse",
+          "secret": false,
+          "freePositions": 263,
+          "target": {
+            "x": -30.35000000000002,
+            "y": 0,
+            "z": 20.100000000000005,
+            "d": 0.36400549446404573
+          },
+          "reachable": true,
+          "waypoints": 122
+        }
+      ]
+    },
+    {
+      "name": "All three secret rooms have an engine-sized floor route",
+      "pass": true,
+      "data": [
+        {
+          "room": "library-secret",
+          "secret": true,
+          "freePositions": 9,
+          "target": {
+            "x": -62.75000000000001,
+            "y": 0,
+            "z": -8.85,
+            "d": 0.3807886552931973
+          },
+          "reachable": true,
+          "waypoints": 279
+        },
+        {
+          "room": "forge-secret",
+          "secret": true,
+          "freePositions": 3,
+          "target": {
+            "x": -56.85,
+            "y": 0,
+            "z": -39.00000000000001,
+            "d": 0.4743416490252546
+          },
+          "reachable": true,
+          "waypoints": 356
+        },
+        {
+          "room": "catacombs-secret",
+          "secret": true,
+          "freePositions": 9,
+          "target": {
+            "x": -11.499999999999998,
+            "y": 0,
+            "z": -44.35,
+            "d": 0.38078865529319617
+          },
+          "reachable": true,
+          "waypoints": 419
+        }
+      ]
+    },
+    {
+      "name": "archive-secret native E boards in the approach",
+      "pass": true
+    },
+    {
+      "name": "archive-secret HEARTH physically crosses the opened secret doorway",
+      "pass": true,
+      "data": {
+        "initial": {
+          "x": -60,
+          "z": -8.5,
+          "width": 3.8,
+          "height": 4.25
+        },
+        "end": {
+          "x": -63.62685006119074,
+          "y": 1.219846146709204,
+          "z": -8.5
+        },
+        "distance": 3.626850061190737
+      }
+    },
+    {
+      "name": "archive-secret native E exits after entering",
+      "pass": true
+    },
+    {
+      "name": "forge-secret native E boards in the approach",
+      "pass": true
+    },
+    {
+      "name": "forge-secret HEARTH physically crosses the opened secret doorway",
+      "pass": true,
+      "data": {
+        "initial": {
+          "x": -57.3,
+          "z": -36.25,
+          "width": 3.8,
+          "height": 4.25
+        },
+        "end": {
+          "x": -57.019264368813445,
+          "y": 1.219846146709204,
+          "z": -39.94333829464217
+        },
+        "distance": 3.6933382946421673
+      }
+    },
+    {
+      "name": "forge-secret native E exits after entering",
+      "pass": true
+    },
+    {
+      "name": "catacombs-secret native E boards in the approach",
+      "pass": true
+    },
+    {
+      "name": "catacombs-secret HEARTH physically crosses the opened secret doorway",
+      "pass": true,
+      "data": {
+        "initial": {
+          "x": -8.75,
+          "z": -44,
+          "width": 3.8,
+          "height": 4.25
+        },
+        "end": {
+          "x": -12.3775799019478,
+          "y": 1.219846146709204,
+          "z": -44
+        },
+        "distance": 3.6275799019478008
+      }
+    },
+    {
+      "name": "catacombs-secret native E exits after entering",
+      "pass": true
+    },
+    {
+      "name": "No runtime errors",
+      "pass": true,
+      "data": []
+    }
+  ],
+  "errors": [],
+  "conditions": "Fixed test seed only. NPC contact/attacks disabled to isolate architectural clearance; loose props, furniture and all static physics remain. Pressure weights are seeded onto real plates and gates open through actual contact/timed controller. Native E and movement cross each secret. This does not prove native telekinetic completion of every pressure puzzle.",
+  "fireFixture": "Synthetic flame intersections isolate final clearance; native HEARTH aim/fire still requires separate progression verification.",
+  "topology": {
+    "profile": {
+      "originY": 1.22,
+      "spheres": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "radius": 1.22
+        },
+        {
+          "x": 0,
+          "y": 1.680000095367432,
+          "z": 0,
+          "radius": 0.94
+        },
+        {
+          "x": -1.19,
+          "y": 0.9800000953674318,
+          "z": 0,
+          "radius": 0.38
+        },
+        {
+          "x": 1.19,
+          "y": 0.9800000953674318,
+          "z": 0,
+          "radius": 0.38
+        }
+      ]
+    },
+    "rooms": [
+      {
+        "room": "library-secret",
+        "secret": true,
+        "freePositions": 9,
+        "target": {
+          "x": -62.75000000000001,
+          "y": 0,
+          "z": -8.85,
+          "d": 0.3807886552931973
+        },
+        "reachable": true,
+        "waypoints": 279
+      },
+      {
+        "room": "forge-secret",
+        "secret": true,
+        "freePositions": 3,
+        "target": {
+          "x": -56.85,
+          "y": 0,
+          "z": -39.00000000000001,
+          "d": 0.4743416490252546
+        },
+        "reachable": true,
+        "waypoints": 356
+      },
+      {
+        "room": "catacombs-secret",
+        "secret": true,
+        "freePositions": 9,
+        "target": {
+          "x": -11.499999999999998,
+          "y": 0,
+          "z": -44.35,
+          "d": 0.38078865529319617
+        },
+        "reachable": true,
+        "waypoints": 419
+      },
+      {
+        "room": "courtyard",
+        "secret": false,
+        "freePositions": 556,
+        "target": {
+          "x": 0.25000000000000333,
+          "y": 0,
+          "z": 14.650000000000006,
+          "d": 0.4301162633521286
+        },
+        "reachable": true,
+        "waypoints": 1
+      },
+      {
+        "room": "hall",
+        "secret": false,
+        "freePositions": 387,
+        "target": {
+          "x": 0.3500000000000012,
+          "y": 0,
+          "z": -3.6499999999999986,
+          "d": 0.36400549446402747
+        },
+        "reachable": true,
+        "waypoints": 1
+      },
+      {
+        "room": "crypt",
+        "secret": false,
+        "freePositions": 174,
+        "target": {
+          "x": 0.09999999999999942,
+          "y": 0,
+          "z": -20.699999999999996,
+          "d": 0.12499999999999699
+        },
+        "reachable": true,
+        "waypoints": 1
+      },
+      {
+        "room": "bridge",
+        "secret": false,
+        "freePositions": 21,
+        "target": {
+          "x": -0.125,
+          "y": 0,
+          "z": 29.05,
+          "d": 0.3482097069296023
+        },
+        "reachable": true,
+        "waypoints": 1
+      },
+      {
+        "room": "armoury",
+        "secret": false,
+        "freePositions": 352,
+        "target": {
+          "x": -28.750000000000018,
+          "y": 0,
+          "z": -1.1500000000000008,
+          "d": 0.0999999999999992
+        },
+        "reachable": true,
+        "waypoints": 171
+      },
+      {
+        "room": "barracks",
+        "secret": false,
+        "freePositions": 322,
+        "target": {
+          "x": 28.750000000000007,
+          "y": 0,
+          "z": -1.1500000000000008,
+          "d": 0.0999999999999992
+        },
+        "reachable": true,
+        "waypoints": 194
+      },
+      {
+        "room": "prison",
+        "secret": false,
+        "freePositions": 169,
+        "target": {
+          "x": -22.399999999999995,
+          "y": 0,
+          "z": -22.749999999999996,
+          "d": 0.26925824035672374
+        },
+        "reachable": true,
+        "waypoints": 240
+      },
+      {
+        "room": "ritual",
+        "secret": false,
+        "freePositions": 212,
+        "target": {
+          "x": 22.600000000000005,
+          "y": 0,
+          "z": -22.749999999999996,
+          "d": 0.26925824035672374
+        },
+        "reachable": true,
+        "waypoints": 241
+      },
+      {
+        "room": "library",
+        "secret": false,
+        "freePositions": 152,
+        "target": {
+          "x": -51.15000000000003,
+          "y": 0,
+          "z": -5.699999999999997,
+          "d": 1.952562418976659
+        },
+        "reachable": true,
+        "waypoints": 232
+      },
+      {
+        "room": "forge",
+        "secret": false,
+        "freePositions": 252,
+        "target": {
+          "x": -51.60000000000003,
+          "y": 0,
+          "z": -27.400000000000006,
+          "d": 0.36400549446405306
+        },
+        "reachable": true,
+        "waypoints": 309
+      },
+      {
+        "room": "catacombs",
+        "secret": false,
+        "freePositions": 201,
+        "target": {
+          "x": 0.09999999999999942,
+          "y": 0,
+          "z": -41.950000000000024,
+          "d": 0.12500000000001404
+        },
+        "reachable": true,
+        "waypoints": 372
+      },
+      {
+        "room": "sanctum",
+        "secret": false,
+        "freePositions": 324,
+        "target": {
+          "x": 25.000000000000007,
+          "y": 0,
+          "z": -46.15000000000003,
+          "d": 0.099999999999973
+        },
+        "reachable": true,
+        "waypoints": 314
+      },
+      {
+        "room": "gallery",
+        "secret": false,
+        "freePositions": 193,
+        "target": {
+          "x": 51.34999999999997,
+          "y": 0,
+          "z": -5.699999999999997,
+          "d": 1.952562418976659
+        },
+        "reachable": true,
+        "waypoints": 285
+      },
+      {
+        "room": "watchtower",
+        "secret": false,
+        "freePositions": 187,
+        "target": {
+          "x": 50.89999999999997,
+          "y": 0,
+          "z": -29.800000000000008,
+          "d": 2.3264780248263803
+        },
+        "reachable": true,
+        "waypoints": 357
+      },
+      {
+        "room": "gatehouse",
+        "secret": false,
+        "freePositions": 263,
+        "target": {
+          "x": -30.35000000000002,
+          "y": 0,
+          "z": 20.100000000000005,
+          "d": 0.36400549446404573
+        },
+        "reachable": true,
+        "waypoints": 122
+      }
+    ],
+    "connections": [
+      {
+        "id": "hall-pressure",
+        "kind": "pressure",
+        "open": true,
+        "width": 5.2,
+        "blockedCenterline": []
+      },
+      {
+        "id": "crypt-fire",
+        "kind": "fire",
+        "open": true,
+        "width": 5.2,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-armoury-hall",
+        "kind": "open",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-hall-barracks",
+        "kind": "open",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-prison-crypt",
+        "kind": "pressure",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-crypt-ritual",
+        "kind": "fire",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-library-armoury",
+        "kind": "pressure",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-forge-prison",
+        "kind": "fire",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-forge-library",
+        "kind": "pressure",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-barracks-gallery",
+        "kind": "open",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-ritual-watchtower",
+        "kind": "pressure",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-watchtower-gallery",
+        "kind": "open",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-catacombs-crypt",
+        "kind": "pressure",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": [
+          {
+            "v": 2.25,
+            "blockers": [
+              {
+                "tag": "fullmap-furniture",
+                "x": -0.4499999999999993,
+                "z": -27.25,
+                "w": 2.75,
+                "d": 1.3,
+                "y": 1.2,
+                "h": 2.4
+              }
+            ]
+          },
+          {
+            "v": 2.5,
+            "blockers": [
+              {
+                "tag": "fullmap-furniture",
+                "x": -0.4499999999999993,
+                "z": -27.25,
+                "w": 2.75,
+                "d": 1.3,
+                "y": 1.2,
+                "h": 2.4
+              }
+            ]
+          },
+          {
+            "v": 2.75,
+            "blockers": [
+              {
+                "tag": "fullmap-furniture",
+                "x": -0.4499999999999993,
+                "z": -27.25,
+                "w": 2.75,
+                "d": 1.3,
+                "y": 1.2,
+                "h": 2.4
+              }
+            ]
+          },
+          {
+            "v": 3,
+            "blockers": [
+              {
+                "tag": "fullmap-furniture",
+                "x": -0.4499999999999993,
+                "z": -27.25,
+                "w": 2.75,
+                "d": 1.3,
+                "y": 1.2,
+                "h": 2.4
+              }
+            ]
+          },
+          {
+            "v": 3.25,
+            "blockers": [
+              {
+                "tag": "fullmap-furniture",
+                "x": -0.4499999999999993,
+                "z": -27.25,
+                "w": 2.75,
+                "d": 1.3,
+                "y": 1.2,
+                "h": 2.4
+              }
+            ]
+          },
+          {
+            "v": 3.5,
+            "blockers": [
+              {
+                "tag": "fullmap-furniture",
+                "x": -0.4499999999999993,
+                "z": -27.25,
+                "w": 2.75,
+                "d": 1.3,
+                "y": 1.2,
+                "h": 2.4
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "passage-catacombs-sanctum",
+        "kind": "pressure",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-sanctum-ritual",
+        "kind": "pressure",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-gatehouse-courtyard",
+        "kind": "open",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      },
+      {
+        "id": "passage-armoury-gatehouse",
+        "kind": "open",
+        "open": true,
+        "width": 3.75,
+        "blockedCenterline": []
+      }
+    ],
+    "layout": [
+      {
+        "name": "library-secret",
+        "label": "Κρυφό αρχείο",
+        "secret": true,
+        "xMin": -65.2,
+        "xMax": -60,
+        "zMin": -11.3,
+        "zMax": -5.700000000000001
+      },
+      {
+        "name": "forge-secret",
+        "label": "Κρύπτη του τεχνίτη",
+        "secret": true,
+        "xMin": -60.099999999999994,
+        "xMax": -54.49999999999999,
+        "zMin": -41.45,
+        "zMax": -36.25
+      },
+      {
+        "name": "catacombs-secret",
+        "label": "Ξεχασμένος τάφος",
+        "secret": true,
+        "xMin": -13.95,
+        "xMax": -8.75,
+        "zMin": -46.8,
+        "zMax": -41.199999999999996
+      },
+      {
+        "name": "courtyard",
+        "label": "Αυλή",
+        "secret": false,
+        "xMin": -15,
+        "xMax": 15,
+        "zMin": 5,
+        "zMax": 25
+      },
+      {
+        "name": "hall",
+        "label": "Αίθουσα",
+        "secret": false,
+        "xMin": -12.5,
+        "xMax": 12.5,
+        "zMin": -12.5,
+        "zMax": 5
+      },
+      {
+        "name": "crypt",
+        "label": "Κρύπτη / κειμήλιο",
+        "secret": false,
+        "xMin": -8.75,
+        "xMax": 8.75,
+        "zMin": -28.75,
+        "zMax": -12.5
+      },
+      {
+        "name": "bridge",
+        "label": "Γέφυρα",
+        "secret": false,
+        "xMin": -3.375,
+        "xMax": 3.375,
+        "zMin": 25,
+        "zMax": 33.75
+      },
+      {
+        "name": "armoury",
+        "label": "Οπλοστάσιο",
+        "secret": false,
+        "xMin": -40,
+        "xMax": -17.5,
+        "zMin": -10,
+        "zMax": 7.5
+      },
+      {
+        "name": "barracks",
+        "label": "Στρατώνες",
+        "secret": false,
+        "xMin": 17.5,
+        "xMax": 40,
+        "zMin": -10,
+        "zMax": 7.5
+      },
+      {
+        "name": "prison",
+        "label": "Φυλακή",
+        "secret": false,
+        "xMin": -31.25,
+        "xMax": -13.75,
+        "zMin": -30,
+        "zMax": -15
+      },
+      {
+        "name": "ritual",
+        "label": "Αίθουσα τελετής",
+        "secret": false,
+        "xMin": 13.75,
+        "xMax": 31.25,
+        "zMin": -30,
+        "zMax": -15
+      },
+      {
+        "name": "library",
+        "label": "Βιβλιοθήκη",
+        "secret": false,
+        "xMin": -60,
+        "xMax": -42.5,
+        "zMin": -13.75,
+        "zMax": 6.25
+      },
+      {
+        "name": "forge",
+        "label": "Σιδηρουργείο",
+        "secret": false,
+        "xMin": -61.25,
+        "xMax": -41.25,
+        "zMin": -36.25,
+        "zMax": -18.75
+      },
+      {
+        "name": "catacombs",
+        "label": "Κατακόμβες",
+        "secret": false,
+        "xMin": -8.75,
+        "xMax": 8.75,
+        "zMin": -50,
+        "zMax": -33.75
+      },
+      {
+        "name": "sanctum",
+        "label": "Άδυτο",
+        "secret": false,
+        "xMin": 13.75,
+        "xMax": 36.25,
+        "zMin": -55,
+        "zMax": -37.5
+      },
+      {
+        "name": "gallery",
+        "label": "Στοά",
+        "secret": false,
+        "xMin": 42.5,
+        "xMax": 60,
+        "zMin": -13.75,
+        "zMax": 6.25
+      },
+      {
+        "name": "watchtower",
+        "label": "Φυλάκιο",
+        "secret": false,
+        "xMin": 41.25,
+        "xMax": 61.25,
+        "zMin": -36.25,
+        "zMax": -18.75
+      },
+      {
+        "name": "gatehouse",
+        "label": "Φρουραρχείο",
+        "secret": false,
+        "xMin": -40,
+        "xMax": -20,
+        "zMin": 11.25,
+        "zMax": 28.75
+      }
+    ],
+    "spawn": {
+      "x": 0,
+      "y": 0,
+      "z": 22.5
+    },
+    "obstacles": [
+      {
+        "x": -13.75,
+        "y": 0.525,
+        "z": 4.6,
+        "w": 2.5,
+        "h": 1.05,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 13.75,
+        "y": 0.525,
+        "z": 4.6,
+        "w": 2.5,
+        "h": 1.05,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -9.1875,
+        "y": 0.525,
+        "z": 25.4,
+        "w": 11.625,
+        "h": 1.05,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 9.1875,
+        "y": 0.525,
+        "z": 25.4,
+        "w": 11.625,
+        "h": 1.05,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -15.4,
+        "y": 2.25,
+        "z": 11.875,
+        "w": 0.8,
+        "h": 4.5,
+        "d": 13.75,
+        "tag": "wall"
+      },
+      {
+        "x": -15.4,
+        "y": 2.25,
+        "z": 23.75,
+        "w": 0.8,
+        "h": 4.5,
+        "d": 2.5,
+        "tag": "wall"
+      },
+      {
+        "x": 15.4,
+        "y": 2.25,
+        "z": 15,
+        "w": 0.8,
+        "h": 4.5,
+        "d": 20,
+        "tag": "wall"
+      },
+      {
+        "x": -10.625,
+        "y": 1.825,
+        "z": -12.9,
+        "w": 3.75,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 10.625,
+        "y": 1.825,
+        "z": -12.9,
+        "w": 3.75,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -12.9,
+        "y": 1.825,
+        "z": -7.5,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 10,
+        "tag": "wall"
+      },
+      {
+        "x": -12.9,
+        "y": 1.825,
+        "z": 3.125,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 3.75,
+        "tag": "wall"
+      },
+      {
+        "x": 12.9,
+        "y": 1.825,
+        "z": -7.5,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 10,
+        "tag": "wall"
+      },
+      {
+        "x": 12.9,
+        "y": 1.825,
+        "z": 3.125,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 3.75,
+        "tag": "wall"
+      },
+      {
+        "x": -5.3125,
+        "y": 2.7,
+        "z": -29.15,
+        "w": 6.875,
+        "h": 5.4,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 5.3125,
+        "y": 2.7,
+        "z": -29.15,
+        "w": 6.875,
+        "h": 5.4,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -9.15,
+        "y": 1.825,
+        "z": -25.625,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 6.25,
+        "tag": "wall"
+      },
+      {
+        "x": -9.15,
+        "y": 1.825,
+        "z": -15.625,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 6.25,
+        "tag": "wall"
+      },
+      {
+        "x": 9.15,
+        "y": 1.825,
+        "z": -25.625,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 6.25,
+        "tag": "wall"
+      },
+      {
+        "x": 9.15,
+        "y": 1.825,
+        "z": -15.625,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 6.25,
+        "tag": "wall"
+      },
+      {
+        "x": 0,
+        "y": 0.33,
+        "z": 34.15,
+        "w": 6.75,
+        "h": 0.66,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -3.775,
+        "y": 0.33,
+        "z": 29.375,
+        "w": 0.8,
+        "h": 0.66,
+        "d": 8.75,
+        "tag": "wall"
+      },
+      {
+        "x": 3.775,
+        "y": 0.33,
+        "z": 29.375,
+        "w": 0.8,
+        "h": 0.66,
+        "d": 8.75,
+        "tag": "wall"
+      },
+      {
+        "x": -28.75,
+        "y": 1.825,
+        "z": -10.4,
+        "w": 22.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -35,
+        "y": 1.825,
+        "z": 7.9,
+        "w": 10,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -21.875,
+        "y": 1.825,
+        "z": 7.9,
+        "w": 8.75,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -40.4,
+        "y": 1.825,
+        "z": -6.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 7.5,
+        "tag": "wall"
+      },
+      {
+        "x": -40.4,
+        "y": 1.825,
+        "z": 4.375,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 6.25,
+        "tag": "wall"
+      },
+      {
+        "x": -17.1,
+        "y": 1.825,
+        "z": -6.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 7.5,
+        "tag": "wall"
+      },
+      {
+        "x": -17.1,
+        "y": 1.825,
+        "z": 4.375,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 6.25,
+        "tag": "wall"
+      },
+      {
+        "x": 28.75,
+        "y": 1.825,
+        "z": -10.4,
+        "w": 22.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 28.75,
+        "y": 1.825,
+        "z": 7.9,
+        "w": 22.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 17.1,
+        "y": 1.825,
+        "z": -6.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 7.5,
+        "tag": "wall"
+      },
+      {
+        "x": 17.1,
+        "y": 1.825,
+        "z": 4.375,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 6.25,
+        "tag": "wall"
+      },
+      {
+        "x": 40.4,
+        "y": 1.825,
+        "z": -6.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 7.5,
+        "tag": "wall"
+      },
+      {
+        "x": 40.4,
+        "y": 1.825,
+        "z": 4.375,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 6.25,
+        "tag": "wall"
+      },
+      {
+        "x": -22.5,
+        "y": 1.825,
+        "z": -30.4,
+        "w": 17.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -22.5,
+        "y": 1.825,
+        "z": -14.6,
+        "w": 17.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -31.65,
+        "y": 1.825,
+        "z": -27.5,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 5,
+        "tag": "wall"
+      },
+      {
+        "x": -31.65,
+        "y": 1.825,
+        "z": -18.125,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 6.25,
+        "tag": "wall"
+      },
+      {
+        "x": -13.35,
+        "y": 1.825,
+        "z": -26.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 7.5,
+        "tag": "wall"
+      },
+      {
+        "x": -13.35,
+        "y": 1.825,
+        "z": -16.875,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 3.75,
+        "tag": "wall"
+      },
+      {
+        "x": 17.1875,
+        "y": 1.825,
+        "z": -30.4,
+        "w": 6.875,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 27.8125,
+        "y": 1.825,
+        "z": -30.4,
+        "w": 6.875,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 22.5,
+        "y": 1.825,
+        "z": -14.6,
+        "w": 17.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 13.35,
+        "y": 1.825,
+        "z": -26.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 7.5,
+        "tag": "wall"
+      },
+      {
+        "x": 13.35,
+        "y": 1.825,
+        "z": -16.875,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 3.75,
+        "tag": "wall"
+      },
+      {
+        "x": 31.65,
+        "y": 1.825,
+        "z": -27.5,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 5,
+        "tag": "wall"
+      },
+      {
+        "x": 31.65,
+        "y": 1.825,
+        "z": -18.125,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 6.25,
+        "tag": "wall"
+      },
+      {
+        "x": -56.875,
+        "y": 1.825,
+        "z": -14.15,
+        "w": 6.25,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -46.25,
+        "y": 1.825,
+        "z": -14.15,
+        "w": 7.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -51.25,
+        "y": 1.825,
+        "z": 6.65,
+        "w": 17.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -60.4,
+        "y": 1.825,
+        "z": -12.525,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 2.4499999999999993,
+        "tag": "wall"
+      },
+      {
+        "x": -60.4,
+        "y": 1.825,
+        "z": 0.27499999999999947,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 11.950000000000001,
+        "tag": "wall"
+      },
+      {
+        "x": -42.1,
+        "y": 1.825,
+        "z": -8.125,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 11.25,
+        "tag": "wall"
+      },
+      {
+        "x": -42.1,
+        "y": 1.825,
+        "z": 3.75,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 5,
+        "tag": "wall"
+      },
+      {
+        "x": -60.675,
+        "y": 1.825,
+        "z": -36.65,
+        "w": 1.1500000000000057,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -47.875,
+        "y": 1.825,
+        "z": -36.65,
+        "w": 13.249999999999993,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -57.5,
+        "y": 1.825,
+        "z": -18.35,
+        "w": 7.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -45.625,
+        "y": 1.825,
+        "z": -18.35,
+        "w": 8.75,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -61.65,
+        "y": 1.825,
+        "z": -27.5,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 17.5,
+        "tag": "wall"
+      },
+      {
+        "x": -40.85,
+        "y": 1.825,
+        "z": -30.625,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 11.25,
+        "tag": "wall"
+      },
+      {
+        "x": -40.85,
+        "y": 1.825,
+        "z": -20,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 2.5,
+        "tag": "wall"
+      },
+      {
+        "x": 0,
+        "y": 1.825,
+        "z": -50.4,
+        "w": 17.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -5.3125,
+        "y": 1.825,
+        "z": -33.35,
+        "w": 6.875,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 5.3125,
+        "y": 1.825,
+        "z": -33.35,
+        "w": 6.875,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -9.15,
+        "y": 1.825,
+        "z": -48.4,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 3.200000000000003,
+        "tag": "wall"
+      },
+      {
+        "x": -9.15,
+        "y": 1.825,
+        "z": -37.474999999999994,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 7.449999999999996,
+        "tag": "wall"
+      },
+      {
+        "x": 9.15,
+        "y": 1.825,
+        "z": -47.5,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 5,
+        "tag": "wall"
+      },
+      {
+        "x": 9.15,
+        "y": 1.825,
+        "z": -37.5,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 7.5,
+        "tag": "wall"
+      },
+      {
+        "x": 25,
+        "y": 1.825,
+        "z": -55.4,
+        "w": 22.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 17.1875,
+        "y": 1.825,
+        "z": -37.1,
+        "w": 6.875,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 30.3125,
+        "y": 1.825,
+        "z": -37.1,
+        "w": 11.875,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 13.35,
+        "y": 1.825,
+        "z": -50,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 10,
+        "tag": "wall"
+      },
+      {
+        "x": 13.35,
+        "y": 1.825,
+        "z": -39.375,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 3.75,
+        "tag": "wall"
+      },
+      {
+        "x": 36.65,
+        "y": 1.825,
+        "z": -46.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 17.5,
+        "tag": "wall"
+      },
+      {
+        "x": 46.25,
+        "y": 1.825,
+        "z": -14.15,
+        "w": 7.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 56.875,
+        "y": 1.825,
+        "z": -14.15,
+        "w": 6.25,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 51.25,
+        "y": 1.825,
+        "z": 6.65,
+        "w": 17.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 42.1,
+        "y": 1.825,
+        "z": -8.125,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 11.25,
+        "tag": "wall"
+      },
+      {
+        "x": 42.1,
+        "y": 1.825,
+        "z": 3.75,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 5,
+        "tag": "wall"
+      },
+      {
+        "x": 60.4,
+        "y": 1.825,
+        "z": -3.75,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 20,
+        "tag": "wall"
+      },
+      {
+        "x": 51.25,
+        "y": 1.825,
+        "z": -36.65,
+        "w": 20,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 45.625,
+        "y": 1.825,
+        "z": -18.35,
+        "w": 8.75,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 57.5,
+        "y": 1.825,
+        "z": -18.35,
+        "w": 7.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 40.85,
+        "y": 1.825,
+        "z": -30.625,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 11.25,
+        "tag": "wall"
+      },
+      {
+        "x": 40.85,
+        "y": 1.825,
+        "z": -20,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 2.5,
+        "tag": "wall"
+      },
+      {
+        "x": 61.65,
+        "y": 1.825,
+        "z": -27.5,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 17.5,
+        "tag": "wall"
+      },
+      {
+        "x": -35,
+        "y": 1.825,
+        "z": 10.85,
+        "w": 10,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -23.125,
+        "y": 1.825,
+        "z": 10.85,
+        "w": 6.25,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -30,
+        "y": 1.825,
+        "z": 29.15,
+        "w": 20,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -40.4,
+        "y": 1.825,
+        "z": 20,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 17.5,
+        "tag": "wall"
+      },
+      {
+        "x": -19.6,
+        "y": 1.825,
+        "z": 15,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 7.5,
+        "tag": "wall"
+      },
+      {
+        "x": -19.6,
+        "y": 1.825,
+        "z": 25.625,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 6.25,
+        "tag": "wall"
+      },
+      {
+        "x": -15,
+        "y": 1.825,
+        "z": -2.9,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -15,
+        "y": 1.825,
+        "z": 1.65,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 15,
+        "y": 1.825,
+        "z": -2.9,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 15,
+        "y": 1.825,
+        "z": 1.65,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -11.25,
+        "y": 1.825,
+        "z": -22.9,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -11.25,
+        "y": 1.825,
+        "z": -18.35,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 11.25,
+        "y": 1.825,
+        "z": -22.9,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 11.25,
+        "y": 1.825,
+        "z": -18.35,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -41.25,
+        "y": 1.825,
+        "z": -2.9,
+        "w": 2.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -41.25,
+        "y": 1.825,
+        "z": 1.65,
+        "w": 2.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -36.25,
+        "y": 1.825,
+        "z": -25.4,
+        "w": 10,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -36.25,
+        "y": 1.825,
+        "z": -20.85,
+        "w": 10,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -54.15,
+        "y": 1.825,
+        "z": -16.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 5,
+        "tag": "wall"
+      },
+      {
+        "x": -49.6,
+        "y": 1.825,
+        "z": -16.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 5,
+        "tag": "wall"
+      },
+      {
+        "x": 41.25,
+        "y": 1.825,
+        "z": -2.9,
+        "w": 2.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 41.25,
+        "y": 1.825,
+        "z": 1.65,
+        "w": 2.5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 36.25,
+        "y": 1.825,
+        "z": -25.4,
+        "w": 10,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 36.25,
+        "y": 1.825,
+        "z": -20.85,
+        "w": 10,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 49.6,
+        "y": 1.825,
+        "z": -16.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 5,
+        "tag": "wall"
+      },
+      {
+        "x": 54.15,
+        "y": 1.825,
+        "z": -16.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 5,
+        "tag": "wall"
+      },
+      {
+        "x": -2.275,
+        "y": 1.825,
+        "z": -31.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 5,
+        "tag": "wall"
+      },
+      {
+        "x": 2.275,
+        "y": 1.825,
+        "z": -31.25,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 5,
+        "tag": "wall"
+      },
+      {
+        "x": 11.25,
+        "y": 1.825,
+        "z": -45.4,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 11.25,
+        "y": 1.825,
+        "z": -40.85,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": 20.225,
+        "y": 1.825,
+        "z": -33.75,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 7.5,
+        "tag": "wall"
+      },
+      {
+        "x": 24.775,
+        "y": 1.825,
+        "z": -33.75,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 7.5,
+        "tag": "wall"
+      },
+      {
+        "x": -17.5,
+        "y": 1.825,
+        "z": 18.35,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -17.5,
+        "y": 1.825,
+        "z": 22.9,
+        "w": 5,
+        "h": 3.65,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -30.4,
+        "y": 1.825,
+        "z": 9.375,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 3.75,
+        "tag": "wall"
+      },
+      {
+        "x": -25.85,
+        "y": 1.825,
+        "z": 9.375,
+        "w": 0.8,
+        "h": 3.65,
+        "d": 3.75,
+        "tag": "wall"
+      },
+      {
+        "x": -62.6,
+        "y": 2.125,
+        "z": -11.700000000000001,
+        "w": 5.200000000000003,
+        "h": 4.25,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -62.6,
+        "y": 2.125,
+        "z": -5.300000000000001,
+        "w": 5.200000000000003,
+        "h": 4.25,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -65.60000000000001,
+        "y": 2.125,
+        "z": -8.5,
+        "w": 0.8,
+        "h": 4.25,
+        "d": 5.6,
+        "tag": "wall"
+      },
+      {
+        "x": -57.3,
+        "y": 2.125,
+        "z": -41.85,
+        "w": 5.600000000000001,
+        "h": 4.25,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -60.49999999999999,
+        "y": 2.125,
+        "z": -38.85,
+        "w": 0.8,
+        "h": 4.25,
+        "d": 5.200000000000003,
+        "tag": "wall"
+      },
+      {
+        "x": -54.099999999999994,
+        "y": 2.125,
+        "z": -38.85,
+        "w": 0.8,
+        "h": 4.25,
+        "d": 5.200000000000003,
+        "tag": "wall"
+      },
+      {
+        "x": -11.35,
+        "y": 2.125,
+        "z": -47.199999999999996,
+        "w": 5.199999999999999,
+        "h": 4.25,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -11.35,
+        "y": 2.125,
+        "z": -40.8,
+        "w": 5.199999999999999,
+        "h": 4.25,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -14.35,
+        "y": 2.125,
+        "z": -44,
+        "w": 0.8,
+        "h": 4.25,
+        "d": 5.600000000000001,
+        "tag": "wall"
+      },
+      {
+        "x": -60,
+        "y": 2.125,
+        "z": -10.85,
+        "w": 0.8,
+        "h": 4.25,
+        "d": 0.8999999999999999,
+        "tag": "wall"
+      },
+      {
+        "x": -60,
+        "y": 2.125,
+        "z": -6.15,
+        "w": 0.8,
+        "h": 4.25,
+        "d": 0.8999999999999999,
+        "tag": "wall"
+      },
+      {
+        "x": -59.65,
+        "y": 2.125,
+        "z": -36.25,
+        "w": 0.8999999999999999,
+        "h": 4.25,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -54.949999999999996,
+        "y": 2.125,
+        "z": -36.25,
+        "w": 0.8999999999999999,
+        "h": 4.25,
+        "d": 0.8,
+        "tag": "wall"
+      },
+      {
+        "x": -8.75,
+        "y": 2.125,
+        "z": -46.35,
+        "w": 0.8,
+        "h": 4.25,
+        "d": 0.8999999999999999,
+        "tag": "wall"
+      },
+      {
+        "x": -8.75,
+        "y": 2.125,
+        "z": -41.65,
+        "w": 0.8,
+        "h": 4.25,
+        "d": 0.8999999999999999,
+        "tag": "wall"
+      },
+      {
+        "x": -8.4375,
+        "y": 2.05,
+        "z": -8.5625,
+        "w": 1.21,
+        "h": 4.1,
+        "d": 1.21,
+        "tag": "pillar"
+      },
+      {
+        "x": -8.4375,
+        "y": 2.05,
+        "z": 2.5,
+        "w": 1.21,
+        "h": 4.1,
+        "d": 1.21,
+        "tag": "pillar"
+      },
+      {
+        "x": 8.4375,
+        "y": 2.05,
+        "z": -8.5625,
+        "w": 1.21,
+        "h": 4.1,
+        "d": 1.21,
+        "tag": "pillar"
+      },
+      {
+        "x": 8.4375,
+        "y": 2.05,
+        "z": 2.5,
+        "w": 1.21,
+        "h": 4.1,
+        "d": 1.21,
+        "tag": "pillar"
+      },
+      {
+        "x": -11.4375,
+        "y": 1.725,
+        "z": 8.125,
+        "w": 1.15,
+        "h": 3.45,
+        "d": 1.15,
+        "tag": "pillar"
+      },
+      {
+        "x": 11.4375,
+        "y": 1.725,
+        "z": 8.125,
+        "w": 1.15,
+        "h": 3.45,
+        "d": 1.15,
+        "tag": "pillar"
+      },
+      {
+        "x": -3.2,
+        "y": 1.8,
+        "z": 25.5625,
+        "w": 1.21,
+        "h": 3.6,
+        "d": 1.21,
+        "tag": "pillar"
+      },
+      {
+        "x": 3.2,
+        "y": 1.8,
+        "z": 25.5625,
+        "w": 1.21,
+        "h": 3.6,
+        "d": 1.21,
+        "tag": "pillar"
+      },
+      {
+        "x": -6.5249999999999995,
+        "y": 0.49,
+        "z": -16.875,
+        "w": 1.65,
+        "h": 0.98,
+        "d": 3.36,
+        "tag": "sarcophagus"
+      },
+      {
+        "x": -6.35,
+        "y": 1.35,
+        "z": -26.5375,
+        "w": 1.22,
+        "h": 2.7,
+        "d": 1.2,
+        "tag": "sentinel"
+      },
+      {
+        "x": 6.5249999999999995,
+        "y": 0.49,
+        "z": -16.875,
+        "w": 1.65,
+        "h": 0.98,
+        "d": 3.36,
+        "tag": "sarcophagus"
+      },
+      {
+        "x": 6.35,
+        "y": 1.35,
+        "z": -26.5375,
+        "w": 1.22,
+        "h": 2.7,
+        "d": 1.2,
+        "tag": "sentinel"
+      },
+      {
+        "x": -9,
+        "y": 0.67,
+        "z": 10.625,
+        "w": 0.95,
+        "h": 1.34,
+        "d": 0.95,
+        "tag": "fire-pylon"
+      },
+      {
+        "x": -8,
+        "y": 0.67,
+        "z": -10.5,
+        "w": 0.95,
+        "h": 1.34,
+        "d": 0.95,
+        "tag": "fire-pylon"
+      },
+      {
+        "x": 7.25,
+        "y": 0.67,
+        "z": -24.125,
+        "w": 0.95,
+        "h": 1.34,
+        "d": 0.95,
+        "tag": "fire-pylon"
+      },
+      {
+        "x": -37.9,
+        "y": 1.75,
+        "z": -8,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": -19.6,
+        "y": 1.75,
+        "z": -8,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 19.6,
+        "y": 1.75,
+        "z": -8,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 37.9,
+        "y": 1.75,
+        "z": -8,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": -29.15,
+        "y": 1.75,
+        "z": -28,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": -15.85,
+        "y": 1.75,
+        "z": -28,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 15.85,
+        "y": 1.75,
+        "z": -28,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 29.15,
+        "y": 1.75,
+        "z": -28,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": -57.9,
+        "y": 1.75,
+        "z": -11.75,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": -44.6,
+        "y": 1.75,
+        "z": -11.75,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": -59.15,
+        "y": 1.75,
+        "z": -34.25,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": -43.35,
+        "y": 1.75,
+        "z": -34.25,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": -6.65,
+        "y": 1.75,
+        "z": -48,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 6.65,
+        "y": 1.75,
+        "z": -48,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 15.85,
+        "y": 1.75,
+        "z": -53,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 34.15,
+        "y": 1.75,
+        "z": -53,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 44.6,
+        "y": 1.75,
+        "z": -11.75,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 57.9,
+        "y": 1.75,
+        "z": -11.75,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 43.35,
+        "y": 1.75,
+        "z": -34.25,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 59.15,
+        "y": 1.75,
+        "z": -34.25,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": -37.9,
+        "y": 1.75,
+        "z": 13.25,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": -22.1,
+        "y": 1.75,
+        "z": 13.25,
+        "w": 1.11,
+        "h": 3.5,
+        "d": 1.11,
+        "tag": "pillar"
+      },
+      {
+        "x": 0,
+        "y": 0.4,
+        "z": -23.75,
+        "w": 1.85,
+        "h": 0.8,
+        "d": 1.85,
+        "tag": "relic-pedestal"
+      },
+      {
+        "x": -2.6500000000000004,
+        "y": 1.15,
+        "z": 28.75,
+        "w": 0.91,
+        "h": 2.3,
+        "d": 0.91,
+        "tag": "pillar"
+      },
+      {
+        "x": 2.6500000000000004,
+        "y": 1.15,
+        "z": 28.75,
+        "w": 0.91,
+        "h": 2.3,
+        "d": 0.91,
+        "tag": "pillar"
+      },
+      {
+        "x": -7.550000000000001,
+        "y": 2.125,
+        "z": 5,
+        "w": 9.9,
+        "h": 4.25,
+        "d": 0.9,
+        "tag": "greek-wall-return"
+      },
+      {
+        "x": 7.550000000000001,
+        "y": 2.125,
+        "z": 5,
+        "w": 9.9,
+        "h": 4.25,
+        "d": 0.9,
+        "tag": "greek-wall-return"
+      },
+      {
+        "x": 0,
+        "y": 4.7,
+        "z": 5,
+        "w": 5.7,
+        "h": 0.9,
+        "d": 1,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -5.675000000000001,
+        "y": 2.125,
+        "z": -12.5,
+        "w": 6.15,
+        "h": 4.25,
+        "d": 0.9,
+        "tag": "greek-wall-return"
+      },
+      {
+        "x": 5.675000000000001,
+        "y": 2.125,
+        "z": -12.5,
+        "w": 6.15,
+        "h": 4.25,
+        "d": 0.9,
+        "tag": "greek-wall-return"
+      },
+      {
+        "x": 0,
+        "y": 4.7,
+        "z": -12.5,
+        "w": 5.7,
+        "h": 0.9,
+        "d": 1,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -60,
+        "y": 4.7,
+        "z": -8.5,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.3,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -15,
+        "y": 4.7,
+        "z": -0.625,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.25,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": 15,
+        "y": 4.7,
+        "z": -0.625,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.25,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -11.25,
+        "y": 4.7,
+        "z": -20.625,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.25,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": 11.25,
+        "y": 4.7,
+        "z": -20.625,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.25,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -41.25,
+        "y": 4.7,
+        "z": -0.625,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.25,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -36.25,
+        "y": 4.7,
+        "z": -23.125,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.25,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -51.875,
+        "y": 4.7,
+        "z": -16.25,
+        "w": 4.25,
+        "h": 0.9,
+        "d": 1,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": 41.25,
+        "y": 4.7,
+        "z": -0.625,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.25,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": 36.25,
+        "y": 4.7,
+        "z": -23.125,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.25,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": 51.875,
+        "y": 4.7,
+        "z": -16.25,
+        "w": 4.25,
+        "h": 0.9,
+        "d": 1,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": 0,
+        "y": 4.7,
+        "z": -31.25,
+        "w": 4.25,
+        "h": 0.9,
+        "d": 1,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": 11.25,
+        "y": 4.7,
+        "z": -43.125,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.25,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": 22.5,
+        "y": 4.7,
+        "z": -33.75,
+        "w": 4.25,
+        "h": 0.9,
+        "d": 1,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -17.5,
+        "y": 4.7,
+        "z": 20.625,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.25,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -28.125,
+        "y": 4.7,
+        "z": 9.375,
+        "w": 4.25,
+        "h": 0.9,
+        "d": 1,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -57.3,
+        "y": 4.7,
+        "z": -36.25,
+        "w": 4.3,
+        "h": 0.9,
+        "d": 1,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -8.75,
+        "y": 4.7,
+        "z": -44,
+        "w": 1,
+        "h": 0.9,
+        "d": 4.3,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": 13.55,
+        "y": 1.2,
+        "z": 15,
+        "w": 1.2,
+        "h": 2.4,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "courtyard",
+        "kind": "olive-urn"
+      },
+      {
+        "x": -13.55,
+        "y": 0.85,
+        "z": 9.4375,
+        "w": 1.2,
+        "h": 1.7,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "courtyard",
+        "kind": "bench"
+      },
+      {
+        "x": -11.09375,
+        "y": 1.2,
+        "z": 23.55,
+        "w": 2.7,
+        "h": 2.4,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "courtyard",
+        "kind": "olive-urn"
+      },
+      {
+        "x": -7.28125,
+        "y": 0.85,
+        "z": 23.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "courtyard",
+        "kind": "bench"
+      },
+      {
+        "x": -11.05,
+        "y": 0.85,
+        "z": -6,
+        "w": 1.2,
+        "h": 1.7,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "hall",
+        "kind": "bench"
+      },
+      {
+        "x": -37.9,
+        "y": 1.15,
+        "z": -4.75,
+        "w": 1.2,
+        "h": 2.3,
+        "d": 2.2,
+        "tag": "greek-furniture",
+        "room": "armoury",
+        "kind": "weapon-rack"
+      },
+      {
+        "x": -19.6,
+        "y": 1.15,
+        "z": -4.75,
+        "w": 1.2,
+        "h": 2.3,
+        "d": 2.2,
+        "tag": "greek-furniture",
+        "room": "armoury",
+        "kind": "weapon-rack"
+      },
+      {
+        "x": -33.5,
+        "y": 1.15,
+        "z": 6.05,
+        "w": 1.2,
+        "h": 2.3,
+        "d": 2.2,
+        "tag": "greek-furniture",
+        "room": "armoury",
+        "kind": "weapon-rack"
+      },
+      {
+        "x": -23.0625,
+        "y": 0.85,
+        "z": 6.05,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "armoury",
+        "kind": "supply-rack"
+      },
+      {
+        "x": 20.5,
+        "y": 0.65,
+        "z": 3.75,
+        "w": 1.6,
+        "h": 1.3,
+        "d": 2.5,
+        "tag": "greek-furniture",
+        "room": "barracks",
+        "kind": "kline"
+      },
+      {
+        "x": 37,
+        "y": 0.65,
+        "z": 3.75,
+        "w": 1.6,
+        "h": 1.3,
+        "d": 2.5,
+        "tag": "greek-furniture",
+        "room": "barracks",
+        "kind": "kline"
+      },
+      {
+        "x": 24.125,
+        "y": 0.85,
+        "z": -8.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "barracks",
+        "kind": "supply-rack"
+      },
+      {
+        "x": 33.375,
+        "y": 0.85,
+        "z": -8.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "barracks",
+        "kind": "bench"
+      },
+      {
+        "x": 28.75,
+        "y": 0.85,
+        "z": -8.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "barracks",
+        "kind": "supply-rack"
+      },
+      {
+        "x": 24.125,
+        "y": 0.85,
+        "z": 6.05,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "barracks",
+        "kind": "bench"
+      },
+      {
+        "x": -28.25,
+        "y": 0.65,
+        "z": -17.5,
+        "w": 1.6,
+        "h": 1.3,
+        "d": 2.5,
+        "tag": "greek-furniture",
+        "room": "prison",
+        "kind": "pallet"
+      },
+      {
+        "x": -16.75,
+        "y": 0.65,
+        "z": -17.5,
+        "w": 1.6,
+        "h": 1.3,
+        "d": 2.5,
+        "tag": "greek-furniture",
+        "room": "prison",
+        "kind": "pallet"
+      },
+      {
+        "x": -25.875,
+        "y": 0.85,
+        "z": -28.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "prison",
+        "kind": "bench"
+      },
+      {
+        "x": -19.125,
+        "y": 0.85,
+        "z": -28.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "prison",
+        "kind": "offering"
+      },
+      {
+        "x": -22.5,
+        "y": 0.85,
+        "z": -28.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "prison",
+        "kind": "bench"
+      },
+      {
+        "x": -22.5,
+        "y": 0.85,
+        "z": -16.45,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "prison",
+        "kind": "offering"
+      },
+      {
+        "x": 19.125,
+        "y": 0.85,
+        "z": -16.45,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "ritual",
+        "kind": "offering"
+      },
+      {
+        "x": 25.875,
+        "y": 0.85,
+        "z": -16.45,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "ritual",
+        "kind": "altar"
+      },
+      {
+        "x": 22.5,
+        "y": 0.85,
+        "z": -16.45,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "ritual",
+        "kind": "offering"
+      },
+      {
+        "x": -57.9,
+        "y": 1.15,
+        "z": -5.75,
+        "w": 1.2,
+        "h": 2.3,
+        "d": 2.2,
+        "tag": "greek-furniture",
+        "room": "library",
+        "kind": "scroll-cabinet"
+      },
+      {
+        "x": -44.6,
+        "y": 1.15,
+        "z": -7.25,
+        "w": 1.2,
+        "h": 2.3,
+        "d": 2.2,
+        "tag": "greek-furniture",
+        "room": "library",
+        "kind": "scroll-cabinet"
+      },
+      {
+        "x": -54.625,
+        "y": 0.85,
+        "z": 4.8,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "library",
+        "kind": "reading-table"
+      },
+      {
+        "x": -58.55,
+        "y": 1.15,
+        "z": -1.7125000000000008,
+        "w": 2.2,
+        "h": 2.3,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "library",
+        "kind": "scroll-cabinet"
+      },
+      {
+        "x": -47.125,
+        "y": 0.85,
+        "z": -12.3,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "library",
+        "kind": "reading-table"
+      },
+      {
+        "x": -59.15,
+        "y": 1.15,
+        "z": -29.5,
+        "w": 1.2,
+        "h": 2.3,
+        "d": 2.2,
+        "tag": "greek-furniture",
+        "room": "forge",
+        "kind": "furnace"
+      },
+      {
+        "x": -43.35,
+        "y": 1.15,
+        "z": -29.5,
+        "w": 1.2,
+        "h": 2.3,
+        "d": 2.2,
+        "tag": "greek-furniture",
+        "room": "forge",
+        "kind": "anvil"
+      },
+      {
+        "x": -59.8,
+        "y": 0.85,
+        "z": -24.125,
+        "w": 1.2,
+        "h": 1.7,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "forge",
+        "kind": "supply-rack"
+      },
+      {
+        "x": -50.18749999999999,
+        "y": 0.85,
+        "z": -34.8,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "forge",
+        "kind": "offering"
+      },
+      {
+        "x": -46.8125,
+        "y": 0.85,
+        "z": -20.2,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "forge",
+        "kind": "supply-rack"
+      },
+      {
+        "x": -56.625,
+        "y": 0.85,
+        "z": -20.2,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "forge",
+        "kind": "offering"
+      },
+      {
+        "x": -3.375,
+        "y": 0.85,
+        "z": -48.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "catacombs",
+        "kind": "ossuary"
+      },
+      {
+        "x": 3.375,
+        "y": 0.85,
+        "z": -48.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "catacombs",
+        "kind": "sarcophagus"
+      },
+      {
+        "x": 0,
+        "y": 0.85,
+        "z": -48.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "catacombs",
+        "kind": "ossuary"
+      },
+      {
+        "x": 7.3,
+        "y": 0.85,
+        "z": -38.375,
+        "w": 1.2,
+        "h": 1.7,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "catacombs",
+        "kind": "sarcophagus"
+      },
+      {
+        "x": 20.375,
+        "y": 0.85,
+        "z": -53.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "sanctum",
+        "kind": "altar"
+      },
+      {
+        "x": 29.625,
+        "y": 0.85,
+        "z": -53.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "sanctum",
+        "kind": "offering"
+      },
+      {
+        "x": 25,
+        "y": 0.85,
+        "z": -53.55,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "sanctum",
+        "kind": "altar"
+      },
+      {
+        "x": 34.8,
+        "y": 0.85,
+        "z": -42.875,
+        "w": 1.2,
+        "h": 1.7,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "sanctum",
+        "kind": "offering"
+      },
+      {
+        "x": 58.55,
+        "y": 0.85,
+        "z": 0.25,
+        "w": 1.2,
+        "h": 1.7,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "gallery",
+        "kind": "vase-display"
+      },
+      {
+        "x": 58.55,
+        "y": 0.85,
+        "z": -3.75,
+        "w": 1.2,
+        "h": 1.7,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "gallery",
+        "kind": "bench"
+      },
+      {
+        "x": 47.875,
+        "y": 0.85,
+        "z": 4.8,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "gallery",
+        "kind": "vase-display"
+      },
+      {
+        "x": 54.625,
+        "y": 0.85,
+        "z": 4.8,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "gallery",
+        "kind": "bench"
+      },
+      {
+        "x": 59.8,
+        "y": 1.25,
+        "z": -24.125,
+        "w": 1.2,
+        "h": 2.5,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "watchtower",
+        "kind": "observatory"
+      },
+      {
+        "x": 59.8,
+        "y": 0.85,
+        "z": -27.5,
+        "w": 1.2,
+        "h": 1.7,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "watchtower",
+        "kind": "map-table"
+      },
+      {
+        "x": 42.7,
+        "y": 1.25,
+        "z": -28.8125,
+        "w": 1.2,
+        "h": 2.5,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "watchtower",
+        "kind": "observatory"
+      },
+      {
+        "x": 56.625,
+        "y": 0.85,
+        "z": -20.2,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "watchtower",
+        "kind": "map-table"
+      },
+      {
+        "x": -37,
+        "y": 0.65,
+        "z": 23.5,
+        "w": 1.6,
+        "h": 1.3,
+        "d": 2.5,
+        "tag": "greek-furniture",
+        "room": "gatehouse",
+        "kind": "kline"
+      },
+      {
+        "x": -23,
+        "y": 0.65,
+        "z": 23.5,
+        "w": 1.6,
+        "h": 1.3,
+        "d": 2.5,
+        "tag": "greek-furniture",
+        "room": "gatehouse",
+        "kind": "kline"
+      },
+      {
+        "x": -34,
+        "y": 0.85,
+        "z": 27.3,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "gatehouse",
+        "kind": "map-table"
+      },
+      {
+        "x": -26,
+        "y": 0.85,
+        "z": 27.3,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "gatehouse",
+        "kind": "supply-rack"
+      },
+      {
+        "x": -30,
+        "y": 0.85,
+        "z": 27.3,
+        "w": 2.7,
+        "h": 1.7,
+        "d": 1.2,
+        "tag": "greek-furniture",
+        "room": "gatehouse",
+        "kind": "map-table"
+      },
+      {
+        "x": -38.55,
+        "y": 0.85,
+        "z": 20,
+        "w": 1.2,
+        "h": 1.7,
+        "d": 2.7,
+        "tag": "greek-furniture",
+        "room": "gatehouse",
+        "kind": "supply-rack"
+      },
+      {
+        "x": -54.13,
+        "y": 0.63,
+        "z": 2.325,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 0.63,
+        "z": 2.325,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 0.8300000000000001,
+        "z": 1.975,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 0.8300000000000001,
+        "z": 1.975,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 1.03,
+        "z": 1.625,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 1.03,
+        "z": 1.625,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 1.23,
+        "z": 1.2750000000000001,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 1.23,
+        "z": 1.2750000000000001,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 1.43,
+        "z": 0.925,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 1.43,
+        "z": 0.925,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 1.6300000000000001,
+        "z": 0.5750000000000002,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 1.6300000000000001,
+        "z": 0.5750000000000002,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 1.83,
+        "z": 0.2250000000000001,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 1.83,
+        "z": 0.2250000000000001,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 2.0300000000000002,
+        "z": -0.125,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 2.0300000000000002,
+        "z": -0.125,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 2.23,
+        "z": -0.47499999999999964,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 2.23,
+        "z": -0.47499999999999964,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 2.43,
+        "z": -0.8249999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 2.43,
+        "z": -0.8249999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 2.6300000000000003,
+        "z": -1.1749999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 2.6300000000000003,
+        "z": -1.1749999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 2.8300000000000005,
+        "z": -1.5249999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 2.8300000000000005,
+        "z": -1.5249999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 3.0300000000000002,
+        "z": -1.875,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 3.0300000000000002,
+        "z": -1.875,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 3.2300000000000004,
+        "z": -2.2249999999999996,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 3.2300000000000004,
+        "z": -2.2249999999999996,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 3.43,
+        "z": -2.5749999999999993,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 3.43,
+        "z": -2.5749999999999993,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 3.6300000000000003,
+        "z": -2.925,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 3.6300000000000003,
+        "z": -2.925,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 3.8300000000000005,
+        "z": -3.2749999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 3.8300000000000005,
+        "z": -3.2749999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 4.03,
+        "z": -3.625,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 4.03,
+        "z": -3.625,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 4.23,
+        "z": -3.9749999999999996,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 4.23,
+        "z": -3.9749999999999996,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 4.43,
+        "z": -4.324999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 4.43,
+        "z": -4.324999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 4.63,
+        "z": -4.675,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 4.63,
+        "z": -4.675,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 4.83,
+        "z": -5.0249999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 4.83,
+        "z": -5.0249999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 5.03,
+        "z": -5.374999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 5.03,
+        "z": -5.374999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 5.23,
+        "z": -5.725,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 5.23,
+        "z": -5.725,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 5.43,
+        "z": -6.074999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 5.43,
+        "z": -6.074999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -54.13,
+        "y": 5.63,
+        "z": -6.424999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -48.37,
+        "y": 5.63,
+        "z": -6.424999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": -58.55,
+        "y": 2.41,
+        "z": -11.5,
+        "w": 0.7,
+        "h": 4.82,
+        "d": 0.7,
+        "tag": "fullmap-support"
+      },
+      {
+        "x": -58.55,
+        "y": 4.7,
+        "z": -9.541,
+        "w": 0.42,
+        "h": 0.3,
+        "d": 4.618,
+        "tag": "fullmap-bearing-beam"
+      },
+      {
+        "x": -59.4,
+        "y": 5.75,
+        "z": -9.866,
+        "w": 0.34,
+        "h": 1.1,
+        "d": 6.5680000000000005,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": -56.675,
+        "y": 5.75,
+        "z": -6.582,
+        "w": 5.449999999999998,
+        "h": 1.1,
+        "d": 0.34,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": -43.95,
+        "y": 2.41,
+        "z": -7.582,
+        "w": 0.7,
+        "h": 4.82,
+        "d": 0.7,
+        "tag": "fullmap-support"
+      },
+      {
+        "x": -43.1,
+        "y": 5.75,
+        "z": -9.866,
+        "w": 0.34,
+        "h": 1.1,
+        "d": 6.5680000000000005,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": -45.825,
+        "y": 5.75,
+        "z": -6.582,
+        "w": 5.449999999999998,
+        "h": 1.1,
+        "d": 0.34,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": -51.25,
+        "y": 5.75,
+        "z": -13.15,
+        "w": 16.299999999999997,
+        "h": 1.1,
+        "d": 0.34,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": -56.475,
+        "y": 7.5,
+        "z": -8.25,
+        "w": 5.849999999999999,
+        "h": 4.6,
+        "d": 0.65,
+        "tag": "fullmap-door-return"
+      },
+      {
+        "x": -46.025,
+        "y": 7.5,
+        "z": -8.25,
+        "w": 5.849999999999999,
+        "h": 4.6,
+        "d": 0.65,
+        "tag": "fullmap-door-return"
+      },
+      {
+        "x": -51.25,
+        "y": 10.25,
+        "z": -8.25,
+        "w": 5.1,
+        "h": 0.9,
+        "d": 1,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": -55.85,
+        "y": 6.4,
+        "z": -11.65,
+        "w": 2.75,
+        "h": 2.4,
+        "d": 1.3,
+        "tag": "fullmap-furniture"
+      },
+      {
+        "x": 48.37,
+        "y": 0.63,
+        "z": 2.325,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 0.63,
+        "z": 2.325,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 0.83,
+        "z": 1.975,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 0.83,
+        "z": 1.975,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 1.03,
+        "z": 1.625,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 1.03,
+        "z": 1.625,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 1.23,
+        "z": 1.2750000000000001,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 1.23,
+        "z": 1.2750000000000001,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 1.43,
+        "z": 0.925,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 1.43,
+        "z": 0.925,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 1.63,
+        "z": 0.5750000000000002,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 1.63,
+        "z": 0.5750000000000002,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 1.8299999999999998,
+        "z": 0.2250000000000001,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 1.8299999999999998,
+        "z": 0.2250000000000001,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 2.03,
+        "z": -0.125,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 2.03,
+        "z": -0.125,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 2.23,
+        "z": -0.47499999999999964,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 2.23,
+        "z": -0.47499999999999964,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 2.4299999999999997,
+        "z": -0.8249999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 2.4299999999999997,
+        "z": -0.8249999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 2.63,
+        "z": -1.1749999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 2.63,
+        "z": -1.1749999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 2.83,
+        "z": -1.5249999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 2.83,
+        "z": -1.5249999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 3.03,
+        "z": -1.875,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 3.03,
+        "z": -1.875,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 3.23,
+        "z": -2.2249999999999996,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 3.23,
+        "z": -2.2249999999999996,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 3.4299999999999997,
+        "z": -2.5749999999999993,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 3.4299999999999997,
+        "z": -2.5749999999999993,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 3.63,
+        "z": -2.925,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 3.63,
+        "z": -2.925,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 3.83,
+        "z": -3.2749999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 3.83,
+        "z": -3.2749999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 4.029999999999999,
+        "z": -3.625,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 4.029999999999999,
+        "z": -3.625,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 4.2299999999999995,
+        "z": -3.9749999999999996,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 4.2299999999999995,
+        "z": -3.9749999999999996,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 4.43,
+        "z": -4.324999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 4.43,
+        "z": -4.324999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 4.629999999999999,
+        "z": -4.675,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 4.629999999999999,
+        "z": -4.675,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 4.829999999999999,
+        "z": -5.0249999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 4.829999999999999,
+        "z": -5.0249999999999995,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 5.029999999999999,
+        "z": -5.374999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 5.029999999999999,
+        "z": -5.374999999999999,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 5.2299999999999995,
+        "z": -5.725,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 5.2299999999999995,
+        "z": -5.725,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 43.95,
+        "y": 2.21,
+        "z": -6.881999999999999,
+        "w": 0.7,
+        "h": 4.42,
+        "d": 0.7,
+        "tag": "fullmap-support"
+      },
+      {
+        "x": 43.1,
+        "y": 5.35,
+        "z": -9.516,
+        "w": 0.34,
+        "h": 1.1,
+        "d": 7.268000000000002,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": 45.825,
+        "y": 5.35,
+        "z": -5.881999999999999,
+        "w": 5.449999999999998,
+        "h": 1.1,
+        "d": 0.34,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": 58.55,
+        "y": 2.21,
+        "z": -6.881999999999999,
+        "w": 0.7,
+        "h": 4.42,
+        "d": 0.7,
+        "tag": "fullmap-support"
+      },
+      {
+        "x": 59.4,
+        "y": 5.35,
+        "z": -9.516,
+        "w": 0.34,
+        "h": 1.1,
+        "d": 7.268000000000002,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": 56.675,
+        "y": 5.35,
+        "z": -5.881999999999999,
+        "w": 5.449999999999998,
+        "h": 1.1,
+        "d": 0.34,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": 51.25,
+        "y": 5.35,
+        "z": -13.15,
+        "w": 16.299999999999997,
+        "h": 1.1,
+        "d": 0.34,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": 45.8,
+        "y": 7.1,
+        "z": -10.100000000000001,
+        "w": 5.399999999999999,
+        "h": 4.6,
+        "d": 0.65,
+        "tag": "fullmap-door-return"
+      },
+      {
+        "x": 56.7,
+        "y": 7.1,
+        "z": -10.100000000000001,
+        "w": 5.399999999999999,
+        "h": 4.6,
+        "d": 0.65,
+        "tag": "fullmap-door-return"
+      },
+      {
+        "x": 51.25,
+        "y": 9.849999999999998,
+        "z": -10.100000000000001,
+        "w": 6,
+        "h": 0.9,
+        "d": 1,
+        "tag": "greek-lintel"
+      },
+      {
+        "x": 46.65,
+        "y": 6,
+        "z": -11.65,
+        "w": 2.75,
+        "h": 2.4,
+        "d": 1.3,
+        "tag": "fullmap-furniture"
+      },
+      {
+        "x": 48.37,
+        "y": 0.63,
+        "z": -22.375,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 0.63,
+        "z": -22.375,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 0.8300000000000001,
+        "z": -22.724999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 0.8300000000000001,
+        "z": -22.724999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 1.03,
+        "z": -23.075,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 1.03,
+        "z": -23.075,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 1.23,
+        "z": -23.425,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 1.23,
+        "z": -23.425,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 1.43,
+        "z": -23.775,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 1.43,
+        "z": -23.775,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 1.6300000000000001,
+        "z": -24.125,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 1.6300000000000001,
+        "z": -24.125,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 1.83,
+        "z": -24.474999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 1.83,
+        "z": -24.474999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 2.0300000000000002,
+        "z": -24.825,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 2.0300000000000002,
+        "z": -24.825,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 2.23,
+        "z": -25.174999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 2.23,
+        "z": -25.174999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 2.43,
+        "z": -25.525,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 2.43,
+        "z": -25.525,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 2.6300000000000003,
+        "z": -25.875,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 2.6300000000000003,
+        "z": -25.875,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 2.8300000000000005,
+        "z": -26.224999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 2.8300000000000005,
+        "z": -26.224999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 3.0300000000000002,
+        "z": -26.575,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 3.0300000000000002,
+        "z": -26.575,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 3.2300000000000004,
+        "z": -26.924999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 3.2300000000000004,
+        "z": -26.924999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 3.43,
+        "z": -27.275,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 3.43,
+        "z": -27.275,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 3.6300000000000003,
+        "z": -27.625,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 3.6300000000000003,
+        "z": -27.625,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 3.8300000000000005,
+        "z": -27.974999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 3.8300000000000005,
+        "z": -27.974999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 4.03,
+        "z": -28.325,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 4.03,
+        "z": -28.325,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 4.23,
+        "z": -28.674999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 4.23,
+        "z": -28.674999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 4.43,
+        "z": -29.025,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 4.43,
+        "z": -29.025,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 4.63,
+        "z": -29.375,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 4.63,
+        "z": -29.375,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 4.83,
+        "z": -29.724999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 4.83,
+        "z": -29.724999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 5.03,
+        "z": -30.075,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 5.03,
+        "z": -30.075,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 5.23,
+        "z": -30.424999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 5.23,
+        "z": -30.424999999999997,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 5.43,
+        "z": -30.775,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 5.43,
+        "z": -30.775,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 5.63,
+        "z": -31.125,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 5.63,
+        "z": -31.125,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 5.83,
+        "z": -31.474999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 5.83,
+        "z": -31.474999999999998,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 6.03,
+        "z": -31.825,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 6.03,
+        "z": -31.825,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 6.23,
+        "z": -32.175,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 6.23,
+        "z": -32.175,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 48.37,
+        "y": 6.43,
+        "z": -32.525,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 54.13,
+        "y": 6.43,
+        "z": -32.525,
+        "w": 0.32,
+        "h": 0.9,
+        "d": 0.38,
+        "tag": "fullmap-stair-cheek"
+      },
+      {
+        "x": 42.7,
+        "y": 2.81,
+        "z": -33.682,
+        "w": 0.7,
+        "h": 5.62,
+        "d": 0.7,
+        "tag": "fullmap-support"
+      },
+      {
+        "x": 41.85,
+        "y": 6.55,
+        "z": -34.391000000000005,
+        "w": 0.34,
+        "h": 1.1,
+        "d": 3.4179999999999993,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": 45.2,
+        "y": 6.55,
+        "z": -32.682,
+        "w": 6.699999999999998,
+        "h": 1.1,
+        "d": 0.34,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": 59.8,
+        "y": 2.81,
+        "z": -33.682,
+        "w": 0.7,
+        "h": 5.62,
+        "d": 0.7,
+        "tag": "fullmap-support"
+      },
+      {
+        "x": 60.65,
+        "y": 6.55,
+        "z": -34.391000000000005,
+        "w": 0.34,
+        "h": 1.1,
+        "d": 3.4179999999999993,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": 57.3,
+        "y": 6.55,
+        "z": -32.682,
+        "w": 6.699999999999998,
+        "h": 1.1,
+        "d": 0.34,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": 51.25,
+        "y": 6.55,
+        "z": -36.1,
+        "w": 18.799999999999997,
+        "h": 1.1,
+        "d": 0.34,
+        "tag": "fullmap-rail"
+      },
+      {
+        "x": 57.05,
+        "y": 7.2,
+        "z": -34.550000000000004,
+        "w": 2.75,
+        "h": 2.4,
+        "d": 1.3,
+        "tag": "fullmap-furniture"
+      },
+      {
+        "x": 45.45,
+        "y": 7.2,
+        "z": -34.5,
+        "w": 2.75,
+        "h": 2.4,
+        "d": 1.3,
+        "tag": "fullmap-furniture"
+      },
+      {
+        "x": -0.4499999999999993,
+        "y": 1.2,
+        "z": -27.25,
+        "w": 2.75,
+        "h": 2.4,
+        "d": 1.3,
+        "tag": "fullmap-furniture"
+      },
+      {
+        "x": 12.949999999999992,
+        "y": 0.31,
+        "z": 10.099999999999998,
+        "w": 1.36,
+        "h": 0.62,
+        "d": 1.26,
+        "tag": "greek-statue-plinth",
+        "room": "courtyard"
+      },
+      {
+        "x": 56.050000000000026,
+        "y": 0.31,
+        "z": -12.25,
+        "w": 1.36,
+        "h": 0.62,
+        "d": 1.26,
+        "tag": "greek-statue-plinth",
+        "room": "gallery"
+      },
+      {
+        "x": 33.92664080619816,
+        "y": 0.31,
+        "z": -49.29999999999999,
+        "w": 2.61328161239624,
+        "h": 0.62,
+        "d": 1.26,
+        "tag": "greek-statue-plinth",
+        "room": "sanctum"
+      },
+      {
+        "x": -5.59,
+        "y": 0.22,
+        "z": 9,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -4,
+        "y": 0.22,
+        "z": 8.21,
+        "w": 3.039999999999999,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -2.41,
+        "y": 0.22,
+        "z": 9,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -4,
+        "y": 0.22,
+        "z": 9.79,
+        "w": 3.039999999999999,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -4,
+        "y": 0.22,
+        "z": 9,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.44,
+        "tag": "pressure-tray-divider"
+      },
+      {
+        "x": -56.29,
+        "y": 0.22,
+        "z": -4.3,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -55.5,
+        "y": 0.22,
+        "z": -5.09,
+        "w": 1.44,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -54.71,
+        "y": 0.22,
+        "z": -4.3,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -55.5,
+        "y": 0.22,
+        "z": -3.51,
+        "w": 1.44,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -46.839999999999996,
+        "y": 0.22,
+        "z": 2.5,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -46.05,
+        "y": 0.22,
+        "z": 1.71,
+        "w": 1.44,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -45.26,
+        "y": 0.22,
+        "z": 2.5,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -46.05,
+        "y": 0.22,
+        "z": 3.29,
+        "w": 1.44,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 54.00999999999999,
+        "y": 5.02,
+        "z": -8.081999999999999,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 55.599999999999994,
+        "y": 5.02,
+        "z": -8.872,
+        "w": 3.040000000000001,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 57.19,
+        "y": 5.02,
+        "z": -8.081999999999999,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 55.599999999999994,
+        "y": 5.02,
+        "z": -7.291999999999999,
+        "w": 3.040000000000001,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 55.599999999999994,
+        "y": 5.02,
+        "z": -8.081999999999999,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.44,
+        "tag": "pressure-tray-divider"
+      },
+      {
+        "x": -8.08,
+        "y": 0.22,
+        "z": -24.040000000000006,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -6.49,
+        "y": 0.22,
+        "z": -24.830000000000005,
+        "w": 3.039999999999999,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -4.9,
+        "y": 0.22,
+        "z": -24.040000000000006,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -6.49,
+        "y": 0.22,
+        "z": -23.250000000000007,
+        "w": 3.039999999999999,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -6.49,
+        "y": 0.22,
+        "z": -24.040000000000006,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.44,
+        "tag": "pressure-tray-divider"
+      },
+      {
+        "x": -39.33,
+        "y": 0.22,
+        "z": 2.5100000000000007,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -37.74,
+        "y": 0.22,
+        "z": 1.7200000000000006,
+        "w": 3.039999999999994,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -36.150000000000006,
+        "y": 0.22,
+        "z": 2.5100000000000007,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -37.74,
+        "y": 0.22,
+        "z": 3.3000000000000007,
+        "w": 3.039999999999994,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -37.74,
+        "y": 0.22,
+        "z": 2.5100000000000007,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.44,
+        "tag": "pressure-tray-divider"
+      },
+      {
+        "x": -56.730000000000004,
+        "y": 0.22,
+        "z": -12.290000000000001,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -55.14000000000001,
+        "y": 0.22,
+        "z": -13.080000000000002,
+        "w": 3.039999999999994,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -53.55000000000001,
+        "y": 0.22,
+        "z": -12.290000000000001,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -55.14000000000001,
+        "y": 0.22,
+        "z": -11.5,
+        "w": 3.039999999999994,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -55.14000000000001,
+        "y": 0.22,
+        "z": -12.290000000000001,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.44,
+        "tag": "pressure-tray-divider"
+      },
+      {
+        "x": 44.519999999999996,
+        "y": 0.22,
+        "z": -21.790000000000028,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 46.10999999999999,
+        "y": 0.22,
+        "z": -22.580000000000027,
+        "w": 3.039999999999994,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 47.69999999999999,
+        "y": 0.22,
+        "z": -21.790000000000028,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 46.10999999999999,
+        "y": 0.22,
+        "z": -21.00000000000003,
+        "w": 3.039999999999994,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 46.10999999999999,
+        "y": 0.22,
+        "z": -21.790000000000028,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.44,
+        "tag": "pressure-tray-divider"
+      },
+      {
+        "x": -4.829999999999999,
+        "y": 0.22,
+        "z": -35.54000000000003,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -3.2399999999999993,
+        "y": 0.22,
+        "z": -36.33000000000003,
+        "w": 3.039999999999999,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -1.6499999999999997,
+        "y": 0.22,
+        "z": -35.54000000000003,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -3.2399999999999993,
+        "y": 0.22,
+        "z": -34.75000000000003,
+        "w": 3.039999999999999,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -3.2399999999999993,
+        "y": 0.22,
+        "z": -35.54000000000003,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.44,
+        "tag": "pressure-tray-divider"
+      },
+      {
+        "x": 14.420000000000002,
+        "y": 0.22,
+        "z": -46.390000000000015,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 16.01,
+        "y": 0.22,
+        "z": -47.180000000000014,
+        "w": 3.040000000000001,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 17.6,
+        "y": 0.22,
+        "z": -46.390000000000015,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 16.01,
+        "y": 0.22,
+        "z": -45.600000000000016,
+        "w": 3.040000000000001,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 16.01,
+        "y": 0.22,
+        "z": -46.390000000000015,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.44,
+        "tag": "pressure-tray-divider"
+      },
+      {
+        "x": 17.669999999999995,
+        "y": 0.22,
+        "z": -28.54,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 19.259999999999994,
+        "y": 0.22,
+        "z": -29.33,
+        "w": 3.040000000000001,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 20.849999999999994,
+        "y": 0.22,
+        "z": -28.54,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 19.259999999999994,
+        "y": 0.22,
+        "z": -27.75,
+        "w": 3.040000000000001,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": 19.259999999999994,
+        "y": 0.22,
+        "z": -28.54,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.44,
+        "tag": "pressure-tray-divider"
+      },
+      {
+        "x": -54.08000000000001,
+        "y": 0.22,
+        "z": -34.14,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -53.29000000000001,
+        "y": 0.22,
+        "z": -34.93,
+        "w": 1.44,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -52.500000000000014,
+        "y": 0.22,
+        "z": -34.14,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -53.29000000000001,
+        "y": 0.22,
+        "z": -33.35,
+        "w": 1.44,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -6.129999999999999,
+        "y": 0.22,
+        "z": -40.740000000000016,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -5.339999999999999,
+        "y": 0.22,
+        "z": -41.530000000000015,
+        "w": 1.44,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -4.549999999999999,
+        "y": 0.22,
+        "z": -40.740000000000016,
+        "w": 0.14,
+        "h": 0.28,
+        "d": 1.72,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -5.339999999999999,
+        "y": 0.22,
+        "z": -39.95000000000002,
+        "w": 1.44,
+        "h": 0.28,
+        "d": 0.14,
+        "tag": "pressure-tray-rim"
+      },
+      {
+        "x": -2.6,
+        "y": 2.125,
+        "z": 3.7,
+        "w": 0.26,
+        "h": 4.25,
+        "d": 2.6,
+        "tag": "parked-hall-pressure"
+      },
+      {
+        "x": 2.6,
+        "y": 2.125,
+        "z": 3.7,
+        "w": 0.26,
+        "h": 4.25,
+        "d": 2.6,
+        "tag": "parked-hall-pressure"
+      },
+      {
+        "x": -61.9,
+        "y": 2.125,
+        "z": -6.6,
+        "w": 3.8,
+        "h": 4.25,
+        "d": 0.26,
+        "tag": "parked-archive-secret"
+      },
+      {
+        "x": -12.1875,
+        "y": 2.125,
+        "z": -18.75,
+        "w": 1.875,
+        "h": 4.25,
+        "d": 0.26,
+        "tag": "parked-passage-prison-crypt"
+      },
+      {
+        "x": -12.1875,
+        "y": 2.125,
+        "z": -22.5,
+        "w": 1.875,
+        "h": 4.25,
+        "d": 0.26,
+        "tag": "parked-passage-prison-crypt"
+      },
+      {
+        "x": -42.1875,
+        "y": 2.125,
+        "z": 1.25,
+        "w": 1.875,
+        "h": 4.25,
+        "d": 0.26,
+        "tag": "parked-passage-library-armoury"
+      },
+      {
+        "x": -42.1875,
+        "y": 2.125,
+        "z": -2.5,
+        "w": 1.875,
+        "h": 4.25,
+        "d": 0.26,
+        "tag": "parked-passage-library-armoury"
+      },
+      {
+        "x": -53.75,
+        "y": 2.125,
+        "z": -17.1875,
+        "w": 0.26,
+        "h": 4.25,
+        "d": 1.875,
+        "tag": "parked-passage-forge-library"
+      },
+      {
+        "x": -50,
+        "y": 2.125,
+        "z": -17.1875,
+        "w": 0.26,
+        "h": 4.25,
+        "d": 1.875,
+        "tag": "parked-passage-forge-library"
+      },
+      {
+        "x": 35.3125,
+        "y": 2.125,
+        "z": -21.25,
+        "w": 1.875,
+        "h": 4.25,
+        "d": 0.26,
+        "tag": "parked-passage-ritual-watchtower"
+      },
+      {
+        "x": 35.3125,
+        "y": 2.125,
+        "z": -25,
+        "w": 1.875,
+        "h": 4.25,
+        "d": 0.26,
+        "tag": "parked-passage-ritual-watchtower"
+      },
+      {
+        "x": -1.875,
+        "y": 2.125,
+        "z": -30.3125,
+        "w": 0.26,
+        "h": 4.25,
+        "d": 1.875,
+        "tag": "parked-passage-catacombs-crypt"
+      },
+      {
+        "x": 1.875,
+        "y": 2.125,
+        "z": -30.3125,
+        "w": 0.26,
+        "h": 4.25,
+        "d": 1.875,
+        "tag": "parked-passage-catacombs-crypt"
+      },
+      {
+        "x": 10.3125,
+        "y": 2.125,
+        "z": -41.25,
+        "w": 1.875,
+        "h": 4.25,
+        "d": 0.26,
+        "tag": "parked-passage-catacombs-sanctum"
+      },
+      {
+        "x": 10.3125,
+        "y": 2.125,
+        "z": -45,
+        "w": 1.875,
+        "h": 4.25,
+        "d": 0.26,
+        "tag": "parked-passage-catacombs-sanctum"
+      },
+      {
+        "x": 20.625,
+        "y": 2.125,
+        "z": -34.6875,
+        "w": 0.26,
+        "h": 4.25,
+        "d": 1.875,
+        "tag": "parked-passage-sanctum-ritual"
+      },
+      {
+        "x": 24.375,
+        "y": 2.125,
+        "z": -34.6875,
+        "w": 0.26,
+        "h": 4.25,
+        "d": 1.875,
+        "tag": "parked-passage-sanctum-ritual"
+      },
+      {
+        "x": -59.199999999999996,
+        "y": 2.125,
+        "z": -38.15,
+        "w": 0.26,
+        "h": 4.25,
+        "d": 3.8,
+        "tag": "parked-forge-secret"
+      },
+      {
+        "x": -10.65,
+        "y": 2.125,
+        "z": -42.1,
+        "w": 3.8,
+        "h": 4.25,
+        "d": 0.26,
+        "tag": "parked-catacombs-secret"
+      },
+      {
+        "x": -53.55,
+        "y": 7.5,
+        "z": -10.55,
+        "w": 0.26,
+        "h": 4.6,
+        "d": 4.6,
+        "tag": "parked-library-upper"
+      },
+      {
+        "x": 48.5,
+        "y": 7.1,
+        "z": -11.475000000000001,
+        "w": 0.26,
+        "h": 4.6,
+        "d": 2.75,
+        "tag": "parked-gallery-upper"
+      },
+      {
+        "x": 54,
+        "y": 7.1,
+        "z": -11.475000000000001,
+        "w": 0.26,
+        "h": 4.6,
+        "d": 2.75,
+        "tag": "parked-gallery-upper"
+      }
+    ],
+    "floors": [
+      {
+        "x": 0,
+        "y": -0.3,
+        "z": 15,
+        "w": 30,
+        "h": 0.6,
+        "d": 20,
+        "tag": "courtyard"
+      },
+      {
+        "x": 0,
+        "y": -0.3,
+        "z": -3.75,
+        "w": 25,
+        "h": 0.6,
+        "d": 17.5,
+        "tag": "hall"
+      },
+      {
+        "x": 0,
+        "y": -0.3,
+        "z": -20.625,
+        "w": 17.5,
+        "h": 0.6,
+        "d": 16.25,
+        "tag": "crypt"
+      },
+      {
+        "x": 0,
+        "y": -0.3,
+        "z": 29.375,
+        "w": 6.75,
+        "h": 0.6,
+        "d": 8.75,
+        "tag": "bridge"
+      },
+      {
+        "x": -28.75,
+        "y": -0.3,
+        "z": -1.25,
+        "w": 22.5,
+        "h": 0.6,
+        "d": 17.5,
+        "tag": "armoury"
+      },
+      {
+        "x": 28.75,
+        "y": -0.3,
+        "z": -1.25,
+        "w": 22.5,
+        "h": 0.6,
+        "d": 17.5,
+        "tag": "barracks"
+      },
+      {
+        "x": -22.5,
+        "y": -0.3,
+        "z": -22.5,
+        "w": 17.5,
+        "h": 0.6,
+        "d": 15,
+        "tag": "prison"
+      },
+      {
+        "x": 22.5,
+        "y": -0.3,
+        "z": -22.5,
+        "w": 17.5,
+        "h": 0.6,
+        "d": 15,
+        "tag": "ritual"
+      },
+      {
+        "x": -51.25,
+        "y": -0.3,
+        "z": -3.75,
+        "w": 17.5,
+        "h": 0.6,
+        "d": 20,
+        "tag": "library"
+      },
+      {
+        "x": -51.25,
+        "y": -0.3,
+        "z": -27.5,
+        "w": 20,
+        "h": 0.6,
+        "d": 17.5,
+        "tag": "forge"
+      },
+      {
+        "x": 0,
+        "y": -0.3,
+        "z": -41.875,
+        "w": 17.5,
+        "h": 0.6,
+        "d": 16.25,
+        "tag": "catacombs"
+      },
+      {
+        "x": 25,
+        "y": -0.3,
+        "z": -46.25,
+        "w": 22.5,
+        "h": 0.6,
+        "d": 17.5,
+        "tag": "sanctum"
+      },
+      {
+        "x": 51.25,
+        "y": -0.3,
+        "z": -3.75,
+        "w": 17.5,
+        "h": 0.6,
+        "d": 20,
+        "tag": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": -0.3,
+        "z": -27.5,
+        "w": 20,
+        "h": 0.6,
+        "d": 17.5,
+        "tag": "watchtower"
+      },
+      {
+        "x": -30,
+        "y": -0.3,
+        "z": 20,
+        "w": 20,
+        "h": 0.6,
+        "d": 17.5,
+        "tag": "gatehouse"
+      },
+      {
+        "x": -15,
+        "y": -0.3,
+        "z": -0.625,
+        "w": 5,
+        "h": 0.6,
+        "d": 3.75,
+        "tag": "bridge"
+      },
+      {
+        "x": 15,
+        "y": -0.3,
+        "z": -0.625,
+        "w": 5,
+        "h": 0.6,
+        "d": 3.75,
+        "tag": "bridge"
+      },
+      {
+        "x": -11.25,
+        "y": -0.3,
+        "z": -20.625,
+        "w": 5,
+        "h": 0.6,
+        "d": 3.75,
+        "tag": "bridge"
+      },
+      {
+        "x": 11.25,
+        "y": -0.3,
+        "z": -20.625,
+        "w": 5,
+        "h": 0.6,
+        "d": 3.75,
+        "tag": "bridge"
+      },
+      {
+        "x": -41.25,
+        "y": -0.3,
+        "z": -0.625,
+        "w": 2.5,
+        "h": 0.6,
+        "d": 3.75,
+        "tag": "bridge"
+      },
+      {
+        "x": -36.25,
+        "y": -0.3,
+        "z": -23.125,
+        "w": 10,
+        "h": 0.6,
+        "d": 3.75,
+        "tag": "bridge"
+      },
+      {
+        "x": -51.875,
+        "y": -0.3,
+        "z": -16.25,
+        "w": 3.75,
+        "h": 0.6,
+        "d": 5,
+        "tag": "bridge"
+      },
+      {
+        "x": 41.25,
+        "y": -0.3,
+        "z": -0.625,
+        "w": 2.5,
+        "h": 0.6,
+        "d": 3.75,
+        "tag": "bridge"
+      },
+      {
+        "x": 36.25,
+        "y": -0.3,
+        "z": -23.125,
+        "w": 10,
+        "h": 0.6,
+        "d": 3.75,
+        "tag": "bridge"
+      },
+      {
+        "x": 51.875,
+        "y": -0.3,
+        "z": -16.25,
+        "w": 3.75,
+        "h": 0.6,
+        "d": 5,
+        "tag": "bridge"
+      },
+      {
+        "x": 0,
+        "y": -0.3,
+        "z": -31.25,
+        "w": 3.75,
+        "h": 0.6,
+        "d": 5,
+        "tag": "bridge"
+      },
+      {
+        "x": 11.25,
+        "y": -0.3,
+        "z": -43.125,
+        "w": 5,
+        "h": 0.6,
+        "d": 3.75,
+        "tag": "bridge"
+      },
+      {
+        "x": 22.5,
+        "y": -0.3,
+        "z": -33.75,
+        "w": 3.75,
+        "h": 0.6,
+        "d": 7.5,
+        "tag": "bridge"
+      },
+      {
+        "x": -17.5,
+        "y": -0.3,
+        "z": 20.625,
+        "w": 5,
+        "h": 0.6,
+        "d": 3.75,
+        "tag": "bridge"
+      },
+      {
+        "x": -28.125,
+        "y": -0.3,
+        "z": 9.375,
+        "w": 3.75,
+        "h": 0.6,
+        "d": 3.75,
+        "tag": "bridge"
+      },
+      {
+        "x": -62.6,
+        "y": -0.3,
+        "z": -8.5,
+        "w": 5.200000000000003,
+        "h": 0.6,
+        "d": 5.6,
+        "tag": "library-secret"
+      },
+      {
+        "x": -57.3,
+        "y": -0.3,
+        "z": -38.85,
+        "w": 5.600000000000001,
+        "h": 0.6,
+        "d": 5.200000000000003,
+        "tag": "forge-secret"
+      },
+      {
+        "x": -11.35,
+        "y": -0.3,
+        "z": -44,
+        "w": 5.199999999999999,
+        "h": 0.6,
+        "d": 5.600000000000001,
+        "tag": "catacombs-secret"
+      },
+      {
+        "x": -51.25,
+        "y": 0.08000000000000002,
+        "z": 2.325,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 0.28,
+        "z": 1.975,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 0.4800000000000001,
+        "z": 1.625,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 0.68,
+        "z": 1.2750000000000001,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 0.88,
+        "z": 0.925,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 1.08,
+        "z": 0.5750000000000002,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 1.2800000000000002,
+        "z": 0.2250000000000001,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 1.48,
+        "z": -0.125,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 1.6800000000000002,
+        "z": -0.47499999999999964,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 1.88,
+        "z": -0.8249999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 2.08,
+        "z": -1.1749999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 2.2800000000000002,
+        "z": -1.5249999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 2.48,
+        "z": -1.875,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 2.68,
+        "z": -2.2249999999999996,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 2.88,
+        "z": -2.5749999999999993,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 3.08,
+        "z": -2.925,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 3.2800000000000002,
+        "z": -3.2749999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 3.48,
+        "z": -3.625,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 3.68,
+        "z": -3.9749999999999996,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 3.88,
+        "z": -4.324999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 4.08,
+        "z": -4.675,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 4.28,
+        "z": -5.0249999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 4.48,
+        "z": -5.374999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 4.680000000000001,
+        "z": -5.725,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 4.88,
+        "z": -6.074999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 5.08,
+        "z": -6.424999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "library",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": -51.25,
+        "y": 5.01,
+        "z": -9.866,
+        "w": 16.299999999999997,
+        "h": 0.38,
+        "d": 6.5680000000000005,
+        "tag": "fullmap-floor"
+      },
+      {
+        "x": 51.25,
+        "y": 0.07999999999999999,
+        "z": 2.325,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 0.27999999999999997,
+        "z": 1.975,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 0.48,
+        "z": 1.625,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 0.6799999999999999,
+        "z": 1.2750000000000001,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 0.8799999999999999,
+        "z": 0.925,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 1.08,
+        "z": 0.5750000000000002,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 1.2799999999999998,
+        "z": 0.2250000000000001,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 1.48,
+        "z": -0.125,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 1.6799999999999997,
+        "z": -0.47499999999999964,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 1.88,
+        "z": -0.8249999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 2.0799999999999996,
+        "z": -1.1749999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 2.28,
+        "z": -1.5249999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 2.4799999999999995,
+        "z": -1.875,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 2.6799999999999997,
+        "z": -2.2249999999999996,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 2.8799999999999994,
+        "z": -2.5749999999999993,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 3.0799999999999996,
+        "z": -2.925,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 3.28,
+        "z": -3.2749999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 3.4799999999999995,
+        "z": -3.625,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 3.6799999999999997,
+        "z": -3.9749999999999996,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 3.8799999999999994,
+        "z": -4.324999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 4.079999999999999,
+        "z": -4.675,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 4.279999999999999,
+        "z": -5.0249999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 4.4799999999999995,
+        "z": -5.374999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 4.68,
+        "z": -5.725,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "gallery",
+        "slope": 0.5714285714285714
+      },
+      {
+        "x": 51.25,
+        "y": 4.609999999999999,
+        "z": -9.516,
+        "w": 16.299999999999997,
+        "h": 0.38,
+        "d": 7.268000000000002,
+        "tag": "fullmap-floor"
+      },
+      {
+        "x": 51.25,
+        "y": 0.08000000000000002,
+        "z": -22.375,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 0.28,
+        "z": -22.724999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 0.4800000000000001,
+        "z": -23.075,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 0.68,
+        "z": -23.425,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 0.88,
+        "z": -23.775,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 1.08,
+        "z": -24.125,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 1.2800000000000002,
+        "z": -24.474999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 1.48,
+        "z": -24.825,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 1.6800000000000002,
+        "z": -25.174999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 1.88,
+        "z": -25.525,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 2.08,
+        "z": -25.875,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 2.2800000000000002,
+        "z": -26.224999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 2.48,
+        "z": -26.575,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 2.68,
+        "z": -26.924999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 2.88,
+        "z": -27.275,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 3.08,
+        "z": -27.625,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 3.2800000000000002,
+        "z": -27.974999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 3.48,
+        "z": -28.325,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 3.68,
+        "z": -28.674999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 3.88,
+        "z": -29.025,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 4.08,
+        "z": -29.375,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 4.28,
+        "z": -29.724999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 4.48,
+        "z": -30.075,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 4.680000000000001,
+        "z": -30.424999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 4.88,
+        "z": -30.775,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 5.08,
+        "z": -31.125,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 5.28,
+        "z": -31.474999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 5.48,
+        "z": -31.825,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 5.680000000000001,
+        "z": -32.175,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 5.88,
+        "z": -32.525,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "tag": "fullmap-stair",
+        "stairId": "watchtower",
+        "slope": 0.5714285714285715
+      },
+      {
+        "x": 51.25,
+        "y": 5.81,
+        "z": -34.391000000000005,
+        "w": 18.799999999999997,
+        "h": 0.38,
+        "d": 3.4179999999999993,
+        "tag": "fullmap-floor"
+      }
+    ],
+    "engine": {
+      "rise": 0.0800000953674318,
+      "shapeOffsets": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1.680000095367432,
+          "z": 0
+        },
+        {
+          "x": -1.19,
+          "y": 0.9800000953674318,
+          "z": 0
+        },
+        {
+          "x": 1.19,
+          "y": 0.9800000953674318,
+          "z": 0
+        }
+      ],
+      "radii": [
+        1.22,
+        0.94,
+        0.38,
+        0.38
+      ],
+      "aabb": {
+        "lower": {
+          "x": -47.02,
+          "y": 0.020000000000000018,
+          "z": -4.119999999999996
+        },
+        "upper": {
+          "x": -43.88,
+          "y": 3.860000095367432,
+          "z": -1.679999999999996
+        }
+      }
+    },
+    "doors": [
+      {
+        "id": "archive-secret",
+        "width": 3.8,
+        "height": 4.25,
+        "phase": "open"
+      },
+      {
+        "id": "forge-secret",
+        "width": 3.8,
+        "height": 4.25,
+        "phase": "open"
+      },
+      {
+        "id": "catacombs-secret",
+        "width": 3.8,
+        "height": 4.25,
+        "phase": "open"
+      },
+      {
+        "id": "library-upper",
+        "width": 4.6,
+        "height": 4.6,
+        "phase": "open"
+      }
+    ]
+  }
+}

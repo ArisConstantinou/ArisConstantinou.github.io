@@ -1,12 +1,13 @@
 import {supportedFootprint} from './game/src/walkable-support.js';
+import {engineProfileIntersects} from './clearance.js';
 const top=f=>f.y+f.h/2;
 const inside=(f,x,z)=>Math.abs(x-f.x)<=f.w/2+.001&&Math.abs(z-f.z)<=f.d/2+.001;
 
 // Navigation nodes are (cell, support height), not just X/Z. A floor above a
 // character is a ceiling; its doors never seal the unrelated floor below it.
 export class LayeredNavigationGrid {
- constructor(floors,obstacles,cellSize=.65,radius=.48,height=radius>.8?4:1.8){
-  Object.assign(this,{floors,cell:cellSize,radius,height,maxStep:.41});
+ constructor(floors,obstacles,cellSize=.65,radius=.48,height=radius>.8?4:1.8,bodyProfile=null){
+  Object.assign(this,{floors,cell:cellSize,radius,height,bodyProfile,maxStep:.41});
   this.minX=Math.min(...floors.map(f=>f.x-f.w/2))-1;
   this.minZ=Math.min(...floors.map(f=>f.z-f.d/2))-1;
   this.w=Math.ceil((Math.max(...floors.map(f=>f.x+f.w/2))-this.minX+1)/this.cell);
@@ -25,9 +26,9 @@ export class LayeredNavigationGrid {
  valid(p,f){
   const y=top(f),stair=f.tag==='fullmap-stair',tolerance=stair?.25+this.radius*(f.slope??.5):.25;
   if(!supportedFootprint(this.floors,{x:p.x,y,z:p.z},this.radius,tolerance))return false;
-  const blocked=b=>b.y+b.h/2>y+.25&&b.y-b.h/2<y+this.height&&Math.abs(p.x-b.x)<b.w/2+this.radius&&Math.abs(p.z-b.z)<b.d/2+this.radius;
+  const blocked=b=>this.bodyProfile?engineProfileIntersects(b,p,y,this.bodyProfile):b.y+b.h/2>y+.25&&b.y-b.h/2<y+this.height&&Math.abs(p.x-b.x)<b.w/2+this.radius&&Math.abs(p.z-b.z)<b.d/2+this.radius;
   if(this.allObstacles.some(blocked))return false;
-  return !this.floors.some(b=>b!==f&&!(stair&&b.stairId===f.stairId)&&blocked(b));
+  return !this.floors.some(b=>b!==f&&top(b)>y+.025&&!(stair&&b.stairId===f.stairId)&&blocked(b));
  }
  setObstacles(obstacles){
   this.allObstacles=obstacles;

@@ -59,19 +59,26 @@ export function installFullMapFloors(world,architecture){
  for(const spec of LEVELS){
   const room=rooms.find(r=>r.id===spec.id),cx=room.x+room.w/2,width=5.4,rise=spec.floorY/spec.count,endZ=spec.startZ-spec.count*spec.tread;
   const structural=new T.Group(),upper=new T.Group();structural.name=spec.id+' · staircase and bearing columns';structural.userData.fullMapOccluder=true;upper.name=spec.label;world.root.add(structural,upper);
+  // Keep complete three-tread sections independently addressable. This lets
+  // camera cutaways remove the steps and their cheeks without hiding the run.
+  const stairSections=[];
   for(let i=0;i<spec.count;i++){
+   if(i%3===0){const section=new T.Group(),count=Math.min(3,spec.count-i);section.name=spec.id+' · stair treads '+(i+1)+'–'+(i+count);section.userData.keepTransforms=true;section.userData.fullMapStairSection={stairId:spec.id,index:stairSections.length,startTread:i,treads:count,cheeks:count*2,stringers:2};structural.add(section);stairSections.push(section);}
+   const section=stairSections.at(-1);
    const y=(i+1)*rise,z=spec.startZ-(i+.5)*spec.tread;
-   box(structural,cx,y-.12,z,width,.24,spec.tread+.025,edge);
+   box(section,cx,y-.12,z,width,.24,spec.tread+.025,edge);
    world.floors.push({x:cx,y:y-.12,z,w:width,h:.24,d:spec.tread+.025,tag:'fullmap-stair',stairId:spec.id,slope:rise/spec.tread});
-   for(const side of [-1,1]){box(structural,cx+side*(width/2+.18),y+.43,z,.32,.9,spec.tread+.03,stone);solid(cx+side*(width/2+.18),y+.43,z,.32,.9,spec.tread+.03,'fullmap-stair-cheek');}
+   for(const side of [-1,1]){box(section,cx+side*(width/2+.18),y+.43,z,.32,.9,spec.tread+.03,stone);solid(cx+side*(width/2+.18),y+.43,z,.32,.9,spec.tread+.03,'fullmap-stair-cheek');}
   }
   // A load-bearing inclined stringer connects the treads to the floor. The
   // colliders remain the measured treads and rails; no invisible shortcut ramp.
-  for(const side of [-1,1]){const a=new T.Vector3(cx+side*(width/2-.2),0,spec.startZ),b=new T.Vector3(cx+side*(width/2-.2),spec.floorY-.27,endZ),d=b.clone().sub(a),beam=box(structural,0,0,0,.28,d.length(),.32,stone);beam.position.copy(a).addScaledVector(d,.5);beam.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());}
+  for(const section of stairSections){const {startTread:i,treads:n}=section.userData.fullMapStairSection;for(const side of [-1,1]){const a=new T.Vector3(cx+side*(width/2-.2),(spec.floorY-.27)*i/spec.count,spec.startZ-i*spec.tread),b=new T.Vector3(a.x,(spec.floorY-.27)*(i+n)/spec.count,spec.startZ-(i+n)*spec.tread),d=b.clone().sub(a),beam=box(section,0,0,0,.28,d.length(),.32,stone);beam.position.copy(a).addScaledVector(d,.5);beam.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());}batch(section);}
   const front=endZ+.018,back=room.z+(spec.backInset??.6),x0=room.x+.6,x1=room.x+room.w-.6;
   floor(upper,(x0+x1)/2,spec.floorY,(back+front)/2,x1-x0,front-back);
   for(const side of [-1,1]){
-   column(structural,cx+side*(room.w/2-1.45),front-1,spec.floorY-.38);
+   const supportX=cx+side*(room.w/2-1.45),supportZ=spec.id==='library'&&side<0?-11.5:front-1;
+   column(structural,supportX,supportZ,spec.floorY-.38);
+   if(supportZ!==front-1){const z=(supportZ+front-1)/2,d=Math.abs(front-1-supportZ)+.7;box(structural,supportX,spec.floorY-.5,z,.42,.3,d,edge);solid(supportX,spec.floorY-.5,z,.42,.3,d,'fullmap-bearing-beam');}
    railing(upper,cx+side*(room.w/2-.6),(back+front)/2,front-back,false,spec.floorY);
    const length=(x1-x0-width)/2;railing(upper,cx+side*(width/2+length/2),front,length,true,spec.floorY);
   }

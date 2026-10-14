@@ -1,0 +1,16 @@
+{
+  "id": "artemision",
+  "title": "Zeus or Poseidon from the Artemision",
+  "creator": "SMK - National Gallery of Denmark",
+  "url": "https://sketchfab.com/3d-models/zeus-or-poseidon-from-the-artemision-d4876aa609304682945145debedfc77e",
+  "metadataURL": "https://api.smk.dk/api/v1/art?object_number=KAS2100",
+  "download": "https://api.smk.dk/api/v1/download-3d/7m01br55g_smk-poseidon.stl",
+  "rights": "https://creativecommons.org/publicdomain/mark/1.0/",
+  "license": "CC0",
+  "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "retained": "originals/artemision.stl",
+  "bytes": 10474784,
+  "sha256": "855a92ebe9d5b6133328b0d2bfb427e27c8d11bf8e82ac763fefacff39509179",
+  "triangles": 209494,
+  "downloadedAt": "2026-10-14T19:00:30.940Z"
+}

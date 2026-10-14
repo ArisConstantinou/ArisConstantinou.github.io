@@ -26,3 +26,8 @@ test('low overhead deck admits wizard but rejects tall ally',()=>{
  const floors=[floor(),floor(3)];assert.equal(new LayeredNavigationGrid(floors,[],.65,.48,1.8).isFree(0,0,0),true);
  assert.equal(new LayeredNavigationGrid(floors,[],.65,1,4).isFree(0,0,0),false);
 });
+test('compound-body clearance crosses neighbouring coplanar floor patches',()=>{
+ const floors=[{x:0,y:-.2,z:3,w:8,h:.4,d:6},{x:0,y:-.2,z:-3,w:8,h:.4,d:6}],profile={originY:1.22,spheres:[{x:0,y:0,z:0,radius:1.22},{x:0,y:1.68,z:0,radius:.94},{x:1.19,y:.98,z:0,radius:.38},{x:-1.19,y:.98,z:0,radius:.38}]},nav=new LayeredNavigationGrid(floors,[],.25,1.22,3.861,profile);
+ assert.ok(nav.path({x:0,y:0,z:3},{x:0,y:0,z:-3}).length);
+ assert.equal(new LayeredNavigationGrid(floors,[{x:0,y:2.1,z:0,w:8,h:4.2,d:.4}],.25,1.22,3.861,profile).path({x:0,y:0,z:3},{x:0,y:0,z:-3}).length,0);
+});

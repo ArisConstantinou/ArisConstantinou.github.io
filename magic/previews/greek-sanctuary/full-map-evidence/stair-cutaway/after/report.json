@@ -1,0 +1,1556 @@
+{
+  "mode": "after",
+  "url": "http://127.0.0.1:5173/previews/greek-sanctuary/full-map.htm?hearthQA=1",
+  "checks": [
+    {
+      "name": "Only the obstructing part of the staircase is removed",
+      "pass": true,
+      "data": {
+        "hidden": [
+          {
+            "id": "6181cd38-5891-4da2-a3ca-e9bcf21869cb",
+            "stairId": "library",
+            "index": 4,
+            "startTread": 12,
+            "treads": 3,
+            "cheeks": 6,
+            "stringers": 2,
+            "hidden": true
+          }
+        ],
+        "total": 9
+      }
+    },
+    {
+      "name": "Treads, corresponding cheeks and stringers belong to each complete section",
+      "pass": true,
+      "data": [
+        {
+          "id": "a1325904-9811-45f0-a3ce-d4d532c3e303",
+          "stairId": "library",
+          "index": 0,
+          "startTread": 0,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "51f8f2bf-883b-480a-938f-e3ffa2b24ce5",
+          "stairId": "library",
+          "index": 1,
+          "startTread": 3,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "01f27c6c-7809-4629-83a4-34eb12e68b38",
+          "stairId": "library",
+          "index": 2,
+          "startTread": 6,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "b11f4208-687b-4d18-b30d-4b6b825d48ed",
+          "stairId": "library",
+          "index": 3,
+          "startTread": 9,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "6181cd38-5891-4da2-a3ca-e9bcf21869cb",
+          "stairId": "library",
+          "index": 4,
+          "startTread": 12,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": true
+        },
+        {
+          "id": "1117eafa-484b-4580-93dc-13b6621815e3",
+          "stairId": "library",
+          "index": 5,
+          "startTread": 15,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "c1e0a252-38a9-4347-8341-0cf6d25bb3fc",
+          "stairId": "library",
+          "index": 6,
+          "startTread": 18,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "71de42fb-28ab-475c-b3fa-551542e3ea08",
+          "stairId": "library",
+          "index": 7,
+          "startTread": 21,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "21105517-1851-40e3-a307-b4d5b2aea290",
+          "stairId": "library",
+          "index": 8,
+          "startTread": 24,
+          "treads": 2,
+          "cheeks": 4,
+          "stringers": 2,
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "name": "Other staircases remain visible",
+      "pass": true,
+      "data": [
+        {
+          "id": "6181cd38-5891-4da2-a3ca-e9bcf21869cb",
+          "stairId": "library",
+          "index": 4,
+          "startTread": 12,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": true
+        }
+      ]
+    },
+    {
+      "name": "Cut stair sections restore when the camera moves away",
+      "pass": true,
+      "data": []
+    },
+    {
+      "name": "Stair cutaway leaves measured physical treads, cheeks and bodies unchanged",
+      "pass": true,
+      "data": {
+        "floors": 80,
+        "colliders": 532,
+        "bodies": 863
+      }
+    },
+    {
+      "name": "Stair treads remain visible while the player walks on top",
+      "pass": true,
+      "data": []
+    },
+    {
+      "name": "gallery uses the same partial cutaway",
+      "pass": true,
+      "data": [
+        {
+          "id": "51a25c69-88dd-4158-93c9-bcffa2a4701a",
+          "stairId": "gallery",
+          "index": 0,
+          "startTread": 0,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "011c8874-782b-431e-835e-ab6d1258af50",
+          "stairId": "gallery",
+          "index": 1,
+          "startTread": 3,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "b1c98eab-681d-4e89-b347-fff5824f8b71",
+          "stairId": "gallery",
+          "index": 2,
+          "startTread": 6,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "61abfb4b-58b3-411b-a384-7b2df28aebbc",
+          "stairId": "gallery",
+          "index": 3,
+          "startTread": 9,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "11c199ea-48ed-4c43-9316-2342620af7ba",
+          "stairId": "gallery",
+          "index": 4,
+          "startTread": 12,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": true
+        },
+        {
+          "id": "c10a7423-38cb-4e52-83fb-382bd2cd14ac",
+          "stairId": "gallery",
+          "index": 5,
+          "startTread": 15,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "7188d549-284d-4663-b334-40d942d5ebf8",
+          "stairId": "gallery",
+          "index": 6,
+          "startTread": 18,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "213a4918-1873-4252-a3c1-fb65b22063a2",
+          "stairId": "gallery",
+          "index": 7,
+          "startTread": 21,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "name": "watchtower uses the same partial cutaway",
+      "pass": true,
+      "data": [
+        {
+          "id": "2d057d2c-b48a-46d0-8f1c-c5d7aec6e284",
+          "stairId": "watchtower",
+          "index": 0,
+          "startTread": 0,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "dd4f568a-a475-4173-bfaa-8e091e1f763d",
+          "stairId": "watchtower",
+          "index": 1,
+          "startTread": 3,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "8d8e64ad-94c4-4407-af4c-fdd28e7b6363",
+          "stairId": "watchtower",
+          "index": 2,
+          "startTread": 6,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "3dc142cd-8477-4f20-9f03-649dfedbe161",
+          "stairId": "watchtower",
+          "index": 3,
+          "startTread": 9,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "ede7cbd4-748e-40ef-8fcd-55276e406878",
+          "stairId": "watchtower",
+          "index": 4,
+          "startTread": 12,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": true
+        },
+        {
+          "id": "9d021b12-6409-472c-bfab-a5b4dea8ad2a",
+          "stairId": "watchtower",
+          "index": 5,
+          "startTread": 15,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "4d118be6-54e8-410b-af9d-663e4e15a9b0",
+          "stairId": "watchtower",
+          "index": 6,
+          "startTread": 18,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "fd13b776-442b-4029-9fa3-eba2be859166",
+          "stairId": "watchtower",
+          "index": 7,
+          "startTread": 21,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "ad0a7a5a-34d2-407f-8fbe-c7d52efadd3c",
+          "stairId": "watchtower",
+          "index": 8,
+          "startTread": 24,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "5df5ee4c-24dd-4250-bfec-cd0f9e724528",
+          "stairId": "watchtower",
+          "index": 9,
+          "startTread": 27,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "name": "Native E boards HEARTH underneath the high stair section",
+      "pass": true,
+      "data": {
+        "mounted": true,
+        "engine": {
+          "x": -51.25,
+          "y": 1.2198461402289156,
+          "z": -5.899999999999999
+        }
+      }
+    },
+    {
+      "name": "Mounted HEARTH is also revealed by a partial stair cutaway",
+      "pass": true,
+      "data": [
+        {
+          "id": "a1325904-9811-45f0-a3ce-d4d532c3e303",
+          "stairId": "library",
+          "index": 0,
+          "startTread": 0,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "51f8f2bf-883b-480a-938f-e3ffa2b24ce5",
+          "stairId": "library",
+          "index": 1,
+          "startTread": 3,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "01f27c6c-7809-4629-83a4-34eb12e68b38",
+          "stairId": "library",
+          "index": 2,
+          "startTread": 6,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "b11f4208-687b-4d18-b30d-4b6b825d48ed",
+          "stairId": "library",
+          "index": 3,
+          "startTread": 9,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "6181cd38-5891-4da2-a3ca-e9bcf21869cb",
+          "stairId": "library",
+          "index": 4,
+          "startTread": 12,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "1117eafa-484b-4580-93dc-13b6621815e3",
+          "stairId": "library",
+          "index": 5,
+          "startTread": 15,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": true
+        },
+        {
+          "id": "c1e0a252-38a9-4347-8341-0cf6d25bb3fc",
+          "stairId": "library",
+          "index": 6,
+          "startTread": 18,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": true
+        },
+        {
+          "id": "71de42fb-28ab-475c-b3fa-551542e3ea08",
+          "stairId": "library",
+          "index": 7,
+          "startTread": 21,
+          "treads": 3,
+          "cheeks": 6,
+          "stringers": 2,
+          "hidden": false
+        },
+        {
+          "id": "21105517-1851-40e3-a307-b4d5b2aea290",
+          "stairId": "library",
+          "index": 8,
+          "startTread": 24,
+          "treads": 2,
+          "cheeks": 4,
+          "stringers": 2,
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "name": "HEARTH can still exit under the cut staircase",
+      "pass": true
+    },
+    {
+      "name": "Desktop frame p95 remains below 16.7ms",
+      "pass": true,
+      "data": {
+        "frame": {
+          "median": 6.100000023841858,
+          "p95": 8.5,
+          "max": 10.400000095367432,
+          "over33ms": 0
+        },
+        "cpu": {
+          "median": 5.799999952316284,
+          "p95": 8.100000023841858,
+          "max": 10.200000047683716,
+          "over33ms": 0
+        },
+        "render": {
+          "frame": 9769,
+          "calls": 1145,
+          "triangles": 3584135,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 764,
+          "textures": 167
+        },
+        "heap": 352483383,
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      }
+    },
+    {
+      "name": "No runtime errors",
+      "pass": true,
+      "data": []
+    }
+  ],
+  "errors": [],
+  "conditions": "Chrome 1440x1000 DPR1; same library/camera/player position. Frozen NPC fixture retains models. No change to physical stair bodies.",
+  "fixture": {
+    "id": "library",
+    "onStair": false,
+    "player": {
+      "x": -51.25,
+      "y": 0.96,
+      "z": -4.1499999999999995
+    },
+    "camera": {
+      "x": -51.249984322506066,
+      "y": 18,
+      "z": 13.05000810786182
+    }
+  },
+  "front": {
+    "sections": [
+      {
+        "id": "a1325904-9811-45f0-a3ce-d4d532c3e303",
+        "stairId": "library",
+        "index": 0,
+        "startTread": 0,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "51f8f2bf-883b-480a-938f-e3ffa2b24ce5",
+        "stairId": "library",
+        "index": 1,
+        "startTread": 3,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "01f27c6c-7809-4629-83a4-34eb12e68b38",
+        "stairId": "library",
+        "index": 2,
+        "startTread": 6,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "b11f4208-687b-4d18-b30d-4b6b825d48ed",
+        "stairId": "library",
+        "index": 3,
+        "startTread": 9,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "6181cd38-5891-4da2-a3ca-e9bcf21869cb",
+        "stairId": "library",
+        "index": 4,
+        "startTread": 12,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": true
+      },
+      {
+        "id": "1117eafa-484b-4580-93dc-13b6621815e3",
+        "stairId": "library",
+        "index": 5,
+        "startTread": 15,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "c1e0a252-38a9-4347-8341-0cf6d25bb3fc",
+        "stairId": "library",
+        "index": 6,
+        "startTread": 18,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "71de42fb-28ab-475c-b3fa-551542e3ea08",
+        "stairId": "library",
+        "index": 7,
+        "startTread": 21,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "21105517-1851-40e3-a307-b4d5b2aea290",
+        "stairId": "library",
+        "index": 8,
+        "startTread": 24,
+        "treads": 2,
+        "cheeks": 4,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "51a25c69-88dd-4158-93c9-bcffa2a4701a",
+        "stairId": "gallery",
+        "index": 0,
+        "startTread": 0,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "011c8874-782b-431e-835e-ab6d1258af50",
+        "stairId": "gallery",
+        "index": 1,
+        "startTread": 3,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "b1c98eab-681d-4e89-b347-fff5824f8b71",
+        "stairId": "gallery",
+        "index": 2,
+        "startTread": 6,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "61abfb4b-58b3-411b-a384-7b2df28aebbc",
+        "stairId": "gallery",
+        "index": 3,
+        "startTread": 9,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "11c199ea-48ed-4c43-9316-2342620af7ba",
+        "stairId": "gallery",
+        "index": 4,
+        "startTread": 12,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "c10a7423-38cb-4e52-83fb-382bd2cd14ac",
+        "stairId": "gallery",
+        "index": 5,
+        "startTread": 15,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "7188d549-284d-4663-b334-40d942d5ebf8",
+        "stairId": "gallery",
+        "index": 6,
+        "startTread": 18,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "213a4918-1873-4252-a3c1-fb65b22063a2",
+        "stairId": "gallery",
+        "index": 7,
+        "startTread": 21,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "2d057d2c-b48a-46d0-8f1c-c5d7aec6e284",
+        "stairId": "watchtower",
+        "index": 0,
+        "startTread": 0,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "dd4f568a-a475-4173-bfaa-8e091e1f763d",
+        "stairId": "watchtower",
+        "index": 1,
+        "startTread": 3,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "8d8e64ad-94c4-4407-af4c-fdd28e7b6363",
+        "stairId": "watchtower",
+        "index": 2,
+        "startTread": 6,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "3dc142cd-8477-4f20-9f03-649dfedbe161",
+        "stairId": "watchtower",
+        "index": 3,
+        "startTread": 9,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "ede7cbd4-748e-40ef-8fcd-55276e406878",
+        "stairId": "watchtower",
+        "index": 4,
+        "startTread": 12,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "9d021b12-6409-472c-bfab-a5b4dea8ad2a",
+        "stairId": "watchtower",
+        "index": 5,
+        "startTread": 15,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "4d118be6-54e8-410b-af9d-663e4e15a9b0",
+        "stairId": "watchtower",
+        "index": 6,
+        "startTread": 18,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "fd13b776-442b-4029-9fa3-eba2be859166",
+        "stairId": "watchtower",
+        "index": 7,
+        "startTread": 21,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "ad0a7a5a-34d2-407f-8fbe-c7d52efadd3c",
+        "stairId": "watchtower",
+        "index": 8,
+        "startTread": 24,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      },
+      {
+        "id": "5df5ee4c-24dd-4250-bfec-cd0f9e724528",
+        "stairId": "watchtower",
+        "index": 9,
+        "startTread": 27,
+        "treads": 3,
+        "cheeks": 6,
+        "stringers": 2,
+        "hidden": false
+      }
+    ],
+    "occlusion": {
+      "hidden": 1,
+      "sections": [
+        {
+          "name": "library · stair treads 13–15",
+          "kind": "stair",
+          "stairId": "library",
+          "parts": 1,
+          "allHidden": true
+        }
+      ]
+    },
+    "floors": [
+      {
+        "x": -51.25,
+        "y": 0.08000000000000002,
+        "z": 2.325,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 0.28,
+        "z": 1.975,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 0.4800000000000001,
+        "z": 1.625,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 0.68,
+        "z": 1.2750000000000001,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 0.88,
+        "z": 0.925,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 1.08,
+        "z": 0.5750000000000002,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 1.2800000000000002,
+        "z": 0.2250000000000001,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 1.48,
+        "z": -0.125,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 1.6800000000000002,
+        "z": -0.47499999999999964,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 1.88,
+        "z": -0.8249999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 2.08,
+        "z": -1.1749999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 2.2800000000000002,
+        "z": -1.5249999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 2.48,
+        "z": -1.875,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 2.68,
+        "z": -2.2249999999999996,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 2.88,
+        "z": -2.5749999999999993,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 3.08,
+        "z": -2.925,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 3.2800000000000002,
+        "z": -3.2749999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 3.48,
+        "z": -3.625,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 3.68,
+        "z": -3.9749999999999996,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 3.88,
+        "z": -4.324999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 4.08,
+        "z": -4.675,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 4.28,
+        "z": -5.0249999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 4.48,
+        "z": -5.374999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 4.680000000000001,
+        "z": -5.725,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 4.88,
+        "z": -6.074999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": -51.25,
+        "y": 5.08,
+        "z": -6.424999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "library"
+      },
+      {
+        "x": 51.25,
+        "y": 0.07999999999999999,
+        "z": 2.325,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 0.27999999999999997,
+        "z": 1.975,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 0.48,
+        "z": 1.625,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 0.6799999999999999,
+        "z": 1.2750000000000001,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 0.8799999999999999,
+        "z": 0.925,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 1.08,
+        "z": 0.5750000000000002,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 1.2799999999999998,
+        "z": 0.2250000000000001,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 1.48,
+        "z": -0.125,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 1.6799999999999997,
+        "z": -0.47499999999999964,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 1.88,
+        "z": -0.8249999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 2.0799999999999996,
+        "z": -1.1749999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 2.28,
+        "z": -1.5249999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 2.4799999999999995,
+        "z": -1.875,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 2.6799999999999997,
+        "z": -2.2249999999999996,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 2.8799999999999994,
+        "z": -2.5749999999999993,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 3.0799999999999996,
+        "z": -2.925,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 3.28,
+        "z": -3.2749999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 3.4799999999999995,
+        "z": -3.625,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 3.6799999999999997,
+        "z": -3.9749999999999996,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 3.8799999999999994,
+        "z": -4.324999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 4.079999999999999,
+        "z": -4.675,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 4.279999999999999,
+        "z": -5.0249999999999995,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 4.4799999999999995,
+        "z": -5.374999999999999,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 4.68,
+        "z": -5.725,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "gallery"
+      },
+      {
+        "x": 51.25,
+        "y": 0.08000000000000002,
+        "z": -22.375,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 0.28,
+        "z": -22.724999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 0.4800000000000001,
+        "z": -23.075,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 0.68,
+        "z": -23.425,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 0.88,
+        "z": -23.775,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 1.08,
+        "z": -24.125,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 1.2800000000000002,
+        "z": -24.474999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 1.48,
+        "z": -24.825,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 1.6800000000000002,
+        "z": -25.174999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 1.88,
+        "z": -25.525,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 2.08,
+        "z": -25.875,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 2.2800000000000002,
+        "z": -26.224999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 2.48,
+        "z": -26.575,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 2.68,
+        "z": -26.924999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 2.88,
+        "z": -27.275,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 3.08,
+        "z": -27.625,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 3.2800000000000002,
+        "z": -27.974999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 3.48,
+        "z": -28.325,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 3.68,
+        "z": -28.674999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 3.88,
+        "z": -29.025,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 4.08,
+        "z": -29.375,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 4.28,
+        "z": -29.724999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 4.48,
+        "z": -30.075,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 4.680000000000001,
+        "z": -30.424999999999997,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 4.88,
+        "z": -30.775,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 5.08,
+        "z": -31.125,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 5.28,
+        "z": -31.474999999999998,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 5.48,
+        "z": -31.825,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 5.680000000000001,
+        "z": -32.175,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      },
+      {
+        "x": 51.25,
+        "y": 5.88,
+        "z": -32.525,
+        "w": 5.4,
+        "h": 0.24,
+        "d": 0.375,
+        "stairId": "watchtower"
+      }
+    ],
+    "colliders": 532,
+    "bodies": 863,
+    "render": {
+      "frame": 1999,
+      "calls": 2079,
+      "triangles": 6401926,
+      "points": 1938,
+      "lines": 0
+    }
+  },
+  "benchmark": {
+    "frame": {
+      "median": 6.100000023841858,
+      "p95": 8.5,
+      "max": 10.400000095367432,
+      "over33ms": 0
+    },
+    "cpu": {
+      "median": 5.799999952316284,
+      "p95": 8.100000023841858,
+      "max": 10.200000047683716,
+      "over33ms": 0
+    },
+    "render": {
+      "frame": 9769,
+      "calls": 1145,
+      "triangles": 3584135,
+      "points": 969,
+      "lines": 0
+    },
+    "memory": {
+      "geometries": 764,
+      "textures": 167
+    },
+    "heap": 352483383,
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  }
+}

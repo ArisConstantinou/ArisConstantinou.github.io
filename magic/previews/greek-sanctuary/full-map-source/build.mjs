@@ -1,13 +1,26 @@
 import fs from 'node:fs/promises';import path from 'node:path';import {pathToFileURL} from 'node:url';import {createHash} from 'node:crypto';
+const statueExportPath=await fs.stat(path.resolve('statues/exports')).then(()=>path.resolve('statues/exports')).catch(()=>path.resolve('../statues/models'));
 const source=path.resolve('game'),dir=path.resolve('.'),site=path.resolve('site'),baseline=path.join(dir,'baseline/source');
 await fs.mkdir(baseline,{recursive:true});for(const name of ['main.js','world.js'])if(!await fs.stat(path.join(baseline,name)).catch(()=>null))await fs.copyFile(path.join(source,'src',name),path.join(baseline,name));
 const changes=[];
 function replace(code,from,to,label,all=false){const count=code.split(from).length-1;if(!count||(!all&&count!==1))throw Error(label+': expected '+(all?'one or more':'one')+' source anchors, found '+count);changes.push({label,count,from,to});return all?code.split(from).join(to):code.replace(from,to);}
 const integration={name:'magic-full-map-integration',async transform(input,id){
  const normalized=id.replaceAll('\\','/');let code=input.replaceAll('\r\n','\n');
- if(normalized.endsWith('/src/world.js')){
+ if(normalized.endsWith('/src/castle-layout.js')){
+  code=`import {fitSecretArea} from '${path.join(dir,'clearance.js').replaceAll('\\','/')}';\n`+code;
+  code=replace(code,'].map(r=>({...r,entrance:','].map(fitSecretArea).map(r=>({...r,entrance:','Secret rooms gain physical HEARTH manoeuvring space');
+ }else if(normalized.endsWith('/src/greek-puzzle-rules.js')){
+  code=replace(code,'rotation:Math.PI/2,width:1.65,height:2.9,wallWidth:4','rotation:Math.PI/2,width:3.8,height:4.25,wallWidth:3.8','Archive single leaf clears the actual HEARTH body');
+  code=replace(code,'plates:[{x:-57.7,z:-7.8}],homes:[{x:-55.8,z:-9.8}]','plates:[{x:-55.5,z:-4.3}],homes:[{x:-55.2,z:-1.9}]','Archive pressure supply leaves the entry approach clear');
+ }else if(normalized.endsWith('/src/greek-progression.js')){
+  code=replace(code,'width:2.1,height:2.9,wallWidth:2.1','width:3.8,height:4.25,wallWidth:3.8','Secret single gates preserve real head and arm clearance');
+  code=replace(code,'candidates.sort((a,b)=>a.score-b.score);',"candidates.sort((a,b)=>a.score-b.score+(g.approach==='watchtower'?((a.z>room.z+room.d-3.6?-20:0)-(b.z>room.z+room.d-3.6?-20:0)):0));",'Keep watchtower pressure tray in the front bay, leaving the stair side lane clear');
+ }else if(normalized.endsWith('/src/world.js')){
   code=replace(code,"if(['library','armoury','forge'].includes(room.id)){","if(false&&['library','armoury','forge'].includes(room.id)){",'Replace old static furnishing bays');
   code=replace(code,"if(['barracks','prison','gatehouse'].includes(room.id)){","if(false&&['barracks','prison','gatehouse'].includes(room.id)){",'Replace old bed bays');
+  code=replace(code,"const opening=greekEnabled&&r.id!=='library-secret'?2.1:1.65","const opening=3.8",'Wall returns match widened secret door leaves');
+  code=replace(code,"section,3.65,r.axis==='x',{room:r.parent});","section,4.25,r.axis==='x',{room:r.parent});",'Secret door returns seal the complete frame height');
+  code=replace(code,'const height=bridge?.66','const height=edge.room?.endsWith(\'-secret\')?4.25:bridge?.66','Secret perimeter masonry matches its tall doorway');
  }else if(normalized.endsWith('/src/greek-environment.js')){
   code=replace(code,'function queueStatic(root,g,x,z){','function queueStatic(root,g,x,z){\n if(g.userData.fullMapWall||g.userData.fullMapWallDecoration){const part=mergeStatic(g);part.userData={...g.userData};root.add(part);return;}','Keep complete wall sections separately addressable');
   code=replace(code,'g.rotation.y=alongX?0:Math.PI/2;g.position.set(x,floorY,z);queueStatic(root,g,x,z);','g.rotation.y=alongX?0:Math.PI/2;g.position.set(x,floorY,z);g.userData.fullMapWall={x,z,length,height,alongX,floorY};queueStatic(root,g,x,z);','Wall construction and trim share one cutaway unit');
@@ -16,6 +29,7 @@ const integration={name:'magic-full-map-integration',async transform(input,id){
   code=replace(code,'return {...spec,floorY,...supply,blocker,leaves,phase:','return {...spec,frame,doors,floorY,...supply,blocker,leaves,phase:','Associate gate frame and all leaves with cutaway');
  }else if(normalized.endsWith('/src/main.js')){
   code=replace(code,'pointSegmentDistance, NavigationGrid, ProfileStore','pointSegmentDistance, ProfileStore','Use layered navigation');
+  code=`import {loadGreekStatues,installGreekStatuePlinths,spawnGreekStatue,fractureGreekStatue,verifyStatuePicking} from '${path.join(dir,'statues.js').replaceAll('\\','/')}';\n`+code;
   code=`import {OrbitControls} from 'three/addons/controls/OrbitControls.js';\nimport {cameraRelativeInput} from './camera-movement.js';\nimport {updateFullMapOcclusion} from '${path.join(dir,'occlusion.js').replaceAll('\\','/')}';\nimport {LayeredNavigationGrid as NavigationGrid} from '${path.join(dir,'navigation.js').replaceAll('\\','/')}';\nimport {installFullMapFloors,populateFullMap,updateFullMapVisibility,groundAt,freePositionAt} from '${path.join(dir,'floors.js').replaceAll('\\','/')}';\n`+code;
   code=replace(code,'StoneRitual, bodyguardTarget, freePosition }','StoneRitual, bodyguardTarget }','Use height-aware placement');
   code=replace(code,'new THREE.OrthographicCamera(-16,16,12,-12,.1,160)','new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.1,320)','Approved elevated perspective camera');
@@ -28,7 +42,14 @@ const integration={name:'magic-full-map-integration',async transform(input,id){
   code=replace(code,'const offset=playing?new THREE.Vector3(0,18,19):new THREE.Vector3(6,25,21);','const offset=playing?camera.position.clone().sub(cameraOrbit.target):new THREE.Vector3(6,25,21);','Keep selected camera bearing while following');
   code=replace(code,'camera.lookAt(cameraTarget);shake=Math.max(0,shake-dt*1.5);','cameraOrbit.target.copy(cameraTarget);cameraOrbit.update();shake=Math.max(0,shake-dt*1.5);','Follow target without resetting rotation');
   code=replace(code,'function createHealthBar(){','function freePosition(origin,radius,_floors,_obstacles,occupied=[],maxDistance=5,allowed=()=>true){return freePositionAt(worldMap,origin,radius,occupied,maxDistance,allowed);}\nfunction createHealthBar(){','Height-aware placement wrapper');
-  code=replace(code,'greekArchitecture=addGreekArchitecture(worldMap);','greekArchitecture=addGreekArchitecture(worldMap);installFullMapFloors(worldMap,greekArchitecture);','Install full-game floors and furnishings');
+  code=replace(code,'greekArchitecture=addGreekArchitecture(worldMap);','greekArchitecture=addGreekArchitecture(worldMap);installFullMapFloors(worldMap,greekArchitecture);installGreekStatuePlinths(worldMap);','Install full-game floors, furnishings and approved Greek statue bays');
+  code=replace(code,'await Promise.all([loadSiegeAssets(),loadGreekAssets()]);',"await Promise.all([loadSiegeAssets(),loadGreekAssets(),loadGreekStatues(f=>ui.setLoading(.08+f*.12,'Τα μαρμάρινα αγάλματα παίρνουν θέση…'))]);",'Preload real museum scans and fractures with finite download timeout');
+  code=replace(code,'function prop(kind,x,z,options={}){',"function prop(kind,x,z,options={}){\n if(kind==='greek-statue')return spawnGreekStatue({C:CANNON,scene,physics,entities,material:solidMaterial,impact},x,z,options);",'Spawn statues as destructible physical props');
+  code=replace(code,'const d=hearth.propPosition(original);','const d=original.kind===\'greek-statue\'?original:hearth.propPosition(original);','Preserve anchored statue/plinth alignment');
+  code=replace(code,'if(!e||e.removed||e.isPlayer||e.ally||e.reserved)return false;','if(!e||e.removed||e.isPlayer||e.ally||e.reserved||e.anchored)return false;','Whole statues remain anchored; loose marble fragments are grabbable');
+  code=replace(code,"if(e.indestructible||e.removed||e.dead||phase!=='playing')return;","if(e.indestructible||e.removed||e.dead||phase!=='playing')return;\n if(e.statue){e.hp=Math.max(0,e.hp-amount);if(e.hp===0)e.pendingBreak=true;return;}",'Statue damage breaks stone without awarding enemy kills');
+  code=replace(code,'if(e.pendingBreak){\n      fx.burst',"if(e.pendingBreak){\n      if(e.statue)fractureGreekStatue(e,{C:CANNON,scene,physics,entities,material:solidMaterial,impact,time:runTime});\n      fx.burst",'Native impacts and HEARTH damage spawn real stone pieces');
+  code=replace(code,"e.kind==='urn'?0xc9ba9c:0xad9270","e.statue||e.statueFragment?0xd8cfba:e.kind==='urn'?0xc9ba9c:0xad9270",'Marble debris has the correct dust colour');
   code=replace(code,'createHearthSystem({scene,physics','createHearthSystem({driveResponse:30,scene,physics','HEARTH response on measured risers');
   code=replace(code,'function actor(kind,x,z,isPlayer=false,bossType=null,room=null){','function actor(kind,x,z,isPlayer=false,bossType=null,room=null,floorY=0){','Height-aware actor spawn');
   code=replace(code,'new CANNON.Vec3(x,cy+.08,z)','new CANNON.Vec3(x,floorY+cy+.08,z)','Actor body starts on its actual floor');
@@ -72,13 +93,16 @@ const integration={name:'magic-full-map-integration',async transform(input,id){
   code=replace(code,'at=>goliathNav.isFree(at.x,at.z)):{x:p.x+aimDirection.x*2.7,z:p.z+aimDirection.z*2.7};','at=>goliathNav.isFree(at.x,at.z,p.y)):{x:p.x+aimDirection.x*2.7,y:playerFloorHeight(),z:p.z+aimDirection.z*2.7};\n  if(preferred)preferred.y=playerFloorHeight();','Goliath placement floor');
   code=replace(code,'assemblyCreature.group.position.set(assemblyPlacement.x,0,assemblyPlacement.z)','assemblyCreature.group.position.set(assemblyPlacement.x,assemblyPlacement.y??0,assemblyPlacement.z)','Goliath assembly height');
   code=replace(code,'new CANNON.Vec3(at.x,1.67,at.z)','new CANNON.Vec3(at.x,(at.y??0)+1.67,at.z)','Goliath starts on its actual floor');
-  code=replace(code,'get world(){return worldMap;}', 'get world(){return worldMap;},get fullMap(){return worldMap.fullMap;},get cameraOrbit(){return cameraOrbit;},spawnLoot,updateLoot,fireArrow,updateCamera,updateEntities','Expose focused full-map QA');
+  code=replace(code,'get world(){return worldMap;}', 'get world(){return worldMap;},get fullMap(){return worldMap.fullMap;},get cameraOrbit(){return cameraOrbit;},spawnLoot,updateLoot,fireArrow,updateCamera,updateEntities,pickObject,verifyStatuePicking','Expose focused full-map QA');
   await fs.writeFile(path.join(dir,'integrated-main.js'),code);
  }else return null;
  return {code,map:null};
 }};
+const statueFiles=[];for(const name of await fs.readdir(statueExportPath)){const data=await fs.readFile(path.join(statueExportPath,name)),file='statues/models/'+name;await fs.mkdir(path.dirname(path.join(site,file)),{recursive:true});await fs.writeFile(path.join(site,file),data);statueFiles.push({file,sha256:createHash('sha256').update(data).digest('hex'),bytes:data.length});}
+for(const name of ['draco_wasm_wrapper.js','draco_decoder.wasm']){const data=await fs.readFile(path.join(source,'node_modules/three/examples/jsm/libs/draco/gltf',name)),file='statues/draco/'+name;await fs.mkdir(path.dirname(path.join(site,file)),{recursive:true});await fs.writeFile(path.join(site,file),data);statueFiles.push({file,sha256:createHash('sha256').update(data).digest('hex'),bytes:data.length});}
+for(const name of ['LICENSES.md','DRACO-LICENSE.txt']){const data=await fs.readFile(path.join(dir,'statues',name)),file='statues/'+name;await fs.writeFile(path.join(site,file),data);statueFiles.push({file,sha256:createHash('sha256').update(data).digest('hex'),bytes:data.length});}
 const {build}=await import(pathToFileURL(path.join(source,'node_modules/vite/dist/node/index.js')));
 await build({root:source,configFile:path.join(source,'vite.config.js'),plugins:[integration],resolve:{alias:[{find:'three/addons',replacement:path.join(source,'node_modules/three/examples/jsm')},{find:/^three$/,replacement:path.join(source,'node_modules/three/build/three.module.js')}]},publicDir:false,build:{outDir:path.join(dir,'dist'),emptyOutDir:true}});
 await fs.mkdir(path.join(site,'engine'),{recursive:true});const files=[];for(const name of await fs.readdir(path.join(dir,'dist/engine'))){const data=await fs.readFile(path.join(dir,'dist/engine',name)),target=path.join(site,'engine',name),old=await fs.readFile(target).catch(()=>null);if(old&&!old.equals(data))throw Error('Protected hashed asset differs: '+name);if(!old)await fs.writeFile(target,data);files.push({file:'engine/'+name,sha256:createHash('sha256').update(data).digest('hex'),bytes:data.length});}
 const html=await fs.readFile(path.join(dir,'dist/index.html'));await fs.writeFile(path.join(site,'full-map.htm'),html);files.push({file:'full-map.htm',sha256:createHash('sha256').update(html).digest('hex'),bytes:html.length});
-await fs.writeFile(path.join(dir,'integration-changes.json'),JSON.stringify(changes,null,2));await fs.writeFile(path.join(dir,'build.json'),JSON.stringify({url:'http://127.0.0.1:5173/previews/greek-sanctuary/full-map.htm',files},null,2));console.log('http://127.0.0.1:5173/previews/greek-sanctuary/full-map.htm');
+await fs.writeFile(path.join(dir,'integration-changes.json'),JSON.stringify(changes,null,2));await fs.writeFile(path.join(dir,'build.json'),JSON.stringify({url:'http://127.0.0.1:5173/previews/greek-sanctuary/full-map.htm',files:[...files,...statueFiles]},null,2));console.log('http://127.0.0.1:5173/previews/greek-sanctuary/full-map.htm');

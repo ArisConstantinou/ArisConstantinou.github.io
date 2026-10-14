@@ -1,0 +1,497 @@
+{
+  "blender": "5.1.2",
+  "units": "metres; Blender Z-up, glTF Y-up",
+  "records": [
+    {
+      "id": "caryatid",
+      "heightMetres": 2.28,
+      "original": {
+        "vertices": 655438,
+        "triangles": 1000014,
+        "dimensions": [
+          0.7855589985847473,
+          0.7557795643806458,
+          2.2799999713897705
+        ],
+        "materials": [
+          "caraytid_LOD0_LOD0_u0_v0",
+          "caraytid_LOD0_LOD0_u1_v0"
+        ],
+        "uvLayers": 1
+      },
+      "runtime": {
+        "vertices": 110584,
+        "triangles": 85000,
+        "dimensions": [
+          0.7847782373428345,
+          0.7548454999923706,
+          2.284536123275757
+        ],
+        "materials": [
+          "caraytid_LOD0_LOD0_u0_v0.001",
+          "caraytid_LOD0_LOD0_u1_v0.001"
+        ],
+        "uvLayers": 1
+      },
+      "fragments": [
+        {
+          "vertices": 13091,
+          "triangles": 10887,
+          "dimensions": [
+            0.6615184545516968,
+            0.7459092140197754,
+            0.6634141206741333
+          ],
+          "materials": [
+            "caraytid_LOD0_LOD0_u0_v0.001",
+            "caraytid_LOD0_LOD0_u1_v0.001",
+            "caryatid \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 12940,
+          "triangles": 10592,
+          "dimensions": [
+            0.5728410482406616,
+            0.6549273729324341,
+            0.7349823713302612
+          ],
+          "materials": [
+            "caraytid_LOD0_LOD0_u0_v0.001",
+            "caraytid_LOD0_LOD0_u1_v0.001",
+            "caryatid \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 18045,
+          "triangles": 13271,
+          "dimensions": [
+            0.393690288066864,
+            0.4276389181613922,
+            0.6858148574829102
+          ],
+          "materials": [
+            "caraytid_LOD0_LOD0_u0_v0.001",
+            "caraytid_LOD0_LOD0_u1_v0.001",
+            "caryatid \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 19765,
+          "triangles": 15021,
+          "dimensions": [
+            0.4440079927444458,
+            0.5514895915985107,
+            0.7437833547592163
+          ],
+          "materials": [
+            "caraytid_LOD0_LOD0_u0_v0.001",
+            "caraytid_LOD0_LOD0_u1_v0.001",
+            "caryatid \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 12349,
+          "triangles": 9205,
+          "dimensions": [
+            0.4256453216075897,
+            0.44552522897720337,
+            0.6058067083358765
+          ],
+          "materials": [
+            "caraytid_LOD0_LOD0_u0_v0.001",
+            "caraytid_LOD0_LOD0_u1_v0.001",
+            "caryatid \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 14475,
+          "triangles": 10852,
+          "dimensions": [
+            0.4437885880470276,
+            0.4607295095920563,
+            0.6512625217437744
+          ],
+          "materials": [
+            "caraytid_LOD0_LOD0_u0_v0.001",
+            "caraytid_LOD0_LOD0_u1_v0.001",
+            "caryatid \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 16678,
+          "triangles": 12721,
+          "dimensions": [
+            0.5036414265632629,
+            0.5138913989067078,
+            0.5339504480361938
+          ],
+          "materials": [
+            "caraytid_LOD0_LOD0_u0_v0.001",
+            "caraytid_LOD0_LOD0_u1_v0.001",
+            "caryatid \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 3540,
+          "triangles": 2765,
+          "dimensions": [
+            0.18466739356517792,
+            0.26854264736175537,
+            0.4067333936691284
+          ],
+          "materials": [
+            "caraytid_LOD0_LOD0_u0_v0.001",
+            "caraytid_LOD0_LOD0_u1_v0.001",
+            "caryatid \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 7158,
+          "triangles": 5501,
+          "dimensions": [
+            0.25450456142425537,
+            0.3193719983100891,
+            0.5664142370223999
+          ],
+          "materials": [
+            "caraytid_LOD0_LOD0_u0_v0.001",
+            "caraytid_LOD0_LOD0_u1_v0.001",
+            "caryatid \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        }
+      ],
+      "runtimeExport": "caryatid.glb",
+      "fractureExport": "caryatid-fragments.glb"
+    },
+    {
+      "id": "venus",
+      "heightMetres": 2.035,
+      "original": {
+        "vertices": 15634,
+        "triangles": 24058,
+        "dimensions": [
+          0.6668441295623779,
+          0.6123693585395813,
+          2.0350000858306885
+        ],
+        "materials": [
+          "Default"
+        ],
+        "uvLayers": 1
+      },
+      "runtime": {
+        "vertices": 15634,
+        "triangles": 24058,
+        "dimensions": [
+          0.6668441295623779,
+          0.6123693585395813,
+          2.0350000858306885
+        ],
+        "materials": [
+          "Default.001"
+        ],
+        "uvLayers": 1
+      },
+      "fragments": [
+        {
+          "vertices": 3381,
+          "triangles": 4917,
+          "dimensions": [
+            0.5661575198173523,
+            0.4779123067855835,
+            0.581271231174469
+          ],
+          "materials": [
+            "Default.001",
+            "venus \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 3150,
+          "triangles": 4612,
+          "dimensions": [
+            0.5229166150093079,
+            0.5329582691192627,
+            0.6470850110054016
+          ],
+          "materials": [
+            "Default.001",
+            "venus \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 2690,
+          "triangles": 3922,
+          "dimensions": [
+            0.4161331355571747,
+            0.4085666239261627,
+            0.6399185657501221
+          ],
+          "materials": [
+            "Default.001",
+            "venus \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 4006,
+          "triangles": 5427,
+          "dimensions": [
+            0.3760172426700592,
+            0.5275578498840332,
+            0.6084625720977783
+          ],
+          "materials": [
+            "Default.001",
+            "venus \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 1239,
+          "triangles": 1752,
+          "dimensions": [
+            0.3820531964302063,
+            0.4048844575881958,
+            0.5705769062042236
+          ],
+          "materials": [
+            "Default.001",
+            "venus \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 1216,
+          "triangles": 1727,
+          "dimensions": [
+            0.29665544629096985,
+            0.3422684967517853,
+            0.594941258430481
+          ],
+          "materials": [
+            "Default.001",
+            "venus \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 2065,
+          "triangles": 3172,
+          "dimensions": [
+            0.41172298789024353,
+            0.4560636579990387,
+            0.48504388332366943
+          ],
+          "materials": [
+            "Default.001",
+            "venus \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 770,
+          "triangles": 1142,
+          "dimensions": [
+            0.22946390509605408,
+            0.3500434160232544,
+            0.5059096813201904
+          ],
+          "materials": [
+            "Default.001",
+            "venus \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        },
+        {
+          "vertices": 99,
+          "triangles": 119,
+          "dimensions": [
+            0.08406321704387665,
+            0.19751738011837006,
+            0.1392127275466919
+          ],
+          "materials": [
+            "Default.001",
+            "venus \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 1
+        }
+      ],
+      "runtimeExport": "venus.glb",
+      "fractureExport": "venus-fragments.glb"
+    },
+    {
+      "id": "artemision",
+      "heightMetres": 2.09,
+      "original": {
+        "vertices": 104738,
+        "triangles": 209494,
+        "dimensions": [
+          2.233236312866211,
+          0.522749125957489,
+          2.0899999141693115
+        ],
+        "materials": [
+          "Marble replica of bronze Artemision original"
+        ],
+        "uvLayers": 0
+      },
+      "runtime": {
+        "vertices": 32491,
+        "triangles": 65000,
+        "dimensions": [
+          2.2332816123962402,
+          0.5229518413543701,
+          2.089876890182495
+        ],
+        "materials": [
+          "Marble replica of bronze Artemision original.001"
+        ],
+        "uvLayers": 0
+      },
+      "fragments": [
+        {
+          "vertices": 3230,
+          "triangles": 6456,
+          "dimensions": [
+            0.410827100276947,
+            0.3719397187232971,
+            0.58854740858078
+          ],
+          "materials": [
+            "Marble replica of bronze Artemision original.001",
+            "artemision \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 0
+        },
+        {
+          "vertices": 3415,
+          "triangles": 6826,
+          "dimensions": [
+            0.3662101924419403,
+            0.2012900710105896,
+            0.6838353276252747
+          ],
+          "materials": [
+            "Marble replica of bronze Artemision original.001",
+            "artemision \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 0
+        },
+        {
+          "vertices": 4103,
+          "triangles": 8202,
+          "dimensions": [
+            0.4371463656425476,
+            0.3208850026130676,
+            0.6238095760345459
+          ],
+          "materials": [
+            "Marble replica of bronze Artemision original.001",
+            "artemision \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 0
+        },
+        {
+          "vertices": 1439,
+          "triangles": 2874,
+          "dimensions": [
+            0.2639498710632324,
+            0.28292086720466614,
+            0.5169434547424316
+          ],
+          "materials": [
+            "Marble replica of bronze Artemision original.001",
+            "artemision \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 0
+        },
+        {
+          "vertices": 3827,
+          "triangles": 7650,
+          "dimensions": [
+            0.6840236783027649,
+            0.3471243679523468,
+            0.7119759321212769
+          ],
+          "materials": [
+            "Marble replica of bronze Artemision original.001",
+            "artemision \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 0
+        },
+        {
+          "vertices": 2476,
+          "triangles": 4944,
+          "dimensions": [
+            0.6925499439239502,
+            0.3327823877334595,
+            0.6617171764373779
+          ],
+          "materials": [
+            "Marble replica of bronze Artemision original.001",
+            "artemision \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 0
+        },
+        {
+          "vertices": 12236,
+          "triangles": 24476,
+          "dimensions": [
+            0.7808433771133423,
+            0.3477337956428528,
+            0.696372389793396
+          ],
+          "materials": [
+            "Marble replica of bronze Artemision original.001",
+            "artemision \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 0
+        },
+        {
+          "vertices": 2540,
+          "triangles": 5080,
+          "dimensions": [
+            0.48174941539764404,
+            0.15766608715057373,
+            0.3885538578033447
+          ],
+          "materials": [
+            "Marble replica of bronze Artemision original.001",
+            "artemision \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 0
+        },
+        {
+          "vertices": 1916,
+          "triangles": 3838,
+          "dimensions": [
+            0.4832172393798828,
+            0.21157602965831757,
+            0.12476754188537598
+          ],
+          "materials": [
+            "Marble replica of bronze Artemision original.001",
+            "artemision \u00b7 fresh stone fracture"
+          ],
+          "uvLayers": 0
+        }
+      ],
+      "runtimeExport": "artemision.glb",
+      "fractureExport": "artemision-fragments.glb"
+    }
+  ]
+}

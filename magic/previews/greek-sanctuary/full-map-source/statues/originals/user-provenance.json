@@ -1,0 +1,152 @@
+[
+  {
+    "id": "caryatid",
+    "title": "Erechtheion Caryatid, British Museum",
+    "creator": "Daniel Pett",
+    "url": "https://sketchfab.com/3d-models/erechtheion-caryatid-british-museum-7181dd88d9424838882a4629d886177e",
+    "license": "CC BY 4.0",
+    "licenseURL": "https://creativecommons.org/licenses/by/4.0/",
+    "retained": "originals/caryatid.glb",
+    "bytes": 38471584,
+    "sha256": "5de4c2998ca7f2831cca25fff52ea19c1e917582edbf495cd7ae19550a52633c",
+    "triangles": 1000014,
+    "materials": [
+      {
+        "name": "caraytid_LOD0_LOD0_u0_v0",
+        "pbr": {
+          "baseColorTexture": {
+            "index": 0
+          },
+          "metallicFactor": 0
+        }
+      },
+      {
+        "name": "caraytid_LOD0_LOD0_u1_v0",
+        "pbr": {
+          "baseColorTexture": {
+            "index": 1
+          },
+          "metallicFactor": 0
+        }
+      }
+    ],
+    "images": [
+      {
+        "mime": "image/jpeg",
+        "embedded": true
+      },
+      {
+        "mime": "image/jpeg",
+        "embedded": true
+      }
+    ],
+    "nodes": [
+      {
+        "name": "Sketchfab_model"
+      },
+      {
+        "name": "caraytid_LOD0_LOD0.obj.cleaner.materialmerger.gles"
+      },
+      {
+        "name": "Object_2",
+        "mesh": 0
+      },
+      {
+        "name": "Object_3",
+        "mesh": 1
+      },
+      {
+        "name": "Object_4",
+        "mesh": 2
+      },
+      {
+        "name": "Object_5",
+        "mesh": 3
+      },
+      {
+        "name": "Object_6",
+        "mesh": 4
+      },
+      {
+        "name": "Object_7",
+        "mesh": 5
+      },
+      {
+        "name": "Object_8",
+        "mesh": 6
+      },
+      {
+        "name": "Object_9",
+        "mesh": 7
+      },
+      {
+        "name": "Object_10",
+        "mesh": 8
+      },
+      {
+        "name": "Object_11",
+        "mesh": 9
+      },
+      {
+        "name": "Object_12",
+        "mesh": 10
+      }
+    ],
+    "originalFilename": "erechtheion_caryatid_british_museum.glb"
+  },
+  {
+    "id": "venus",
+    "title": "Venus de Milo #StatuesTexturingChallenge [SMK]",
+    "creator": "SMK - National Gallery of Denmark; optimization by Shaderbytes",
+    "url": "https://sketchfab.com/3d-models/venus-de-milo-statuestexturingchallenge-smk-2983d92ac4e744f485492580ca7629f2",
+    "license": "CC0",
+    "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "retained": "originals/venus.glb",
+    "bytes": 4167244,
+    "sha256": "50a19655db6a07c941b11d9cd0ab9f32ec6c4c637bb29cc3c4e6acba71fba643",
+    "triangles": 24058,
+    "materials": [
+      {
+        "name": "Default",
+        "pbr": {
+          "baseColorFactor": [
+            0.6083370704,
+            0.6083370704,
+            0.6083370704,
+            1
+          ],
+          "metallicFactor": 0,
+          "metallicRoughnessTexture": {
+            "index": 0
+          }
+        },
+        "normal": {
+          "index": 1
+        }
+      }
+    ],
+    "images": [
+      {
+        "mime": "image/png",
+        "embedded": true
+      },
+      {
+        "mime": "image/jpeg",
+        "embedded": true
+      }
+    ],
+    "nodes": [
+      {
+        "name": "Sketchfab_model"
+      },
+      {
+        "name": "retopo_2.obj.cleaner.materialmerger.gles"
+      },
+      {
+        "name": "Object_2",
+        "mesh": 0
+      }
+    ],
+    "originalFilename": "venus_de_milo_statuestexturingchallenge_smk.glb"
+  }
+]
