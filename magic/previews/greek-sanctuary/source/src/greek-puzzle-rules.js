@@ -1,9 +1,22 @@
 // Pure rules shared by runtime and regression tests. Coordinates are metres.
 export const GREEK_GATES=[
- {id:'hall-pressure',kind:'pressure',x:0,z:5,width:5.2,height:4.25,wallWidth:25,plates:[{x:-2,z:9},{x:2,z:9}],homes:[{x:-4,z:13},{x:4,z:13}]},
+ {id:'hall-pressure',kind:'pressure',x:0,z:5,width:5.2,height:4.25,wallWidth:25,plates:[{x:-4.8,z:9},{x:-3.2,z:9}],homes:[{x:-5.2,z:12.5},{x:-2.8,z:12.5}]},
  {id:'crypt-fire',kind:'fire',x:0,z:-12.5,width:5.2,height:4.25,wallWidth:17.5,plates:[],homes:[]},
  {id:'archive-secret',kind:'pressure',secret:true,x:-60,z:-8.5,rotation:Math.PI/2,width:1.65,height:2.9,wallWidth:4,plates:[{x:-57.7,z:-7.8}],homes:[{x:-55.8,z:-9.8}]},
 ];
+// Shared fixed tray: two independent sockets in one plinth, or one socket.
+// Retaining kerbs/rails use the same dimensions as the editable Blender kit.
+export function pressureTray(plates){
+ if(!plates.length)return null;
+ const x=(plates[0].x+plates.at(-1).x)/2,z=plates[0].z,w=plates.at(-1).x-plates[0].x+1.72,d=1.72,edge=.14;
+ const fixtures=[{x,y:.02,z,w,h:.12,d,tag:'pressure-tray-floor',floor:true}];
+ for(const side of [-1,1]){
+  fixtures.push({x:x+side*(w-edge)/2,y:.22,z,w:edge,h:.28,d,tag:'pressure-tray-rim'});
+  fixtures.push({x,y:.22,z:z+side*(d-edge)/2,w:w-edge*2,h:.28,d:edge,tag:'pressure-tray-rim'});
+ }
+ if(plates.length===2)fixtures.push({x,y:.22,z,w:edge,h:.28,d:d-edge*2,tag:'pressure-tray-divider'});
+ return {x,z,w,d,asset:plates.length===2?'double-tray':'single-tray',fixtures};
+}
 export function plateOccupants(plates,weights,held){
  const used=new Set();
  return plates.map(p=>{

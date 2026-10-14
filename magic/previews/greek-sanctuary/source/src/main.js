@@ -709,7 +709,7 @@ function updateHeld(dt,input){
   desired=clampDragPoint(desired,player.body.position,telekinesisReach());
   desired=constrainDragPoint(e.body.position,desired,worldMap.colliders,e.radius+.05,e.ext?.y||e.cy);
   const placement=!player.shielding&&greekPuzzles?.dropPlateFor(e,desired);
-  if(placement){desired.x=placement.x;desired.z=placement.z;desired.y=.72;}
+  if(placement){desired.x=placement.x;desired.z=placement.z;desired.y=.98;}
   const b=e.body,pos=b.position;
   b.velocity.set(clamp((desired.x-pos.x)*15,-28,28),clamp((desired.y-pos.y)*15+1.3,-20,20),clamp((desired.z-pos.z)*15,-28,28));
   if(player.shielding){b.quaternion.setFromEuler(0,player.yaw,0);b.angularVelocity.set(0,0,0);}

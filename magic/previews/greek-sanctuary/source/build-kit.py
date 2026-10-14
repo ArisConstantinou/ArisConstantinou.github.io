@@ -90,12 +90,32 @@ for y in [-.425,.425]:
  box('Weight recessed field',(0,y,0),(.64,.025,.6),dark,.018);laurel(0,y*1.04,0,.21,light)
 for z in [-.32,.32]:box('Bronze weight band',(0,0,z),(.87,.87,.065),bronze,.014)
 start('plate')
-box('Pressure plate surround',(0,0,-.035),(1.6,1.6,.10),bronze,.045)
-box('Moving slab',(0,0,.012),(1.35,1.35,.07),stone,.055)
+box('Moving bronze slab edge',(0,0,.005),(1.34,1.34,.07),bronze,.035)
+box('Moving slab',(0,0,.025),(1.26,1.26,.05),stone,.035)
 # Inlaid top key is authored flat by rotating a completed strip collection.
 before=len(parts[current]);meander(0,-.56,0,1.12,.28,gold)
 for o in parts[current][before:]:
  x,y,z=o.location;o.location=(x,-.50+z,.054);o.rotation_euler.x=math.pi/2
+for name,count in [('single-tray',1),('double-tray',2)]:
+ start(name);w=1.72+(count-1)*1.6;d=1.72;edge=.14
+ box('Continuous limestone plinth',(0,0,.02),(w,d,.12),stone,.025)
+ box('Blue foundation band',(0,0,-.005),(w+.035,d+.035,.045),blue,.012)
+ # A low stone kerb closes the bottom; bronze pickets and top rail retain
+ # rolling weights. The middle fence keeps the two independent sockets apart.
+ def fence(x,y,length,along_x):
+  box('Retaining stone kerb',(x,y,.14),(length if along_x else edge,edge if along_x else length,.12),light,.018)
+  box('Continuous bronze rail',(x,y,.33),(length if along_x else edge,edge if along_x else length,.06),bronze,.015)
+  n=max(2,round(length/.27))
+  for i in range(n+1):
+   offset=(i/n-.5)*(length-.13);px=x+offset if along_x else x;py=y if along_x else y+offset
+   box('Bronze fence picket',(px,py,.25),(.045,.045,.14),gold,.008)
+ for side in [-1,1]:
+  fence(side*(w-edge)/2,0,d,False);fence(0,side*(d-edge)/2,w-edge*2,True)
+ if count==2:fence(0,0,d-edge*2,False)
+ for x in [-w/2+.07,w/2-.07]+([0] if count==2 else []):
+  for y in [-d/2+.07,d/2-.07]:
+   box('Fence post',(x,y,.23),(.14,.14,.30),bronze,.015)
+   box('Dressed post cap',(x,y,.385),(.17,.17,.045),gold,.014)
 start('shield')
 # Round Greek aspis, shallow dished profile with bronze boss and lambda crest.
 disk('Aspis face',(0,0,0),.52,.10,bronze)

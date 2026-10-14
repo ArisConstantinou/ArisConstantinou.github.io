@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {plateOccupants,stepGate,weightNeedsRecovery,flameReachesGate,GREEK_GATES} from './greek-puzzle-rules.js';
+import {plateOccupants,stepGate,weightNeedsRecovery,flameReachesGate,GREEK_GATES,pressureTray} from './greek-puzzle-rules.js';
 import {NavigationGrid,segmentBox} from './systems.js';
 import {existingRooms,newRooms,corridors} from './castle-layout.js';
 const weight=(x,z)=>({indestructible:true,body:{position:{x,y:.44,z},velocity:{x:0,y:0,z:0}}});
@@ -14,6 +14,19 @@ test('double gate requires two separate grounded weights; held/airborne/moving w
 });
 test('brief plate contact does not latch; secret gate needs exactly one weight',()=>{
  const s={kind:'pressure',phase:'locked',charge:0,open:0};tick(s,{occupied:[true]},10);tick(s,{occupied:[false]},1);assert.equal(s.charge,0);tick(s,{occupied:[true]},150);assert.equal(s.phase,'open');
+});
+test('one weight cannot activate both adjacent sockets of the shared unit',()=>{
+ const g=GREEK_GATES[0],a=weight(g.plates[0].x,g.plates[0].z),s={kind:'pressure',phase:'locked',charge:0,open:0};
+ tick(s,{occupied:plateOccupants(g.plates,[a],null)},180);assert.equal(s.phase,'locked');
+ a.body.position.x=(g.plates[0].x+g.plates[1].x)/2;assert.equal(plateOccupants(g.plates,[a],null).filter(Boolean).length,0);
+});
+test('retaining fixtures block the tray but preserve the central gate approach for both actor sizes',()=>{
+ const g=GREEK_GATES[0],tray=pressureTray(g.plates),walls=tray.fixtures.filter(b=>!b.floor),floors=[{x:0,z:12,w:25,d:20}];
+ for(const padding of [.4,1.57]){
+  const nav=new NavigationGrid(floors,walls,undefined,padding);
+  assert.ok(nav.isFree(0,9));assert.ok(nav.path({x:0,z:13},{x:0,z:5}).length);
+ }
+ assert.ok(walls.some(b=>segmentBox({x:-4.8,z:9},{x:-3.2,z:9},b)!==null),'Middle retaining wall separates the two pockets');
 });
 test('HEARTH heat uses live piloted nozzles, rejects wizard fire and an intervening wall',()=>{
  const gate={height:3.6,blocker:{x:0,y:1.8,z:0,w:5.2,h:3.6,d:.3}};

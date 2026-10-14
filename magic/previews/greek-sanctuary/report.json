@@ -1,7 +1,7 @@
 {
-  "date": "2026-10-14T10:10:14.694Z",
+  "date": "2026-10-14T10:49:54.419Z",
   "status": "Verified first Greek environment and gate-puzzle sample. Full castle rollout is pending user review.",
-  "unitTests": 198,
+  "unitTests": 200,
   "physicsIntegration": "passed",
   "browser": {
     "mechanics": {
@@ -1121,9 +1121,19 @@
         "triangles": 6180
       },
       "plate": {
-        "bytes": 199416,
+        "bytes": 199352,
         "meshes": 3,
         "triangles": 2808
+      },
+      "single-tray": {
+        "bytes": 337576,
+        "meshes": 5,
+        "triangles": 4752
+      },
+      "double-tray": {
+        "bytes": 518996,
+        "meshes": 5,
+        "triangles": 7344
       },
       "shield": {
         "bytes": 127584,
@@ -1132,5 +1142,2224 @@
       }
     },
     "characters": "Frozen previously approved model preview; Meshy terms retained; not claimed CC0"
+  },
+  "pressureTrayUpdate": {
+    "request": "One double plate unit with retaining fence, same for single plate",
+    "before": {
+      "label": "before",
+      "checks": [
+        {
+          "name": "hall-pressure pocket 1, roll direction 0 degrees",
+          "pass": false,
+          "maxOffset": 1.1237441388491807,
+          "end": {
+            "x": -0.884974766057195,
+            "y": 0.43999091621650116,
+            "z": 8.962322305492231
+          },
+          "active": false
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 45 degrees",
+          "pass": true,
+          "maxOffset": 0.3330497888690759,
+          "end": {
+            "x": -1.8035466856672262,
+            "y": 0.4899909312034066,
+            "z": 9.13181246535653
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 90 degrees",
+          "pass": true,
+          "maxOffset": 0.4510886903028262,
+          "end": {
+            "x": -1.9711377232675842,
+            "y": 0.48999093118973297,
+            "z": 9.197494376417351
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 135 degrees",
+          "pass": true,
+          "maxOffset": 0.2889496496965851,
+          "end": {
+            "x": -2.1401035224471707,
+            "y": 0.4899909311840898,
+            "z": 9.130758043046075
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 180 degrees",
+          "pass": true,
+          "maxOffset": 0.4606454103893701,
+          "end": {
+            "x": -2.2061273945166824,
+            "y": 0.48999093115485864,
+            "z": 8.959628805880167
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 225 degrees",
+          "pass": true,
+          "maxOffset": 0.3449852123011045,
+          "end": {
+            "x": -2.139744482324915,
+            "y": 0.4899909312130764,
+            "z": 8.794106672297902
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 270 degrees",
+          "pass": false,
+          "maxOffset": 1.1189799392506306,
+          "end": {
+            "x": -1.9700952503773668,
+            "y": 0.439992829638411,
+            "z": 7.8850008772996345
+          },
+          "active": false
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 315 degrees",
+          "pass": true,
+          "maxOffset": 0.3827255973452637,
+          "end": {
+            "x": -1.803306636533285,
+            "y": 0.48999093117452014,
+            "z": 8.793852645390125
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 0 degrees",
+          "pass": false,
+          "maxOffset": 1.123744138849153,
+          "end": {
+            "x": 3.1150252339428053,
+            "y": 0.43999091621650116,
+            "z": 8.962322305492235
+          },
+          "active": false
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 45 degrees",
+          "pass": true,
+          "maxOffset": 0.33304993922825743,
+          "end": {
+            "x": 2.1964444791470754,
+            "y": 0.48999093120340725,
+            "z": 9.13182479234377
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 90 degrees",
+          "pass": true,
+          "maxOffset": 0.4510945706316756,
+          "end": {
+            "x": 2.0288578649411195,
+            "y": 0.4899909311897333,
+            "z": 9.197500545074236
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 135 degrees",
+          "pass": true,
+          "maxOffset": 0.28894964969658493,
+          "end": {
+            "x": 1.8598964775528293,
+            "y": 0.4899909311840899,
+            "z": 9.130758043046075
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 180 degrees",
+          "pass": true,
+          "maxOffset": 0.4606454103893699,
+          "end": {
+            "x": 1.7938726054833163,
+            "y": 0.4899909311548587,
+            "z": 8.959628805880168
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 225 degrees",
+          "pass": true,
+          "maxOffset": 0.344985212301105,
+          "end": {
+            "x": 1.8602555176750841,
+            "y": 0.48999093121307635,
+            "z": 8.7941066722979
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 270 degrees",
+          "pass": false,
+          "maxOffset": 1.1189799392505089,
+          "end": {
+            "x": 2.0299047496226343,
+            "y": 0.4399928296384111,
+            "z": 7.885000877299634
+          },
+          "active": false
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 315 degrees",
+          "pass": true,
+          "maxOffset": 0.3827255973452619,
+          "end": {
+            "x": 2.1966933634667143,
+            "y": 0.48999093117452014,
+            "z": 8.793852645390126
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 0 degrees",
+          "pass": false,
+          "maxOffset": 1.1232498628769825,
+          "end": {
+            "x": -56.58481470144671,
+            "y": 0.4399909080622087,
+            "z": -7.837946557357714
+          },
+          "active": false
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 45 degrees",
+          "pass": true,
+          "maxOffset": 0.3330499392282537,
+          "end": {
+            "x": -57.50355552085291,
+            "y": 0.4899909312034072,
+            "z": -7.668175207656235
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 90 degrees",
+          "pass": true,
+          "maxOffset": 0.3849734969182815,
+          "end": {
+            "x": -57.67204499621337,
+            "y": 0.4899909311499848,
+            "z": -7.600273514140372
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 135 degrees",
+          "pass": true,
+          "maxOffset": 0.28894964969658926,
+          "end": {
+            "x": -57.84010352244719,
+            "y": 0.4899909311840898,
+            "z": -7.6692419569539085
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 180 degrees",
+          "pass": true,
+          "maxOffset": 0.4606415377982873,
+          "end": {
+            "x": -57.906118571295956,
+            "y": 0.4899909311548581,
+            "z": -7.840383531938706
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 225 degrees",
+          "pass": true,
+          "maxOffset": 0.3449874342570754,
+          "end": {
+            "x": -57.839735642449114,
+            "y": 0.48999093121307574,
+            "z": -8.005905654860179
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 270 degrees",
+          "pass": false,
+          "maxOffset": 1.1189799392505826,
+          "end": {
+            "x": -57.67009538593234,
+            "y": 0.43999282963476344,
+            "z": -8.914999122686579
+          },
+          "active": false
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 315 degrees",
+          "pass": true,
+          "maxOffset": 0.3827331014453717,
+          "end": {
+            "x": -57.50329780722726,
+            "y": 0.4899909311745194,
+            "z": -8.00615968731219
+          },
+          "active": true
+        }
+      ],
+      "errors": [],
+      "expectedBeforeFailure": true
+    },
+    "after": {
+      "label": "after",
+      "checks": [
+        {
+          "name": "hall-pressure pocket 1, roll direction 0 degrees",
+          "pass": true,
+          "maxOffset": 0.3108704782245817,
+          "end": {
+            "x": -4.539161860080213,
+            "y": 0.5199909310664248,
+            "z": 8.964173834443896
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 45 degrees",
+          "pass": true,
+          "maxOffset": 0.33321019891921094,
+          "end": {
+            "x": -4.603688464644761,
+            "y": 0.5199909312032612,
+            "z": 9.132270895640305
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 90 degrees",
+          "pass": true,
+          "maxOffset": 0.34249629690398353,
+          "end": {
+            "x": -4.7734847324371525,
+            "y": 0.5199909310502909,
+            "z": 9.195103927125958
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 135 degrees",
+          "pass": true,
+          "maxOffset": 0.28936959796664025,
+          "end": {
+            "x": -4.9402453735801055,
+            "y": 0.5199909311839326,
+            "z": 9.131215435429185
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 180 degrees",
+          "pass": true,
+          "maxOffset": 0.3358110835842034,
+          "end": {
+            "x": -5.0027841725313,
+            "y": 0.5199909310648426,
+            "z": 8.960325619706474
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 225 degrees",
+          "pass": true,
+          "maxOffset": 0.3447076809135929,
+          "end": {
+            "x": -4.939885372854569,
+            "y": 0.5199909312129334,
+            "z": 8.794564125907234
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 270 degrees",
+          "pass": true,
+          "maxOffset": 0.29160430147941807,
+          "end": {
+            "x": -4.767394272414184,
+            "y": 0.5199909310885221,
+            "z": 8.730710069045518
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 1, roll direction 315 degrees",
+          "pass": true,
+          "maxOffset": 0.3822976027274116,
+          "end": {
+            "x": -4.603447560438929,
+            "y": 0.5199909311743619,
+            "z": 8.794311126292627
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 0 degrees",
+          "pass": true,
+          "maxOffset": 0.297227419475568,
+          "end": {
+            "x": -2.939115219729602,
+            "y": 0.5199909310923644,
+            "z": 8.962922511769555
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 45 degrees",
+          "pass": true,
+          "maxOffset": 0.33321035963545276,
+          "end": {
+            "x": -3.0036972997550624,
+            "y": 0.5199909312032619,
+            "z": 9.132283222684036
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 90 degrees",
+          "pass": true,
+          "maxOffset": 0.3424986957412776,
+          "end": {
+            "x": -3.173490415959606,
+            "y": 0.5199909310502685,
+            "z": 9.195108596484484
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 135 degrees",
+          "pass": true,
+          "maxOffset": 0.28936959796663675,
+          "end": {
+            "x": -3.340245373580103,
+            "y": 0.5199909311839327,
+            "z": 9.131215435429182
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 180 degrees",
+          "pass": true,
+          "maxOffset": 0.3535872316820895,
+          "end": {
+            "x": -3.4022235860068304,
+            "y": 0.5199909310639279,
+            "z": 8.959964476931006
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 225 degrees",
+          "pass": true,
+          "maxOffset": 0.3447076809135896,
+          "end": {
+            "x": -3.3398853728545657,
+            "y": 0.5199909312129333,
+            "z": 8.794564125907234
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 270 degrees",
+          "pass": true,
+          "maxOffset": 0.2916043014794178,
+          "end": {
+            "x": -3.167394272414187,
+            "y": 0.5199909310885222,
+            "z": 8.730710069045518
+          },
+          "active": true
+        },
+        {
+          "name": "hall-pressure pocket 2, roll direction 315 degrees",
+          "pass": true,
+          "maxOffset": 0.3822976027274166,
+          "end": {
+            "x": -3.0034475604389215,
+            "y": 0.5199909311743619,
+            "z": 8.794311126292623
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 0 degrees",
+          "pass": true,
+          "maxOffset": 0.2972274194755752,
+          "end": {
+            "x": -57.439115219729565,
+            "y": 0.5199909310923644,
+            "z": -7.837077488230444
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 45 degrees",
+          "pass": true,
+          "maxOffset": 0.33321035963545076,
+          "end": {
+            "x": -57.50369729975507,
+            "y": 0.5199909312032619,
+            "z": -7.667716777315965
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 90 degrees",
+          "pass": true,
+          "maxOffset": 0.3424986957412816,
+          "end": {
+            "x": -57.673490415959584,
+            "y": 0.5199909310502685,
+            "z": -7.60489140351552
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 135 degrees",
+          "pass": true,
+          "maxOffset": 0.28936959796665024,
+          "end": {
+            "x": -57.84024537358013,
+            "y": 0.5199909311839327,
+            "z": -7.668784564570822
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 180 degrees",
+          "pass": true,
+          "maxOffset": 0.3358120563237867,
+          "end": {
+            "x": -57.9027764391237,
+            "y": 0.5199909310648544,
+            "z": -7.839686731471177
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 225 degrees",
+          "pass": true,
+          "maxOffset": 0.34470989473202657,
+          "end": {
+            "x": -57.839876533054415,
+            "y": 0.5199909312129329,
+            "z": -8.005448201307008
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 270 degrees",
+          "pass": true,
+          "maxOffset": 0.29160866285731973,
+          "end": {
+            "x": -57.66738511360707,
+            "y": 0.519990931088521,
+            "z": -8.06930140174537
+          },
+          "active": true
+        },
+        {
+          "name": "archive-secret pocket 1, roll direction 315 degrees",
+          "pass": true,
+          "maxOffset": 0.3823051061988615,
+          "end": {
+            "x": -57.50343873121001,
+            "y": 0.5199909311743612,
+            "z": -8.005701206466957
+          },
+          "active": true
+        }
+      ],
+      "errors": [],
+      "expectedBeforeFailure": false
+    },
+    "performance": {
+      "before": {
+        "label": "before",
+        "errors": [],
+        "viewports": [
+          {
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "performance": {
+              "frames": {
+                "median": 17.899999976158142,
+                "p95": 18.5,
+                "max": 18.899999976158142
+              },
+              "updateRenderMs": {
+                "median": 3.6999999284744263,
+                "p95": 6,
+                "max": 7.299999952316284
+              },
+              "render": {
+                "frame": 4369,
+                "calls": 523,
+                "triangles": 1870023,
+                "points": 969,
+                "lines": 0
+              },
+              "memory": {
+                "geometries": 146,
+                "textures": 85
+              },
+              "heap": 179200300,
+              "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+              "dpr": 1,
+              "samples": 180,
+              "conditions": "Fixed court camera, same scene, 45 warm + 180 RAF frames, live player/hearth/physics/puzzles, enemies stunned, shared desktop GPU; mobile viewport is not phone performance."
+            }
+          },
+          {
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "performance": {
+              "frames": {
+                "median": 17.800000071525574,
+                "p95": 18.59999990463257,
+                "max": 18.799999952316284
+              },
+              "updateRenderMs": {
+                "median": 3.6999999284744263,
+                "p95": 6.200000047683716,
+                "max": 7.700000047683716
+              },
+              "render": {
+                "frame": 4294,
+                "calls": 554,
+                "triangles": 1497289,
+                "points": 969,
+                "lines": 0
+              },
+              "memory": {
+                "geometries": 151,
+                "textures": 83
+              },
+              "heap": 169119888,
+              "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+              "dpr": 1,
+              "samples": 180,
+              "conditions": "Fixed court camera, same scene, 45 warm + 180 RAF frames, live player/hearth/physics/puzzles, enemies stunned, shared desktop GPU; mobile viewport is not phone performance."
+            }
+          }
+        ]
+      },
+      "after": {
+        "label": "after",
+        "errors": [],
+        "viewports": [
+          {
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "performance": {
+              "frames": {
+                "median": 17.800000071525574,
+                "p95": 18.600000023841858,
+                "max": 18.800000071525574
+              },
+              "updateRenderMs": {
+                "median": 3.600000023841858,
+                "p95": 6,
+                "max": 6.800000071525574
+              },
+              "render": {
+                "frame": 4354,
+                "calls": 533,
+                "triangles": 1884711,
+                "points": 969,
+                "lines": 0
+              },
+              "memory": {
+                "geometries": 151,
+                "textures": 85
+              },
+              "heap": 199040673,
+              "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+              "dpr": 1,
+              "samples": 180,
+              "conditions": "Fixed court camera, same scene, 45 warm + 180 RAF frames, live player/hearth/physics/puzzles, enemies stunned, shared desktop GPU; mobile viewport is not phone performance."
+            }
+          },
+          {
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "performance": {
+              "frames": {
+                "median": 17.899999976158142,
+                "p95": 18.5,
+                "max": 18.800000071525574
+              },
+              "updateRenderMs": {
+                "median": 3.700000047683716,
+                "p95": 5.899999976158142,
+                "max": 6.599999904632568
+              },
+              "render": {
+                "frame": 4249,
+                "calls": 564,
+                "triangles": 1511977,
+                "points": 969,
+                "lines": 0
+              },
+              "memory": {
+                "geometries": 156,
+                "textures": 83
+              },
+              "heap": 160234711,
+              "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+              "dpr": 1,
+              "samples": 180,
+              "conditions": "Fixed court camera, same scene, 45 warm + 180 RAF frames, live player/hearth/physics/puzzles, enemies stunned, shared desktop GPU; mobile viewport is not phone performance."
+            }
+          }
+        ]
+      }
+    },
+    "nativeInput": {
+      "checks": [
+        {
+          "pass": true,
+          "name": "Mouse native pick of weight 1",
+          "data": {
+            "start": {
+              "x": 666.8984552348676,
+              "y": 539.04518936454
+            },
+            "end": {
+              "x": 684.6017699115044,
+              "y": 419.1799374089958
+            },
+            "player": {
+              "x": -4,
+              "y": 0.96,
+              "z": 12.5
+            },
+            "weight": {
+              "x": -5.200094911691993,
+              "y": 0.439990822463173,
+              "z": 12.500134564250226
+            },
+            "nearby": [
+              {
+                "x": -5.59,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 8.21,
+                "w": 3.039999999999999,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -2.41,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 9.79,
+                "w": 3.039999999999999,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.44,
+                "tag": "pressure-tray-divider"
+              }
+            ]
+          }
+        },
+        {
+          "pass": true,
+          "name": "Pre-release diagnostic",
+          "data": {
+            "held": {
+              "x": -4.800000058276929,
+              "y": 1.049974519720434,
+              "z": 9.000000509826526
+            },
+            "slab": {
+              "x": -4.8,
+              "z": 9
+            },
+            "shielding": false
+          }
+        },
+        {
+          "pass": true,
+          "name": "Mouse release places weight 1 on slab",
+          "data": {
+            "holding": null,
+            "gate": {
+              "id": "hall-pressure",
+              "kind": "pressure",
+              "phase": "locked",
+              "open": 0,
+              "charge": 0,
+              "blocked": true,
+              "plates": [
+                {
+                  "x": -4.8,
+                  "z": 9,
+                  "active": true
+                },
+                {
+                  "x": -3.2,
+                  "z": 9,
+                  "active": false
+                }
+              ],
+              "weights": [
+                {
+                  "id": 535,
+                  "position": {
+                    "x": -4.800423070881689,
+                    "y": 0.519990931033286,
+                    "z": 9.000600132776862
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                },
+                {
+                  "id": 536,
+                  "position": {
+                    "x": -2.8003472974063075,
+                    "y": 0.4399909310637214,
+                    "z": 12.50049021236001
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "pass": true,
+          "name": "Mouse native pick of weight 2",
+          "data": {
+            "start": {
+              "x": 773.0819779908712,
+              "y": 539.0573658105817
+            },
+            "end": {
+              "x": 755.3982300884956,
+              "y": 419.1799343660767
+            },
+            "player": {
+              "x": -4,
+              "y": 0.8599765336818725,
+              "z": 12.5
+            },
+            "weight": {
+              "x": -2.8003472974063075,
+              "y": 0.4399909310637214,
+              "z": 12.50049021236001
+            },
+            "nearby": [
+              {
+                "x": -5.59,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 8.21,
+                "w": 3.039999999999999,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -2.41,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 9.79,
+                "w": 3.039999999999999,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.44,
+                "tag": "pressure-tray-divider"
+              }
+            ]
+          }
+        },
+        {
+          "pass": true,
+          "name": "Pre-release diagnostic",
+          "data": {
+            "held": {
+              "x": -3.1999999417869205,
+              "y": 1.049974519720434,
+              "z": 9.000000509877776
+            },
+            "slab": {
+              "x": -3.2,
+              "z": 9
+            },
+            "shielding": false
+          }
+        },
+        {
+          "pass": true,
+          "name": "Mouse release places weight 2 on slab",
+          "data": {
+            "holding": null,
+            "gate": {
+              "id": "hall-pressure",
+              "kind": "pressure",
+              "phase": "open",
+              "open": 1,
+              "charge": 0.41666666666666663,
+              "blocked": false,
+              "plates": [
+                {
+                  "x": -4.8,
+                  "z": 9,
+                  "active": true
+                },
+                {
+                  "x": -3.2,
+                  "z": 9,
+                  "active": true
+                }
+              ],
+              "weights": [
+                {
+                  "id": 535,
+                  "position": {
+                    "x": -4.800423070881689,
+                    "y": 0.519990931033286,
+                    "z": 9.000600132776862
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                },
+                {
+                  "id": 536,
+                  "position": {
+                    "x": -3.200418255704586,
+                    "y": 0.5199909310302783,
+                    "z": 9.0005938468831
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "pass": true,
+          "name": "Mouse complete double puzzle through real pointer events"
+        },
+        {
+          "pass": true,
+          "name": "1440px viewport has no horizontal overflow"
+        },
+        {
+          "pass": true,
+          "name": "Mouse native pick of weight 1",
+          "data": {
+            "start": {
+              "x": 804.0554293183039,
+              "y": 350.70492573897695
+            },
+            "end": {
+              "x": 720,
+              "y": 419.1799343660767
+            },
+            "player": {
+              "x": -54.7,
+              "y": 0.96,
+              "z": -7.8
+            },
+            "weight": {
+              "x": -55.80034729740633,
+              "y": 0.4399909310637214,
+              "z": -9.799509787639991
+            },
+            "nearby": [
+              {
+                "x": -60,
+                "y": 1.825,
+                "z": -9.9125,
+                "w": 0.8,
+                "h": 3.65,
+                "d": 1.175,
+                "tag": "wall"
+              },
+              {
+                "x": -60,
+                "y": 1.825,
+                "z": -7.0875,
+                "w": 0.8,
+                "h": 3.65,
+                "d": 1.175,
+                "tag": "wall"
+              },
+              {
+                "x": -57.9,
+                "y": 1.75,
+                "z": -11.75,
+                "w": 1.11,
+                "h": 3.5,
+                "d": 1.11,
+                "tag": "pillar"
+              },
+              {
+                "x": -57.9,
+                "y": 1,
+                "z": -5.75,
+                "w": 1.2,
+                "h": 2,
+                "d": 2.2,
+                "tag": "room-furniture"
+              },
+              {
+                "x": -60,
+                "y": 1.45,
+                "z": -7.0875,
+                "w": 0.9,
+                "h": 2.9,
+                "d": 1.175,
+                "tag": "greek-wall-return"
+              },
+              {
+                "x": -60,
+                "y": 1.45,
+                "z": -9.9125,
+                "w": 0.9,
+                "h": 2.9,
+                "d": 1.175,
+                "tag": "greek-wall-return"
+              },
+              {
+                "x": -60,
+                "y": 3.35,
+                "z": -8.5,
+                "w": 1,
+                "h": 0.9,
+                "d": 2.15,
+                "tag": "greek-lintel"
+              },
+              {
+                "x": -60,
+                "y": 1.45,
+                "z": -8.5,
+                "w": 0.3,
+                "h": 2.9,
+                "d": 1.65,
+                "tag": "gate-archive-secret"
+              },
+              {
+                "x": -58.49,
+                "y": 0.22,
+                "z": -7.8,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -57.7,
+                "y": 0.22,
+                "z": -8.59,
+                "w": 1.44,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -56.910000000000004,
+                "y": 0.22,
+                "z": -7.8,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -57.7,
+                "y": 0.22,
+                "z": -7.01,
+                "w": 1.44,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              }
+            ]
+          }
+        },
+        {
+          "pass": true,
+          "name": "Pre-release diagnostic",
+          "data": {
+            "held": {
+              "x": -57.699999851689384,
+              "y": 1.0499740150743988,
+              "z": -7.800000156106652
+            },
+            "slab": {
+              "x": -57.7,
+              "z": -7.8
+            },
+            "shielding": false
+          }
+        },
+        {
+          "pass": true,
+          "name": "Mouse release places weight 1 on slab",
+          "data": {
+            "holding": null,
+            "gate": {
+              "id": "archive-secret",
+              "kind": "pressure",
+              "phase": "open",
+              "open": 1,
+              "charge": 0.41666666666666663,
+              "blocked": false,
+              "plates": [
+                {
+                  "x": -57.7,
+                  "z": -7.8,
+                  "active": true
+                }
+              ],
+              "weights": [
+                {
+                  "id": 537,
+                  "position": {
+                    "x": -57.70041972092238,
+                    "y": 0.5199909310307035,
+                    "z": -7.799406819354477
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "pass": true,
+          "name": "Mouse complete single puzzle through real pointer events"
+        },
+        {
+          "pass": true,
+          "name": "1440px viewport has no horizontal overflow"
+        },
+        {
+          "pass": true,
+          "name": "Touch native pick of weight 1",
+          "data": {
+            "start": {
+              "x": 172.7125638249724,
+              "y": 438.38777981934567
+            },
+            "end": {
+              "x": 180.14285714285714,
+              "y": 388.0786656625304
+            },
+            "player": {
+              "x": -4,
+              "y": 0.96,
+              "z": 12.5
+            },
+            "weight": {
+              "x": -5.200092717116872,
+              "y": 0.43999077958120136,
+              "z": 12.500131471775086
+            },
+            "nearby": [
+              {
+                "x": -5.59,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 8.21,
+                "w": 3.039999999999999,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -2.41,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 9.79,
+                "w": 3.039999999999999,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.44,
+                "tag": "pressure-tray-divider"
+              }
+            ]
+          }
+        },
+        {
+          "pass": true,
+          "name": "Pre-release diagnostic",
+          "data": {
+            "held": {
+              "x": -4.800000137857404,
+              "y": 1.049975713494403,
+              "z": 9.000001206015227
+            },
+            "slab": {
+              "x": -4.8,
+              "z": 9
+            },
+            "shielding": false
+          }
+        },
+        {
+          "pass": true,
+          "name": "Touch release places weight 1 on slab",
+          "data": {
+            "holding": null,
+            "gate": {
+              "id": "hall-pressure",
+              "kind": "pressure",
+              "phase": "locked",
+              "open": 0,
+              "charge": 0,
+              "blocked": true,
+              "plates": [
+                {
+                  "x": -4.8,
+                  "z": 9,
+                  "active": true
+                },
+                {
+                  "x": -3.2,
+                  "z": 9,
+                  "active": false
+                }
+              ],
+              "weights": [
+                {
+                  "id": 535,
+                  "position": {
+                    "x": -4.800420472013774,
+                    "y": 0.5199909310324897,
+                    "z": 9.00059840618843
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                },
+                {
+                  "id": 536,
+                  "position": {
+                    "x": -2.8003451027451924,
+                    "y": 0.4399909310637212,
+                    "z": 12.50048711976622
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "pass": true,
+          "name": "Touch native pick of weight 2",
+          "data": {
+            "start": {
+              "x": 217.27930523473216,
+              "y": 438.3928899416956
+            },
+            "end": {
+              "x": 209.85714285714286,
+              "y": 388.07866388107624
+            },
+            "player": {
+              "x": -4,
+              "y": 0.8599765336818725,
+              "z": 12.5
+            },
+            "weight": {
+              "x": -2.8003451027451924,
+              "y": 0.4399909310637212,
+              "z": 12.50048711976622
+            },
+            "nearby": [
+              {
+                "x": -5.59,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 8.21,
+                "w": 3.039999999999999,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -2.41,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 9.79,
+                "w": 3.039999999999999,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -4,
+                "y": 0.22,
+                "z": 9,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.44,
+                "tag": "pressure-tray-divider"
+              }
+            ]
+          }
+        },
+        {
+          "pass": true,
+          "name": "Pre-release diagnostic",
+          "data": {
+            "held": {
+              "x": -3.1999998622942605,
+              "y": 1.049975713494403,
+              "z": 9.000001206139123
+            },
+            "slab": {
+              "x": -3.2,
+              "z": 9
+            },
+            "shielding": false
+          }
+        },
+        {
+          "pass": true,
+          "name": "Touch release places weight 2 on slab",
+          "data": {
+            "holding": null,
+            "gate": {
+              "id": "hall-pressure",
+              "kind": "pressure",
+              "phase": "open",
+              "open": 1,
+              "charge": 0.41666666666666663,
+              "blocked": false,
+              "plates": [
+                {
+                  "x": -4.8,
+                  "z": 9,
+                  "active": true
+                },
+                {
+                  "x": -3.2,
+                  "z": 9,
+                  "active": true
+                }
+              ],
+              "weights": [
+                {
+                  "id": 535,
+                  "position": {
+                    "x": -4.800420472013774,
+                    "y": 0.5199909310324897,
+                    "z": 9.00059840618843
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                },
+                {
+                  "id": 536,
+                  "position": {
+                    "x": -3.2004152464700355,
+                    "y": 0.5199909310294812,
+                    "z": 9.000592027957683
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "pass": true,
+          "name": "Touch complete double puzzle through real pointer events"
+        },
+        {
+          "pass": true,
+          "name": "390px viewport has no horizontal overflow"
+        },
+        {
+          "pass": true,
+          "name": "Touch native pick of weight 1",
+          "data": {
+            "start": {
+              "x": 230.2793052347317,
+              "y": 359.33868009449924
+            },
+            "end": {
+              "x": 195,
+              "y": 388.0786638810762
+            },
+            "player": {
+              "x": -54.7,
+              "y": 0.96,
+              "z": -7.8
+            },
+            "weight": {
+              "x": -55.80034510274522,
+              "y": 0.4399909310637212,
+              "z": -9.799512880233781
+            },
+            "nearby": [
+              {
+                "x": -60,
+                "y": 1.825,
+                "z": -9.9125,
+                "w": 0.8,
+                "h": 3.65,
+                "d": 1.175,
+                "tag": "wall"
+              },
+              {
+                "x": -60,
+                "y": 1.825,
+                "z": -7.0875,
+                "w": 0.8,
+                "h": 3.65,
+                "d": 1.175,
+                "tag": "wall"
+              },
+              {
+                "x": -57.9,
+                "y": 1.75,
+                "z": -11.75,
+                "w": 1.11,
+                "h": 3.5,
+                "d": 1.11,
+                "tag": "pillar"
+              },
+              {
+                "x": -57.9,
+                "y": 1,
+                "z": -5.75,
+                "w": 1.2,
+                "h": 2,
+                "d": 2.2,
+                "tag": "room-furniture"
+              },
+              {
+                "x": -60,
+                "y": 1.45,
+                "z": -7.0875,
+                "w": 0.9,
+                "h": 2.9,
+                "d": 1.175,
+                "tag": "greek-wall-return"
+              },
+              {
+                "x": -60,
+                "y": 1.45,
+                "z": -9.9125,
+                "w": 0.9,
+                "h": 2.9,
+                "d": 1.175,
+                "tag": "greek-wall-return"
+              },
+              {
+                "x": -60,
+                "y": 3.35,
+                "z": -8.5,
+                "w": 1,
+                "h": 0.9,
+                "d": 2.15,
+                "tag": "greek-lintel"
+              },
+              {
+                "x": -60,
+                "y": 1.45,
+                "z": -8.5,
+                "w": 0.3,
+                "h": 2.9,
+                "d": 1.65,
+                "tag": "gate-archive-secret"
+              },
+              {
+                "x": -58.49,
+                "y": 0.22,
+                "z": -7.8,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -57.7,
+                "y": 0.22,
+                "z": -8.59,
+                "w": 1.44,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -56.910000000000004,
+                "y": 0.22,
+                "z": -7.8,
+                "w": 0.14,
+                "h": 0.28,
+                "d": 1.72,
+                "tag": "pressure-tray-rim"
+              },
+              {
+                "x": -57.7,
+                "y": 0.22,
+                "z": -7.01,
+                "w": 1.44,
+                "h": 0.28,
+                "d": 0.14,
+                "tag": "pressure-tray-rim"
+              }
+            ]
+          }
+        },
+        {
+          "pass": true,
+          "name": "Pre-release diagnostic",
+          "data": {
+            "held": {
+              "x": -57.699999649174906,
+              "y": 1.049974519720434,
+              "z": -7.8000003692673845
+            },
+            "slab": {
+              "x": -57.7,
+              "z": -7.8
+            },
+            "shielding": false
+          }
+        },
+        {
+          "pass": true,
+          "name": "Touch release places weight 1 on slab",
+          "data": {
+            "holding": null,
+            "gate": {
+              "id": "archive-secret",
+              "kind": "pressure",
+              "phase": "open",
+              "open": 1,
+              "charge": 0.41666666666666663,
+              "blocked": false,
+              "plates": [
+                {
+                  "x": -57.7,
+                  "z": -7.8,
+                  "active": true
+                }
+              ],
+              "weights": [
+                {
+                  "id": 537,
+                  "position": {
+                    "x": -57.70041805721641,
+                    "y": 0.5199909310302996,
+                    "z": -7.799409355177375
+                  },
+                  "recoveries": 0,
+                  "hp": 1000000
+                }
+              ]
+            }
+          }
+        },
+        {
+          "pass": true,
+          "name": "Touch complete single puzzle through real pointer events"
+        },
+        {
+          "pass": true,
+          "name": "390px viewport has no horizontal overflow"
+        },
+        {
+          "pass": true,
+          "name": "No browser errors",
+          "data": []
+        }
+      ],
+      "errors": []
+    },
+    "mechanics": {
+      "checks": [
+        {
+          "pass": true,
+          "name": "All three doors begin physically and navigationally closed",
+          "data": [
+            {
+              "id": "hall-pressure",
+              "blocked": true,
+              "body": true,
+              "phase": "locked",
+              "weights": 2
+            },
+            {
+              "id": "crypt-fire",
+              "blocked": true,
+              "body": true,
+              "phase": "locked",
+              "weights": 0
+            },
+            {
+              "id": "archive-secret",
+              "blocked": true,
+              "body": true,
+              "phase": "locked",
+              "weights": 1
+            }
+          ]
+        },
+        {
+          "pass": true,
+          "name": "Wizard cannot walk through leaf or either wall return",
+          "data": [
+            {
+              "x": -10,
+              "z": 5.8785644099720225
+            },
+            {
+              "x": -5,
+              "z": 5.878452558148921
+            },
+            {
+              "x": 0,
+              "z": 5.578564409972023
+            },
+            {
+              "x": 5,
+              "z": 5.8785644099720225
+            },
+            {
+              "x": 10,
+              "z": 5.8785644099720225
+            }
+          ]
+        },
+        {
+          "pass": true,
+          "name": "Two resting weights open both leaves; held weight cannot cheat; both nav grids and physics refresh",
+          "data": {
+            "one": "locked",
+            "held": true,
+            "heldPhase": "locked",
+            "final": "open",
+            "nav": true,
+            "goliathNav": true,
+            "removedBody": true,
+            "parked": 2,
+            "positions": [
+              {
+                "x": -4.800368346141896,
+                "y": 0.5199909310637247,
+                "z": 9.00052070777469
+              },
+              {
+                "x": -3.200368346141896,
+                "y": 0.5199909310637247,
+                "z": 9.00052070777469
+              }
+            ],
+            "snapshot": [
+              {
+                "id": "hall-pressure",
+                "kind": "pressure",
+                "phase": "open",
+                "open": 1,
+                "charge": 0.41666666666666663,
+                "blocked": false,
+                "plates": [
+                  {
+                    "x": -4.8,
+                    "z": 9,
+                    "active": true
+                  },
+                  {
+                    "x": -3.2,
+                    "z": 9,
+                    "active": true
+                  }
+                ],
+                "weights": [
+                  {
+                    "id": 535,
+                    "position": {
+                      "x": -4.800368346141896,
+                      "y": 0.5199909310637247,
+                      "z": 9.00052070777469
+                    },
+                    "recoveries": 0,
+                    "hp": 1000000
+                  },
+                  {
+                    "id": 536,
+                    "position": {
+                      "x": -3.200368346141896,
+                      "y": 0.5199909310637247,
+                      "z": 9.00052070777469
+                    },
+                    "recoveries": 0,
+                    "hp": 1000000
+                  }
+                ]
+              },
+              {
+                "id": "crypt-fire",
+                "kind": "fire",
+                "phase": "locked",
+                "open": 0,
+                "charge": 0,
+                "blocked": true,
+                "plates": [],
+                "weights": []
+              },
+              {
+                "id": "archive-secret",
+                "kind": "pressure",
+                "phase": "locked",
+                "open": 0,
+                "charge": 0,
+                "blocked": true,
+                "plates": [
+                  {
+                    "x": -57.7,
+                    "z": -7.8,
+                    "active": false
+                  }
+                ],
+                "weights": [
+                  {
+                    "id": 537,
+                    "position": {
+                      "x": -55.80034729740633,
+                      "y": 0.4399909310637214,
+                      "z": -9.799509787639991
+                    },
+                    "recoveries": 0,
+                    "hp": 1000000
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "pass": true,
+          "name": "Puzzle weights survive charged grab, high-speed impact and damage; falling weight recovers; gate stays open",
+          "data": {
+            "grabbed": true,
+            "intact": true,
+            "recovered": true,
+            "hp": 1000000,
+            "open": "open",
+            "position": {
+              "x": -5.2,
+              "y": 0.55,
+              "z": 12.5
+            },
+            "recoveries": 1
+          }
+        },
+        {
+          "pass": true,
+          "name": "Wizard walks through the opened gate without an invisible collider",
+          "data": {
+            "x": 0,
+            "y": 0.8599765336818725,
+            "z": -1.0179540311181081
+          }
+        },
+        {
+          "pass": true,
+          "name": "Secret single gate opens from its one pressure plate",
+          "data": {
+            "phase": "open",
+            "nav": true,
+            "physical": false
+          }
+        },
+        {
+          "pass": true,
+          "name": "Only actual HEARTH nozzle fire burns the wooden gate after charge and boarding",
+          "data": {
+            "wizard": "locked",
+            "charge": true,
+            "awake": "ready",
+            "board": true,
+            "mounted": true,
+            "state": "piloted",
+            "phase": "open",
+            "heat": 2.5,
+            "nav": true,
+            "streams": [
+              {
+                "origin": {
+                  "x": -0.8209269772309693,
+                  "y": 1.9646999753806138,
+                  "z": -9.336922386802291
+                },
+                "direction": {
+                  "x": -0.9999772747107979,
+                  "y": -0.3387735558725187,
+                  "z": -0.006741666112008662
+                },
+                "length": 5.700000000000003
+              },
+              {
+                "origin": {
+                  "x": -1.3246126311270203,
+                  "y": 1.9646405364014068,
+                  "z": -7.160223297076647
+                },
+                "direction": {
+                  "x": -0.9017777853418679,
+                  "y": -0.33884707512855056,
+                  "z": -0.43219998364636264
+                },
+                "length": 5.700000000000003
+              }
+            ],
+            "snapshot": {
+              "state": "piloted",
+              "fuel": 100,
+              "endless": true,
+              "stompCooldown": 0,
+              "room": "watchtower",
+              "roomLabel": "Φυλάκιο",
+              "x": 0,
+              "z": -8,
+              "yaw": 4.448702473693895,
+              "aimYaw": 4.48484521487997,
+              "stompTime": 0,
+              "clip": "Fire",
+              "firing": true,
+              "occupied": true
+            }
+          }
+        },
+        {
+          "pass": true,
+          "name": "HEARTH crosses open gate, dismounts and can reboard",
+          "data": {
+            "crossed": true,
+            "exit": true,
+            "dismounted": true,
+            "reboard": true,
+            "position": {
+              "x": 0,
+              "y": 1.2198461467092037,
+              "z": -17.369244425868896
+            },
+            "rise": 0.0800000953674318,
+            "contacts": [
+              {
+                "position": {
+                  "x": 0,
+                  "y": -0.3,
+                  "z": -20.625
+                },
+                "shapes": [
+                  {
+                    "halfExtents": {
+                      "x": 8.75,
+                      "y": 0.3,
+                      "z": 8.125
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "pass": true,
+          "name": "Piloted HEARTH passes the shared tray and opened double gate along the central approach",
+          "data": {
+            "mounted": true,
+            "position": {
+              "x": 0,
+              "y": 1.219846146709204,
+              "z": 2.6672653233227037
+            }
+          }
+        },
+        {
+          "pass": true,
+          "name": "No runtime or shader errors",
+          "data": []
+        }
+      ],
+      "errors": []
+    },
+    "routes": {
+      "checks": [
+        {
+          "pass": true,
+          "name": "All 13 random HEARTH spawn rooms are physically reachable without burning the wood gate",
+          "data": {
+            "rooms": [
+              {
+                "room": "hall",
+                "candidates": 60,
+                "unreachable": []
+              },
+              {
+                "room": "crypt",
+                "candidates": 26,
+                "unreachable": []
+              },
+              {
+                "room": "armoury",
+                "candidates": 72,
+                "unreachable": []
+              },
+              {
+                "room": "barracks",
+                "candidates": 65,
+                "unreachable": []
+              },
+              {
+                "room": "prison",
+                "candidates": 40,
+                "unreachable": []
+              },
+              {
+                "room": "ritual",
+                "candidates": 50,
+                "unreachable": []
+              },
+              {
+                "room": "library",
+                "candidates": 57,
+                "unreachable": []
+              },
+              {
+                "room": "forge",
+                "candidates": 56,
+                "unreachable": []
+              },
+              {
+                "room": "catacombs",
+                "candidates": 47,
+                "unreachable": []
+              },
+              {
+                "room": "sanctum",
+                "candidates": 80,
+                "unreachable": []
+              },
+              {
+                "room": "gallery",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "watchtower",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "gatehouse",
+                "candidates": 46,
+                "unreachable": []
+              }
+            ],
+            "pressureOpen": "locked",
+            "fireLocked": true,
+            "workerRemoved": true,
+            "parkedSeen": true,
+            "reset": true,
+            "weights": 3
+          }
+        },
+        {
+          "pass": true,
+          "name": "Trajectory snapshot removes the open door and includes parked leaves",
+          "data": {
+            "rooms": [
+              {
+                "room": "hall",
+                "candidates": 60,
+                "unreachable": []
+              },
+              {
+                "room": "crypt",
+                "candidates": 26,
+                "unreachable": []
+              },
+              {
+                "room": "armoury",
+                "candidates": 72,
+                "unreachable": []
+              },
+              {
+                "room": "barracks",
+                "candidates": 65,
+                "unreachable": []
+              },
+              {
+                "room": "prison",
+                "candidates": 40,
+                "unreachable": []
+              },
+              {
+                "room": "ritual",
+                "candidates": 50,
+                "unreachable": []
+              },
+              {
+                "room": "library",
+                "candidates": 57,
+                "unreachable": []
+              },
+              {
+                "room": "forge",
+                "candidates": 56,
+                "unreachable": []
+              },
+              {
+                "room": "catacombs",
+                "candidates": 47,
+                "unreachable": []
+              },
+              {
+                "room": "sanctum",
+                "candidates": 80,
+                "unreachable": []
+              },
+              {
+                "room": "gallery",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "watchtower",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "gatehouse",
+                "candidates": 46,
+                "unreachable": []
+              }
+            ],
+            "pressureOpen": "locked",
+            "fireLocked": true,
+            "workerRemoved": true,
+            "parkedSeen": true,
+            "reset": true,
+            "weights": 3
+          }
+        },
+        {
+          "pass": true,
+          "name": "Restart restores all three doors and exactly three new weights without stale colliders",
+          "data": {
+            "rooms": [
+              {
+                "room": "hall",
+                "candidates": 60,
+                "unreachable": []
+              },
+              {
+                "room": "crypt",
+                "candidates": 26,
+                "unreachable": []
+              },
+              {
+                "room": "armoury",
+                "candidates": 72,
+                "unreachable": []
+              },
+              {
+                "room": "barracks",
+                "candidates": 65,
+                "unreachable": []
+              },
+              {
+                "room": "prison",
+                "candidates": 40,
+                "unreachable": []
+              },
+              {
+                "room": "ritual",
+                "candidates": 50,
+                "unreachable": []
+              },
+              {
+                "room": "library",
+                "candidates": 57,
+                "unreachable": []
+              },
+              {
+                "room": "forge",
+                "candidates": 56,
+                "unreachable": []
+              },
+              {
+                "room": "catacombs",
+                "candidates": 47,
+                "unreachable": []
+              },
+              {
+                "room": "sanctum",
+                "candidates": 80,
+                "unreachable": []
+              },
+              {
+                "room": "gallery",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "watchtower",
+                "candidates": 66,
+                "unreachable": []
+              },
+              {
+                "room": "gatehouse",
+                "candidates": 46,
+                "unreachable": []
+              }
+            ],
+            "pressureOpen": "locked",
+            "fireLocked": true,
+            "workerRemoved": true,
+            "parkedSeen": true,
+            "reset": true,
+            "weights": 3
+          }
+        },
+        {
+          "pass": true,
+          "name": "No runtime errors",
+          "data": []
+        }
+      ],
+      "errors": []
+    },
+    "dimensions": {
+      "double": [
+        3.32,
+        1.72
+      ],
+      "single": [
+        1.72,
+        1.72
+      ],
+      "railTop": 0.36,
+      "postTop": 0.4075
+    },
+    "rollbackCommit": "798b5a347c6a72680b11d7b62f99e5d08474fe89"
   }
 }

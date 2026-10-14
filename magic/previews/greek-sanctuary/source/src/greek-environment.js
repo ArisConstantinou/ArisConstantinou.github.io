@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
-import {GREEK_GATES,plateOccupants,stepGate,weightNeedsRecovery,flameReachesGate} from './greek-puzzle-rules.js';
+import {GREEK_GATES,pressureTray,plateOccupants,stepGate,weightNeedsRecovery,flameReachesGate} from './greek-puzzle-rules.js';
 import {segmentBox} from './systems.js';
 import {siegeSurface} from './siege-environment.js';
 
@@ -23,7 +23,7 @@ function patina(m){
 export async function loadGreekAssets(){
  if(!greekEnabled)return;
  const loader=new GLTFLoader(),base=new URL('greek-sanctuary/',document.baseURI);
- await Promise.all(['column','entablature','bronze-leaf','wood-leaf','weight','plate','shield'].map(async id=>{
+ await Promise.all(['column','entablature','bronze-leaf','wood-leaf','weight','plate','single-tray','double-tray','shield'].map(async id=>{
   const {scene}=await loader.loadAsync(new URL(id+'.glb',base).href);
   scene.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true;o.material.side=THREE.FrontSide;patina(o.material);}});templates.set(id,scene);
  }));
@@ -106,7 +106,9 @@ function portal(root,colliders,spec,occluders){
   pivot.position.x=i===0?-width/2:width/2;pivot.add(leaf);doors.add(pivot);leaves.push(pivot);
   if(spec.kind==='fire')leaf.traverse(o=>{if(o.isMesh){o.material=o.material.clone();o.material.userData.baseColor=o.material.color.clone();}});
  }
- const plates=spec.plates.map(p=>{const g=clone('plate');g.position.set(p.x,.025,p.z);root.add(g);const lamp=new THREE.Mesh(new THREE.RingGeometry(.47,.51,48),new THREE.MeshStandardMaterial({color:0x93652f,emissive:0x2c1907,emissiveIntensity:.3,metalness:.6,roughness:.4}));lamp.rotation.x=-Math.PI/2;lamp.position.set(p.x,.09,p.z);root.add(lamp);return {g,lamp};});
+ const tray=pressureTray(spec.plates);
+ if(tray){const g=clone(tray.asset);g.name=spec.id+' · shared retaining tray';g.position.set(tray.x,0,tray.z);root.add(g);}
+ const plates=spec.plates.map(p=>{const g=clone('plate');g.position.set(p.x,.06,p.z);root.add(g);const lamp=new THREE.Mesh(new THREE.RingGeometry(.47,.51,48),new THREE.MeshStandardMaterial({color:0x93652f,emissive:0x2c1907,emissiveIntensity:.3,metalness:.6,roughness:.4}));lamp.rotation.x=-Math.PI/2;lamp.position.set(p.x,.115,p.z);root.add(lamp);return {g,lamp};});
  for(const group of [frame,doors])group.traverse(o=>{if(o.isMesh){o.material=o.material.clone();occluders.push(o);}});
  return {...spec,blocker,leaves,platesVisual:plates,phase:'locked',open:0,charge:0,unblocked:false,weights:[],parked:[]};
 }
@@ -124,7 +126,7 @@ export function addGreekArchitecture(world){
 export function createGreekPuzzles({architecture,world,physics,staticBox,navs,spawn,getHeld,releaseHeld,toast,fx}){
  if(!architecture)return null;
  const gates=architecture.gates;
- for(const g of gates)for(const p of g.plates)staticBox({x:p.x,y:.025,z:p.z,w:1.35,h:.05,d:1.35,tag:'pressure-slab'},true);
+ for(const g of gates)for(const b of pressureTray(g.plates)?.fixtures||[]){staticBox(b,!!b.floor);if(!b.floor)world.colliders.push(b);}
  const refresh=()=>navs().forEach(n=>n?.setObstacles(world.colliders));
  function setBlocking(g,blocked){
   const i=world.colliders.indexOf(g.blocker);
@@ -148,7 +150,7 @@ export function createGreekPuzzles({architecture,world,physics,staticBox,navs,sp
     if(weightNeedsRecovery(e,world.floors,g.unblocked?null:e.spawn)||e.stranded>3){recover(e,g);e.stranded=0;}
    }
    const occupied=plateOccupants(g.plates,gates.flatMap(g=>g.weights),getHeld());
-   g.platesVisual.forEach((p,i)=>{const active=!!occupied[i];p.g.position.y=active?-.005:.025;p.lamp.material.emissive.setHex(active?0x46cbb8:0x2c1907);p.lamp.material.emissiveIntensity=active?1.3:.3;});
+   g.platesVisual.forEach((p,i)=>{const active=!!occupied[i];p.g.position.y=active?.03:.06;p.lamp.position.y=active?.085:.115;p.lamp.material.emissive.setHex(active?0x46cbb8:0x2c1907);p.lamp.material.emissiveIntensity=active?1.3:.3;});
    const previous=g.phase;stepGate(g,dt,{occupied,heat:g.kind==='fire'&&flameReachesGate(engine,g,segmentBox,world.colliders)});
    if(previous==='locked'&&g.phase==='opening')toast(g.kind==='fire'?'Το ενισχυμένο ξύλο υποχωρεί στη φλόγα του HEARTH.':'Οι πλάκες ασφάλισαν. Η πύλη ανοίγει.','info');
    const a=g.open*g.open*(3-2*g.open)*Math.PI/2;
@@ -164,7 +166,7 @@ export function createGreekPuzzles({architecture,world,physics,staticBox,navs,sp
     }
     setBlocking(g,false);
    }
-   if(player&&!g.hinted&&Math.hypot(player.body.position.x-g.x,player.body.position.z-g.z)<7){g.hinted=true;toast(g.kind==='fire'?'Ενισχυμένη ξύλινη πύλη · άνοιξέ τη με τα φλογοβόλα του HEARTH.':g.secret?'Μία σιωπηλή πλάκα κρύβει ένα πέρασμα.':'Δύο πλάκες · δύο άφθαρτα βάρη. Τοποθέτησέ τα με τηλεκίνηση.','info');}
+   if(player&&!g.hinted&&Math.hypot(player.body.position.x-g.x,player.body.position.z-g.z)<7){g.hinted=true;toast(g.kind==='fire'?'Ενισχυμένη ξύλινη πύλη · άνοιξέ τη με τα φλογοβόλα του HEARTH.':g.secret?'Μία σιωπηλή πλάκα κρύβει ένα πέρασμα.':'Ενιαία διπλή βάση · ένα άφθαρτο βάρος σε κάθε θέση με τηλεκίνηση.','info');}
   }
  }
  function aimTargets(engine){

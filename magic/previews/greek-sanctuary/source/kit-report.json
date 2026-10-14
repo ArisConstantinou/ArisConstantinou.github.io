@@ -25,9 +25,19 @@
     "triangles": 6180
   },
   "plate": {
-    "bytes": 199416,
+    "bytes": 199352,
     "meshes": 3,
     "triangles": 2808
+  },
+  "single-tray": {
+    "bytes": 337576,
+    "meshes": 5,
+    "triangles": 4752
+  },
+  "double-tray": {
+    "bytes": 518996,
+    "meshes": 5,
+    "triangles": 7344
   },
   "shield": {
     "bytes": 127584,
