@@ -1,0 +1,65 @@
+name: Reset Show v4 live verification
+on:
+  push:
+    paths: ['.github/workflows/funny-live-v4.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Load public page and exercise the reaction
+        run: |
+          mkdir -p artifacts
+          python - <<'PY'
+          import json,time,traceback,urllib.request
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          base='https://arisconstantinou.github.io/funny/'
+          stamp=str(int(time.time()))
+          for resource in ['', 'assets/tibo.webp', 'assets/sam.webp']:
+            try:
+              with urllib.request.urlopen(base+resource+'?verify='+stamp,timeout=20) as r:
+                data=r.read();print('HTTP',resource or 'index',r.status,r.headers.get('Content-Type'),len(data),repr(data[:35]),flush=True)
+            except Exception as e: print('HTTP exception',resource,repr(e),flush=True)
+          results={'page_errors':[],'responses':[]}
+          with sync_playwright() as p:
+            b=p.chromium.launch()
+            page=b.new_page(viewport={'width':1440,'height':1050},reduced_motion='reduce')
+            page.on('pageerror',lambda e:results['page_errors'].append(str(e)))
+            page.on('response',lambda r:results['responses'].append([r.url,r.status]))
+            try:
+              r=page.goto(base+'?verify='+stamp,wait_until='networkidle',timeout=30000)
+              results.update({'url':page.url,'http':r.status,'version':page.evaluate('window.RESET_GAME?.version'),'images':page.locator('img').evaluate_all('els=>els.map(e=>({src:e.src,complete:e.complete,width:e.naturalWidth}))')})
+              print(json.dumps(results),flush=True)
+              page.screenshot(path='artifacts/live-before.png',full_page=True)
+              assert results['version']=='4.0.0','Wrong runtime'
+              assert all(x['width']>0 for x in results['images']),'One or more images failed'
+              page.click('#start');page.click('#answers button[data-index="1"]');page.click('#lock')
+              page.wait_for_function('document.getElementById("samWord").textContent==="Shhhhhhh"')
+              assert page.locator('#stage').get_attribute('data-mood')=='win','Not in winning state'
+              assert page.locator('#playing a,dialog').count()==0,'Unexpected links/dialog in play'
+              page.screenshot(path='artifacts/live-v4-desktop.png',full_page=True)
+              mobile=b.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True,reduced_motion='reduce')
+              mp=mobile.new_page();mp.goto(base+'?verify='+stamp,wait_until='networkidle');mp.click('#start');mp.tap('#answers button[data-index="1"]');mp.tap('#lock');mp.wait_for_function('document.getElementById("samWord").textContent==="Shhhhhhh"');mp.screenshot(path='artifacts/live-v4-mobile.png',full_page=True);mp.tap('#dockNext');assert 'QUESTION 02' in mp.locator('#round').inner_text()
+              results['live_verified']=True
+              print('LIVE VERIFIED: users host, Tibo plays, selfish answer wins, Sam shushes, mobile next works.',flush=True)
+            except Exception:
+              results['failure']=traceback.format_exc();print(results['failure'],flush=True);raise
+            finally:
+              Path('artifacts/live-v4.json').write_text(json.dumps(results,indent=2));b.close()
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reset-show-v4-live
+          path: artifacts/
+          retention-days: 30
