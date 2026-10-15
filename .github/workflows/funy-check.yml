@@ -33,11 +33,12 @@ jobs:
           python - <<'PY'
           import os,json,time,threading,functools,zipfile
           from pathlib import Path
+          from urllib.parse import urlparse
           from http.server import ThreadingHTTPServer,SimpleHTTPRequestHandler
           from playwright.sync_api import sync_playwright
           server=ThreadingHTTPServer(('127.0.0.1',8765),functools.partial(SimpleHTTPRequestHandler,directory=os.getcwd()))
           threading.Thread(target=server.serve_forever,daemon=True).start()
-          base='http://127.0.0.1:8765/funy/'
+          base='http://127.0.0.1:8765/funny/'
           out=Path('artifacts'); errors=[]; checks=[]
           def log(s): checks.append(s);print(s,flush=True)
           with sync_playwright() as p:
@@ -45,8 +46,11 @@ jobs:
             context=browser.new_context(viewport={'width':1440,'height':1050},reduced_motion='reduce',timezone_id='Asia/Nicosia')
             page=context.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
             page.goto(base);page.wait_for_selector('#startBtn');page.wait_for_timeout(300)
+            assert urlparse(page.url).path=='/funny/'
+            assert page.locator('link[rel="canonical"]').get_attribute('href')=='https://arisconstantinou.github.io/funny/'
             assert page.locator('#ladderList li').count()==15
             assert page.evaluate('window.RESET_SHOW.episodes.length')==15
+            log('Direct /funny/ entry without redirect: passed')
             page.screenshot(path=str(out/'desktop-title.png'),full_page=True)
             page.click('#pixelBtn');page.screenshot(path=str(out/'desktop-smooth.png'),full_page=True);page.click('#pixelBtn')
             page.click('#receiptsBtn');assert page.locator('.source-card').count()==15
@@ -98,7 +102,6 @@ jobs:
             page.reload();page.click('#resumeBtn');answer(0);page.click('#nextBtn');page.click('#replayBtn')
             assert 'ROUND 06' in page.locator('#roundLabel').inner_text()
             log('Checkpoint recovery to round 6: passed')
-            # Keyboard and decorative reset must not erase game state.
             before=page.locator('#roundLabel').inner_text();page.click('#resetProp');assert page.locator('#roundLabel').inner_text()==before
             page.keyboard.press('D');page.keyboard.press('Enter');page.wait_for_selector('#nextBtn',state='visible')
             assert page.locator('#answers button.correct').count()==1
@@ -109,33 +112,35 @@ jobs:
             log('Responsive overflow checks at five widths: passed')
             mobile=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True,reduced_motion='reduce',timezone_id='Asia/Nicosia')
             mp=mobile.new_page();mp.on('pageerror',lambda e:errors.append(str(e)));mp.goto(base);mp.wait_for_timeout(300)
+            assert urlparse(mp.url).path=='/funny/'
             mp.screenshot(path=str(out/'mobile-title.png'),full_page=True);mp.tap('#startBtn')
             mp.screenshot(path=str(out/'mobile-question.png'),full_page=True)
             mp.tap('#readRound');assert mp.locator('#receiptDialog').is_visible();mp.tap('#closeDialog')
             log('Mobile touch and sources: passed')
-            # Try the public Pages URL after its normal deployment interval.
-            live='https://arisconstantinou.github.io/funy/'
+            live='https://arisconstantinou.github.io/funny/'
             live_ok=False
-            for attempt in range(8):
+            for attempt in range(12):
               try:
-                response=page.goto(live+'?qa=2.0.0',wait_until='networkidle',timeout=25000)
-                if response and response.status==200 and page.locator('#startBtn').count() and page.evaluate('window.RESET_SHOW?.version')=='2.0.0':
+                response=page.goto(live+'?qa=funny-direct-'+str(time.time_ns()),wait_until='networkidle',timeout=25000)
+                if response and response.status==200 and urlparse(page.url).path=='/funny/' and page.locator('#startBtn').count() and page.evaluate('window.RESET_SHOW?.version')=='2.0.0':
+                  assert page.locator('link[rel="canonical"]').get_attribute('href')==live
                   live_ok=True;page.screenshot(path=str(out/'live-desktop.png'),full_page=True);break
               except Exception as e: print('Live check retry:',str(e)[:180])
               time.sleep(12)
-            log('Live GitHub Pages HTTP 200 and v2 runtime: '+('passed' if live_ok else 'not yet verified'))
+            log('Live /funny/ HTTP 200, no redirect and v2 runtime: '+('passed' if live_ok else 'not yet verified'))
             if live_ok:
-              page.goto('https://arisconstantinou.github.io/funny/',wait_until='networkidle',timeout=30000)
-              assert '/funy/' in page.url and page.locator('#startBtn').count()
-              log('Correctly-spelled /funny/ alias: passed')
+              page.goto('https://arisconstantinou.github.io/funy/',wait_until='networkidle',timeout=30000)
+              assert page.locator('#startBtn').count()
+              log('Original /funy/ URL remains playable: passed')
             browser.close()
           (out/'test-results.json').write_text(json.dumps({'checks':checks,'page_errors':errors,'live_verified':live_ok},indent=2))
           assert not errors,errors
+          assert live_ok,'The direct public /funny/ page was not verified within the deployment window.'
           with zipfile.ZipFile(out/'reset-show-v2.zip','w',zipfile.ZIP_DEFLATED) as z:
             for folder in ['funy','funny']:
               for f in Path(folder).rglob('*'):
                 if f.is_file():z.write(f,str(f))
-            z.writestr('README.txt','THE RESET SHOW v2.0.0\nOpen funy/index.html in a modern browser or serve the folder. No build or API key. Edit episodes.js to change questions and sources; studio.css for styling; show.js for gameplay and the procedural character. All dialogue is fictional satire. Sources are reviewed as of 15 October 2026.\n')
+            z.writestr('README.txt','THE RESET SHOW v2.0.0\nOpen funny/index.html in a modern browser or serve the folder. Keep both funny/ and funy/: shared assets live in funy/. No build or API key. Edit funy/episodes.js to change questions and sources; funy/studio.css for styling; funy/show.js for gameplay and the procedural character. All dialogue is fictional satire. Sources are a snapshot dated 15 October 2026.\n')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
