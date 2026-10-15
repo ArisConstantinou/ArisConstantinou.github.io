@@ -1,0 +1,482 @@
+{
+  "status": "Connected Greek/Gothic map candidate; full assisted/unassisted campaign validation is separate",
+  "sourceCommit": "0c39034fbaa1129bbb1dbd63bf9e40e6ff28325f",
+  "runtime": {
+    "file": "engine/index-BMOyqea3.js",
+    "sha256": "ad6296560ae203161b4f165a1360aba4efe64a36e4671793e696a7722d82462f",
+    "bytes": 1220095
+  },
+  "previousPublicCommit": "c38497c3582160c435ffbf3c2818b98ef47c4c80",
+  "checks": {
+    "pressure": {
+      "file": "room-puzzle-verification/monument-folded/report.json",
+      "passed": 65,
+      "total": 65,
+      "retainedFailures": []
+    },
+    "temple": {
+      "file": "monument/verification/native/report.json",
+      "passed": 19,
+      "total": 19,
+      "retainedFailures": []
+    },
+    "combat": {
+      "file": "monument/verification/combat/report.json",
+      "passed": 9,
+      "total": 9,
+      "retainedFailures": []
+    },
+    "gait": {
+      "file": "monument/verification/gait/after/report.json",
+      "passed": 7,
+      "total": 7,
+      "retainedFailures": []
+    },
+    "libraryDoor": {
+      "file": "monument/verification/library-door/report.json",
+      "passed": 9,
+      "total": 9,
+      "retainedFailures": []
+    },
+    "clearance": {
+      "file": "clearance-verification/monument-folded/report.json",
+      "passed": 14,
+      "total": 14,
+      "retainedFailures": []
+    },
+    "upper": {
+      "file": "monument/verification/upper-traversal/report.json",
+      "passed": 39,
+      "total": 39,
+      "retainedFailures": []
+    },
+    "wings": {
+      "file": "monument/verification/wings/report.json",
+      "passed": 38,
+      "total": 38,
+      "retainedFailures": []
+    },
+    "fire": {
+      "file": "native-fire-verification/monument-final/report.json",
+      "passed": 14,
+      "total": 14,
+      "retainedFailures": []
+    },
+    "camera": {
+      "file": "camera-verification/monument-final/report.json",
+      "passed": 35,
+      "total": 35,
+      "retainedFailures": []
+    },
+    "walls": {
+      "file": "cutaway-verification/monument-final/report.json",
+      "passed": 10,
+      "total": 12,
+      "retainedFailures": [
+        {
+          "name": "Desktop render fixture p95 stays within 16.7 ms",
+          "pass": false,
+          "data": {
+            "frame": {
+              "median": 17.799999952316284,
+              "p95": 18.40000009536743,
+              "max": 18.800000071525574,
+              "over33ms": 0
+            },
+            "cpu": {
+              "median": 5.200000047683716,
+              "p95": 8.200000047683716,
+              "max": 11.299999952316284,
+              "over33ms": 0
+            },
+            "render": {
+              "frame": 5029,
+              "calls": 928,
+              "triangles": 1421477,
+              "points": 969,
+              "lines": 0
+            },
+            "memory": {
+              "geometries": 908,
+              "textures": 133
+            },
+            "heap": 424185038,
+            "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          }
+        },
+        {
+          "name": "Actual desktop gameplay frame p95 stays within 16.7 ms",
+          "pass": false,
+          "data": {
+            "frame": {
+              "median": 17.700000047683716,
+              "p95": 18.5,
+              "max": 19,
+              "over33ms": 0
+            },
+            "cpu": {
+              "median": 9.099999904632568,
+              "p95": 13.100000023841858,
+              "max": 18.799999952316284,
+              "over33ms": 0
+            },
+            "render": {
+              "frame": 7804,
+              "calls": 938,
+              "triangles": 1444599,
+              "points": 969,
+              "lines": 0
+            },
+            "memory": {
+              "geometries": 912,
+              "textures": 135
+            },
+            "heap": 436859151
+          }
+        }
+      ]
+    },
+    "stairs": {
+      "file": "stair-cutaway-verification/monument-final/report.json",
+      "passed": 12,
+      "total": 13,
+      "retainedFailures": [
+        {
+          "name": "Desktop frame p95 remains below 16.7ms",
+          "pass": false,
+          "data": {
+            "frame": {
+              "median": 17.699999928474426,
+              "p95": 18.5,
+              "max": 18.600000023841858,
+              "over33ms": 0
+            },
+            "cpu": {
+              "median": 5.099999904632568,
+              "p95": 7.699999928474426,
+              "max": 9,
+              "over33ms": 0
+            },
+            "render": {
+              "frame": 8794,
+              "calls": 1040,
+              "triangles": 1854809,
+              "points": 969,
+              "lines": 0
+            },
+            "memory": {
+              "geometries": 1454,
+              "textures": 168
+            },
+            "heap": 513351664,
+            "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          }
+        }
+      ]
+    },
+    "statues": {
+      "file": "statues/verification/monument-final/report.json",
+      "passed": 13,
+      "total": 14,
+      "retainedFailures": [
+        {
+          "name": "Desktop game with marble debris remains below 16.7ms p95",
+          "pass": false,
+          "data": {
+            "p95": 18.399999976158142,
+            "cpuP95": 12.699999928474426,
+            "max": 18.90000009536743,
+            "over33ms": 0,
+            "render": {
+              "frame": 8239,
+              "calls": 1112,
+              "triangles": 2232429,
+              "points": 969,
+              "lines": 66
+            },
+            "memory": {
+              "geometries": 1026,
+              "textures": 136
+            },
+            "fragments": 24,
+            "sleeping": 19,
+            "contacts": 16
+          }
+        }
+      ]
+    }
+  },
+  "rebuild": "15/15",
+  "unitTests": "251/251",
+  "normalClient": {
+    "phase": "playing",
+    "hp": 120
+  },
+  "performance": {
+    "conditions": "Sequential owned Chrome pages,1440x1000 DPR1 high. Full gameplay/physics enabled; player invulnerable for comparison. Completed CPU+GPU timings use gl.finish in back-to-back frames and measure throughput, not delivered FPS. Independent no-work rAF cadence is retained. Three temple fixtures are new area measurements; library baseline/after use the same camera/player coordinates. No physical-phone or VRAM measurement.",
+    "errors": [],
+    "scenes": [
+      {
+        "variant": "architecture",
+        "view": {
+          "id": "library",
+          "x": -51.25,
+          "z": 4.8,
+          "y": 0,
+          "camera": [
+            -51.25,
+            18,
+            22
+          ]
+        },
+        "readyMs": 12068,
+        "runtime": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-DWNROVKa.js",
+        "standingFixtureFree": true,
+        "firstDrawMs": 98.29999995231628,
+        "noWorkCadence": {
+          "median": 17.600000023841858,
+          "p95": 18.399999976158142,
+          "max": 18.600000023841858,
+          "over16_7": 147,
+          "over33": 0
+        },
+        "completedFrame": {
+          "median": 7.099999904632568,
+          "p95": 11.299999952316284,
+          "max": 16.700000047683716,
+          "over16_7": 1,
+          "over33": 0
+        },
+        "render": {
+          "frame": 3859,
+          "calls": 976,
+          "triangles": 1880631,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 804,
+          "textures": 124
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "buffer": [
+          1440,
+          1000
+        ],
+        "player": {
+          "x": -51.25,
+          "y": 0.8599765336818725,
+          "z": 4.8
+        },
+        "camera": {
+          "x": -51.24999999999985,
+          "y": 18,
+          "z": 22.00000000000005
+        }
+      },
+      {
+        "variant": "monument",
+        "view": {
+          "id": "library",
+          "x": -51.25,
+          "z": 4.8,
+          "y": 0,
+          "camera": [
+            -51.25,
+            18,
+            22
+          ]
+        },
+        "readyMs": 7173,
+        "runtime": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-BMOyqea3.js",
+        "standingFixtureFree": true,
+        "firstDrawMs": 167.29999995231628,
+        "noWorkCadence": {
+          "median": 17.700000047683716,
+          "p95": 18.5,
+          "max": 18.899999976158142,
+          "over16_7": 147,
+          "over33": 0
+        },
+        "completedFrame": {
+          "median": 7.800000071525574,
+          "p95": 12.199999928474426,
+          "max": 22.200000047683716,
+          "over16_7": 1,
+          "over33": 0
+        },
+        "render": {
+          "frame": 3799,
+          "calls": 988,
+          "triangles": 1916937,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 800,
+          "textures": 126
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "buffer": [
+          1440,
+          1000
+        ],
+        "player": {
+          "x": -51.25,
+          "y": 0.8599765336818725,
+          "z": 4.8
+        },
+        "camera": {
+          "x": -51.24999999999985,
+          "y": 18,
+          "z": 22.00000000000005
+        }
+      },
+      {
+        "variant": "monument",
+        "view": {
+          "id": "temple-front",
+          "x": 25,
+          "z": -72,
+          "y": 1.2,
+          "camera": [
+            48,
+            27,
+            -43
+          ]
+        },
+        "readyMs": 7173,
+        "runtime": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-BMOyqea3.js",
+        "standingFixtureFree": true,
+        "firstDrawMs": 41,
+        "noWorkCadence": {
+          "median": 17.699999928474426,
+          "p95": 18.5,
+          "max": 18.700000047683716,
+          "over16_7": 147,
+          "over33": 0
+        },
+        "completedFrame": {
+          "median": 5.300000071525574,
+          "p95": 8.700000047683716,
+          "max": 12.100000023841858,
+          "over16_7": 0,
+          "over33": 0
+        },
+        "render": {
+          "frame": 6589,
+          "calls": 551,
+          "triangles": 1376688,
+          "points": 969,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 1045,
+          "textures": 130
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "buffer": [
+          1440,
+          1000
+        ],
+        "player": {
+          "x": 25,
+          "y": 2.0599765336818723,
+          "z": -72
+        },
+        "camera": {
+          "x": 47.999999999999844,
+          "y": 27.000000000000007,
+          "z": -42.9999999999998
+        }
+      },
+      {
+        "variant": "monument",
+        "view": {
+          "id": "temple-cella",
+          "x": 25,
+          "z": -99,
+          "y": 1.2,
+          "camera": [
+            39,
+            22,
+            -76
+          ]
+        },
+        "readyMs": 7173,
+        "runtime": "http://127.0.0.1:5173/previews/greek-sanctuary/engine/index-BMOyqea3.js",
+        "standingFixtureFree": true,
+        "firstDrawMs": 2.6999999284744263,
+        "noWorkCadence": {
+          "median": 17.600000023841858,
+          "p95": 18.399999976158142,
+          "max": 18.800000071525574,
+          "over16_7": 148,
+          "over33": 0
+        },
+        "completedFrame": {
+          "median": 4.200000047683716,
+          "p95": 5.900000095367432,
+          "max": 9.800000071525574,
+          "over16_7": 0,
+          "over33": 0
+        },
+        "render": {
+          "frame": 9379,
+          "calls": 332,
+          "triangles": 921222,
+          "points": 930,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 1064,
+          "textures": 139
+        },
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "buffer": [
+          1440,
+          1000
+        ],
+        "player": {
+          "x": 25,
+          "y": 2.0599765336818723,
+          "z": -99
+        },
+        "camera": {
+          "x": 38.96396817993374,
+          "y": 22.000000000000007,
+          "z": -76.20283463785883
+        }
+      }
+    ],
+    "targets": {
+      "completedFrameP95": 16.7,
+      "max": 33.3
+    },
+    "browser": "155.0.8059.39"
+  },
+  "conditions": "Individual scenario fixtures are documented in each source report. NPC attacks/contacts held in architectural checks; native controls, collisions and timed puzzles retained. No global60FPS or physical-phone claim.",
+  "implemented": {
+    "mainRooms": 14,
+    "wings": 12,
+    "upperFloors": 3,
+    "secrets": 3,
+    "bosses": 4,
+    "greekAreaShare": 0.7232195805703812,
+    "temple": {
+      "stylobate": [
+        30.9,
+        69.5
+      ],
+      "floorY": 1.2,
+      "crepidomaRisers": 6,
+      "peristylePositions": 46
+    }
+  },
+  "notProven": [
+    "Unassisted uninterrupted campaign balance",
+    "Physical-phone performance",
+    "VRAM usage"
+  ],
+  "usage": "Task-attributable weekly share/spent credits unavailable; no paid assets, generation, installation, agents or model changes used"
+}

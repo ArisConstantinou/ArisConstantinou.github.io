@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {foldsAgainstWall,parkedGateLeaf} from './door-parking.js';
+const gate={id:'passage-library-armoury',x:-41.25,z:-.625,width:3.75,height:4.25,rotation:Math.PI/2,leaves:[{},{}],approachSign:1};
+test('library pressure leaves fold flat outside the original opening without changing thickness',()=>{assert.ok(foldsAgainstWall(gate.id));for(let i=0;i<2;i++){const b=parkedGateLeaf({...gate,foldFlat:true},i);assert.equal(b.w,.26);assert.equal(b.d,1.875);assert.equal(b.x,gate.x);assert.ok(Math.abs(b.z-gate.z)-b.d/2>=gate.width/2-1e-8);}});
+test('ordinary pressure gates retain established ninety-degree physical parking',()=>{assert.equal(foldsAgainstWall('hall-pressure'),false);const b=parkedGateLeaf(gate,0);assert.equal(b.x,-42.1875);assert.equal(b.z,1.25);assert.equal(b.w,1.875);assert.equal(b.d,.26);});

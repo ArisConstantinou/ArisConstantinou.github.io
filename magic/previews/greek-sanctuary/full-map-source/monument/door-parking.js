@@ -1,0 +1,2 @@
+export const foldsAgainstWall=id=>id==='passage-library-armoury';
+export function parkedGateLeaf(g,i){const length=g.width/g.leaves.length,r=g.rotation||0,side=i===0?-1:1,lx=side*(g.width/2+(g.foldFlat?length/2:0)),lz=g.foldFlat?0:-length/2*(g.approachSign||1),across=g.foldFlat?length:.26,normal=g.foldFlat?.26:length;return {x:g.x+Math.cos(r)*lx+Math.sin(r)*lz,y:(g.floorY??0)+g.height/2,z:g.z-Math.sin(r)*lx+Math.cos(r)*lz,w:r?normal:across,h:g.height,d:r?across:normal,tag:'parked-'+g.id};}
