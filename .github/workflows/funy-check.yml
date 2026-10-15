@@ -47,31 +47,33 @@ jobs:
               try:
                 response=page.goto(base+'?v=4.0.0&check='+str(attempt),wait_until='networkidle',timeout=25000)
                 if response and response.status==200 and page.evaluate('window.RESET_GAME?.version')=='4.0.0':
-                  assert '/funny/' in page.url
-                  assert page.locator('#tiboArt').evaluate('e=>e.complete&&e.naturalWidth>0')
-                  assert page.locator('#sam img').evaluate('e=>e.complete&&e.naturalWidth>0')
+                  assert '/funny/' in page.url,'Unexpected redirect'
+                  assert page.locator('#tiboArt').evaluate('e=>e.complete&&e.naturalWidth>0'),'Tibo art missing'
+                  assert page.locator('#sam img').evaluate('e=>e.complete&&e.naturalWidth>0'),'Sam art missing'
                   page.click('#start')
                   page.click('#answers button[data-index="1"]');page.click('#lock')
-                  page.wait_for_function('document.getElementById("samWord").textContent==="Shhhhhhh"')
-                  assert page.locator('#stage').get_attribute('data-mood')=='win'
-                  assert page.locator('#playing a,dialog').count()==0
+                  page.wait_for_selector('#answers .chosen-win')
+                  page.wait_for_function('!document.getElementById("samCloud").hidden && document.getElementById("samWord").textContent==="Shhhhhhh"')
+                  assert page.locator('#stage').get_attribute('data-mood')=='win','Winning animation not active'
+                  assert page.locator('#playing a,dialog').count()==0,'Links or dialog found in play'
                   page.screenshot(path=str(out/'live-v4-desktop.png'),full_page=True)
                   live=True;break
               except Exception as exc:
-                print('Public deployment check:',str(exc)[:180],flush=True)
+                print('Public deployment check:',repr(exc)[:250],flush=True)
               time.sleep(10)
             if live:
               page.goto('https://arisconstantinou.github.io/funy/',wait_until='networkidle',timeout=25000)
               assert '/funny/' in page.url and page.evaluate('RESET_GAME.version')=='4.0.0'
               mobile=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True,reduced_motion='reduce')
               mp=mobile.new_page();mp.goto(base,wait_until='networkidle');mp.click('#start');mp.tap('#answers button[data-index="1"]');mp.tap('#lock')
-              mp.wait_for_function('document.getElementById("samWord").textContent==="Shhhhhhh"')
+              mp.wait_for_selector('#answers .chosen-win')
+              mp.wait_for_function('!document.getElementById("samCloud").hidden && document.getElementById("samWord").textContent==="Shhhhhhh"')
               mp.screenshot(path=str(out/'live-v4-mobile.png'),full_page=True)
               assert mp.locator('#samWord').evaluate('e=>e.scrollWidth<=e.clientWidth+1')
               mp.tap('#dockNext');assert 'QUESTION 02' in mp.locator('#round').inner_text()
             browser.close()
           (out/'live-v4.json').write_text(json.dumps({'live_verified':live,'url':base,'version':'4.0.0','page_errors':errors},indent=2))
-          assert live,'The public URL did not serve v4 within the check window'
+          assert live,'The public page did not pass the live check within the retry window'
           assert not errors,errors
           print('LIVE V4 VERIFIED: HTTP 200, correct roles, art, laughter, Sam shush, mobile and legacy redirect',flush=True)
           PY
