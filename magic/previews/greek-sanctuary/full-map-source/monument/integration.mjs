@@ -24,9 +24,12 @@ export function monumentIntegration({dir,replace}){const mod=n=>path.join(dir,'m
   code=replace(code,'const a=g.open*g.open*(3-2*g.open)*Math.PI/2;','const a=g.open*g.open*(3-2*g.open)*(g.foldFlat?Math.PI:Math.PI/2);','Library leaves fold flat so the opened door does not seal the staircase bypass');
   code=replace(code,'const lx=i===0?-g.width/2:g.width/2,lz=-length/2*(g.approachSign||1);\n     const b={x:g.x+Math.cos(r)*lx+Math.sin(r)*lz,y:(g.floorY??0)+g.height/2,z:g.z-Math.sin(r)*lx+Math.cos(r)*lz,w:r?length:.26,h:g.height,d:r?.26:length,tag:\'parked-\'+g.id};','const b=parkedGateLeaf(g,i);','Parked collision boxes match the full visible leaf angle and retain the original thickness');
  }else if(name.endsWith('/src/main.js')){
+  code=`import {objectiveInteractionPoint} from '${mod('interaction-point.js')}';\n`+code;
   code=`import {assemblyMesh} from '${mod('assembly-source.js')}';\n`+code;
   code=`import {populateMonument} from '${mod('scene.js')}';\n`+code;
   code=replace(code,'cameraOrbit.maxDistance=40;','cameraOrbit.maxDistance=110;','Monument may be viewed at its real scale without changing normal close framing');
+  code=replace(code,"add('relic','relic',worldMap.relic.position,3,","add('relic','relic',objectiveInteractionPoint(worldMap.relic.position,'relic'),3,",'Objective context sights the visible sceptre above its pedestal instead of its embedded floor root');
+  code=replace(code,"add('exit','exit',worldMap.exit.position,2.8,","add('exit','exit',objectiveInteractionPoint(worldMap.exit.position,'exit'),2.8,",'Exit context sights the visible rift above the floor root');
   code=replace(code,'populateFullMap(worldMap,entities);','populateFullMap(worldMap,entities);populateMonument(worldMap,entities);','Sanctum encounter occupies the real temple floor');
   code=replace(code,'if(!nav.isFree(p.x,p.z)){p.x=e.spawn.x;p.z=e.spawn.z;}','if(!nav.isFree(p.x,p.z,p.y)){p.x=e.spawn.x;p.z=e.spawn.z;}','Boss recovery checks its actual support elevation');
   code=replace(code,'nav.isFree(next.x,next.z))','nav.isFree(next.x,next.z,p.y))','Boss walking and dive attacks check the actual raised floor',true);

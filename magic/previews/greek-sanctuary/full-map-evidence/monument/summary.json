@@ -1,12 +1,12 @@
 {
-  "status": "Connected Greek/Gothic map candidate; full assisted/unassisted campaign validation is separate",
-  "sourceCommit": "0c39034fbaa1129bbb1dbd63bf9e40e6ff28325f",
+  "status": "Connected map verified through native relic collection and victory with explicitly held NPC attacks/contacts",
+  "sourceCommit": "5139dbf9fc42f12d72d07986cf0cb68713ccc6e3",
   "runtime": {
-    "file": "engine/index-BMOyqea3.js",
-    "sha256": "ad6296560ae203161b4f165a1360aba4efe64a36e4671793e696a7722d82462f",
-    "bytes": 1220095
+    "file": "engine/index-8O2sw9wT.js",
+    "sha256": "32f790039798cf287cb353c1908fbd2adc8074f415d63831b60077fedef1a0b7",
+    "bytes": 1220185
   },
-  "previousPublicCommit": "c38497c3582160c435ffbf3c2818b98ef47c4c80",
+  "previousPublicCommit": "3493314b6abf2daed2a318d9d5f03f554a9429a1",
   "checks": {
     "pressure": {
       "file": "room-puzzle-verification/monument-folded/report.json",
@@ -207,7 +207,7 @@
     }
   },
   "rebuild": "15/15",
-  "unitTests": "251/251",
+  "unitTests": "254/254",
   "normalClient": {
     "phase": "playing",
     "hp": 120
@@ -478,5 +478,36 @@
     "Physical-phone performance",
     "VRAM usage"
   ],
-  "usage": "Task-attributable weekly share/spent credits unavailable; no paid assets, generation, installation, agents or model changes used"
+  "usage": "Task-attributable weekly share/spent credits unavailable; no paid assets, generation, installation, agents or model changes used",
+  "continuousMission": {
+    "stages": [
+      "courtyard-double",
+      "courtyard-door-approach",
+      "library-double",
+      "forge-double",
+      "native-cold-charge-board",
+      "forge-guardian",
+      "forge-prison-fire",
+      "prison-destination",
+      "hall-crypt-fire",
+      "crypt-guardian",
+      "crypt-ritual-fire",
+      "ritual-guardian",
+      "ritual-dismount-double-reboard",
+      "sanctum-destination",
+      "temple-dismount-double-reboard",
+      "temple-real-stairs-and-guardian",
+      "crypt-return-and-native-relic",
+      "native-walk-to-south-exit",
+      "native-E-victory"
+    ],
+    "checks": 28,
+    "failed": 0,
+    "phase": "result",
+    "winsBefore": 0,
+    "winsAfter": 1,
+    "conditions": "One fresh Start; only native movement, pointer and context inputs thereafter. NPC attacks/contacts held and player invulnerability isolate map integration. No relocations, resource grants, direct damage, gate writes or progression writes. Not an unassisted combat-balance test."
+  },
+  "objectiveFix": "Context sight targets the visible sceptre shaft1.77m and rift ring1.68m rather than floor-root positions. Real walls, ranges and boss prerequisites remain.",
+  "regressionReuse": "Prior geometry, physics, pressure, fire, camera, statues and desktop throughput reports remain from BMO. Only the two objective-context sight targets changed; continuous native mission and254 units verified on this runtime."
 }
