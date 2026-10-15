@@ -2,8 +2,8 @@ name: Reset Show browser checks
 on:
   push:
     paths:
-      - 'funy/**'
       - 'funny/**'
+      - 'funy/index.html'
       - '.github/workflows/funy-check.yml'
   workflow_dispatch:
 permissions:
@@ -16,8 +16,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            funy
             funny
+            funy
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -25,126 +25,59 @@ jobs:
         run: |
           pip install playwright
           python -m playwright install --with-deps chromium
-      - name: Exercise desktop and mobile gameplay
+      - name: Exercise the actual role inversion and all 15 questions
         run: |
-          node --check funy/show.js
-          node --check funy/episodes.js
-          mkdir -p artifacts
+          node --check funny/game-v4.js
+          node --check funny/questions-v4.js
+          python funny/qa-v4.py
+      - name: Verify the public funny URL, runtime, assets and one complete reaction
+        run: |
           python - <<'PY'
-          import os,json,time,threading,functools,zipfile
+          import json,time
           from pathlib import Path
-          from urllib.parse import urlparse
-          from http.server import ThreadingHTTPServer,SimpleHTTPRequestHandler
           from playwright.sync_api import sync_playwright
-          server=ThreadingHTTPServer(('127.0.0.1',8765),functools.partial(SimpleHTTPRequestHandler,directory=os.getcwd()))
-          threading.Thread(target=server.serve_forever,daemon=True).start()
-          base='http://127.0.0.1:8765/funny/'
-          out=Path('artifacts'); errors=[]; checks=[]
-          def log(s): checks.append(s);print(s,flush=True)
+          out=Path('artifacts');out.mkdir(exist_ok=True)
+          base='https://arisconstantinou.github.io/funny/'
+          errors=[];live=False
           with sync_playwright() as p:
             browser=p.chromium.launch()
-            context=browser.new_context(viewport={'width':1440,'height':1050},reduced_motion='reduce',timezone_id='Asia/Nicosia')
-            page=context.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
-            page.goto(base);page.wait_for_selector('#startBtn');page.wait_for_timeout(300)
-            assert urlparse(page.url).path=='/funny/'
-            assert page.locator('link[rel="canonical"]').get_attribute('href')=='https://arisconstantinou.github.io/funny/'
-            assert page.locator('#ladderList li').count()==15
-            assert page.evaluate('window.RESET_SHOW.episodes.length')==15
-            log('Direct /funny/ entry without redirect: passed')
-            page.screenshot(path=str(out/'desktop-title.png'),full_page=True)
-            page.click('#pixelBtn');page.screenshot(path=str(out/'desktop-smooth.png'),full_page=True);page.click('#pixelBtn')
-            page.click('#receiptsBtn');assert page.locator('.source-card').count()==15
-            assert page.locator('#dialogBody').inner_text().find('Direct X thread retrieval returned 403')>=0
-            page.click('#closeDialog');log('15 sourced cases and source-dialog close: passed')
-            page.click('#startBtn')
-            answers=page.evaluate('window.RESET_SHOW.episodes.map(e=>e.answer)')
-            def answer(index):
-              page.locator('#answers button').nth(index).click()
-              page.click('#lockBtn');page.wait_for_selector('#nextBtn',state='visible')
-            for i,a in enumerate(answers):
-              assert f'ROUND {i+1:02}' in page.locator('#roundLabel').inner_text()
-              if i==0:
-                page.click('#fiftyBtn');assert page.locator('#answers button:disabled').count()==2
-              if i==1:
-                page.click('#pollBtn');assert 'simulated' in page.locator('#hintArea').inner_text().lower()
-              if i==2:
-                page.click('#prBtn');assert 'fictional hint' in page.locator('#hintArea').inner_text()
-              answer(a)
-              assert page.locator('#answers button.correct').count()==1
-              if i==1:
-                page.screenshot(path=str(out/'desktop-reaction.png'),full_page=True)
-                page.reload();page.click('#resumeBtn');assert page.locator('#reactionTitle').is_visible()
-                log('Saved progress after reload: passed')
-              if i==9:
-                state=json.loads(page.evaluate("localStorage.getItem('reset-show-v2')"));assert state['safe']==10
-              page.click('#nextBtn')
-              if i==4:
-                assert page.locator('#bonus').is_visible()
-                page.screenshot(path=str(out/'bonus-intro.png'),full_page=True)
-                page.click('#burnBtn')
-                for n in range(7):page.click('#burnBtn')
-                assert '0% REMAINING' in page.locator('#burnReadout').inner_text()
-                page.wait_for_selector('#bonusContinue',timeout=18000)
-                page.screenshot(path=str(out/'bonus-result.png'),full_page=True)
-                page.click('#bonusContinue');log('Full optional fake-quota bonus: passed')
-            assert 'SOON-millionaire' in page.locator('#ending').inner_text()
-            assert page.evaluate("localStorage.getItem('reset-show-v2')") is None
-            page.screenshot(path=str(out/'million-soon-ending.png'),full_page=True)
-            log('All 15 rounds, all lifelines, checkpoints, bonus and final: passed')
-            page.click('#replayBtn')
-            for wrong in [0,2,3]:
-              answer(wrong);page.click('#nextBtn')
-            assert 'BROADCAST INTERRUPTED' in page.locator('#ending').inner_text()
-            page.click('#replayBtn');assert 'ROUND 01' in page.locator('#roundLabel').inner_text()
-            log('Three wrong answers and retry flow: passed')
-            seed={'v':2,'round':7,'lives':1,'prize':8000,'safe':5,'phase':'asking','elim':[],'used':{'fifty':False,'poll':False,'pr':False},'bonusDone':True}
-            page.evaluate("s=>localStorage.setItem('reset-show-v2',JSON.stringify(s))",seed)
-            page.reload();page.click('#resumeBtn');answer(0);page.click('#nextBtn');page.click('#replayBtn')
-            assert 'ROUND 06' in page.locator('#roundLabel').inner_text()
-            log('Checkpoint recovery to round 6: passed')
-            before=page.locator('#roundLabel').inner_text();page.click('#resetProp');assert page.locator('#roundLabel').inner_text()==before
-            page.keyboard.press('D');page.keyboard.press('Enter');page.wait_for_selector('#nextBtn',state='visible')
-            assert page.locator('#answers button.correct').count()==1
-            log('Keyboard input and safe decorative reset: passed')
-            for width in [360,390,768,1024,1440]:
-              page.set_viewport_size({'width':width,'height':900})
-              assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'),f'horizontal overflow at {width}'
-            log('Responsive overflow checks at five widths: passed')
-            mobile=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True,reduced_motion='reduce',timezone_id='Asia/Nicosia')
-            mp=mobile.new_page();mp.on('pageerror',lambda e:errors.append(str(e)));mp.goto(base);mp.wait_for_timeout(300)
-            assert urlparse(mp.url).path=='/funny/'
-            mp.screenshot(path=str(out/'mobile-title.png'),full_page=True);mp.tap('#startBtn')
-            mp.screenshot(path=str(out/'mobile-question.png'),full_page=True)
-            mp.tap('#readRound');assert mp.locator('#receiptDialog').is_visible();mp.tap('#closeDialog')
-            log('Mobile touch and sources: passed')
-            live='https://arisconstantinou.github.io/funny/'
-            live_ok=False
-            for attempt in range(12):
+            page=browser.new_page(viewport={'width':1440,'height':1050},reduced_motion='reduce')
+            page.on('pageerror',lambda e:errors.append(str(e)))
+            for attempt in range(24):
               try:
-                response=page.goto(live+'?qa=funny-direct-'+str(time.time_ns()),wait_until='networkidle',timeout=25000)
-                if response and response.status==200 and urlparse(page.url).path=='/funny/' and page.locator('#startBtn').count() and page.evaluate('window.RESET_SHOW?.version')=='2.0.0':
-                  assert page.locator('link[rel="canonical"]').get_attribute('href')==live
-                  live_ok=True;page.screenshot(path=str(out/'live-desktop.png'),full_page=True);break
-              except Exception as e: print('Live check retry:',str(e)[:180])
-              time.sleep(12)
-            log('Live /funny/ HTTP 200, no redirect and v2 runtime: '+('passed' if live_ok else 'not yet verified'))
-            if live_ok:
-              page.goto('https://arisconstantinou.github.io/funy/',wait_until='networkidle',timeout=30000)
-              assert page.locator('#startBtn').count()
-              log('Original /funy/ URL remains playable: passed')
+                response=page.goto(base+'?v=4.0.0&check='+str(attempt),wait_until='networkidle',timeout=25000)
+                if response and response.status==200 and page.evaluate('window.RESET_GAME?.version')=='4.0.0':
+                  assert '/funny/' in page.url
+                  assert page.locator('#tiboArt').evaluate('e=>e.complete&&e.naturalWidth>0')
+                  assert page.locator('#sam img').evaluate('e=>e.complete&&e.naturalWidth>0')
+                  page.click('#start')
+                  page.click('#answers button[data-index="1"]');page.click('#lock')
+                  page.wait_for_function('document.getElementById("samWord").textContent==="Shhhhhhh"')
+                  assert page.locator('#stage').get_attribute('data-mood')=='win'
+                  assert page.locator('#playing a,dialog').count()==0
+                  page.screenshot(path=str(out/'live-v4-desktop.png'),full_page=True)
+                  live=True;break
+              except Exception as exc:
+                print('Public deployment check:',str(exc)[:180],flush=True)
+              time.sleep(10)
+            if live:
+              page.goto('https://arisconstantinou.github.io/funy/',wait_until='networkidle',timeout=25000)
+              assert '/funny/' in page.url and page.evaluate('RESET_GAME.version')=='4.0.0'
+              mobile=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True,reduced_motion='reduce')
+              mp=mobile.new_page();mp.goto(base,wait_until='networkidle');mp.click('#start');mp.tap('#answers button[data-index="1"]');mp.tap('#lock')
+              mp.wait_for_function('document.getElementById("samWord").textContent==="Shhhhhhh"')
+              mp.screenshot(path=str(out/'live-v4-mobile.png'),full_page=True)
+              assert mp.locator('#samWord').evaluate('e=>e.scrollWidth<=e.clientWidth+1')
+              mp.tap('#dockNext');assert 'QUESTION 02' in mp.locator('#round').inner_text()
             browser.close()
-          (out/'test-results.json').write_text(json.dumps({'checks':checks,'page_errors':errors,'live_verified':live_ok},indent=2))
+          (out/'live-v4.json').write_text(json.dumps({'live_verified':live,'url':base,'version':'4.0.0','page_errors':errors},indent=2))
+          assert live,'The public URL did not serve v4 within the check window'
           assert not errors,errors
-          assert live_ok,'The direct public /funny/ page was not verified within the deployment window.'
-          with zipfile.ZipFile(out/'reset-show-v2.zip','w',zipfile.ZIP_DEFLATED) as z:
-            for folder in ['funy','funny']:
-              for f in Path(folder).rglob('*'):
-                if f.is_file():z.write(f,str(f))
-            z.writestr('README.txt','THE RESET SHOW v2.0.0\nOpen funny/index.html in a modern browser or serve the folder. Keep both funny/ and funy/: shared assets live in funy/. No build or API key. Edit funy/episodes.js to change questions and sources; funy/studio.css for styling; funy/show.js for gameplay and the procedural character. All dialogue is fictional satire. Sources are a snapshot dated 15 October 2026.\n')
+          print('LIVE V4 VERIFIED: HTTP 200, correct roles, art, laughter, Sam shush, mobile and legacy redirect',flush=True)
           PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: reset-show-v2-preview
+          name: reset-show-v4-verified
           path: artifacts/
           retention-days: 30
