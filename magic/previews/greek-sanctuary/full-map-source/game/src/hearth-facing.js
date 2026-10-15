@@ -14,11 +14,14 @@ export function createHearthFacing(){
   if(dt<=0)return state;
   state.moving=Math.hypot(moveX,moveZ)>.1;
   const twist=delta(yaw,aimYaw);
-  if(Math.abs(twist)>Math.PI/4)state.following=true;
+  if(state.moving)state.following=false;
+  else if(Math.abs(twist)>Math.PI/4)state.following=true;
   if(state.following&&Math.abs(twist)<8*Math.PI/180&&Math.abs(state.velocity)<.12)state.following=false;
-  const target=state.following||state.moving&&firing?aimYaw:state.moving?Math.atan2(moveX,moveZ):yaw;
-  const error=delta(yaw,target),rate=state.moving?1.7:1.4,wanted=clamp(error*3,-rate,rate);
-  state.velocity+=clamp(wanted-state.velocity,-4*dt,4*dt);
+  // Travel owns the legs, including while firing. The waist keeps its aim.
+  const target=state.moving?Math.atan2(moveX,moveZ):state.following?aimYaw:yaw;
+  const error=delta(yaw,target),rate=state.moving?4:1.4,wanted=clamp(error*(state.moving?7:3),-rate,rate);
+  const acceleration=state.moving?16:4;
+  state.velocity+=clamp(wanted-state.velocity,-acceleration*dt,acceleration*dt);
   let step=state.velocity*dt;
   if(step*error>0&&Math.abs(step)>Math.abs(error)){step=error;state.velocity=0;}
   state.yaw+=step;state.turning=Math.abs(step)>1e-6;

@@ -41,7 +41,7 @@ export function createHearthAimTargets(){
     const wrongSide=i===0?Math.max(0,horizontal):Math.max(0,-horizontal);
     // Tier gaps exceed every distance/angle term. Unattended objects cannot
     // beat an available enemy, while an exact pointer item can use one hand.
-    const tier=e===preferred?-1:e.category==='actor'?0:2;
+    const tier=e===preferred&&(e.category==='actor'||focusTier!==0)?-1:e.category==='actor'?0:2;
     const score=tier*20+bodyDistance*.6+Math.abs(horizontal)*.12+wrongSide*.35-(e===previous?.15:0);
     if(score<t.score){t.alternative=t.entity;t.alternativeScore=t.score;t.entity=e;t.score=score;}
     else if(score<t.alternativeScore){t.alternative=e;t.alternativeScore=score;}
@@ -60,6 +60,7 @@ export function createHearthAimTargets(){
    const a=targets[0],b=targets[1],leftPenalty=a.alternativeScore-a.score,rightPenalty=b.alternativeScore-b.score;
    if(Math.min(leftPenalty,rightPenalty)<.65){const t=leftPenalty<rightPenalty?a:b;t.entity=t.alternative;t.score=t.alternativeScore;}
   }
+  desiredYaw=sector;
   let x=0,z=0;for(const t of targets)if(t.entity){targetPoint(t.entity,t.point);const heading=Math.atan2(t.point.x-center.x,t.point.z-center.z);x+=Math.sin(heading);z+=Math.cos(heading);}
   if(x*x+z*z>1e-8)desiredYaw=Math.atan2(x,z);
   return targets;

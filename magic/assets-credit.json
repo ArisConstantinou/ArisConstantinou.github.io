@@ -359,5 +359,39 @@
     "source": "source/hearth-bulwark/hearth-bulwark.blend",
     "provenance": "source/hearth-bulwark/provenance.json",
     "approvedConcept": "source/hearth-bulwark/approved-C.png"
+  },
+  "combinedRelease": {
+    "version": "1.6.0",
+    "assetBase": "previews/greek-sanctuary/",
+    "frozenAssetRevision": "d4d78e5596eeab20ab0a50cba62495abe32e4dd6",
+    "environment": {
+      "provider": "Poly Haven",
+      "license": "CC0-1.0",
+      "provenance": "previews/greek-sanctuary/environment-b/asset-provenance.json",
+      "materials": "previews/greek-sanctuary/threshold-materials/provenance.json"
+    },
+    "statues": {
+      "licenseFile": "previews/greek-sanctuary/statues/LICENSES.md",
+      "caryatid": {
+        "creator": "Daniel Pett",
+        "license": "CC BY 4.0",
+        "source": "https://sketchfab.com/3d-models/erechtheion-caryatid-british-museum-7181dd88d9424838882a4629d886177e"
+      },
+      "venus": {
+        "creator": "SMK, National Gallery of Denmark; optimized by Shaderbytes",
+        "license": "CC0",
+        "source": "https://sketchfab.com/3d-models/venus-de-milo-statuestexturingchallenge-smk-2983d92ac4e744f485492580ca7629f2"
+      },
+      "artemision": {
+        "creator": "SMK, National Gallery of Denmark",
+        "license": "CC0",
+        "source": "https://api.smk.dk/api/v1/art?object_number=KAS2100"
+      },
+      "adaptations": "Runtime normalization, decimation, Draco compression and physical fracture cells; original missing parts preserved. Artemision is a marble replica of the bronze original."
+    },
+    "characters": {
+      "source": "Previously approved frozen character exports in previews/greek-sanctuary/models/redesign/",
+      "note": "No assets copied from the active unfinished unit-redesign worktree."
+    }
   }
 }

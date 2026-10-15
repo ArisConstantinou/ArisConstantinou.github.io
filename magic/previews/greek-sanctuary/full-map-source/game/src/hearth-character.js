@@ -7,6 +7,7 @@ import {HEARTH_STOMP} from './hearth-rules.js';
 import {createHearthLod} from './hearth-lod.js';
 import {createHearthArmAim} from './hearth-aim.js';
 import {createHearthLadderFold} from './hearth-ladder.js';
+import {createDoorStrikeRig} from './hearth-door-strike.js';
 let template;
 let highPromise;
 async function loadModel(path){
@@ -52,10 +53,11 @@ export function createHearth(){
  const worldQ=new THREE.Quaternion(),parentQ=new THREE.Quaternion(),yawQ=new THREE.Quaternion(),up=new THREE.Vector3(0,1,0),overrides=[new THREE.Vector3(),new THREE.Vector3()];
  const aim=createHearthArmAim(group,model,bones);
  const ladderFold=createHearthLadderFold(group,bones);
- let stompFeet=null,controlTargets,waistPose=null,rise=0;
- function update(dt,{clip='Sleep',time,fuel=0,aimYaw=group.rotation.y,aimDt=dt,aimTargets=[],firing=false}={}){
+ let stompFeet=null,controlTargets,waistPose=null,rise=0,strikeRig;
+ function update(dt,{clip='Sleep',time,fuel=0,aimYaw=group.rotation.y,aimDt=dt,aimTargets=[],firing=false,doorStrike=null}={}){
   // AnimationMixer may skip writing unchanged cached tracks at dt=0. Remove
   // the preceding additive yaw before evaluating any authored pose again.
+  strikeRig?.beforeAnimation();
   if(waistPose)bones.torso.quaternion.copy(waistPose);
   aim?.beforeAnimation();
   ladderFold?.beforeAnimation();
@@ -64,7 +66,9 @@ export function createHearth(){
   mixer.update(dt);if(Number.isFinite(time)){action.time=Math.min(time,clips.get(clip).duration);mixer.update(0);}
   const grounded=['Idle','Walk','Fire','Throw','Stomp'].includes(clip);
   if(locomotion){
-   if(clip==='Stomp'){
+   if(doorStrike&&strikeRig){
+    const pose=strikeRig.frame(doorStrike);locomotion.update(dt,{grounded:true,footOverride:pose.feet,bodyOffset:-.04*Math.max(pose.envelope.lift,pose.envelope.drive)});
+   }else if(clip==='Stomp'){
     if(!stompFeet){group.updateMatrixWorld(true);stompFeet=['foot_L','foot_R'].map(n=>bones[n].getWorldPosition(new THREE.Vector3()));}
     const t=Number.isFinite(time)?time:action.time;
     const lift=t<.12?0:t<.48?HEARTH_STOMP.lift*Math.sin(Math.PI*.5*Math.min(1,(t-.12)/.28)):t<HEARTH_STOMP.hit?HEARTH_STOMP.lift*(1-Math.pow((t-.48)/(HEARTH_STOMP.hit-.48),3)):0;
@@ -84,7 +88,8 @@ export function createHearth(){
   if(ladderFold)ladderFold.update(clip,Number.isFinite(time)?time:action.time,clips.get(clip).duration);
   else bones.ladder.scale.setScalar(['Board','Exit'].includes(clip)?1:.001);
   for(const m of materials)if(m.name==='Heart embers')m.emissiveIntensity=fuel>0?1.8:0;
-  group.userData.animationState=name;model.updateMatrixWorld(true);
+  if(doorStrike&&strikeRig)strikeRig.apply(doorStrike);
+  group.userData.animationState=doorStrike?(doorStrike.kind==='kick'?'DoorKick':'DoorPunch'):name;model.updateMatrixWorld(true);
  }
  function point(socket,tail=0){const b=bones[socket];return b.localToWorld(new THREE.Vector3(0,tail,0));}
  function aimAtTargets(dt,targets,firing,aimYaw){
@@ -111,6 +116,7 @@ export function createHearth(){
  // Account for the lifted leg as well as its planted partner, so backward
  // steps bend the body before landing instead of overreaching the rigid rig.
  locomotion=createRigLocomotion(group,model,['L','R'].map(side=>({upper:bones['thigh_'+side],lower:bones['shin_'+side],foot:bones['foot_'+side]})),{mechanical:true,stride:.82,lift:.29,allFeetReach:true});
+ strikeRig=createDoorStrikeRig(group,model,bones,locomotion);
  update(0);
- return {group,model,bones,mixer,clips,locomotion,rise,update,point,controlPoint,setHighlight,lod,aim,aimAtTargets,ladderFold,dispose};
+ return {group,model,bones,mixer,clips,locomotion,rise,update,point,controlPoint,setHighlight,lod,aim,aimAtTargets,ladderFold,strikeRig,dispose};
 }

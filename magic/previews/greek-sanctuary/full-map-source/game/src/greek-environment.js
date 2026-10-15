@@ -1,8 +1,9 @@
 import * as THREE from 'three';
+import {selectStrikeDoor} from './door-strike-rules.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
-import {GREEK_GATES,pressureTray,plateOccupants,stepGate,weightNeedsRecovery,flameReachesGate} from './greek-puzzle-rules.js';
+import {GREEK_GATES,pressureTray,plateOccupants,stepGate,weightNeedsRecovery,flameReachesGate,breachGate} from './greek-puzzle-rules.js';
 import {segmentBox} from './systems.js';
 import {siegeSurface} from './siege-environment.js';
 import {greekGatePlan,findPressureSupply} from './greek-progression.js';
@@ -207,7 +208,7 @@ export function createGreekPuzzles({architecture,world,physics,staticBox,navs,sp
   else{if(i>=0)world.colliders.splice(i,1);if(g.blocker.physicsBody?.world)physics.removeBody(g.blocker.physicsBody);}
   g.unblocked=!blocked;if(notify)refresh();
  }
- function reset(){for(const g of gates){for(const b of g.parked)removeFixture(b);g.parked=[];g.phase='locked';g.open=g.charge=0;g.hinted=false;g.weights=[];setBlocking(g,!g.dynamic,false);g.leaves.forEach(l=>{l.rotation.y=0;l.scale.y=1;l.visible=true;l.traverse(o=>{if(o.material?.userData.baseColor)o.material.color.copy(o.material.userData.baseColor);});});if(g.dynamic){g.fixtures.forEach(removeFixture);g.fixtures=[];g.plates=[];g.homes=[];g.supplyGroup.removeFromParent();g.platesVisual.forEach(p=>{p.lamp.geometry.dispose();p.lamp.material.dispose();});g.platesVisual=[];}}refresh();}
+ function reset(){for(const g of gates){for(const b of g.parked)removeFixture(b);g.parked=[];g.phase='locked';g.open=g.charge=0;g.breached=false;g.hinted=false;g.weights=[];setBlocking(g,!g.dynamic,false);g.leaves.forEach(l=>{l.rotation.y=0;l.scale.y=1;l.visible=true;l.traverse(o=>{if(o.material?.userData.baseColor)o.material.color.copy(o.material.userData.baseColor);});});if(g.dynamic){g.fixtures.forEach(removeFixture);g.fixtures=[];g.plates=[];g.homes=[];g.supplyGroup.removeFromParent();g.platesVisual.forEach(p=>{p.lamp.geometry.dispose();p.lamp.material.dispose();});g.platesVisual=[];}}refresh();}
  function configureForEngine(roomName,enginePosition){
   const plan=greekGatePlan(roomName),reserved=gates.filter(g=>!g.dynamic).flatMap(g=>{const t=pressureTray(g.plates);return [...(t?[t]:[]),...g.homes.map(p=>({...p,w:1,d:1}))];});
   for(let i=0;i<gates.length;i++){
@@ -239,11 +240,11 @@ export function createGreekPuzzles({architecture,world,physics,staticBox,navs,sp
    const previous=g.phase;stepGate(g,dt,{occupied,heat:g.kind==='fire'&&flameReachesGate(engine,g,segmentBox,world.colliders)});
    if(previous==='locked'&&g.phase==='opening')toast(g.kind==='fire'?'Το ενισχυμένο ξύλο υποχωρεί στη φλόγα του HEARTH.':'Οι πλάκες ασφάλισαν. Η πύλη ανοίγει.','info');
    const a=g.open*g.open*(3-2*g.open)*Math.PI/2;
-   g.leaves.forEach((l,i)=>{l.rotation.y=(i===0?1:-1)*a*(g.approachSign||1);if(g.kind==='fire'){l.scale.y=1-g.open*.85;l.traverse(o=>{if(o.material?.userData.baseColor)o.material.color.copy(o.material.userData.baseColor).lerp(new THREE.Color(0x17120e),g.charge/2.5*.88);});}});
+   g.leaves.forEach((l,i)=>{l.rotation.y=(i===0?1:-1)*a*(g.approachSign||1);if(g.kind==='fire'&&!g.breached){l.scale.y=1-g.open*.85;l.traverse(o=>{if(o.material?.userData.baseColor)o.material.color.copy(o.material.userData.baseColor).lerp(new THREE.Color(0x17120e),g.charge/2.5*.88);});}});
    // The swept volume stays blocked until leaves are parked against the returns.
    if(g.phase==='open'&&!g.unblocked){
     const length=g.width/g.leaves.length,r=g.rotation||0;
-    if(g.kind==='fire'){g.leaves.forEach(l=>l.visible=false);fx?.burst(new THREE.Vector3(g.x,(g.floorY??0)+1.2,g.z),0x775139,45,3);}
+    if(g.kind==='fire'&&!g.breached){g.leaves.forEach(l=>l.visible=false);fx?.burst(new THREE.Vector3(g.x,(g.floorY??0)+1.2,g.z),0x775139,45,3);}
     else for(let i=0;i<g.leaves.length;i++){
      const lx=i===0?-g.width/2:g.width/2,lz=-length/2*(g.approachSign||1);
      const b={x:g.x+Math.cos(r)*lx+Math.sin(r)*lz,y:(g.floorY??0)+g.height/2,z:g.z-Math.sin(r)*lx+Math.cos(r)*lz,w:r?length:.26,h:g.height,d:r?.26:length,tag:'parked-'+g.id};
@@ -268,5 +269,5 @@ export function createGreekPuzzles({architecture,world,physics,staticBox,navs,sp
   return aimTargets(engine).find(e=>Math.abs(from.y-1.22-(e.gate.floorY??0))<.8&&segmentBox(from,end,e.gate.blocker)!==null)||null;
  }
  const dropPlateFor=(e,position=e?.body.position)=>e?.indestructible&&gates.flatMap(g=>g.plates).find(p=>Math.hypot(position.x-p.x,position.z-p.z)<.48&&position.y>(p.y??0)+.3&&position.y<(p.y??0)+3.2);
- return {gates,reset,configureForEngine,spawnWeights,update,recover,aimTargets,aimTarget,dropPlateFor,snapshot:()=>gates.map(g=>({id:g.id,kind:g.kind,phase:g.phase,open:g.open,charge:g.charge,blocked:!g.unblocked,plates:g.plates.map((p,i)=>({...p,active:!!plateOccupants(g.plates,gates.flatMap(g=>g.weights),getHeld())[i]})),weights:g.weights.map(e=>({id:e.body.id,position:{...e.body.position},recoveries:e.recoveries||0,hp:e.hp}))}))};
+ return {strikeTarget:engine=>engine?selectStrikeDoor(gates,engine.body.position):null,forceOpen:(gate,origin)=>gates.includes(gate)&&breachGate(gate,origin),gates,reset,configureForEngine,spawnWeights,update,recover,aimTargets,aimTarget,dropPlateFor,snapshot:()=>gates.map(g=>({id:g.id,kind:g.kind,phase:g.phase,open:g.open,breached:!!g.breached,charge:g.charge,blocked:!g.unblocked,plates:g.plates.map((p,i)=>({...p,active:!!plateOccupants(g.plates,gates.flatMap(g=>g.weights),getHeld())[i]})),weights:g.weights.map(e=>({id:e.body.id,position:{...e.body.position},recoveries:e.recoveries||0,hp:e.hp}))}))};
 }

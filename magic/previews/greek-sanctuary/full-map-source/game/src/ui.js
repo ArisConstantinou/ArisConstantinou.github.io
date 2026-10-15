@@ -506,14 +506,14 @@ export function createUI(callbacks = {}) {
       listen(button,'pointerup',release);listen(button,'pointercancel',release);listen(button,'lostpointercapture',release);
       listen(button,'click',event=>{prevent(event);if(event.detail===0&&!button.disabled&&!latestState.hearth?.occupied){invoke('onConjureStart');invoke('onConjureEnd');}});
     } else {
-      const mapped=()=>action==='dash'&&latestState.hearth?.occupied?'context':action;
+      const mapped=()=>action==='dash'&&latestState.hearth?.occupied?'exitEngine':action;
       listen(button, 'pointerdown', (event) => { if (event.button !== 0 || !live() || button.disabled) return; prevent(event); queueAction(mapped()); });
       listen(button, 'click', (event) => { prevent(event); if (event.detail === 0 && !button.disabled) queueAction(mapped()); });
     }
   }
 
   const editable = (target) => target?.closest?.('input, textarea, select, [contenteditable="true"]');
-  const gameKeys = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyR', 'KeyF', 'KeyE', 'Space', 'Escape', 'KeyP','Digit1','Digit2','KeyV',...(callbacks.fireEnabled?['KeyC']:[])]);
+  const gameKeys = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyR', 'KeyF', 'KeyE', 'KeyQ', 'Space', 'Escape', 'KeyP','Digit1','Digit2','KeyV',...(callbacks.fireEnabled?['KeyC']:[])]);
   listen(window, 'keydown', (event) => {
     if (editable(event.target) || event.metaKey || event.ctrlKey || event.altKey) return;
     if(event.code==='KeyI'&&!event.repeat&&loaded){prevent(event);if(modal==='inventory')hideModal();else if(!modal)invoke('onInventory');return;}
@@ -540,7 +540,7 @@ export function createUI(callbacks = {}) {
     event.preventDefault(); keys.add(event.code);
     if (!event.repeat) {
       if(event.code==='KeyR'&&!latestState.hearth?.occupied)invoke('onConjureStart');
-      const action = { KeyF: 'pulse', KeyE: 'context', Space: 'dash',KeyC:'contextFire',Digit1:'healthPotion',Digit2:'manaPotion' }[event.code];
+      const action = { KeyF: 'pulse', KeyQ:'doorStrike', KeyE:latestState.hearth?.occupied?'exitEngine':'context', Space: 'dash',KeyC:'contextFire',Digit1:'healthPotion',Digit2:'manaPotion' }[event.code];
       if (action&&!(event.code==='Space'&&latestState.hearth?.occupied)) queueAction(action);
     }
   });
@@ -626,7 +626,7 @@ export function createUI(callbacks = {}) {
   for (const id of ['menu-help', 'pause-help']) listen(el[id], 'click', () => { showHelp(); invoke('onHelp'); });
   for (const id of ['menu-upgrades', 'result-upgrades']) listen(el[id], 'click', requestUpgrades);
   listen(el['hud-pause'], 'click', requestPause);
-  listen(contextUse,'click',()=>queueAction('context'));
+  listen(contextUse,'click',()=>queueAction(contextUse.dataset.action||'context'));
   for(const id of ['hud-inventory','menu-inventory'])listen(el[id],'click',()=>invoke('onInventory'));
   for(const button of host.querySelectorAll('[data-potion]'))listen(button,'click',()=>{if(live())invoke('onPotion',button.dataset.potion);});
   listen(el['resume-button'], 'click', requestResume);
@@ -650,7 +650,7 @@ export function createUI(callbacks = {}) {
   }
 
   updateProfile(profile); update({ hp: 100, maxHp: 100, mana: 100, maxMana: 100, time: 0 });
-  function updateContext(value){contextUse.hidden=!value||phase!=='playing';if(!value)return;contextUse.style.left=value.x+'px';contextUse.style.top=value.y+'px';contextUse.disabled=!value.enabled;if(contextUse.dataset.icon!==value.icon){contextUse.querySelector('.icon').outerHTML=icon(value.icon);contextUse.dataset.icon=value.icon;}if(contextUse.getAttribute('aria-label')!==value.label){contextUse.setAttribute('aria-label',value.label);contextUse.querySelector('span').textContent=value.label;}}
+  function updateContext(value){contextUse.hidden=!value||phase!=='playing';if(!value)return;contextUse.dataset.action=value.kind==='door-strike'?'doorStrike':'context';contextUse.querySelector('kbd').textContent=value.key||'E';contextUse.style.left=value.x+'px';contextUse.style.top=value.y+'px';contextUse.disabled=!value.enabled;if(contextUse.dataset.icon!==value.icon){contextUse.querySelector('.icon').outerHTML=icon(value.icon);contextUse.dataset.icon=value.icon;}if(contextUse.getAttribute('aria-label')!==value.label){contextUse.setAttribute('aria-label',value.label);contextUse.querySelector('span').textContent=value.label;}}
   return { setLoading, ready, showMenu, start, update, toast, showPause, showResult, showUpgrades, showInventory, showStatus, updateThrowMark, hideModal, setMuted, getInput, consumeActions, destroy, showError, showHelp, setQuality,updateContext,setShieldMode:value=>{touchShield=!!value;},
     updatePotions:counts=>{text('health-potions',counts.health);text('mana-potions',counts.mana);el['quick-health'].disabled=!counts.health;el['quick-mana'].disabled=!counts.mana;el['quick-health'].classList.toggle('mobile-unavailable',!counts.health);el['quick-mana'].classList.toggle('mobile-unavailable',!counts.mana);} };
 }

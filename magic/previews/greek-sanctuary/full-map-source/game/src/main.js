@@ -36,6 +36,7 @@ import { STONE_LIMIT, GOLIATH_STONES, GOLIATH_CHARGE, GOLIATH_HEALTH, GOLIATH_LI
   CHANNEL_DURATION, CHANNEL_COOLDOWN, MINION_LIMIT, activeStones, selectStones, StoneRitual, bodyguardTarget, freePosition } from './goliath.js';
 import {loadHearth} from './hearth-character.js';
 import {createHearthSystem} from './hearth-system.js';
+import {travelAlignment} from './movement-facing.js';
 import {supportHeight,supportSightClear} from './walkable-support.js';
 import {createHearthEffects} from './hearth-effects.js';
 import {igniteActor} from './fire.js';
@@ -53,7 +54,7 @@ const GROUP = {PLAYER:1, ENEMY:2, PROP:4, WORLD:8};
 let storage; try { storage = window.localStorage; } catch {}
 const lootCandidate=location.pathname.includes('/.cache/loot-');
 const candidate=FIRE_PREVIEW||lootCandidate||location.pathname.includes('/.cache/goliath-')||location.pathname.includes('/.cache/latest-');
-const save = new ProfileStore(storage,candidate?(location.pathname.includes('/.cache/desktop-engine')?'magic-desktop-engine-preview-v1':location.pathname.includes('/.cache/context-controls')?'magic-context-controls-preview-v1':(greekEnabled?'magic-greek-sanctuary-v1':'magic-integrated-preview-v1')):'magic-exiled-v1',[]), sound = new MagicAudio(save.profile.muted);
+const save = new ProfileStore(storage,location.pathname.endsWith('/movement.htm')?'magic-movement-preview-v1':candidate?(location.pathname.includes('/.cache/desktop-engine')?'magic-desktop-engine-preview-v1':location.pathname.includes('/.cache/context-controls')?'magic-context-controls-preview-v1':(greekEnabled?'magic-greek-sanctuary-v1':'magic-integrated-preview-v1')):'magic-exiled-v1',[]), sound = new MagicAudio(save.profile.muted);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)sound.setFlamethrower(false);});
 const ritual=new StoneRitual();
 let goliath=null, assemblyCreature=null, assemblyPlacement=null, ritualPressed=false, ritualStarted=0;
@@ -341,7 +342,13 @@ function populate(){
 }
 function startRun(){
   contextTarget=null;contextAt=-Infinity;
-  sound.start();populate();phase='playing';ui.start();cameraTarget.set(player.body.position.x,0,player.body.position.z-2);
+  sound.start();populate();
+  if(location.pathname.endsWith('/movement.htm')&&new URL(location.href).searchParams.get('spawn')!=='wizard'){
+    const engine=hearth.engine;engine.body.position.set(0,1.24,17.5);engine.body.velocity.set(0,0,0);engine.body.aabbNeedsUpdate=true;
+    engine.yaw=engine.aimYaw=player.yaw=Math.PI;engine.facing.reset(Math.PI);engine.heart.state='piloted';engine.heart.fuel=100;
+    player.body.type=CANNON.Body.KINEMATIC;player.body.collisionFilterMask=0;player.body.position.set(0,player.cy+.06,17.5);player.body.velocity.set(0,0,0);player.radius=1.22;player.invulnerable=.8;hearth.sync(0);
+  }
+  phase='playing';ui.start();cameraTarget.set(player.body.position.x,0,player.body.position.z-2);
   ui.toast(mobile?'Άγγιξε ένα αντικείμενο, κράτησε και σύρε. Άφησε το δάχτυλο για ρίψη.':'Κάνε κλικ πάνω σε ένα αντικείμενο, κράτησε και σύρε. Άφησε το κλικ για ρίψη.','info');
   if(!save.available)ui.toast('Η πρόοδος κρατιέται για αυτή τη συνεδρία. Ο browser δεν επιτρέπει αποθήκευση.','info');
 }
@@ -1128,8 +1135,9 @@ function turnToward(current,target,amount){
 }
 function updatePlayer(dt,input){
   const p=player;
+  p.travelYaw=Math.hypot(input.moveX,input.moveZ)>.15?Math.atan2(input.moveX,input.moveZ):null;
   p.invulnerable=Math.max(0,p.invulnerable-dt);p.dashCooldown=Math.max(0,p.dashCooldown-dt);p.pulseCooldown=Math.max(0,p.pulseCooldown-dt);p.dashTime=Math.max(0,p.dashTime-dt);
-  if(input.pointerActive){
+  if(input.pointerActive&&(p.travelYaw===null||held||input.firing)){
     aimAtPointer({clientX:input.pointerX,clientY:input.pointerY});
   }else if(Math.hypot(input.moveX,input.moveZ)>.15){
     aimDirection.set(input.moveX,0,input.moveZ).normalize();
@@ -1140,12 +1148,12 @@ function updatePlayer(dt,input){
   if(hearth.drive(dt,input)){}
   else if(p.dashTime>0){p.body.velocity.x=p.dashDirection.x*18;p.body.velocity.z=p.dashDirection.z*18;fx.burst(p.body.position,0x7dd9c1,3,1.2);}
   else{
-    const length=Math.max(1,Math.hypot(input.moveX,input.moveZ)),slow=p.shielding?.6:held?.84:1;
+    const length=Math.max(1,Math.hypot(input.moveX,input.moveZ)),alignment=travelAlignment(p.visual.locomotion.snapshot().yaw??p.yaw,input.moveX,input.moveZ),slow=(p.shielding?.6:held?.84:1)*alignment;
     const factor=Math.min(1,dt*19);
     p.body.velocity.x+=(input.moveX/length*p.speed*slow-p.body.velocity.x)*factor;
     p.body.velocity.z+=(input.moveZ/length*p.speed*slow-p.body.velocity.z)*factor;
   }
-  p.yaw=turnToward(p.yaw,Math.atan2(aimDirection.x,aimDirection.z),dt*15);
+  p.yaw=p.travelYaw!==null&&!held&&!input.firing?p.travelYaw:turnToward(p.yaw,Math.atan2(aimDirection.x,aimDirection.z),dt*15);
   if(!held)p.mana=Math.min(p.maxMana,p.mana+dt*(15+2*(save.profile.upgrades.focus||0)+p.gear.regen));
   updateHeld(dt,input);
   if(held&&fireSpell.ignite(held,runTime)){sound.sound('fireIgnite');fx.burst(held.body.position,0xffb047,16,1.8);}
@@ -1205,6 +1213,7 @@ function syncVisuals(dt){
       if(e.dead){const t=clamp((runTime-e.deathTime)/1.2,0,1);for(const part of e.creature.parts.values()){part.root.position.y*=1-t;part.root.position.x*=1+t*.4;part.root.rotation.z+=t*.45;}}
     }else if(e.mesh.visible){
     const animationOptions={camera,moving:!airborne&&speed>.18,speed,grounded:!airborne&&!flying,airborne,flying:e.flying,dash:e.isPlayer?e.dashTime/.19:0,casting:e.isPlayer&&(!!held||castTime>0),attack:e.isPlayer?castTime>.27:e.attackPulse>0,blocking:e.kind==='guard'&&e.windup>0&&e.attackPulse<=0,dead:e.dead&&!airborne,stunned:e.stun>.01&&!airborne};
+    animationOptions.heading=e.isPlayer?e.travelYaw:undefined;
     animationOptions.castTarget=e.isPlayer&&held?held.body.position:null;
     animationOptions.attackWindup=e.windupMax;
     if(e.bossType){animationOptions.clip=e.bossClip;animationOptions.time=e.dead?runTime-e.deathTime:e.stun>.01?(e.bossStaggerTime||0):e.bossAttack?e.bossTime:undefined;}
@@ -1333,7 +1342,11 @@ function findContext(fireOnly=false){
     const d=distance(p,point);if(d>range)return;
     const reachable=fireLineClear(p,point);candidates.push({id,kind,point,range,label,icon,enabled,priority,entity,distance:d,reachable});
   };
-  if(hs.occupied){return !fireOnly&&hs.state==='piloted'?{id:'engine-exit',kind:'engine',label:'ΕΞΟΔΟΣ',icon:'portal',enabled:true,point:hearth.engine.body.position}:null;}
+  if(hs.occupied){
+    const door=!fireOnly&&hs.state==='piloted'&&greekPuzzles?.strikeTarget(hearth.engine);
+    if(door)return{id:'door-strike-'+door.gate.id,kind:'door-strike',label:'ΧΤΥΠΑ ΠΟΡΤΑ',icon:'pulse',key:'Q',enabled:!hearth.engine.strike.active,point:door.point,entity:door};
+    return !fireOnly&&hs.state==='piloted'?{id:'engine-exit',kind:'engine',label:'ΕΞΟΔΟΣ',icon:'portal',enabled:true,point:hearth.engine.body.position}:null;
+  }
   if(!fireOnly){
     if(hearth.near()&&['sleep','ready'].includes(hs.state))add('engine','engine',hearth.engine.visual.point('inlet'),3.7,hs.state==='ready'?'ΕΙΣΟΔΟΣ':fireSpell.charged?'ΦΟΡΤΙΣΗ':'ΠΑΡΕ ΦΩΤΙΑ','portal',!held&&(hs.state==='ready'||fireSpell.charged&&runTime>=fireSpell.readyAt),3);
     if(!relicTaken)add('relic','relic',worldMap.relic.position,3,'ΣΚΗΠΤΡΟ','scepter',!entities.some(e=>e.kind==='boss'&&!e.dead&&!e.removed),3);
@@ -1345,9 +1358,14 @@ function findContext(fireOnly=false){
   }
   return nearestContext(candidates,contextTarget?.id);
 }
+function strikeDoor(){
+  if(!hearth.mounted)return false;
+  return hearth.strikeDoor(greekPuzzles?.strikeTarget(hearth.engine),(gate,origin)=>{const opened=greekPuzzles.forceOpen(gate,origin);if(opened)shake=.16;return opened;});
+}
 function useContext(fireOnly=false){
   const target=findContext(fireOnly);if(!target?.enabled)return false;
   contextAt=-Infinity;
+  if(target.kind==='door-strike')return strikeDoor();
   if(target.kind==='flame'){
     if(!fireSpell.take(player,fireLineClear,held,runTime,target.point))return false;
     worldMap.setTorchLit(fireSpell.torch.id,fireSpell.torch.lit);castTime=.45;fx.burst(fireSpell.torch.position,0xffb44a,15,1.2);sound.sound('fireTake');return true;
@@ -1424,6 +1442,8 @@ function frame(now,manual=false){
           else if(action==='dash')dash(input);
           else if(action==='pulse')pulse();
           else if(action==='context')useContext();
+          else if(action==='doorStrike')strikeDoor();
+          else if(action==='exitEngine')hearth.exit();
           else if(action==='contextFire'&&FIRE_ENABLED)useContext(true);
           else if(action==='healthPotion')usePotion('health');
           else if(action==='manaPotion')usePotion('mana');

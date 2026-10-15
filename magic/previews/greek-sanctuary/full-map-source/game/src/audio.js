@@ -1,12 +1,12 @@
 import flamethrowerUrl from './assets/hearth-flamethrower.mp3?url';
 
 export class MagicAudio {
-  constructor(muted=false){this.muted=muted;this.ctx=null;this.master=null;this.ambient=null;this.flameWanted=false;this.flameBuffer=null;this.flameLoading=null;this.flameVoice=null;this.flameStopTimer=null;this.flamePlaying=false;this.flameError=null;}
+  constructor(muted=false){this.muted=muted;this.paused=false;this.ctx=null;this.master=null;this.ambient=null;this.flameWanted=false;this.flameBuffer=null;this.flameLoading=null;this.flameVoice=null;this.flameStopTimer=null;this.flamePlaying=false;this.flameError=null;}
   async start(){
     try{
       if(!this.ctx){
         this.ctx=new (window.AudioContext||window.webkitAudioContext)();
-        this.master=this.ctx.createGain();this.master.gain.value=this.muted?0:.24;this.master.connect(this.ctx.destination);
+        this.master=this.ctx.createGain();this.master.gain.value=this.muted||this.paused?0:.24;this.master.connect(this.ctx.destination);
         const noise=this.ctx.createBuffer(1,this.ctx.sampleRate,this.ctx.sampleRate),d=noise.getChannelData(0);
         for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;this.noise=noise;
         const ag=this.ctx.createGain();ag.gain.value=.1;ag.connect(this.master);this.ambient=ag;
@@ -26,7 +26,7 @@ export class MagicAudio {
   }
   setFlamethrower(active){this.flameWanted=!!active;this.syncFlamethrower();}
   syncFlamethrower(){
-    const active=this.flameWanted&&!this.muted&&this.ctx?.state==='running'&&!!this.flameBuffer;
+    const active=this.flameWanted&&!this.muted&&!this.paused&&this.ctx?.state==='running'&&!!this.flameBuffer;
     if(active===this.flamePlaying)return;
     this.flamePlaying=active;
     if(!this.ctx)return;
@@ -43,9 +43,16 @@ export class MagicAudio {
       this.flameStopTimer=setTimeout(()=>{voice.source.stop();voice.source.disconnect();voice.gain.disconnect();if(this.flameVoice===voice)this.flameVoice=null;this.flameStopTimer=null;},85);
     }
   }
-  setMuted(value){this.muted=value;if(this.master)this.master.gain.setTargetAtTime(value?0:.24,this.ctx.currentTime,.08);this.syncFlamethrower();}
+  setPaused(value){
+    const paused=!!value;if(paused===this.paused)return;this.paused=paused;
+    if(paused)this.flameWanted=false;
+    if(this.master){const t=this.ctx.currentTime;this.master.gain.cancelScheduledValues(t);this.master.gain.setTargetAtTime(this.muted||paused?0:.24,t,paused?.008:.03);}
+    // Keep the context clock running so existing one-shots expire while silent.
+    this.syncFlamethrower();
+  }
+  setMuted(value){this.muted=value;if(this.master)this.master.gain.setTargetAtTime(value||this.paused?0:.24,this.ctx.currentTime,.08);this.syncFlamethrower();}
   sound(type){
-    if(!this.ctx||this.muted)return;
+    if(!this.ctx||this.muted||this.paused)return;
     const ctx=this.ctx,t=ctx.currentTime;
     const specs={grab:[220,660,.25,'sine',.35],throw:[380,90,.18,'triangle',.45],
       fireTake:[180,510,.45,'triangle',.25],fireIgnite:[100,290,.28,'sawtooth',.2],

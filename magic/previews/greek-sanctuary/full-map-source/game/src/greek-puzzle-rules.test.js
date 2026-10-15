@@ -1,9 +1,18 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {plateOccupants,stepGate,weightNeedsRecovery,flameReachesGate,GREEK_GATES,pressureTray} from './greek-puzzle-rules.js';
+import {plateOccupants,stepGate,breachGate,weightNeedsRecovery,flameReachesGate,GREEK_GATES,pressureTray} from './greek-puzzle-rules.js';
 import {NavigationGrid,segmentBox} from './systems.js';
 import {existingRooms,newRooms,corridors} from './castle-layout.js';
 const weight=(x,z)=>({indestructible:true,body:{position:{x,y:.44,z},velocity:{x:0,y:0,z:0}}});
 const tick=(s,input,n=60)=>{for(let i=0;i<n;i++)stepGate(s,1/60,input);};
+
+test('a physical breach opens either puzzle lock away from the attacker, once',()=>{
+ for(const kind of ['pressure','fire'])for(const rotation of [0,Math.PI/2])for(const side of [-1,1]){
+  const gate={kind,rotation,x:4,z:5,phase:'locked',open:0,charge:0,unblocked:false};
+  assert.equal(breachGate(gate,{x:4+Math.sin(rotation)*side,z:5+Math.cos(rotation)*side}),true);
+  assert.equal(gate.approachSign,side);assert.equal(gate.phase,'opening');assert.equal(gate.open,0);assert.equal(gate.unblocked,false,'collision stays until the runtime parks the leaves');
+  assert.equal(breachGate(gate,{x:0,z:0}),false);tick(gate,{},27);assert.equal(gate.phase,'open');assert.equal(gate.open,1);assert.equal(gate.breached,true);
+ }
+});
 test('double gate requires two separate grounded weights; held/airborne/moving weight does not count',()=>{
  const plates=[{x:-2,z:9},{x:2,z:9}],a=weight(-2,9),b=weight(2,9),s={kind:'pressure',phase:'locked',charge:0,open:0};
  tick(s,{occupied:plateOccupants(plates,[a],null)});assert.equal(s.phase,'locked');

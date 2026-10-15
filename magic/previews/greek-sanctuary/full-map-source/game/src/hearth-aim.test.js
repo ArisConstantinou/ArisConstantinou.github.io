@@ -16,11 +16,11 @@ test('a single nearby item receives both hands; wall, rear items, ally, held, de
  assert.ok(aim.update([item],streams,{...options,held:item}).every(t=>t.entity===null));
  assert.ok(aim.update([item],streams,{...options,clear:()=>false}).every(t=>t.entity===null));
 });
-test('pointer-selected object is detectable among enemies and tracking follows its actual moving body',()=>{
+test('live enemies take both burners ahead of a hovered item; item tracking resumes when threats leave',()=>{
  const aim=createHearthAimTargets(),item=entity(0,4,'prop'),enemies=[entity(-2,4),entity(2,4)];
- const selected=aim.update([...enemies,item],streams,{...options,preferred:item}).map(t=>t.entity);assert.ok(selected.includes(item)&&selected.some(e=>enemies.includes(e)),'pointer item uses a hand while the other remains on a living threat');
+ const selected=aim.update([...enemies,item],streams,{...options,preferred:item}).map(t=>t.entity);assert.ok(selected.every(e=>enemies.includes(e)),'hovered clutter cannot steal either burner from a reachable enemy');
  item.body.position.set(-.8,.6,4.5);const saved=aim.targets.map(t=>t.point);
- for(let n=0;n<50;n++)aim.update([...enemies,item],streams,{...options,preferred:item});
+ for(let n=0;n<50;n++)aim.update([item],streams,{...options,preferred:item});
  assert.ok(aim.targets.every((t,i)=>t.point===saved[i]));assert.ok(aim.targets.some(t=>t.entity===item&&t.point.distanceTo(item.body.position)===0));
  item.removed=true;assert.deepEqual(aim.update([...enemies,item],streams,options).map(t=>t.entity),enemies);
  assert.ok(aim.update(enemies,streams,{...options,active:false}).every(t=>!t.entity));

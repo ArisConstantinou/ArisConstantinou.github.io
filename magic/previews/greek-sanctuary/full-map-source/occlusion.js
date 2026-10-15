@@ -2,6 +2,11 @@ import * as T from 'three';
 const states=new WeakMap();
 const visible=o=>{for(let node=o;node;node=node.parent)if(!node.visible)return false;return true;};
 export function installFullMapOcclusion(world,architecture){
+ const doorMeshes=new Set();
+ for(const gate of architecture.gates)for(const part of [gate.frame,gate.doors])if(part){
+  if(part.parent!==world.root)world.root.attach(part);
+  part.userData.persistentDoor=true;part.traverse(o=>{if(o.isMesh)doorMeshes.add(o);});
+ }
  const walls=[],decor=[];
  world.root.traverse(o=>{if(o.userData.fullMapWall)walls.push({meta:o.userData.fullMapWall,parts:[o],label:o.name,kind:'wall'});else if(o.userData.fullMapStairSection)walls.push({meta:null,parts:[o],label:o.name,kind:'stair',stairId:o.userData.fullMapStairSection.stairId});else if(o.userData.fullMapWallDecoration)decor.push(o);});
  for(const part of decor){
@@ -11,9 +16,8 @@ export function installFullMapOcclusion(world,architecture){
   }
   if(closest)closest.parts.push(part);else walls.push({meta:null,parts:[part],label:part.name||d.type});
  }
- for(const gate of architecture.gates)if(gate.frame&&gate.doors&&!gate.frame.parent?.userData.fullMapWall)walls.push({meta:null,parts:[gate.frame,gate.doors],label:gate.id+' complete portal'});
  const owners=new Map(),meshes=[];
- for(const wall of walls)for(const part of wall.parts)part.traverse(o=>{if(!o.isMesh)return;if(!owners.has(o)){owners.set(o,new Set());meshes.push(o);}owners.get(o).add(wall);});
+ for(const wall of walls)for(const part of wall.parts)part.traverse(o=>{if(!o.isMesh||doorMeshes.has(o))return;if(!owners.has(o)){owners.set(o,new Set());meshes.push(o);}owners.get(o).add(wall);});
  states.set(world,{walls,owners,meshes,elapsed:1,hidden:new Set(),ray:new T.Raycaster(),lastFocus:new T.Vector3(1e9,0,0),lastCamera:new T.Vector3(1e9,0,0)});world.fullMap.cutawaySections=walls.length;
 }
 export function updateFullMapOcclusion(world,subject,camera,dt,playing=true){

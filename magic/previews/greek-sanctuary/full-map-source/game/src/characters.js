@@ -270,7 +270,7 @@ export function createCharacter(kind = 'mage') {
   model.traverse(o => { if(o.isBone) legBones[o.name] = o; });
   const locomotion = createRigLocomotion(group, model, ['l','r'].map(side => ({
     upper: legBones['upperleg'+side], lower: legBones['lowerleg'+side], foot: legBones['foot'+side]
-  })), { stride: .72, lift: .16, allFeetReach: kind==='heavy'&&template.preservePbr });
+  })), { stride: .72, lift: .16, travelFacing:kind==='mage', allFeetReach: kind==='heavy'&&template.preservePbr });
   const magicHands = kind==='mage'&&template.preservePbr ? createMagicHandTargeting(group,model,legBones) : null;
   const weaponGrip = kind==='heavy'&&template.preservePbr ? createTwoHandWeaponGrip(model,legBones) : null;
   let dashOffset = 0;
@@ -349,7 +349,7 @@ export function createCharacter(kind = 'mage') {
     mixer.update(step);
     const dash = Math.max(0, options.dash || 0);
     if (dash > 0) { dashOffset = Math.sin(Math.PI * Math.min(1, 1-dash)) * .48; model.position.y += dashOffset; }
-    locomotion.update(step, { grounded: options.grounded !== false, airborne: options.airborne || dash > 0, dead: isDead,align:alignGait });
+    locomotion.update(step, { grounded: options.grounded !== false, airborne: options.airborne || dash > 0, dead: isDead,heading:options.heading,align:alignGait });
     magicHands?.update(step,options.castTarget,{enabled:casting,disabled:isDead||isStunned});
     weaponGrip?.update();
     garment?.update(step,{disabled:isDead||isStunned||options.grounded===false||options.airborne||dash>0});

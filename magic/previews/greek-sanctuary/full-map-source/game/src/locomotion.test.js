@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { ContactGait, createLegSolver } from './locomotion.js';
+import { ContactGait, createLegSolver, createRigLocomotion } from './locomotion.js';
 
 for (let direction = 0; direction < 8; direction++) test(`planted human and mechanical contacts remain fixed in direction ${direction}`, () => {
   for (const mechanical of [false, true]) {
@@ -36,4 +36,14 @@ test('two-bone solver reaches a real target without stretching the leg',()=>{
  const root=new THREE.Group(),hip=new THREE.Bone(),knee=new THREE.Bone(),foot=new THREE.Bone();hip.position.y=1;root.add(hip);hip.add(knee);knee.position.y=-.5;knee.add(foot);foot.position.y=-.5;root.updateMatrixWorld(true);
  const solve=createLegSolver(hip,knee,foot),target=new THREE.Vector3(.14,.15,.32);assert.ok(solve.solve(target,new THREE.Vector3(0,0,1),new THREE.Quaternion())<1e-6);
  const a=hip.getWorldPosition(new THREE.Vector3()),b=knee.getWorldPosition(new THREE.Vector3()),c=foot.getWorldPosition(new THREE.Vector3());assert.ok(Math.abs(a.distanceTo(b)-.5)<1e-6);assert.ok(Math.abs(b.distanceTo(c)-.5)<1e-6);
+});
+test('human pelvis follows eight travel directions independently of the aiming root',()=>{
+ for(let direction=0;direction<8;direction++){
+  const group=new THREE.Group(),model=new THREE.Group(),hips=new THREE.Bone(),spine=new THREE.Bone();spine.name='spine';group.add(model);model.add(hips);hips.position.y=1.1;hips.add(spine);
+  const legs=[-.15,.15].map(x=>{const upper=new THREE.Bone(),lower=new THREE.Bone(),foot=new THREE.Bone();upper.position.x=x;lower.position.y=-.5;foot.position.y=-.5;hips.add(upper);upper.add(lower);lower.add(foot);return{upper,lower,foot};});
+  const locomotion=createRigLocomotion(group,model,legs,{travelFacing:true}),target=direction*Math.PI/4;locomotion.update(0);
+  for(let frame=0;frame<180;frame++){locomotion.beforeAnimation();group.position.x+=Math.sin(target)*2/60;group.position.z+=Math.cos(target)*2/60;locomotion.update(1/60);}
+  assert.ok(Math.abs(Math.atan2(Math.sin(locomotion.snapshot().yaw-target),Math.cos(locomotion.snapshot().yaw-target)))<.01);
+  assert.equal(group.rotation.y,0,'the aiming root must remain independent');
+ }
 });

@@ -27,6 +27,11 @@ export function plateOccupants(plates,weights,held){
   if(e)used.add(e);return e||null;
  });
 }
+export function breachGate(gate,origin){
+ if(gate.unblocked||gate.phase!=='locked')return false;
+ const r=gate.rotation||0;gate.approachSign=(origin.x-gate.x)*Math.sin(r)+(origin.z-gate.z)*Math.cos(r)>=0?1:-1;
+ gate.breached=true;gate.phase='opening';return true;
+}
 export function stepGate(state,dt,{occupied=[],heat=false}={}){
  const delta=Math.max(0,Math.min(dt,.05));
  if(state.phase==='locked'){
@@ -35,7 +40,7 @@ export function stepGate(state,dt,{occupied=[],heat=false}={}){
   if(state.charge>=(state.kind==='fire'?2.5:.4))state.phase='opening';
  }
  if(state.phase==='opening'){
-  state.open=Math.min(1,state.open+delta/1.45);
+  state.open=Math.min(1,state.open+delta/(state.breached?.42:1.45));
   if(state.open>=1)state.phase='open';
  }
  return state;

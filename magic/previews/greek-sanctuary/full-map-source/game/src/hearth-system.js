@@ -7,9 +7,11 @@ import {createHearth} from './hearth-character.js';
 import {igniteActor,igniteWood,consumeBurnDamage} from './fire.js';
 import {poseHearthPilot} from './hearth-pilot.js';
 import {STOMP} from './hearth-stomp.js';
+import {travelAlignment} from './movement-facing.js';
 import {createHearthAimTargets} from './hearth-aim.js';
 import {createHearthDamageLabels} from './hearth-damage-labels.js';
 import {createHearthFacing} from './hearth-facing.js';
+import {DoorStrike,angleDifference} from './door-strike-rules.js';
 import {supportHeight,standingClear,supportedRoute,supportSightClear} from './walkable-support.js';
 
 export function createHearthSystem({scene,physics,worldMap,nav,material,spell,getPlayer,getEntities,getHeld,getAimEntity=()=>null,getEnvironmentalTargets=()=>[],releaseHeld,hurt,clear,sound,toast,fx,driveResponse=9}){
@@ -31,7 +33,7 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
   body.addShape(new CANNON.Sphere(1.22));body.addShape(new CANNON.Sphere(.94),new CANNON.Vec3(0,1.6+visual.rise,0));
   for(const x of [-1.19,1.19])body.addShape(new CANNON.Sphere(.38),new CANNON.Vec3(x,.9+visual.rise,0));
   body.collisionFilterGroup=8;physics.addBody(body);
-  engine={location,visual,heart,body,yaw:0,aimYaw:0,facing:createHearthFacing(),jetLength:6,streams:createHearthStreams(visual),aim:createHearthAimTargets(),damageLabel:createHearthDamageLabels(),exitPoint:null,transfer:null,stompImpact:null,stompHit:false};sync(0);return engine;
+  engine={location,visual,heart,body,yaw:0,aimYaw:0,facing:createHearthFacing(),strike:new DoorStrike(),doorImpacts:[],jetLength:6,streams:createHearthStreams(visual),aim:createHearthAimTargets(),damageLabel:createHearthDamageLabels(),exitPoint:null,transfer:null,stompImpact:null,stompHit:false};sync(0);return engine;
  }
  function near(){const p=getPlayer();return engine&&Math.abs((p.body.position.y-p.cy)-(engine.body.position.y-1.22))<.6&&Math.hypot(p.body.position.x-engine.body.position.x,p.body.position.z-engine.body.position.z)<3.7&&supportSightClear(p.body.position,engine.visual.point('inlet'),[...worldMap.colliders,...worldMap.floors]);}
  function propPosition(original,r=.68){
@@ -57,7 +59,7 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
   engine.body.mass=0;engine.body.type=CANNON.Body.STATIC;engine.body.velocity.set(0,0,0);engine.body.updateMassProperties();engine.body.aabbNeedsUpdate=true;
  }
  function exit(){
-  if(engine.heart.state!=='piloted')return false;
+  if(engine.heart.state!=='piloted'||engine.strike.active)return false;
   const point=selectExit();if(!point){toast('Η έξοδος εμποδίζεται. Μετακίνησε τη στολή σε ελεύθερο χώρο.','info');return false;}
   engine.exitPoint=point;releaseHeld(false);engine.heart.exit();engine.body.velocity.set(0,0,0);sound.sound('impact');return true;
  }
@@ -78,23 +80,34 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
  function drive(dt,input){
   if(!engine?.heart.occupied)return false;
   const h=engine.heart,b=engine.body,p=getPlayer();
-  if(h.state==='piloted'&&h.stompTime===0){
+  if(engine.strike.active){engine.yaw+=THREE.MathUtils.clamp(angleDifference(engine.yaw,engine.strike.target.yaw),-dt*4,dt*4);engine.aimYaw=engine.yaw;b.velocity.set(0,0,0);}
+  else engine.yaw=engine.facing.update(dt,{yaw:engine.yaw,aimYaw:engine.aimYaw,moveX:input.moveX,moveZ:input.moveZ,firing:!!input.firing,enabled:h.state==='piloted'&&h.stompTime===0&&h.throwTime===0}).yaw;
+  if(h.state==='piloted'&&h.stompTime===0&&!engine.strike.active){
    engine.body.mass=70;engine.body.type=CANNON.Body.DYNAMIC;engine.body.updateMassProperties();
-   const n=Math.max(1,Math.hypot(input.moveX,input.moveZ)),blend=Math.min(1,dt*driveResponse);
-   b.velocity.x+=(input.moveX/n*HEARTH.speed-b.velocity.x)*blend;b.velocity.z+=(input.moveZ/n*HEARTH.speed-b.velocity.z)*blend;
-  }else{b.velocity.x=b.velocity.z=0;p.invulnerable=.3;}
+   const n=Math.max(1,Math.hypot(input.moveX,input.moveZ)),blend=Math.min(1,dt*driveResponse),speed=HEARTH.speed*travelAlignment(engine.yaw,input.moveX,input.moveZ);
+   b.velocity.x+=(input.moveX/n*speed-b.velocity.x)*blend;b.velocity.z+=(input.moveZ/n*speed-b.velocity.z)*blend;
+  }else{b.velocity.x=b.velocity.z=0;if(!engine.strike.active)p.invulnerable=.3;}
   // The waist remains independently aimed. Large sustained differences turn
   // the base via the existing planted-foot gait, even without travel input.
-  engine.yaw=engine.facing.update(dt,{yaw:engine.yaw,aimYaw:engine.aimYaw,moveX:input.moveX,moveZ:input.moveZ,firing:!!input.firing,enabled:h.state==='piloted'&&h.stompTime===0&&h.throwTime===0}).yaw;
   p.body.position.set(b.position.x,b.position.y-1.22+p.cy+.06,b.position.z);p.body.velocity.set(0,0,0);p.body.aabbNeedsUpdate=true;
   return true;
  }
  function update(dt,input,time){
   if(!engine)return;
-  const h=engine.heart,event=h.update(dt,{moving:Math.hypot(engine.body.velocity.x,engine.body.velocity.z)>.1,fire:input.firing&&!getHeld()});
-  if(!h.firing){
+  const strike=engine.strike;
+  if(strike.active){
+   const settled=Math.abs(angleDifference(engine.yaw,strike.target.yaw))<.035&&engine.visual.locomotion.gait.feet.every(f=>f.stance);
+   const event=strike.update(dt,strike.time>0||settled);
+   if(event==='impact'){
+    sync(0);const pose=engine.visual.strikeRig.snapshot(),opened=pose.error<.08&&!!engine.openStruckDoor?.(strike.target.gate,engine.body.position);
+    engine.doorImpacts.push({kind:strike.kind,time:strike.time,opened,error:pose.error,contact:pose.contact,actual:pose.actual});
+    if(opened){sound.sound('impact');fx.burst(new THREE.Vector3(...pose.contact),0xc9b99a,30,2.8);}
+   }else if(event==='complete'){engine.body.type=engine.strikeBodyType;engine.body.updateMassProperties();engine.facing.reset(engine.yaw);}
+  }
+  const h=engine.heart,event=h.update(dt,{moving:Math.hypot(engine.body.velocity.x,engine.body.velocity.z)>.1,fire:input.firing&&!getHeld()&&!strike.active});
+  if(!h.firing&&!strike.active){
    const pointerTurn=Math.atan2(Math.sin(getPlayer().yaw-engine.aimYaw),Math.cos(getPlayer().yaw-engine.aimYaw));
-   engine.aimYaw=h.state==='piloted'?engine.aimYaw+THREE.MathUtils.clamp(pointerTurn,-dt*2.8,dt*2.8):getPlayer().yaw;
+   engine.aimYaw=h.state==='piloted'&&Math.hypot(input.moveX,input.moveZ)>.1?Math.atan2(input.moveX,input.moveZ):h.state==='piloted'?engine.aimYaw+THREE.MathUtils.clamp(pointerTurn,-dt*2.8,dt*2.8):getPlayer().yaw;
   }
   if(event==='boardComplete'){freezePlayer();toast('WASD / μοχλός: βάδισμα · κράτημα αριστερού κλικ: δύο φλογοβόλα · δεξί κλικ: πάτημα · E: έξοδος','info');}
   if(event==='stompImpact'){
@@ -121,7 +134,7 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
    sync(0);
    engine.aim.update([...getEntities(),...getEnvironmentalTargets()],engine.streams,{active:true,yaw:getPlayer().yaw,center:engine.body.position,held:getHeld(),preferred:getAimEntity(),clear});
    const turn=Math.atan2(Math.sin(engine.aim.desiredYaw-engine.aimYaw),Math.cos(engine.aim.desiredYaw-engine.aimYaw));
-   const waistTurn=THREE.MathUtils.clamp(turn,-dt*2.8,dt*2.8);engine.aimYaw+=waistTurn;
+   const waistTurn=THREE.MathUtils.clamp(turn,-dt*6,dt*6);engine.aimYaw+=waistTurn;
    // Retarget only the actual waist/arms. The planted legs, animation mixer
    // and pilot have already been evaluated by the preceding sync.
    engine.visual.aimAtTargets(dt,engine.aim.targets,true,Math.abs(waistTurn)>1e-8?engine.aimYaw:undefined);
@@ -139,9 +152,10 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
  function sync(dt,aimDt=engine?.heart.firing?0:dt){
   if(!engine)return;const {body,heart:h,visual}=engine;
   visual.group.position.set(body.position.x,body.position.y-1.22,body.position.z);visual.group.rotation.y=engine.yaw;
-  const clip=h.state==='piloted'&&h.clip==='Idle'&&Math.hypot(body.velocity.x,body.velocity.z)>.15?'Walk':h.clip;
+  const doorStrike=engine.strike.active&&engine.strike.time>0?engine.strike:null;
+  const clip=doorStrike?(doorStrike.kind==='punch'?'Fire':'Idle'):h.state==='piloted'&&h.clip==='Idle'&&Math.hypot(body.velocity.x,body.velocity.z)>.15?'Walk':h.clip;
   const time=['waking','boarding','exiting','depleting'].includes(h.state)?h.time:h.stompTime>0?HEARTH_STOMP.duration-h.stompTime:h.throwTime>0?.85-h.throwTime:undefined;
-  visual.update(dt,{clip,time,fuel:h.fuel,aimYaw:engine.aimYaw,aimDt,aimTargets:engine.aim.targets,firing:h.firing});
+  visual.update(dt,{clip,time,fuel:h.fuel,aimYaw:engine.aimYaw,aimDt,aimTargets:engine.aim.targets,firing:h.firing,doorStrike});
   updateHearthStreams(engine.streams,visual,clear,h.firing);engine.jetLength=engine.streams[0].length;
   if(h.occupied){
    const p=getPlayer(),anchor=visual.point('pilot');p.mesh.scale.setScalar(.72);
@@ -157,7 +171,8 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
   }else if(getPlayer()?.shadow)getPlayer().shadow.visible=true;
  }
  function snapshot(){return engine?{state:engine.heart.state,fuel:engine.heart.fuel,endless:engine.heart.endless,stompCooldown:engine.heart.stompCooldown,room:engine.location.room.name,roomLabel:engine.location.room.label||engine.location.room.name,x:engine.body.position.x,z:engine.body.position.z,yaw:engine.yaw,aimYaw:engine.aimYaw,stompTime:engine.heart.stompTime,clip:engine.visual.group.userData.animationState,firing:engine.heart.firing,occupied:engine.heart.occupied}:null;}
- function stomp(){if(!engine?.heart.stomp())return false;engine.body.velocity.x=engine.body.velocity.z=0;return true;}
+ function strikeDoor(target,open){if(!engine||engine.heart.state!=='piloted'||engine.heart.stompTime||engine.heart.throwTime||getHeld()||!engine.strike.start(target))return false;engine.openStruckDoor=open;engine.strikeBodyType=engine.body.type;engine.body.type=CANNON.Body.KINEMATIC;engine.body.velocity.set(0,0,0);engine.body.updateMassProperties();engine.heart.firing=false;return true;}
+ function stomp(){if(engine?.strike.active||!engine?.heart.stomp())return false;engine.body.velocity.x=engine.body.velocity.z=0;return true;}
  function dispose(){if(!engine)return;if(engine.heart.occupied)dismount();physics.removeBody(engine.body);engine.visual.dispose();engine=null;}
- return {reset,propPosition,interact,drive,update,sync,near,dispose,snapshot,exit,stomp,get engine(){return engine;},get mounted(){return engine?.heart.state==='piloted';},get occupied(){return !!engine?.heart.occupied;},get blocked(){return engine?.heart.occupied&&!this.mounted;},throw:()=>!engine?.heart.occupied||engine.heart.throw()};
+ return {reset,propPosition,interact,drive,update,sync,near,dispose,snapshot,exit,stomp,strikeDoor,get engine(){return engine;},get mounted(){return engine?.heart.state==='piloted';},get occupied(){return !!engine?.heart.occupied;},get blocked(){return engine?.heart.occupied&&!this.mounted;},throw:()=>!engine?.heart.occupied||!engine.strike.active&&engine.heart.throw()};
 }

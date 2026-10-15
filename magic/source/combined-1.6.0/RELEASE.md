@@ -1,0 +1,15 @@
+# MAGIC 1.6.0 — combined main release
+
+Verified source checkpoint: 6510d2c1d0666fda56e011c37aeba23665890294 on codex/siege-environment-b. Runtime: engine/index-CDIbyVpK.js.
+
+The main game now uses the complete connected Greek/Gothic map instead of the older main-map runtime. Completed movement/facing/targeting, native HEARTH Q punch/kick door breaches, intact opened leaves, single held/airborne item shadows, silent paused audio and notification removal are combined in this build. Main progress keeps the existing magic-exiled-v1 key; previews use a separate key. Root HTML reuses the frozen shared assets without duplicating the model library. The worker owns /magic/ and precaches the complete current release.
+
+The still-active unit/boss redesign is excluded. Existing d4d78e5 character and environment exports are frozen. Source: [editable full map](../../previews/greek-sanctuary/full-map-source/README.md). Previous main revision: d4d78e5596eeab20ab0a50cba62495abe32e4dd6; previous root/runtime files remain recoverable in Git and old hashed assets remain hosted.
+
+Before promotion: 270/270 units; 47 movement/aim checks including camera rotation and touch; 17 native animation/contact checks; 27 door/control checks; 20 actual Web Audio checks; 4 shadow checks; 12 old-1.5.2 save/worker/offline checks; 4 constant native W/S stair checks; prescribed two-iteration game client. The continuous campaign completed 19 stages/26 assertions, four actual boss deaths, native relic collection and native exit victory. Combat was isolated with held NPC attacks/contacts and invulnerability; the logic run drew only screenshots while retaining full simulation, matrices, collision and native input. Independent full-render tests cover presentation and controls. This is not unassisted combat-balance proof.
+
+The earlier full-render campaign reached three bosses and the temple before its test controller oscillated 0.27–0.33m from a stair waypoint. Constant W climbs the unchanged six real risers. Only the intermediate test steering arrival window changed to 0.4m; gameplay physics, final boss deaths, puzzle contacts and victory assertions were retained.
+
+Local Vite sends Vary:Origin, unlike the verified GitHub Pages Accept-Encoding header. The local offline test normalizes only its owned cache response headers to isolate that server difference. Public offline verification must pass with the real deployed worker and no header fixture. The 91-file cache manifest records 365,989,975 bytes and exact SHA-256 values.
+
+Sequential Chrome/RTX5080, 1440×900 DPR1, identical door-front scene: before/after rAF p95 16.8/16.8ms; no cadence samples above50ms. CPU+GPU finish median12.3/13.1ms and p95 20.2/26.4ms, measured separately from cadence. Both1832 draw calls and4,916,180 triangles;569 geometries/111 textures after. Physical phones, VRAM, long-term leaks and global60FPS are not established. Five known Three.js generated GLSL whitespace lines were classified without altering the hashed bundle; authored whitespace checks passed.

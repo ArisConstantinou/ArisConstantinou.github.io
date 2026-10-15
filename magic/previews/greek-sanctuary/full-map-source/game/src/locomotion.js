@@ -136,15 +136,21 @@ export function createRigLocomotion(group, model, legs, options = {}) {
   const legLength=Math.min(...lengths);
   const gait = new ContactGait(offsets, {...options,legLength,stride:options.mechanical?options.stride:Math.min(options.stride||.72,legLength*.72)}), position = new THREE.Vector3(), scale = new THREE.Vector3(), pole = new THREE.Vector3(), footQ = new THREE.Quaternion();
   const errors = [0, 0]; let lastBodyOffset = 0,lastLateralOffset=0,supportBlend=0;
-  group.userData.locomotion = { get snapshot() { return { ...gait.snapshot(), errors: [...errors] }; } };
+  group.userData.locomotion = { get snapshot() { return { ...gait.snapshot(), yaw:legYaw, errors: [...errors] }; } };
   function reset() { beforeAnimation(); gait.reset();legYaw=null;supportBlend=0; }
   function beforeAnimation() { model.position.y -= lastBodyOffset; model.position.x-=lastLateralOffset;lastBodyOffset = lastLateralOffset = 0;if(turnApplied){hips.quaternion.copy(hipsPose);spine.quaternion.copy(spinePose);turnApplied=false;} }
-  function update(dt, { grounded = true, dead = false, airborne = false, footOverride = null, bodyOffset = 0, align = null } = {}) {
+  function update(dt, { grounded = true, dead = false, airborne = false, footOverride = null, bodyOffset = 0, align = null, heading:requestedHeading = null } = {}) {
     group.updateMatrixWorld(true); group.getWorldPosition(position); group.getWorldScale(scale); group.getWorldQuaternion(rotation);
     pole.set(0, 0, 1).applyQuaternion(rotation); pole.y = 0; pole.normalize();
     const aimYaw = Math.atan2(pole.x, pole.z), disabled = !grounded || airborne || dead;
     if(disabled)legYaw=null;
-    if(hips&&spine&&!disabled){legYaw??=aimYaw;legYaw+=clamp(angleDelta(legYaw,aimYaw),-dt*2.8,dt*2.8);}
+    if(hips&&spine&&!disabled){
+      const dx=position.x-gait.last.x,dz=position.z-gait.last.z;
+      const traveling=options.travelFacing&&gait.initialized&&dt>0&&Math.hypot(dx,dz)>dt*.12;
+      const heading=options.travelFacing&&Number.isFinite(requestedHeading)?requestedHeading:traveling?Math.atan2(dx,dz):aimYaw;
+      const turnRate=options.travelFacing?5.6:2.8;
+      legYaw??=aimYaw;legYaw+=clamp(angleDelta(legYaw,heading),-dt*turnRate,dt*turnRate);
+    }
     const yaw=legYaw??aimYaw;pole.set(Math.sin(yaw),0,Math.cos(yaw));
     gait.update(dt, position, yaw, { scale: scale.y, disabled });
     if (disabled) {supportBlend=0;return;}
@@ -178,5 +184,5 @@ export function createRigLocomotion(group, model, legs, options = {}) {
       errors[i] = solvers[i].solve(footOverride?.[i] || f.target, pole, footQ);
     }
   }
-  return { gait, offsets, neutral, solvers, beforeAnimation, update, reset, snapshot: () => ({ ...gait.snapshot(), errors: [...errors] }) };
+  return { gait, offsets, neutral, solvers, beforeAnimation, update, reset, snapshot: () => ({ ...gait.snapshot(), yaw:legYaw, errors: [...errors] }) };
 }
