@@ -1,0 +1,56 @@
+name: Install Reset Show v4
+on:
+  push:
+    paths:
+      - '.github/workflows/reset-show-v4-install.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: reset-show-v4-install
+  cancel-in-progress: false
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - name: Download the public game bundle
+        env:
+          BUNDLE_URL: https://at.adobe.com/DqqvNkhe0owvDU01
+        run: curl --fail --location --retry 2 "$BUNDLE_URL" -o "$RUNNER_TEMP/reset-show-v4.zip"
+      - name: Validate checksum and install only the game paths
+        run: |
+          python - <<'PY'
+          import hashlib,os,zipfile
+          from pathlib import Path,PurePosixPath
+          archive=Path(os.environ['RUNNER_TEMP'])/'reset-show-v4.zip'
+          assert hashlib.sha256(archive.read_bytes()).hexdigest()=='1e9ceb7164175a524f21bb648d56dc8617b38eddd388745ad29bfe377c3fce8b','Bundle checksum mismatch'
+          with zipfile.ZipFile(archive) as z:
+            for item in z.infolist():
+              path=PurePosixPath(item.filename)
+              assert not path.is_absolute() and '..' not in path.parts,'Unsafe path'
+              assert item.filename.startswith('funny/') or item.filename=='funy/index.html','Out-of-scope path'
+              assert item.file_size<2_000_000,'Unexpectedly large file'
+              if not item.is_dir():
+                target=Path(*path.parts);target.parent.mkdir(parents=True,exist_ok=True)
+                target.write_bytes(z.read(item))
+                print('Installed',target)
+          PY
+          node --check funny/game-v4.js
+          node --check funny/questions-v4.js
+      - name: Commit only the Reset Show game
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- funny funy/index.html
+          if git diff --cached --quiet; then
+            echo 'This bundle is already installed.'
+            exit 0
+          fi
+          git commit -m 'Reset Show v4: users host, Tibo plays, Sam cheers and shushes'
+          git pull --rebase origin main
+          git push origin HEAD:main
