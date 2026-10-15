@@ -1,0 +1,47 @@
+name: Install Reset Show v5
+on:
+  push:
+    paths: ['.github/workflows/reset-show-v5-install.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          sparse-checkout: |
+            funny
+      - name: Download and validate the tested update
+        run: |
+          curl --fail --location --retry 2 'https://at.adobe.com/TI4GFR7Snrime8YO' -o /tmp/reset-show-v5.zip
+          echo '0a5af04d902d0f3f1f0b39fac77943afff176647f22b808b6919bc42b80d7dc5  /tmp/reset-show-v5.zip' | sha256sum --check
+          test "$(git hash-object funny/index.html)" = '0d1e75e23079a2a02681a18a1346c2a97b5dab35'
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          allowed={'funny/index.html','funny/actors-v5.js','funny/questions-v5.js','funny/game-v5.js','funny/rig-v5.css','funny/README-v5.md','funny/qa-v5.py','funny/script-notes-v5.html','.github/workflows/funy-check.yml'}
+          with ZipFile('/tmp/reset-show-v5.zip') as z:
+            assert set(z.namelist())==allowed
+            assert sum(x.file_size for x in z.infolist())<1000000
+            for name in z.namelist():
+              if name.startswith('.github/'):
+                continue
+              target=Path(name)
+              target.parent.mkdir(parents=True,exist_ok=True)
+              target.write_bytes(z.read(name))
+          PY
+          node --check funny/actors-v5.js
+          node --check funny/game-v5.js
+          node --check funny/questions-v5.js
+      - name: Commit only these game files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add funny/index.html funny/actors-v5.js funny/questions-v5.js funny/game-v5.js funny/rig-v5.css funny/README-v5.md funny/qa-v5.py funny/script-notes-v5.html
+          git diff --cached --stat
+          git commit -m 'Reset Show v5: jointed actors, facial motion, clapping and shushing, revised user dialogue'
+          git push origin HEAD:main
