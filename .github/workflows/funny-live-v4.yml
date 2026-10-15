@@ -44,12 +44,16 @@ jobs:
               assert results['version']=='4.0.0','Wrong runtime'
               assert all(x['width']>0 for x in results['images']),'One or more images failed'
               page.click('#start');page.click('#answers button[data-index="1"]');page.click('#lock')
-              page.wait_for_function('document.getElementById("samWord").textContent==="Shhhhhhh"')
+              page.wait_for_selector('#answers .chosen-win')
+              page.wait_for_function('!document.getElementById("samCloud").hidden && document.getElementById("samWord").textContent==="Shhhhhhh"')
               assert page.locator('#stage').get_attribute('data-mood')=='win','Not in winning state'
               assert page.locator('#playing a,dialog').count()==0,'Unexpected links/dialog in play'
               page.screenshot(path='artifacts/live-v4-desktop.png',full_page=True)
               mobile=b.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True,reduced_motion='reduce')
-              mp=mobile.new_page();mp.goto(base+'?verify='+stamp,wait_until='networkidle');mp.click('#start');mp.tap('#answers button[data-index="1"]');mp.tap('#lock');mp.wait_for_function('document.getElementById("samWord").textContent==="Shhhhhhh"');mp.screenshot(path='artifacts/live-v4-mobile.png',full_page=True);mp.tap('#dockNext');assert 'QUESTION 02' in mp.locator('#round').inner_text()
+              mp=mobile.new_page();mp.goto(base+'?verify='+stamp,wait_until='networkidle');mp.click('#start');mp.tap('#answers button[data-index="1"]');mp.tap('#lock')
+              mp.wait_for_selector('#answers .chosen-win')
+              mp.wait_for_function('!document.getElementById("samCloud").hidden && document.getElementById("samWord").textContent==="Shhhhhhh"')
+              mp.screenshot(path='artifacts/live-v4-mobile.png',full_page=True);mp.tap('#dockNext');assert 'QUESTION 02' in mp.locator('#round').inner_text()
               results['live_verified']=True
               print('LIVE VERIFIED: users host, Tibo plays, selfish answer wins, Sam shushes, mobile next works.',flush=True)
             except Exception:
