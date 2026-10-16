@@ -66,7 +66,7 @@ const integration={name:'magic-full-map-integration',async transform(input,id){
   code=replace(code,'function actor(kind,x,z,isPlayer=false,bossType=null,room=null){','function actor(kind,x,z,isPlayer=false,bossType=null,room=null,floorY=0){','Height-aware actor spawn');
   code=replace(code,'new CANNON.Vec3(x,cy+.08,z)','new CANNON.Vec3(x,floorY+cy+.08,z)','Actor body starts on its actual floor');
   code=replace(code,"actor(i%3===1?'archer':'guard',p.x,p.z)","actor(i%3===1?'archer':'guard',p.x,p.z,false,null,null,p.y??0)",'Reinforcement floor');
-  code=replace(code,"actor(['guard','archer','heavy'][i],p.x,p.z)","actor(['guard','archer','heavy'][i],p.x,p.z,false,null,null,p.y??0)",'Summoned minion floor');
+  code=replace(code,"actor(['stone-minion','archer','heavy'][i],p.x,p.z)","actor(['stone-minion','archer','heavy'][i],p.x,p.z,false,null,null,p.y??0)",'Summoned minion floor');
   code=replace(code,'for(const secret of worldMap.secrets){','for(const secret of [...worldMap.secrets,...worldMap.fullMap.elevatedLoot]){','Place actual upper-floor rewards');
   code=replace(code,'mesh.position.set(secret.loot.x,0,secret.loot.z)','mesh.position.set(secret.loot.x,secret.loot.y??0,secret.loot.z)','Reward height');
   code=replace(code,'// Settle dynamic props before input begins.','populateFullMap(worldMap,entities);\n  // Settle dynamic props before input begins.','Move existing guards to their upper rooms');

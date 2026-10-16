@@ -10,14 +10,14 @@ const angleDelta = (a, b) => Math.atan2(Math.sin(b - a), Math.cos(b - a));
  * The same contacts survive strafing, aim turns, casting and upper-body attacks.
  */
 export class ContactGait {
-  constructor(offsets, { mechanical = false, stride = .72, lift = .17, legLength = .8 } = {}) {
+  constructor(offsets, { mechanical = false, continuous = false, stride = .72, lift = .17, legLength = .8 } = {}) {
     this.offsets = offsets.map(v => v.clone());
-    this.mechanical = mechanical; this.stride = stride; this.lift = lift; this.legLength = legLength; this.started = false;
+    this.mechanical = mechanical; this.continuous=continuous;this.stride = stride; this.lift = lift; this.legLength = legLength; this.started = false;
     this.runningThreshold = Math.min(2.7, legLength*4.5);
-    this.feet = offsets.map(() => ({ anchor: new THREE.Vector3(), target: new THREE.Vector3(), from: new THREE.Vector3(), yaw: 0, fromYaw: 0, stance: true, lift: 0, initialized: false }));
+    this.feet = offsets.map(() => ({ anchor: new THREE.Vector3(), target: new THREE.Vector3(), from: new THREE.Vector3(), endpoint: new THREE.Vector3(), previous: new THREE.Vector3(), yaw: 0, fromYaw: 0, stance: true, lift: 0, initialized: false, liftAt:0, swingStart:0, swingSpan:1, swingLift:0, swingStride:0, swingDuty:0 }));
     this.last = new THREE.Vector3(); this.direction = new THREE.Vector3(0, 0, 1);
     this.ideal = new THREE.Vector3(); this.end = new THREE.Vector3();
-    this.phase = 0; this.speed = 0; this.travel = 0; this.initialized = false; this.lastYaw = 0; this.scale = 1;
+    this.phase = 0; this.speed = 0; this.travel = 0; this.initialized = false; this.lastYaw = 0; this.scale = 1; this.runBlend=0;
   }
   reset() { this.initialized = false; this.phase = 0; this.speed = 0; this.travel = 0; this.started = false; }
   idealFoot(i, position, yaw, out) {
@@ -25,6 +25,7 @@ export class ContactGait {
     return out.set(position.x + (o.x * c + o.z * n) * s, position.y + o.y * s, position.z + (o.z * c - o.x * n) * s);
   }
   update(dt, position, yaw, { scale = 1, disabled = false } = {}) {
+    if(!this.mechanical&&this.continuous)return this.updateHuman(dt,position,yaw,{scale,disabled});
     this.scale = scale;
     const dx = position.x - this.last.x, dz = position.z - this.last.z, distance = Math.hypot(dx, dz);
     if (!this.initialized || disabled || distance > 3 * scale) {
@@ -77,6 +78,58 @@ export class ContactGait {
     }
     this.last.copy(position); this.lastYaw = yaw;
     return this;
+  }
+  updateHuman(dt,position,yaw,{scale,disabled}){
+    this.scale=scale;
+    const dx=position.x-this.last.x,dz=position.z-this.last.z,distance=Math.hypot(dx,dz);
+    if(!this.initialized||disabled||distance>3*scale){
+      for(let i=0;i<2;i++){const f=this.feet[i];this.idealFoot(i,position,yaw,f.anchor);f.target.copy(f.anchor);f.from.copy(f.anchor);f.endpoint.copy(f.anchor);f.yaw=f.fromYaw=yaw;f.stance=true;f.lift=0;f.initialized=true;f.liftAt=.57-i*.5;}
+      this.last.copy(position);this.lastYaw=yaw;this.initialized=!disabled;this.speed=0;this.phase=0;this.started=false;this.runBlend=0;return this;
+    }
+    if(dt<=0)return this;
+    this.speed=distance/dt;this.travel+=distance;
+    const turn=Math.abs(angleDelta(this.lastYaw,yaw));if(distance>.0001)this.direction.set(dx/distance,0,dz/distance);
+    this.runBlend+=((this.speed>this.runningThreshold*scale?1:0)-this.runBlend)*(1-Math.exp(-dt*10));
+    const runStride=Math.min(1.05,Math.max(this.legLength*.85,this.speed/scale*.22));
+    const stride=THREE.MathUtils.lerp(this.stride,runStride,this.runBlend)*scale;
+    const runDuty=Math.min(.30,this.legLength*.4*scale/Math.max(.001,stride)),duty=THREE.MathUtils.lerp(.57,runDuty,this.runBlend);
+    let settle=false;for(let i=0;i<2;i++){this.idealFoot(i,position,yaw,this.ideal);if(this.feet[i].target.distanceTo(this.ideal)>.07*scale||Math.abs(angleDelta(this.feet[i].yaw,yaw))>.15)settle=true;}
+    const advancing=distance>.0001||turn>.001||settle||this.feet.some(f=>!f.stance);
+    if(advancing&&!this.started){
+      // The first moving frame must lift from the existing planted contact.
+      // A random/global mid-swing phase cannot be used as its starting pose.
+      this.phase=duty-.5;for(let i=0;i<2;i++)this.feet[i].liftAt=duty-i*.5;this.started=true;
+    }
+    if(advancing)this.phase+=Math.max(distance/(2*stride),turn/(2*.45),distance>.0001?0:dt*1.65);
+    else this.started=false;
+    for(let i=0;i<2;i++){
+      const f=this.feet[i];this.idealFoot(i,position,yaw,this.ideal);
+      let lifting=false;
+      const needsStep=distance>.0001||turn>.001||f.anchor.distanceTo(this.ideal)>.07*scale||Math.abs(angleDelta(f.yaw,yaw))>.15;
+      const supportReach=f.anchor.distanceTo(this.ideal)>this.legLength*.40*scale;
+      if(f.stance&&advancing&&needsStep&&(this.phase>=f.liftAt||supportReach)){
+        f.from.copy(f.target);f.fromYaw=f.yaw;f.swingStart=this.phase;f.swingSpan=1-duty;f.swingDuty=duty;f.swingStride=stride;f.swingLift=Math.min(this.lift+.06*this.runBlend,this.legLength*.52)*scale;f.stance=false;
+        const seconds=2*stride/Math.max(this.speed,1.8);
+        f.swingElapsed=0;f.swingSeconds=clamp(seconds*f.swingSpan,.20,.36);lifting=true;
+        f.endpoint.copy(this.ideal).addScaledVector(this.direction,this.speed>.12?this.speed*seconds*f.swingSpan+stride*duty:0);
+      }
+      if(f.stance){f.target.copy(f.anchor);f.lift=0;continue;}
+      // Freeze an airborne foot's arc parameters at lift-off. Changing the
+      // walk/run duty ratio mid-step otherwise restarts it above the floor.
+      if(!lifting)f.swingElapsed+=dt;
+      const t=clamp(f.swingElapsed/f.swingSeconds,0,1),easing=smooth(t);
+      this.end.copy(this.ideal).addScaledVector(this.direction,this.speed>.12?this.speed*(1-t)*f.swingSeconds+f.swingStride*f.swingDuty:0);
+      f.endpoint.lerp(this.end,1-Math.exp(-dt*12));
+      f.previous.copy(f.target);f.target.copy(f.from).lerp(f.endpoint,easing);f.lift=Math.sin(Math.PI*t)*f.swingLift;f.target.y+=f.lift;f.yaw=f.fromYaw+angleDelta(f.fromYaw,yaw)*easing;
+      // Rapid input reversals may move the landing prediction by metres.
+      // Retarget an airborne foot at a finite speed; never teleport it to a
+      // new prediction, including the final landing frame.
+      const travel=f.target.distanceTo(f.previous),maximum=11*scale*dt;
+      if(travel>maximum)f.target.sub(f.previous).multiplyScalar(maximum/travel).add(f.previous);
+      f.lift=Math.max(0,f.target.y-this.ideal.y);
+      if(t>=1&&f.target.distanceTo(f.endpoint)<.00001){f.anchor.copy(f.target);f.lift=0;f.stance=true;f.yaw=yaw;f.liftAt=Math.floor(this.phase+i*.5)+duty-i*.5;if(f.liftAt<=this.phase+.00001)f.liftAt+=1;}
+    }
+    this.last.copy(position);this.lastYaw=yaw;return this;
   }
   snapshot() {
     return { speed: this.speed, travel: this.travel, phase: this.phase % 1, feet: this.feet.map(f => ({ stance: f.stance, lift: f.lift, yaw: f.yaw, anchor: f.anchor.toArray(), target: f.target.toArray() })) };
@@ -135,9 +188,9 @@ export function createRigLocomotion(group, model, legs, options = {}) {
   const lengths=legs.map(l=>{l.upper.getWorldPosition(a);l.lower.getWorldPosition(b);l.foot.getWorldPosition(c);return a.distanceTo(b)+b.distanceTo(c);});
   const legLength=Math.min(...lengths);
   const gait = new ContactGait(offsets, {...options,legLength,stride:options.mechanical?options.stride:Math.min(options.stride||.72,legLength*.72)}), position = new THREE.Vector3(), scale = new THREE.Vector3(), pole = new THREE.Vector3(), footQ = new THREE.Quaternion();
-  const errors = [0, 0]; let lastBodyOffset = 0,lastLateralOffset=0,supportBlend=0;
+  const errors = [0, 0]; let lastBodyOffset = 0,lastLateralOffset=0,supportBlend=0,bodyCompression=0;
   group.userData.locomotion = { get snapshot() { return { ...gait.snapshot(), yaw:legYaw, errors: [...errors] }; } };
-  function reset() { beforeAnimation(); gait.reset();legYaw=null;supportBlend=0; }
+  function reset() { beforeAnimation(); gait.reset();legYaw=null;supportBlend=0;bodyCompression=0; }
   function beforeAnimation() { model.position.y -= lastBodyOffset; model.position.x-=lastLateralOffset;lastBodyOffset = lastLateralOffset = 0;if(turnApplied){hips.quaternion.copy(hipsPose);spine.quaternion.copy(spinePose);turnApplied=false;} }
   function update(dt, { grounded = true, dead = false, airborne = false, footOverride = null, bodyOffset = 0, align = null, heading:requestedHeading = null } = {}) {
     group.updateMatrixWorld(true); group.getWorldPosition(position); group.getWorldScale(scale); group.getWorldQuaternion(rotation);
@@ -153,7 +206,7 @@ export function createRigLocomotion(group, model, legs, options = {}) {
     }
     const yaw=legYaw??aimYaw;pole.set(Math.sin(yaw),0,Math.cos(yaw));
     gait.update(dt, position, yaw, { scale: scale.y, disabled });
-    if (disabled) {supportBlend=0;return;}
+    if (disabled) {supportBlend=0;bodyCompression=0;return;}
     if(align){align(gait);group.updateMatrixWorld(true);}
     if(hips&&spine&&Math.abs(angleDelta(aimYaw,yaw))>.0001){
       hipsPose.copy(hips.quaternion);spinePose.copy(spine.quaternion);spine.getWorldQuaternion(spineWorld);hips.getWorldQuaternion(hipsWorld);
@@ -164,10 +217,10 @@ export function createRigLocomotion(group, model, legs, options = {}) {
     const moving = gait.speed > .12 || gait.feet.some(f => !f.stance);
     // Make room for an actual bent knee and forward/rear support contact.
     // This offset is visual only: it never alters the physical body or height.
-    if(options.mechanical)supportBlend+=((moving?1:0)-supportBlend)*(1-Math.exp(-dt*10));
-    const support=options.mechanical?supportBlend:moving?1:0;
+    if(options.mechanical||options.continuous)supportBlend+=((moving?1:0)-supportBlend)*(1-Math.exp(-dt*10));
+    const support=options.mechanical||options.continuous?supportBlend:moving?1:0;
     lastBodyOffset = bodyOffset - support*(options.mechanical?.055:legLength*.15);
-    lastLateralOffset=support*(options.mechanical?.065:legLength*.055)*Math.cos(gait.phase*Math.PI*2);
+    lastLateralOffset=support*(options.mechanical?.065:legLength*(options.sway??.055))*Math.cos(gait.phase*Math.PI*2);
     model.position.y += lastBodyOffset;model.position.x+=lastLateralOffset;group.updateMatrixWorld(true);
     // Preserve actual reachable contacts through authored hip bob/attack poses.
     // Solve the necessary body compression from measured limbs, not a guessed
@@ -178,7 +231,9 @@ export function createRigLocomotion(group, model, legs, options = {}) {
       const reach=lengths[i]*scale.y-.00002,planar=Math.hypot(a.x-target.x,a.z-target.z);
       const maxHeight=Math.sqrt(Math.max(0,reach*reach-planar*planar));compression=Math.min(compression,target.y+maxHeight-a.y);
     }
-    if(compression<0){const offset=compression/scale.y;model.position.y+=offset;lastBodyOffset+=offset;group.updateMatrixWorld(true);}
+    if(options.continuous)bodyCompression=Math.min(compression,bodyCompression*Math.exp(-dt*10));
+    else bodyCompression=compression;
+    if(bodyCompression<0){const offset=bodyCompression/scale.y;model.position.y+=offset;lastBodyOffset+=offset;group.updateMatrixWorld(true);}
     for (let i = 0; i < 2; i++) {
       const f = gait.feet[i]; footQ.setFromAxisAngle(UP, f.yaw).multiply(neutral[i]);
       errors[i] = solvers[i].solve(footOverride?.[i] || f.target, pole, footQ);

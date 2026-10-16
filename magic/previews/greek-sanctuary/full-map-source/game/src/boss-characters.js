@@ -3,15 +3,32 @@ import { createLocalRigLoader } from './local-rig-loader.js';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
 import { createRigLocomotion } from './locomotion.js';
 import { createRigLod } from './rig-lod.js';
+import { createWraithChainConstraints } from './wraith-chain-constraints.js';
 
 const templates = new Map();
 export const BOSS_TYPES = ['colossus', 'gargoyle', 'wraith'];
+
+/** SkeletonUtils owns the cloned joints, but creates a Skeleton per skin.
+ * Share only exactly equal bindings inside this one actor. */
+export function shareBossSkeletons(model) {
+  const skeletons = [];
+  model.traverse(o => {
+    if (!o.isSkinnedMesh) return;
+    const current = o.skeleton;
+    const shared = skeletons.find(s => s.bones.length === current.bones.length
+      && s.bones.every((b, i) => b === current.bones[i] && s.boneInverses[i].equals(current.boneInverses[i])));
+    if (shared && shared !== current) { current.dispose(); o.skeleton = shared; }
+    else if (!shared) skeletons.push(current);
+  });
+  return skeletons.length;
+}
 
 export async function loadBossCharacters(types = BOSS_TYPES) {
   const { loader, disposeDecoder } = createLocalRigLoader();
   const jobs = types.map(async type => {
     if (templates.has(type)) return;
-    const file = type === 'colossus' ? 'models/redesign/colossus-meshy-lods.glb' : `models/bosses/${type}.glb`;
+    const file = type === 'colossus' ? 'models/redesign/colossus-meshy-lods.glb'
+      : type === 'wraith' ? 'models/redesign/wraith-1-6-1-lods.glb' : `models/bosses/${type}.glb`;
     const gltf = await loader.loadAsync(new URL(file,document.baseURI).href);
     if (!gltf.animations.length) throw new Error(`Boss ${type} has no animations`);
     let skins = 0;
@@ -29,7 +46,8 @@ export function createBossCharacter(type) {
   if (!template) throw new Error(`Boss ${type} was not loaded`);
   const group = new THREE.Group();
   const model = clone(template.scene);
-  model.rotation.y = Math.PI; // Blender +Y front exports as glTF -Z.
+  shareBossSkeletons(model);
+  model.rotation.y = type === 'wraith' ? 0 : Math.PI; // New Wraith source exports facing glTF +Z.
   group.add(model);
   const materials = [];
   model.traverse(o => {
@@ -40,7 +58,9 @@ export function createBossCharacter(type) {
     o.material = Array.isArray(o.material) ? o.material.map(copy) : copy(o.material);
   });
   const mixer = new THREE.AnimationMixer(model);
-  const rigLod = type === 'colossus' ? createRigLod(group,model,{height:3.4,closeFile:'models/redesign/colossus-meshy-close.glb',farPixels:155}) : null;
+  const rigLod = type === 'colossus' ? createRigLod(group,model,{height:3.4,closeFile:'models/redesign/colossus-meshy-close.glb',farPixels:155})
+    : type === 'wraith' ? createRigLod(group,model,{height:3.3,closeFile:'models/redesign/wraith-1-6-1-close.glb',farPixels:155}) : null;
+  const chainConstraints = type === 'wraith' ? createWraithChainConstraints(model) : null;
   const clips = new Map(template.animations.map(c => [c.name, c]));
   const actions = new Map();
   let action, current = '', disposed = false, locomotion, hoverTime = 0, hoverOffset = 0;
@@ -71,13 +91,16 @@ export function createBossCharacter(type) {
       mixer.update(0);
     }
     model.updateMatrixWorld(true);
+    chainConstraints?.update();
     const flying=type==='gargoyle'&&(name==='Hover'||name==='Dive'&&(options.flying??((options.time??a.time)>.4&&(options.time??a.time)<1.8)));
     locomotion?.update(dt,{grounded:options.grounded!==false&&!flying,airborne:options.airborne,dead:options.dead,align:alignGait});
     rigLod?.update(options.camera);
     if(type==='wraith'){
       hoverTime+=Math.max(0,dt);hoverOffset=options.dead?.14:.19+.035*Math.sin(hoverTime*3.1)+.015*Math.sin(hoverTime*6.7);model.position.y+=hoverOffset;
       const opacity=options.dead?Math.max(0,Math.min(1,(3-(options.time||0))/1.2)):1;
-      for(const material of materials){const transparent=material.userData.initialTransparent||opacity<1;if(material.transparent!==transparent){material.transparent=transparent;material.needsUpdate=true;}material.opacity=opacity;}
+      // Close skins arrive asynchronously and also need the real death fade.
+      const fade = material => {material.userData.initialTransparent??=material.transparent;const transparent=material.userData.initialTransparent||opacity<1;if(material.transparent!==transparent){material.transparent=transparent;material.needsUpdate=true;}material.opacity=opacity;};
+      model.traverse(o=>{if(o.isMesh){if(Array.isArray(o.material))o.material.forEach(fade);else fade(o.material);}});
     }
   }
   function alignGait(gait){if(current==='Walk'){action.time=(gait.phase%1)*clips.get('Walk').duration;mixer.update(0);}}
@@ -95,5 +118,5 @@ export function createBossCharacter(type) {
     const bones={};model.traverse(o=>{if(o.isBone)bones[o.name]=o;});
     locomotion=createRigLocomotion(group,model,['L','R'].map(s=>({upper:bones['thigh_'+s],lower:bones['shin_'+s],foot:bones['foot_'+s]})),{allFeetReach:type==='colossus',stride:type==='colossus'?.84:.72,lift:type==='colossus'?.22:.19});
   }
-  return {group, model, mixer, clips, locomotion, update, reset, dispose};
+  return {group, model, mixer, clips, locomotion, chainConstraints, update, reset, dispose};
 }

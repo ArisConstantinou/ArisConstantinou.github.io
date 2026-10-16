@@ -30,7 +30,7 @@ function loadClose(url) {
 
 /** All distances share the actor's live joints and mixer. Close surfaces are
  * loaded once per type on demand, without an extra animated skeleton tree. */
-export function createRigLod(group, model, { height, closeFile, farPixels = 100, visibilityRadius = height * .85 }) {
+export function createRigLod(group, model, { height, closeFile, farPixels = 100, initialLevel = 1, visibilityRadius = height * .85 }) {
   const levels = new Map([[0, []], [1, []], [2, []]]), nodes = new Map(), bones = new Map();
   model.traverse(o => {
     nodes.set(o.name, o);
@@ -45,7 +45,7 @@ export function createRigLod(group, model, { height, closeFile, farPixels = 100,
   const closeMaterials = new Map(), closeSkeletons = new Set(), tint = new THREE.Color(0xffffff);
   const bottom = new THREE.Vector3(), top = new THREE.Vector3(), worldScale = new THREE.Vector3();
   const visibilitySphere = new THREE.Sphere(), frustum = new THREE.Frustum(), viewProjection = new THREE.Matrix4();
-  let level = 1, requested = false, disposed = false;
+  let level = initialLevel, requested = false, disposed = false;
   function setLevel(next) {
     level = next;
     for (const [key, meshes] of levels) for (const mesh of meshes) mesh.visible = key === next;
@@ -123,6 +123,6 @@ export function createRigLod(group, model, { height, closeFile, farPixels = 100,
     for (const mesh of levels.get(0)) mesh.removeFromParent();
     closeMaterials.clear();closeSkeletons.clear();levels.get(0).length = 0;
   }
-  setLevel(1);
+  setLevel(initialLevel);
   return { update, setTint, dispose };
 }

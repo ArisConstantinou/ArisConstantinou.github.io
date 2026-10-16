@@ -1,0 +1,473 @@
+{
+  "version": "1.6.1",
+  "hash": "44580a56839d4c2d5841bd22",
+  "files": [
+    {
+      "file": "assets-credit.json",
+      "bytes": 14983,
+      "sha256": "2bebb738d3541af82979e9fb2f808e9a82af4f72c6322de9760155d7a1cabd63"
+    },
+    {
+      "file": "icons/magic-192.png",
+      "bytes": 20095,
+      "sha256": "503f250b988f16aa5c7804bb3277355578e4f65b713ae26a4b0ce5c2e7245821"
+    },
+    {
+      "file": "icons/magic-512.png",
+      "bytes": 64067,
+      "sha256": "f66cbdf839bad63fabceb57030ab5d008ea837883437c5625765ccabe724f24b"
+    },
+    {
+      "file": "icons/magic-rune.svg",
+      "bytes": 1515,
+      "sha256": "e504e0221112a0843a4c5a5dd1aa684776a95b0283094ca89fc5cacd5f0afa13"
+    },
+    {
+      "file": "index.html",
+      "bytes": 1373,
+      "sha256": "7960b800a7824a21df5c68830a62d68194e051ae6436d94b866cdf46c13bba60"
+    },
+    {
+      "file": "manifest.webmanifest",
+      "bytes": 831,
+      "sha256": "2ac19389d8ed0535ce5800eed33d1edf44c6261f792d37154eb536ab117275eb"
+    },
+    {
+      "file": "previews/greek-sanctuary/engine/hearth-flamethrower-BwYq4Cmf.mp3",
+      "bytes": 87596,
+      "sha256": "e1a122a08a93a47e4dcaf3eac5e4c38ef5b6e69a4b9d0a52b52930f10c38583d"
+    },
+    {
+      "file": "previews/greek-sanctuary/engine/index-CApdkRC1.css",
+      "bytes": 52223,
+      "sha256": "2c282b8e9e2d45a23d4d44a18a7303ef1542b69ff61ddcf68335229b2e1bf9bf"
+    },
+    {
+      "file": "previews/greek-sanctuary/engine/index-CrAmWtLN.js",
+      "bytes": 1249712,
+      "sha256": "93f1e55b7ba9cd777d6783080257cc332e6a58b4d3a95d80a50cfcb9f330ab25"
+    },
+    {
+      "file": "previews/greek-sanctuary/engine/trajectory-worker-DE6b9i-N.js",
+      "bytes": 95230,
+      "sha256": "f667000c53c10890a1b58e60d00c7dca6f466bc3c9e1c6d2ac1e0ad396b5f5be"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/antique_ceramic_vase_01/antique_ceramic_vase_01.bin",
+      "bytes": 217216,
+      "sha256": "ff3224b67b0a20e5033e651c405382fbfcc26ceb034f8dc59065ea0e0b6b708e"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/antique_ceramic_vase_01/antique_ceramic_vase_01.gltf",
+      "bytes": 2789,
+      "sha256": "c99f063c1ba4e649e87218265b5ca34f89e3c288ff6560c76b7d9d2dd46aa8cd"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/antique_ceramic_vase_01/textures/antique_ceramic_vase_01_arm_1k.jpg",
+      "bytes": 80537,
+      "sha256": "d4315346ead607ee6dada9e8e3710c0d804f47942056a2548e083133c0f8b5ce"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/antique_ceramic_vase_01/textures/antique_ceramic_vase_01_diff_1k.jpg",
+      "bytes": 192337,
+      "sha256": "8ee51247bf13d76d3d4da3b99ca7d58bc9b14476250800d98385718887dd58de"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/antique_ceramic_vase_01/textures/antique_ceramic_vase_01_nor_gl_1k.jpg",
+      "bytes": 33062,
+      "sha256": "98cf0dceb4a95b73f41cb63f26ad6c26cf84ff6ff642bd216f4ce5343cb66cf7"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/asset-provenance.json",
+      "bytes": 954,
+      "sha256": "dcf5f7ea14a1c9c75ede0d94790c3f0929685d422b50f1e564090ffe1a3b0492"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/castle_wall_slates/arm.jpg",
+      "bytes": 1149678,
+      "sha256": "0d233f78fde99498001339f5ae87d5e95f1ccd1950f1328868fd273473eb6e37"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/castle_wall_slates/diff.jpg",
+      "bytes": 2381426,
+      "sha256": "89e1dce61cf53decf586bd123b9280365e447019ebedaf3b8e48663ab37eab30"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/castle_wall_slates/normal.jpg",
+      "bytes": 4054865,
+      "sha256": "ea6042cdb95576d9c2d67c7fa26e3648cca09d8d2fcaf4dfe7d6052a970d7b28"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/kite_shield/kite_shield.bin",
+      "bytes": 289804,
+      "sha256": "5f936bc82f628fe243b062f2a240ea11549995fbf24d1c1055bdc29292cf96a9"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/kite_shield/kite_shield.gltf",
+      "bytes": 6826,
+      "sha256": "269a2467ca0c52df75bc5272a5246e2bcaf6cfe128eecf801542696a7bfef61d"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/kite_shield/textures/kite_shield_body_arm_1k.jpg",
+      "bytes": 563372,
+      "sha256": "a4b6e349a5f33cae71c00f9ab98ee41b2b06817d87d0ef07e8e815f0dc628e38"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/kite_shield/textures/kite_shield_body_diff_1k.jpg",
+      "bytes": 761392,
+      "sha256": "7ed490545ccf4df0902d9b9cd71910cdbacb2f4cfef9aac72ca04134436d471b"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/kite_shield/textures/kite_shield_body_nor_gl_1k.jpg",
+      "bytes": 843237,
+      "sha256": "562b943c11ff3ba16cc0e10b49976faba38f7602c83d501cb36dee5b3ea027db"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/kite_shield/textures/kite_shield_clamps_trim_arm_1k.jpg",
+      "bytes": 521972,
+      "sha256": "2e1fe58aab65306124a63b8878fece977382b4662e23a2957c434e71272dc190"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/kite_shield/textures/kite_shield_clamps_trim_diff_1k.jpg",
+      "bytes": 417567,
+      "sha256": "fd786e98045804fc772b1a3005b38a936fe30852919644a30d9241c7beb67f98"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/kite_shield/textures/kite_shield_clamps_trim_nor_gl_1k.jpg",
+      "bytes": 413510,
+      "sha256": "e430f8032662bccd15ef42037e6971c94277da6eb3549d00965d61b7e3f604d2"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/large_castle_door/large_castle_door.bin",
+      "bytes": 422436,
+      "sha256": "7db2eb9d2b81207a30c849ba5de0f2c25085add88e437bc69764ce792758ff76"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/large_castle_door/large_castle_door.gltf",
+      "bytes": 6111,
+      "sha256": "e43e0a7bf56cb4f37402a133ae8bed3a010120362ef1a52ff4e59b0d83b2d656"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/large_castle_door/textures/large_castle_door_arm_1k.jpg",
+      "bytes": 1016111,
+      "sha256": "2b1e832840d7393ac8a4d058630f8a8378254ad56f6601da08f1135851861955"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/large_castle_door/textures/large_castle_door_diff_1k.jpg",
+      "bytes": 803253,
+      "sha256": "06b9640df9702ceee23cfd042e858ca03b8c68818a691c55d4ea2a65258db97a"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/large_castle_door/textures/large_castle_door_nor_gl_1k.jpg",
+      "bytes": 1023095,
+      "sha256": "297929524f3a2e6634543ec1c6f0278369d3649a2eba888fa3bf9caf72ab2af1"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/monastery_stone_floor/arm.jpg",
+      "bytes": 2331525,
+      "sha256": "05b540e571d2c7250bce9763f7ea0b03120d726fdc6e48f1a16fd7f922a5f891"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/monastery_stone_floor/diff.jpg",
+      "bytes": 3021140,
+      "sha256": "aa12137fff1728bbbfe98b30480e33a34cba3b5c096575702c1d66939214e14a"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/monastery_stone_floor/normal.jpg",
+      "bytes": 4248820,
+      "sha256": "8f3e131a9d6d9c3a95c872173393830f7c1de389cd60d4878b2211058d706d2c"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/stone_01/stone_01-runtime.glb",
+      "bytes": 2612956,
+      "sha256": "f77e77291b76e2d23a308384483c7e92371ae2c5cbf1d621263f30729e8df75e"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_barrels_01/textures/wooden_barrels_01_barrel01_arm_1k.jpg",
+      "bytes": 852652,
+      "sha256": "35e34115f7657cadce27422730e936418a30e23397fb5c126591dff711acbf4b"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_barrels_01/textures/wooden_barrels_01_barrel01_diff_1k.jpg",
+      "bytes": 605063,
+      "sha256": "639e616e8d69acaadbf69725bb3d13f07a28fdff6c6b15e1d7f0574336564c72"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_barrels_01/textures/wooden_barrels_01_barrel01_nor_gl_1k.jpg",
+      "bytes": 538634,
+      "sha256": "3dfa658b4a38a711887c9e4a492a319b20e2a821e4e08435368f98fe0c78a1b8"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_barrels_01/textures/wooden_barrels_01_barrel02_arm_1k.jpg",
+      "bytes": 848051,
+      "sha256": "970de5e9f682d4ac2a2098c88dafc1e5a6c27cf1dbe31eb7ed3f8bc2a92eb58f"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_barrels_01/textures/wooden_barrels_01_barrel02_diff_1k.jpg",
+      "bytes": 618495,
+      "sha256": "c75f506a0c31093d4d3d425d4c979f49fce2dc99a8e6caefb50809fcf329845e"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_barrels_01/textures/wooden_barrels_01_barrel02_nor_gl_1k.jpg",
+      "bytes": 555954,
+      "sha256": "57c3d5682f299c97270228e3ec08f6c982fb2c2696ec30a74d0edbfe067235dd"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_barrels_01/textures/wooden_barrels_01_pieces_arm_1k.jpg",
+      "bytes": 904545,
+      "sha256": "785b59a19add1951bcd54d7607c18fcafa5a09068349ac437640d495b45a62fd"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_barrels_01/textures/wooden_barrels_01_pieces_diff_1k.jpg",
+      "bytes": 672604,
+      "sha256": "399134703c974ad4c8bc71107d513e8c89f5ca09f9b6175dc02e2e607b75c43d"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_barrels_01/textures/wooden_barrels_01_pieces_nor_gl_1k.jpg",
+      "bytes": 620276,
+      "sha256": "3be77f6310507c9c37414809ba31c39c89621e8bde916893bd676d54a5ceade2"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_barrels_01/wooden_barrels_01.bin",
+      "bytes": 1243556,
+      "sha256": "7de8294b07ecb6bd57ea3542760fa45bbefc296a47dd044723eb599ffc56084f"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_barrels_01/wooden_barrels_01.gltf",
+      "bytes": 31017,
+      "sha256": "ff785e2150198c4cdb3cc74e532b02ce9574d6a7fc3606f5801fcbf68e3136af"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_crate_02/textures/wooden_crate_02_arm_1k.jpg",
+      "bytes": 819577,
+      "sha256": "a76af97005a66fe8c7cdcabf20174f06813e6a6d5cd9502157c93a57f3c89d5a"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_crate_02/textures/wooden_crate_02_diff_1k.jpg",
+      "bytes": 716110,
+      "sha256": "a6e57123110d2899af9493c22b1918174f1c96c707e7126ac67738d98ee10c07"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_crate_02/textures/wooden_crate_02_nor_gl_1k.jpg",
+      "bytes": 546319,
+      "sha256": "59342f730c9f336950f796ef5e4c3b8c794ce5adbd54d98a2ecb679a7e4ae5e8"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_crate_02/wooden_crate_02.bin",
+      "bytes": 150064,
+      "sha256": "e68e272641f704e5241e4108894f0b97363d511944db8b991a48787d0160ea5e"
+    },
+    {
+      "file": "previews/greek-sanctuary/environment-b/wooden_crate_02/wooden_crate_02.gltf",
+      "bytes": 4150,
+      "sha256": "e90985d317664668988cb95ce707784c94ab0ccc6d13c980ca789fa69a5cf7b6"
+    },
+    {
+      "file": "previews/greek-sanctuary/greek-sanctuary/bronze-leaf.glb",
+      "bytes": 1046208,
+      "sha256": "a9bead394fa84a26dbfc927703a7add8f7684f74243bb03306639f9af8357da6"
+    },
+    {
+      "file": "previews/greek-sanctuary/greek-sanctuary/column.glb",
+      "bytes": 379248,
+      "sha256": "57ad33c3c9eec735eaf5cc4670a21d4cde3f9ef5ff4571c0291afe2e795b25eb"
+    },
+    {
+      "file": "previews/greek-sanctuary/greek-sanctuary/double-tray.glb",
+      "bytes": 518996,
+      "sha256": "bfc21f4651d4d66ea167e1064cb39c6d9ef0d97c43919951d3bb461bc42855b3"
+    },
+    {
+      "file": "previews/greek-sanctuary/greek-sanctuary/entablature.glb",
+      "bytes": 2462616,
+      "sha256": "ddf86b01c0987e213f9c87a8bb2893b456bffb288f64bbe1f7b8295ce2ed2b10"
+    },
+    {
+      "file": "previews/greek-sanctuary/greek-sanctuary/plate.glb",
+      "bytes": 199352,
+      "sha256": "71ff47505092bb421cb2c2655e81bd029915d99b3c8bb6c927edd0a5c37da23e"
+    },
+    {
+      "file": "previews/greek-sanctuary/greek-sanctuary/shield.glb",
+      "bytes": 127584,
+      "sha256": "f3146c22ff5626194360bbac9460700d6440b4089a104ffe347048a35e8976fd"
+    },
+    {
+      "file": "previews/greek-sanctuary/greek-sanctuary/single-tray.glb",
+      "bytes": 337576,
+      "sha256": "c947a53c011c2dab94aff8eba20cd6dcb9b9a808140d87de429bf3ac32b69739"
+    },
+    {
+      "file": "previews/greek-sanctuary/greek-sanctuary/weight.glb",
+      "bytes": 320980,
+      "sha256": "23bd0c49bb48354e1aa20a8f30ad7042b435e4547847a6cebe551f8ea844b6c5"
+    },
+    {
+      "file": "previews/greek-sanctuary/greek-sanctuary/wood-leaf.glb",
+      "bytes": 391108,
+      "sha256": "86a7e3fe9892936b95f4f42dfac7c42d85027b5da7bca9cc04be1f39f6d8d733"
+    },
+    {
+      "file": "previews/greek-sanctuary/icons/apple-touch-icon.png",
+      "bytes": 18260,
+      "sha256": "387cfceeb659a2c870b5b979c63ade3e813f0301a6e3ebd27bc56ee22addbaf9"
+    },
+    {
+      "file": "previews/greek-sanctuary/icons/magic-rune.svg",
+      "bytes": 1515,
+      "sha256": "e504e0221112a0843a4c5a5dd1aa684776a95b0283094ca89fc5cacd5f0afa13"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/archer.glb",
+      "bytes": 629888,
+      "sha256": "a6e697ee7a25ea78250bf777199977eab4ffb96ec7b0eb9ba7f2112a30d900c3"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/bosses/gargoyle.glb",
+      "bytes": 6050968,
+      "sha256": "cde17b9bedfaa9be42b4e6660ceca4a63a97e580fe8c6f725107c77f721bd387"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/draco/draco_decoder.wasm",
+      "bytes": 192420,
+      "sha256": "a680d927bed9cb864ddbd63521868891af2bfbe755092761b4837487618df8ac"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/draco/draco_wasm_wrapper.js",
+      "bytes": 58456,
+      "sha256": "8bb2952d2ba7d67e1414f8df819410cb0434a666be53f671fff75f68843d76f6"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/hearth-bulwark/hearth-bulwark.glb",
+      "bytes": 16491356,
+      "sha256": "8a63479252161f25e42ee1d8c9cac1c9b8b1382cdb0001dc0bacbd599435dd02"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/redesign/colossus-meshy-close.glb",
+      "bytes": 47774728,
+      "sha256": "7bdce50111880054ea235df78b5c6075a99471569d65b18ea4b397d9c8556ef4"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/redesign/colossus-meshy-lods.glb",
+      "bytes": 16520936,
+      "sha256": "81180121661a10a3343a69628da0e195de3bd45277316de28c1e5a7644b588a4"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/redesign/guard-meshy-close.glb",
+      "bytes": 44441516,
+      "sha256": "57214bc7ae7a02f7b9c813076b8fbdc3c90abf5e55d973fea6e74b8746d61705"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/redesign/guard-meshy-lods.glb",
+      "bytes": 7382200,
+      "sha256": "0aea00eabb44809656ef9bd385e7f44f362eeacd4665db052baad68715adeaf8"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/redesign/heavy-meshy-native-close.glb",
+      "bytes": 63440912,
+      "sha256": "2ade2def0a155a8f8a0115526b0f4a2d8d18475dca162e0ab788e76db9bd8c2d"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/redesign/heavy-meshy-native-lods.glb",
+      "bytes": 10630888,
+      "sha256": "6f1e1c9d5d3ad2ae7c0b62ded4b4ec58b09ce0f1a6c41c3953d47095858687b6"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/redesign/mage-fingers-1-6-1-lods.glb",
+      "bytes": 8954128,
+      "sha256": "05ceff9b5fcde4c7e1e7270cc336ee3cefa3b20211802beb1e559c26f3be7753"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/redesign/stone-minion-1-6-1-far.glb",
+      "bytes": 4107996,
+      "sha256": "0bc44dc344fbe0c113e7ef5a830eb0e88843a7bc1b1a6950dc986b2197455204"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/redesign/stone-minion-1-6-1-lods.glb",
+      "bytes": 15702612,
+      "sha256": "7f4d4da8da6e15d7053a49c7e73ee00177825bfd31a3b736a2e08f74f358a5ff"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/redesign/stone-minion-1-6-1-normal.glb",
+      "bytes": 11611808,
+      "sha256": "55a84909a68b960861e19e4ab7c971fc6cee4315aee767da6e7b871d0a0ce134"
+    },
+    {
+      "file": "previews/greek-sanctuary/models/redesign/wraith-1-6-1-lods.glb",
+      "bytes": 14859144,
+      "sha256": "6e69d17bf47a285cad78803835257373798a32a7e340dcfee1fd3f8c0c9b17ec"
+    },
+    {
+      "file": "previews/greek-sanctuary/statues/DRACO-LICENSE.txt",
+      "bytes": 13898,
+      "sha256": "d3709b0fb4b8a94bbb1d02b8a2e484f258b0d9c5c5a01f940391f3fe662cd1a4"
+    },
+    {
+      "file": "previews/greek-sanctuary/statues/LICENSES.md",
+      "bytes": 1867,
+      "sha256": "d9949f91219d7155d2e2a93319ef3118f0ca559c717e33385bf0f0c46a9d20b2"
+    },
+    {
+      "file": "previews/greek-sanctuary/statues/draco/draco_decoder.wasm",
+      "bytes": 192420,
+      "sha256": "a680d927bed9cb864ddbd63521868891af2bfbe755092761b4837487618df8ac"
+    },
+    {
+      "file": "previews/greek-sanctuary/statues/draco/draco_wasm_wrapper.js",
+      "bytes": 58456,
+      "sha256": "8bb2952d2ba7d67e1414f8df819410cb0434a666be53f671fff75f68843d76f6"
+    },
+    {
+      "file": "previews/greek-sanctuary/statues/models/artemision-fragments.glb",
+      "bytes": 1125084,
+      "sha256": "5adf29ed6c40a77311ab352a0dbcf452b67dd84ca6cd77ddf9afcd1240739f44"
+    },
+    {
+      "file": "previews/greek-sanctuary/statues/models/artemision.glb",
+      "bytes": 983940,
+      "sha256": "44d0b2aa0de4be7dec5c3109724c65e966c57df02474ca7e8b5caab4565eac4f"
+    },
+    {
+      "file": "previews/greek-sanctuary/statues/models/caryatid-fragments.glb",
+      "bytes": 5381444,
+      "sha256": "99e2b9c652118b3aba259716fc19736ce65b25ed507244033f4dc2b5f333070b"
+    },
+    {
+      "file": "previews/greek-sanctuary/statues/models/caryatid.glb",
+      "bytes": 5239368,
+      "sha256": "131c358561b97c72c48d62f2ce51cd0808fcec048c7c0351ae3f3f3d63722ebf"
+    },
+    {
+      "file": "previews/greek-sanctuary/statues/models/venus-fragments.glb",
+      "bytes": 3285732,
+      "sha256": "3d542348b9159ecf0d0b4512f8dc238c3da3e929e02ca0207e4bf9e365e669eb"
+    },
+    {
+      "file": "previews/greek-sanctuary/statues/models/venus.glb",
+      "bytes": 3236532,
+      "sha256": "0b6ca8cce5abb6633d7107a614b304f37db27af61df489d6c7e400519edd4f11"
+    },
+    {
+      "file": "previews/greek-sanctuary/threshold-materials/provenance.json",
+      "bytes": 4419,
+      "sha256": "296f3be1c430f1d022cdf9f63fe068c3781ecd2ac9d0bde007b296ddbf62f1f3"
+    },
+    {
+      "file": "previews/greek-sanctuary/threshold-materials/slate_floor/arm.jpg",
+      "bytes": 4210784,
+      "sha256": "4cbfac8cb8b4e71567a41b6a6b5e132768e293fc434081fdb4672d90ba6ab80b"
+    },
+    {
+      "file": "previews/greek-sanctuary/threshold-materials/slate_floor/diff.jpg",
+      "bytes": 3009643,
+      "sha256": "a50c8f5aa3a78195cc001997dfc7b2ff0aef8fca0d30b0fdab115c03ad949e71"
+    },
+    {
+      "file": "previews/greek-sanctuary/threshold-materials/slate_floor/normal.jpg",
+      "bytes": 3408456,
+      "sha256": "cfa50bd8c911030d5aed7e611f7a07eef51829ccabf1c0a424c2e0fc605a5515"
+    }
+  ],
+  "bytes": 343536125,
+  "closeSurfaces": "New close surfaces cache on first use; unchanged old close surfaces retained. No private/unused raw source in initial cache."
+}

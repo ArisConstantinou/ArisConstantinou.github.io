@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import { createPropMesh } from './world.js';
+import { createStoneMinion } from './stone-minion.js';
 
 // Editable concept source. Seven physical rock masses, feet origin, +Z forward.
 // The geometry, texture and stone material come from the game's actual prefab.
 export function createStoneCreature({ hostile = false } = {}) {
+  if (hostile) return createStoneMinion();
   const group = new THREE.Group();
   group.name = hostile ? 'Violet stone minion concept' : 'Seven-stone Goliath concept';
   const reference = createPropMesh('stone').mesh.children.find(child => child.isMesh);

@@ -11,7 +11,7 @@ import { createTwoHandWeaponGrip } from './two-hand-weapon-grip.js';
 // KayKit Adventurers, CC0. Original meshes, atlas textures, rigs and animation
 // data are bundled locally; see public/assets-credit.json for pinned sources.
 const MODEL_FILES = {
-  mage: 'redesign/mage-meshy-native-lods.glb',
+  mage: 'redesign/mage-fingers-1-6-1-lods.glb',
   guard: 'redesign/guard-meshy-lods.glb',
   archer: 'archer.glb',
   heavy: 'redesign/heavy-meshy-native-lods.glb',
@@ -270,7 +270,7 @@ export function createCharacter(kind = 'mage') {
   model.traverse(o => { if(o.isBone) legBones[o.name] = o; });
   const locomotion = createRigLocomotion(group, model, ['l','r'].map(side => ({
     upper: legBones['upperleg'+side], lower: legBones['lowerleg'+side], foot: legBones['foot'+side]
-  })), { stride: .72, lift: .16, travelFacing:kind==='mage', allFeetReach: kind==='heavy'&&template.preservePbr });
+  })), { stride: .72, travelFacing:kind==='mage', continuous:kind==='mage'&&template.preservePbr, lift: kind==='mage'&&template.preservePbr?.055:.16, sway:kind==='mage'&&template.preservePbr?.02:.055, allFeetReach:(kind==='mage'||kind==='heavy')&&template.preservePbr });
   const magicHands = kind==='mage'&&template.preservePbr ? createMagicHandTargeting(group,model,legBones) : null;
   const weaponGrip = kind==='heavy'&&template.preservePbr ? createTwoHandWeaponGrip(model,legBones) : null;
   let dashOffset = 0;

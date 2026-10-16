@@ -3,17 +3,17 @@
 const SCOPE = new URL(self.registration.scope);
 const INDEX_URL = new URL('index.html', SCOPE).href;
 const CACHE_PREFIX = 'magic-exiled:' + SCOPE.pathname + ':';
-const CACHE_NAME = CACHE_PREFIX + "e679a278bffbfe61";
+const CACHE_NAME = CACHE_PREFIX + "44580a56839d4c2d5841bd22";
 const PRECACHE = [
-  "index.html",
-  "manifest.webmanifest",
   "assets-credit.json",
-  "icons/magic-rune.svg",
   "icons/magic-192.png",
   "icons/magic-512.png",
+  "icons/magic-rune.svg",
+  "index.html",
+  "manifest.webmanifest",
   "previews/greek-sanctuary/engine/hearth-flamethrower-BwYq4Cmf.mp3",
   "previews/greek-sanctuary/engine/index-CApdkRC1.css",
-  "previews/greek-sanctuary/engine/index-CDIbyVpK.js",
+  "previews/greek-sanctuary/engine/index-CrAmWtLN.js",
   "previews/greek-sanctuary/engine/trajectory-worker-DE6b9i-N.js",
   "previews/greek-sanctuary/environment-b/antique_ceramic_vase_01/antique_ceramic_vase_01.bin",
   "previews/greek-sanctuary/environment-b/antique_ceramic_vase_01/antique_ceramic_vase_01.gltf",
@@ -70,7 +70,6 @@ const PRECACHE = [
   "previews/greek-sanctuary/icons/magic-rune.svg",
   "previews/greek-sanctuary/models/archer.glb",
   "previews/greek-sanctuary/models/bosses/gargoyle.glb",
-  "previews/greek-sanctuary/models/bosses/wraith.glb",
   "previews/greek-sanctuary/models/draco/draco_decoder.wasm",
   "previews/greek-sanctuary/models/draco/draco_wasm_wrapper.js",
   "previews/greek-sanctuary/models/hearth-bulwark/hearth-bulwark.glb",
@@ -80,8 +79,11 @@ const PRECACHE = [
   "previews/greek-sanctuary/models/redesign/guard-meshy-lods.glb",
   "previews/greek-sanctuary/models/redesign/heavy-meshy-native-close.glb",
   "previews/greek-sanctuary/models/redesign/heavy-meshy-native-lods.glb",
-  "previews/greek-sanctuary/models/redesign/mage-meshy-native-close.glb",
-  "previews/greek-sanctuary/models/redesign/mage-meshy-native-lods.glb",
+  "previews/greek-sanctuary/models/redesign/mage-fingers-1-6-1-lods.glb",
+  "previews/greek-sanctuary/models/redesign/stone-minion-1-6-1-far.glb",
+  "previews/greek-sanctuary/models/redesign/stone-minion-1-6-1-lods.glb",
+  "previews/greek-sanctuary/models/redesign/stone-minion-1-6-1-normal.glb",
+  "previews/greek-sanctuary/models/redesign/wraith-1-6-1-lods.glb",
   "previews/greek-sanctuary/statues/DRACO-LICENSE.txt",
   "previews/greek-sanctuary/statues/LICENSES.md",
   "previews/greek-sanctuary/statues/draco/draco_decoder.wasm",

@@ -393,5 +393,66 @@
       "source": "Previously approved frozen character exports in previews/greek-sanctuary/models/redesign/",
       "note": "No assets copied from the active unfinished unit-redesign worktree."
     }
+  },
+  "unitPatch161": {
+    "provider": "Meshy",
+    "providerUrl": "https://www.meshy.ai/",
+    "terms": "https://www.meshy.ai/terms-of-use",
+    "licensingNote": "Generated from project-approved concepts; local rig, source textures, motion, native import and runtime integration. Subject to Meshy provider terms; attribution supplied, no CC0 claim.",
+    "changes": [
+      "Mage articulated fingers and continuous contact gait",
+      "Wraith independent articulated chain rig and source-timed attacks",
+      "Stone minion source-timed hostile summons and streamed distance surfaces"
+    ],
+    "assets": [
+      {
+        "file": "models/redesign/mage-fingers-1-6-1-lods.glb",
+        "bytes": 8954128,
+        "sha256": "05ceff9b5fcde4c7e1e7270cc336ee3cefa3b20211802beb1e559c26f3be7753",
+        "sourceFile": "models/redesign/mage-meshy-native-lods.glb"
+      },
+      {
+        "file": "models/redesign/mage-fingers-1-6-1-close.glb",
+        "bytes": 66340916,
+        "sha256": "1d63ec0982b867be45fd9d026cda159b11d103a7eb4521650a8f32a4e17432a9",
+        "sourceFile": "models/redesign/mage-meshy-native-close.glb"
+      },
+      {
+        "file": "models/redesign/stone-minion-1-6-1-lods.glb",
+        "bytes": 15702612,
+        "sha256": "7f4d4da8da6e15d7053a49c7e73ee00177825bfd31a3b736a2e08f74f358a5ff",
+        "sourceFile": "models/redesign/stone-minion-meshy-native-lods-candidate.glb"
+      },
+      {
+        "file": "models/redesign/stone-minion-1-6-1-far.glb",
+        "bytes": 4107996,
+        "sha256": "0bc44dc344fbe0c113e7ef5a830eb0e88843a7bc1b1a6950dc986b2197455204",
+        "sourceFile": "models/redesign/stone-minion-meshy-lod2-candidate.glb"
+      },
+      {
+        "file": "models/redesign/stone-minion-1-6-1-normal.glb",
+        "bytes": 11611808,
+        "sha256": "55a84909a68b960861e19e4ab7c971fc6cee4315aee767da6e7b871d0a0ce134",
+        "sourceFile": "models/redesign/stone-minion-meshy-normal-surface-candidate.glb"
+      },
+      {
+        "file": "models/redesign/stone-minion-1-6-1-close.glb",
+        "bytes": 37843748,
+        "sha256": "30ae82f17fb9598eac4df4aa8905f2f281015ff277d5c47044ba803bfa979043",
+        "sourceFile": "models/redesign/stone-minion-meshy-close-candidate.glb"
+      },
+      {
+        "file": "models/redesign/wraith-1-6-1-lods.glb",
+        "bytes": 14859144,
+        "sha256": "6e69d17bf47a285cad78803835257373798a32a7e340dcfee1fd3f8c0c9b17ec",
+        "sourceFile": "models/redesign/wraith-meshy-native-lods-candidate.glb"
+      },
+      {
+        "file": "models/redesign/wraith-1-6-1-close.glb",
+        "bytes": 55039180,
+        "sha256": "da24ab173ebf35eb317f79a5806d2cd3a55f6e0e4d1b991d2110c483671dcbb5",
+        "sourceFile": "models/redesign/wraith-meshy-close-candidate.glb"
+      }
+    ]
   }
 }

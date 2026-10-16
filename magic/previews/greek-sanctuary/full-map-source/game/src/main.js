@@ -31,6 +31,9 @@ import { impactDamage, propSelfDamage, knockbackXZ } from './impact-rules.js';
 import {FireSpell,consumeBurnDamage,consumeWoodDamage,spreadFire,fireSight} from './fire.js';
 import {createFireEffects} from './fire-effects.js';
 import { createStoneCreature } from './stone-creature.js';
+import {createStoneMinion,loadStoneMinion} from './stone-minion.js';
+import {supportedSpawn} from './supported-spawn.js';
+import {STONE_MINION,createStoneCombat,beginStoneAttack,cancelStoneCombat,advanceStoneCombat} from './stone-minion-combat.js';
 import { existingRooms, newRooms } from './castle-layout.js';
 import { STONE_LIMIT, GOLIATH_STONES, GOLIATH_CHARGE, GOLIATH_HEALTH, GOLIATH_LIFETIME, ENEMY_LIMIT,
   CHANNEL_DURATION, CHANNEL_COOLDOWN, MINION_LIMIT, activeStones, selectStones, StoneRitual, bodyguardTarget, freePosition } from './goliath.js';
@@ -244,22 +247,27 @@ function createHealthBar(){
 }
 function actor(kind,x,z,isPlayer=false,bossType=null,room=null){
   const bossMode=kind==='boss',definition=bossType?BOSS_DEFINITIONS[bossType]:null;
-  const visual=definition?createBossCharacter(bossType):createCharacter(bossMode?'heavy':kind),scale=definition?1:bossMode?1.3:1;
+  const stoneMinion=kind==='stone-minion';
+  const visual=definition?createBossCharacter(bossType):stoneMinion?createStoneMinion():createCharacter(bossMode?'heavy':kind),scale=definition?1:bossMode?1.3:1;
   if(bossMode&&!definition)visual.group.scale.multiplyScalar(scale);
   const stats=definition?{...definition,label:definition.name}:{mage:{hp:120,speed:5.0,mass:5,label:'Εξόριστος'},
     guard:{hp:65,speed:2.3,mass:4,label:'Φρουρός'},archer:{hp:48,speed:1.9,mass:3,label:'Τοξότης'},
-    heavy:{hp:135,speed:1.65,mass:9,label:'Σιδερόφρακτος'},boss:{hp:330,speed:1.55,mass:13,label:'Ο Δεσμοφύλακας'}}[kind];
+    heavy:{hp:135,speed:1.65,mass:9,label:'Σιδερόφρακτος'},'stone-minion':STONE_MINION,boss:{hp:330,speed:1.55,mass:13,label:'Ο Δεσμοφύλακας'}}[kind];
   const hp=stats.hp+(isPlayer?25*(save.profile.upgrades.vitality||0):0);
-  const cy=definition?.cy||.88*scale,r=definition?.radius||.43*scale;
+  const cy=definition?.cy||stats.cy||.88*scale,r=definition?.radius||stats.radius||.43*scale;
   const body=new CANNON.Body({mass:stats.mass,material:actorMaterial,position:new CANNON.Vec3(x,cy+.08,z),linearDamping:.3,angularDamping:.7,fixedRotation:true,allowSleep:!isPlayer,sleepSpeedLimit:.1,sleepTimeLimit:1.2});
-  body.addShape(new CANNON.Sphere(r),new CANNON.Vec3(0,definition?r-cy:-.43*scale,0));
-  body.addShape(new CANNON.Sphere(r*.92),new CANNON.Vec3(0,definition ? .65 : .32*scale,0));
+  body.addShape(new CANNON.Sphere(r),new CANNON.Vec3(0,definition||stoneMinion?r-cy:-.43*scale,0));
+  body.addShape(new CANNON.Sphere(r*.92),new CANNON.Vec3(0,definition ? .65 : stoneMinion?stats.height-r*.92-cy-.02:.32*scale,0));
   if(definition)body.addShape(new CANNON.Sphere(.34),new CANNON.Vec3(0,definition.height-cy-.45,0));
   body.collisionFilterGroup=isPlayer?GROUP.PLAYER:GROUP.ENEMY;
   const e={category:'actor',kind,isPlayer,visual,mesh:visual.group,body,cy,radius:r,hp,maxHp:hp,speed:stats.speed,mass:stats.mass,label:stats.label,
     dead:false,removed:false,stun:0,invulnerable:0,hitFlash:0,thrownUntil:0,thrownBy:null,collisionTimes:new Map(),yaw:Math.PI,
     path:[],pathTick:0,aggro:false,attackCooldown:1+Math.random(),windup:0,attackType:'',guardBreak:0,spawn:{x,z},lastSafe:{x,z},deathTime:0};
   if(definition)Object.assign(e,{bossType,room,bossClip:'Idle',bossTime:0,bossAttack:null,attackIndex:0});
+  if(stoneMinion){
+    e.stoneCombat=createStoneCombat();
+    visual.ready.then(()=>{if(!e.removed)visual.group.userData.sourceRig.nativeAIIntegrated=true;}).catch(error=>{console.error('Stone minion:',error);removeEntity(e);});
+  }
   if(bossMode){e.channel=0;e.channelCooldown=7;e.minions=new Set();}
   if(isPlayer){e.mana=100+20*(save.profile.upgrades.focus||0);e.maxMana=e.mana;e.dashCooldown=0;e.pulseCooldown=0;e.dashTime=0;e.dashDirection=new THREE.Vector3();e.shielding=false;}
   else{
@@ -819,8 +827,8 @@ function finishChannel(e){
   const count=Math.min(3,MINION_LIMIT-e.minions.size,ENEMY_LIMIT-livingEnemies());
   for(let i=0;i<count;i++){
     const a=i*Math.PI*2/3,origin={x:e.body.position.x+Math.sin(a)*2.6,z:e.body.position.z+Math.cos(a)*2.6};
-    const p=freePosition(origin,.65,worldMap.floors,nav.obstacles,entities,4.2,at=>enemySpawnAllowed(at,worldMap.zones,worldMap.spawn)&&distance(at,player.body.position)>=2&&visibleLine(e.body.position,at,.5));if(!p)continue;
-    const m=actor(['guard','archer','heavy'][i],p.x,p.z);m.aggro=true;m.room=e.room;m.summoner=e;e.minions.add(m);
+    const p=supportedSpawn({...origin,y:e.body.position.y-e.cy},.65,2,worldMap.floors,worldMap.colliders,entities,4.2,at=>enemySpawnAllowed(at,worldMap.zones,worldMap.spawn)&&distance(at,player.body.position)>=2&&supportSightClear(e.body.position,{x:at.x,y:at.y+1,z:at.z},[...worldMap.colliders,...worldMap.floors]));if(!p)continue;
+    const m=actor(['stone-minion','archer','heavy'][i],p.x,p.z);m.aggro=true;m.room=e.room;m.summoner=e;e.minions.add(m);
     fx.ring(m.body.position,0xc192ed,1.6,.8);fx.burst(m.body.position,0xc192ed,28,3);
   }
   sound.sound('relic');
@@ -927,6 +935,7 @@ function hurt(e,amount,origin,isBurn=false){
   }
   if(e.hp>0)return;
   e.dead=true;e.deathTime=runTime;e.stun=0;e.windup=0;e.body.linearDamping=.7;
+  if(e.stoneCombat){cancelStoneCombat(e.stoneCombat);e.body.collisionFilterMask=GROUP.WORLD;}
   if(e.isPlayer){endRun(false,'Οι φύλακες σε σταμάτησαν. Η επόμενη εισβολή σε περιμένει.');return;}
   if(e.ally){physics.removeBody(e.body);ui.toast('Ο Goliath έπεσε προστατεύοντάς σε.','info');return;}
   kills++;combo=runTime<comboUntil?combo+1:1;comboUntil=runTime+4;
@@ -998,6 +1007,15 @@ function updateArrows(dt){
 }
 function enemyAttack(e){
   const victim=e.victim||player;if(victim.dead||victim.removed){e.attackCooldown=.4;return;}
+  if(e.stoneCombat){
+    // Sample the actual authored fingertip at contact, not a generic2m disk.
+    e.mesh.position.set(e.body.position.x,e.body.position.y-e.cy,e.body.position.z);e.mesh.rotation.set(0,e.yaw,0);
+    e.visual.pose(e.stoneCombat.side>0?'ClawRight':'ClawLeft',STONE_MINION.contact);
+    const claw=e.visual.clawPosition(e.stoneCombat.side>0?'r':'l',tempV);
+    if(claw&&Math.hypot(claw.x-victim.body.position.x,claw.z-victim.body.position.z)<victim.radius+.12
+      &&Math.abs(claw.y-victim.body.position.y)<victim.cy+.1&&visibleLine(e.body.position,victim.body.position,.08)&&visibleLine(claw,victim.body.position,.04))hurt(victim,STONE_MINION.damage,e.body.position);
+    e.attackCooldown=STONE_MINION.cooldown;return;
+  }
   if(e.kind==='archer'){fireArrow(e,victim);e.attackCooldown=2.8;return;}
   const d=distance(e.body.position,victim.body.position);
   if(e.kind==='boss'&&e.attackType==='wave'){
@@ -1073,11 +1091,18 @@ function updateBossEnemy(e,dt){
 function updateEnemy(e,dt){
   if(e.bossType){updateBossEnemy(e,dt);return;}
   if(e.dead||e.removed)return;
+  if(e.stoneCombat&&!e.visual.readyState){e.body.velocity.x=e.body.velocity.z=0;return;}
   if(!e.aggro&&!relicTaken&&distance(e.body.position,player.body.position)>24){e.body.velocity.x=e.body.velocity.z=0;return;}
   e.attackCooldown=Math.max(0,e.attackCooldown-dt);e.pathTick-=dt;e.guardBreak=Math.max(0,e.guardBreak-dt);
   if(e.kind==='boss')e.channelCooldown=Math.max(0,e.channelCooldown-dt);
   if(e===held||e.stun>0||e.thrownUntil>runTime&&e.body.position.y>1.6){
+    if(e.stoneCombat)cancelStoneCombat(e.stoneCombat);
     interruptChannel(e);e.windup=0;return;
+  }
+  if(e.stoneCombat){
+    const event=advanceStoneCombat(e.stoneCombat,dt);
+    if(event.contact)enemyAttack(e);
+    if(event.active){e.windup=e.stoneCombat.phase==='attack'?Math.max(0,STONE_MINION.contact-e.stoneCombat.time):0;e.body.velocity.x=e.body.velocity.z=0;return;}
   }
   const victim=e.windup>0?e.victim:bodyguardTarget(e,player,goliath,visibleLine);
   if(!victim||victim.dead||victim.removed){e.windup=0;return;}
@@ -1100,11 +1125,12 @@ function updateEnemy(e,dt){
     return;
   }
   const archer=e.kind==='archer',bossMode=e.kind==='boss';
-  const reach=archer?8.3:bossMode?3.3:e.kind==='heavy'?2.1:1.6;
-  if(sight&&d<reach&&e.attackCooldown<=0){
+  const reach=e.stoneCombat?STONE_MINION.reach:archer?8.3:bossMode?3.3:e.kind==='heavy'?2.1:1.6;
+  if(sight&&d<reach&&e.attackCooldown<=0&&(!e.stoneCombat||Math.cos(yaw-e.yaw)>.92)){
     e.victim=victim;
     e.attackType=bossMode&&d>2.25?'wave':'hit';
-    e.windup=archer?.65:bossMode?1.05:e.kind==='heavy'?.9:.65;e.windupMax=e.windup;
+    e.windup=e.stoneCombat?STONE_MINION.contact:archer?.65:bossMode?1.05:e.kind==='heavy'?.9:.65;e.windupMax=e.windup;
+    if(e.stoneCombat)beginStoneAttack(e.stoneCombat);
     e.attackPulse=.08;e.body.velocity.x*=.2;e.body.velocity.z*=.2;return;
   }
   let dx=0,dz=0;
@@ -1180,7 +1206,7 @@ function updateEntities(dt){
       if(!e.ephemeral&&Math.random()<.28)spawnPickup(e.body.position,1);
       removeEntity(e);continue;
     }
-    if(e.category==='actor'&&e.dead&&e!==held&&runTime-e.deathTime>(e.ally?1.2:e.bossType==='wraith'?3.2:28)){fx.burst(e.body.position,0x4a7b72,12,1.7);removeEntity(e);continue;}
+    if(e.category==='actor'&&e.dead&&e!==held&&runTime-e.deathTime>(e.ally?1.2:e.stoneCombat||e.bossType==='wraith'?3.2:28)){fx.burst(e.body.position,0x4a7b72,12,1.7);removeEntity(e);continue;}
     if(e.ephemeral&&e!==held&&runTime>e.expireAt){fx.burst(e.body.position,0x7ce9b9,10,1);removeEntity(e);continue;}
     if(e.indestructible&&e.body.position.y<-5){greekPuzzles?.recover(e);continue;}
     if(e.body.position.y<-5){
@@ -1217,12 +1243,14 @@ function syncVisuals(dt){
     animationOptions.castTarget=e.isPlayer&&held?held.body.position:null;
     animationOptions.attackWindup=e.windupMax;
     if(e.bossType){animationOptions.clip=e.bossClip;animationOptions.time=e.dead?runTime-e.deathTime:e.stun>.01?(e.bossStaggerTime||0):e.bossAttack?e.bossTime:undefined;}
-    e.visual.update(dt,animationOptions);
+    if(e.stoneCombat)e.visual.animate(dt,{camera,grounded:animationOptions.grounded,dead:animationOptions.dead,stunned:animationOptions.stunned,
+      spawning:e.stoneCombat.phase==='spawn',attack:e.stoneCombat.phase==='attack'?Math.max(1e-6,e.stoneCombat.time):0,attackSide:e.stoneCombat.side});
+    else e.visual.update(dt,animationOptions);
     }
     if(e.shadow){e.shadow.visible=e.mesh.visible;e.shadow.position.set(p.x,.025,p.z);e.shadow.material.opacity=clamp(.28-(p.y-e.cy)*.025,.06,.28);}
     if(e.healthBar){
       const show=e.mesh.visible&&!e.dead&&(e.hp<e.maxHp||e===target||e.kind==='boss'||e.ally);
-      e.healthBar.visible=show;e.healthBar.position.set(p.x,p.y-e.cy+(e.ally?3.7:e.bossType?BOSS_DEFINITIONS[e.bossType].height+.15:2.2*(e.kind==='boss'?1.3:1)),p.z);
+      e.healthBar.visible=show;e.healthBar.position.set(p.x,p.y-e.cy+(e.stoneCombat?STONE_MINION.height+.2:e.ally?3.7:e.bossType?BOSS_DEFINITIONS[e.bossType].height+.15:2.2*(e.kind==='boss'?1.3:1)),p.z);
       e.healthBar.quaternion.copy(camera.quaternion);
       e.healthBar.userData.fill.scale.x=Math.max(.001,e.hp/e.maxHp);
       e.healthBar.userData.fill.position.x=-(1-e.hp/e.maxHp)*.47;
@@ -1231,7 +1259,7 @@ function syncVisuals(dt){
     if(e.telegraph){
       e.telegraph.visible=e.mesh.visible&&!e.dead&&e.windup>0;
       e.telegraph.position.set(p.x,.07,p.z);
-      const radius=e.bossType?(e.bossAttack?.radius||2.5):e.attackType==='wave'?4.1:e.kind==='boss'?2.8:e.kind==='heavy'?2.5:e.kind==='archer'?1.1:1.9;
+      const radius=e.stoneCombat?STONE_MINION.reach:e.bossType?(e.bossAttack?.radius||2.5):e.attackType==='wave'?4.1:e.kind==='boss'?2.8:e.kind==='heavy'?2.5:e.kind==='archer'?1.1:1.9;
       if(e.bossType)e.telegraph.material.color.set(BOSS_DEFINITIONS[e.bossType].color);
       e.telegraph.scale.setScalar(radius);
       e.telegraph.material.opacity=e.windup>0?.35+.6*(1-e.windup/(e.windupMax||1)):0;
@@ -1498,7 +1526,7 @@ async function boot(){
     setupPhysics();goliathNav=new NavigationGrid(worldMap.floors,worldMap.colliders,.85,1.0);ui.setLoading(.2,'Το κάστρο ξυπνά…');
     requestAnimationFrame(frame);
     await loadCharacters((fraction)=>ui.setLoading(.2+fraction*.65,'Οι φύλακες παίρνουν θέση…'));
-    await loadBossCharacters();
+    await Promise.all([loadBossCharacters(),loadStoneMinion({camera})]);
     await loadHearth();hearthFX=createHearthEffects(scene);
     hearth=createHearthSystem({scene,physics,worldMap,nav,material:actorMaterial,spell:fireSpell,getPlayer:()=>player,getEntities:()=>entities,getHeld:()=>held,getAimEntity:()=>target||greekPuzzles?.aimTarget(hearth?.engine,player?.yaw||0),getEnvironmentalTargets:()=>greekPuzzles?.aimTargets(hearth?.engine)||[],releaseHeld,hurt,clear:(a,b)=>visibleLine(a,b,.01),sound,toast:ui.toast,fx});
     greekPuzzles=createGreekPuzzles({architecture:greekArchitecture,world:worldMap,physics,staticBox,navs:()=>[nav,goliathNav],spawn:prop,getHeld:()=>held,releaseHeld,toast:ui.toast,fx});
