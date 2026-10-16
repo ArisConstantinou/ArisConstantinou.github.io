@@ -1,0 +1,42 @@
+{
+  "version": "1.6.2",
+  "status": "published_verified",
+  "verifiedUtc": "2026-10-16T08:14:53.588Z",
+  "url": "https://arisconstantinou.github.io/magic/?v=1.6.2",
+  "runtimeCommit": "9ad023a060097ef99b416be10894a43de2f83b08",
+  "previousPublicCommit": "1a1a3501f0122d9c4539c1eccedc0478b05ae166",
+  "branch": "main",
+  "publicationAuthorized": true,
+  "pagesRun": "https://github.com/ArisConstantinou/ArisConstantinou.github.io/actions/runs/38871642720",
+  "pagesConclusion": "success",
+  "checks": {
+    "unitAndMapTests": 292,
+    "localRuntime": 18,
+    "gameplayClientIterations": 2,
+    "publishedFileHashes": 20,
+    "publicSaveAudioTouchOffline": 18,
+    "publicNativeHearthControls": 8
+  },
+  "canonicalProgressPreservedExactly": true,
+  "dualLeftMouseBurnersVerified": true,
+  "publicOfflineMovementVerified": true,
+  "publicPauseAudioPeak": 0,
+  "publicPagehideAudioPeak": 0,
+  "publicRuntimeErrors": 0,
+  "publicHttpErrors": 0,
+  "protectedRuntimeArtFilesUnchanged": 88,
+  "allOwnedQaBrowsersClosed": true,
+  "previousHashedAssetsRetained": true,
+  "verificationBoundaries": {
+    "initialLiveUpdate": "Observed real public1.6.1 and old cache before publication, then real public1.6.2 worker and retained progress values. Initial strict JSON comparison rejected default zero upgrade keys added by unchanged save normalization; the failed fixture is retained locally.",
+    "canonicalSaveFollowup": "Exact committed1.6.1 entry replay on the real public origin, native old-application save, then unmodified public1.6.2. Exact canonical save equality passed. Old worker bytes were not replayed in this follow-up.",
+    "cacheRetirement": "Real old/new worker lifecycle passed locally. Follow-up public worker removed a synthetic old scoped cache marker while preserving an unrelated cache.",
+    "pagehide": "Actual production callback exercised with a dispatched persisted PageTransitionEvent; not a physical Safari BFCache test.",
+    "physicalPhoneVerified": false,
+    "physicalPhonePerformanceVerified": false,
+    "remainingUnitRedesignCompleted": false
+  },
+  "newMeshyCreditsUsed": 0,
+  "taskWeeklyUsageShare": "unavailable",
+  "taskCredits": "unavailable"
+}

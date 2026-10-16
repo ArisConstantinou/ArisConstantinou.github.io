@@ -1,6 +1,6 @@
 {
   "version": "1.6.2",
-  "status": "verified_candidate_publication_pending",
+  "status": "published_verified",
   "verifiedUtc": "2026-10-16T07:12:17.353Z",
   "basePublicCommit": "1a1a3501f0122d9c4539c1eccedc0478b05ae166",
   "unitTests": 292,
@@ -88,5 +88,16 @@
   "taskCredits": "unavailable",
   "agents": 0,
   "dependencyInstalls": 0,
-  "publicPromoted": false
+  "publicPromoted": true,
+  "publicVerifiedUtc": "2026-10-16T08:14:53.588Z",
+  "publicRuntimeCommit": "9ad023a060097ef99b416be10894a43de2f83b08",
+  "publicationChecks": {
+    "unitAndMapTests": 292,
+    "localRuntime": 18,
+    "gameplayClientIterations": 2,
+    "publishedFileHashes": 20,
+    "publicSaveAudioTouchOffline": 18,
+    "publicNativeHearthControls": 8
+  },
+  "publicationReceipt": "PUBLICATION.json"
 }
