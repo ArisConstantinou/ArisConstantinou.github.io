@@ -1,5 +1,5 @@
 import * as T from 'three';
-import {readAsset} from './game/src/asset-loading.js';
+import {loadTextureAsset} from './game/src/asset-loading.js';
 
 // Original, deterministic textures; museum photographs are references only.
 // Keep the former 1024px / 6m texel density and the actual floor plane/collider.
@@ -25,8 +25,7 @@ export async function loadRoomSurfaceAssets(){
  const loader=new T.TextureLoader();
  const rows=await Promise.all(['diff','normal','arm'].map(async name=>{
   const url=new URL('threshold-materials/slate_floor/'+name+'.jpg',document.baseURI).href;
-   const objectURL=URL.createObjectURL(new Blob([await readAsset(url)],{type:'image/jpeg'}));
-   let t;try{t=await loader.loadAsync(objectURL)}finally{URL.revokeObjectURL(objectURL)}
+   const t=await loadTextureAsset(loader,url);
    t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=8;if(name==='diff')t.colorSpace=T.SRGBColorSpace;return [name,t];
  }));readySurfaces.set('slate',Object.fromEntries(rows));
 }
@@ -85,6 +84,7 @@ export function makeRoomSurface(room,photographicStone){
  else{const painted=paint(room,p);map=new T.CanvasTexture(painted.canvas);map.colorSpace=T.SRGBColorSpace;normalMap=new T.DataTexture(painted.normals,size,size,T.RGBAFormat);normalMap.flipY=false;normalMap.magFilter=T.LinearFilter;normalMap.minFilter=T.LinearMipmapLinearFilter;normalMap.generateMipmaps=true;}
  for(const t of [map,normalMap,arm].filter(Boolean)){t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(room.w/tile,room.d/tile);t.anisotropy=8;t.needsUpdate=true;}
  const mat=new T.MeshStandardMaterial({map,normalMap,normalScale:new T.Vector2(scanned?.32:p.pattern==='pebbles'?.2:.45,scanned?.32:p.pattern==='pebbles'?.2:.45),roughnessMap:arm,roughness:p.roughness,color:0xffffff});
+ mat.textureDependencies=photographicStone?.map?[photographicStone.map]:[];
  mat.name=room.id+' · '+p.label;mat.userData.roomSurface={id:room.id,pattern:p.pattern,label:p.label,weather:p.weather||'worn',resolution:map.image.width,tileMetres:tile,seed:p.seed,photographic:scanned?(p.pattern==='flags'?'monastery_stone_floor':'slate_floor'):null};
  mat.onBeforeCompile=s=>{
   s.uniforms.roomDimensions={value:new T.Vector2(room.w,room.d)};

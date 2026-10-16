@@ -1,7 +1,7 @@
 import {loadGltfAsset} from './asset-loading.js';
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
+import {RecoverableDracoLoader as DRACOLoader} from './recoverable-draco-loader.js';
 import {clone} from 'three/addons/utils/SkeletonUtils.js';
 import {createRigLocomotion} from './locomotion.js';
 import {HEARTH_STOMP} from './hearth-rules.js';

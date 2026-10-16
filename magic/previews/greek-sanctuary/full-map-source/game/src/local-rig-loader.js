@@ -1,5 +1,5 @@
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { RecoverableDracoLoader as DRACOLoader } from './recoverable-draco-loader.js';
 
 /** Locally bundled decoder; the caller closes it after every load settles. */
 export function createLocalRigLoader() {

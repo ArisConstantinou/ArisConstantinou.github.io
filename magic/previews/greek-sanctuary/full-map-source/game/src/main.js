@@ -1,6 +1,7 @@
 import {greekEnabled,loadGreekAssets,addGreekArchitecture,createGreekPuzzles} from './greek-environment.js';
 import {observeAssetLoading} from './asset-loading.js';
 import {ensureReleaseWorker,notifyReleaseReady,releaseReloadURL} from './release-worker.js';
+import {prepareVisibleTextures,textureMemoryStats} from './texture-memory.js';
 import * as THREE from 'three';
 import {loadSiegeAssets,addSiegeDressing,siegeEnabled} from './siege-environment.js';
 import * as CANNON from 'cannon-es';
@@ -69,6 +70,13 @@ let goliathNav;
 let hearth,hearthFX;
 let greekArchitecture,greekPuzzles;
 let phase='loading', ready=false, quality=mobile?'low':'high', worldMap, physics, nav, player, held=null, target=null;
+let textureUpload,texturePreparation=null,environmentTarget;
+function prepareFrameTextures(){return prepareVisibleTextures(renderer,scene,textureUpload,camera);}
+function prepareEnvironment(){
+  environmentTarget?.dispose();
+  const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();
+  environmentTarget=pmrem.fromScene(room,.04);scene.environment=environmentTarget.texture;scene.environmentIntensity=.2;room.dispose();pmrem.dispose();
+}
 let inventoryReturnPhase='playing',lootDrops=[];
 let entities=[], arrows=[], pickups=[], kills=0, runShards=0, runTime=0, relicTaken=false, alarmTime=0, nextWave=0;
 let combo=0, comboUntil=0, lastTime=performance.now(), worldTime=0, shake=0, castTime=0, boss=null, lastHint='';
@@ -158,6 +166,11 @@ function usePotion(kind,id){
 function setupRenderer(){
   const canvas=document.getElementById('game-canvas');
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+  textureUpload=async texture=>{await new Promise(requestAnimationFrame);renderer.initTexture(texture);};
+  // Lost-context GPU objects are already invalid. Recreate the generated
+  // environment after restore without deleting handles from the old context.
+  canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();environmentTarget=null;sound.setPaused(true);sound.setFlamethrower(false);if(ready&&phase==='playing'){phase='paused';ui.showPause(true);}});
+  canvas.addEventListener('webglcontextrestored',()=>{try{prepareEnvironment();}catch(error){showError(error);}});
   // All composer passes belong to one game frame. Reset once so Three updates
   // each skeleton once, and counters include the full frame rather than its
   // final fullscreen pass.
@@ -174,8 +187,7 @@ function setupRenderer(){
   Object.assign(moon.shadow.camera,{left:-22,right:22,top:22,bottom:-22,near:1,far:85});
   moon.shadow.normalBias=.07;moon.shadow.bias=-.00015;moon.shadow.mapSize.set(2048,2048);scene.add(moon,moon.target);
   const rim=new THREE.DirectionalLight(0x55bfc0,.6);rim.position.set(8,7,-18);scene.add(rim);
-  const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();
-  scene.environment=pmrem.fromScene(room,.04).texture;scene.environmentIntensity=.2;room.dispose();pmrem.dispose();
+  prepareEnvironment();
   if(quality==='high')setupComposer();
   fx=createEffects(scene);
   targetRing=new THREE.Mesh(new THREE.RingGeometry(.72,.77,48),new THREE.MeshBasicMaterial({color:0x86ffda,transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false}));
@@ -354,6 +366,7 @@ function populate(){
   for(let i=0;i<35;i++)physics.step(1/120);
   syncVisuals(0);
 }
+function setPlayCamera(){cameraTarget.set(player.body.position.x,0,player.body.position.z-2);}
 function startRun(){
   contextTarget=null;contextAt=-Infinity;
   sound.start();populate();
@@ -362,7 +375,7 @@ function startRun(){
     engine.yaw=engine.aimYaw=player.yaw=Math.PI;engine.facing.reset(Math.PI);engine.heart.state='piloted';engine.heart.fuel=100;
     player.body.type=CANNON.Body.KINEMATIC;player.body.collisionFilterMask=0;player.body.position.set(0,player.cy+.06,17.5);player.body.velocity.set(0,0,0);player.radius=1.22;player.invulnerable=.8;hearth.sync(0);
   }
-  phase='playing';ui.start();cameraTarget.set(player.body.position.x,0,player.body.position.z-2);
+  phase='playing';ui.start();setPlayCamera();
   ui.toast(mobile?'Άγγιξε ένα αντικείμενο, κράτησε και σύρε. Άφησε το δάχτυλο για ρίψη.':'Κάνε κλικ πάνω σε ένα αντικείμενο, κράτησε και σύρε. Άφησε το κλικ για ρίψη.','info');
   if(!save.available)ui.toast('Η πρόοδος κρατιέται για αυτή τη συνεδρία. Ο browser δεν επιτρέπει αποθήκευση.','info');
 }
@@ -1462,6 +1475,7 @@ function updateHUD(){
 let controlledUntil=0;
 function frame(now,manual=false){
   if(!manual&&now<controlledUntil){lastTime=now;requestAnimationFrame(frame);return;}
+  if(texturePreparation||renderer?.getContext().isContextLost()){lastTime=now;if(!manual)requestAnimationFrame(frame);return;}
   const dt=Math.min(.045,Math.max(.001,(now-lastTime)/1000));lastTime=now;worldTime+=dt;
   try{
     if(worldMap)worldMap.update(dt,worldTime,player?.body.position);
@@ -1501,7 +1515,11 @@ function frame(now,manual=false){
       if(FIRE_ENABLED)fireFX.update({spell:fireSpell,player,entities,surfaces:worldMap.woodenSurfaces,time:runTime,camera,playing:['playing','paused'].includes(phase),source:fireSpell.sourceFor(player,fireLineClear,aimPoint)});
     }
     sound.setFlamethrower(phase==='playing'&&!document.hidden&&!!hearth?.engine?.heart.firing);
-    if(renderer&&ready){renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);}
+    if(renderer&&ready){
+      const preparation=prepareFrameTextures();
+      if(preparation){sound.setPaused(true);sound.setFlamethrower(false);texturePreparation=preparation.catch(error=>{if(!renderer.getContext().isContextLost())showError(error);}).finally(()=>{texturePreparation=null;lastTime=performance.now();});}
+      else{renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);}
+    }
     if(!manual)requestAnimationFrame(frame);
   }catch(error){showError(error);}
 }
@@ -1537,6 +1555,11 @@ async function boot(){
     hearth=createHearthSystem({scene,physics,worldMap,nav,material:actorMaterial,spell:fireSpell,getPlayer:()=>player,getEntities:()=>entities,getHeld:()=>held,getAimEntity:()=>target||greekPuzzles?.aimTarget(hearth?.engine,player?.yaw||0),getEnvironmentalTargets:()=>greekPuzzles?.aimTargets(hearth?.engine)||[],releaseHeld,hurt,clear:(a,b)=>visibleLine(a,b,.01),sound,toast:ui.toast,fx});
     greekPuzzles=createGreekPuzzles({architecture:greekArchitecture,world:worldMap,physics,staticBox,navs:()=>[nav,goliathNav],spawn:prop,getHeld:()=>held,releaseHeld,toast:ui.toast,fx});
     ui.setLoading(.9,'Η μαγεία σχηματίζεται…');populate();
+    ui.setLoading(.93,'Ετοιμάζεται η πρώτη εικόνα…');
+    // Finish the real first-play view before enabling Start, including its LOD
+    // surfaces. The menu and play cameras expose different original textures.
+    phase='playing';setPlayCamera();updateCamera(0);syncVisuals(0);await prepareFrameTextures();
+    phase='loading';updateCamera(100);syncVisuals(0);await prepareFrameTextures();
     if(renderer.compileAsync){
       await renderer.compileAsync(scene,camera);
       // Desktop renders through a linear HDR target. Precompile that variant
@@ -1552,7 +1575,7 @@ async function boot(){
     if(!candidate)notifyReleaseReady(navigator.serviceWorker,packageInfo.version);
     ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
     observeAssetLoading(null);requestAnimationFrame(frame);
-    window.__MAGIC__={version:packageInfo.version,snapshot:()=>({puzzles:greekPuzzles?.snapshot(),hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
+    window.__MAGIC__={version:packageInfo.version,textureMemory:()=>({...textureMemoryStats(),pending:!!texturePreparation}),prepareTextures:prepareFrameTextures,snapshot:()=>({puzzles:greekPuzzles?.snapshot(),hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
       kills,relicTaken,holding:held?.label||null,dragging:!!drag,shielding:!!player?.shielding,context:contextTarget?{id:contextTarget.id,label:contextTarget.label,enabled:contextTarget.enabled}:null,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
       pathToRelic:nav.path(worldMap.spawn,{x:worldMap.relic.position.x,z:worldMap.relic.position.z+3}).length,profile:{runs:save.profile.runs,wins:save.profile.wins},time:runTime,candidate,
       inventory:{items:save.profile.loot.items.map(i=>({...i})),equipped:{...save.profile.loot.equipped},shards:save.profile.shards,storage:save.available},gear:player?.gear,

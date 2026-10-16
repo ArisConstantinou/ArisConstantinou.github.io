@@ -1,3 +1,4 @@
+import {deferGltfImages,encodedTexture} from './texture-memory.js';
 /** A slow download remains healthy while bytes arrive. Bound stalls/retries,
  * rather than rejecting a large, still-progressing file after45 seconds. */
 export function createAssetReader({fetchAsset=globalThis.fetch,idleMs=30000,totalMs=180000,attempts=3,retryDelayMs=350,onProgress=()=>{}}={}){
@@ -47,7 +48,7 @@ const read=createAssetReader({onProgress:event=>{received+=event.delta||0;observ
 const queue=createAssetQueue(2);
 /** Limit simultaneous compressed buffers, Draco work and image decoding.
  * Geometry, image pixels, animation and material settings stay untouched. */
-export function loadGltfAsset(loader,url){const href=new URL(url,globalThis.document?.baseURI).href;return queue(async()=>{
+export function loadGltfAsset(loader,url){deferGltfImages(loader);const href=new URL(url,globalThis.document?.baseURI).href;return queue(async()=>{
  const data=await read(href),base=new URL('.',href).href,objects=[];let accepting=true;
  try{
   // The six original glTF props have external buffers/images. Fetch those
@@ -65,7 +66,6 @@ export function loadGltfAsset(loader,url){const href=new URL(url,globalThis.docu
  }finally{accepting=false;for(const object of objects)URL.revokeObjectURL(object);}
 });}
 export function loadTextureAsset(loader,url){return queue(async()=>{
- const object=URL.createObjectURL(new Blob([await read(url)]));
- try{return await loader.loadAsync(object)}finally{URL.revokeObjectURL(object);}
+ return encodedTexture(new Blob([await read(url)]),{flipY:true});
 });}
 export const readAsset=read;

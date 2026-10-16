@@ -1,7 +1,7 @@
 import {loadGltfAsset} from './game/src/asset-loading.js';
 import * as T from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
+import {RecoverableDracoLoader as DRACOLoader} from './game/src/recoverable-draco-loader.js';
 import {ConvexGeometry} from 'three/addons/geometries/ConvexGeometry.js';
 import {fitCollisionBox} from './collision-box.js';
 import {prepareStaticPicking,verifyStaticPicking} from './static-raycast.js';

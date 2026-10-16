@@ -2,6 +2,7 @@
 // variants are ready. Upload one unique texture between animation frames.
 import {Sphere,Vector3} from 'three';
 import {createBatchedTextureUploader} from './batched-texture-upload.js';
+import {prepareEncodedTexture} from './texture-memory.js';
 export function createRigSurfacePreparer({renderer,scene,camera,renderTargets=[],boundBatch=4096,nextFrame=()=>new Promise(requestAnimationFrame)}) {
   const textures=new Set();let pending=Promise.resolve();
   const upload=createBatchedTextureUploader({renderer,nextFrame});
@@ -18,7 +19,7 @@ export function createRigSurfacePreparer({renderer,scene,camera,renderTargets=[]
       mesh.boundingSphere=sphere;
     }
     const maps=new Set();object.traverse(o=>{if(!o.isMesh)return;for(const m of Array.isArray(o.material)?o.material:[o.material])for(const value of Object.values(m||{}))if(value?.isTexture)maps.add(value)});
-    for(const texture of maps)if(!textures.has(texture)){await upload(texture);textures.add(texture)}
+    for(const texture of maps)if(!textures.has(texture)){await prepareEncodedTexture(renderer,texture,upload);textures.add(texture)}
     if(renderer.compileAsync){
       const target=renderer.getRenderTarget();
       const variants=[null,...renderTargets].filter((t,i,a)=>a.indexOf(t)===i);
