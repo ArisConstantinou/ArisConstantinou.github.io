@@ -1,0 +1,22 @@
+{
+  "request": "Commit and publish all latest working patches to main",
+  "version": "1.6.3",
+  "runtimeCommit": "05ac0b4a07708fe9a0a9307db5f367ce3048a7c8",
+  "runtimeAlreadyPublished": true,
+  "runtimeChangedByThisVerification": false,
+  "currentCanonicalSourceFilesMatchingMain": 128,
+  "exactLiveHashesMatching": 23,
+  "freshUnitTests": 253,
+  "freshMapTests": 15,
+  "freshNativePublicChecks": 6,
+  "installedGameClientIterations": 2,
+  "installedClientScope": "Real public boot, two playing states and screenshots. Its virtual-time input loop did not establish displacement; separate native real-time movement check passed.",
+  "previousReleaseFullValidationCases": 300,
+  "newPaidCalls": 0,
+  "agents": 0,
+  "taskAttributedWeeklyUsage": "unavailable",
+  "physicalPhoneStability": "unverified",
+  "fullModelRedesignComplete": false,
+  "unfinishedModelWorkPublished": false,
+  "verifiedUtc": "2026-10-16T09:55:00.748Z"
+}

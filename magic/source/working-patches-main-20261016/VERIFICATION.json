@@ -1,0 +1,689 @@
+{
+  "version": "1.6.3",
+  "runtimeCommit": "05ac0b4a07708fe9a0a9307db5f367ce3048a7c8",
+  "verifiedUtc": "2026-10-16T09:53:55.383Z",
+  "publicUrl": "https://arisconstantinou.github.io/magic/?v=1.6.3",
+  "remoteBranch": "main",
+  "passed": true,
+  "sourceComparison": "All current canonical JavaScript/CSS sources match main; line endings normalized only for source comparison. Public files use exact SHA-256.",
+  "sourceCount": 128,
+  "sources": [
+    {
+      "file": "aim.test.js",
+      "matches": true
+    },
+    {
+      "file": "asset-loading.js",
+      "matches": true
+    },
+    {
+      "file": "asset-loading.test.js",
+      "matches": true
+    },
+    {
+      "file": "audio.js",
+      "matches": true
+    },
+    {
+      "file": "batched-texture-upload.js",
+      "matches": true
+    },
+    {
+      "file": "batched-texture-upload.test.js",
+      "matches": true
+    },
+    {
+      "file": "boss-characters.js",
+      "matches": true
+    },
+    {
+      "file": "boss-rules.js",
+      "matches": true
+    },
+    {
+      "file": "boss-rules.test.js",
+      "matches": true
+    },
+    {
+      "file": "boss-skeletons.test.js",
+      "matches": true
+    },
+    {
+      "file": "broadphase-pair-order.test.js",
+      "matches": true
+    },
+    {
+      "file": "camera-movement.js",
+      "matches": true
+    },
+    {
+      "file": "camera-movement.test.js",
+      "matches": true
+    },
+    {
+      "file": "castle-art.js",
+      "matches": true
+    },
+    {
+      "file": "castle-boundaries.js",
+      "matches": true
+    },
+    {
+      "file": "castle-layout.js",
+      "matches": true
+    },
+    {
+      "file": "castle-layout.test.js",
+      "matches": true
+    },
+    {
+      "file": "characters.js",
+      "matches": true
+    },
+    {
+      "file": "context-controls.css",
+      "matches": true
+    },
+    {
+      "file": "context-controls.js",
+      "matches": true
+    },
+    {
+      "file": "context-controls.test.js",
+      "matches": true
+    },
+    {
+      "file": "damage-texture-cache.js",
+      "matches": true
+    },
+    {
+      "file": "damage-texture-cache.test.js",
+      "matches": true
+    },
+    {
+      "file": "desktop-engine.css",
+      "matches": true
+    },
+    {
+      "file": "door-strike-rules.js",
+      "matches": true
+    },
+    {
+      "file": "door-strike-rules.test.js",
+      "matches": true
+    },
+    {
+      "file": "drag.js",
+      "matches": true
+    },
+    {
+      "file": "drag.test.js",
+      "matches": true
+    },
+    {
+      "file": "effects-number.test.js",
+      "matches": true
+    },
+    {
+      "file": "effects.js",
+      "matches": true
+    },
+    {
+      "file": "engine-controls.test.js",
+      "matches": true
+    },
+    {
+      "file": "engine-escort.js",
+      "matches": true
+    },
+    {
+      "file": "engine-mouse.js",
+      "matches": true
+    },
+    {
+      "file": "fire-effects.js",
+      "matches": true
+    },
+    {
+      "file": "fire.js",
+      "matches": true
+    },
+    {
+      "file": "fire.test.js",
+      "matches": true
+    },
+    {
+      "file": "gargoyle-flight.js",
+      "matches": true
+    },
+    {
+      "file": "gargoyle-flight.test.js",
+      "matches": true
+    },
+    {
+      "file": "goliath-combat.test.js",
+      "matches": true
+    },
+    {
+      "file": "goliath-navigation.js",
+      "matches": true
+    },
+    {
+      "file": "goliath-navigation.test.js",
+      "matches": true
+    },
+    {
+      "file": "goliath.js",
+      "matches": true
+    },
+    {
+      "file": "goliath.test.js",
+      "matches": true
+    },
+    {
+      "file": "greek-environment.js",
+      "matches": true
+    },
+    {
+      "file": "greek-furnishings.js",
+      "matches": true
+    },
+    {
+      "file": "greek-progression.js",
+      "matches": true
+    },
+    {
+      "file": "greek-progression.test.js",
+      "matches": true
+    },
+    {
+      "file": "greek-puzzle-rules.js",
+      "matches": true
+    },
+    {
+      "file": "greek-puzzle-rules.test.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-aim.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-aim.test.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-character.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-core.test.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-damage-labels.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-damage-labels.test.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-door-strike.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-effects.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-facing.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-facing.test.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-fire.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-jet.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-ladder.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-ladder.test.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-lod.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-lod.test.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-pilot.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-rules.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-rules.test.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-stomp.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-streams.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-streams.test.js",
+      "matches": true
+    },
+    {
+      "file": "hearth-system.js",
+      "matches": true
+    },
+    {
+      "file": "impact-rules.js",
+      "matches": true
+    },
+    {
+      "file": "item-shadows.js",
+      "matches": true
+    },
+    {
+      "file": "local-rig-loader.js",
+      "matches": true
+    },
+    {
+      "file": "locomotion.js",
+      "matches": true
+    },
+    {
+      "file": "locomotion.test.js",
+      "matches": true
+    },
+    {
+      "file": "loot-visuals.js",
+      "matches": true
+    },
+    {
+      "file": "loot.js",
+      "matches": true
+    },
+    {
+      "file": "loot.test.js",
+      "matches": true
+    },
+    {
+      "file": "mage-garment.js",
+      "matches": true
+    },
+    {
+      "file": "mage-garment.test.js",
+      "matches": true
+    },
+    {
+      "file": "magic-hand-targeting.js",
+      "matches": true
+    },
+    {
+      "file": "magic-hand-targeting.test.js",
+      "matches": true
+    },
+    {
+      "file": "main.js",
+      "matches": true
+    },
+    {
+      "file": "movement-facing.js",
+      "matches": true
+    },
+    {
+      "file": "physics-config.js",
+      "matches": true
+    },
+    {
+      "file": "physics-config.test.js",
+      "matches": true
+    },
+    {
+      "file": "profile-migration.test.js",
+      "matches": true
+    },
+    {
+      "file": "redesign-viewer.js",
+      "matches": true
+    },
+    {
+      "file": "release-integration.test.js",
+      "matches": true
+    },
+    {
+      "file": "release-worker.js",
+      "matches": true
+    },
+    {
+      "file": "release-worker.test.js",
+      "matches": true
+    },
+    {
+      "file": "rig-lod.js",
+      "matches": true
+    },
+    {
+      "file": "rig-lod.test.js",
+      "matches": true
+    },
+    {
+      "file": "rig-surface-preparation.js",
+      "matches": true
+    },
+    {
+      "file": "rig-surface-preparation.test.js",
+      "matches": true
+    },
+    {
+      "file": "siege-environment.js",
+      "matches": true
+    },
+    {
+      "file": "sight-performance.test.js",
+      "matches": true
+    },
+    {
+      "file": "spawn-rules.js",
+      "matches": true
+    },
+    {
+      "file": "spawn-rules.test.js",
+      "matches": true
+    },
+    {
+      "file": "stomp-effects.js",
+      "matches": true
+    },
+    {
+      "file": "stone-creature.js",
+      "matches": true
+    },
+    {
+      "file": "stone-minion-combat.js",
+      "matches": true
+    },
+    {
+      "file": "stone-minion-combat.test.js",
+      "matches": true
+    },
+    {
+      "file": "stone-minion.js",
+      "matches": true
+    },
+    {
+      "file": "stored-fire.js",
+      "matches": true
+    },
+    {
+      "file": "stored-fire.test.js",
+      "matches": true
+    },
+    {
+      "file": "streamed-rig-lod.js",
+      "matches": true
+    },
+    {
+      "file": "streamed-rig-lod.test.js",
+      "matches": true
+    },
+    {
+      "file": "style.css",
+      "matches": true
+    },
+    {
+      "file": "supported-spawn.js",
+      "matches": true
+    },
+    {
+      "file": "supported-spawn.test.js",
+      "matches": true
+    },
+    {
+      "file": "systems.js",
+      "matches": true
+    },
+    {
+      "file": "systems.test.js",
+      "matches": true
+    },
+    {
+      "file": "throw-aim.js",
+      "matches": true
+    },
+    {
+      "file": "throw-aim.test.js",
+      "matches": true
+    },
+    {
+      "file": "trajectory-worker.js",
+      "matches": true
+    },
+    {
+      "file": "trajectory.js",
+      "matches": true
+    },
+    {
+      "file": "trajectory.test.js",
+      "matches": true
+    },
+    {
+      "file": "two-hand-weapon-grip.js",
+      "matches": true
+    },
+    {
+      "file": "two-hand-weapon-grip.test.js",
+      "matches": true
+    },
+    {
+      "file": "ui.js",
+      "matches": true
+    },
+    {
+      "file": "walkable-support.js",
+      "matches": true
+    },
+    {
+      "file": "walkable-support.test.js",
+      "matches": true
+    },
+    {
+      "file": "world.js",
+      "matches": true
+    },
+    {
+      "file": "wraith-chain-constraints.js",
+      "matches": true
+    },
+    {
+      "file": "wraith-chain-constraints.test.js",
+      "matches": true
+    }
+  ],
+  "files": [
+    {
+      "file": "magic/index.html",
+      "status": 200,
+      "bytes": 1373,
+      "sha256": "344daa76985df6b23eeac0c4f40a5e9e8f05cabf3cc766440b63a8224ec1f9ae",
+      "matches": true
+    },
+    {
+      "file": "magic/sw.js",
+      "status": 200,
+      "bytes": 3394,
+      "sha256": "96182f52bcaa964d2cd7357c478c1eb36e75da10f31160007b9d8ed3e9c87be2",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/engine/hearth-flamethrower-BwYq4Cmf.mp3",
+      "status": 200,
+      "bytes": 87596,
+      "sha256": "e1a122a08a93a47e4dcaf3eac5e4c38ef5b6e69a4b9d0a52b52930f10c38583d",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/engine/index-Bk8xpeLK.js",
+      "status": 200,
+      "bytes": 1254696,
+      "sha256": "edff4fa5b1c161a537d234462c93dc7f3aae9ebeebe17b10769307af9678c5ea",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/engine/index-CApdkRC1.css",
+      "status": 200,
+      "bytes": 52223,
+      "sha256": "2c282b8e9e2d45a23d4d44a18a7303ef1542b69ff61ddcf68335229b2e1bf9bf",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/engine/trajectory-worker-DgrJJUJi.js",
+      "status": 200,
+      "bytes": 95550,
+      "sha256": "4dae804b5008b9750e47b28a036dd22f412cd326359bbe888ffff96c4b2a17e7",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/room-surfaces.js",
+      "status": 200,
+      "bytes": 9339,
+      "sha256": "34b96a1d8ce0f28b18290877b2b8a871b456235b68af74d3609384d4563b0256",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/statues.js",
+      "status": 200,
+      "bytes": 8977,
+      "sha256": "a889668927bd8f0cd6d40b98f1295e4a2346ea1870ad3da96559667d9d583fb2",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/package.json",
+      "status": 200,
+      "bytes": 424,
+      "sha256": "4e43fae481096f1d56c355beee23c3e13788bc300082f094586104459c1a87d6",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/package-lock.json",
+      "status": 200,
+      "bytes": 35511,
+      "sha256": "916687784db45e4287f929a797f15abc6abe98c58df7a3f48681cd79bc774149",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/asset-loading.js",
+      "status": 200,
+      "bytes": 5054,
+      "sha256": "5234bf4b4228f79f4690ffc6b420a4de831ebec590752cca18751b5be210dfaa",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/asset-loading.test.js",
+      "status": 200,
+      "bytes": 4446,
+      "sha256": "faa76331357a825d8d00e15dd2f12d974adbec44f437c44dcc78f03b389fdd48",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/boss-characters.js",
+      "status": 200,
+      "bytes": 7003,
+      "sha256": "d63ef894dc3a050c6a780d7217cda71c38f3f8078865bf285eff9a8c37b69b40",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/characters.js",
+      "status": 200,
+      "bytes": 18221,
+      "sha256": "7b6374e06224123a1fa6f48e0501f8ef092a60ba69cabcc11a2ca3e6a0a7a4be",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/greek-environment.js",
+      "status": 200,
+      "bytes": 23441,
+      "sha256": "2126519d062a9a3ee36a0b45097d26622cf4ad0f4ac1cc053af4a1573a91b9b7",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/hearth-character.js",
+      "status": 200,
+      "bytes": 9345,
+      "sha256": "d71f0ae27af2e6cee38c99c032d5a8cda9f6610506c018893673e54d3c7e6137",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/main.js",
+      "status": 200,
+      "bytes": 116485,
+      "sha256": "7d00d3476ea85f01302ae7bea87a0cc838ab78acd8f217667b2cc14a74abf132",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/rig-lod.js",
+      "status": 200,
+      "bytes": 6019,
+      "sha256": "344652ae11878c1c7b5762f4a55fb0db190876ebe998bc14eef4ded70f97d06f",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/siege-environment.js",
+      "status": 200,
+      "bytes": 8967,
+      "sha256": "a3bad1d59e766e7be7d16e515c1355062090e70b37842e5c9ca09f850003ef04",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/stone-minion.js",
+      "status": 200,
+      "bytes": 9148,
+      "sha256": "0cbc258e0a15f3ce47d7e930fa6068e0f92583fcf531738be9144d8da898a5a0",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/streamed-rig-lod.js",
+      "status": 200,
+      "bytes": 4792,
+      "sha256": "5905de5ffd9614d6becfabe9a7ab68be104a9081079fb11d9bcd796c5179925b",
+      "matches": true
+    },
+    {
+      "file": "magic/previews/greek-sanctuary/full-map-source/game/src/ui.js",
+      "status": 200,
+      "bytes": 65625,
+      "sha256": "7d0b35d433656b40862347ef1b38d5a4538894daceb608b907612d1fa6a80bfd",
+      "matches": true
+    },
+    {
+      "file": "magic/source/load-recovery-1.6.3/RELEASE.md",
+      "status": 200,
+      "bytes": 1815,
+      "sha256": "dad2efaefb61c0c0e01fb0ebf8edcfff72372e2485c7f6b0f624ba9fcffbca66",
+      "matches": true
+    }
+  ],
+  "runtimeChanged": false,
+  "unfinishedModelsPublished": false
+}

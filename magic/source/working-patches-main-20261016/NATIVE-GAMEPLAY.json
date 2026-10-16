@@ -1,0 +1,49 @@
+{
+  "url": "https://arisconstantinou.github.io/magic/?v=1.6.3",
+  "checks": [
+    {
+      "name": "current public runtime",
+      "passed": true
+    },
+    {
+      "name": "current public service worker",
+      "passed": true
+    },
+    {
+      "name": "native movement",
+      "passed": true,
+      "detail": {
+        "before": {
+          "x": 0,
+          "z": 22.5
+        },
+        "after": {
+          "x": 0,
+          "z": 19.44164776781454
+        }
+      }
+    },
+    {
+      "name": "native pause",
+      "passed": true
+    },
+    {
+      "name": "native resume",
+      "passed": true
+    },
+    {
+      "name": "no uncaught errors or crashes",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "conditions": "Fresh private Chrome context on Windows. Native keyboard and UI; no simulation stepping, injected player state or gameplay grants. No physical phone performance claim.",
+  "passed": true,
+  "cleanup": {
+    "closed": true,
+    "remainingPids": [],
+    "cleanupErrors": []
+  },
+  "verifiedUtc": "2026-10-16T09:55:00.748Z"
+}
