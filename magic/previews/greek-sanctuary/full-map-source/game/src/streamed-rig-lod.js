@@ -1,3 +1,4 @@
+import {loadGltfAsset} from './asset-loading.js';
 import * as THREE from 'three';
 import {createLocalRigLoader} from './local-rig-loader.js';
 import {prepareRigSurface} from './rig-surface-preparation.js';
@@ -7,7 +8,7 @@ const normalTemplates=new Map();
 function loadNormalSurface(url){
  if(!normalTemplates.has(url)){
   const {loader,disposeDecoder}=createLocalRigLoader();
-  normalTemplates.set(url,loader.loadAsync(url).then(async gltf=>{await prepareRigSurface(gltf.scene);return gltf}).finally(disposeDecoder));
+  normalTemplates.set(url,loadGltfAsset(loader,url).then(async gltf=>{await prepareRigSurface(gltf.scene);return gltf}).finally(disposeDecoder));
  }
  return normalTemplates.get(url);
 }

@@ -1,3 +1,4 @@
+import {loadGltfAsset} from './asset-loading.js';
 import * as THREE from 'three';
 import { createLocalRigLoader } from './local-rig-loader.js';
 import { prepareRigSurface } from './rig-surface-preparation.js';
@@ -20,7 +21,7 @@ export function rigLodLevel(object, model) {
 function loadClose(url) {
   if (!closeTemplates.has(url)) {
     const { loader, disposeDecoder } = createLocalRigLoader();
-    closeTemplates.set(url, loader.loadAsync(url).then(async({scene}) => {
+    closeTemplates.set(url, loadGltfAsset(loader,url).then(async({scene}) => {
       await prepareRigSurface(scene);
       return {scene};
     }).finally(disposeDecoder));

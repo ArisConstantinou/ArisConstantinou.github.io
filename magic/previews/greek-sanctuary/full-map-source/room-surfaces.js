@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {readAsset} from './game/src/asset-loading.js';
 
 // Original, deterministic textures; museum photographs are references only.
 // Keep the former 1024px / 6m texel density and the actual floor plane/collider.
@@ -23,10 +24,10 @@ const readySurfaces=new Map();
 export async function loadRoomSurfaceAssets(){
  const loader=new T.TextureLoader();
  const rows=await Promise.all(['diff','normal','arm'].map(async name=>{
-  let timer;try{const url=new URL('threshold-materials/slate_floor/'+name+'.jpg',document.baseURI).href;
-   const t=await Promise.race([loader.loadAsync(url),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Room surface load timed out: '+name)),45000);})]);
+  const url=new URL('threshold-materials/slate_floor/'+name+'.jpg',document.baseURI).href;
+   const objectURL=URL.createObjectURL(new Blob([await readAsset(url)],{type:'image/jpeg'}));
+   let t;try{t=await loader.loadAsync(objectURL)}finally{URL.revokeObjectURL(objectURL)}
    t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=8;if(name==='diff')t.colorSpace=T.SRGBColorSpace;return [name,t];
-  }finally{clearTimeout(timer);}
  }));readySurfaces.set('slate',Object.fromEntries(rows));
 }
 const rgba=(c,delta=0)=>`rgb(${c.map(v=>Math.max(0,Math.min(255,Math.round(v+delta)))).join(',')})`;

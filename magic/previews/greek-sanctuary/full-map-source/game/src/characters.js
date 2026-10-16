@@ -1,3 +1,4 @@
+import {loadGltfAsset} from './asset-loading.js';
 import * as THREE from 'three';
 import { createLocalRigLoader } from './local-rig-loader.js';
 import { clone as cloneSkeleton } from 'three/addons/utils/SkeletonUtils.js';
@@ -99,7 +100,7 @@ export async function loadCharacters(onProgress = () => {}) {
   let loaded = 0;
   onProgress(0, { loaded, total: entries.length, kind: null });
   const jobs = entries.map(async ([kind, file]) => {
-    const gltf = await loader.loadAsync(modelUrl(file));
+    const gltf = await loadGltfAsset(loader,modelUrl(file));
     let skinnedCount = 0;
     gltf.scene.traverse(object => { if (object.isSkinnedMesh) skinnedCount++; });
     if (!skinnedCount || !gltf.animations.length) {

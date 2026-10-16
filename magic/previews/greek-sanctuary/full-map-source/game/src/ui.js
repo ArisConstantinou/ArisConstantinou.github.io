@@ -94,6 +94,7 @@ export function createUI(callbacks = {}) {
           <button class="primary-button" id="start-button" type="button" disabled><span id="start-label">ΞΥΠΝΑ Η ΜΑΓΕΙΑ…</span>${icon('arrow')}</button>
           <div class="loading-line" id="loading-line"><div class="loading-fill" id="loading-fill"></div></div>
           <p class="loading-label" id="loading-label" role="status">Προετοιμασία του κάστρου…</p>
+          <p class="loading-label" id="loading-download" role="status" aria-live="polite"></p>
           <button class="secondary-button" id="menu-upgrades" type="button"><span class="button-name">${icon('rune')}ΜΟΝΙΜΕΣ ΔΥΝΑΜΕΙΣ</span><span class="shard-pill" id="menu-shards">0 ◇</span></button>
           <button class="secondary-button" id="menu-inventory" type="button"><span class="button-name">${icon('book')}ΕΞΟΠΛΙΣΜΟΣ</span><kbd>I</kbd></button>
           <div class="menu-footer"><button class="text-button" id="menu-help" type="button">Πώς παίζεται</button><button class="text-button" id="menu-mute" type="button">Ήχος ενεργός</button><button class="text-button" id="menu-quality" type="button">Γραφικά: υψηλά</button></div>
@@ -330,6 +331,7 @@ export function createUI(callbacks = {}) {
   }
 
   function ready() {
+    $('loading-download').hidden=true;
     loaded = true; el['start-button'].disabled = false;
     text('start-label','ΜΠΕΣ ΣΤΟ ΚΑΣΤΡΟ');
     el['loading-fill'].style.width = '100%'; el['loading-line'].hidden = true;
@@ -644,6 +646,13 @@ export function createUI(callbacks = {}) {
     listen(fatal.querySelector('button'), 'click', () => window.location.reload());
   }
 
+  let lastDownloadUpdate=0;
+  function setDownloadProgress({received=0,state,attempt=1}){
+    if(state!=='retry'&&performance.now()-lastDownloadUpdate<250)return;
+    lastDownloadUpdate=performance.now();
+    $('loading-download').textContent=state==='retry'?`Η σύνδεση άργησε · επανάληψη ${attempt}/3…`:`Έχουν ληφθεί ${(received/1048576).toFixed(1)} MB`;
+  }
+
   function destroy() {
     clearInput(); abort.abort(); coarseMedia.removeEventListener('change', setTouchMode);
     host.innerHTML = ''; delete document.body.dataset.input; document.body.classList.remove('is-playing', 'is-status-open');
@@ -651,6 +660,6 @@ export function createUI(callbacks = {}) {
 
   updateProfile(profile); update({ hp: 100, maxHp: 100, mana: 100, maxMana: 100, time: 0 });
   function updateContext(value){contextUse.hidden=!value||phase!=='playing';if(!value)return;contextUse.dataset.action=value.kind==='door-strike'?'doorStrike':'context';contextUse.querySelector('kbd').textContent=value.key||'E';contextUse.style.left=value.x+'px';contextUse.style.top=value.y+'px';contextUse.disabled=!value.enabled;if(contextUse.dataset.icon!==value.icon){contextUse.querySelector('.icon').outerHTML=icon(value.icon);contextUse.dataset.icon=value.icon;}if(contextUse.getAttribute('aria-label')!==value.label){contextUse.setAttribute('aria-label',value.label);contextUse.querySelector('span').textContent=value.label;}}
-  return { setLoading, ready, showMenu, start, update, toast, showPause, showResult, showUpgrades, showInventory, showStatus, updateThrowMark, hideModal, setMuted, getInput, consumeActions, destroy, showError, showHelp, setQuality,updateContext,setShieldMode:value=>{touchShield=!!value;},
+  return { setLoading, setDownloadProgress, ready, showMenu, start, update, toast, showPause, showResult, showUpgrades, showInventory, showStatus, updateThrowMark, hideModal, setMuted, getInput, consumeActions, destroy, showError, showHelp, setQuality,updateContext,setShieldMode:value=>{touchShield=!!value;},
     updatePotions:counts=>{text('health-potions',counts.health);text('mana-potions',counts.mana);el['quick-health'].disabled=!counts.health;el['quick-mana'].disabled=!counts.mana;el['quick-health'].classList.toggle('mobile-unavailable',!counts.health);el['quick-mana'].classList.toggle('mobile-unavailable',!counts.mana);} };
 }

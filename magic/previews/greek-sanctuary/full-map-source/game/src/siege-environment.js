@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {loadGltfAsset,loadTextureAsset} from './asset-loading.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 
 // Local CC0 assets, recorded in environment-b/asset-provenance.json. A/B is
@@ -11,12 +12,12 @@ export async function loadSiegeAssets({models=['wooden_crate_02','wooden_barrels
  if(!siegeEnabled)return;
  const loader=new GLTFLoader(),textures=new THREE.TextureLoader();
  await Promise.all(models.map(async id=>{
-  const gltf=await loader.loadAsync(base()+id+'/'+id+(id==='stone_01'?'-runtime.glb':'.gltf'));
+  const gltf=await loadGltfAsset(loader,base()+id+'/'+id+(id==='stone_01'?'-runtime.glb':'.gltf'));
   gltf.scene.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true;for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const key of ['map','normalMap','roughnessMap','metalnessMap','aoMap'])if(m[key])m[key].anisotropy=4;m.envMapIntensity=.45;}}});
   templates.set(id,gltf.scene);
  }));
  await Promise.all(surfaceIds.map(async id=>{
-  const [map,normalMap,arm]=await Promise.all(['diff','normal','arm'].map(n=>textures.loadAsync(base()+id+'/'+n+'.jpg')));
+  const [map,normalMap,arm]=await Promise.all(['diff','normal','arm'].map(n=>loadTextureAsset(textures,base()+id+'/'+n+'.jpg')));
   for(const tex of [map,normalMap,arm]){tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.anisotropy=8;}map.colorSpace=THREE.SRGBColorSpace;surfaces.set(id,{map,normalMap,arm});
  }));
 }

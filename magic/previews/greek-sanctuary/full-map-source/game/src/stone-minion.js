@@ -1,3 +1,4 @@
+import {loadGltfAsset} from './asset-loading.js';
 import * as THREE from 'three';
 import {clone as cloneSkeleton} from 'three/addons/utils/SkeletonUtils.js';
 import {createLocalRigLoader} from './local-rig-loader.js';
@@ -22,7 +23,7 @@ export function loadStoneMinion({camera,viewportHeight=globalThis.innerHeight||1
     // distance bundle before gameplay; ordinary far views fetch only4.1MB.
     const needsNormal=camera?.isOrthographicCamera&&HEIGHT*camera.zoom*viewportHeight/(camera.top-camera.bottom)>=85;
     const primaryFile=needsNormal?DISTANCE_FILE:FAR_FILE;
-    templatePromise=loader.loadAsync(assetUrl(primaryFile)).then(async gltf=>{
+    templatePromise=loadGltfAsset(loader,assetUrl(primaryFile)).then(async gltf=>{
       const clips=new Map(gltf.animations.map(clip=>[clip.name,clip]));
       if(!CLIPS.every(name=>clips.has(name)))throw Error('Stone minion lacks a required source action');
       for(const [name,duration] of [['ClawRight',STONE_MINION.attackDuration],['ClawLeft',STONE_MINION.attackDuration],['RitualSpawn',STONE_MINION.spawnDuration]]){

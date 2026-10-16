@@ -1,8 +1,8 @@
-/* MAGIC 1.6.2: do not block boot on optional model downloads. */
+/* MAGIC 1.6.3: do not block boot on optional model downloads. */
 'use strict';
-const RELEASE="1.6.2",SCOPE=new URL(self.registration.scope),INDEX=new URL('index.html',SCOPE).href;
-const PREFIX='magic-exiled:'+SCOPE.pathname+':',NAME=PREFIX+"73e5f51832be7cadc16adc2b";
-const SHELL=["assets-credit.json","icons/magic-192.png","icons/magic-512.png","icons/magic-rune.svg","index.html","manifest.webmanifest","previews/greek-sanctuary/engine/index-BnAIMvL9.js","previews/greek-sanctuary/engine/index-CApdkRC1.css","previews/greek-sanctuary/engine/trajectory-worker-DgrJJUJi.js"].map(file=>new URL(file,SCOPE).href);
+const RELEASE="1.6.3",SCOPE=new URL(self.registration.scope),INDEX=new URL('index.html',SCOPE).href;
+const PREFIX='magic-exiled:'+SCOPE.pathname+':',NAME=PREFIX+"9af05c751f34e37e798493d6";
+const SHELL=["assets-credit.json","icons/magic-192.png","icons/magic-512.png","icons/magic-rune.svg","index.html","manifest.webmanifest","previews/greek-sanctuary/engine/index-Bk8xpeLK.js","previews/greek-sanctuary/engine/index-CApdkRC1.css","previews/greek-sanctuary/engine/trajectory-worker-DgrJJUJi.js"].map(file=>new URL(file,SCOPE).href);
 const writes=new Set();let cacheFailure=false;
 const inScope=url=>url.origin===SCOPE.origin&&url.pathname.startsWith(SCOPE.pathname);
 const usable=response=>response.ok&&response.status!==206&&response.type!=='opaque'&&(!response.url||inScope(new URL(response.url)));

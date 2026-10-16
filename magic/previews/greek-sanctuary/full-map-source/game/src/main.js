@@ -1,4 +1,5 @@
 import {greekEnabled,loadGreekAssets,addGreekArchitecture,createGreekPuzzles} from './greek-environment.js';
+import {observeAssetLoading} from './asset-loading.js';
 import {ensureReleaseWorker,notifyReleaseReady,releaseReloadURL} from './release-worker.js';
 import * as THREE from 'three';
 import {loadSiegeAssets,addSiegeDressing,siegeEnabled} from './siege-environment.js';
@@ -175,8 +176,7 @@ function setupRenderer(){
   const rim=new THREE.DirectionalLight(0x55bfc0,.6);rim.position.set(8,7,-18);scene.add(rim);
   const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();
   scene.environment=pmrem.fromScene(room,.04).texture;scene.environmentIntensity=.2;room.dispose();pmrem.dispose();
-  composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
-  bloom=new UnrealBloomPass(new THREE.Vector2(800,600),.34,.58,.93);composer.addPass(bloom);composer.addPass(new OutputPass());
+  if(quality==='high')setupComposer();
   fx=createEffects(scene);
   targetRing=new THREE.Mesh(new THREE.RingGeometry(.72,.77,48),new THREE.MeshBasicMaterial({color:0x86ffda,transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false}));
   for(let i=0;i<4;i++){const tick=new THREE.Mesh(new THREE.PlaneGeometry(.27,.07),targetRing.material);tick.position.set(Math.cos(i*Math.PI/2)*.87,Math.sin(i*Math.PI/2)*.87,.002);tick.rotation.z=i*Math.PI/2;tick.renderOrder=9;targetRing.add(tick);}
@@ -201,13 +201,19 @@ function setupRenderer(){
   heldLight=new THREE.PointLight(0x7cffd3,0,5,2);scene.add(heldLight);
   window.addEventListener('resize',resize);resize();
 }
+function setupComposer(){
+  if(composer)return;
+  composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
+  bloom=new UnrealBloomPass(new THREE.Vector2(800,600),.34,.58,.93);composer.addPass(bloom);composer.addPass(new OutputPass());
+}
 function resize(){
   if(!renderer)return;
   const w=window.innerWidth,h=window.innerHeight,aspect=w/h;
   const halfH=aspect<1?10.5/aspect:11.3;
   camera.left=-halfH*aspect;camera.right=halfH*aspect;camera.top=halfH;camera.bottom=-halfH;camera.updateProjectionMatrix();
   const ratio=Math.min(window.devicePixelRatio||1,quality==='high'?1.75:1.15);
-  renderer.setPixelRatio(ratio);renderer.setSize(w,h,false);composer.setPixelRatio(ratio);composer.setSize(w,h);
+  if(quality==='high')setupComposer();
+  renderer.setPixelRatio(ratio);renderer.setSize(w,h,false);if(composer){composer.setPixelRatio(ratio);composer.setSize(w,h);}
   const shadowSize=quality==='high'?2048:1024;
   if(moon.shadow.mapSize.x!==shadowSize){moon.shadow.mapSize.set(shadowSize,shadowSize);moon.shadow.map?.dispose();moon.shadow.map=null;}
 }
@@ -1495,14 +1501,14 @@ function frame(now,manual=false){
       if(FIRE_ENABLED)fireFX.update({spell:fireSpell,player,entities,surfaces:worldMap.woodenSurfaces,time:runTime,camera,playing:['playing','paused'].includes(phase),source:fireSpell.sourceFor(player,fireLineClear,aimPoint)});
     }
     sound.setFlamethrower(phase==='playing'&&!document.hidden&&!!hearth?.engine?.heart.firing);
-    if(composer){renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);}
+    if(renderer&&ready){renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);}
     if(!manual)requestAnimationFrame(frame);
   }catch(error){showError(error);}
 }
 function showError(error){
   sound.setFlamethrower(false);
   console.error('Magic:',error);phase='error';
-  const message='Το παιχνίδι δεν μπόρεσε να ξεκινήσει. Δοκίμασε ανανέωση ή άνοιξε τον σύνδεσμο σε Safari / Chrome.';
+  const message=error?.assetLoad?error.message:'Το παιχνίδι δεν μπόρεσε να ξεκινήσει. Πάτησε «Δοκίμασε ξανά».';
   if(ui.showError)ui.showError(message);
   else{
     let el=document.getElementById('fatal-error');
@@ -1516,15 +1522,15 @@ window.addEventListener('pagehide',()=>{save.save();sound.setPaused(true);sound.
 async function boot(){
   try{
     ui.setLoading(.02,'Ελέγχεται η έκδοση…');
+    observeAssetLoading(event=>ui.setDownloadProgress(event));
     if(!candidate&&!import.meta.env.DEV)await ensureReleaseWorker(navigator.serviceWorker,document.baseURI,packageInfo.version);
     ui.setLoading(.05,'Ανάβουν οι δάδες…');setupRenderer();
-    configureRigSurfacePreparation({renderer,scene,camera,renderTargets:[composer.readBuffer]});
+    configureRigSurfacePreparation({renderer,scene,camera,renderTargets:composer?[composer.readBuffer]:[]});
     await Promise.all([loadSiegeAssets(),loadGreekAssets()]);
     worldMap=createWorld(scene,{fireEnabled:FIRE_ENABLED});
     addSiegeDressing(worldMap);greekArchitecture=addGreekArchitecture(worldMap);
     if(FIRE_ENABLED){fireSpell=new FireSpell(worldMap.torches);fireFX=createFireEffects(scene);}
     setupPhysics();goliathNav=new NavigationGrid(worldMap.floors,worldMap.colliders,.85,1.0);ui.setLoading(.2,'Το κάστρο ξυπνά…');
-    requestAnimationFrame(frame);
     await loadCharacters((fraction)=>ui.setLoading(.2+fraction*.65,'Οι φύλακες παίρνουν θέση…'));
     await Promise.all([loadBossCharacters(),loadStoneMinion({camera})]);
     await loadHearth();hearthFX=createHearthEffects(scene);
@@ -1535,14 +1541,17 @@ async function boot(){
       await renderer.compileAsync(scene,camera);
       // Desktop renders through a linear HDR target. Precompile that variant
       // too: compiling only the screen/sRGB variant stalls on the first shot.
-      const target=renderer.getRenderTarget();
-      renderer.setRenderTarget(composer.readBuffer);
-      const pending=renderer.compileAsync(scene,camera);
-      renderer.setRenderTarget(target);
-      await pending;
+      if(composer){
+        const target=renderer.getRenderTarget();
+        renderer.setRenderTarget(composer.readBuffer);
+        const pending=renderer.compileAsync(scene,camera);
+        renderer.setRenderTarget(target);
+        await pending;
+      }
     }
     if(!candidate)notifyReleaseReady(navigator.serviceWorker,packageInfo.version);
     ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
+    observeAssetLoading(null);requestAnimationFrame(frame);
     window.__MAGIC__={version:packageInfo.version,snapshot:()=>({puzzles:greekPuzzles?.snapshot(),hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
       kills,relicTaken,holding:held?.label||null,dragging:!!drag,shielding:!!player?.shielding,context:contextTarget?{id:contextTarget.id,label:contextTarget.label,enabled:contextTarget.enabled}:null,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
       pathToRelic:nav.path(worldMap.spawn,{x:worldMap.relic.position.x,z:worldMap.relic.position.z+3}).length,profile:{runs:save.profile.runs,wins:save.profile.wins},time:runTime,candidate,

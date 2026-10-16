@@ -1,3 +1,4 @@
+import {loadGltfAsset} from './asset-loading.js';
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
@@ -12,7 +13,7 @@ let template;
 let highPromise;
 async function loadModel(path){
  const decoder=new DRACOLoader().setDecoderPath(new URL('models/draco/',document.baseURI).href).setWorkerLimit(1);
- try{return await new GLTFLoader().setDRACOLoader(decoder).loadAsync(new URL(path,document.baseURI).href);}finally{decoder.dispose();}
+ try{return await loadGltfAsset(new GLTFLoader().setDRACOLoader(decoder),new URL(path,document.baseURI).href);}finally{decoder.dispose();}
 }
 export async function loadHearth(){
  template=await loadModel('models/hearth-bulwark/hearth-bulwark.glb');

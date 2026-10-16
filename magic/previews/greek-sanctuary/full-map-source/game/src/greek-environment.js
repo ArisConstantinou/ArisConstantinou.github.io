@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {loadGltfAsset} from './asset-loading.js';
 import {selectStrikeDoor} from './door-strike-rules.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
@@ -37,7 +38,7 @@ export async function loadGreekAssets({models=['column','entablature','bronze-le
  if(!greekEnabled)return;
  const loader=new GLTFLoader(),base=new URL('greek-sanctuary/',document.baseURI);
  await Promise.all(models.map(async id=>{
-  const {scene}=await loader.loadAsync(new URL(id+'.glb',base).href);
+  const {scene}=await loadGltfAsset(loader,new URL(id+'.glb',base).href);
   scene.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true;o.material.side=THREE.FrontSide;patina(o.material);}});templates.set(id,scene);
  }));
 }

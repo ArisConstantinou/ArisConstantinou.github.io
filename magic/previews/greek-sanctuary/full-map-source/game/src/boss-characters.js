@@ -1,3 +1,4 @@
+import {loadGltfAsset} from './asset-loading.js';
 import * as THREE from 'three';
 import { createLocalRigLoader } from './local-rig-loader.js';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
@@ -29,7 +30,7 @@ export async function loadBossCharacters(types = BOSS_TYPES) {
     if (templates.has(type)) return;
     const file = type === 'colossus' ? 'models/redesign/colossus-meshy-lods.glb'
       : type === 'wraith' ? 'models/redesign/wraith-1-6-1-lods.glb' : `models/bosses/${type}.glb`;
-    const gltf = await loader.loadAsync(new URL(file,document.baseURI).href);
+    const gltf = await loadGltfAsset(loader,new URL(file,document.baseURI).href);
     if (!gltf.animations.length) throw new Error(`Boss ${type} has no animations`);
     let skins = 0;
     gltf.scene.traverse(o => { if (o.isSkinnedMesh) skins++; });
