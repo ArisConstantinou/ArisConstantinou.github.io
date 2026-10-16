@@ -1,6 +1,14 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {Group,Mesh,PlaneGeometry,MeshBasicMaterial,PerspectiveCamera,EventDispatcher,DirectionalLight} from 'three';
 import {imageDimensions,encodedTexture,prepareEncodedTexture,prepareVisibleTextures,visibleEncodedTextures,textureMemoryStats,textureIsReady} from './texture-memory.js';
 function png(w=64,h=32){const a=new Uint8Array(24),v=new DataView(a.buffer);v.setUint32(0,0x89504e47);v.setUint32(4,0x0d0a1a0a);v.setUint32(16,w);v.setUint32(20,h);return a;}
+test('original WebP lossless, extended and lossy headers avoid allocating a bitmap',()=>{
+ for(const kind of ['VP8L','VP8X','VP8 ']){const b=new Uint8Array(30),v=new DataView(b.buffer);b.set(new TextEncoder().encode('RIFF'),0);b.set(new TextEncoder().encode('WEBP'+kind),8);
+  if(kind==='VP8L'){b[20]=0x2f;v.setUint32(21,(2047|(1023<<14)),true);}
+  if(kind==='VP8X'){b[24]=255;b[25]=7;b[27]=255;b[28]=3;}
+  if(kind==='VP8 '){b.set([0x9d,1,0x2a],23);v.setUint16(26,2048,true);v.setUint16(28,1024,true);}
+  assert.deepEqual(imageDimensions(b),{width:2048,height:1024});assert.equal(imageDimensions(b.subarray(0,20)),null);
+ }
+});
 function renderer(){let properties=new WeakMap();return{properties:{get:t=>{if(!properties.has(t))properties.set(t,{});return properties.get(t)}},getContext:()=>({isContextLost:()=>false}),initTexture(t){assert.equal(t.source.dataReady,true);assert.equal(t.image.open,true);Object.assign(this.properties.get(t),{__webglTexture:{},__version:t.version});},restore(){properties=new WeakMap()}};}
 test('original PNG and progressive JPEG dimensions require no bitmap allocation',()=>{assert.deepEqual(imageDimensions(png()),{width:64,height:32});const a=Uint8Array.from([255,216,255,224,0,4,0,0,255,194,0,8,8,0,48,0,96,0,255,217]);assert.deepEqual(imageDimensions(a),{width:96,height:48});assert.equal(imageDimensions(Uint8Array.from([1,2,3])),null);});
 test('decode is lazy, closes after upload and restores exact encoded bytes on lost GPU state',async()=>{let calls=0,closed=0;const bytes=png(),blob=new Blob([bytes]);const t=await encodedTexture(blob,{decode:async function(input,options){assert.equal(this,globalThis);calls++;assert.deepEqual(new Uint8Array(await input.arrayBuffer()),bytes);assert.equal(options.colorSpaceConversion,'none');return{open:true,width:64,height:32,close(){closed++}};}});

@@ -1,7 +1,15 @@
 import {ArrayCollisionMatrix,SAPBroadphase,Body} from 'cannon-es';
 
 class FastCollisionMatrix extends ArrayCollisionMatrix {
-  reset() { this.matrix.fill(0); }
+  constructor(){super();this.touched=[];}
+  set(a,b,value){
+    const i=Math.max(a.index,b.index),j=Math.min(a.index,b.index),key=((i*(i+1))>>1)+j-1;
+    if(value&&!this.matrix[key])this.touched.push(key);
+    this.matrix[key]=value?1:0;
+  }
+  // Preserve Cannon's indexed contact semantics, but clear only cells written
+  // in this step, not every possible pair of the thousand castle bodies.
+  reset(){for(const key of this.touched)if(key<this.matrix.length)this.matrix[key]=0;this.touched.length=0;}
 }
 
 export class CastleBroadphase extends SAPBroadphase {

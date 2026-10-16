@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {batchStaticWalls} from './static-wall-batches.js';
 const states=new WeakMap();
 const visible=o=>{for(let node=o;node;node=node.parent)if(!node.visible)return false;return true;};
 export function installFullMapOcclusion(world,architecture){
@@ -18,7 +19,8 @@ export function installFullMapOcclusion(world,architecture){
  }
  const owners=new Map(),meshes=[];
  for(const wall of walls)for(const part of wall.parts)part.traverse(o=>{if(!o.isMesh||doorMeshes.has(o))return;if(!owners.has(o)){owners.set(o,new Set());meshes.push(o);}owners.get(o).add(wall);});
- states.set(world,{walls,owners,meshes,elapsed:1,hidden:new Set(),ray:new T.Raycaster(),lastFocus:new T.Vector3(1e9,0,0),lastCamera:new T.Vector3(1e9,0,0)});world.fullMap.cutawaySections=walls.length;
+ const batches=batchStaticWalls(world.root,meshes),ray=new T.Raycaster();ray.layers.enable(31);world.fullMap.staticBatches={meshes:batches.meshes,groups:batches.groups,instances:batches.instances};
+ states.set(world,{batches,walls,owners,meshes,elapsed:1,hidden:new Set(),ray,lastFocus:new T.Vector3(1e9,0,0),lastCamera:new T.Vector3(1e9,0,0)});world.fullMap.cutawaySections=walls.length;
 }
 export function updateFullMapOcclusion(world,subject,camera,dt,playing=true){
  const state=states.get(world);if(!state)return;
@@ -40,5 +42,6 @@ export function updateFullMapOcclusion(world,subject,camera,dt,playing=true){
   }
   for(const wall of state.hidden)for(const part of wall.parts)part.visible=false;
  }
+ state.batches.update();
  world.fullMap.occlusion={hidden:state.hidden.size,sections:[...state.hidden].map(w=>({name:w.label,kind:w.kind||'wall',stairId:w.stairId,parts:w.parts.length,allHidden:w.parts.every(p=>!p.visible)}))};
 }

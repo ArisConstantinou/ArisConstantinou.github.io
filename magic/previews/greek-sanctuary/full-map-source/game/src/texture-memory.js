@@ -4,11 +4,21 @@ import {Texture,Frustum,Matrix4} from 'three';
 // the CPU bitmap. Source dimensions survive for shaders, clones and restoration.
 const entries=new WeakMap(),registeredLoaders=new WeakSet();
 const prepared=new WeakMap();
+const sharedPrepared=new WeakMap();
 const materialMaps=new WeakMap();
-let jobs=Promise.resolve(),decodedBytes=0,peakDecodedBytes=0,encodedBytes=0,uploads=0;
+let jobs=Promise.resolve(),decodedBytes=0,peakDecodedBytes=0,encodedBytes=0,uploads=0,reusedUploads=0;
 export function imageDimensions(bytes){
  const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
  if(bytes.length>=24&&view.getUint32(0)===0x89504e47&&view.getUint32(4)===0x0d0a1a0a)return{width:view.getUint32(16),height:view.getUint32(20)};
+ // Original model atlases are WebP. Reading their RIFF dimensions avoids a
+ // complete throw-away decode just to learn the size before the real upload.
+ // https://developers.google.com/speed/webp/docs/riff_container
+ if(bytes.length>=25&&view.getUint32(0)===0x52494646&&view.getUint32(8)===0x57454250){
+  const chunk=view.getUint32(12);
+  if(chunk===0x5650384c&&bytes[20]===0x2f){const bits=view.getUint32(21,true);return{width:(bits&0x3fff)+1,height:((bits>>>14)&0x3fff)+1};}
+  if(bytes.length>=30&&chunk===0x56503858)return{width:1+bytes[24]+(bytes[25]<<8)+(bytes[26]<<16),height:1+bytes[27]+(bytes[28]<<8)+(bytes[29]<<16)};
+  if(bytes.length>=30&&chunk===0x56503820&&bytes[23]===0x9d&&bytes[24]===1&&bytes[25]===0x2a)return{width:view.getUint16(26,true)&0x3fff,height:view.getUint16(28,true)&0x3fff};
+ }
  if(bytes[0]===0xff&&bytes[1]===0xd8){
   let at=2;
   while(at+4<=bytes.length){if(bytes[at++]!==0xff)continue;while(bytes[at]===0xff)at++;const marker=bytes[at++];if(marker===0xd9||marker===0xda)break;if(marker===0x01||marker>=0xd0&&marker<=0xd7)continue;
@@ -54,6 +64,16 @@ export function prepareEncodedTexture(renderer,texture,upload=t=>renderer.initTe
  const run=async()=>{
   if(textureIsReady(renderer,texture))return;
   if(renderer.getContext?.().isContextLost())throw Error('Χάθηκε η σύνδεση γραφικών κατά τη φόρτωση.');
+  const siblings=sharedPrepared.get(renderer)?.get(texture.source);
+  if(siblings?.some(t=>textureIsReady(renderer,t))){
+   // Three owns sampler-key sharing. Ask it for the real handle with the
+   // immutable source closed, then reuse only a proven, still-live upload.
+   renderer.initTexture(texture);
+   const handle=renderer.properties.get(texture).__webglTexture;
+   if(siblings.some(t=>textureIsReady(renderer,t)&&renderer.properties.get(t).__webglTexture===handle)){
+    prepared.get(renderer).set(texture,{version:texture.version,handle});reusedUploads++;return;
+   }
+  }
   const bitmap=await entry.decode.call(globalThis,entry.blob,{imageOrientation:texture.flipY?'flipY':'none',colorSpaceConversion:'none',premultiplyAlpha:'none'});
   const bytes=entry.size.width*entry.size.height*4;decodedBytes+=bytes;peakDecodedBytes=Math.max(peakDecodedBytes,decodedBytes);
   texture.source.data=bitmap;texture.source.dataReady=true;
@@ -62,6 +82,9 @@ export function prepareEncodedTexture(renderer,texture,upload=t=>renderer.initTe
    await upload(texture);uploads++;
    if(!prepared.has(renderer))prepared.set(renderer,new WeakMap());
    prepared.get(renderer).set(texture,{version:texture.version,handle:renderer.properties.get(texture).__webglTexture});
+   if(!sharedPrepared.has(renderer))sharedPrepared.set(renderer,new WeakMap());
+   const sources=sharedPrepared.get(renderer);if(!sources.has(texture.source))sources.set(texture.source,[]);
+   if(!sources.get(texture.source).includes(texture))sources.get(texture.source).push(texture);
   }
   finally{texture.source.data=entry.size;texture.source.dataReady=false;bitmap.close();decodedBytes-=bytes;}
  };
@@ -137,4 +160,4 @@ export function prepareVisibleTextures(renderer,root,upload,camera){
  const missing=gate(camera);
  return missing.length?Promise.all(missing.map(t=>prepareEncodedTexture(renderer,t,upload))):null;
 }
-export const textureMemoryStats=()=>({decodedBytes,peakDecodedBytes,encodedBytes,uploads});
+export const textureMemoryStats=()=>({decodedBytes,peakDecodedBytes,encodedBytes,uploads,reusedUploads});

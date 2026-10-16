@@ -97,6 +97,7 @@ export function createUI(callbacks = {}) {
           <p class="loading-label" id="loading-download" role="status" aria-live="polite"></p>
           <button class="secondary-button" id="menu-upgrades" type="button"><span class="button-name">${icon('rune')}ΜΟΝΙΜΕΣ ΔΥΝΑΜΕΙΣ</span><span class="shard-pill" id="menu-shards">0 ◇</span></button>
           <button class="secondary-button" id="menu-inventory" type="button"><span class="button-name">${icon('book')}ΕΞΟΠΛΙΣΜΟΣ</span><kbd>I</kbd></button>
+          <button class="secondary-button" id="menu-benchmark" type="button">ΕΛΕΓΧΟΣ ΑΠΟΔΟΣΗΣ · BENCHMARK</button>
           <div class="menu-footer"><button class="text-button" id="menu-help" type="button">Πώς παίζεται</button><button class="text-button" id="menu-mute" type="button">Ήχος ενεργός</button><button class="text-button" id="menu-quality" type="button">Γραφικά: υψηλά</button></div>
           <p class="menu-achievement" id="menu-achievement">Κάθε απόδραση σε κάνει ισχυρότερο.</p>
         </div>
@@ -325,6 +326,7 @@ export function createUI(callbacks = {}) {
   }
 
   function setLoading(progress, label) {
+    callbacks.onLoading?.(label);
     const raw = number(progress); const percent = Math.max(0, Math.min(100, raw <= 1 ? raw * 100 : raw));
     el['loading-fill'].style.width = `${percent}%`;
     if (label) text('loading-label', label);
@@ -622,6 +624,7 @@ export function createUI(callbacks = {}) {
   const setTouchMode = (event) => { touchMode = event.matches; document.body.dataset.input = touchMode ? 'touch' : 'keyboard'; clearInput(); if (loaded) ready(); };
   coarseMedia.addEventListener('change', setTouchMode);
 
+  listen(el['menu-benchmark'],'click',()=>invoke('onBenchmark'));
   listen(el['start-button'], 'click', () => { if (loaded) { clearInput(); invoke('onStart'); } });
   for (const id of ['menu-mute', 'pause-mute', 'hud-mute']) listen(el[id], 'click', toggleMute);
   for (const id of ['menu-quality', 'pause-quality']) listen(el[id], 'click', toggleQuality);
@@ -647,10 +650,10 @@ export function createUI(callbacks = {}) {
   }
 
   let lastDownloadUpdate=0;
-  function setDownloadProgress({received=0,state,attempt=1}){
+  function setDownloadProgress({received=0,state,attempt=1,active=0,cachedBytes=0}){
     if(state!=='retry'&&performance.now()-lastDownloadUpdate<250)return;
     lastDownloadUpdate=performance.now();
-    $('loading-download').textContent=state==='retry'?`Η σύνδεση άργησε · επανάληψη ${attempt}/3…`:`Έχουν ληφθεί ${(received/1048576).toFixed(1)} MB`;
+    $('loading-download').textContent=state==='retry'?`Η σύνδεση άργησε · επανάληψη ${attempt}/3…`:`Αρχεία ${(received/1048576).toFixed(1)} MiB${cachedBytes?' · '+(cachedBytes/1048576).toFixed(1)+' από cache':''} · ${active?active+' σε ανάγνωση':'αποκωδικοποίηση / προετοιμασία'}`;
   }
 
   function destroy() {

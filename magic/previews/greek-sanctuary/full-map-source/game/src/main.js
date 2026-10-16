@@ -1,4 +1,5 @@
 import {greekEnabled,loadGreekAssets,addGreekArchitecture,createGreekPuzzles} from './greek-environment.js';
+import {benchmarkMode,createPerformanceTest} from './performance-test.js';
 import {observeAssetLoading} from './asset-loading.js';
 import {ensureReleaseWorker,notifyReleaseReady,releaseReloadURL} from './release-worker.js';
 import {prepareVisibleTextures,textureMemoryStats} from './texture-memory.js';
@@ -57,6 +58,8 @@ const FIRE_PREVIEW=location.pathname.includes('/.cache/')||greekEnabled;
 const FIRE_BENCHMARK=new URL(location.href).searchParams.has('benchmarkFire');
 const GROUP = {PLAYER:1, ENEMY:2, PROP:4, WORLD:8};
 let storage; try { storage = window.localStorage; } catch {}
+if(benchmarkMode){const memory=new Map();storage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)};}
+let performanceTest,benchmarkPulseAt=0;
 const lootCandidate=location.pathname.includes('/.cache/loot-');
 const candidate=FIRE_PREVIEW||lootCandidate||location.pathname.includes('/.cache/goliath-')||location.pathname.includes('/.cache/latest-');
 const save = new ProfileStore(storage,location.pathname.endsWith('/movement.htm')?'magic-movement-preview-v1':candidate?(location.pathname.includes('/.cache/desktop-engine')?'magic-desktop-engine-preview-v1':location.pathname.includes('/.cache/context-controls')?'magic-context-controls-preview-v1':(greekEnabled?'magic-greek-sanctuary-v1':'magic-integrated-preview-v1')):'magic-exiled-v1',[]), sound = new MagicAudio(save.profile.muted);
@@ -93,6 +96,7 @@ let lastAimPointer=null,throwDestination=new THREE.Vector3();
 let sideTrajectory,sideArrow;
 let aimPoint=new THREE.Vector3(0,.8,5), aimDirection=new THREE.Vector3(0,0,-1), cameraTarget=new THREE.Vector3(0,0,9);
 const raycaster=new THREE.Raycaster(), groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-.8);
+raycaster.layers.enable(31);
 const dragPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-2.1);
 const tempV=new THREE.Vector3(), tempQ=new THREE.Quaternion();
 let contextTarget=null,contextAt=-Infinity,contextHighlight;
@@ -101,6 +105,8 @@ const ui=createUI({
   version:packageInfo.version,
   fireEnabled:FIRE_ENABLED,
   hearth:true,
+  onLoading:label=>performanceTest?.stage(label),
+  onBenchmark:()=>{const url=new URL(location.href);url.searchParams.set('benchmark','1');location.assign(url.href);},
   onStart:()=>{if(ready)startRun();},
   onRestart:()=>{if(ready)startRun();},
   onPause:()=>togglePause(),
@@ -129,6 +135,13 @@ const ui=createUI({
 });
 ui.setMuted(save.profile.muted);
 ui.setQuality(quality);
+performanceTest=createPerformanceTest({version:packageInfo.version,boot,
+ setup:type=>{startRun();benchmarkPulseAt=0;player.hp=player.maxHp=100000;player.invulnerable=999;for(const e of entities)if(e.category==='actor')e.hp=e.maxHp=100000;
+  if(type==='crowd'){const p=player.body.position,list=entities.filter(e=>e.category==='actor'&&!e.isPlayer&&!e.ally&&!e.dead&&!e.bossType).slice(0,18);list.forEach((e,i)=>{const a=2*Math.PI*i/list.length,r=4+(i%3)*1.1;e.body.position.set(p.x+Math.sin(a)*r,p.y-player.cy+e.cy+.05,p.z+Math.cos(a)*r);e.body.velocity.setZero();e.body.aabbNeedsUpdate=true;e.body.wakeUp();e.aggro=true;});}
+ },
+ step:(type,time)=>{if(player){player.invulnerable=999;player.mana=player.maxMana;}if(type==='turn'){const a=time*.22;camera.position.set(player.body.position.x+Math.sin(a)*19,18,player.body.position.z-2+Math.cos(a)*19);}if(type==='crowd'&&time>benchmarkPulseAt+3){benchmarkPulseAt=time;pulse();}},
+ suspend:()=>{phase='benchmark-results';sound.setPaused(true);sound.setFlamethrower(false);},
+ device:()=>({userAgent:navigator.userAgent,viewport:[innerWidth,innerHeight],canvas:renderer?[renderer.domElement.width,renderer.domElement.height]:null,dpr:devicePixelRatio,quality,threads:navigator.hardwareConcurrency||null,deviceMemoryGiB:navigator.deviceMemory||null,gpu:renderer?(()=>{const gl=renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return gl.getParameter(ext?ext.UNMASKED_RENDERER_WEBGL:gl.RENDERER);})():null,actors:entities.filter(e=>e.category==='actor').length,bodies:physics?.bodies.length||0,gpuTiming:'unavailable',vram:'unavailable'})});
 function applyEquipment(){
   if(!player)return;const gear=equipmentStats(save.profile.loot);player.gear=gear;
   player.maxHp=120+25*(save.profile.upgrades.vitality||0)+gear.health;
@@ -1474,8 +1487,10 @@ function updateHUD(){
 }
 let controlledUntil=0;
 function frame(now,manual=false){
+  if(benchmarkMode&&performanceTest?.report?.outcome)return;
   if(!manual&&now<controlledUntil){lastTime=now;requestAnimationFrame(frame);return;}
   if(texturePreparation||renderer?.getContext().isContextLost()){lastTime=now;if(!manual)requestAnimationFrame(frame);return;}
+  if(!manual)performanceTest?.beginFrame();
   const dt=Math.min(.045,Math.max(.001,(now-lastTime)/1000));lastTime=now;worldTime+=dt;
   try{
     if(worldMap)worldMap.update(dt,worldTime,player?.body.position);
@@ -1500,7 +1515,8 @@ function frame(now,manual=false){
           hearth.update(dt,input,runTime);
           updateRitual(dt);updateReinforcements();
           updateEntities(dt);
-          physics.step(1/120,dt,6);greekPuzzles?.update(dt,hearth.engine,player);
+          performanceTest?.mark('gameplay');
+          physics.step(1/120,dt,6);performanceTest?.mark('physics');greekPuzzles?.update(dt,hearth.engine,player);
           if(FIRE_ENABLED)updateFire();
           updateArrows(dt);updatePickups(dt);updateLoot(dt);
           if(relicTaken&&runTime>nextWave){spawnReinforcements();nextWave=runTime+24;}
@@ -1515,17 +1531,18 @@ function frame(now,manual=false){
       if(FIRE_ENABLED)fireFX.update({spell:fireSpell,player,entities,surfaces:worldMap.woodenSurfaces,time:runTime,camera,playing:['playing','paused'].includes(phase),source:fireSpell.sourceFor(player,fireLineClear,aimPoint)});
     }
     sound.setFlamethrower(phase==='playing'&&!document.hidden&&!!hearth?.engine?.heart.firing);
+    performanceTest?.mark('visuals');
     if(renderer&&ready){
       const preparation=prepareFrameTextures();
       if(preparation){sound.setPaused(true);sound.setFlamethrower(false);texturePreparation=preparation.catch(error=>{if(!renderer.getContext().isContextLost())showError(error);}).finally(()=>{texturePreparation=null;lastTime=performance.now();});}
-      else{renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);}
+      else{performanceTest?.mark('textureCheck');renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);if(!manual)performanceTest?.endFrame(renderer);}
     }
     if(!manual)requestAnimationFrame(frame);
   }catch(error){showError(error);}
 }
 function showError(error){
   sound.setFlamethrower(false);
-  console.error('Magic:',error);phase='error';
+  console.error('Magic:',error);phase='error';performanceTest?.error(error);
   const message=error?.assetLoad?error.message:'Το παιχνίδι δεν μπόρεσε να ξεκινήσει. Πάτησε «Δοκίμασε ξανά».';
   if(ui.showError)ui.showError(message);
   else{
@@ -1540,7 +1557,7 @@ window.addEventListener('pagehide',()=>{save.save();sound.setPaused(true);sound.
 async function boot(){
   try{
     ui.setLoading(.02,'Ελέγχεται η έκδοση…');
-    observeAssetLoading(event=>ui.setDownloadProgress(event));
+    observeAssetLoading(event=>{ui.setDownloadProgress(event);performanceTest?.downloadProgress(event);});
     if(!candidate&&!import.meta.env.DEV)await ensureReleaseWorker(navigator.serviceWorker,document.baseURI,packageInfo.version);
     ui.setLoading(.05,'Ανάβουν οι δάδες…');setupRenderer();
     configureRigSurfacePreparation({renderer,scene,camera,renderTargets:composer?[composer.readBuffer]:[]});
@@ -1561,7 +1578,8 @@ async function boot(){
     phase='playing';setPlayCamera();updateCamera(0);syncVisuals(0);await prepareFrameTextures();
     phase='loading';updateCamera(100);syncVisuals(0);await prepareFrameTextures();
     if(renderer.compileAsync){
-      await renderer.compileAsync(scene,camera);
+      // Compile the target actually used by this quality setting.
+      if(!composer||quality==='low')await renderer.compileAsync(scene,camera);
       // Desktop renders through a linear HDR target. Precompile that variant
       // too: compiling only the screen/sRGB variant stalls on the first shot.
       if(composer){
@@ -1573,7 +1591,7 @@ async function boot(){
       }
     }
     if(!candidate)notifyReleaseReady(navigator.serviceWorker,packageInfo.version);
-    ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
+    performanceTest?.ready();ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
     observeAssetLoading(null);requestAnimationFrame(frame);
     window.__MAGIC__={version:packageInfo.version,textureMemory:()=>({...textureMemoryStats(),pending:!!texturePreparation}),prepareTextures:prepareFrameTextures,snapshot:()=>({puzzles:greekPuzzles?.snapshot(),hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
       kills,relicTaken,holding:held?.label||null,dragging:!!drag,shielding:!!player?.shielding,context:contextTarget?{id:contextTarget.id,label:contextTarget.label,enabled:contextTarget.enabled}:null,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
@@ -1599,4 +1617,4 @@ async function boot(){
     showError(error);
   }
 }
-boot();
+if(!benchmarkMode)boot();

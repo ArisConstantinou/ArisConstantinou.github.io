@@ -12,6 +12,7 @@ export function createAssetReader({fetchAsset=globalThis.fetch,idleMs=30000,tota
     arm();onProgress({url,attempt,loaded:0,state:attempt===1?'loading':'retry'});
     const response=await fetchAsset(url,{signal:controller.signal,credentials:'same-origin'});
     if(!response.ok){await response.body?.cancel();const error=Error('Asset HTTP '+response.status);error.status=response.status;throw error;}
+    const cached=response.headers.get('x-magic-asset-source')==='cache';
     const total=Number(response.headers.get('content-length'))||0,chunks=[];
     // Content-Length describes decoded bytes only without Content-Encoding.
     // Fill one buffer when trustworthy, avoiding a second full-size GLB copy.
@@ -21,11 +22,11 @@ export function createAssetReader({fetchAsset=globalThis.fetch,idleMs=30000,tota
      for(;;){arm();const {value,done}=await reader.read();if(done)break;
       if(storage&&loaded+value.byteLength<=storage.length)storage.set(value,loaded);
       else{if(storage){chunks.push(storage.subarray(0,loaded));storage=null;}chunks.push(value);}
-      loaded+=value.byteLength;onProgress({url,attempt,loaded,total,delta:value.byteLength,state:'loading'});}
-    }else{storage=null;const bytes=new Uint8Array(await response.arrayBuffer());chunks.push(bytes);loaded=bytes.byteLength;onProgress({url,attempt,loaded,total,delta:loaded,state:'loading'});}
+      loaded+=value.byteLength;onProgress({url,attempt,loaded,total,cached,delta:value.byteLength,state:'loading'});}
+    }else{storage=null;const bytes=new Uint8Array(await response.arrayBuffer());chunks.push(bytes);loaded=bytes.byteLength;onProgress({url,attempt,loaded,total,cached,delta:loaded,state:'loading'});}
     const data=storage?(loaded===storage.length?storage:storage.slice(0,loaded)):new Uint8Array(loaded);
     if(!storage){let offset=0;for(const chunk of chunks){data.set(chunk,offset);offset+=chunk.byteLength;}}
-    onProgress({url,attempt,loaded,total,state:'complete'});return data.buffer;
+    onProgress({url,attempt,loaded,total,cached,state:'complete'});return data.buffer;
    }catch(error){
     last=controller.signal.aborted?controller.signal.reason:error;
     const retryable=!error.status||[408,429].includes(error.status)||error.status>=500;
@@ -42,9 +43,9 @@ export function createAssetQueue(limit=2){
  const drain=()=>{while(active<limit&&waiting.length){const {job,resolve,reject}=waiting.shift();active++;Promise.resolve().then(job).then(resolve,reject).finally(()=>{active--;drain();});}};
  return job=>new Promise((resolve,reject)=>{waiting.push({job,resolve,reject});drain();});
 }
-let observer=()=>{},received=0;
-export function observeAssetLoading(callback){observer=callback||(()=>{});received=0;}
-const read=createAssetReader({onProgress:event=>{received+=event.delta||0;observer({...event,received});}});
+let observer=()=>{},received=0,cachedBytes=0;const activeReads=new Set();
+export function observeAssetLoading(callback){observer=callback||(()=>{});received=0;cachedBytes=0;}
+const read=createAssetReader({onProgress:event=>{received+=event.delta||0;if(event.cached)cachedBytes+=event.delta||0;if(event.state==='complete')activeReads.delete(event.url);else activeReads.add(event.url);observer({...event,received,cachedBytes,active:activeReads.size});}});
 const queue=createAssetQueue(2);
 /** Limit simultaneous compressed buffers, Draco work and image decoding.
  * Geometry, image pixels, animation and material settings stay untouched. */
