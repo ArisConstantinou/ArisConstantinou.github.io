@@ -1,6 +1,25 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {Group,Mesh,PlaneGeometry,MeshBasicMaterial,PerspectiveCamera,EventDispatcher,DirectionalLight} from 'three';
-import {imageDimensions,encodedTexture,prepareEncodedTexture,prepareVisibleTextures,visibleEncodedTextures,textureMemoryStats,textureIsReady} from './texture-memory.js';
+import {imageDimensions,encodedTexture,remoteEncodedTexture,prepareEncodedTexture,prepareVisibleTextures,visibleEncodedTextures,textureMemoryStats,textureIsReady} from './texture-memory.js';
 function png(w=64,h=32){const a=new Uint8Array(24),v=new DataView(a.buffer);v.setUint32(0,0x89504e47);v.setUint32(4,0x0d0a1a0a);v.setUint32(16,w);v.setUint32(20,h);return a;}
+test('remote images fetch only on demand, share exact encoded bytes and restore offline',async()=>{
+ let reads=0,decodes=0;const bytes=png(),descriptor={width:64,height:32,bytes:bytes.length,mimeType:'image/png'};
+ const read=async()=>{reads++;return bytes;},decode=async blob=>{decodes++;assert.deepEqual(new Uint8Array(await blob.arrayBuffer()),bytes);return{open:true,close(){}};};
+ const a=remoteEncodedTexture('https://test/shared.png',descriptor,read,{decode}),b=remoteEncodedTexture('https://test/shared.png',descriptor,read,{decode});
+ assert.equal(reads,0);assert.equal(a.source,b.source);const r=renderer(),init=r.initTexture;
+ r.initTexture=function(t){if(!t.source.dataReady){this.properties.get(t).__webglTexture={};return;}return init.call(this,t);};
+ await Promise.all([prepareEncodedTexture(r,a),prepareEncodedTexture(r,b)]);assert.equal(reads,1);assert.equal(decodes,2);
+ r.restore();await prepareEncodedTexture(r,a);assert.equal(reads,1);assert.equal(decodes,3);
+});
+test('an incomplete remote image rejects before decode and can be retried',async()=>{
+ let reads=0;const bytes=png(),t=remoteEncodedTexture('https://test/retry.png',{width:64,height:32,bytes:24},async()=>++reads===1?bytes.subarray(0,8):bytes,{decode:async()=>({open:true,close(){}})}),r=renderer();
+ await assert.rejects(prepareEncodedTexture(r,t),/Incomplete texture/);await prepareEncodedTexture(r,t);assert.equal(reads,2);assert.equal(textureIsReady(r,t),true);
+});
+test('a queued texture reports its original failed transfer without silently starting another download',async()=>{
+ let release,reads=0;const wait=new Promise(resolve=>release=resolve),r=renderer(),a=await encodedTexture(new Blob([png()]),{decode:async()=>({open:true,close(){}})});
+ const blocking=prepareEncodedTexture(r,a,async()=>wait);await new Promise(setImmediate);
+ const b=remoteEncodedTexture('https://test/queued-failure.png',{width:64,height:32,bytes:24},async()=>{reads++;throw Error('offline fixture')});
+ const rejected=assert.rejects(prepareEncodedTexture(r,b),/offline fixture/);await new Promise(setImmediate);release();await blocking;await rejected;assert.equal(reads,1);
+});
 test('original WebP lossless, extended and lossy headers avoid allocating a bitmap',()=>{
  for(const kind of ['VP8L','VP8X','VP8 ']){const b=new Uint8Array(30),v=new DataView(b.buffer);b.set(new TextEncoder().encode('RIFF'),0);b.set(new TextEncoder().encode('WEBP'+kind),8);
   if(kind==='VP8L'){b[20]=0x2f;v.setUint32(21,(2047|(1023<<14)),true);}
@@ -18,7 +37,7 @@ test('different images are never decoded simultaneously and failure frees the bi
  await Promise.all([prepareEncodedTexture(r,a,async()=>{await new Promise(setImmediate);throw Error('upload failed')} ).catch(e=>assert.match(e.message,/upload failed/)),prepareEncodedTexture(r,b)]);assert.equal(max,1);assert.equal(active,0);assert.equal(closed,2);assert.equal(textureMemoryStats().decodedBytes,0);assert.equal(textureIsReady(r,b),true);
 });
 test('only visible colour surfaces and shadow alpha dependencies upload before render',async()=>{let calls=0;const make=()=>encodedTexture(new Blob([png()]),{decode:async()=>{calls++;return{open:true,close(){}}}}),front=await make(),hidden=await make(),shadow=await make(),dependency=await make(),root=new Group();
- const add=(t,x)=>{const m=new Mesh(new PlaneGeometry(),new MeshBasicMaterial({map:t}));m.position.set(x,0,-5);root.add(m);return m;};add(front,0).material.textureDependencies=[dependency];add(hidden,100);const a=add(shadow,100);a.castShadow=true;a.material.alphaTest=.5;
+ const add=(t,x)=>{const m=new Mesh(new PlaneGeometry(),new MeshBasicMaterial({map:t}));m.position.set(x,0,-5);root.add(m);return m;};add(front,0).material.textureDependencies=[dependency];add(hidden,100).castShadow=true;const a=add(shadow,100);a.castShadow=true;a.material.alphaTest=.5;
  const light=new DirectionalLight();light.castShadow=true;light.position.set(0,10,10);Object.assign(light.shadow.camera,{left:-150,right:150,top:150,bottom:-150,near:.1,far:100});light.shadow.camera.updateProjectionMatrix();root.add(light,light.target);
  const camera=new PerspectiveCamera(50,1,.1,100),r=renderer();assert.deepEqual(new Set(visibleEncodedTextures(root,camera)),new Set([front,dependency,shadow]));await prepareVisibleTextures(r,root,undefined,camera);assert.equal(calls,3);assert.equal(prepareVisibleTextures(r,root,undefined,camera),null);assert.equal(textureIsReady(r,hidden),false);
 });

@@ -49,7 +49,7 @@ const read=createAssetReader({onProgress:event=>{received+=event.delta||0;if(eve
 const queue=createAssetQueue(2);
 /** Limit simultaneous compressed buffers, Draco work and image decoding.
  * Geometry, image pixels, animation and material settings stay untouched. */
-export function loadGltfAsset(loader,url){deferGltfImages(loader);const href=new URL(url,globalThis.document?.baseURI).href;return queue(async()=>{
+export function loadGltfAsset(loader,url){deferGltfImages(loader,url=>queue(()=>read(url)));const href=new URL(url,globalThis.document?.baseURI).href;return queue(async()=>{
  const data=await read(href),base=new URL('.',href).href,objects=[];let accepting=true;
  try{
   // The six original glTF props have external buffers/images. Fetch those

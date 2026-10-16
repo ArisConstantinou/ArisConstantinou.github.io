@@ -19,7 +19,10 @@ export function installFullMapOcclusion(world,architecture){
  }
  const owners=new Map(),meshes=[];
  for(const wall of walls)for(const part of wall.parts)part.traverse(o=>{if(!o.isMesh||doorMeshes.has(o))return;if(!owners.has(o)){owners.set(o,new Set());meshes.push(o);}owners.get(o).add(wall);});
- const batches=batchStaticWalls(world.root,meshes),ray=new T.Raycaster();ray.layers.enable(31);world.fullMap.staticBatches={meshes:batches.meshes,groups:batches.groups,instances:batches.instances};
+ const staticExtras=[];
+ world.root.traverse(o=>{if(o.name==='Greek room furnishings · shared geometry')o.traverse(m=>{if(m.isMesh)staticExtras.push(m)});});
+ for(const gate of architecture.gates)gate.frame?.traverse(m=>{if(m.isMesh)staticExtras.push(m)});
+ const batches=batchStaticWalls(world.root,[...new Set([...meshes,...staticExtras])]),ray=new T.Raycaster();ray.layers.enable(31);world.fullMap.staticBatches={meshes:batches.meshes,groups:batches.groups,instances:batches.instances};
  states.set(world,{batches,walls,owners,meshes,elapsed:1,hidden:new Set(),ray,lastFocus:new T.Vector3(1e9,0,0),lastCamera:new T.Vector3(1e9,0,0)});world.fullMap.cutawaySections=walls.length;
 }
 export function updateFullMapOcclusion(world,subject,camera,dt,playing=true){

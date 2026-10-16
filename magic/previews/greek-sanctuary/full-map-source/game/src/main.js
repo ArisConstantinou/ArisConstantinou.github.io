@@ -2,7 +2,7 @@ import {greekEnabled,loadGreekAssets,addGreekArchitecture,createGreekPuzzles} fr
 import {benchmarkMode,createPerformanceTest} from './performance-test.js';
 import {observeAssetLoading} from './asset-loading.js';
 import {ensureReleaseWorker,notifyReleaseReady,releaseReloadURL} from './release-worker.js';
-import {prepareVisibleTextures,textureMemoryStats} from './texture-memory.js';
+import {prepareVisibleTextures,textureMemoryStats,prefetchEncodedTextures} from './texture-memory.js';
 import * as THREE from 'three';
 import {loadSiegeAssets,addSiegeDressing,siegeEnabled} from './siege-environment.js';
 import * as CANNON from 'cannon-es';
@@ -1590,10 +1590,12 @@ async function boot(){
         await pending;
       }
     }
-    if(!candidate)notifyReleaseReady(navigator.serviceWorker,packageInfo.version);
+    // Preserve the prior complete offline release until encoded background
+    // assets have arrived. Playing the first room need not wait for them.
+    const assetsReady=new Promise(resolve=>setTimeout(resolve,1000)).then(prefetchEncodedTextures).then(complete=>{if(complete&&!candidate)notifyReleaseReady(navigator.serviceWorker,packageInfo.version);return complete;});
     performanceTest?.ready();ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
     observeAssetLoading(null);requestAnimationFrame(frame);
-    window.__MAGIC__={version:packageInfo.version,textureMemory:()=>({...textureMemoryStats(),pending:!!texturePreparation}),prepareTextures:prepareFrameTextures,snapshot:()=>({puzzles:greekPuzzles?.snapshot(),hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
+    window.__MAGIC__={version:packageInfo.version,assetsReady,textureMemory:()=>({...textureMemoryStats(),pending:!!texturePreparation}),prepareTextures:prepareFrameTextures,snapshot:()=>({puzzles:greekPuzzles?.snapshot(),hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
       kills,relicTaken,holding:held?.label||null,dragging:!!drag,shielding:!!player?.shielding,context:contextTarget?{id:contextTarget.id,label:contextTarget.label,enabled:contextTarget.enabled}:null,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
       pathToRelic:nav.path(worldMap.spawn,{x:worldMap.relic.position.x,z:worldMap.relic.position.z+3}).length,profile:{runs:save.profile.runs,wins:save.profile.wins},time:runTime,candidate,
       inventory:{items:save.profile.loot.items.map(i=>({...i})),equipped:{...save.profile.loot.equipped},shards:save.profile.shards,storage:save.available},gear:player?.gear,

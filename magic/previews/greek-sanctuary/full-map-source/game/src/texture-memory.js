@@ -6,6 +6,7 @@ const entries=new WeakMap(),registeredLoaders=new WeakSet();
 const prepared=new WeakMap();
 const sharedPrepared=new WeakMap();
 const materialMaps=new WeakMap();
+const remoteImages=new Map();
 let jobs=Promise.resolve(),decodedBytes=0,peakDecodedBytes=0,encodedBytes=0,uploads=0,reusedUploads=0;
 export function imageDimensions(bytes){
  const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
@@ -38,14 +39,49 @@ export async function encodedTexture(blob,{flipY=false,decode=globalThis.createI
  entries.set(texture.source,{blob,size,decode});encodedBytes+=blob.size;
  return texture;
 }
+/** Dimensions and content address are generated from the unchanged image.
+ * An unseen material does not require its encoded pixels at startup. */
+export function remoteEncodedTexture(url,{width,height,bytes,mimeType},read,{decode=globalThis.createImageBitmap}={}){
+ if(!(width>0&&height>0&&bytes>0))throw Error('Invalid remote texture descriptor');
+ let cached=remoteImages.get(url);
+ if(!cached){
+  const size={width,height},texture=new Texture(size);
+  texture.flipY=false;texture.source.dataReady=false;texture.needsUpdate=true;
+  const entry={size,decode,blob:null,pending:null,read,url,bytes,mimeType};
+  entries.set(texture.source,entry);cached={texture,entry};remoteImages.set(url,cached);
+ }
+ return cached.texture.clone();
+}
+async function readEncoded(entry){
+ if(entry.blob)return entry.blob;
+ if(!entry.pending)entry.pending=Promise.resolve().then(()=>entry.read(entry.url)).then(data=>{
+  const blob=new Blob([data],{type:entry.mimeType});
+  if(blob.size!==entry.bytes)throw Error('Incomplete texture '+entry.url);
+  entry.blob=blob;encodedBytes+=blob.size;return blob;
+ }).finally(()=>{entry.pending=null;});
+ return entry.pending;
+}
+/** Low-priority, encoded-only warming keeps later rooms ready. No extra GPU
+ * allocations or bitmaps; visible textures always start directly on demand. */
+export async function prefetchEncodedTextures(){
+ let complete=true;
+ for(const {entry} of remoteImages.values()){
+  if(!entry.blob){try{await readEncoded(entry)}catch{complete=false;/* Visible preparation reports a real failure and allows retry. */}}
+ }
+ return complete;
+}
 /** Preserve GLTFLoader's sampler, UV, material and colour-space processing. */
-export function deferGltfImages(loader){
+export function deferGltfImages(loader,read=async url=>{const r=await fetch(url);if(!r.ok)throw Error('Texture HTTP '+r.status);return r.arrayBuffer()}){
  if(registeredLoaders.has(loader))return;registeredLoaders.add(loader);
  loader.register(parser=>{
   const pending=new Map();
   parser.loadImageSource=(index)=>{
    if(pending.has(index))return pending.get(index).then(t=>t.clone());
    const job=(async()=>{const definition=parser.json.images[index];let blob;
+    if(definition.uri&&definition.extras?.magicEncoded){
+     const texture=remoteEncodedTexture(new URL(definition.uri,parser.options.path).href,{...definition.extras.magicEncoded,mimeType:definition.mimeType},read);
+     texture.userData={...definition.extras,mimeType:definition.mimeType};return texture;
+    }
     if(definition.bufferView!==undefined)blob=new Blob([await parser.getDependency('bufferView',definition.bufferView)],{type:definition.mimeType});
     else{const response=await fetch(new URL(definition.uri,parser.options.path).href);if(!response.ok)throw Error('Texture HTTP '+response.status);blob=await response.blob();}
     const texture=await encodedTexture(blob);texture.userData={...definition.extras,mimeType:definition.mimeType||blob.type};return texture;
@@ -61,6 +97,7 @@ export function textureIsReady(renderer,texture){
 }
 export function prepareEncodedTexture(renderer,texture,upload=t=>renderer.initTexture(t)){
  const entry=entries.get(texture.source);if(!entry)return upload(texture);
+ const requested=entry.blob?null:readEncoded(entry);requested?.catch(()=>{});
  const run=async()=>{
   if(textureIsReady(renderer,texture))return;
   if(renderer.getContext?.().isContextLost())throw Error('Χάθηκε η σύνδεση γραφικών κατά τη φόρτωση.');
@@ -74,7 +111,8 @@ export function prepareEncodedTexture(renderer,texture,upload=t=>renderer.initTe
     prepared.get(renderer).set(texture,{version:texture.version,handle});reusedUploads++;return;
    }
   }
-  const bitmap=await entry.decode.call(globalThis,entry.blob,{imageOrientation:texture.flipY?'flipY':'none',colorSpaceConversion:'none',premultiplyAlpha:'none'});
+  const blob=entry.blob||await requested;
+  const bitmap=await entry.decode.call(globalThis,blob,{imageOrientation:texture.flipY?'flipY':'none',colorSpaceConversion:'none',premultiplyAlpha:'none'});
   const bytes=entry.size.width*entry.size.height*4;decodedBytes+=bytes;peakDecodedBytes=Math.max(peakDecodedBytes,decodedBytes);
   texture.source.data=bitmap;texture.source.dataReady=true;
   try{
@@ -115,11 +153,17 @@ export function visibleEncodedTextures(root,camera,renderer){
   for(const material of materials){
   if(!material.visible)continue;
   if(visible)for(const texture of missing(material))textures.add(texture);
-  else if(object.castShadow){collect(material.displacementMap);collect(material.map);collect(material.alphaMap);}
+  else if(object.castShadow)for(const texture of shadowMaps(object,material))collect(texture);
  }});
  return [...textures];
 }
 const gates=new WeakMap();
+// Three's ordinary depth shader only consumes colour/alpha pixels for alpha
+// rejection. Opaque shadows depend on geometry, not the colour atlas.
+function shadowMaps(object,material){
+ if(object.customDepthMaterial||object.customDistanceMaterial)return [material.map,material.alphaMap,material.displacementMap];
+ return [material.displacementMap,...(material.alphaTest>0||material.alphaToCoverage||material.alphaHash?[material.map,material.alphaMap]:[])];
+}
 function createSceneGate(renderer,root){
  const candidates=new Map(),pending=new Set(),lights=new Set();
  function watch(object){
@@ -149,7 +193,7 @@ function createSceneGate(renderer,root){
    const visible=!camera||object.layers.test(camera.layers)&&(object.frustumCulled===false||(object.isSprite?frustum.intersectsSprite(object):frustum.intersectsObject(object)));
    const shadowVisible=object.castShadow&&(!camera||object.layers.test(camera.layers))&&(object.frustumCulled===false||shadowFrustums.slice(0,shadowCount).some(f=>f.intersectsObject(object)));
    for(const {material,maps}of rows){if(!material.visible)continue;
-    for(const t of maps)if(!textureIsReady(renderer,t)&&(visible||shadowVisible&&[material.map,material.alphaMap,material.displacementMap].includes(t)))result.add(t);
+    for(const t of maps)if(!textureIsReady(renderer,t)&&(visible||shadowVisible&&shadowMaps(object,material).includes(t)))result.add(t);
    }
   }
   return [...result];
