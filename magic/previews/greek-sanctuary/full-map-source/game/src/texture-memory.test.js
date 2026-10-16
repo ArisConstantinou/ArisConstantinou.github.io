@@ -1,6 +1,15 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {Group,Mesh,PlaneGeometry,MeshBasicMaterial,PerspectiveCamera,EventDispatcher,DirectionalLight} from 'three';
-import {imageDimensions,encodedTexture,remoteEncodedTexture,prepareEncodedTexture,prepareVisibleTextures,visibleEncodedTextures,textureMemoryStats,textureIsReady} from './texture-memory.js';
+import {imageDimensions,encodedTexture,remoteEncodedTexture,prepareEncodedTexture,prepareVisibleTextures,visibleEncodedTextures,textureMemoryStats,textureIsReady,configureTextureMemory,prefetchEncodedTextures} from './texture-memory.js';
 function png(w=64,h=32){const a=new Uint8Array(24),v=new DataView(a.buffer);v.setUint32(0,0x89504e47);v.setUint32(4,0x0d0a1a0a);v.setUint32(16,w);v.setUint32(20,h);return a;}
+test('encoded remote images obey the memory cap and evicted pixels restore exactly',async()=>{
+ configureTextureMemory({maxEncodedBytes:24});let reads=0;
+ const bytes=png(),r=renderer(),make=id=>remoteEncodedTexture('https://test/budget-'+id+'.png',{width:64,height:32,bytes:24},async()=>{reads++;return bytes;},{decode:async b=>{assert.deepEqual(new Uint8Array(await b.arrayBuffer()),bytes);return{open:true,close(){}};}});
+ try{const a=make('a'),b=make('b');await prepareEncodedTexture(r,a);await prepareEncodedTexture(r,b);assert.equal(textureMemoryStats().remoteEncodedBytes,24);assert.equal(reads,2);
+  await prepareEncodedTexture(r,a);assert.equal(reads,2,'A live GPU upload must not fetch its evicted CPU blob');
+  assert.equal(await prefetchEncodedTextures(),true);assert.equal(reads,2,'Background warming must not download already received pixels again after eviction');
+  r.restore();await prepareEncodedTexture(r,a);assert.equal(reads,3);assert.equal(textureIsReady(r,a),true);assert.equal(textureMemoryStats().remoteEncodedBytes,24);
+ }finally{configureTextureMemory({maxEncodedBytes:64*1024*1024});}
+});
 test('remote images fetch only on demand, share exact encoded bytes and restore offline',async()=>{
  let reads=0,decodes=0;const bytes=png(),descriptor={width:64,height:32,bytes:bytes.length,mimeType:'image/png'};
  const read=async()=>{reads++;return bytes;},decode=async blob=>{decodes++;assert.deepEqual(new Uint8Array(await blob.arrayBuffer()),bytes);return{open:true,close(){}};};

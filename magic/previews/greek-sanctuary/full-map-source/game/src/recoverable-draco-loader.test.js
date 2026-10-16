@@ -2,6 +2,14 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {guardDecoderWorker,decoderFailureBridge,RecoverableDracoLoader} from './recoverable-draco-loader.js';
 import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
 function worker(){const events=new Map();return{_callbacks:{},postMessage(){},onmessage(){},terminate(){this.terminated=true;},addEventListener(name,callback){events.set(name,callback);},emit(name,event){events.get(name)?.(event);}};}
+test('a WebKit WASM trap returned as a normal decoder task error enters bounded fallback',()=>{
+ const w=worker(),failures=[];let normal=0;w.onmessage=()=>normal++;w._callbacks={1:{reject:e=>failures.push(e)},2:{reject:e=>failures.push(e)}};
+ const close=guardDecoderWorker(w);try{w.onmessage({data:{type:'error',id:1,error:"Out of bounds memory access (evaluating '(jc=a._emscripten_bind_Decoder_DecodeArrayToMesh_3=a.asm.La).apply(null,arguments)')"}});assert.equal(w.terminated,true);assert.equal(failures.length,2);assert(failures.every(e=>e.decoderFault));assert.equal(normal,0);}finally{close();}
+});
+test('a corrupt geometry message remains a normal finite asset error',()=>{
+ const w=worker();let normal=0;w.onmessage=()=>normal++;const close=guardDecoderWorker(w);
+ try{w.onmessage({data:{type:'error',id:1,error:'Unexpected geometry type.'}});assert.equal(normal,1);assert(!w.terminated);}finally{close();}
+});
 test('worker constructor rejection propagates to every pending mesh and ignores late messages',()=>{
  const w=worker(),failures=[];let returned=0;w.onmessage=()=>returned++;w._callbacks={1:{reject:e=>failures.push(e)},2:{reject:e=>failures.push(e)}};
  const close=guardDecoderWorker(w);w.onmessage({data:{type:'magic-decoder-failure',error:'Out of bounds memory access'}});w.onmessage({data:{type:'decode',id:1}});

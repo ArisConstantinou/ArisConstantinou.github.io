@@ -1,8 +1,9 @@
 import {greekEnabled,loadGreekAssets,addGreekArchitecture,createGreekPuzzles} from './greek-environment.js';
 import {benchmarkMode,createPerformanceTest} from './performance-test.js';
-import {observeAssetLoading} from './asset-loading.js';
+import {observeAssetLoading,readAsset} from './asset-loading.js';
+import {loadTextureProfile} from './asset-profile.js';
 import {ensureReleaseWorker,notifyReleaseReady,releaseReloadURL} from './release-worker.js';
-import {prepareVisibleTextures,textureMemoryStats,prefetchEncodedTextures} from './texture-memory.js';
+import {prepareVisibleTextures,textureMemoryStats,prefetchEncodedTextures,configureTextureMemory} from './texture-memory.js';
 import * as THREE from 'three';
 import {loadSiegeAssets,addSiegeDressing,siegeEnabled} from './siege-environment.js';
 import * as CANNON from 'cannon-es';
@@ -1556,9 +1557,11 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&phase==='p
 window.addEventListener('pagehide',()=>{save.save();sound.setPaused(true);sound.setFlamethrower(false);if(phase==='playing'){phase='paused';ui.showPause(true);}});
 async function boot(){
   try{
+    configureTextureMemory({maxEncodedBytes:(mobile?16:64)*1024*1024});
     ui.setLoading(.02,'Ελέγχεται η έκδοση…');
     observeAssetLoading(event=>{ui.setDownloadProgress(event);performanceTest?.downloadProgress(event);});
     if(!candidate&&!import.meta.env.DEV)await ensureReleaseWorker(navigator.serviceWorker,document.baseURI,packageInfo.version);
+    await loadTextureProfile(readAsset);
     ui.setLoading(.05,'Ανάβουν οι δάδες…');setupRenderer();
     configureRigSurfacePreparation({renderer,scene,camera,renderTargets:composer?[composer.readBuffer]:[]});
     await Promise.all([loadSiegeAssets(),loadGreekAssets()]);

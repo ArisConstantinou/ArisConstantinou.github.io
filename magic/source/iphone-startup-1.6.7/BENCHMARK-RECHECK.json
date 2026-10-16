@@ -1,0 +1,161 @@
+{
+  "initial": {
+    "path": "output\\playwright\\iphone-startup-1.6.7\\benchmark-inline-manifest-failure\\report.json",
+    "sha256": "624610f35d00fa6bf02b17654d496c533aa7f90fec443071258af76925262a18",
+    "passed": false,
+    "failure": "Error: Frame cost or scene-content regression\n    at file:///C:/Users/arz0r/Documents/ChatGPT/Magic/source/iphone-startup-1.6.7/benchmark-comparison.mjs:56:26",
+    "comparisons": [
+      {
+        "mode": "portrait",
+        "scene": "idle",
+        "beforeSamples": 1,
+        "afterSamples": 1,
+        "beforeCpuP95": 122.5,
+        "afterCpuP95": 132.90000000596046,
+        "beforeFrameP95": 141.70000000000073,
+        "afterFrameP95": 133.3000000000029,
+        "drawCallsEqual": true,
+        "trianglesEqual": true,
+        "actorsEqual": true,
+        "bodiesEqual": true,
+        "repeatedDrawCallRanges": {
+          "before": [
+            599,
+            599
+          ],
+          "after": [
+            599,
+            599
+          ]
+        }
+      },
+      {
+        "mode": "portrait",
+        "scene": "crowd",
+        "beforeSamples": 1,
+        "afterSamples": 1,
+        "beforeCpuP95": 164.8999999910593,
+        "afterCpuP95": 82,
+        "beforeFrameP95": 170.89999999999418,
+        "afterFrameP95": 91.59999999999854,
+        "drawCallsEqual": false,
+        "trianglesEqual": false,
+        "actorsEqual": true,
+        "bodiesEqual": true,
+        "repeatedDrawCallRanges": {
+          "before": [
+            689,
+            689
+          ],
+          "after": [
+            694,
+            694
+          ]
+        }
+      },
+      {
+        "mode": "desktop",
+        "scene": "idle",
+        "beforeSamples": 1,
+        "afterSamples": 1,
+        "beforeCpuP95": 11.5,
+        "afterCpuP95": 36.3999999910593,
+        "beforeFrameP95": 12.600000000000364,
+        "afterFrameP95": 37.5,
+        "drawCallsEqual": true,
+        "trianglesEqual": true,
+        "actorsEqual": true,
+        "bodiesEqual": true,
+        "repeatedDrawCallRanges": {
+          "before": [
+            626,
+            626
+          ],
+          "after": [
+            626,
+            626
+          ]
+        }
+      },
+      {
+        "mode": "desktop",
+        "scene": "crowd",
+        "beforeSamples": 1,
+        "afterSamples": 1,
+        "beforeCpuP95": 15.700000002980232,
+        "afterCpuP95": 49.20000000298023,
+        "beforeFrameP95": 16.700000000000728,
+        "afterFrameP95": 50.099999999998545,
+        "drawCallsEqual": true,
+        "trianglesEqual": true,
+        "actorsEqual": true,
+        "bodiesEqual": true,
+        "repeatedDrawCallRanges": {
+          "before": [
+            725,
+            725
+          ],
+          "after": [
+            725,
+            725
+          ]
+        }
+      }
+    ]
+  },
+  "accepted": {
+    "path": "output\\playwright\\iphone-startup-1.6.7\\benchmark-coordinated\\report.json",
+    "sha256": "cf2c23be7b2252667bef040593df5abd1ae7c7631174fcefffac4b7ea60c5a48",
+    "passed": true
+  },
+  "mobile": {
+    "path": "output\\playwright\\iphone-startup-1.6.7\\benchmark-mobile-current\\report.json",
+    "sha256": "8c0bbc4ccf97fcc50128d3f97cddd95d62bb332176c0d611ed95f5dc437e4117",
+    "passed": true
+  },
+  "explanation": "Earlier single-pair failures and one passing reverse-order repeat were inconclusive under concurrent work and substantial A/A variability. User-authorized coordination stopped the other heavy work. A predeclared ABBA comparison uses four fresh browser processes, symmetric worker-ready barriers,180warmup+420measured frames per scene. Mean CPU P95 remains within the unchanged10percent tolerance; individual runs vary substantially, so this does not prove a PC speedup or statistical equivalence. Mean crowd cadence P95 worsens18.85->20.90ms. All earlier receipts remain retained. Physical iPhone and device-level FPS remain unverified.",
+  "repeatability": [
+    {
+      "scene": "idle",
+      "groups": [
+        {
+          "label": "before",
+          "values": [
+            11.200000002980232,
+            16.900000005960464
+          ],
+          "spreadPercent": 50.892857155924176
+        },
+        {
+          "label": "after",
+          "values": [
+            14.600000008940697,
+            14.700000002980232
+          ],
+          "spreadPercent": 0.6849314656047767
+        }
+      ]
+    },
+    {
+      "scene": "crowd",
+      "groups": [
+        {
+          "label": "before",
+          "values": [
+            16.899999991059303,
+            18.099999994039536
+          ],
+          "spreadPercent": 7.100591737367301
+        },
+        {
+          "label": "after",
+          "values": [
+            14.899999991059303,
+            21.700000002980232
+          ],
+          "spreadPercent": 45.63758400000837
+        }
+      ]
+    }
+  ]
+}

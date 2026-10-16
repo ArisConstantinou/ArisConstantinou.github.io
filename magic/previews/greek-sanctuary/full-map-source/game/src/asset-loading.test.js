@@ -1,5 +1,13 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {createAssetReader,createAssetQueue} from './asset-loading.js';
+import {createAssetReader,createAssetQueue,gltfDependencies} from './asset-loading.js';
+test('desktop retains original external glTF image loading and unrelated image metadata',()=>{
+ const json={buffers:[{uri:'model.bin'}],images:[{uri:'image.png',extras:{magicEncoded:{width:512},author:'original'}},{uri:'other.png',extras:{magicEncoded:{width:512}}}]};
+ assert.equal(gltfDependencies(json,false).length,3);assert.deepEqual(json.images,[{uri:'image.png',extras:{author:'original'}},{uri:'other.png'}]);
+});
+test('mobile defers annotated images while retaining buffers and unannotated images',()=>{
+ const json={buffers:[{uri:'model.bin'}],images:[{uri:'image.png',extras:{magicEncoded:{width:512}}},{uri:'other.png'}]},original=structuredClone(json);
+ assert.deepEqual(gltfDependencies(json,true).map(s=>s.uri),['model.bin','other.png']);assert.deepEqual(json,original);
+});
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 test('known-size single allocation and inaccurate/compressed headers preserve decoded bytes',async()=>{
  for(const headers of [{'content-length':'4'},{'content-length':'2'},{'content-length':'8'},{'content-length':'2','content-encoding':'gzip'}]){

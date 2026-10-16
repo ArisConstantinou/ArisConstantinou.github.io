@@ -1,4 +1,5 @@
 import {deferGltfImages,encodedTexture} from './texture-memory.js';
+import {textureVariant,usesMobileTextures} from './asset-profile.js';
 /** A slow download remains healthy while bytes arrive. Bound stalls/retries,
  * rather than rejecting a large, still-progressing file after45 seconds. */
 export function createAssetReader({fetchAsset=globalThis.fetch,idleMs=30000,totalMs=180000,attempts=3,retryDelayMs=350,onProgress=()=>{}}={}){
@@ -56,17 +57,28 @@ export function loadGltfAsset(loader,url){deferGltfImages(loader,url=>queue(()=>
   // through the same bounded transport; parsing a GLB needs no URI rewrite.
   if(new DataView(data).getUint32(0,true)!==0x46546c67){
    const json=JSON.parse(new TextDecoder().decode(data));
-   await Promise.all([...(json.buffers||[]),...(json.images||[])].map(async source=>{
+   const mobile=usesMobileTextures(),dependencies=gltfDependencies(json,mobile);
+   const fetchDependency=async source=>{
     if(!source.uri||source.uri.startsWith('data:'))return;
     const bytes=await read(new URL(source.uri,base).href);if(!accepting)return;
     const blob=URL.createObjectURL(new Blob([bytes]));objects.push(blob);source.uri=blob;
-   }));
+   };
+   if(mobile){for(const source of dependencies)await fetchDependency(source);}
+   else await Promise.all(dependencies.map(fetchDependency));
    return await loader.parseAsync(JSON.stringify(json),base);
   }
   return await loader.parseAsync(data,base);
  }finally{accepting=false;for(const object of objects)URL.revokeObjectURL(object);}
 });}
 export function loadTextureAsset(loader,url){return queue(async()=>{
+ url=textureVariant(url)?.url||url;
  return encodedTexture(new Blob([await read(url)]),{flipY:true});
 });}
 export const readAsset=read;
+
+export function gltfDependencies(json,mobile=usesMobileTextures()){
+ // The extra metadata was added for the bounded mobile path. Keep the
+ // original eager external-image path on desktop, where it was already fast.
+ if(!mobile)for(const image of json.images||[]){if(image.extras?.magicEncoded){delete image.extras.magicEncoded;if(!Object.keys(image.extras).length)delete image.extras;}}
+ return [...(json.buffers||[]),...(json.images||[]).filter(image=>!image.extras?.magicEncoded)];
+}

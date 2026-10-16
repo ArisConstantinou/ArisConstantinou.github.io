@@ -1,4 +1,5 @@
 import {Texture,Frustum,Matrix4} from 'three';
+import {textureVariant} from './asset-profile.js';
 
 // Keep the original encoded image. Decode only while uploading it, then close
 // the CPU bitmap. Source dimensions survive for shaders, clones and restoration.
@@ -8,6 +9,16 @@ const sharedPrepared=new WeakMap();
 const materialMaps=new WeakMap();
 const remoteImages=new Map();
 let jobs=Promise.resolve(),decodedBytes=0,peakDecodedBytes=0,encodedBytes=0,uploads=0,reusedUploads=0;
+let maxEncodedBytes=64*1024*1024,remoteEncodedBytes=0,evictedEncodedBytes=0,clock=0;
+export function configureTextureMemory(options){
+ if(!Number.isFinite(options.maxEncodedBytes)||options.maxEncodedBytes<0)throw Error('Invalid encoded texture budget');
+ maxEncodedBytes=options.maxEncodedBytes;trimRemoteImages();
+}
+function trimRemoteImages(){
+ if(remoteEncodedBytes<=maxEncodedBytes)return;
+ const retained=[...remoteImages.values()].map(x=>x.entry).filter(e=>e.blob).sort((a,b)=>(a.used||0)-(b.used||0));
+ for(const entry of retained){if(remoteEncodedBytes<=maxEncodedBytes)break;const bytes=entry.blob.size;entry.blob=null;remoteEncodedBytes-=bytes;encodedBytes-=bytes;evictedEncodedBytes+=bytes;}
+}
 export function imageDimensions(bytes){
  const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
  if(bytes.length>=24&&view.getUint32(0)===0x89504e47&&view.getUint32(4)===0x0d0a1a0a)return{width:view.getUint32(16),height:view.getUint32(20)};
@@ -42,6 +53,7 @@ export async function encodedTexture(blob,{flipY=false,decode=globalThis.createI
 /** Dimensions and content address are generated from the unchanged image.
  * An unseen material does not require its encoded pixels at startup. */
 export function remoteEncodedTexture(url,{width,height,bytes,mimeType},read,{decode=globalThis.createImageBitmap}={}){
+ const variant=textureVariant(url);if(variant){url=variant.url;({width,height,bytes,mimeType}=variant);}
  if(!(width>0&&height>0&&bytes>0))throw Error('Invalid remote texture descriptor');
  let cached=remoteImages.get(url);
  if(!cached){
@@ -53,11 +65,12 @@ export function remoteEncodedTexture(url,{width,height,bytes,mimeType},read,{dec
  return cached.texture.clone();
 }
 async function readEncoded(entry){
+ entry.used=++clock;
  if(entry.blob)return entry.blob;
  if(!entry.pending)entry.pending=Promise.resolve().then(()=>entry.read(entry.url)).then(data=>{
   const blob=new Blob([data],{type:entry.mimeType});
   if(blob.size!==entry.bytes)throw Error('Incomplete texture '+entry.url);
-  entry.blob=blob;encodedBytes+=blob.size;return blob;
+  entry.blob=blob;entry.received=true;encodedBytes+=blob.size;remoteEncodedBytes+=blob.size;trimRemoteImages();return blob;
  }).finally(()=>{entry.pending=null;});
  return entry.pending;
 }
@@ -66,7 +79,7 @@ async function readEncoded(entry){
 export async function prefetchEncodedTextures(){
  let complete=true;
  for(const {entry} of remoteImages.values()){
-  if(!entry.blob){try{await readEncoded(entry)}catch{complete=false;/* Visible preparation reports a real failure and allows retry. */}}
+  if(!entry.received){try{await readEncoded(entry)}catch{complete=false;/* Visible preparation reports a real failure and allows retry. */}}
  }
  return complete;
 }
@@ -97,7 +110,6 @@ export function textureIsReady(renderer,texture){
 }
 export function prepareEncodedTexture(renderer,texture,upload=t=>renderer.initTexture(t)){
  const entry=entries.get(texture.source);if(!entry)return upload(texture);
- const requested=entry.blob?null:readEncoded(entry);requested?.catch(()=>{});
  const run=async()=>{
   if(textureIsReady(renderer,texture))return;
   if(renderer.getContext?.().isContextLost())throw Error('Χάθηκε η σύνδεση γραφικών κατά τη φόρτωση.');
@@ -111,7 +123,9 @@ export function prepareEncodedTexture(renderer,texture,upload=t=>renderer.initTe
     prepared.get(renderer).set(texture,{version:texture.version,handle});reusedUploads++;return;
    }
   }
-  const blob=entry.blob||await requested;
+  // Start the read only when the serial decode/upload slot is free. Queued
+  // closures must not retain every completed Blob outside the memory budget.
+  const blob=entry.blob||await readEncoded(entry);entry.used=++clock;
   const bitmap=await entry.decode.call(globalThis,blob,{imageOrientation:texture.flipY?'flipY':'none',colorSpaceConversion:'none',premultiplyAlpha:'none'});
   const bytes=entry.size.width*entry.size.height*4;decodedBytes+=bytes;peakDecodedBytes=Math.max(peakDecodedBytes,decodedBytes);
   texture.source.data=bitmap;texture.source.dataReady=true;
@@ -204,4 +218,4 @@ export function prepareVisibleTextures(renderer,root,upload,camera){
  const missing=gate(camera);
  return missing.length?Promise.all(missing.map(t=>prepareEncodedTexture(renderer,t,upload))):null;
 }
-export const textureMemoryStats=()=>({decodedBytes,peakDecodedBytes,encodedBytes,uploads,reusedUploads});
+export const textureMemoryStats=()=>({decodedBytes,peakDecodedBytes,encodedBytes,remoteEncodedBytes,maxEncodedBytes,evictedEncodedBytes,uploads,reusedUploads});

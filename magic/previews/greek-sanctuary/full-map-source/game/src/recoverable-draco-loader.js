@@ -17,6 +17,10 @@ export function guardDecoderWorker(worker,{timeoutMs=45000,onFailure=()=>{}}={})
  worker.onmessage=event=>{
   if(failure)return;
   if(event.data.type==='magic-decoder-failure'){fail(event.data.error);return;}
+  // Three catches decode-time WASM traps and posts a normal task error. Those
+  // bypass the worker error/rejection bridge, so WebKit never reached the
+  // existing JS fallback. A trapped module is unsafe for its other jobs too.
+  if(event.data.type==='error'&&/out of bounds memory access|memory access out of bounds|out of memory|memory\.grow|unreachable/i.test(String(event.data.error))){fail(event.data.error);return;}
   arm();originalMessage.call(worker,event);
  };
  worker.addEventListener('error',event=>{event.preventDefault();fail(event.message);});
