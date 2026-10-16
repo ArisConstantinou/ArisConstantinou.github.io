@@ -1,5 +1,6 @@
 import {supportedFootprint} from './game/src/walkable-support.js';
 import {engineProfileIntersects} from './clearance.js';
+import {indexBoxes} from './spatial-boxes.js';
 const top=f=>f.y+f.h/2;
 const inside=(f,x,z)=>Math.abs(x-f.x)<=f.w/2+.001&&Math.abs(z-f.z)<=f.d/2+.001;
 
@@ -22,16 +23,20 @@ export class LayeredNavigationGrid {
  }
  index(x,z){const gx=Math.floor((x-this.minX)/this.cell),gz=Math.floor((z-this.minZ)/this.cell);return gx<0||gz<0||gx>=this.w||gz>=this.h?-1:gx+gz*this.w;}
  point(i){return {x:this.minX+(i%this.w+.5)*this.cell,z:this.minZ+(Math.floor(i/this.w)+.5)*this.cell};}
- floorAt(x,z,referenceY=0){let best=null;for(const f of this.floors)if(inside(f,x,z)&&top(f)<=referenceY+.41&&(best===null||top(f)>top(best)))best=f;return best;}
+ floorAt(x,z,referenceY=0){let best=null;for(const f of this.nearFloors(x,z))if(inside(f,x,z)&&top(f)<=referenceY+.41&&(best===null||top(f)>top(best)))best=f;return best;}
  valid(p,f){
   const y=top(f),stair=f.tag==='fullmap-stair',tolerance=stair?.25+this.radius*(f.slope??.5):.25;
-  if(!supportedFootprint(this.floors,{x:p.x,y,z:p.z},this.radius,tolerance))return false;
+  const floors=this.nearFloors(p.x,p.z);
+  if(!supportedFootprint(floors,{x:p.x,y,z:p.z},this.radius,tolerance))return false;
   const blocked=b=>this.bodyProfile?engineProfileIntersects(b,p,y,this.bodyProfile):b.y+b.h/2>y+.25&&b.y-b.h/2<y+this.height&&Math.abs(p.x-b.x)<b.w/2+this.radius&&Math.abs(p.z-b.z)<b.d/2+this.radius;
-  if(this.allObstacles.some(blocked))return false;
-  return !this.floors.some(b=>b!==f&&top(b)>y+.025&&!(stair&&b.stairId===f.stairId)&&blocked(b));
+  if(this.nearObstacles(p.x,p.z).some(blocked))return false;
+  return !floors.some(b=>b!==f&&top(b)>y+.025&&!(stair&&b.stairId===f.stairId)&&blocked(b));
  }
  setObstacles(obstacles){
   this.allObstacles=obstacles;
+  const padding=Math.max(this.radius,...(this.bodyProfile?.spheres||[]).map(s=>Math.max(Math.abs(s.x),Math.abs(s.z))+s.radius+.025))+.002;
+  this.nearFloors=indexBoxes(this.floors,padding);
+  this.nearObstacles=indexBoxes(obstacles,padding);
   // Existing flat-world prop-placement helpers retain their ground-floor view.
   this.obstacles=obstacles.filter(b=>b.y-b.h/2<1.8&&b.y+b.h/2>.4);
   this.nodes=[];this.cells=Array.from({length:this.w*this.h},()=>[]);this.walk=new Uint8Array(this.w*this.h);
@@ -42,7 +47,7 @@ export class LayeredNavigationGrid {
    }
   }
  }
- onFloor(x,z,referenceY){return referenceY===undefined?this.floors.some(f=>inside(f,x,z)):!!this.floorAt(x,z,referenceY);}
+ onFloor(x,z,referenceY){return referenceY===undefined?this.nearFloors(x,z).some(f=>inside(f,x,z)):!!this.floorAt(x,z,referenceY);}
  isFree(x,z,referenceY=0){const f=this.floorAt(x,z,referenceY);return !!f&&this.valid({x,z},f);}
  nearest(x,z,referenceY=0){
   const f=this.floorAt(x,z,referenceY);if(!f)return -1;const wanted=top(f),center=this.index(x,z);let best=-1,score=Infinity;

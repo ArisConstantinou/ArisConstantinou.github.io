@@ -1,0 +1,8 @@
+{
+  "checks": [],
+  "errors": [],
+  "conditions": "Actual built characters at identical scripted transforms and animation inputs. Physics held fixed to isolate rig output from longer combat nondeterminism. Original animations, skeletons, materials and renderer retained.",
+  "bones": 11640,
+  "maxDelta": 0,
+  "passed": true
+}

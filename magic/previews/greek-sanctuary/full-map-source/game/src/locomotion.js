@@ -148,7 +148,7 @@ export function createLegSolver(upper, lower, foot) {
     delta.setFromUnitVectors(current.normalize(), desired.normalize());
     bone.getWorldQuaternion(world).premultiply(delta);
     bone.parent.getWorldQuaternion(parent).invert(); bone.quaternion.copy(parent.multiply(world)).normalize();
-    bone.updateMatrixWorld(true);
+    bone.updateWorldMatrix(true,false);
   }
   return { upper, lower, foot, solve(target, pole, footRotation) {
     upper.getWorldPosition(a); lower.getWorldPosition(b); foot.getWorldPosition(c);
@@ -162,7 +162,7 @@ export function createLegSolver(upper, lower, foot) {
     lower.getWorldPosition(b); foot.getWorldPosition(c);
     orient(lower, from.copy(c).sub(b), to.copy(target).sub(b));
     if (footRotation) {
-      foot.parent.getWorldQuaternion(parent).invert(); foot.quaternion.copy(parent.multiply(footRotation)).normalize(); foot.updateMatrixWorld(true);
+      foot.parent.getWorldQuaternion(parent).invert(); foot.quaternion.copy(parent.multiply(footRotation)).normalize(); foot.updateWorldMatrix(true,false);
     }
     foot.getWorldPosition(c);
     return c.distanceTo(target);
@@ -193,7 +193,7 @@ export function createRigLocomotion(group, model, legs, options = {}) {
   function reset() { beforeAnimation(); gait.reset();legYaw=null;supportBlend=0;bodyCompression=0; }
   function beforeAnimation() { model.position.y -= lastBodyOffset; model.position.x-=lastLateralOffset;lastBodyOffset = lastLateralOffset = 0;if(turnApplied){hips.quaternion.copy(hipsPose);spine.quaternion.copy(spinePose);turnApplied=false;} }
   function update(dt, { grounded = true, dead = false, airborne = false, footOverride = null, bodyOffset = 0, align = null, heading:requestedHeading = null } = {}) {
-    group.updateMatrixWorld(true); group.getWorldPosition(position); group.getWorldScale(scale); group.getWorldQuaternion(rotation);
+    group.updateWorldMatrix(true,false); group.getWorldPosition(position); group.getWorldScale(scale); group.getWorldQuaternion(rotation);
     pole.set(0, 0, 1).applyQuaternion(rotation); pole.y = 0; pole.normalize();
     const aimYaw = Math.atan2(pole.x, pole.z), disabled = !grounded || airborne || dead;
     if(disabled)legYaw=null;
@@ -207,12 +207,12 @@ export function createRigLocomotion(group, model, legs, options = {}) {
     const yaw=legYaw??aimYaw;pole.set(Math.sin(yaw),0,Math.cos(yaw));
     gait.update(dt, position, yaw, { scale: scale.y, disabled });
     if (disabled) {supportBlend=0;bodyCompression=0;return;}
-    if(align){align(gait);group.updateMatrixWorld(true);}
+    if(align){align(gait);group.updateWorldMatrix(true,false);}
     if(hips&&spine&&Math.abs(angleDelta(aimYaw,yaw))>.0001){
       hipsPose.copy(hips.quaternion);spinePose.copy(spine.quaternion);spine.getWorldQuaternion(spineWorld);hips.getWorldQuaternion(hipsWorld);
-      turnQ.setFromAxisAngle(UP,angleDelta(aimYaw,yaw));hipsWorld.premultiply(turnQ);hips.parent.getWorldQuaternion(parentWorld).invert();hips.quaternion.copy(parentWorld.multiply(hipsWorld));hips.updateMatrixWorld(true);
+      turnQ.setFromAxisAngle(UP,angleDelta(aimYaw,yaw));hipsWorld.premultiply(turnQ);hips.parent.getWorldQuaternion(parentWorld).invert();hips.quaternion.copy(parentWorld.multiply(hipsWorld));hips.updateWorldMatrix(true,false);
       const twist=angleDelta(yaw,aimYaw),excess=twist-clamp(twist,-Math.PI*5/12,Math.PI*5/12);
-      turnQ.setFromAxisAngle(UP,-excess);spineWorld.premultiply(turnQ);spine.parent.getWorldQuaternion(parentWorld).invert();spine.quaternion.copy(parentWorld.multiply(spineWorld));spine.updateMatrixWorld(true);turnApplied=true;
+      turnQ.setFromAxisAngle(UP,-excess);spineWorld.premultiply(turnQ);spine.parent.getWorldQuaternion(parentWorld).invert();spine.quaternion.copy(parentWorld.multiply(spineWorld));spine.updateWorldMatrix(true,false);turnApplied=true;
     }
     const moving = gait.speed > .12 || gait.feet.some(f => !f.stance);
     // Make room for an actual bent knee and forward/rear support contact.
@@ -221,7 +221,7 @@ export function createRigLocomotion(group, model, legs, options = {}) {
     const support=options.mechanical||options.continuous?supportBlend:moving?1:0;
     lastBodyOffset = bodyOffset - support*(options.mechanical?.055:legLength*.15);
     lastLateralOffset=support*(options.mechanical?.065:legLength*(options.sway??.055))*Math.cos(gait.phase*Math.PI*2);
-    model.position.y += lastBodyOffset;model.position.x+=lastLateralOffset;group.updateMatrixWorld(true);
+    model.position.y += lastBodyOffset;model.position.x+=lastLateralOffset;group.updateWorldMatrix(true,false);
     // Preserve actual reachable contacts through authored hip bob/attack poses.
     // Solve the necessary body compression from measured limbs, not a guessed
     // universal pelvis height. Bone lengths and the physics capsule stay fixed.
@@ -233,7 +233,7 @@ export function createRigLocomotion(group, model, legs, options = {}) {
     }
     if(options.continuous)bodyCompression=Math.min(compression,bodyCompression*Math.exp(-dt*10));
     else bodyCompression=compression;
-    if(bodyCompression<0){const offset=bodyCompression/scale.y;model.position.y+=offset;lastBodyOffset+=offset;group.updateMatrixWorld(true);}
+    if(bodyCompression<0){const offset=bodyCompression/scale.y;model.position.y+=offset;lastBodyOffset+=offset;group.updateWorldMatrix(true,false);}
     for (let i = 0; i < 2; i++) {
       const f = gait.feet[i]; footQ.setFromAxisAngle(UP, f.yaw).multiply(neutral[i]);
       errors[i] = solvers[i].solve(footOverride?.[i] || f.target, pole, footQ);
