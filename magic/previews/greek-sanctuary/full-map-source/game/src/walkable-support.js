@@ -3,16 +3,24 @@ const EPS = 1e-5;
 const top = b => b.y + b.h / 2;
 const contains = (b,x,z) => Math.abs(x-b.x)<=b.w/2+EPS && Math.abs(z-b.z)<=b.d/2+EPS;
 
-export function supportSightClear(a,b,obstacles) {
-  return !obstacles.some(box=>{
-    let near=0,far=1;
-    for(const [axis,size] of [['x','w'],['y','h'],['z','d']]){
-      const lo=box[axis]-box[size]/2,hi=box[axis]+box[size]/2,delta=b[axis]-a[axis];
-      if(Math.abs(delta)<EPS){if(a[axis]<lo||a[axis]>hi)return false;}
-      else{let t0=(lo-a[axis])/delta,t1=(hi-a[axis])/delta;if(t0>t1)[t0,t1]=[t1,t0];near=Math.max(near,t0);far=Math.min(far,t1);if(near>far)return false;}
-    }
-    return true;
-  });
+export function supportSightClear(a,b,obstacles,margin=0,ignore=null) {
+  // Same closed segment/slab test, without copying every castle collider for
+  // each enemy's sight query. Read the live list so opened doors take effect now.
+  const dx=b.x-a.x,dy=b.y-a.y,dz=b.z-a.z;
+  for(const box of obstacles){
+    if(ignore?.(box))continue;
+    let near=0,far=1,lo=box.x-box.w/2-margin,hi=box.x+box.w/2+margin;
+    if(Math.abs(dx)<EPS){if(a.x<lo||a.x>hi)continue;}
+    else{let t0=(lo-a.x)/dx,t1=(hi-a.x)/dx;if(t0>t1)[t0,t1]=[t1,t0];near=Math.max(near,t0);far=Math.min(far,t1);if(near>far)continue;}
+    lo=box.y-box.h/2;hi=box.y+box.h/2;
+    if(Math.abs(dy)<EPS){if(a.y<lo||a.y>hi)continue;}
+    else{let t0=(lo-a.y)/dy,t1=(hi-a.y)/dy;if(t0>t1)[t0,t1]=[t1,t0];near=Math.max(near,t0);far=Math.min(far,t1);if(near>far)continue;}
+    lo=box.z-box.d/2-margin;hi=box.z+box.d/2+margin;
+    if(Math.abs(dz)<EPS){if(a.z<lo||a.z>hi)continue;}
+    else{let t0=(lo-a.z)/dz,t1=(hi-a.z)/dz;if(t0>t1)[t0,t1]=[t1,t0];near=Math.max(near,t0);far=Math.min(far,t1);if(near>far)continue;}
+    return false;
+  }
+  return true;
 }
 
 export function supportHeight(floors,x,z,referenceY,{rise=.3,drop=.6}={}) {

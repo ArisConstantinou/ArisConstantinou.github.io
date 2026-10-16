@@ -27,5 +27,33 @@ export async function ensureReleaseWorker(serviceWorker, baseURI, version, timeo
     const timer = setTimeout(() => finish(new Error('Η νέα έκδοση δεν ενεργοποιήθηκε. Επανάλαβε τη φόρτωση.')), timeoutMs);
     serviceWorker.addEventListener('controllerchange', changed);changed();
   });
+  // The URL query alone is not a version check: the server can return newer
+  // worker bytes for an old query while an old tab still has its old JS alive.
+  const info=await releaseWorkerInfo(serviceWorker.controller);
+  if(info&&info.release!==version){
+    const error=new Error('Το MAGIC ενημερώθηκε. Χρειάζεται ανανέωση της σελίδας.');
+    error.releaseMismatch=info.release;throw error;
+  }
   return registration;
+}
+
+export function releaseWorkerInfo(worker){
+  if(!worker?.postMessage||typeof MessageChannel==='undefined')return Promise.resolve(null);
+  return new Promise(resolve=>{
+    const channel=new MessageChannel();
+    const done=value=>{clearTimeout(timer);channel.port1.close();channel.port2.close();resolve(value);};
+    const timer=setTimeout(()=>done(null),1200);
+    channel.port1.onmessage=event=>done(event.data);
+    worker.postMessage({type:'MAGIC_RELEASE_INFO'},[channel.port2]);
+  });
+}
+
+export function notifyReleaseReady(serviceWorker,release){
+  serviceWorker?.controller?.postMessage?.({type:'MAGIC_RUNTIME_READY',release});
+}
+
+export function releaseReloadURL(href,release){
+  const url=new URL(href);
+  if(url.searchParams.get('v')===release)return null;
+  url.searchParams.set('v',release);return url.href;
 }
