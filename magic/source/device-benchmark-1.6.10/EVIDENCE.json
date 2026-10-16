@@ -1,0 +1,225 @@
+{
+  "version": "1.6.10",
+  "unitAndMapTests": 337,
+  "browserChecks": [
+    {
+      "name": "recording bar under 60px high and less than one third of landscape width",
+      "pass": true
+    },
+    {
+      "name": "16 nonempty scenarios cover two passes",
+      "pass": true
+    },
+    {
+      "name": "first-second stall appears in initial window and all-frame results",
+      "pass": true
+    },
+    {
+      "name": "legacy warmup hid the injected early stall",
+      "pass": true
+    },
+    {
+      "name": "GPU capability is tested and samples match frames when supported",
+      "pass": true
+    },
+    {
+      "name": "memory reports estimate without inventing actual VRAM",
+      "pass": true
+    },
+    {
+      "name": "different populated rooms are actually observed",
+      "pass": true
+    },
+    {
+      "name": "wizard abilities and actual machine actions are observed",
+      "pass": true
+    },
+    {
+      "name": "report saved in IndexedDB with images",
+      "pass": true
+    },
+    {
+      "name": "game progress not changed",
+      "pass": true
+    },
+    {
+      "name": "JSON export retains room results and issues",
+      "pass": true
+    },
+    {
+      "name": "saved report restores without loading game",
+      "pass": true
+    },
+    {
+      "name": "portrait results do not overflow page",
+      "pass": true
+    },
+    {
+      "name": "manual recording preserves real movement input",
+      "pass": true
+    },
+    {
+      "name": "portrait bar clears movement and ability controls",
+      "pass": true
+    },
+    {
+      "name": "manual report records marked problem with image, position and preceding frames",
+      "pass": true
+    },
+    {
+      "name": "marked issue captures five real successive frames",
+      "pass": true
+    },
+    {
+      "name": "manual results do not fabricate unused machine coverage",
+      "pass": true
+    },
+    {
+      "name": "no uncaught exceptions",
+      "pass": true
+    }
+  ],
+  "storageChecks": [
+    {
+      "name": "local quota failure falls back to IndexedDB and records the cause",
+      "pass": true
+    },
+    {
+      "name": "complete denial is explicit with both causes",
+      "pass": true
+    },
+    {
+      "name": "JSON download remains available when storage is denied",
+      "pass": true
+    },
+    {
+      "name": "interrupted run restores actual measurements without loading the game",
+      "pass": true
+    },
+    {
+      "name": "pause and resume are recorded",
+      "pass": true
+    },
+    {
+      "name": "no uncaught errors",
+      "pass": true
+    }
+  ],
+  "coverage": {
+    "rooms": {
+      "courtyard": 276,
+      "library": 39,
+      "forge": 39,
+      "sanctum": 40
+    },
+    "actions": {
+      "stone": 10,
+      "grab": 4,
+      "shield": 2,
+      "throw": 4,
+      "pulse": 10,
+      "dash": 2,
+      "engine_board": 2,
+      "engine_fire": 2,
+      "engine_stomp": 2,
+      "engine_exit": 2
+    }
+  },
+  "gpuTiming": {
+    "supported": true,
+    "reason": null,
+    "samples": 11089,
+    "discarded": 0,
+    "skipped": 0
+  },
+  "wall": {
+    "before": 23,
+    "after": 0,
+    "conditions": "Same actual room, camera and2mm boundary positions,110ms simulation intervals. Windows Chrome/native GPU. Camera and physics held deterministic; no shader or quality changes."
+  },
+  "wallPerformance": {
+    "cases": [
+      {
+        "label": "before",
+        "changes": 179,
+        "cpu": {
+          "count": 180,
+          "mean": 7.269444444610013,
+          "p95": 8.200000017881393,
+          "max": 8.800000011920929
+        },
+        "frames": {
+          "count": 180,
+          "mean": 17.730000000033115,
+          "p95": 19.30000001192093,
+          "max": 20.5
+        },
+        "calls": {
+          "count": 180,
+          "mean": 505,
+          "p95": 505,
+          "max": 505
+        },
+        "triangles": {
+          "count": 180,
+          "mean": 1656106,
+          "p95": 1656994,
+          "max": 1656994
+        }
+      },
+      {
+        "label": "after",
+        "changes": 0,
+        "cpu": {
+          "count": 180,
+          "mean": 7.973333332439264,
+          "p95": 9.199999988079071,
+          "max": 10.600000023841858
+        },
+        "frames": {
+          "count": 180,
+          "mean": 17.627777777777776,
+          "p95": 19.299999982118607,
+          "max": 20.5
+        },
+        "calls": {
+          "count": 180,
+          "mean": 550,
+          "p95": 550,
+          "max": 550
+        },
+        "triangles": {
+          "count": 180,
+          "mean": 1821910,
+          "p95": 1821910,
+          "max": 1821910
+        }
+      }
+    ],
+    "conditions": "Same actual room, camera and2mm boundary positions,110ms camera simulation intervals presented on native RAF, 30 warmup +180 measured frames. CPU is camera/update/render submission for this focused fixture. Windows Chrome/native GPU. Camera and physics held deterministic; no shader or quality changes."
+  },
+  "webkit": {
+    "passed": true,
+    "gpuTiming": {
+      "supported": false,
+      "reason": "Ο browser δεν εκθέτει EXT_disjoint_timer_query_webgl2.",
+      "samples": 0,
+      "discarded": 0,
+      "skipped": 0
+    },
+    "storage": {
+      "saved": true,
+      "backend": "IndexedDB",
+      "imagesSaved": true,
+      "errors": []
+    }
+  },
+  "limits": [
+    "Desktop Chrome and Windows WebKit are not a physical iPhone test.",
+    "The automatic suite includes an intentionally injected first-second stall to verify detection; its FPS is not a performance comparison.",
+    "GPU timing is optional; absent timing is explained, not invented. Memory is an estimate of known resources, not actual VRAM.",
+    "The observed cutaway boundary is fixed. This does not establish that every visual flicker has been identified.",
+    "Focused wall timing: frame P95 stayed19.3ms; CPU submission mean7.27->7.97ms. Visible draw totals differed505->550, so this is not a strict equal-workload performance comparison or a speedup claim.",
+    "Physical iPhone enemy-approach FPS remains unresolved; no graphics, resolution, geometry or enemy-count reductions in this release."
+  ]
+}

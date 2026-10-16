@@ -1,5 +1,7 @@
 import {greekEnabled,loadGreekAssets,addGreekArchitecture,createGreekPuzzles} from './greek-environment.js';
 import {benchmarkMode,createPerformanceTest} from './performance-test.js';
+import {createBenchmarkFixtures} from './benchmark-fixtures.js';
+import {estimateResources} from './benchmark-memory.js';
 import {observeAssetLoading,readAsset} from './asset-loading.js';
 import {loadTextureProfile} from './asset-profile.js';
 import {ensureReleaseWorker,notifyReleaseReady,releaseReloadURL} from './release-worker.js';
@@ -136,13 +138,12 @@ const ui=createUI({
 });
 ui.setMuted(save.profile.muted);
 ui.setQuality(quality);
-performanceTest=createPerformanceTest({version:packageInfo.version,boot,
- setup:type=>{startRun();benchmarkPulseAt=0;player.hp=player.maxHp=100000;player.invulnerable=999;for(const e of entities)if(e.category==='actor')e.hp=e.maxHp=100000;
-  if(type==='crowd'){const p=player.body.position,list=entities.filter(e=>e.category==='actor'&&!e.isPlayer&&!e.ally&&!e.dead&&!e.bossType).slice(0,18);list.forEach((e,i)=>{const a=2*Math.PI*i/list.length,r=4+(i%3)*1.1;e.body.position.set(p.x+Math.sin(a)*r,p.y-player.cy+e.cy+.05,p.z+Math.cos(a)*r);e.body.velocity.setZero();e.body.aabbNeedsUpdate=true;e.body.wakeUp();e.aggro=true;});}
- },
- step:(type,time)=>{if(player){player.invulnerable=999;player.mana=player.maxMana;}if(type==='turn'){const a=time*.22;camera.position.set(player.body.position.x+Math.sin(a)*19,18,player.body.position.z-2+Math.cos(a)*19);}if(type==='crowd'&&time>benchmarkPulseAt+3){benchmarkPulseAt=time;pulse();}},
+const benchmarkFixtures=createBenchmarkFixtures(()=>({player,entities,nav,world:worldMap,hearth,camera,time:runTime,startRun,setCamera:()=>{setPlayCamera();updateCamera(100);},pulse,conjure,dash,hold:holdEntity,throw:throwHeld,event:(...a)=>performanceTest.event(...a)}));
+performanceTest=createPerformanceTest({version:packageInfo.version,boot,setup:benchmarkFixtures.setup,step:benchmarkFixtures.step,
  suspend:()=>{phase='benchmark-results';sound.setPaused(true);sound.setFlamethrower(false);},
- device:()=>({userAgent:navigator.userAgent,viewport:[innerWidth,innerHeight],canvas:renderer?[renderer.domElement.width,renderer.domElement.height]:null,dpr:devicePixelRatio,quality,threads:navigator.hardwareConcurrency||null,deviceMemoryGiB:navigator.deviceMemory||null,gpu:renderer?(()=>{const gl=renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return gl.getParameter(ext?ext.UNMASKED_RENDERER_WEBGL:gl.RENDERER);})():null,actors:entities.filter(e=>e.category==='actor').length,bodies:physics?.bodies.length||0,gpuTiming:'unavailable',vram:'unavailable'})});
+ sample:()=>{const p=player?.body.position,hs=hearth?.snapshot(),room=worldMap?.zones.find(r=>p&&p.x>=r.xMin&&p.x<=r.xMax&&p.z>=r.zMin&&p.z<=r.zMax);return {room:room?.name||'διάδρομος',position:p?{x:p.x,y:p.y,z:p.z}:null,valid:!!p&&[p.x,p.y,p.z,hs?.x??0,hs?.z??0].every(Number.isFinite),phase,engine:hs?.state,engineFiring:!!hs?.firing,held:held?.kind||null,nearbyEnemies:entities.filter(e=>e.category==='actor'&&!e.isPlayer&&!e.ally&&!e.dead&&distance(e.body.position,p)<15).length};},
+ memory:()=>({...estimateResources(renderer,scene,[moon?.shadow.map,environmentTarget,composer?.renderTarget1,composer?.renderTarget2,...(bloom?.renderTargetsHorizontal||[]),...(bloom?.renderTargetsVertical||[]),bloom?.renderTargetBright]),textureLifecycle:textureMemoryStats()}),
+ device:()=>({userAgent:navigator.userAgent,viewport:[innerWidth,innerHeight],canvas:renderer?[renderer.domElement.width,renderer.domElement.height]:null,dpr:devicePixelRatio,quality,threads:navigator.hardwareConcurrency||null,deviceMemoryGiB:navigator.deviceMemory||null,gpu:renderer?(()=>{const gl=renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return gl.getParameter(ext?ext.UNMASKED_RENDERER_WEBGL:gl.RENDERER);})():null,actors:entities.filter(e=>e.category==='actor').length,bodies:physics?.bodies.length||0,actualVram:'not exposed by WebGL'})});
 function applyEquipment(){
   if(!player)return;const gear=equipmentStats(save.profile.loot);player.gear=gear;
   player.maxHp=120+25*(save.profile.upgrades.vitality||0)+gear.health;
@@ -180,6 +181,7 @@ function usePotion(kind,id){
 function setupRenderer(){
   const canvas=document.getElementById('game-canvas');
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+  if(benchmarkMode)renderer.debug.onShaderError=(gl,program,vertex,fragment)=>performanceTest?.error(new Error('WebGL shader: '+[gl.getProgramInfoLog(program),gl.getShaderInfoLog(vertex),gl.getShaderInfoLog(fragment)].filter(Boolean).join('\n')));
   textureUpload=async texture=>{await new Promise(requestAnimationFrame);renderer.initTexture(texture);};
   // Lost-context GPU objects are already invalid. Recreate the generated
   // environment after restore without deleting handles from the old context.
@@ -484,7 +486,7 @@ function holdEntity(e){
   }
   if(!canGrab(e)){ui.toast('Χτύπησέ τον με αντικείμενο για να σπάσεις την άμυνά του.','info');return false;}
   if(player.mana<7){ui.toast('Χρειάζεσαι 7 ενέργεια για αρπαγή.','info');return false;}
-  player.mana-=7;held=e;target=null;aimedEnemy=null;lastAimPointer=null;e.body.wakeUp();
+  globalThis.__MAGIC_PERFORMANCE__?.event('grab',{kind:e.kind});player.mana-=7;held=e;target=null;aimedEnemy=null;lastAimPointer=null;e.body.wakeUp();
   if(FIRE_ENABLED)igniteWithSpell(e);
   e.body.collisionFilterMask=GROUP.ENEMY|GROUP.PROP|GROUP.WORLD;
   e.body.fixedRotation=false;e.body.updateMassProperties();e.thrownUntil=0;e.thrownBy=null;e.collisionTimes.clear();
@@ -653,7 +655,7 @@ function activateGoliath(){
     cy:1.65,radius:.95,mass:38,hp:GOLIATH_HEALTH,maxHp:GOLIATH_HEALTH,speed:4.6,label:'Goliath',yaw:visual.group.rotation.y,
     removed:false,dead:false,stun:0,hitFlash:0,guardBreak:0,attackPulse:0,windup:0,thrownUntil:0,collisionTimes:new Map(),path:[],pathTick:0,
     expires:runTime+GOLIATH_LIFETIME,healthBar:createHealthBar(),strikeTime:0,strikeCooldown:0,strikeTarget:null,strikeSide:1};
-  body.entity=e;physics.addBody(body);entities.push(e);goliath=e;
+  body.entity=e;physics.addBody(body);entities.push(e);goliath=e;globalThis.__MAGIC_PERFORMANCE__?.event('goliath');
   ui.toast('Ο Goliath είναι στο πλευρό σου.','success');fx.ring(body.position,0x8bffda,2,.5);
 }
 function updateRitual(dt){
@@ -723,7 +725,7 @@ function conjure(){
   if(player.mana<16){ui.toast('Χρειάζεσαι 16 ενέργεια για να καλέσεις πέτρα.','info');return;}
   const p=player.body.position,from={x:p.x,y:1.2,z:p.z};
   const point=constrainDragPoint(from,{x:p.x+aimDirection.x*1.6,y:1.2,z:p.z+aimDirection.z*1.6},worldMap.colliders,.6,.5);
-  player.mana-=16;const e=prop('stone',point.x,point.z,{y:point.y,mass:2,ephemeral:true});
+  globalThis.__MAGIC_PERFORMANCE__?.event('stone');player.mana-=16;const e=prop('stone',point.x,point.z,{y:point.y,mass:2,ephemeral:true});
   fx.burst(e.body.position,0x8bffda,25,1.6);fx.ring(e.body.position,0x8bffda,1.1,.4);sound.sound('grab');
   ui.toast(mobile?'Άγγιξε την πέτρα και σύρε την.':'Πιάσε την πέτρα με κλικ και σύρε την.','info');
   return e;
@@ -743,7 +745,7 @@ function releaseHeld(thrown){
 function throwHeld(v=currentThrowVelocity()){
   if(!held||!v)return;
   if(!hearth.throw()){ui.toast('Η καρδιά δεν έχει αρκετή φωτιά για ρίψη.','info');return;}
-  const e=held,p=e.body.position;
+  globalThis.__MAGIC_PERFORMANCE__?.event('throw',{kind:held.kind});const e=held,p=e.body.position;
   const speed=Math.hypot(v.x,v.z)||1;
   releaseHeld(true);e.body.velocity.set(v.x,v.y,v.z);e.body.angularVelocity.set(-v.z/speed*4,2,v.x/speed*4);
   e.thrownUntil=runTime+4;e.thrownBy='player';e.body.wakeUp();
@@ -779,9 +781,9 @@ function updateHeld(dt,input){
   if(Math.random()<dt*22)fx.burst(pos,0x78ffd0,1,.4);
 }
 function pulse(){
-  if(hearth.occupied){hearth.stomp();return;}
+  if(hearth.occupied){if(hearth.stomp())globalThis.__MAGIC_PERFORMANCE__?.event('engine_stomp');return;}
   if(player.pulseCooldown>0||player.mana<25)return;
-  player.mana-=25;player.pulseCooldown=5.2*(1-player.gear.cooldown);castTime=.4;
+  globalThis.__MAGIC_PERFORMANCE__?.event('pulse');player.mana-=25;player.pulseCooldown=5.2*(1-player.gear.cooldown);castTime=.4;
   applyPulse(player.body.position,false);
 }
 function applyPulse(p,stomp){
@@ -801,7 +803,7 @@ function applyPulse(p,stomp){
 function dash(input){
   if(hearth.occupied)return;
   if(player.dashCooldown>0||player.mana<12)return;
-  player.mana-=12;player.dashTime=.19;player.invulnerable=.3;player.dashCooldown=(2.8-.55*(save.profile.upgrades.dash||0))*(1-player.gear.cooldown);
+  globalThis.__MAGIC_PERFORMANCE__?.event('dash');player.mana-=12;player.dashTime=.19;player.invulnerable=.3;player.dashCooldown=(2.8-.55*(save.profile.upgrades.dash||0))*(1-player.gear.cooldown);
   const dx=input.moveX||0,dz=input.moveZ||0,len=Math.hypot(dx,dz);
   player.dashDirection.set(len?dx/len:aimDirection.x,0,len?dz/len:aimDirection.z);
   sound.sound('dash');fx.ring(player.body.position,0x81ffda,1.7,.23);
@@ -822,7 +824,7 @@ function interact(targetKind){
 }
 function absorbFire(){
   if(hearth.blocked||!fireSpell.take(player,(a,b)=>visibleLine(a,b,.01),held,runTime))return;
-  worldMap.setTorchLit(fireSpell.torch.id,false);castTime=.45;sound.sound('fireTake');fx.burst(fireSpell.torch.position,0xffb44a,15,1.2);
+  globalThis.__MAGIC_PERFORMANCE__?.event('fire_absorb');worldMap.setTorchLit(fireSpell.torch.id,false);castTime=.45;sound.sound('fireTake');fx.burst(fireSpell.torch.position,0xffb44a,15,1.2);
 }
 function spawnReinforcements(){
   const room=rooms.find(r=>player.body.position.x>=r.x&&player.body.position.x<=r.x+r.w&&player.body.position.z>=r.z&&player.body.position.z<=r.z+r.d);
@@ -1491,7 +1493,7 @@ function frame(now,manual=false){
   if(benchmarkMode&&performanceTest?.report?.outcome)return;
   if(!manual&&now<controlledUntil){lastTime=now;requestAnimationFrame(frame);return;}
   if(texturePreparation||renderer?.getContext().isContextLost()){lastTime=now;if(!manual)requestAnimationFrame(frame);return;}
-  if(!manual)performanceTest?.beginFrame();
+  if(!manual)performanceTest?.beginFrame(phase);
   const dt=Math.min(.045,Math.max(.001,(now-lastTime)/1000));lastTime=now;worldTime+=dt;
   try{
     if(worldMap)worldMap.update(dt,worldTime,player?.body.position);
@@ -1514,6 +1516,7 @@ function frame(now,manual=false){
         }
         if(phase==='playing'){
           hearth.update(dt,input,runTime);
+          performanceTest?.actionState({engine:hearth.engine?.heart.state,firing:hearth.engine?.heart.firing,shielding:player.shielding});
           updateRitual(dt);updateReinforcements();
           updateEntities(dt);
           performanceTest?.mark('gameplay');
@@ -1536,7 +1539,7 @@ function frame(now,manual=false){
     if(renderer&&ready){
       const preparation=prepareFrameTextures();
       if(preparation){sound.setPaused(true);sound.setFlamethrower(false);texturePreparation=preparation.catch(error=>{if(!renderer.getContext().isContextLost())showError(error);}).finally(()=>{texturePreparation=null;lastTime=performance.now();});}
-      else{performanceTest?.mark('textureCheck');renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);if(!manual)performanceTest?.endFrame(renderer);}
+      else{performanceTest?.mark('textureCheck');performanceTest?.beginRender(renderer);renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);if(!manual)performanceTest?.endFrame(renderer);}
     }
     if(!manual)requestAnimationFrame(frame);
   }catch(error){showError(error);}

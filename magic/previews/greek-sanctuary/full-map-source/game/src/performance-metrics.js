@@ -6,5 +6,6 @@ export function distribution(values){
 export function frameSummary(rows){
  const frames=distribution(rows.map(r=>r.interval));if(!frames)return null;
  const sections={};for(const key of new Set(rows.flatMap(r=>Object.keys(r.cpu))))sections[key]=distribution(rows.map(r=>r.cpu[key]));
- return {frames,fps:1000/frames.mean,minInstantFPS:1000/frames.max,cpu:sections,drawCalls:distribution(rows.map(r=>r.calls)),triangles:distribution(rows.map(r=>r.triangles)),worst:rows.slice().sort((a,b)=>b.interval-a.interval).slice(0,10)};
+ return {frames,fps:1000/frames.mean,minInstantFPS:1000/frames.max,cpu:sections,gpu:distribution(rows.map(r=>r.gpuMs)),drawCalls:distribution(rows.map(r=>r.calls)),triangles:distribution(rows.map(r=>r.triangles)),worst:rows.slice().sort((a,b)=>b.interval-a.interval).slice(0,10)};
 }
+export function phaseSummary(rows){const active=rows.filter(r=>r.active!==false);return {all:frameSummary(active),firstTwoSeconds:frameSummary(active.filter(r=>r.elapsed<2000)),steady:frameSummary(active.filter(r=>r.elapsed>=2000))};}

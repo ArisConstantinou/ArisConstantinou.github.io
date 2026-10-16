@@ -23,12 +23,13 @@ export function installFullMapOcclusion(world,architecture){
  world.root.traverse(o=>{if(o.name==='Greek room furnishings · shared geometry')o.traverse(m=>{if(m.isMesh)staticExtras.push(m)});});
  for(const gate of architecture.gates)gate.frame?.traverse(m=>{if(m.isMesh)staticExtras.push(m)});
  const batches=batchStaticWalls(world.root,[...new Set([...meshes,...staticExtras])]),ray=new T.Raycaster();ray.layers.enable(31);world.fullMap.staticBatches={meshes:batches.meshes,groups:batches.groups,instances:batches.instances};
- states.set(world,{batches,walls,owners,meshes,elapsed:1,hidden:new Set(),ray,lastFocus:new T.Vector3(1e9,0,0),lastCamera:new T.Vector3(1e9,0,0)});world.fullMap.cutawaySections=walls.length;
+ states.set(world,{batches,walls,owners,meshes,elapsed:1,clock:0,lastHit:new Map(),hidden:new Set(),ray,lastFocus:new T.Vector3(1e9,0,0),lastCamera:new T.Vector3(1e9,0,0)});world.fullMap.cutawaySections=walls.length;
 }
 export function updateFullMapOcclusion(world,subject,camera,dt,playing=true){
  const state=states.get(world);if(!state)return;
- const body=subject.body.position,focus=new T.Vector3(body.x,body.y,body.z);state.elapsed+=dt;
+ const body=subject.body.position,focus=new T.Vector3(body.x,body.y,body.z);state.elapsed+=dt;state.clock+=Math.max(0,dt);
  if(state.elapsed>=.1||state.lastFocus.distanceToSquared(focus)>.09||state.lastCamera.distanceToSquared(camera.position)>.09){
+  if(!playing||state.lastFocus.distanceToSquared(focus)>64||state.lastCamera.distanceToSquared(camera.position)>64)state.lastHit.clear();
   state.elapsed=0;state.lastFocus.copy(focus);state.lastCamera.copy(camera.position);
   // Restore previous cutaways before ray queries, so hidden walls do not
   // oscillate between visible and invisible on stationary camera updates.
@@ -42,6 +43,12 @@ export function updateFullMapOcclusion(world,subject,camera,dt,playing=true){
     const direction=point.clone().sub(camera.position),length=direction.length();state.ray.set(camera.position,direction.normalize());state.ray.far=length-.45;
     for(const hit of state.ray.intersectObjects(candidates,false))for(const wall of state.owners.get(hit.object)||[])state.hidden.add(wall);
    }
+  }
+  // Hide blockers immediately. Require a short continuous clear interval before
+  // restoring them, so tiny camera/physics movements cannot blink a whole wall.
+  if(playing){
+   for(const wall of state.hidden)state.lastHit.set(wall,state.clock);
+   for(const [wall,time] of state.lastHit)if(state.clock-time<.35)state.hidden.add(wall);else state.lastHit.delete(wall);
   }
   for(const wall of state.hidden)for(const part of wall.parts)part.visible=false;
  }
