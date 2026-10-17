@@ -1,3 +1,4 @@
+import {indexedClone} from '../indexed-geometry.js';
 import * as T from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {siegeSurface} from '../game/src/siege-environment.js';
@@ -21,7 +22,7 @@ function materials(){if(palette)return palette;
 export function monumentPavement(){return materials().pavement;}
 const boxGeometry=new T.BoxGeometry(1,1,1);
 function box(g,x,y,z,w,h,d,mat){const o=new T.Mesh(boxGeometry,mat);o.position.set(x,y,z);o.scale.set(w,h,d);g.add(o);return o;}
-function baked(g){g.updateMatrixWorld(true);const bins=new Map();g.traverse(o=>{if(!o.isMesh)return;const geo=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();geo.applyMatrix4(o.matrixWorld);if(!bins.has(o.material))bins.set(o.material,[]);bins.get(o.material).push(geo);});const result=new T.Group();result.name=g.name;result.userData={...g.userData};for(const [m,geos]of bins){const geo=mergeGeometries(geos,false);if(!geo)throw Error('Temple geometry merge failed');const mesh=new T.Mesh(geo,m);mesh.castShadow=mesh.receiveShadow=true;result.add(mesh);geos.forEach(g=>g.dispose());}return result;}
+function baked(g){g.updateMatrixWorld(true);const bins=new Map();g.traverse(o=>{if(!o.isMesh)return;const geo=indexedClone(o.geometry);geo.applyMatrix4(o.matrixWorld);if(!bins.has(o.material))bins.set(o.material,[]);bins.get(o.material).push(geo);});const result=new T.Group();result.name=g.name;result.userData={...g.userData};for(const [m,geos]of bins){const geo=mergeGeometries(geos,false);if(!geo)throw Error('Temple geometry merge failed');const mesh=new T.Mesh(geo,m);mesh.castShadow=mesh.receiveShadow=true;result.add(mesh);geos.forEach(g=>g.dispose());}return result;}
 function shaftDrum(radius,y0,h,fullH,broken=false){
  const p=[],uv=[],normals=[],idx=[],n=120,rows=2;
  for(let j=0;j<=rows;j++)for(let i=0;i<=n;i++){const a=i/n*Math.PI*2,v=(y0+j*h/rows)/fullH,r=radius*(1-.22*v)+radius*.045*Math.sin(Math.PI*v)-radius*.035*(1+Math.cos(a*20)),chip=broken&&j===rows?.095*(Math.sin(a*7+.3)+.45*Math.sin(a*13)):0;p.push(r*Math.cos(a),j*h/rows+chip,r*Math.sin(a));uv.push(i/n*radius*2*Math.PI/3.6,(y0+j*h/rows)/3.6);const drA=radius*.7*Math.sin(a*20),drY=radius/fullH*(-.22+.045*Math.PI*Math.cos(Math.PI*v)),normal=new T.Vector3(r*Math.cos(a)+drA*Math.sin(a),-r*drY,r*Math.sin(a)-drA*Math.cos(a)).normalize();normals.push(normal.x,normal.y,normal.z);}

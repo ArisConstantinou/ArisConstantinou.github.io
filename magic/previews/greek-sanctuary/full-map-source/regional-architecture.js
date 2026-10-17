@@ -1,3 +1,4 @@
+import {indexedClone} from './indexed-geometry.js';
 import * as T from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {siegeSurface} from './game/src/siege-environment.js';
@@ -28,7 +29,7 @@ function palette(style){const gothic=style==='gothic',house=style==='greek-house
 function box(g,x,y,z,w,h,d,m){if(w<=0||h<=0||d<=0)return;const o=new T.Mesh(unit,m);o.position.set(x,y,z);o.scale.set(w,h,d);g.add(o);return o;}
 function cylinder(g,x,y,z,r,h,m){const o=new T.Mesh(new T.CylinderGeometry(r,r,h,12),m);o.position.set(x,y,z);g.add(o);return o;}
 function merge(g){
- g.updateMatrixWorld(true);const bins=new Map();g.traverse(o=>{if(!o.isMesh)return;const a=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();a.applyMatrix4(o.matrixWorld);if(!bins.has(o.material))bins.set(o.material,[]);bins.get(o.material).push(a);});
+ g.updateMatrixWorld(true);const bins=new Map();g.traverse(o=>{if(!o.isMesh)return;const a=indexedClone(o.geometry);a.applyMatrix4(o.matrixWorld);if(!bins.has(o.material))bins.set(o.material,[]);bins.get(o.material).push(a);});
  const result=new T.Group();result.name=g.name;result.userData={...g.userData};
  for(const [mat,geos]of bins){const geo=mergeGeometries(geos,false);if(!geo)throw Error('Regional geometry attributes mismatch');const mesh=new T.Mesh(geo,mat);mesh.castShadow=mesh.receiveShadow=true;result.add(mesh);for(const a of geos)a.dispose();}return result;
 }

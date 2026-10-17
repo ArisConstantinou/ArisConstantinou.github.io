@@ -1,3 +1,4 @@
+import {indexedClone} from '../indexed-geometry.js';
 import * as T from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {architectureProfile} from '../architecture-plan.js';
@@ -16,6 +17,6 @@ export function regionalGateFrame(spec){materials();const g=new T.Group(),unit=n
  }
  for(const [y,w,h,d]of [[height+.06,width+.80,.12,1.08],[height+.25,width+.66,.28,.98],[height+.45,width+.96,.13,1.14]])block(0,y,0,w,h,d);
  const n=Math.max(1,Math.floor(width/1.05));for(let i=0;i<n;i++)for(const face of [-1,1]){const xx=(i-(n-1)/2)*.98;for(const [dx,dy]of [[-.075,0],[.075,0],[0,-.075],[0,.075]]){const o=new T.Mesh(new T.TorusGeometry(.073,.016,6,16),sandstone);o.position.set(xx+dx,height+.25+dy,face*.505);g.add(o);}}
- const groups=new Map();g.updateMatrixWorld(true);g.traverse(o=>{if(!o.isMesh)return;const geo=o.geometry.toNonIndexed();geo.applyMatrix4(o.matrixWorld);if(!groups.has(o.material))groups.set(o.material,[]);groups.get(o.material).push(geo);});const frame=new T.Group();for(const [m,geos]of groups){const mesh=new T.Mesh(mergeGeometries(geos,false),m);mesh.castShadow=mesh.receiveShadow=true;frame.add(mesh);geos.forEach(g=>g.dispose());}frame.position.set(x,floorY,z);frame.rotation.y=rotation;frame.name=spec.id+' · medieval moulded sandstone portal';frame.userData.regionalPortal='gothic';return frame;
+ const groups=new Map();g.updateMatrixWorld(true);g.traverse(o=>{if(!o.isMesh)return;const geo=indexedClone(o.geometry);geo.applyMatrix4(o.matrixWorld);if(!groups.has(o.material))groups.set(o.material,[]);groups.get(o.material).push(geo);});const frame=new T.Group();for(const [m,geos]of groups){const mesh=new T.Mesh(mergeGeometries(geos,false),m);mesh.castShadow=mesh.receiveShadow=true;frame.add(mesh);geos.forEach(g=>g.dispose());}frame.position.set(x,floorY,z);frame.rotation.y=rotation;frame.name=spec.id+' · medieval moulded sandstone portal';frame.userData.regionalPortal='gothic';return frame;
 }
 export function styleRegionalGate(frame,doors,spec){if(!regionalGateIsGothic(spec))return;doors.userData.regionalPortal='gothic';doors.traverse(o=>{if(!o.isMesh)return;const m=o.material;if(m.metalness>.3){m.color.setHex(0x343c3d);m.metalness=.48;m.roughness=.78;}else if(m.name.includes('cypress')||m.name.includes('Cypress')){m.color.setHex(0x60503c);m.roughness=.92;}if(m.userData.baseColor)m.userData.baseColor=m.color.clone();});}

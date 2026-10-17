@@ -1,0 +1,848 @@
+{
+  "version": "1.6.11",
+  "tests": 339,
+  "resourceComparison": {
+    "conditions": "Resource inventory at physical report positions; Windows native Chrome with iPhone viewport814x358, no phone FPS claim. Simulation held for per-draw attribution.",
+    "before": [
+      {
+        "room": "spawn",
+        "camera": {
+          "position": [
+            0,
+            18,
+            39.7
+          ],
+          "type": "PerspectiveCamera"
+        },
+        "gpuDevice": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "draws": {
+          "shadow": {
+            "calls": 257,
+            "triangles": 852446
+          },
+          "view": {
+            "calls": 410,
+            "triangles": 936569
+          }
+        },
+        "textureMiB": 202.31798680623413,
+        "timing": {
+          "cpu": {
+            "count": 60,
+            "mean": 4.438333329558373,
+            "p95": 5.5999999940395355,
+            "max": 6.0999999940395355
+          },
+          "gpu": {
+            "count": 60,
+            "mean": 5.076533333333333,
+            "p95": 6.716384,
+            "max": 6.922528
+          },
+          "interval": {
+            "count": 60,
+            "mean": 17.82833333313465,
+            "p95": 19.30000001192093,
+            "max": 20
+          }
+        }
+      },
+      {
+        "room": "approach",
+        "camera": {
+          "position": [
+            0.8417000000000001,
+            18,
+            30.222300000000004
+          ],
+          "type": "PerspectiveCamera"
+        },
+        "gpuDevice": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "draws": {
+          "shadow": {
+            "calls": 333,
+            "triangles": 1103068
+          },
+          "view": {
+            "calls": 455,
+            "triangles": 1103186
+          }
+        },
+        "textureMiB": 207.67890803019247,
+        "timing": {
+          "cpu": {
+            "count": 60,
+            "mean": 5.319999999801317,
+            "p95": 6.600000023841858,
+            "max": 7.100000023841858
+          },
+          "gpu": {
+            "count": 60,
+            "mean": 5.4144640000000015,
+            "p95": 6.718272,
+            "max": 7.020032
+          },
+          "interval": {
+            "count": 60,
+            "mean": 17.80500000019868,
+            "p95": 19.599999994039536,
+            "max": 19.80000001192093
+          }
+        }
+      },
+      {
+        "room": "hall",
+        "camera": {
+          "position": [
+            6.239999999999999,
+            18,
+            11.880000000000006
+          ],
+          "type": "PerspectiveCamera"
+        },
+        "gpuDevice": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "draws": {
+          "shadow": {
+            "calls": 461,
+            "triangles": 1421130
+          },
+          "view": {
+            "calls": 561,
+            "triangles": 1345557
+          }
+        },
+        "textureMiB": 221.03943634033251,
+        "timing": {
+          "cpu": {
+            "count": 60,
+            "mean": 5.968333333233992,
+            "p95": 6.9000000059604645,
+            "max": 8.099999994039536
+          },
+          "gpu": {
+            "count": 60,
+            "mean": 5.996588800000001,
+            "p95": 7.241888,
+            "max": 7.974656
+          },
+          "interval": {
+            "count": 60,
+            "mean": 17.72166666686535,
+            "p95": 19.099999994039536,
+            "max": 20.5
+          }
+        }
+      },
+      {
+        "room": "barracks",
+        "camera": {
+          "position": [
+            28,
+            18,
+            17.700000000000003
+          ],
+          "type": "PerspectiveCamera"
+        },
+        "gpuDevice": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "draws": {
+          "shadow": {
+            "calls": 275,
+            "triangles": 1212580
+          },
+          "view": {
+            "calls": 523,
+            "triangles": 1282902
+          }
+        },
+        "textureMiB": 226.43730417887417,
+        "timing": {
+          "cpu": {
+            "count": 60,
+            "mean": 5.469999997814496,
+            "p95": 6.5,
+            "max": 7.399999976158142
+          },
+          "gpu": {
+            "count": 60,
+            "mean": 5.377444799999997,
+            "p95": 6.806112,
+            "max": 8.045824
+          },
+          "interval": {
+            "count": 60,
+            "mean": 17.63166666676601,
+            "p95": 19.19999998807907,
+            "max": 19.599999994039536
+          }
+        }
+      },
+      {
+        "room": "gallery",
+        "camera": {
+          "position": [
+            55,
+            18,
+            12.200000000000003
+          ],
+          "type": "PerspectiveCamera"
+        },
+        "gpuDevice": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "draws": {
+          "shadow": {
+            "calls": 177,
+            "triangles": 672989
+          },
+          "view": {
+            "calls": 308,
+            "triangles": 780887
+          }
+        },
+        "textureMiB": 241.07638295491583,
+        "timing": {
+          "cpu": {
+            "count": 60,
+            "mean": 4.631666665275891,
+            "p95": 5.699999988079071,
+            "max": 6.699999988079071
+          },
+          "gpu": {
+            "count": 60,
+            "mean": 4.794930133333334,
+            "p95": 5.964896,
+            "max": 6.156448
+          },
+          "interval": {
+            "count": 60,
+            "mean": 17.8,
+            "p95": 19.19999998807907,
+            "max": 19.5
+          }
+        }
+      }
+    ],
+    "after": [
+      {
+        "room": "spawn",
+        "camera": {
+          "position": [
+            0,
+            18,
+            39.7
+          ],
+          "type": "PerspectiveCamera"
+        },
+        "gpuDevice": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "draws": {
+          "shadow": {
+            "calls": 257,
+            "triangles": 852446
+          },
+          "view": {
+            "calls": 410,
+            "triangles": 936569
+          }
+        },
+        "textureMiB": 135.65309397379542,
+        "timing": {
+          "cpu": {
+            "count": 60,
+            "mean": 4.321666666368643,
+            "p95": 5.199999988079071,
+            "max": 5.5999999940395355
+          },
+          "gpu": {
+            "count": 60,
+            "mean": 5.628031466666668,
+            "p95": 6.568704,
+            "max": 7.130272
+          },
+          "interval": {
+            "count": 60,
+            "mean": 17.815000000099342,
+            "p95": 19.099999994039536,
+            "max": 19.900000005960464
+          }
+        }
+      },
+      {
+        "room": "approach",
+        "camera": {
+          "position": [
+            0.8417000000000001,
+            18,
+            30.222300000000004
+          ],
+          "type": "PerspectiveCamera"
+        },
+        "gpuDevice": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "draws": {
+          "shadow": {
+            "calls": 333,
+            "triangles": 1103068
+          },
+          "view": {
+            "calls": 455,
+            "triangles": 1103186
+          }
+        },
+        "textureMiB": 141.0140151977538,
+        "timing": {
+          "cpu": {
+            "count": 60,
+            "mean": 4.7683333337306975,
+            "p95": 5.699999988079071,
+            "max": 5.800000011920929
+          },
+          "gpu": {
+            "count": 60,
+            "mean": 5.5195392,
+            "p95": 6.575808,
+            "max": 6.904704
+          },
+          "interval": {
+            "count": 60,
+            "mean": 17.711666666467984,
+            "p95": 19.19999998807907,
+            "max": 19.80000001192093
+          }
+        }
+      },
+      {
+        "room": "hall",
+        "camera": {
+          "position": [
+            6.239999999999999,
+            18,
+            11.880000000000006
+          ],
+          "type": "PerspectiveCamera"
+        },
+        "gpuDevice": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "draws": {
+          "shadow": {
+            "calls": 461,
+            "triangles": 1420682
+          },
+          "view": {
+            "calls": 560,
+            "triangles": 1345045
+          }
+        },
+        "textureMiB": 154.37454350789386,
+        "timing": {
+          "cpu": {
+            "count": 60,
+            "mean": 5.583333330849807,
+            "p95": 6.299999982118607,
+            "max": 6.5999999940395355
+          },
+          "gpu": {
+            "count": 60,
+            "mean": 5.782294933333333,
+            "p95": 7.042336,
+            "max": 7.086464
+          },
+          "interval": {
+            "count": 60,
+            "mean": 17.708333333333332,
+            "p95": 18.700000017881393,
+            "max": 19.099999994039536
+          }
+        }
+      },
+      {
+        "room": "barracks",
+        "camera": {
+          "position": [
+            28,
+            18,
+            17.700000000000003
+          ],
+          "type": "PerspectiveCamera"
+        },
+        "gpuDevice": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "draws": {
+          "shadow": {
+            "calls": 277,
+            "triangles": 1212580
+          },
+          "view": {
+            "calls": 524,
+            "triangles": 1282390
+          }
+        },
+        "textureMiB": 159.7724113464356,
+        "timing": {
+          "cpu": {
+            "count": 60,
+            "mean": 5.934999999900659,
+            "p95": 7.299999982118607,
+            "max": 9.5
+          },
+          "gpu": {
+            "count": 60,
+            "mean": 5.488323199999997,
+            "p95": 6.878816,
+            "max": 7.689312
+          },
+          "interval": {
+            "count": 60,
+            "mean": 17.716666666666665,
+            "p95": 19,
+            "max": 20.69999998807907
+          }
+        }
+      },
+      {
+        "room": "gallery",
+        "camera": {
+          "position": [
+            55,
+            18,
+            12.200000000000003
+          ],
+          "type": "PerspectiveCamera"
+        },
+        "gpuDevice": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "draws": {
+          "shadow": {
+            "calls": 179,
+            "triangles": 672989
+          },
+          "view": {
+            "calls": 309,
+            "triangles": 780375
+          }
+        },
+        "textureMiB": 153.0781567891439,
+        "timing": {
+          "cpu": {
+            "count": 60,
+            "mean": 4.524999999503295,
+            "p95": 5.5999999940395355,
+            "max": 6.100000023841858
+          },
+          "gpu": {
+            "count": 60,
+            "mean": 5.120619200000002,
+            "p95": 5.98752,
+            "max": 6.518048
+          },
+          "interval": {
+            "count": 60,
+            "mean": 17.776666666567326,
+            "p95": 19,
+            "max": 20
+          }
+        }
+      }
+    ]
+  },
+  "geometry": {
+    "conditions": "Native desktop Chrome, 1280x800, DPR1, seed821. Static original map meshes compared in triangle order, excluding renderer batch copies. Desktop floor pixel hashes and independent UV repeats compared. No simulation timing claim.",
+    "cases": [
+      {
+        "release": "device-benchmark-1.6.10",
+        "meshCount": 2213,
+        "desktopFloorMaps": 43,
+        "mapGeometryBytes": 241402768
+      },
+      {
+        "release": "mobile-resource-performance-1.6.11",
+        "meshCount": 2213,
+        "desktopFloorMaps": 43,
+        "mapGeometryBytes": 189351328
+      }
+    ],
+    "exactExpandedTrianglesAndDesktopFloorPixels": true
+  },
+  "route": {
+    "conditions": "Native Windows Chrome with iPhone viewport814x358, 67seconds of real RAF, normal AI/physics. Player follows recorded room positions by interpolation and is invulnerable for reproducibility. Native F/Space keys every12seconds. Synthetic route is a functional regression test, not physical iPhone performance proof.",
+    "beforeStop": {
+      "running": true,
+      "phase": "playing",
+      "seconds": 66.22750000013802,
+      "rooms": {
+        "courtyard": 63,
+        "hall": 15,
+        "διάδρομος": 5,
+        "barracks": 17,
+        "gallery": 31
+      }
+    },
+    "restored": {
+      "version": "1.6.11",
+      "outcome": "complete",
+      "frames": 3734
+    },
+    "coverage": {
+      "rooms": {
+        "courtyard": 63,
+        "hall": 15,
+        "διάδρομος": 5,
+        "barracks": 17,
+        "gallery": 32
+      },
+      "actions": {
+        "pulse": 5,
+        "dash": 5
+      }
+    },
+    "summary": {
+      "frames": {
+        "count": 3734,
+        "mean": 18.1980717728961,
+        "p50": 17.700000017881393,
+        "p95": 19.69999998807907,
+        "max": 569.4000000059605,
+        "over50": 6,
+        "over100": 4
+      },
+      "fps": 54.95087680055109,
+      "minInstantFPS": 1.7562346329285774,
+      "cpu": {
+        "gameplay": {
+          "count": 3734,
+          "mean": 0.40471344380916346,
+          "p50": 0.4000000059604645,
+          "p95": 0.699999988079071,
+          "max": 6,
+          "over50": 0,
+          "over100": 0
+        },
+        "physics": {
+          "count": 3734,
+          "mean": 0.7139796463959218,
+          "p50": 0.6000000238418579,
+          "p95": 1.0999999940395355,
+          "max": 10,
+          "over50": 0,
+          "over100": 0
+        },
+        "visuals": {
+          "count": 3734,
+          "mean": 2.0196572043037566,
+          "p50": 1.9000000059604645,
+          "p95": 3.199999988079071,
+          "max": 7.799999982118607,
+          "over50": 0,
+          "over100": 0
+        },
+        "textureCheck": {
+          "count": 3734,
+          "mean": 0.029191215790461012,
+          "p50": 0,
+          "p95": 0.10000002384185791,
+          "max": 0.20000001788139343,
+          "over50": 0,
+          "over100": 0
+        },
+        "render": {
+          "count": 3734,
+          "mean": 5.076245313652965,
+          "p50": 4.700000017881393,
+          "p95": 6.200000017881393,
+          "max": 433.19999998807907,
+          "over50": 2,
+          "over100": 2
+        }
+      },
+      "gpu": {
+        "count": 3734,
+        "mean": 5.075840299946439,
+        "p50": 5.092544,
+        "p95": 6.86592,
+        "max": 448.445056,
+        "over50": 2,
+        "over100": 2
+      },
+      "drawCalls": {
+        "count": 3734,
+        "mean": 776.1882699517943,
+        "p50": 787,
+        "p95": 1016,
+        "max": 1045,
+        "over50": 3734,
+        "over100": 3734
+      },
+      "triangles": {
+        "count": 3734,
+        "mean": 2230444.0672201393,
+        "p50": 2196084,
+        "p95": 2803274,
+        "max": 2879407,
+        "over50": 3734,
+        "over100": 3734
+      },
+      "worst": [
+        {
+          "at": 40521.80000001192,
+          "elapsed": 33293.69999998808,
+          "active": true,
+          "interval": 569.4000000059605,
+          "cpu": {
+            "gameplay": 0.30000001192092896,
+            "physics": 0.4000000059604645,
+            "visuals": 3,
+            "textureCheck": 0,
+            "render": 433.19999998807907
+          },
+          "calls": 926,
+          "triangles": 2634496,
+          "room": "hall",
+          "gpuMs": 448.445056
+        },
+        {
+          "at": 7589,
+          "elapsed": 360.89999997615814,
+          "active": true,
+          "interval": 360.89999997615814,
+          "cpu": {
+            "gameplay": 2.4000000059604645,
+            "physics": 9.400000005960464,
+            "visuals": 7.799999982118607,
+            "textureCheck": 0.09999999403953552,
+            "render": 336.5
+          },
+          "calls": 668,
+          "triangles": 1788415,
+          "room": "courtyard",
+          "gpuMs": 289.229376
+        },
+        {
+          "at": 44126.10000002384,
+          "elapsed": 36898,
+          "active": true,
+          "interval": 336.30000001192093,
+          "cpu": {
+            "gameplay": 0.5,
+            "physics": 1.199999988079071,
+            "visuals": 3.4000000059604645,
+            "textureCheck": 0.09999999403953552,
+            "render": 5.700000017881393
+          },
+          "calls": 1031,
+          "triangles": 2763754,
+          "room": "hall",
+          "gpuMs": 15.099936
+        },
+        {
+          "at": 75073.10000002384,
+          "elapsed": 67845,
+          "active": true,
+          "interval": 321.30000001192093,
+          "cpu": {
+            "gameplay": 0.6000000238418579,
+            "physics": 1.5999999940395355,
+            "visuals": 2.199999988079071,
+            "textureCheck": 0,
+            "render": 5.700000017881393
+          },
+          "calls": 639,
+          "triangles": 1853638,
+          "room": "gallery",
+          "gpuMs": 2.029792
+        },
+        {
+          "at": 51461,
+          "elapsed": 44232.89999997616,
+          "active": true,
+          "interval": 70.89999997615814,
+          "cpu": {
+            "gameplay": 0.5,
+            "physics": 0.4000000059604645,
+            "visuals": 2,
+            "textureCheck": 0,
+            "render": 7.299999982118607
+          },
+          "calls": 838,
+          "triangles": 2624968,
+          "room": "barracks",
+          "gpuMs": 3.229824
+        },
+        {
+          "at": 7693,
+          "elapsed": 464.89999997615814,
+          "active": true,
+          "interval": 58.89999997615814,
+          "cpu": {
+            "gameplay": 0.5,
+            "physics": 9,
+            "visuals": 4.0999999940395355,
+            "textureCheck": 0.20000001788139343,
+            "render": 5.399999976158142
+          },
+          "calls": 670,
+          "triangles": 1788835,
+          "room": "courtyard",
+          "gpuMs": 5.2152
+        },
+        {
+          "at": 43789.80000001192,
+          "elapsed": 36561.69999998808,
+          "active": true,
+          "interval": 39.19999998807907,
+          "cpu": {
+            "gameplay": 0.30000001192092896,
+            "physics": 0.5999999940395355,
+            "visuals": 3.5,
+            "textureCheck": 0,
+            "render": 7.5999999940395355
+          },
+          "calls": 1032,
+          "triangles": 2780494,
+          "room": "hall",
+          "gpuMs": 4.654912
+        },
+        {
+          "at": 48876.10000002384,
+          "elapsed": 41648,
+          "active": true,
+          "interval": 37.10000002384186,
+          "cpu": {
+            "gameplay": 0.5999999940395355,
+            "physics": 0.6000000238418579,
+            "visuals": 2.199999988079071,
+            "textureCheck": 0.09999999403953552,
+            "render": 5.700000017881393
+          },
+          "calls": 989,
+          "triangles": 2718208,
+          "room": "διάδρομος",
+          "gpuMs": 15.023168
+        },
+        {
+          "at": 12933.200000017881,
+          "elapsed": 5705.0999999940395,
+          "active": true,
+          "interval": 37,
+          "cpu": {
+            "gameplay": 0.30000001192092896,
+            "physics": 0.3999999761581421,
+            "visuals": 1.600000023841858,
+            "textureCheck": 0,
+            "render": 6.0999999940395355
+          },
+          "calls": 737,
+          "triangles": 2063086,
+          "room": "courtyard",
+          "gpuMs": 31.755264
+        },
+        {
+          "at": 40624.70000001788,
+          "elapsed": 33396.59999999404,
+          "active": true,
+          "interval": 35.900000005960464,
+          "cpu": {
+            "gameplay": 0.3999999761581421,
+            "physics": 0.30000001192092896,
+            "visuals": 2.4000000059604645,
+            "textureCheck": 0,
+            "render": 5
+          },
+          "calls": 959,
+          "triangles": 2681192,
+          "room": "hall",
+          "gpuMs": 3.910848
+        }
+      ]
+    },
+    "loading": 6766.800000011921,
+    "memory": [
+      {
+        "at": 7589,
+        "uploadedTextureBytes": 115477252,
+        "loadedGeometryPayloadBytes": 229748548
+      },
+      {
+        "at": 12597.300000011921,
+        "uploadedTextureBytes": 115485956,
+        "loadedGeometryPayloadBytes": 229748548
+      },
+      {
+        "at": 17598.40000000596,
+        "uploadedTextureBytes": 140671996,
+        "loadedGeometryPayloadBytes": 229748548
+      },
+      {
+        "at": 22604.80000001192,
+        "uploadedTextureBytes": 140671996,
+        "loadedGeometryPayloadBytes": 229748548
+      },
+      {
+        "at": 27621.20000001788,
+        "uploadedTextureBytes": 140671996,
+        "loadedGeometryPayloadBytes": 229748548
+      },
+      {
+        "at": 32629.600000023842,
+        "uploadedTextureBytes": 140671996,
+        "loadedGeometryPayloadBytes": 229748548
+      },
+      {
+        "at": 37632.60000002384,
+        "uploadedTextureBytes": 140674300,
+        "loadedGeometryPayloadBytes": 229748548
+      },
+      {
+        "at": 42635.10000002384,
+        "uploadedTextureBytes": 160277916,
+        "loadedGeometryPayloadBytes": 230255036
+      },
+      {
+        "at": 47639.20000001788,
+        "uploadedTextureBytes": 165865712,
+        "loadedGeometryPayloadBytes": 230253828
+      },
+      {
+        "at": 52642,
+        "uploadedTextureBytes": 171454024,
+        "loadedGeometryPayloadBytes": 229761628
+      },
+      {
+        "at": 57655.60000002384,
+        "uploadedTextureBytes": 171545500,
+        "loadedGeometryPayloadBytes": 229761628
+      },
+      {
+        "at": 62667,
+        "uploadedTextureBytes": 171526300,
+        "loadedGeometryPayloadBytes": 229765988
+      },
+      {
+        "at": 67668.30000001192,
+        "uploadedTextureBytes": 177140208,
+        "loadedGeometryPayloadBytes": 229767196
+      },
+      {
+        "at": 72677.60000002384,
+        "uploadedTextureBytes": 177314968,
+        "loadedGeometryPayloadBytes": 229767524
+      }
+    ]
+  },
+  "webkit": {
+    "passed": true,
+    "gpuTiming": {
+      "supported": false,
+      "reason": "Ο browser δεν εκθέτει EXT_disjoint_timer_query_webgl2.",
+      "samples": 0,
+      "discarded": 0,
+      "skipped": 0
+    },
+    "storage": {
+      "saved": true,
+      "backend": "IndexedDB",
+      "imagesSaved": true,
+      "errors": []
+    }
+  },
+  "limits": [
+    "Physical iPhone16-22FPS and interruption remain unverified after this patch.",
+    "Desktop GPU timings did not establish a material speedup.",
+    "Known graphics resource bytes are estimates, not actual VRAM or total browser memory.",
+    "Manual route replay uses controlled positions and invulnerability; native AI/physics remain enabled.",
+    "Point-light shader experiment regressed GPU time and was rejected.",
+    "Mobile procedural floor resolution512 is within the previously approved mobile texture profile; desktop remains1024."
+  ]
+}

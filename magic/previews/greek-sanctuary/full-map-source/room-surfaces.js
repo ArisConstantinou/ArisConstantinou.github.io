@@ -1,8 +1,11 @@
 import * as T from 'three';
 import {loadTextureAsset} from './game/src/asset-loading.js';
+import {usesMobileTextures} from './game/src/asset-profile.js';
+import {downsampleNormalPixels} from './room-texture-pixels.js';
 
 // Original, deterministic textures; museum photographs are references only.
-// Keep the former 1024px / 6m texel density and the actual floor plane/collider.
+// Keep the original six-metre tiling, desktop resolution and floor/collider.
+// Mobile uses the already-approved smaller texture profile below.
 export const ROOM_SURFACES={
  courtyard:{pattern:'flags',tone:[155,148,129],joints:[83,81,70],roughness:.91,label:'Weathered outdoor limestone flags',seed:11},
  hall:{pattern:'pebbles',tone:[167,156,132],joints:[77,74,65],roughness:.84,label:'Cream and charcoal pebble pavement',seed:23},
@@ -21,6 +24,30 @@ export const ROOM_SURFACES={
 };
 const size=1024,tileMetres=6;
 const readySurfaces=new Map();
+// Compound rooms call makeRoomSurface for every floor piece. Painting depends
+// only on this immutable profile, not the piece's dimensions. Share the source
+// pixels/GPU upload while each texture retains its own UV repeat and material.
+const paintedSurfaces=new Map();
+function paintedSurface(profile){
+ if(!paintedSurfaces.has(profile)){
+  const painted=paint(profile),resolution=usesMobileTextures()?512:size;
+  let canvas=painted.canvas,normals=painted.normals;
+  if(resolution<size){
+   canvas=document.createElement('canvas');canvas.width=canvas.height=resolution;
+   const context=canvas.getContext('2d');context.imageSmoothingEnabled=true;context.imageSmoothingQuality='high';
+   context.drawImage(painted.canvas,0,0,resolution,resolution);
+   normals=downsampleNormalPixels(normals,size,resolution);
+   painted.canvas.width=painted.canvas.height=1;
+  }
+  const map=new T.CanvasTexture(canvas);
+  map.colorSpace=T.SRGBColorSpace;
+  const normalMap=new T.DataTexture(normals,resolution,resolution,T.RGBAFormat);
+  normalMap.flipY=false;normalMap.magFilter=T.LinearFilter;
+  normalMap.minFilter=T.LinearMipmapLinearFilter;normalMap.generateMipmaps=true;
+  paintedSurfaces.set(profile,{map,normalMap});
+ }
+ return paintedSurfaces.get(profile);
+}
 export async function loadRoomSurfaceAssets(){
  const loader=new T.TextureLoader();
  const rows=await Promise.all(['diff','normal','arm'].map(async name=>{
@@ -30,7 +57,7 @@ export async function loadRoomSurfaceAssets(){
  }));readySurfaces.set('slate',Object.fromEntries(rows));
 }
 const rgba=(c,delta=0)=>`rgb(${c.map(v=>Math.max(0,Math.min(255,Math.round(v+delta)))).join(',')})`;
-function paint(room,p){
+function paint(p){
  const canvas=document.createElement('canvas'),height=document.createElement('canvas');canvas.width=height.width=canvas.height=height.height=size;
  const c=canvas.getContext('2d'),h=height.getContext('2d',{willReadFrequently:true});
  let state=p.seed;const rand=()=>((state=(1664525*state+1013904223)>>>0)/4294967296);
@@ -81,7 +108,7 @@ export function makeRoomSurface(room,photographicStone){
  const scanned=p.pattern==='flags'?photographicStone:p.pattern==='coursed'?readySurfaces.get('slate'):null;
  const tile=scanned?3.6:tileMetres;let map,normalMap,arm;
  if(scanned){map=(scanned.diff||scanned.map).clone();normalMap=scanned.normal?.clone()||scanned.normalMap.clone();arm=(scanned.arm||null)?.clone();}
- else{const painted=paint(room,p);map=new T.CanvasTexture(painted.canvas);map.colorSpace=T.SRGBColorSpace;normalMap=new T.DataTexture(painted.normals,size,size,T.RGBAFormat);normalMap.flipY=false;normalMap.magFilter=T.LinearFilter;normalMap.minFilter=T.LinearMipmapLinearFilter;normalMap.generateMipmaps=true;}
+ else{const painted=paintedSurface(p);map=painted.map.clone();normalMap=painted.normalMap.clone();}
  for(const t of [map,normalMap,arm].filter(Boolean)){t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(room.w/tile,room.d/tile);t.anisotropy=8;t.needsUpdate=true;}
  const mat=new T.MeshStandardMaterial({map,normalMap,normalScale:new T.Vector2(scanned?.32:p.pattern==='pebbles'?.2:.45,scanned?.32:p.pattern==='pebbles'?.2:.45),roughnessMap:arm,roughness:p.roughness,color:0xffffff});
  mat.textureDependencies=photographicStone?.map?[photographicStone.map]:[];
