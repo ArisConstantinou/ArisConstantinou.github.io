@@ -7,7 +7,7 @@ export function createBenchmarkFixtures(get){
   const before=get();before.startRun();done=new Set();input={moveX:0,moveZ:0,pointerActive:false,firing:false,shielding:false};
   const c=get(),p=c.player;
   if(type==='free')return;
-  p.hp=p.maxHp=100000;p.invulnerable=999;for(const e of c.entities)if(e.category==='actor')e.hp=e.maxHp=100000;
+  for(const e of c.entities)if(e.category==='actor'&&!e.isPlayer)e.hp=e.maxHp=100000;
   if(type.startsWith('room:')){const room=c.world.zones.find(r=>r.name===type.split(':')[1]);if(!room)throw Error('Benchmark room missing');place(p,(room.xMin+room.xMax)/2,(room.zMin+room.zMax)/2);}
   if(['crowd','mage','engine'].includes(type)){
    place(p,0,type==='engine'?19:16);
@@ -19,7 +19,7 @@ export function createBenchmarkFixtures(get){
   origin={x:p.body.position.x,z:p.body.position.z};c.setCamera();
  }
  function step(type,time){
-  const c=get(),p=c.player;p.invulnerable=999;p.mana=p.maxMana;
+  const c=get(),p=c.player;p.mana=p.maxMana;
   input={moveX:0,moveZ:0,pointerActive:false,firing:false,shielding:false};
   if(type==='turn'){const a=time*.22;c.camera.position.set(p.body.position.x+Math.sin(a)*19,18,p.body.position.z-2+Math.cos(a)*19);}
   if(type.startsWith('room:')){const target={x:origin.x+Math.sin(time*.7)*2,z:origin.z+Math.cos(time*.7)*2},dx=target.x-p.body.position.x,dz=target.z-p.body.position.z,n=Math.max(1,Math.hypot(dx,dz));input.moveX=dx/n;input.moveZ=dz/n;once('pulse',time,4,c.pulse);once('stone',time,6,c.conjure);}

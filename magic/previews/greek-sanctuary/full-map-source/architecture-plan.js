@@ -64,6 +64,10 @@ export function architecturalWingReservations(roomId=null){
 export function pressureTransitReservations(g){
  if((g.floorY??0)!==0)return [];
  const wings=architecturalWingReservations(g.approach);
+ if(g.approach==='library'||g.approach==='gallery'){
+  const center=g.approach==='library'?-51.25:51.25;
+  return [...wings,...[-5.25,5.25].map(dx=>({x:center+dx,y:2,z:-3,w:3.8,h:4,d:10.5,tag:'architecture-clear-transit'}))];
+ }
  if(g.approach!=='watchtower')return wings;
  return [...wings,...[45.5,57.0].map(x=>({x,y:2,z:-28,w:3.8,h:4,d:10.0,tag:'architecture-clear-transit'})),{x:51.25,y:2,z:-20.8,w:6.4,h:4,d:3.0,tag:'architecture-stair-approach'}];
 }
@@ -72,6 +76,8 @@ export function architecturalSupplyAreas(g,room){
  const areas=active.filter(r=>r.id===room.id);return areas.length?areas:[room];
 }
 export function architecturalSupplyRange(g,areas){
- if(g.approach!=='watchtower')return 10;
+ // Upper storeys cover the bays nearest these doors. Search the rest of the
+ // same connected room instead of forcing its supplies beneath the landing.
+ if(!['watchtower','library','gallery'].includes(g.approach))return 10;
  return Math.max(10,...areas.flatMap(r=>[r.x,r.x+r.w].flatMap(x=>[r.z,r.z+r.d].map(z=>Math.hypot(x-g.x,z-g.z)))));
 }

@@ -1,0 +1,415 @@
+{
+  "version": "1.6.13",
+  "unitTests": 327,
+  "checks": [
+    {
+      "name": "benchmark starts without setup errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "served version",
+      "pass": true
+    },
+    {
+      "name": "all pressure plates and weight homes clear overhead floors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "manual lethal hit preserves life and ordinary hit cooldown",
+      "pass": true,
+      "detail": {
+        "hp": 120,
+        "max": 120,
+        "dead": false,
+        "phase": "playing",
+        "hitCooldown": 0.62
+      }
+    },
+    {
+      "name": "manual survives repeated lethal hits",
+      "pass": true
+    },
+    {
+      "name": "health HUD shows infinity and accessible description",
+      "pass": true
+    },
+    {
+      "name": "portrait health remains infinity",
+      "pass": true
+    },
+    {
+      "name": "both relocated puzzles open through physical plate contacts",
+      "pass": true,
+      "detail": [
+        {
+          "id": "passage-ritual-watchtower",
+          "phase": "open",
+          "open": 1,
+          "unblocked": true,
+          "blockerPresent": false
+        },
+        {
+          "id": "passage-forge-library",
+          "phase": "open",
+          "open": 1,
+          "unblocked": true,
+          "blockerPresent": false
+        }
+      ]
+    },
+    {
+      "name": "manual report saves and states unlimited health",
+      "pass": true
+    },
+    {
+      "name": "unlimited-health report survives reload",
+      "pass": true
+    },
+    {
+      "name": "benchmark starts without setup errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "automatic benchmark also survives lethal damage with hit effects",
+      "pass": true,
+      "detail": {
+        "hp": 120,
+        "max": 120,
+        "dead": false,
+        "phase": "playing",
+        "hitCooldown": 0.62
+      }
+    },
+    {
+      "name": "automatic benchmark remains active",
+      "pass": true
+    },
+    {
+      "name": "normal game still takes lethal damage",
+      "pass": true,
+      "detail": {
+        "hp": 0,
+        "max": 120,
+        "dead": true,
+        "phase": "result",
+        "hitCooldown": 0.62
+      }
+    },
+    {
+      "name": "normal HUD does not advertise unlimited health",
+      "pass": true
+    },
+    {
+      "name": "no uncaught browser errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "plans": 117,
+  "transit": [
+    {
+      "version": "1.6.12",
+      "room": "watchtower",
+      "pathLength": 35,
+      "start": {
+        "x": 45.75,
+        "y": 0,
+        "z": -29.599999999999994
+      },
+      "end": {
+        "x": 51.25,
+        "y": 0,
+        "z": -19.5
+      }
+    },
+    {
+      "version": "1.6.12",
+      "room": "library",
+      "pathLength": 35,
+      "start": {
+        "x": -48.65,
+        "y": 0,
+        "z": -7.599999999999994
+      },
+      "end": {
+        "x": -45.849999999999994,
+        "y": 0,
+        "z": 4.400000000000006
+      }
+    },
+    {
+      "version": "1.6.12",
+      "gate": "passage-ritual-watchtower",
+      "wizardApproach": 27
+    },
+    {
+      "version": "1.6.12",
+      "gate": "passage-forge-library",
+      "wizardApproach": 41
+    },
+    {
+      "version": "1.6.13",
+      "room": "watchtower",
+      "pathLength": 47,
+      "start": {
+        "x": 45.35000000000001,
+        "y": 0,
+        "z": -29.599999999999994
+      },
+      "end": {
+        "x": 51.25,
+        "y": 0,
+        "z": -19.5
+      }
+    },
+    {
+      "version": "1.6.13",
+      "room": "library",
+      "pathLength": 35,
+      "start": {
+        "x": -48.65,
+        "y": 0,
+        "z": -7.599999999999994
+      },
+      "end": {
+        "x": -45.849999999999994,
+        "y": 0,
+        "z": 4.400000000000006
+      }
+    },
+    {
+      "version": "1.6.13",
+      "gate": "passage-ritual-watchtower",
+      "wizardApproach": 1
+    },
+    {
+      "version": "1.6.13",
+      "gate": "passage-forge-library",
+      "wizardApproach": 43
+    }
+  ],
+  "comparison": {
+    "errors": [],
+    "runs": [
+      {
+        "label": "before",
+        "version": "1.6.12",
+        "frames": {
+          "count": 451,
+          "mean": 17.76541019959619,
+          "p95": 18.599999999998545,
+          "max": 18.899999999999636
+        },
+        "calls": {
+          "count": 451,
+          "mean": 576.9024390243902,
+          "p95": 580,
+          "max": 582
+        },
+        "triangles": {
+          "count": 451,
+          "mean": 1888031.2949002218,
+          "p95": 1891456,
+          "max": 1891616
+        },
+        "gpu": "WebKit WebGL",
+        "loading": 6813.100000023842,
+        "memory": {
+          "at": 17642,
+          "kind": "estimate",
+          "uploadedTextureBytes": 177109488,
+          "loadedGeometryPayloadBytes": 229758476,
+          "renderTargetAuxiliaryBytes": 7340032,
+          "knownResourceBytes": 414207996,
+          "rendererCounts": {
+            "geometries": 461,
+            "textures": 164,
+            "programs": 87
+          },
+          "actualVramBytes": null,
+          "note": "Εκτίμηση πόρων: ανεβασμένες υφές και φορτωμένα buffers γεωμετρίας. Δεν είναι πραγματική VRAM. Δεν περιλαμβάνει driver, κώδικα shaders, όλα τα αντίγραφα ή το framebuffer του browser· γεωμετρία μπορεί να μην έχει ανέβει ακόμη.",
+          "textureLifecycle": {
+            "decodedBytes": 0,
+            "peakDecodedBytes": 1048576,
+            "encodedBytes": 20313750,
+            "remoteEncodedBytes": 16719458,
+            "maxEncodedBytes": 16777216,
+            "evictedEncodedBytes": 1172928,
+            "uploads": 49,
+            "reusedUploads": 53
+          },
+          "measurementCpuMs": 4.399999976158142
+        },
+        "cpu": {
+          "gameplay": {
+            "count": 487,
+            "mean": 0.4092402467982235,
+            "p50": 0.4000000059604645,
+            "p95": 0.5999999940395355,
+            "max": 7.200000017881393,
+            "over50": 0,
+            "over100": 0
+          },
+          "physics": {
+            "count": 487,
+            "mean": 0.656673510828547,
+            "p50": 0.5999999940395355,
+            "p95": 0.9000000059604645,
+            "max": 1.2999999821186066,
+            "over50": 0,
+            "over100": 0
+          },
+          "visuals": {
+            "count": 487,
+            "mean": 1.9860369615731053,
+            "p50": 1.800000011920929,
+            "p95": 2.7000000178813934,
+            "max": 3.5,
+            "over50": 0,
+            "over100": 0
+          },
+          "textureCheck": {
+            "count": 487,
+            "mean": 0.02197125241986535,
+            "p50": 0,
+            "p95": 0.09999999403953552,
+            "max": 0.10000002384185791,
+            "over50": 0,
+            "over100": 0
+          },
+          "render": {
+            "count": 487,
+            "mean": 4.33963039052315,
+            "p50": 4.199999988079071,
+            "p95": 5.399999976158142,
+            "max": 7.799999982118607,
+            "over50": 0,
+            "over100": 0
+          }
+        }
+      },
+      {
+        "label": "after",
+        "version": "1.6.13",
+        "frames": {
+          "count": 452,
+          "mean": 17.712831858407082,
+          "p95": 18.5,
+          "max": 18.699999999999818
+        },
+        "calls": {
+          "count": 452,
+          "mean": 576.8783185840708,
+          "p95": 580,
+          "max": 580
+        },
+        "triangles": {
+          "count": 452,
+          "mean": 1888292.0929203539,
+          "p95": 1891456,
+          "max": 1891456
+        },
+        "gpu": "WebKit WebGL",
+        "loading": 4422,
+        "memory": {
+          "at": 15098.700000017881,
+          "kind": "estimate",
+          "uploadedTextureBytes": 177109488,
+          "loadedGeometryPayloadBytes": 229758476,
+          "renderTargetAuxiliaryBytes": 7340032,
+          "knownResourceBytes": 414207996,
+          "rendererCounts": {
+            "geometries": 458,
+            "textures": 164,
+            "programs": 87
+          },
+          "actualVramBytes": null,
+          "note": "Εκτίμηση πόρων: ανεβασμένες υφές και φορτωμένα buffers γεωμετρίας. Δεν είναι πραγματική VRAM. Δεν περιλαμβάνει driver, κώδικα shaders, όλα τα αντίγραφα ή το framebuffer του browser· γεωμετρία μπορεί να μην έχει ανέβει ακόμη.",
+          "textureLifecycle": {
+            "decodedBytes": 0,
+            "peakDecodedBytes": 1048576,
+            "encodedBytes": 20313750,
+            "remoteEncodedBytes": 16719458,
+            "maxEncodedBytes": 16777216,
+            "evictedEncodedBytes": 1172928,
+            "uploads": 49,
+            "reusedUploads": 53
+          },
+          "measurementCpuMs": 3.899999976158142
+        },
+        "cpu": {
+          "gameplay": {
+            "count": 479,
+            "mean": 0.395198329381007,
+            "p50": 0.3999999761581421,
+            "p95": 0.5,
+            "max": 8.400000005960464,
+            "over50": 0,
+            "over100": 0
+          },
+          "physics": {
+            "count": 479,
+            "mean": 0.6674321516570567,
+            "p50": 0.6000000238418579,
+            "p95": 1,
+            "max": 1.5,
+            "over50": 0,
+            "over100": 0
+          },
+          "visuals": {
+            "count": 479,
+            "mean": 1.9432150302824247,
+            "p50": 1.800000011920929,
+            "p95": 2.699999988079071,
+            "max": 4.299999982118607,
+            "over50": 0,
+            "over100": 0
+          },
+          "textureCheck": {
+            "count": 479,
+            "mean": 0.019832985324003502,
+            "p50": 0,
+            "p95": 0.09999999403953552,
+            "max": 0.20000001788139343,
+            "over50": 0,
+            "over100": 0
+          },
+          "render": {
+            "count": 479,
+            "mean": 4.212734864686377,
+            "p50": 4.0999999940395355,
+            "p95": 5.100000023841858,
+            "max": 7.5,
+            "over50": 0,
+            "over100": 0
+          }
+        }
+      }
+    ],
+    "conditions": "Sequential native Windows Chrome GPU, 814x358 iPhone viewport. Seed 821, same camera/player position, 8 s real requestAnimationFrame. Both players protected during timing for comparable idle conditions. Includes loading/warmup in separate window. No physical iPhone performance claim.",
+    "passed": true,
+    "cleanup": {
+      "closed": true,
+      "remainingPids": []
+    }
+  },
+  "limitations": [
+    "Windows browser emulation is not physical iPhone evidence.",
+    "Original low FPS and interruption remain open."
+  ],
+  "beforeHealth": {
+    "before": 120,
+    "after": 0,
+    "dead": true,
+    "phase": "result"
+  },
+  "afterHealth": {
+    "before": 120,
+    "after": 120,
+    "dead": false,
+    "phase": "playing"
+  }
+}

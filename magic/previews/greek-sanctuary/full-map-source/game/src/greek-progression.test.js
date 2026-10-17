@@ -2,6 +2,15 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {greekGatePlan,findPressureSupply} from './greek-progression.js';
 import {existingRooms,newRooms,corridors} from './castle-layout.js';
 const rooms=[...existingRooms,...newRooms].filter(r=>r.id!=='bridge');
+test('pressure trays and loose weights avoid overhead floors while same-level support stays usable',()=>{
+ const g=greekGatePlan('barracks').find(g=>g.id==='passage-hall-barracks');
+ const old=findPressureSupply(g,[],[]),center={x:(old.plates[0].x+old.plates[1].x)/2,z:old.plates[0].z};
+ const overhead={...center,y:5,w:4,h:.4,d:4},floor={x:0,y:-.3,z:0,w:200,h:.6,d:200};
+ const moved=findPressureSupply(g,[],[],[],null,[floor,overhead]);
+ assert.notDeepEqual(moved.plates,old.plates);
+ for(const p of [...moved.plates,...moved.homes])assert.ok(Math.abs(p.x-overhead.x)>overhead.w/2+.5||Math.abs(p.z-overhead.z)>overhead.d/2+.5);
+ assert.deepEqual(findPressureSupply(g,[],[],[],null,[floor]),old);
+});
 test('each random engine room is behind a puzzle and every room remains wizard-solvable',()=>{
  for(const engine of rooms.filter(r=>r.id!=='courtyard')){
   const gates=greekGatePlan(engine.id),seen=new Set(['courtyard']);let changed=true;

@@ -26,10 +26,13 @@ export function greekGatePlan(engineRoom=null){
  return result;
 }
 
-export function findPressureSupply(g,colliders,props,reserved=[],engine=null){
+export function findPressureSupply(g,colliders,props,reserved=[],engine=null,floors=[]){
  const room=byId.get(g.approach);if(!room)throw Error('Missing approach room for '+g.id);
  const hx=g.secret?.86:1.66,hz=.86,floorY=g.floorY??0;
  const clear=(x,z,w,d)=>colliders.every(b=>b.y-b.h/2>floorY+2.8||b.y+b.h/2<floorY+.08||Math.abs(x-b.x)>w+b.w/2+.22||Math.abs(z-b.z)>d+b.d/2+.22)
+  // Headroom alone is insufficient: elevated floors hide ground-level puzzles.
+  // Reserve the full tray/weight footprint, including a visible edge margin.
+  &&floors.every(b=>b.y+b.h/2<=floorY+.08||Math.abs(x-b.x)>w+b.w/2+.35||Math.abs(z-b.z)>d+b.d/2+.35)
   &&props.every(p=>Math.abs((p.floorY??0)-floorY)>2.8||Math.abs(x-p.x)>w+(p.w||1)/2+.35||Math.abs(z-p.z)>d+(p.d||1)/2+.35)
   &&reserved.every(p=>Math.abs((p.y??0)-floorY)>2.8||Math.abs(x-p.x)>w+p.w/2+.35||Math.abs(z-p.z)>d+p.d/2+.35)
   &&(!engine||Math.abs((engine.y??1.22)-1.22-floorY)>3||Math.hypot(x-engine.x,z-engine.z)>Math.hypot(w,d)+2.1);

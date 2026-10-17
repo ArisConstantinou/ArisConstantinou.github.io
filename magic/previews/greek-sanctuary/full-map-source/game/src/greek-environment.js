@@ -215,7 +215,7 @@ export function createGreekPuzzles({architecture,world,physics,staticBox,navs,sp
   for(let i=0;i<gates.length;i++){
    const g=gates[i];if(!g.dynamic)continue;Object.assign(g,plan[i]);
    if(g.kind==='pressure'){
-    Object.assign(g,findPressureSupply(g,world.colliders,world.props,reserved,enginePosition));const tray=pressureTray(g.plates);reserved.push(tray,...g.homes.map(p=>({...p,w:1,d:1})));Object.assign(g,addSupply(world.root,g));installFixtures(g);
+    Object.assign(g,findPressureSupply(g,world.colliders,world.props,reserved,enginePosition,world.floors));const tray=pressureTray(g.plates);reserved.push(tray,...g.homes.map(p=>({...p,w:1,d:1})));Object.assign(g,addSupply(world.root,g));installFixtures(g);
    }
    const open=g.kind==='open';g.phase=open?'open':'locked';g.open=open?1:0;g.leaves.forEach(l=>l.visible=!open);setBlocking(g,!open,false);
   }

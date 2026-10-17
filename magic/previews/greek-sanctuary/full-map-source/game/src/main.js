@@ -963,7 +963,7 @@ function hurt(e,amount,origin,isBurn=false){
     e.hitFlash=.1;
     if(e.bossType&&!isBurn){e.bossAttack=null;e.bossTime=0;e.attackCooldown=Math.max(e.attackCooldown,1.2);if(amount>=35){e.stun=Math.max(e.stun,.65);e.guardBreak=Math.max(e.guardBreak,1.6);}}
   }
-  e.hp=Math.max(0,e.hp-amount);
+  e.hp=e.isPlayer&&benchmarkMode?e.maxHp:Math.max(0,e.hp-amount);
   if(origin&&!e.isPlayer){
     const push=knockbackXZ(e.body.position,origin);
     e.body.velocity.x+=push.x;e.body.velocity.z+=push.z;
@@ -1474,7 +1474,7 @@ function updateHUD(){
   const defeatedBosses=entities.filter(e=>e.bossType&&e.dead).length;
   const nearestBoss=bosses.filter(e=>!e.dead&&!e.removed&&distance(p,e.body.position)<12).sort((a,b)=>distance(p,a.body.position)-distance(p,b.body.position))[0];
   const ally=goliath&&!goliath.dead&&!goliath.removed?goliath:null;
-  ui.update({hp:player.hp,maxHp:player.maxHp,mana:player.mana,maxMana:player.maxMana,kills,
+  ui.update({hp:player.hp,maxHp:player.maxHp,unlimitedHealth:benchmarkMode,mana:player.mana,maxMana:player.maxMana,kills,
     stones:activeStones(entities).length,readyStones:ritual.phase==='idle'?ritualCandidates().length:ritual.stones.length,ritualPhase:ritual.phase,ritualProgress:ritual.phase==='charge'?ritual.elapsed/GOLIATH_CHARGE:ritual.phase==='assemble'?ritual.elapsed/(assemblyCreature?.assembly.duration||6.13):0,
     assembled:assemblyCreature?.assemble(ritual.elapsed).locked.length||0,goliathHP:ally?.hp||0,goliathTime:ally?ally.expires-runTime:0,
     goal:relicTaken?'ΕΠΙΣΤΡΟΦΗ ΣΤΗΝ ΠΥΛΗ':'ΤΟ ΜΑΥΡΟ ΣΚΗΠΤΡΟ',

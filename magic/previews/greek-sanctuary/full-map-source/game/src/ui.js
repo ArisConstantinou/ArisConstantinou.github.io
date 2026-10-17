@@ -394,7 +394,8 @@ export function createUI(callbacks = {}) {
     if (state.hp !== undefined) {
       const hp = Math.max(0, number(state.hp)); const maxHp = Math.max(1, number(state.maxHp, 100));
       el['health-fill'].style.width = `${Math.min(1, hp / maxHp) * 100}%`;
-      text('health-value', Math.ceil(hp)); el['health-meter'].setAttribute('aria-valuenow', String(Math.ceil(hp))); el['health-meter'].setAttribute('aria-valuemax', String(maxHp));
+      text('health-value', state.unlimitedHealth?'∞':Math.ceil(hp)); el['health-meter'].setAttribute('aria-valuenow', String(Math.ceil(hp))); el['health-meter'].setAttribute('aria-valuemax', String(maxHp));
+      if(state.unlimitedHealth)el['health-meter'].setAttribute('aria-valuetext','Απεριόριστη ζωή');else el['health-meter'].removeAttribute('aria-valuetext');
       el['vitals-block'].classList.toggle('low-health', hp > 0 && hp / maxHp < .27);
     }
     if (state.mana !== undefined) {
