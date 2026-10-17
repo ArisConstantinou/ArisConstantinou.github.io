@@ -108,7 +108,7 @@ export function createUI(callbacks = {}) {
 
     <section class="hud" id="game-hud" hidden aria-label="Πληροφορίες παιχνιδιού">
       <header class="game-header">
-        <div class="vitals-block" id="vitals-block"><div class="hud-brand-row"><span class="hud-wordmark">MAGIC</span><span class="zone-name" id="zone-name">Η εξωτερική αυλή</span></div>
+        <div class="vitals-block" id="vitals-block"><div class="hud-brand-row"><span class="hud-wordmark">MAGIC</span><span class="zone-name" id="zone-name">Η εξωτερική αυλή</span><span id="fps-counter" class="fps-counter" aria-label="Καρέ ανά δευτερόλεπτο" aria-live="off">— FPS</span></div>
           <div class="vital-row">${icon('heart', 'vital-icon health-icon')}<div class="vital-track" role="meter" aria-label="Ζωή" aria-valuemin="0" aria-valuemax="100" id="health-meter"><div class="vital-fill health-fill" id="health-fill"></div></div><span class="vital-value" id="health-value">100</span></div>
           <div class="vital-row">${icon('mana', 'vital-icon mana-icon')}<div class="vital-track" role="meter" aria-label="Μαγική ενέργεια" aria-valuemin="0" aria-valuemax="100" id="mana-meter"><div class="vital-fill mana-fill" id="mana-fill"></div></div><span class="vital-value" id="mana-value">100</span></div>
         </div>
@@ -404,6 +404,7 @@ export function createUI(callbacks = {}) {
       text('mana-value', Math.ceil(mana)); el['mana-meter'].setAttribute('aria-valuenow', String(Math.ceil(mana))); el['mana-meter'].setAttribute('aria-valuemax', String(maxMana));
     }
     if (state.zone !== undefined) text('zone-name', state.zone);
+    if('fps' in state){text('fps-counter',Number.isFinite(state.fps)?state.fps+' FPS':'— FPS');el['fps-counter'].classList.toggle('is-low',Number.isFinite(state.fps)&&state.fps<30);}
     text('hud-shards', formatNumber(state.shards)); text('hud-kills', formatNumber(state.kills)); text('hud-time', clock(state.time));
     const holding = Boolean(state.holding); const target = state.targetName;
     const dragging = holding && Boolean(state.dragging || dragPointer);

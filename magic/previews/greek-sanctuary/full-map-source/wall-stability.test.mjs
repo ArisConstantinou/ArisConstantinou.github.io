@@ -20,3 +20,8 @@ test('wall cutaway does not blink after transient loss of a sightline and restor
  wall.raycast=raycast;blocked();assert.equal(wall.visible,false);updateFullMapOcclusion(world,subject,camera,.11,false);assert.equal(wall.visible,true,'menu reset restores walls immediately');
  wall.geometry.dispose();wall.material.dispose();
 });
+test('a cutaway removes the whole flight and restores it immediately when standing on the treads',()=>{
+ const root=new T.Group(),parts=[];for(let i=0;i<3;i++){const part=new T.Group(),mesh=new T.Mesh(new T.BoxGeometry(8,5,.2),new T.MeshBasicMaterial());mesh.position.set(i*12,2.5,1);part.userData.fullMapStairSection={stairId:'library',index:i};part.add(mesh);root.add(part);parts.push(part);}root.updateMatrixWorld(true);
+ const world={root,fullMap:{stairs:[{id:'library',x:0,width:5.4,startZ:2.5,endZ:-5.82,count:26,tread:.32,rise:.2}]}},camera=new T.PerspectiveCamera();camera.position.set(0,3,8);camera.updateMatrixWorld(true);installFullMapOcclusion(world,{gates:[]});const subject={body:{position:new T.Vector3(0,1.5,-2)},cy:.5};updateFullMapOcclusion(world,subject,camera,.11,true);assert(parts.every(p=>!p.visible));assert.equal(world.fullMap.occlusion.sections[0].parts,3);
+ subject.body.position.y=3.4;updateFullMapOcclusion(world,subject,camera,.11,true);assert(parts.every(p=>p.visible),'on-flight visibility must override the cutaway release delay');
+});

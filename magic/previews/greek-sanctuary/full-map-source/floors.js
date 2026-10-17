@@ -11,9 +11,9 @@ import {supportHeight,standingClear} from './game/src/walkable-support.js';
 import {installFullMapOcclusion} from './occlusion.js';
 
 export const LEVELS=[
- {id:'library',label:'Επάνω αρχείο',floorY:5.2,count:26,tread:.35,startZ:2.5,gate:'single'},
- {id:'gallery',label:'Επάνω στοά',floorY:4.8,count:24,tread:.35,startZ:2.5,gate:'double'},
- {id:'watchtower',label:'Παρατηρητήριο',floorY:6,count:30,tread:.35,startZ:-22.2,backInset:.15,gate:null}
+ {id:'library',label:'Επάνω αρχείο',floorY:5.2,count:26,tread:.32,startZ:2.5,x:-56.25,gate:'single'},
+ {id:'gallery',label:'Επάνω στοά',floorY:4.8,count:24,tread:.32,startZ:2.5,x:56.25,gate:'double'},
+ {id:'watchtower',label:'Παρατηρητήριο',floorY:6,count:30,tread:.32,startZ:-23,x:57.25,backInset:.15,gate:null}
 ];
 export function groundAt(world,p){let y=0;for(const f of world.floors){const h=f.y+f.h/2;if(h<=(p.y??0)+.25&&Math.abs(p.x-f.x)<=f.w/2+.001&&Math.abs(p.z-f.z)<=f.d/2+.001)y=Math.max(y,h);}return y;}
 export function freePositionAt(world,origin,radius,occupied=[],maxDistance=5,allowed=()=>true){
@@ -34,7 +34,7 @@ export function installFullMapFloors(world,architecture){
  // Furnish the actual fourteen rooms, using their semantic identities and
  // existing licensed urn/shield models. Physical furniture reserves its bay.
  const rooms=[...existingRooms,...newRooms];
- const reservations=LEVELS.map(s=>{const r=rooms.find(r=>r.id===s.id);return {x:r.x+r.w/2,y:1.5,z:s.startZ-s.count*s.tread/2,w:6.6,h:3,d:s.count*s.tread+2.4,tag:'fullmap-stair-reservation'};});
+ const reservations=LEVELS.map(s=>({x:s.x,y:1.5,z:s.startZ-s.count*s.tread/2,w:6.6,h:3,d:s.count*s.tread+2.4,tag:'fullmap-stair-reservation'}));
  world.colliders.push(...reservations);
  const furnishings=dressGreekFurnishings({root:world.root,rooms,boundary:castleBoundaries([...rooms,...corridors,...secretAreas]),colliders:world.colliders,props:world.props,kit});
  for(const b of reservations)world.colliders.splice(world.colliders.indexOf(b),1);
@@ -58,7 +58,7 @@ export function installFullMapFloors(world,architecture){
  function furniture(g,kind,x,y,z,rotation=0){const obj=makeGreekFurniture(kind,palette,kit);obj.position.set(x,y,z);obj.rotation.y=rotation;obj.traverse(o=>{if(o.isMesh)o.castShadow=o.receiveShadow=true;});g.add(obj);const cabinet=kind==='scroll-cabinet';solid(x,y+1.2,z,cabinet?1.25:2.75,2.4,cabinet?2.25:1.3,'fullmap-furniture');}
  function batch(g){g.updateMatrixWorld(true);const bins=new Map(),old=[];g.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||Array.isArray(o.material)||o.geometry.attributes.skinIndex)return;let n=o;while(n&&n!==g){if(n.userData.asset||n.userData.keepTransforms)return;n=n.parent;}const key=o.material.uuid;if(!bins.has(key))bins.set(key,{material:o.material,geos:[]});let geo=indexedClone(o.geometry).applyMatrix4(o.matrixWorld);bins.get(key).geos.push(geo);old.push(o);});for(const o of old)o.removeFromParent();for(const b of bins.values()){for(const geo of b.geos)for(const key of Object.keys(geo.attributes))if(!b.geos.every(q=>q.attributes[key]))geo.deleteAttribute(key);const geo=mergeGeometries(b.geos,false);b.geos.forEach(q=>q.dispose());const m=new T.Mesh(geo,b.material);m.castShadow=m.receiveShadow=true;g.add(m);}}
  for(const spec of LEVELS){
-  const room=rooms.find(r=>r.id===spec.id),cx=room.x+room.w/2,width=5.4,rise=spec.floorY/spec.count,endZ=spec.startZ-spec.count*spec.tread;
+  const room=rooms.find(r=>r.id===spec.id),cx=room.x+room.w/2,sx=spec.x,width=5.4,rise=spec.floorY/spec.count,endZ=spec.startZ-spec.count*spec.tread;
   const structural=new T.Group(),upper=new T.Group();structural.name=spec.id+' · staircase and bearing columns';structural.userData.fullMapOccluder=true;upper.name=spec.label;world.root.add(structural,upper);
   // Keep complete three-tread sections independently addressable. This lets
   // camera cutaways remove the steps and their cheeks without hiding the run.
@@ -67,13 +67,13 @@ export function installFullMapFloors(world,architecture){
    if(i%3===0){const section=new T.Group(),count=Math.min(3,spec.count-i);section.name=spec.id+' · stair treads '+(i+1)+'–'+(i+count);section.userData.keepTransforms=true;section.userData.fullMapStairSection={stairId:spec.id,index:stairSections.length,startTread:i,treads:count,cheeks:count*2,stringers:2};structural.add(section);stairSections.push(section);}
    const section=stairSections.at(-1);
    const y=(i+1)*rise,z=spec.startZ-(i+.5)*spec.tread;
-   box(section,cx,y-.12,z,width,.24,spec.tread+.025,edge);
-   world.floors.push({x:cx,y:y-.12,z,w:width,h:.24,d:spec.tread+.025,tag:'fullmap-stair',stairId:spec.id,slope:rise/spec.tread});
-   for(const side of [-1,1]){box(section,cx+side*(width/2+.18),y+.43,z,.32,.9,spec.tread+.03,stone);solid(cx+side*(width/2+.18),y+.43,z,.32,.9,spec.tread+.03,'fullmap-stair-cheek');}
+   box(section,sx,y-.12,z,width,.24,spec.tread+.025,edge);
+   world.floors.push({x:sx,y:y-.12,z,w:width,h:.24,d:spec.tread+.025,tag:'fullmap-stair',stairId:spec.id,slope:rise/spec.tread});
+   for(const side of [-1,1]){box(section,sx+side*(width/2+.18),y+.43,z,.32,.9,spec.tread+.03,stone);solid(sx+side*(width/2+.18),y+.43,z,.32,.9,spec.tread+.03,'fullmap-stair-cheek');}
   }
   // A load-bearing inclined stringer connects the treads to the floor. The
   // colliders remain the measured treads and rails; no invisible shortcut ramp.
-  for(const section of stairSections){const {startTread:i,treads:n}=section.userData.fullMapStairSection;for(const side of [-1,1]){const a=new T.Vector3(cx+side*(width/2-.2),(spec.floorY-.27)*i/spec.count,spec.startZ-i*spec.tread),b=new T.Vector3(a.x,(spec.floorY-.27)*(i+n)/spec.count,spec.startZ-(i+n)*spec.tread),d=b.clone().sub(a),beam=box(section,0,0,0,.28,d.length(),.32,stone);beam.position.copy(a).addScaledVector(d,.5);beam.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());}batch(section);}
+  for(const section of stairSections){const {startTread:i,treads:n}=section.userData.fullMapStairSection;for(const side of [-1,1]){const a=new T.Vector3(sx+side*(width/2-.2),(spec.floorY-.27)*i/spec.count,spec.startZ-i*spec.tread),b=new T.Vector3(a.x,(spec.floorY-.27)*(i+n)/spec.count,spec.startZ-(i+n)*spec.tread),d=b.clone().sub(a),beam=box(section,0,0,0,.28,d.length(),.32,stone);beam.position.copy(a).addScaledVector(d,.5);beam.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());}batch(section);}
   const front=endZ+.018,back=room.z+(spec.backInset??.6),x0=room.x+.6,x1=room.x+room.w-.6;
   floor(upper,(x0+x1)/2,spec.floorY,(back+front)/2,x1-x0,front-back);
   for(const side of [-1,1]){
@@ -81,10 +81,10 @@ export function installFullMapFloors(world,architecture){
    column(structural,supportX,supportZ,spec.floorY-.38);
    if(supportZ!==front-1){const z=(supportZ+front-1)/2,d=Math.abs(front-1-supportZ)+.7;box(structural,supportX,spec.floorY-.5,z,.42,.3,d,edge);solid(supportX,spec.floorY-.5,z,.42,.3,d,'fullmap-bearing-beam');}
    railing(upper,cx+side*(room.w/2-.6),(back+front)/2,front-back,false,spec.floorY);
-   const length=(x1-x0-width)/2;railing(upper,cx+side*(width/2+length/2),front,length,true,spec.floorY);
+   const a=side<0?x0:sx+width/2,b=side<0?sx-width/2:x1,length=b-a;if(length>.2)railing(upper,(a+b)/2,front,length,true,spec.floorY);
   }
   railing(upper,cx,back,x1-x0,true,spec.floorY);
-  const gateZ=back+(spec.gate==='single'?4.9:3.05);
+  const gateZ=back+(spec.gate==='single'?3.3:3.05);
   if(spec.gate){
    const divider=new T.Group();divider.name=spec.id+' · upper doorway and complete returns';divider.userData.fullMapWall={x:cx,z:gateZ,length:x1-x0,height:4.6,alongX:true,floorY:spec.floorY};divider.userData.keepTransforms=true;upper.add(divider);
    const gateWidth=spec.gate==='single'?4.6:5.5,half=(x1-x0-gateWidth)/2;
@@ -93,8 +93,8 @@ export function installFullMapFloors(world,architecture){
    const gate=createGreekGate(divider,world.colliders,{id:spec.id+'-upper',kind:'pressure',secret:spec.gate==='single',customFrame:true,x:cx,z:gateZ,floorY:spec.floorY,width:gateWidth,height:4.6,wallWidth:gateWidth,
     // The archive's ground-floor slab unlocks its upper door. The gallery
     // supplies sit on its upper landing. Both are real floor-relative puzzles.
-    plates:spec.gate==='single'?[{x:cx+5.2,y:0,z:2.5}]:[{x:cx+3.55,z:front-2.2},{x:cx+5.15,z:front-2.2}],
-    homes:spec.gate==='single'?[{x:cx+5.2,y:0,z:.8}]:[{x:cx-5.0,z:front-1.2},{x:cx-6.6,z:front-1.2}]},world.occluders);
+    plates:spec.gate==='single'?[{x:cx+5.2,y:0,z:2.5}]:[{x:cx-5.15,z:front-2.2},{x:cx-3.55,z:front-2.2}],
+    homes:spec.gate==='single'?[{x:cx+5.2,y:0,z:.8}]:[{x:cx-6.75,z:front-1.1},{x:cx-1.95,z:front-1.1}]},world.occluders);
    gate.supplyGroup.userData.keepTransforms=true;upper.add(gate.supplyGroup);
    for(const child of divider.children)if(!children.has(child))child.userData.keepTransforms=true;
    architecture.gates.push(gate);
@@ -102,16 +102,22 @@ export function installFullMapFloors(world,architecture){
    furniture(upper,spec.id==='library'?'reading-table':'vase-display',cx-4.6,spec.floorY,back+1.5);
    loot.push({id:spec.id+'-upper-reward',loot:{x:cx,y:spec.floorY,z:back+1.5},item:{kind:spec.id==='library'?'amulet':'ring',level:3,roll:2,count:1}});
   }else{
-   furniture(upper,'observatory',cx+5.8,spec.floorY,back+1.55);furniture(upper,'bench',cx-5.8,spec.floorY,back+1.6);
+   furniture(upper,'observatory',cx-4.4,spec.floorY,back+1.55);furniture(upper,'bench',cx-8,spec.floorY,back+1.6);
   }
   const landing={id:spec.id,label:spec.label,floorY:spec.floorY,x:cx,z:(front+back)/2,x0,x1,back,front,gate:spec.gate?spec.id+'-upper':null};
-  stairs.push({...spec,x:cx,width,rise,endZ,direction:-1});landings.push(landing);groups.push({group:upper,landing});batch(structural);batch(upper);
+  stairs.push({...spec,x:sx,width,rise,endZ,direction:-1});landings.push(landing);groups.push({group:upper,landing});batch(structural);batch(upper);
   // Doors and supply groups keep independent transforms for real interactions.
-  fixtures.push({name:spec.id+' stair',x:cx,z:(spec.startZ+endZ)/2,w:width+1,d:Math.abs(spec.startZ-endZ)+1});
+  fixtures.push({name:spec.id+' stair',x:sx,z:(spec.startZ+endZ)/2,w:width+1,d:Math.abs(spec.startZ-endZ)+1});
  }
  // Keep loose props away from the entry, treads and top landings.
  for(const p of world.props)if(fixtures.some(f=>Math.abs(p.x-f.x)<f.w/2+1&&Math.abs(p.z-f.z)<f.d/2+1)){
-  const room=rooms.find(r=>p.x>r.x&&p.x<r.x+r.w&&p.z>r.z&&p.z<r.z+r.d);if(room)p.x=room.x+2.4;
+  const room=rooms.find(r=>p.x>r.x&&p.x<r.x+r.w&&p.z>r.z&&p.z<r.z+r.d);if(!room)continue;
+  let found=false;
+  for(let z=room.z+1.6;z<room.z+room.d-1.6&&!found;z+=1.2)for(let x=room.x+1.6;x<room.x+room.w-1.6&&!found;x+=1.2){
+   if(fixtures.some(f=>Math.abs(x-f.x)<f.w/2+1&&Math.abs(z-f.z)<f.d/2+1)||world.colliders.some(b=>b.y-b.h/2<1.5&&Math.abs(x-b.x)<b.w/2+.8&&Math.abs(z-b.z)<b.d/2+.8)||world.props.some(other=>other!==p&&Math.hypot(x-other.x,z-other.z)<1.3))continue;
+   p.x=x;p.z=z;found=true;
+  }
+  if(!found)throw Error('No clear loose-prop bay in '+room.id);
  }
  world.fullMap={stairs,landings,groups,furnishings,elevatedLoot:loot};
  // The crypt's door returns and relic leave no generic wall bay. Find its

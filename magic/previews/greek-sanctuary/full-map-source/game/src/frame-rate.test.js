@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {FrameRateMeter} from './frame-rate.js';
+test('FPS counts presented frames against wall time, including a long stall',()=>{const meter=new FrameRateMeter();meter.presented(0);for(let i=1;i<=60;i++)meter.presented(i*1000/60);assert.equal(meter.value,60);meter.presented(2000);assert.equal(meter.value,1);meter.reset();assert.equal(meter.value,null);});

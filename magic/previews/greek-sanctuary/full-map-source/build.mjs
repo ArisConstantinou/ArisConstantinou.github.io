@@ -12,7 +12,7 @@ const integration={name:'magic-full-map-integration',async transform(input,id){
   code=replace(code,'].map(r=>({...r,entrance:','].map(fitSecretArea).map(r=>({...r,entrance:','Secret rooms gain physical HEARTH manoeuvring space');
  }else if(normalized.endsWith('/src/greek-puzzle-rules.js')){
   code=replace(code,'rotation:Math.PI/2,width:1.65,height:2.9,wallWidth:4','rotation:Math.PI/2,width:3.8,height:4.25,wallWidth:3.8','Archive single leaf clears the actual HEARTH body');
-  code=replace(code,'plates:[{x:-57.7,z:-7.8}],homes:[{x:-55.8,z:-9.8}]','plates:[{x:-55.5,z:-4.3}],homes:[{x:-55.2,z:-1.9}]','Archive pressure supply leaves the entry approach clear');
+  code=replace(code,'plates:[{x:-57.7,z:-7.8}],homes:[{x:-55.8,z:-9.8}]','plates:[{x:-45.4,z:-4.3}],homes:[{x:-45.4,z:-1.9}]','Archive pressure supply remains visible beside the west-side flight');
  }else if(normalized.endsWith('/src/greek-progression.js')){
   code=replace(code,'width:2.1,height:2.9,wallWidth:2.1','width:3.8,height:4.25,wallWidth:3.8','Secret single gates preserve real head and arm clearance');
   code=replace(code,'candidates.sort((a,b)=>a.score-b.score);',"candidates.sort((a,b)=>a.score-b.score+(g.approach==='watchtower'?((a.z>room.z+room.d-3.6?-20:0)-(b.z>room.z+room.d-3.6?-20:0)):0));",'Keep watchtower pressure tray in the front bay, leaving the stair side lane clear');

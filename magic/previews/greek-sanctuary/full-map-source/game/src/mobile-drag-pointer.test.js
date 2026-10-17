@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {mobileDragPointer} from './mobile-drag-pointer.js';
+const rect={left:0,top:0,width:814,height:358};
+test('touch target stays away from the finger at the centre and HUD edge',()=>{for(const p of [{clientX:400,clientY:250},{clientX:400,clientY:130},{clientX:30,clientY:90},{clientX:780,clientY:90}]){const q=mobileDragPointer({...p,pointerType:'touch'},rect);assert.ok(Math.hypot(q.clientX-p.clientX,q.clientY-p.clientY)>=70);assert.ok(q.clientX>=24&&q.clientX<=790&&q.clientY>=88&&q.clientY<=334);}});
+test('mouse aiming stays exact and the touch contact is not mutated',()=>{const p={clientX:200,clientY:180,pointerType:'mouse'};assert.equal(mobileDragPointer(p,rect),p);const t={...p,pointerType:'touch'};mobileDragPointer(t,rect);assert.equal(t.clientY,180);});

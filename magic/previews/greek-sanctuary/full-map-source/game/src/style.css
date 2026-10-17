@@ -571,6 +571,11 @@ body[data-input="touch"] .toast { font-size:14px; padding:9px 12px; line-height:
 body[data-input="touch"] .throw-mark { display:block; position:absolute; z-index:21; width:44px; height:44px; transform:translate(-50%,-50%); border:3px solid #9bffda; border-radius:50%; box-shadow:0 0 0 2px #071d18,0 0 0 5px #9bffda44; background:#071d1833; pointer-events:none; color:#9bffda; }
 .throw-mark i, .throw-mark b { position:absolute; top:50%; left:50%; width:22px; height:3px; margin:-1.5px 0 0 -11px; background:currentColor; box-shadow:0 0 0 1px #071d18; }
 .throw-mark b { transform:rotate(90deg); }
+body[data-input="touch"].is-dragging #held-state,
+body[data-input="touch"].is-dragging #context-use { display:none!important; }
+.fps-counter { flex:0 0 auto;margin-left:7px;padding:3px 5px;border:1px solid #a5cdb566;border-radius:7px;background:#0b211bdf;color:#c8efd8;font-size:12px;line-height:1.2;font-variant-numeric:tabular-nums;pointer-events:none; }
+.fps-counter.is-low { color:#ffc18f;border-color:#d4a27788; }
+body:not(.is-playing) .fps-counter { display:none; }
 body[data-input="touch"] .throw-mark.blocked { color:#ffc18c; border-color:#ffc18c; box-shadow:0 0 0 2px #251b13,0 0 0 5px #ffc18c44; }
 body[data-input="touch"] .status-panel { width:100%; padding:46px 20px 18px; }
 body[data-input="touch"] .loading-label { font-size:12px; }

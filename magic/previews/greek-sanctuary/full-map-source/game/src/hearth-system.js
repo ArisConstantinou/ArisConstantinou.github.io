@@ -82,6 +82,9 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
   const h=engine.heart,b=engine.body,p=getPlayer();
   if(engine.strike.active){engine.yaw+=THREE.MathUtils.clamp(angleDifference(engine.yaw,engine.strike.target.yaw),-dt*4,dt*4);engine.aimYaw=engine.yaw;b.velocity.set(0,0,0);}
   else engine.yaw=engine.facing.update(dt,{yaw:engine.yaw,aimYaw:engine.aimYaw,moveX:input.moveX,moveZ:input.moveZ,firing:!!input.firing,enabled:h.state==='piloted'&&h.stompTime===0&&h.throwTime===0}).yaw;
+  // Shoulder collision must turn with the visible suit. World-aligned shoulder
+  // spheres stopped east/west doors 0.35m before either strike could reach.
+  b.quaternion.setFromEuler(0,engine.yaw,0);b.aabbNeedsUpdate=true;
   if(h.state==='piloted'&&h.stompTime===0&&!engine.strike.active){
    engine.body.mass=70;engine.body.type=CANNON.Body.DYNAMIC;engine.body.updateMassProperties();
    const n=Math.max(1,Math.hypot(input.moveX,input.moveZ)),blend=Math.min(1,dt*driveResponse),speed=HEARTH.speed*travelAlignment(engine.yaw,input.moveX,input.moveZ);

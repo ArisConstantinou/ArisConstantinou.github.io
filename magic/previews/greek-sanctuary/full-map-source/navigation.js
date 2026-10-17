@@ -30,7 +30,7 @@ export class LayeredNavigationGrid {
   if(!supportedFootprint(floors,{x:p.x,y,z:p.z},this.radius,tolerance))return false;
   const blocked=b=>this.bodyProfile?engineProfileIntersects(b,p,y,this.bodyProfile):b.y+b.h/2>y+.25&&b.y-b.h/2<y+this.height&&Math.abs(p.x-b.x)<b.w/2+this.radius&&Math.abs(p.z-b.z)<b.d/2+this.radius;
   if(this.nearObstacles(p.x,p.z).some(blocked))return false;
-  return !floors.some(b=>b!==f&&top(b)>y+.025&&!(stair&&b.stairId===f.stairId)&&blocked(b));
+  return !floors.some(b=>b!==f&&top(b)>y+.025&&!(!this.bodyProfile&&b.tag==='fullmap-stair'&&top(b)<=y+this.maxStep&&!inside(b,p.x,p.z))&&!(stair&&b.stairId===f.stairId)&&blocked(b));
  }
  setObstacles(obstacles){
   this.allObstacles=obstacles;

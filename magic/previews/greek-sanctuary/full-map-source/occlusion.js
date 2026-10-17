@@ -8,8 +8,8 @@ export function installFullMapOcclusion(world,architecture){
   if(part.parent!==world.root)world.root.attach(part);
   part.userData.persistentDoor=true;part.traverse(o=>{if(o.isMesh)doorMeshes.add(o);});
  }
- const walls=[],decor=[];
- world.root.traverse(o=>{if(o.userData.fullMapWall)walls.push({meta:o.userData.fullMapWall,parts:[o],label:o.name,kind:'wall'});else if(o.userData.fullMapStairSection)walls.push({meta:null,parts:[o],label:o.name,kind:'stair',stairId:o.userData.fullMapStairSection.stairId});else if(o.userData.fullMapWallDecoration)decor.push(o);});
+ const walls=[],decor=[],flights=new Map();
+ world.root.traverse(o=>{if(o.userData.fullMapWall)walls.push({meta:o.userData.fullMapWall,parts:[o],label:o.name,kind:'wall'});else if(o.userData.fullMapStairSection){const id=o.userData.fullMapStairSection.stairId;if(!flights.has(id)){const flight={meta:null,parts:[],label:id+' · complete staircase',kind:'stair',stairId:id};flights.set(id,flight);walls.push(flight);}flights.get(id).parts.push(o);}else if(o.userData.fullMapWallDecoration)decor.push(o);});
  for(const part of decor){
   const d=part.userData.fullMapWallDecoration;let closest=null,distance=Infinity;
   for(const wall of walls){const w=wall.meta;if(!w)continue;const along=w.alongX?Math.abs(d.x-w.x):Math.abs(d.z-w.z),normal=w.alongX?Math.abs(d.z-w.z):Math.abs(d.x-w.x);
@@ -47,6 +47,14 @@ export function updateFullMapOcclusion(world,subject,camera,dt,playing=true){
   // Hide blockers immediately. Require a short continuous clear interval before
   // restoring them, so tiny camera/physics movements cannot blink a whole wall.
   if(playing){
+   // A flight is a single cutaway below it, and remains intact while being used.
+   for(const wall of new Set([...state.hidden,...state.lastHit.keys()]))if(wall.kind==='stair'){
+    const s=world.fullMap.stairs.find(s=>s.id===wall.stairId),foot=body.y-subject.cy;
+    if(s&&Math.abs(body.x-s.x)<=s.width/2+.4&&body.z<=s.startZ+.3&&body.z>=s.endZ-.3){
+     const step=Math.max(0,Math.min(s.count-1,Math.floor((s.startZ-body.z)/s.tread))),surface=(step+1)*s.rise;
+     if(foot>=surface-.45){state.hidden.delete(wall);state.lastHit.delete(wall);}
+    }
+   }
    for(const wall of state.hidden)state.lastHit.set(wall,state.clock);
    for(const [wall,time] of state.lastHit)if(state.clock-time<.35)state.hidden.add(wall);else state.lastHit.delete(wall);
   }

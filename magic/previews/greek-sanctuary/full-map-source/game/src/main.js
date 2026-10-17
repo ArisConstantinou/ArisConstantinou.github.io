@@ -25,6 +25,8 @@ import { createEffects } from './effects.js';
 import { MagicAudio } from './audio.js';
 import { clamp, distance, lineClear, pointSegmentDistance, NavigationGrid, ProfileStore } from './systems.js';
 import { PointerMotion, gestureThrowVelocity, clampDragPoint, constrainDragPoint } from './drag.js';
+import {mobileDragPointer} from './mobile-drag-pointer.js';
+import {FrameRateMeter} from './frame-rate.js';
 import {shieldGesture,nearestContext} from './context-controls.js';
 import { aimedThrowVelocity, floorThrowTarget } from './throw-aim.js';
 import {equipmentStats,isPotion,rollLoot,TIERS,itemName} from './loot.js';
@@ -91,6 +93,7 @@ let fireSpell,fireFX,fireLastSpark=0;
 let renderer, composer, camera, scene, fx, moon, bloom, targetRing, playerRing, playerLight, heldLight, trajectory;
 let actorMaterial, solidMaterial;
 let drag=null;
+const frameRate=new FrameRateMeter();
 let trajectoryPredictor,throwPreview=null,previewAt=-Infinity,previewBody=null,previewVelocity=null;
 let previewBusy=false;
 let impactMarker;
@@ -384,6 +387,7 @@ function populate(){
 }
 function setPlayCamera(){cameraTarget.set(player.body.position.x,0,player.body.position.z-2);}
 function startRun(){
+  frameRate.reset();
   contextTarget=null;contextAt=-Infinity;
   sound.start();populate();
   if(location.pathname.endsWith('/movement.htm')&&new URL(location.href).searchParams.get('spawn')!=='wizard'){
@@ -434,8 +438,13 @@ function pointerAtHeight(info,height){
 }
 function aimAtPointer(info){
   if(held&&ui.getInput().shieldLatched)return;
+  if(drag?.pointerType==='touch')info=mobileDragPointer({...info,pointerType:'touch'},renderer.domElement.getBoundingClientRect());
   if(player)groundPlane.constant=-(playerFloorHeight()+.8);
   if(!player||!pointerRay(info)||!raycaster.ray.intersectPlane(groundPlane,tempV))return;
+  if(drag?.pointerType==='touch'){
+    const carry=pointerAtHeight(info,drag.height);
+    if(carry)tempV.set(carry.x+drag.offset.x,playerFloorHeight()+.8,carry.z+drag.offset.z);
+  }
   aimPoint.copy(tempV);
   if(held){
     const moved=!lastAimPointer||Math.hypot(info.clientX-lastAimPointer.x,info.clientY-lastAimPointer.y)>2;
@@ -505,7 +514,7 @@ function beginDrag(info){
   const height=playerFloorHeight()+Math.max(2.1,(e.ext?.y||e.cy)+.6),point=pointerAtHeight(info,height);
   if(!point||(!held&&!holdEntity(e)))return false;
   const motion=new PointerMotion();motion.add(info.clientX,info.clientY,gestureTime(info));
-  drag={pointerId:info.pointerId,clientX:info.clientX,clientY:info.clientY,height,motion,
+  drag={pointerId:info.pointerId,pointerType:info.pointerType,clientX:info.clientX,clientY:info.clientY,height,motion,
     start:{x:info.clientX,y:info.clientY},facing:aimDirection.clone(),offset:{x:e.body.position.x-point.x,z:e.body.position.z-point.z}};
   if(info.pointerType==='touch')ui.setShieldMode(false);
   return true;
@@ -759,7 +768,7 @@ function updateHeld(dt,input){
   let desired=new THREE.Vector3(player.body.position.x+aimDirection.x*amount,
     floorY+(player.shielding?1.35:2.1+Math.sin(worldTime*3)*.1),player.body.position.z+aimDirection.z*amount);
   if(drag&&!player.shielding){
-    const point=pointerAtHeight(drag,drag.height);
+    const point=pointerAtHeight(mobileDragPointer(drag,renderer.domElement.getBoundingClientRect()),drag.height);
     if(point)desired={x:point.x+drag.offset.x,y:drag.height,z:point.z+drag.offset.z};
   }
   desired=clampDragPoint(desired,player.body.position,telekinesisReach());
@@ -1443,7 +1452,7 @@ function renderContext(){
   hearth.engine?.visual.setHighlight(nearbyEngine,runTime);
   // Keep E and the mobile action-bar exit operational, without an exit badge
   // following the pilot around the battlefield at any viewport size.
-  const current=phase==='playing'&&contextTarget?.id!=='engine-exit'?contextTarget:null;contextHighlight.visible=!!current;
+  const current=phase==='playing'&&!(mobile&&drag)&&contextTarget?.id!=='engine-exit'?contextTarget:null;contextHighlight.visible=!!current;
   if(!current){ui.updateContext(null);return;}
   const point=current.kind==='engine'?hearth.engine.body.position:current.point;contextHighlight.position.set(point.x,current.kind==='engine'?.09:Math.max(.1,point.y),point.z);contextHighlight.scale.setScalar(current.kind==='engine'?2.8:current.kind==='flame'?.5:1);
   const rect=renderer.domElement.getBoundingClientRect();contextPoint.set(player.body.position.x,player.body.position.y-player.cy,player.body.position.z).project(camera);
@@ -1474,7 +1483,7 @@ function updateHUD(){
   const defeatedBosses=entities.filter(e=>e.bossType&&e.dead).length;
   const nearestBoss=bosses.filter(e=>!e.dead&&!e.removed&&distance(p,e.body.position)<12).sort((a,b)=>distance(p,a.body.position)-distance(p,b.body.position))[0];
   const ally=goliath&&!goliath.dead&&!goliath.removed?goliath:null;
-  ui.update({hp:player.hp,maxHp:player.maxHp,unlimitedHealth:benchmarkMode,mana:player.mana,maxMana:player.maxMana,kills,
+  ui.update({fps:frameRate.value,hp:player.hp,maxHp:player.maxHp,unlimitedHealth:benchmarkMode,mana:player.mana,maxMana:player.maxMana,kills,
     stones:activeStones(entities).length,readyStones:ritual.phase==='idle'?ritualCandidates().length:ritual.stones.length,ritualPhase:ritual.phase,ritualProgress:ritual.phase==='charge'?ritual.elapsed/GOLIATH_CHARGE:ritual.phase==='assemble'?ritual.elapsed/(assemblyCreature?.assembly.duration||6.13):0,
     assembled:assemblyCreature?.assemble(ritual.elapsed).locked.length||0,goliathHP:ally?.hp||0,goliathTime:ally?ally.expires-runTime:0,
     goal:relicTaken?'ΕΠΙΣΤΡΟΦΗ ΣΤΗΝ ΠΥΛΗ':'ΤΟ ΜΑΥΡΟ ΣΚΗΠΤΡΟ',
@@ -1539,7 +1548,7 @@ function frame(now,manual=false){
     if(renderer&&ready){
       const preparation=prepareFrameTextures();
       if(preparation){sound.setPaused(true);sound.setFlamethrower(false);texturePreparation=preparation.catch(error=>{if(!renderer.getContext().isContextLost())showError(error);}).finally(()=>{texturePreparation=null;lastTime=performance.now();});}
-      else{performanceTest?.mark('textureCheck');performanceTest?.beginRender(renderer);renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);if(!manual)performanceTest?.endFrame(renderer);}
+      else{performanceTest?.mark('textureCheck');performanceTest?.beginRender(renderer);renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);if(!manual){if(phase==='playing')frameRate.presented(performance.now());else frameRate.reset();performanceTest?.endFrame(renderer);}}
     }
     if(!manual)requestAnimationFrame(frame);
   }catch(error){showError(error);}

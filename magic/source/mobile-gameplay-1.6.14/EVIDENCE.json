@@ -1,0 +1,975 @@
+{
+  "version": "1.6.14",
+  "unitTests": 347,
+  "checks": [
+    {
+      "name": "version",
+      "pass": true
+    },
+    {
+      "name": "benchmark toolbar does not overlap powers or movement 814x358",
+      "pass": true,
+      "detail": {
+        "panel": {
+          "x": 12,
+          "y": 146,
+          "w": 242.96875,
+          "h": 52
+        },
+        "bad": [],
+        "viewport": [
+          814,
+          358
+        ]
+      }
+    },
+    {
+      "name": "benchmark toolbar does not overlap powers or movement 430x745",
+      "pass": true,
+      "detail": {
+        "panel": {
+          "x": 12,
+          "y": 533,
+          "w": 242.96875,
+          "h": 52
+        },
+        "bad": [],
+        "viewport": [
+          430,
+          745
+        ]
+      }
+    },
+    {
+      "name": "benchmark toolbar does not overlap powers or movement 1440x900",
+      "pass": true,
+      "detail": {
+        "panel": {
+          "x": 12,
+          "y": 688,
+          "w": 242.96875,
+          "h": 52
+        },
+        "bad": [],
+        "viewport": [
+          1440,
+          900
+        ]
+      }
+    },
+    {
+      "name": "puzzles and weights have visible open sky",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "library beside cutaway has no broken flight",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": -52.45,
+          "y": 0.859976533559291,
+          "z": -1.6600000000000001
+        },
+        "occlusion": {
+          "hidden": 3,
+          "sections": [
+            {
+              "name": "gothic masonry · library",
+              "kind": "wall",
+              "parts": 1,
+              "allHidden": true
+            },
+            {
+              "name": "gothic masonry · gatehouse",
+              "kind": "wall",
+              "parts": 2,
+              "allHidden": true
+            },
+            {
+              "name": "gothic masonry · gatehouse",
+              "kind": "wall",
+              "parts": 1,
+              "allHidden": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "library on cutaway has no broken flight",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": -56.25,
+          "y": 3.4444066550060257,
+          "z": -1.2128385645939903
+        },
+        "occlusion": {
+          "hidden": 0,
+          "sections": []
+        }
+      }
+    },
+    {
+      "name": "library usable flight stays whole",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": -56.25,
+          "y": 3.4444066550060257,
+          "z": -1.2128385645939903
+        },
+        "occlusion": {
+          "hidden": 0,
+          "sections": []
+        }
+      }
+    },
+    {
+      "name": "library under cutaway has no broken flight",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": -56.25,
+          "y": 0.8599765336818725,
+          "z": -4.4056
+        },
+        "occlusion": {
+          "hidden": 1,
+          "sections": [
+            {
+              "name": "library · complete staircase",
+              "kind": "stair",
+              "stairId": "library",
+              "parts": 9,
+              "allHidden": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "gallery beside cutaway has no broken flight",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": 52.45,
+          "y": 0.8599765336818725,
+          "z": -1.3399999999999999
+        },
+        "occlusion": {
+          "hidden": 1,
+          "sections": [
+            {
+              "name": "greek-stoa masonry · gallery",
+              "kind": "wall",
+              "parts": 1,
+              "allHidden": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "gallery on cutaway has no broken flight",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": 56.25,
+          "y": 3.24430037589074,
+          "z": -0.8924577206423272
+        },
+        "occlusion": {
+          "hidden": 0,
+          "sections": []
+        }
+      }
+    },
+    {
+      "name": "gallery usable flight stays whole",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": 56.25,
+          "y": 3.24430037589074,
+          "z": -0.8924577206423272
+        },
+        "occlusion": {
+          "hidden": 0,
+          "sections": []
+        }
+      }
+    },
+    {
+      "name": "gallery under cutaway has no broken flight",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": 55.997307587888756,
+          "y": 0.8599765336818725,
+          "z": -3.345139255627091
+        },
+        "occlusion": {
+          "hidden": 1,
+          "sections": [
+            {
+              "name": "gallery · complete staircase",
+              "kind": "stair",
+              "stairId": "gallery",
+              "parts": 8,
+              "allHidden": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "watchtower beside cutaway has no broken flight",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": 53.45,
+          "y": 0.8599765336818725,
+          "z": -27.8
+        },
+        "occlusion": {
+          "hidden": 0,
+          "sections": []
+        }
+      }
+    },
+    {
+      "name": "watchtower on cutaway has no broken flight",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": 57.25,
+          "y": 3.847010567837931,
+          "z": -27.36270319730742
+        },
+        "occlusion": {
+          "hidden": 0,
+          "sections": []
+        }
+      }
+    },
+    {
+      "name": "watchtower usable flight stays whole",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": 57.25,
+          "y": 3.847010567837931,
+          "z": -27.36270319730742
+        },
+        "occlusion": {
+          "hidden": 0,
+          "sections": []
+        }
+      }
+    },
+    {
+      "name": "watchtower under cutaway has no broken flight",
+      "pass": true,
+      "detail": {
+        "position": {
+          "x": 57.25,
+          "y": 0.8599765336818725,
+          "z": -30.968
+        },
+        "occlusion": {
+          "hidden": 1,
+          "sections": [
+            {
+              "name": "watchtower · complete staircase",
+              "kind": "stair",
+              "stairId": "watchtower",
+              "parts": 10,
+              "allHidden": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "physical door contact offers and completes strike hall-pressure",
+      "pass": true,
+      "detail": {
+        "id": "hall-pressure",
+        "rotation": 0,
+        "distance": 1.3678074999999996,
+        "target": true,
+        "started": true,
+        "opened": true,
+        "impacts": [
+          {
+            "kind": "kick",
+            "time": 0.6416666666666668,
+            "opened": true,
+            "error": 1.2010602957199751e-8,
+            "contact": [
+              -0.6499977405101734,
+              1.25,
+              5.18
+            ],
+            "actual": [
+              -0.6499977421176384,
+              1.2499999932124723,
+              5.1800000097775305
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "physical door contact offers and completes strike archive-secret",
+      "pass": true,
+      "detail": {
+        "id": "archive-secret",
+        "rotation": 1.5707963267948966,
+        "distance": 1.3678074999999907,
+        "target": true,
+        "started": true,
+        "opened": true,
+        "impacts": [
+          {
+            "kind": "punch",
+            "time": 0.4666666666666673,
+            "opened": true,
+            "error": 4.1971373305492535e-7,
+            "contact": [
+              -60.18,
+              2.15,
+              -9.677760862221449
+            ],
+            "actual": [
+              -60.18000041866171,
+              2.1499999713953244,
+              -9.677760854236459
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "both door orientations covered",
+      "pass": true,
+      "detail": [
+        {
+          "id": "hall-pressure",
+          "rotation": 0
+        },
+        {
+          "id": "archive-secret",
+          "rotation": 1.5707963267948966
+        }
+      ]
+    },
+    {
+      "name": "benchmark saved",
+      "pass": true
+    },
+    {
+      "name": "ordinary play shows measured FPS",
+      "pass": true,
+      "detail": "60 FPS"
+    },
+    {
+      "name": "actual desktop toolbar stays bottom left clear of every game button",
+      "pass": true,
+      "detail": {
+        "input": "keyboard",
+        "x": 12,
+        "y": 836,
+        "width": 236.3125,
+        "height": 52,
+        "bad": []
+      }
+    }
+  ],
+  "touch": [
+    {
+      "name": "native touch picks the weight",
+      "pass": true
+    },
+    {
+      "name": "touch weight hovers over the intended plate",
+      "pass": true,
+      "detail": {
+        "held": "Άφθαρτο βάρος",
+        "position": {
+          "x": -4.799988977640424,
+          "y": 1.0499762380994955,
+          "z": 8.999999983651227
+        },
+        "distanceToPlate": 0.00001102237170072073,
+        "fingerDistance": 86.56021375232257,
+        "mark": [
+          361.84375,
+          168.03125
+        ],
+        "banner": "none",
+        "context": true
+      }
+    },
+    {
+      "name": "finger and overlays leave the weight visible",
+      "pass": true,
+      "detail": {
+        "held": "Άφθαρτο βάρος",
+        "position": {
+          "x": -4.799988977640424,
+          "y": 1.0499762380994955,
+          "z": 8.999999983651227
+        },
+        "distanceToPlate": 0.00001102237170072073,
+        "fingerDistance": 86.56021375232257,
+        "mark": [
+          361.84375,
+          168.03125
+        ],
+        "banner": "none",
+        "context": true
+      }
+    },
+    {
+      "name": "release places the real weight and activates the plate",
+      "pass": true,
+      "detail": {
+        "held": null,
+        "y": 0.519990931016595,
+        "position": {
+          "x": -4.80029815343531,
+          "y": 0.519990931016595,
+          "z": 9.000433039897894
+        },
+        "active": true
+      }
+    },
+    {
+      "name": "joystick and drag work together",
+      "pass": true,
+      "detail": {
+        "pos": {
+          "x": -1.8730247281739922,
+          "z": 11.4
+        },
+        "drag": true
+      }
+    },
+    {
+      "name": "cancel clears drag and browser text selection",
+      "pass": true
+    }
+  ],
+  "motion": [
+    {
+      "actor": "wizard",
+      "room": "library",
+      "up": {
+        "x": -56.25,
+        "y": 5.17997559201015,
+        "z": -7.337975421453016
+      },
+      "upperTurn": {
+        "x": -51.409447094903385,
+        "y": 5.179976533681872,
+        "z": -7.551361154271405
+      },
+      "down": {
+        "x": -56.30482548682875,
+        "y": -0.020115101608881303,
+        "z": 3.719547565743707
+      },
+      "trace": [
+        {
+          "t": 0,
+          "x": -56.25,
+          "y": 0.028611111111111143,
+          "z": 4.193422357530552
+        },
+        {
+          "t": 1,
+          "x": -56.25,
+          "y": 1.534682793701604,
+          "z": 0.47747052961099495
+        },
+        {
+          "t": 2,
+          "x": -56.25,
+          "y": 3.9047697121001965,
+          "z": -3.327225777908251
+        }
+      ],
+      "pass": true
+    },
+    {
+      "actor": "wizard",
+      "room": "gallery",
+      "up": {
+        "x": 56.25,
+        "y": 4.779975249256713,
+        "z": -6.681922243845621
+      },
+      "upperTurn": {
+        "x": 51.409447094903385,
+        "y": 4.779976533681872,
+        "z": -6.895306790027072
+      },
+      "down": {
+        "x": 56.30482548682876,
+        "y": -0.020029607514270964,
+        "z": 3.728175562350113
+      },
+      "trace": [
+        {
+          "t": 0,
+          "x": 56.25,
+          "y": 0.028611111111111143,
+          "z": 4.2
+        },
+        {
+          "t": 1,
+          "x": 56.25,
+          "y": 0.31594656530581566,
+          "z": 2.4197168090536767
+        },
+        {
+          "t": 2,
+          "x": 56.25,
+          "y": 2.696918228248178,
+          "z": -1.3927466174248033
+        },
+        {
+          "t": 3,
+          "x": 56.25,
+          "y": 4.924036176030288,
+          "z": -5.294336956668785
+        }
+      ],
+      "pass": true
+    },
+    {
+      "actor": "wizard",
+      "room": "watchtower",
+      "up": {
+        "x": 57.25,
+        "y": 5.979975915476347,
+        "z": -34.13650521483045
+      },
+      "upperTurn": {
+        "x": 51.42790045798845,
+        "y": 5.979976533681872,
+        "z": -34.349890922186724
+      },
+      "down": {
+        "x": 57.30482548682875,
+        "y": -0.020031370885638666,
+        "z": -21.790590287200054
+      },
+      "trace": [
+        {
+          "t": 0,
+          "x": 57.25,
+          "y": 0.028611111111111143,
+          "z": -21.3
+        },
+        {
+          "t": 1,
+          "x": 57.25,
+          "y": 0.3159465653058141,
+          "z": -23.08028319094632
+        },
+        {
+          "t": 2,
+          "x": 57.25,
+          "y": 2.696918228248145,
+          "z": -26.89274661742473
+        },
+        {
+          "t": 3,
+          "x": 57.25,
+          "y": 5.069658203001604,
+          "z": -30.713948480366504
+        }
+      ],
+      "pass": true
+    },
+    {
+      "actor": "HEARTH",
+      "room": "library",
+      "up": {
+        "x": -56.25,
+        "y": 5.199846146709205,
+        "z": -7.327336672466891
+      },
+      "upperTurn": {
+        "x": -51.41144647141927,
+        "y": 5.199846146709205,
+        "z": -7.40058204472333
+      },
+      "down": {
+        "x": -56.1787769490612,
+        "y": -0.00015576759911262172,
+        "z": 3.7243300935942276
+      },
+      "trace": [
+        {
+          "t": 0,
+          "x": -56.25,
+          "y": 0.028611111111111143,
+          "z": 4.19376854923947
+        },
+        {
+          "t": 1,
+          "x": -56.25,
+          "y": 0.9799971532845861,
+          "z": 1.610924779737671
+        },
+        {
+          "t": 2,
+          "x": -56.25,
+          "y": 2.523728467739855,
+          "z": -0.8811958570063535
+        },
+        {
+          "t": 3,
+          "x": -56.25,
+          "y": 4.082910040052934,
+          "z": -3.36603547331545
+        },
+        {
+          "t": 4,
+          "x": -56.25,
+          "y": 5.199855922885402,
+          "z": -5.99322705999379
+        }
+      ],
+      "pass": true
+    },
+    {
+      "actor": "HEARTH",
+      "room": "gallery",
+      "up": {
+        "x": 56.232023290195954,
+        "y": 4.799846146709199,
+        "z": -6.68091947593805
+      },
+      "upperTurn": {
+        "x": 51.418175518395735,
+        "y": 4.799846146709203,
+        "z": -6.7541648481939305
+      },
+      "down": {
+        "x": 56.18187958559038,
+        "y": -0.00015309034057309212,
+        "z": 3.717144412285734
+      },
+      "trace": [
+        {
+          "t": 0,
+          "x": 56.24902957351389,
+          "y": 0.028710092730209524,
+          "z": 4.194057779505889
+        },
+        {
+          "t": 1,
+          "x": 56.232023290195954,
+          "y": 0.977490655413128,
+          "z": 1.6147935348545892
+        },
+        {
+          "t": 2,
+          "x": 56.232023290195954,
+          "y": 2.521485049914503,
+          "z": -0.8777032696868969
+        },
+        {
+          "t": 3,
+          "x": 56.232023290195954,
+          "y": 4.080060099941045,
+          "z": -3.3600987222147363
+        },
+        {
+          "t": 4,
+          "x": 56.232023290195954,
+          "y": 4.799846146588865,
+          "z": -6.112685356236481
+        }
+      ],
+      "pass": true
+    },
+    {
+      "actor": "HEARTH",
+      "room": "watchtower",
+      "up": {
+        "x": 57.25,
+        "y": 5.999846146709205,
+        "z": -34.11284130344478
+      },
+      "upperTurn": {
+        "x": 51.42321431271659,
+        "y": 5.999846146709205,
+        "z": -34.186086675701645
+      },
+      "down": {
+        "x": 57.17877643238625,
+        "y": -0.00015542765820764082,
+        "z": -21.780112355459696
+      },
+      "trace": [
+        {
+          "t": 0,
+          "x": 57.25,
+          "y": 0.028611111111111143,
+          "z": -21.30623145076053
+        },
+        {
+          "t": 1,
+          "x": 57.25,
+          "y": 0.9799971532845924,
+          "z": -23.889075220262338
+        },
+        {
+          "t": 2,
+          "x": 57.25,
+          "y": 2.523728467739865,
+          "z": -26.38119585700637
+        },
+        {
+          "t": 3,
+          "x": 57.25,
+          "y": 4.08291004005294,
+          "z": -28.866035473315463
+        },
+        {
+          "t": 4,
+          "x": 57.25,
+          "y": 5.640583484671671,
+          "z": -31.345483444002728
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "supplyPlans": 117,
+  "performance": {
+    "conditions": "Native Windows Chrome GPU, 814x358 iPhone viewport, seed821. Native UI for dragging and boarding. Controlled actor/engine positions only for repeatable room setup. 6s real rAF per timed scene. No physical-phone performance claim.",
+    "scenes": [
+      {
+        "name": "courtyard",
+        "frames": {
+          "count": 361,
+          "mean": 16.645152354587147,
+          "p95": 16.799999999999272,
+          "max": 16.80000000000109
+        },
+        "calls": {
+          "count": 361,
+          "mean": 669,
+          "p95": 669,
+          "max": 669
+        },
+        "triangles": {
+          "count": 361,
+          "mean": 1789873,
+          "p95": 1789873,
+          "max": 1789873
+        },
+        "cpu": {
+          "gameplay": {
+            "count": 361,
+            "mean": 0.2939058202950908,
+            "p95": 0.4000000059604645,
+            "max": 0.6000000238418579
+          },
+          "physics": {
+            "count": 361,
+            "mean": 0.6254847635852994,
+            "p95": 1,
+            "max": 1.5999999940395355
+          },
+          "visuals": {
+            "count": 361,
+            "mean": 1.671468143400393,
+            "p95": 2.2000000178813934,
+            "max": 3.4000000059604645
+          },
+          "textureCheck": {
+            "count": 361,
+            "mean": 0.04210526328998259,
+            "p95": 0.10000002384185791,
+            "max": 0.19999998807907104
+          },
+          "render": {
+            "count": 361,
+            "mean": 4.272299168760426,
+            "p95": 5.4000000059604645,
+            "max": 11.299999982118607
+          }
+        },
+        "state": {
+          "state": "sleep",
+          "fuel": 0,
+          "endless": true,
+          "stompCooldown": 0,
+          "room": "library",
+          "roomLabel": "Βιβλιοθήκη",
+          "x": -46.65,
+          "z": -0.29999999999999605,
+          "yaw": 0,
+          "aimYaw": 3.731547345924183,
+          "stompTime": 0,
+          "clip": "Sleep",
+          "firing": false,
+          "occupied": false
+        }
+      },
+      {
+        "name": "crypt-engine",
+        "frames": {
+          "count": 361,
+          "mean": 16.640720221606646,
+          "p95": 16.799999999999272,
+          "max": 16.80000000000291
+        },
+        "calls": {
+          "count": 361,
+          "mean": 949.5069252077562,
+          "p95": 962,
+          "max": 963
+        },
+        "triangles": {
+          "count": 361,
+          "mean": 2602541.51800554,
+          "p95": 2624052,
+          "max": 2624460
+        },
+        "cpu": {
+          "gameplay": {
+            "count": 361,
+            "mean": 0.5443213312084325,
+            "p95": 0.7000000178813934,
+            "max": 4
+          },
+          "physics": {
+            "count": 361,
+            "mean": 0.7301939038193457,
+            "p95": 1.0999999940395355,
+            "max": 1.5
+          },
+          "visuals": {
+            "count": 361,
+            "mean": 2.2692520777769696,
+            "p95": 2.899999976158142,
+            "max": 4
+          },
+          "textureCheck": {
+            "count": 361,
+            "mean": 0.02770083094237584,
+            "p95": 0.10000002384185791,
+            "max": 0.10000002384185791
+          },
+          "render": {
+            "count": 361,
+            "mean": 5.251800554198241,
+            "p95": 6.5999999940395355,
+            "max": 8.300000011920929
+          }
+        },
+        "state": {
+          "state": "piloted",
+          "fuel": 100,
+          "endless": true,
+          "stompCooldown": 0,
+          "room": "crypt",
+          "roomLabel": "Κρύπτη / κειμήλιο",
+          "x": -4.344178517242748,
+          "z": -20.64543869318381,
+          "yaw": -2.5158698742460994,
+          "aimYaw": 3.731547345924183,
+          "stompTime": 0,
+          "clip": "Idle",
+          "firing": false,
+          "occupied": true
+        }
+      },
+      {
+        "name": "crypt-fire",
+        "frames": {
+          "count": 361,
+          "mean": 16.621883656509695,
+          "p95": 16.799999999999272,
+          "max": 16.80000000000291
+        },
+        "calls": {
+          "count": 361,
+          "mean": 946.2825484764543,
+          "p95": 950,
+          "max": 952
+        },
+        "triangles": {
+          "count": 361,
+          "mean": 2512314.64265928,
+          "p95": 2538650,
+          "max": 2581986
+        },
+        "cpu": {
+          "gameplay": {
+            "count": 361,
+            "mean": 1.6260387814110997,
+            "p95": 2.0999999940395355,
+            "max": 5
+          },
+          "physics": {
+            "count": 361,
+            "mean": 0.7501385052613604,
+            "p95": 1.0999999940395355,
+            "max": 1.600000023841858
+          },
+          "visuals": {
+            "count": 361,
+            "mean": 2.460110802812259,
+            "p95": 3.2000000178813934,
+            "max": 4
+          },
+          "textureCheck": {
+            "count": 361,
+            "mean": 0.026315789060909662,
+            "p95": 0.09999999403953552,
+            "max": 0.10000002384185791
+          },
+          "render": {
+            "count": 361,
+            "mean": 5.348199446115467,
+            "p95": 6.799999982118607,
+            "max": 10.299999982118607
+          }
+        },
+        "state": {
+          "state": "piloted",
+          "fuel": 100,
+          "endless": true,
+          "stompCooldown": 0,
+          "room": "crypt",
+          "roomLabel": "Κρύπτη / κειμήλιο",
+          "x": -4.9225172060226985,
+          "z": -20.672475898021883,
+          "yaw": 2.025939381601607,
+          "aimYaw": 8.344605534211869,
+          "stompTime": 0,
+          "clip": "Fire",
+          "firing": true,
+          "occupied": true
+        }
+      }
+    ],
+    "physicalIPhoneVerified": false
+  },
+  "limitations": [
+    "Physical iPhone16FPS remains unresolved; this release does not claim to fix it.",
+    "Rejected finite-light optimization is excluded.",
+    "Exact-profile offline navigation is conservative at HEARTH stair transitions; actual contact-based traversal takes precedence."
+  ]
+}
