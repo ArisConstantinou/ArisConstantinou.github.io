@@ -13,3 +13,5 @@ body[data-input="touch"] #benchmark-panel.is-running{bottom:calc(160px + env(saf
 .benchmark-card h3{font-size:18px;margin-top:24px}
 body:has(#benchmark-panel.is-running) .fps-counter{display:none}
 body[data-input="keyboard"]:has(#benchmark-panel.is-running) .movement-hint{bottom:82px}
+
+body[data-input="keyboard"]:has(#benchmark-panel.is-running) .run-meta{bottom:calc(196px + var(--safe-bottom))}

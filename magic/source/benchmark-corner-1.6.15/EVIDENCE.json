@@ -1,0 +1,93 @@
+{
+  "version": "1.6.15",
+  "correction": "Separate desktop WASD legend from run statistics while keeping benchmark bottom left.",
+  "local": {
+    "url": "http://127.0.0.1:5173/performance-check/after/benchmark-corner-1.6.15/index.html?benchmark=1",
+    "checks": [
+      {
+        "name": "desktop controls and instructions stay separate",
+        "pass": true,
+        "detail": {
+          "version": "1.6.15",
+          "input": "keyboard",
+          "bad": [],
+          "panel": {
+            "x": 12,
+            "y": 836,
+            "w": 242.96875,
+            "h": 52
+          }
+        }
+      },
+      {
+        "name": "landscape controls and instructions stay separate",
+        "pass": true,
+        "detail": {
+          "version": "1.6.15",
+          "input": "touch",
+          "bad": [],
+          "panel": {
+            "x": 12,
+            "y": 146,
+            "w": 242.96875,
+            "h": 52
+          }
+        }
+      },
+      {
+        "name": "portrait controls and instructions stay separate",
+        "pass": true,
+        "detail": {
+          "version": "1.6.15",
+          "input": "touch",
+          "bad": [],
+          "panel": {
+            "x": 12,
+            "y": 533,
+            "w": 242.96875,
+            "h": 52
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "passed": true,
+    "cleanup": {
+      "closed": true,
+      "remainingPids": []
+    }
+  },
+  "unchangedGameplaySource": true,
+  "inherited": {
+    "version": "1.6.14",
+    "verifiedUtc": "2026-10-17T10:28:22.617Z",
+    "sourceCommit": "cc20b3bdb27a6ba47d9c67f1163e8243864652f8",
+    "publicCommit": "9b596f7ebd14ff5a4f49f1dea432180f68c76919",
+    "url": "https://arisconstantinou.github.io/magic/?v=1.6.14",
+    "benchmarkUrl": "https://arisconstantinou.github.io/magic/?v=1.6.14&benchmark=1",
+    "localUrl": "http://127.0.0.1:5173/performance-check/after/mobile-gameplay-1.6.14/index.html",
+    "deployment": {
+      "conclusion": "success",
+      "headSha": "9b596f7ebd14ff5a4f49f1dea432180f68c76919",
+      "status": "completed",
+      "url": "https://github.com/ArisConstantinou/ArisConstantinou.github.io/actions/runs/39024684784"
+    },
+    "publicHashes": 23,
+    "unitTests": 347,
+    "publicFeatureChecks": 23,
+    "publicNativeOfflineChecks": 13,
+    "supplyPlans": 117,
+    "nativeTouchChecks": 6,
+    "physicalStairSequences": 6,
+    "previousBundleRetained": true,
+    "allOwnedBrowsersClosed": true,
+    "status": "published_interaction_layout_fixes_performance_open",
+    "openIssues": [
+      "Physical iPhone16–22FPS remains unresolved; no phone performance fix is claimed."
+    ],
+    "usage": "Attributable task weekly usage/credits unavailable. No paid asset, agent, reset or purchase."
+  },
+  "limitations": [
+    "Physical iPhone16–22FPS remains unresolved; no phone performance fix is claimed."
+  ]
+}
