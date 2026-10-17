@@ -14,12 +14,20 @@ test('cached static bounds produce Three identical draw lists for camera and sha
  }
 });
 test('batched masonry preserves transforms, original raycasts and independent parent cutaways',()=>{
- const root=new Group(),material=new MeshStandardMaterial(),geometry=new BoxGeometry(),sources=[];
- for(let i=0;i<4;i++){const owner=new Group(),mesh=new Mesh(geometry,material);owner.position.set(i*3,0,-5);mesh.position.y=1;mesh.castShadow=mesh.receiveShadow=true;owner.add(mesh);root.add(owner);sources.push(mesh);}
+ const root=new Group(),material=new MeshStandardMaterial(),geometry=new BoxGeometry(),sources=[],owners=[];
+ for(let i=0;i<4;i++){const owner=new Group(),mesh=new Mesh(geometry,material);owner.position.set(i*3,0,-5);mesh.position.y=1;mesh.castShadow=mesh.receiveShadow=true;owner.add(mesh);root.add(owner);sources.push(mesh);owners.push(owner);}
  root.updateMatrixWorld(true);const matrices=sources.map(m=>m.matrixWorld.clone()),b=batchStaticWalls(root,sources),batch=root.children.find(m=>m.isBatchedMesh);assert.equal(b.meshes,4);assert.equal(b.groups,1);
  const matrix=new Matrix4();sources.forEach((m,i)=>{batch.getMatrixAt(i,matrix);assert.deepEqual(matrix.elements,matrices[i].elements);assert.equal(m.layers.mask,(1<<31)>>>0);});
  const ray=new Raycaster(new Vector3(0,1,0),new Vector3(0,0,-1));ray.layers.enable(31);assert(ray.intersectObjects(sources).length>0);
- sources[1].parent.visible=false;b.update();assert.equal(batch.getVisibleAt(0),true);assert.equal(batch.getVisibleAt(1),false);sources[1].parent.visible=true;b.update();assert.equal(batch.getVisibleAt(1),true);
+ owners[1].visible=false;b.update();assert.equal(batch.getVisibleAt(0),true);assert.equal(batch.getVisibleAt(1),false);owners[1].visible=true;b.update();assert.equal(batch.getVisibleAt(1),true);
+});
+test('batched query meshes do not repeat renderer traversal, retaining exact parent visibility and raycasts',()=>{
+ const root=new Group(),material=new MeshStandardMaterial(),geometry=new BoxGeometry(),owner=new Group(),sources=[];root.add(owner);
+ for(let i=0;i<5;i++){const m=new Mesh(geometry,material);m.position.set(i*2,0,-6);owner.add(m);sources.push(m);}
+ root.updateMatrixWorld(true);const matrices=sources.map(m=>m.matrixWorld.clone());const batch=batchStaticWalls(root,sources);let repeated=0;root.traverse(o=>{if(sources.includes(o))repeated++;});assert.equal(repeated,0,'immutable source meshes must not be traversed again by colour and shadow passes');
+ const ray=new Raycaster(new Vector3(0,0,0),new Vector3(0,0,-1));ray.layers.enable(31);assert.equal(ray.intersectObjects(sources,false).length,2);sources.forEach((m,i)=>assert(m.matrixWorld.equals(matrices[i])));
+ owner.visible=false;batch.update();assert.equal(batch.isVisible(sources[0]),false);owner.visible=true;batch.update();assert.equal(batch.isVisible(sources[0]),true);
+ sources[0].visible=false;batch.update();assert.equal(batch.isVisible(sources[0]),false);
 });
 test('custom shaders and transparent or animated geometry retain their original path',()=>{const root=new Group(),m=new MeshStandardMaterial();m.onBeforeCompile=()=>{};const list=Array.from({length:4},()=>new Mesh(new BoxGeometry(),m));list.forEach(o=>root.add(o));assert.equal(batchStaticWalls(root,list).groups,0);assert(list.every(o=>o.layers.mask===1));});
 test('explicit world-baked shaders only batch identity sources, preserving their coordinates',()=>{

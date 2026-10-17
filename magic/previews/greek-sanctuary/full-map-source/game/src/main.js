@@ -27,6 +27,7 @@ import { clamp, distance, lineClear, pointSegmentDistance, NavigationGrid, Profi
 import { PointerMotion, gestureThrowVelocity, clampDragPoint, constrainDragPoint } from './drag.js';
 import {mobileDragPointer} from './mobile-drag-pointer.js';
 import {FrameRateMeter} from './frame-rate.js';
+import {intersectAnimatedObject} from './animated-picking.js';
 import {shieldGesture,nearestContext} from './context-controls.js';
 import { aimedThrowVelocity, floorThrowTarget } from './throw-aim.js';
 import {equipmentStats,isPotion,rollLoot,TIERS,itemName} from './loot.js';
@@ -455,15 +456,13 @@ function aimAtPointer(info){
 }
 function pickObject(info,ignore=null){
   if(!pointerRay(info))return null;
-  scene.updateMatrixWorld(true);
   let selected=null,nearest=Infinity;
   const candidates=entities.filter(e=>e!==ignore&&!e.removed&&!e.isPlayer&&!e.ally&&!e.reserved&&e.mesh.visible);
   for(const e of candidates){
     const p=e.body.position,r=Math.hypot(e.radius,e.ext?.y||e.cy*1.3)+.3;
     if(raycaster.ray.distanceSqToPoint(new THREE.Vector3(p.x,p.y,p.z))>r*r)continue;
-    // Animated skinned bounds must describe the current pose, including raised arms.
-    e.mesh.traverse(o=>{if(o.isSkinnedMesh)o.computeBoundingSphere();});
-    for(const hit of raycaster.intersectObject(e.mesh,true)){
+    // Exact current-pose bounds and intersections share the same skinned vertices.
+    for(const hit of intersectAnimatedObject(raycaster,e.mesh)){
       let visible=true;for(let node=hit.object;node;node=node.parent)if(!node.visible){visible=false;break;}
       if(visible&&hit.distance<nearest){nearest=hit.distance;selected=e;}
     }

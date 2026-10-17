@@ -13,3 +13,23 @@ test('closed door and frame remain visible while an obstructing wall is cut away
  installFullMapOcclusion(world,{gates:[{id:'closed-test-door',frame,doors}]});updateFullMapOcclusion(world,{body:{position:new T.Vector3(0,1.5,-2)},cy:1.22},camera,.2,true);
  assert.equal(wall.visible,false,'wall cutaway still works');assert.equal(doors.visible,true,'a door cannot become an invisible physical barrier');assert.equal(frame.visible,true,'the door frame stays with its leaves');
 });
+
+test('upper doors and batched frames follow their floor while remaining independent of wall cutaways',()=>{
+ const root=new T.Group(),upper=new T.Group(),divider=new T.Group();root.add(upper);upper.add(divider);
+ upper.position.set(12,0,-8);divider.userData.fullMapWall={alongX:true,x:12,z:-8,length:8,floorY:4.8};
+ const doors=new T.Group(),frame=new T.Group();divider.add(doors,frame);doors.position.set(0,4.8,0);
+ const leaf=new T.Mesh(new T.BoxGeometry(3,4,.2),new T.MeshStandardMaterial());leaf.position.set(1.5,2,0);doors.add(leaf);
+ const material=new T.MeshStandardMaterial();for(let i=0;i<4;i++){const trim=new T.Mesh(new T.BoxGeometry(.2,4,.2),material);trim.position.set(i,6.8,0);frame.add(trim);}
+ root.updateMatrixWorld(true);const original=leaf.matrixWorld.clone(),world={root,fullMap:{groups:[{group:upper,landing:{gate:'gallery-upper'}}]}};
+ installFullMapOcclusion(world,{gates:[{id:'gallery-upper',frame,doors}]});root.updateMatrixWorld(true);
+ assert(leaf.matrixWorld.equals(original),'reparenting preserves world-space doorway placement');
+ const camera=new T.PerspectiveCamera();camera.position.set(12,18,10);camera.lookAt(12,1,-8);camera.updateMatrixWorld();
+ const subject={body:{position:new T.Vector3(12,1,-8)},cy:.86};
+ const shown=o=>{for(let p=o;p;p=p.parent)if(!p.visible)return false;return true;};
+ for(const upperVisible of [false,true,false,true]){
+  upper.visible=upperVisible;divider.visible=false;updateFullMapOcclusion(world,subject,camera,.2,true);
+  assert.equal(shown(doors),upperVisible,'door follows upper floor visibility');assert.equal(shown(frame),upperVisible,'frame follows upper floor visibility');
+  const batch=root.children.find(o=>o.isBatchedMesh);assert(batch);for(let i=0;i<4;i++)assert.equal(batch.getVisibleAt(i),upperVisible,'batched frame has the same floor visibility');
+ }
+ doors.rotation.y=.8;doors.updateMatrixWorld(true);assert(!leaf.matrixWorld.equals(original),'open/breached-door motion remains dynamic');
+});

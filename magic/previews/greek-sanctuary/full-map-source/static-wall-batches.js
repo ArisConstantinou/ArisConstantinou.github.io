@@ -24,7 +24,8 @@ export function cacheStaticBatchBounds(batch){
 }
 
 /** Batch immutable masonry using the original geometry, material and matrices.
- * Originals remain on query layer31 for exact existing cutaway/aim raycasts.
+ * Originals remain on query layer31 for exact existing cutaway/aim raycasts,
+ * outside the render tree. Their captured owner chain still controls visibility.
  * Each source retains independent visibility, including its parent cutaway.
  * Animated doors, transparent surfaces and custom shaders keep their old path.
  */
@@ -36,12 +37,12 @@ export function batchStaticWalls(root,meshes){
  const groups=new Map(),matrix=new Matrix4(),identity=new Matrix4();
  for(const mesh of meshes){
   const m=mesh.material,g=mesh.geometry;
-  if(!m||Array.isArray(m)||m.transparent||(m.onBeforeCompile!==Material.prototype.onBeforeCompile&&!(m.userData.worldBakedBatch&&!mesh.isInstancedMesh&&mesh.matrixWorld.equals(identity)))||mesh.isSkinnedMesh||mesh.instanceColor||Object.keys(g.morphAttributes).length||g.drawRange.start!==0||Number.isFinite(g.drawRange.count))continue;
+  if(!m||Array.isArray(m)||m.transparent||mesh.children.length||(m.onBeforeCompile!==Material.prototype.onBeforeCompile&&!(m.userData.worldBakedBatch&&!mesh.isInstancedMesh&&mesh.matrixWorld.equals(identity)))||mesh.isSkinnedMesh||mesh.instanceColor||Object.keys(g.morphAttributes).length||g.drawRange.start!==0||Number.isFinite(g.drawRange.count))continue;
   const layout=Object.entries(g.attributes).map(([k,a])=>`${k}:${a.itemSize}:${a.normalized}:${a.array.constructor.name}`).sort().join(',');
   const key=`${m.uuid}:${!!g.index}:${+mesh.castShadow}:${+mesh.receiveShadow}:${layout}`;
   if(!groups.has(key))groups.set(key,[]);groups.get(key).push(mesh);
  }
- const bindings=[],batches=[];
+ const bindings=[],batches=[],visibilityChains=new WeakMap();
  for(const sources of groups.values()){
   if(sources.length<3)continue;
   const geometries=[...new Set(sources.map(m=>m.geometry))],count=sources.reduce((n,m)=>n+(m.isInstancedMesh?m.count:1),0);
@@ -54,11 +55,17 @@ export function batchStaticWalls(root,meshes){
     const id=batch.addInstance(ids.get(source.geometry));batch.setMatrixAt(id,matrix);instanceIds.push(id);
    }
    source.layers.set(31);source.traverse(o=>{o.updateMatrix();o.matrixAutoUpdate=false;o.matrixWorldAutoUpdate=false;});
-   bindings.push({source,batch,ids:instanceIds,shown:null});
+   const chain=[];for(let node=source;node;node=node.parent)chain.push(node);
+   visibilityChains.set(source,chain);bindings.push({source,batch,ids:instanceIds,shown:null});
   }
   // Stored matrices above are world-space; the castle root is identity.
   root.add(batch);batch.matrixAutoUpdate=false;batch.matrixWorldAutoUpdate=false;batch.computeBoundingBox();batch.computeBoundingSphere();cacheStaticBatchBounds(batch);batches.push(batch);
  }
- function update(){for(const b of bindings){let shown=true;for(let n=b.source;n&&shown;n=n.parent)shown=n.visible;if(shown===b.shown)continue;b.shown=shown;for(const id of b.ids)b.batch.setVisibleAt(id,shown);}}
- update();return {update,meshes:bindings.length,groups:batches.length,instances:bindings.reduce((n,b)=>n+b.ids.length,0)};
+ // The world matrices are already immutable. Keeping the same query objects
+ // avoids geometry copies while eliminating their duplicate traversal during
+ // every scene-matrix, colour and shadow pass. The render batches stay intact.
+ for(const {source}of bindings)source.removeFromParent();
+ function isVisible(source){const chain=visibilityChains.get(source);if(chain)return chain.every(node=>node.visible);for(let node=source;node;node=node.parent)if(!node.visible)return false;return true;}
+ function update(){for(const b of bindings){const shown=isVisible(b.source);if(shown===b.shown)continue;b.shown=shown;for(const id of b.ids)b.batch.setVisibleAt(id,shown);}}
+ update();return {update,isVisible,meshes:bindings.length,groups:batches.length,instances:bindings.reduce((n,b)=>n+b.ids.length,0)};
 }

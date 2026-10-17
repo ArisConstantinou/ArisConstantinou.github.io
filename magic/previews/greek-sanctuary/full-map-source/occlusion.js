@@ -5,7 +5,10 @@ const visible=o=>{for(let node=o;node;node=node.parent)if(!node.visible)return f
 export function installFullMapOcclusion(world,architecture){
  const doorMeshes=new Set();
  for(const gate of architecture.gates)for(const part of [gate.frame,gate.doors])if(part){
-  if(part.parent!==world.root)world.root.attach(part);
+  // A physical gate stays independent of wall cutaways, but an upper gate
+  // still belongs to its floor. Its frame's static batch reads this ancestry.
+  const owner=world.fullMap.groups?.find(({landing})=>landing.gate===gate.id)?.group||world.root;
+  if(part.parent!==owner)owner.attach(part);
   part.userData.persistentDoor=true;part.traverse(o=>{if(o.isMesh)doorMeshes.add(o);});
  }
  const walls=[],decor=[],flights=new Map();
@@ -36,7 +39,7 @@ export function updateFullMapOcclusion(world,subject,camera,dt,playing=true){
   for(const wall of state.hidden)for(const part of wall.parts)part.visible=true;
   state.hidden.clear();
   if(playing){
-   const candidates=state.meshes.filter(visible),height=subject.cy>1?1.2:.5,shoulder=subject.cy>1?1.25:.42,across=new T.Vector3().setFromMatrixColumn(camera.matrixWorld,0).multiplyScalar(shoulder);
+   const candidates=state.meshes.filter(state.batches.isVisible),height=subject.cy>1?1.2:.5,shoulder=subject.cy>1?1.25:.42,across=new T.Vector3().setFromMatrixColumn(camera.matrixWorld,0).multiplyScalar(shoulder);
    // Head, torso, feet and shoulders keep the complete character readable,
    // including the wide HEARTH silhouette behind a staircase cheek.
    for(const point of [focus.clone(),focus.clone().add(new T.Vector3(0,height,0)),focus.clone().add(new T.Vector3(0,-.3,0)),focus.clone().add(across),focus.clone().sub(across)]){
