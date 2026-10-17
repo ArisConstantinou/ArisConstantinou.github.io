@@ -1,5 +1,6 @@
 import {BAG_LIMIT,TIERS,SLOTS,LOOT_PATHS,itemStats,itemName,isPotion,salvageValue,STAT_LABELS,statText} from './loot.js';
 import {engineMouse} from './engine-mouse.js';
+import {protectGameplayGestures} from './gameplay-gestures.js';
 const PATHS = {
   fire:'<path d="M13 2c1 5-4 5-2 9 1-2 3-2 4-4 1 3 5 5 5 9a8 8 0 0 1-16 0c0-4 3-6 4-9-1 4 1 5 2 5-2-5 3-6 3-10Z"/>',
   ...Object.fromEntries(Object.entries(LOOT_PATHS).map(([kind,path])=>['loot'+kind,`<path d="${path}"/>`])),
@@ -155,6 +156,10 @@ export function createUI(callbacks = {}) {
   const text = (id, value) => { const output = String(value ?? ''); if (changed.get(id) !== output) { el[id].textContent = output; changed.set(id, output); } };
   const listen = (node, type, handler, options = {}) => node.addEventListener(type, handler, { ...options, signal });
   const live = () => phase === 'playing' && !modal;
+  protectGameplayGestures({document,signal,active:()=>{
+    const benchmark=document.getElementById('benchmark-panel');
+    return live()&&(!benchmark||benchmark.classList.contains('is-running'));
+  }});
   const prevent = (event) => { event.preventDefault(); event.stopPropagation(); };
   const invoke = (name, ...args) => { if (typeof callbacks[name] === 'function') return callbacks[name](...args); };
 

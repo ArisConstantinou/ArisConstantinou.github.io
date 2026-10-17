@@ -1,0 +1,540 @@
+{
+  "version": "1.6.12",
+  "unitTests": 285,
+  "beforeAfter": {
+    "conditions": "Native Chrome touch via CDP at814x358 with iPhone UA. Expanded running benchmark status: text drag selection and two-finger pinch. No programmatic selection or zoom. Desktop browser does not reproduce all physical WebKit gestures.",
+    "before": {
+      "selection": {
+        "scale": 1,
+        "offset": [
+          0,
+          0
+        ],
+        "scroll": [
+          0,
+          0
+        ],
+        "selection": "Ελεύθερο παιχνίδι · courtyard · 0 s",
+        "statusStyle": {
+          "touchAction": "auto",
+          "userSelect": "auto"
+        }
+      },
+      "pinch": {
+        "scale": 1.066666603088379,
+        "offset": [
+          25,
+          21
+        ],
+        "scroll": [
+          0,
+          0
+        ],
+        "selection": "",
+        "statusStyle": {
+          "touchAction": "auto",
+          "userSelect": "auto"
+        }
+      },
+      "protected": false
+    },
+    "after": {
+      "selection": {
+        "scale": 1,
+        "offset": [
+          0,
+          0
+        ],
+        "scroll": [
+          0,
+          0
+        ],
+        "selection": "",
+        "statusStyle": {
+          "touchAction": "none",
+          "userSelect": "none"
+        }
+      },
+      "pinch": {
+        "scale": 1,
+        "offset": [
+          0,
+          0
+        ],
+        "scroll": [
+          0,
+          0
+        ],
+        "selection": "",
+        "statusStyle": {
+          "touchAction": "none",
+          "userSelect": "none"
+        }
+      },
+      "protected": true
+    }
+  },
+  "touch": {
+    "conditions": "Windows native Chrome GPU, iPhone touch viewport. Real CDP contacts and browser clicks; no player state injection. WebKit-specific fallback events are explicitly synthetic. This does not replace physical iPhone verification.",
+    "checks": [
+      {
+        "name": "native touch starts normal game",
+        "pass": true
+      },
+      {
+        "name": "portrait movement survives second ability finger",
+        "pass": true
+      },
+      {
+        "name": "portrait second finger casts pulse",
+        "pass": true,
+        "detail": {
+          "before": 100,
+          "after": 81.14099999999999
+        }
+      },
+      {
+        "name": "portrait touchcancel releases movement",
+        "pass": true
+      },
+      {
+        "name": "portrait simultaneous contacts do not zoom/pan/select",
+        "pass": true,
+        "detail": {
+          "scale": 1,
+          "x": 0,
+          "y": 0,
+          "selection": ""
+        }
+      },
+      {
+        "name": "portrait native pause click preserved",
+        "pass": true
+      },
+      {
+        "name": "portrait paused menu gesture not blocked",
+        "pass": true
+      },
+      {
+        "name": "portrait native resume click preserved",
+        "pass": true
+      },
+      {
+        "name": "landscape movement survives second ability finger",
+        "pass": true
+      },
+      {
+        "name": "landscape second finger casts pulse",
+        "pass": true,
+        "detail": {
+          "before": 100,
+          "after": 81.09149999999997
+        }
+      },
+      {
+        "name": "landscape touchcancel releases movement",
+        "pass": true
+      },
+      {
+        "name": "landscape simultaneous contacts do not zoom/pan/select",
+        "pass": true,
+        "detail": {
+          "scale": 1,
+          "x": 0,
+          "y": 0,
+          "selection": ""
+        }
+      },
+      {
+        "name": "landscape native pause click preserved",
+        "pass": true
+      },
+      {
+        "name": "landscape paused menu gesture not blocked",
+        "pass": true
+      },
+      {
+        "name": "landscape native resume click preserved",
+        "pass": true
+      },
+      {
+        "name": "active gameplay fallback prevents page gestures and selection",
+        "pass": true
+      },
+      {
+        "name": "native recording expand click preserved",
+        "pass": true
+      },
+      {
+        "name": "long press does not select or move recording panel",
+        "pass": true,
+        "detail": {
+          "scale": 1,
+          "x": 0,
+          "y": 0,
+          "selection": ""
+        }
+      },
+      {
+        "name": "recording status cannot be drag-selected",
+        "pass": true
+      },
+      {
+        "name": "recording fallback prevents WebKit gestures and callouts",
+        "pass": true
+      },
+      {
+        "name": "recording native pinch leaves page unchanged",
+        "pass": true,
+        "detail": {
+          "scale": 1,
+          "x": 0,
+          "y": 0,
+          "selection": ""
+        }
+      },
+      {
+        "name": "native stop click completes and saves report",
+        "pass": true
+      },
+      {
+        "name": "completed report gestures and selection are not cancelled",
+        "pass": true,
+        "detail": {
+          "touchmove": false,
+          "gesturestart": false,
+          "gesturechange": false,
+          "gestureend": false,
+          "selectstart": false,
+          "contextmenu": false
+        }
+      },
+      {
+        "name": "completed report text can be selected",
+        "pass": true,
+        "detail": {
+          "selected": "Η αναφορά αποθηκεύτηκε (IndexedDB) με εικόνες."
+        }
+      },
+      {
+        "name": "completed report native touch scroll works",
+        "pass": true
+      },
+      {
+        "name": "saved report restores after reload",
+        "pass": true
+      },
+      {
+        "name": "no uncaught errors",
+        "pass": true,
+        "detail": []
+      }
+    ],
+    "recording": {
+      "summary": {
+        "frames": {
+          "count": 158,
+          "mean": 18.886708860721768,
+          "p50": 17.700000017881393,
+          "p95": 19.599999994039536,
+          "max": 219.40000000596046,
+          "over50": 1,
+          "over100": 1
+        },
+        "fps": 52.947287289405715,
+        "minInstantFPS": 4.5578851411706145,
+        "cpu": {
+          "gameplay": {
+            "count": 158,
+            "mean": 0.32405063151558744,
+            "p50": 0.30000001192092896,
+            "p95": 0.5,
+            "max": 0.800000011920929,
+            "over50": 0,
+            "over100": 0
+          },
+          "physics": {
+            "count": 158,
+            "mean": 2.169620253428628,
+            "p50": 1,
+            "p95": 5.5,
+            "max": 10.099999994039536,
+            "over50": 0,
+            "over100": 0
+          },
+          "visuals": {
+            "count": 158,
+            "mean": 1.9892405062159406,
+            "p50": 1.899999976158142,
+            "p95": 2.800000011920929,
+            "max": 5.5999999940395355,
+            "over50": 0,
+            "over100": 0
+          },
+          "textureCheck": {
+            "count": 158,
+            "mean": 0.0398734179855902,
+            "p50": 0,
+            "p95": 0.10000002384185791,
+            "max": 0.20000001788139343,
+            "over50": 0,
+            "over100": 0
+          },
+          "render": {
+            "count": 158,
+            "mean": 5.501265822897984,
+            "p50": 4.199999988079071,
+            "p95": 5.0999999940395355,
+            "max": 200.09999999403954,
+            "over50": 1,
+            "over100": 1
+          }
+        },
+        "gpu": {
+          "count": 158,
+          "mean": 6.338486278481016,
+          "p50": 5.554912,
+          "p95": 6.945056,
+          "max": 157.361024,
+          "over50": 1,
+          "over100": 1
+        },
+        "drawCalls": {
+          "count": 158,
+          "mean": 669.7911392405064,
+          "p50": 670,
+          "p95": 670,
+          "max": 670,
+          "over50": 158,
+          "over100": 158
+        },
+        "triangles": {
+          "count": 158,
+          "mean": 1789496.3417721519,
+          "p50": 1789559,
+          "p95": 1789559,
+          "max": 1789559,
+          "over50": 158,
+          "over100": 158
+        },
+        "worst": [
+          {
+            "at": 4843.300000011921,
+            "elapsed": 219.40000000596046,
+            "active": true,
+            "interval": 219.40000000596046,
+            "cpu": {
+              "gameplay": 0.800000011920929,
+              "physics": 10.099999994039536,
+              "visuals": 5.5999999940395355,
+              "textureCheck": 0.20000001788139343,
+              "render": 200.09999999403954
+            },
+            "calls": 668,
+            "triangles": 1788415,
+            "room": "courtyard",
+            "gpuMs": 157.361024
+          },
+          {
+            "at": 4973.5,
+            "elapsed": 349.59999999403954,
+            "active": true,
+            "interval": 21,
+            "cpu": {
+              "gameplay": 0.699999988079071,
+              "physics": 5.4000000059604645,
+              "visuals": 2.9000000059604645,
+              "textureCheck": 0.09999999403953552,
+              "render": 4.199999988079071
+            },
+            "calls": 670,
+            "triangles": 1788899,
+            "room": "courtyard",
+            "gpuMs": 3.290432
+          },
+          {
+            "at": 5432,
+            "elapsed": 808.0999999940395,
+            "active": true,
+            "interval": 20.099999994039536,
+            "cpu": {
+              "gameplay": 0.4000000059604645,
+              "physics": 5.5,
+              "visuals": 2.5999999940395355,
+              "textureCheck": 0,
+              "render": 4.5999999940395355
+            },
+            "calls": 670,
+            "triangles": 1789559,
+            "room": "courtyard",
+            "gpuMs": 5.789504
+          },
+          {
+            "at": 4863.300000011921,
+            "elapsed": 239.40000000596046,
+            "active": true,
+            "interval": 20,
+            "cpu": {
+              "gameplay": 0.5,
+              "physics": 8.900000005960464,
+              "visuals": 2.699999988079071,
+              "textureCheck": 0.10000002384185791,
+              "render": 5.5999999940395355
+            },
+            "calls": 668,
+            "triangles": 1788399,
+            "room": "courtyard",
+            "gpuMs": 5.542272
+          },
+          {
+            "at": 5272.800000011921,
+            "elapsed": 648.9000000059605,
+            "active": true,
+            "interval": 19.900000005960464,
+            "cpu": {
+              "gameplay": 0.29999998211860657,
+              "physics": 5.800000011920929,
+              "visuals": 2.199999988079071,
+              "textureCheck": 0,
+              "render": 4.200000017881393
+            },
+            "calls": 670,
+            "triangles": 1789559,
+            "room": "courtyard",
+            "gpuMs": 3.393856
+          },
+          {
+            "at": 5023.4000000059605,
+            "elapsed": 399.5,
+            "active": true,
+            "interval": 19.80000001192093,
+            "cpu": {
+              "gameplay": 0.4000000059604645,
+              "physics": 5.700000017881393,
+              "visuals": 2.7999999821186066,
+              "textureCheck": 0.09999999403953552,
+              "render": 4.300000011920929
+            },
+            "calls": 670,
+            "triangles": 1788951,
+            "room": "courtyard",
+            "gpuMs": 7.18304
+          },
+          {
+            "at": 5697.800000011921,
+            "elapsed": 1073.9000000059605,
+            "active": true,
+            "interval": 19.700000017881393,
+            "cpu": {
+              "gameplay": 0.30000001192092896,
+              "physics": 5.5,
+              "visuals": 2.5,
+              "textureCheck": 0,
+              "render": 4.4000000059604645
+            },
+            "calls": 670,
+            "triangles": 1789559,
+            "room": "courtyard",
+            "gpuMs": 6.155648
+          },
+          {
+            "at": 5200.4000000059605,
+            "elapsed": 576.5,
+            "active": true,
+            "interval": 19.599999994039536,
+            "cpu": {
+              "gameplay": 0.4000000059604645,
+              "physics": 4.699999988079071,
+              "visuals": 2.199999988079071,
+              "textureCheck": 0.10000002384185791,
+              "render": 4.199999988079071
+            },
+            "calls": 670,
+            "triangles": 1789559,
+            "room": "courtyard",
+            "gpuMs": 2.983808
+          },
+          {
+            "at": 6739.300000011921,
+            "elapsed": 2115.4000000059605,
+            "active": true,
+            "interval": 19.5,
+            "cpu": {
+              "gameplay": 0.30000001192092896,
+              "physics": 0.8999999761581421,
+              "visuals": 2.300000011920929,
+              "textureCheck": 0,
+              "render": 5.4000000059604645
+            },
+            "calls": 670,
+            "triangles": 1789559,
+            "room": "courtyard",
+            "gpuMs": 6.438112
+          },
+          {
+            "at": 7324.5,
+            "elapsed": 2700.5999999940395,
+            "active": true,
+            "interval": 19.299999982118607,
+            "cpu": {
+              "gameplay": 0.4000000059604645,
+              "physics": 0.800000011920929,
+              "visuals": 1.5999999940395355,
+              "textureCheck": 0,
+              "render": 4.0999999940395355
+            },
+            "calls": 669,
+            "triangles": 1789553,
+            "room": "courtyard",
+            "gpuMs": 5.554464
+          }
+        ]
+      },
+      "storage": {
+        "saved": true,
+        "backend": "IndexedDB",
+        "imagesSaved": true,
+        "errors": []
+      }
+    }
+  },
+  "webkit": {
+    "passed": true,
+    "touchProtection": {
+      "style": "none",
+      "touch": "none",
+      "calloutSupported": false,
+      "callout": "not exposed on Windows WebKit",
+      "cancelled": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "completedReportGestures": [
+      false,
+      false,
+      false,
+      false
+    ],
+    "storage": {
+      "saved": true,
+      "backend": "IndexedDB",
+      "imagesSaved": true,
+      "errors": []
+    }
+  },
+  "installedClient": {
+    "iterations": 2,
+    "nativeMovement": true
+  },
+  "limits": [
+    "Physical iPhone touch confirmation pending; Windows emulation is not physical-device proof.",
+    "Original iPhone16-22FPS/interruption remains unresolved.",
+    "Short native recording timings include explicit gesture/test actions; no claimed FPS speedup.",
+    "WebKit proprietary event cancellation is tested with synthetic events; Chrome pinch/multitouch use native CDP input."
+  ]
+}
