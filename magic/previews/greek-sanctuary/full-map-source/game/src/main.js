@@ -1207,7 +1207,7 @@ function updatePlayer(dt,input){
   const p=player;
   p.travelYaw=Math.hypot(input.moveX,input.moveZ)>.15?Math.atan2(input.moveX,input.moveZ):null;
   p.invulnerable=Math.max(0,p.invulnerable-dt);p.dashCooldown=Math.max(0,p.dashCooldown-dt);p.pulseCooldown=Math.max(0,p.pulseCooldown-dt);p.dashTime=Math.max(0,p.dashTime-dt);
-  if(input.pointerActive&&(p.travelYaw===null||held||input.firing)){
+  if(input.pointerActive&&(hearth.mounted||p.travelYaw===null||held||input.firing)){
     aimAtPointer({clientX:input.pointerX,clientY:input.pointerY});
   }else if(Math.hypot(input.moveX,input.moveZ)>.15){
     aimDirection.set(input.moveX,0,input.moveZ).normalize();
@@ -1223,7 +1223,7 @@ function updatePlayer(dt,input){
     p.body.velocity.x+=(input.moveX/length*p.speed*slow-p.body.velocity.x)*factor;
     p.body.velocity.z+=(input.moveZ/length*p.speed*slow-p.body.velocity.z)*factor;
   }
-  p.yaw=p.travelYaw!==null&&!held&&!input.firing?p.travelYaw:turnToward(p.yaw,Math.atan2(aimDirection.x,aimDirection.z),dt*15);
+  p.yaw=p.travelYaw!==null&&!held&&!input.firing&&!(hearth.mounted&&input.pointerActive)?p.travelYaw:turnToward(p.yaw,Math.atan2(aimDirection.x,aimDirection.z),dt*15);
   if(!held)p.mana=Math.min(p.maxMana,p.mana+dt*(15+2*(save.profile.upgrades.focus||0)+p.gear.regen));
   updateHeld(dt,input);
   if(held&&fireSpell.ignite(held,runTime)){sound.sound('fireIgnite');fx.burst(held.body.position,0xffb047,16,1.8);}
@@ -1584,7 +1584,7 @@ async function boot(){
     await loadCharacters((fraction)=>ui.setLoading(.2+fraction*.65,'Οι φύλακες παίρνουν θέση…'));
     await Promise.all([loadBossCharacters(),loadStoneMinion({camera})]);
     await loadHearth();hearthFX=createHearthEffects(scene);
-    hearth=createHearthSystem({scene,physics,worldMap,nav,material:actorMaterial,spell:fireSpell,getPlayer:()=>player,getEntities:()=>entities,getHeld:()=>held,getAimEntity:()=>target||greekPuzzles?.aimTarget(hearth?.engine,player?.yaw||0),getEnvironmentalTargets:()=>greekPuzzles?.aimTargets(hearth?.engine)||[],releaseHeld,hurt,clear:(a,b)=>visibleLine(a,b,.01),sound,toast:ui.toast,fx});
+    hearth=createHearthSystem({scene,physics,worldMap,nav,material:actorMaterial,spell:fireSpell,getPlayer:()=>player,getEntities:()=>entities,getHeld:()=>held,getAimPoint:()=>aimPoint,getAimEntity:()=>target||greekPuzzles?.aimTarget(hearth?.engine,player?.yaw||0),getEnvironmentalTargets:()=>greekPuzzles?.aimTargets(hearth?.engine)||[],releaseHeld,hurt,clear:(a,b)=>visibleLine(a,b,.01),sound,toast:ui.toast,fx});
     greekPuzzles=createGreekPuzzles({architecture:greekArchitecture,world:worldMap,physics,staticBox,navs:()=>[nav,goliathNav],spawn:prop,getHeld:()=>held,releaseHeld,toast:ui.toast,fx});
     ui.setLoading(.9,'Η μαγεία σχηματίζεται…');populate();
     ui.setLoading(.93,'Ετοιμάζεται η πρώτη εικόνα…');

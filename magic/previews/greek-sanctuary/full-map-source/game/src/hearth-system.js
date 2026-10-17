@@ -7,14 +7,14 @@ import {createHearth} from './hearth-character.js';
 import {igniteActor,igniteWood,consumeBurnDamage} from './fire.js';
 import {poseHearthPilot} from './hearth-pilot.js';
 import {STOMP} from './hearth-stomp.js';
-import {travelAlignment} from './movement-facing.js';
+
 import {createHearthAimTargets} from './hearth-aim.js';
 import {createHearthDamageLabels} from './hearth-damage-labels.js';
 import {createHearthFacing} from './hearth-facing.js';
 import {DoorStrike,angleDifference} from './door-strike-rules.js';
 import {supportHeight,standingClear,supportedRoute,supportSightClear} from './walkable-support.js';
 
-export function createHearthSystem({scene,physics,worldMap,nav,material,spell,getPlayer,getEntities,getHeld,getAimEntity=()=>null,getEnvironmentalTargets=()=>[],releaseHeld,hurt,clear,sound,toast,fx,driveResponse=9}){
+export function createHearthSystem({scene,physics,worldMap,nav,material,spell,getPlayer,getEntities,getHeld,getAimPoint=()=>null,getAimEntity=()=>null,getEnvironmentalTargets=()=>[],releaseHeld,hurt,clear,sound,toast,fx,driveResponse=9}){
  let engine,previousRoom,jetBurstTime=-10;
  const p3=new THREE.Vector3(),q=new THREE.Quaternion();
  const support=(p,referenceY=0)=>{const y=supportHeight(worldMap.floors,p.x,p.z,referenceY);return y===null?null:{...p,y};};
@@ -87,7 +87,7 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
   b.quaternion.setFromEuler(0,engine.yaw,0);b.aabbNeedsUpdate=true;
   if(h.state==='piloted'&&h.stompTime===0&&!engine.strike.active){
    engine.body.mass=70;engine.body.type=CANNON.Body.DYNAMIC;engine.body.updateMassProperties();
-   const n=Math.max(1,Math.hypot(input.moveX,input.moveZ)),blend=Math.min(1,dt*driveResponse),speed=HEARTH.speed*travelAlignment(engine.yaw,input.moveX,input.moveZ);
+   const n=Math.max(1,Math.hypot(input.moveX,input.moveZ)),blend=Math.min(1,dt*driveResponse),speed=HEARTH.speed;
    b.velocity.x+=(input.moveX/n*speed-b.velocity.x)*blend;b.velocity.z+=(input.moveZ/n*speed-b.velocity.z)*blend;
   }else{b.velocity.x=b.velocity.z=0;if(!engine.strike.active)p.invulnerable=.3;}
   // The waist remains independently aimed. Large sustained differences turn
@@ -108,9 +108,9 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
    }else if(event==='complete'){engine.body.type=engine.strikeBodyType;engine.body.updateMassProperties();engine.facing.reset(engine.yaw);}
   }
   const h=engine.heart,event=h.update(dt,{moving:Math.hypot(engine.body.velocity.x,engine.body.velocity.z)>.1,fire:input.firing&&!getHeld()&&!strike.active});
-  if(!h.firing&&!strike.active){
+  if(!strike.active){
    const pointerTurn=Math.atan2(Math.sin(getPlayer().yaw-engine.aimYaw),Math.cos(getPlayer().yaw-engine.aimYaw));
-   engine.aimYaw=h.state==='piloted'&&Math.hypot(input.moveX,input.moveZ)>.1?Math.atan2(input.moveX,input.moveZ):h.state==='piloted'?engine.aimYaw+THREE.MathUtils.clamp(pointerTurn,-dt*2.8,dt*2.8):getPlayer().yaw;
+   engine.aimYaw=h.state==='piloted'?engine.aimYaw+pointerTurn*(1-Math.exp(-14*dt)):getPlayer().yaw;
   }
   if(event==='boardComplete'){freezePlayer();toast('WASD / μοχλός: βάδισμα · κράτημα αριστερού κλικ: δύο φλογοβόλα · δεξί κλικ: πάτημα · E: έξοδος','info');}
   if(event==='stompImpact'){
@@ -135,7 +135,7 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
   // targets, then advance arm aim once before both visual and damage rays.
   if(h.firing){
    sync(0);
-   engine.aim.update([...getEntities(),...getEnvironmentalTargets()],engine.streams,{active:true,yaw:getPlayer().yaw,center:engine.body.position,held:getHeld(),preferred:getAimEntity(),clear});
+   engine.aim.update([],engine.streams,{active:true,yaw:getPlayer().yaw,center:engine.body.position,manualPoint:getAimPoint(),manual:true,clear});
    const turn=Math.atan2(Math.sin(engine.aim.desiredYaw-engine.aimYaw),Math.cos(engine.aim.desiredYaw-engine.aimYaw));
    const waistTurn=THREE.MathUtils.clamp(turn,-dt*6,dt*6);engine.aimYaw+=waistTurn;
    // Retarget only the actual waist/arms. The planted legs, animation mixer

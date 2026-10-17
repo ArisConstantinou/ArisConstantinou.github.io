@@ -24,6 +24,9 @@ export function createHearthLadderFold(group,bones){
   // The rear hatch rotates with the torso. Retain the exported parent and
   // bind pose while constraining its parked carrier to that moving frame.
   if(torso){torso.updateMatrix();top.updateMatrix();torsoDelta.multiplyMatrices(torso.matrix,restTorsoInverse).multiply(top.matrix);torsoDelta.decompose(top.position,top.quaternion,top.scale);}
+  // Retract the parked ladder completely inside the hull; preserve the real
+  // boarding/exit rig and restore authored scale before each mixer update.
+  if(!['Board','Exit'].includes(clip))top.scale.setScalar(0);
  }
  function snapshot(){return{deployment,foldAngle,upper:top.getWorldPosition(new THREE.Vector3()).toArray(),middle:mid.getWorldPosition(new THREE.Vector3()).toArray()};}
  return {beforeAnimation,update,snapshot};

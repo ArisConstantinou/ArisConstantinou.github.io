@@ -1,6 +1,6 @@
 import {BOSS_ROOMS} from './boss-rules.js';
 import {STOMP} from './hearth-stomp.js';
-export const HEARTH={endless:true,fuel:100,speed:3.0,radius:1.22,fireRate:12,idleRate:.2,moveRate:.55,throwCost:4,range:7,damageRate:22};
+export const HEARTH={endless:true,fuel:100,speed:4.5,radius:1.22,fireRate:12,idleRate:.2,moveRate:.55,throwCost:4,range:7,damageRate:22};
 const durations={waking:2.1,boarding:2.4,exiting:2.4,depleting:2.1};
 export const HEARTH_STOMP = Object.freeze({duration:STOMP.duration,hit:STOMP.impact,lift:.72});
 export class HearthHeart {

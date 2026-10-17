@@ -15,8 +15,13 @@ export function createHearthAimTargets(){
  function targetPoint(e,out){out.copy(e.body.position);if(e.category==='actor')out.y+=Math.min(.35,(e.cy||0)*.35);return out;}
  function eligible(e){return e!==heldEntity&&!e.removed&&!e.dead&&!e.reserved&&!e.isPlayer&&!e.ally&&e.body&&(e.category==='actor'||e.category==='prop');}
  let heldEntity=null;
- function update(entities,streams,{active,yaw=0,center:bodyCenter,held=null,preferred=null,clear}){
+ function update(entities,streams,{active,yaw=0,center:bodyCenter,held=null,preferred=null,manual=false,manualPoint=null,clear}){
   heldEntity=held;desiredYaw=yaw;
+  for(const t of targets)t.manual=false;
+  if(active&&manual){
+   for(const t of targets){t.entity=null;t.alternative=null;t.score=Infinity;t.manual=true;if(manualPoint)t.point.copy(manualPoint);else t.point.copy(bodyCenter||streams[0].origin).add(new THREE.Vector3(Math.sin(yaw)*HEARTH.range,0,Math.cos(yaw)*HEARTH.range));}
+   return targets;
+  }
   if(!active){for(const t of targets)t.entity=null;return targets;}
   if(bodyCenter)center.copy(bodyCenter);else center.copy(streams[0].origin).add(streams[1]?.origin||streams[0].origin).multiplyScalar(.5);
   let focus=null,focusScore=Infinity,focusTier=Infinity;
@@ -100,7 +105,7 @@ export function createHearthArmAim(group,model,bones){
   if(!matricesReady)model.updateMatrixWorld(true);
   let changed=false;
   for(let i=0;i<arms.length;i++){
-   const a=arms[i];a.authored[0].copy(a.upper.quaternion);a.authored[1].copy(a.lower.quaternion);a.target=active&&targets[i]?.entity?targets[i].point:null;
+   const a=arms[i];a.authored[0].copy(a.upper.quaternion);a.authored[1].copy(a.lower.quaternion);a.target=active&&(targets[i]?.manual||targets[i]?.entity)?targets[i].point:null;
    if(!enabled){a.yaw=a.pitch=0;a.target=null;continue;}
    if(!active&&!a.target&&Math.abs(a.yaw)+Math.abs(a.pitch)<1e-8){a.yaw=a.pitch=a.goalYaw=a.goalPitch=a.error=0;continue;}
    let goalYaw=a.target?a.goalYaw:0,goalPitch=a.target?a.goalPitch:0;

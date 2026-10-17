@@ -19,8 +19,8 @@ export function createHearthFacing(){
   if(state.following&&Math.abs(twist)<8*Math.PI/180&&Math.abs(state.velocity)<.12)state.following=false;
   // Travel owns the legs, including while firing. The waist keeps its aim.
   const target=state.moving?Math.atan2(moveX,moveZ):state.following?aimYaw:yaw;
-  const error=delta(yaw,target),rate=state.moving?4:1.4,wanted=clamp(error*(state.moving?7:3),-rate,rate);
-  const acceleration=state.moving?16:4;
+  const error=delta(yaw,target),rate=state.moving?6:1.4,wanted=clamp(error*(state.moving?10:3),-rate,rate);
+  const acceleration=state.moving?24:4;
   state.velocity+=clamp(wanted-state.velocity,-acceleration*dt,acceleration*dt);
   let step=state.velocity*dt;
   if(step*error>0&&Math.abs(step)>Math.abs(error)){step=error;state.velocity=0;}
