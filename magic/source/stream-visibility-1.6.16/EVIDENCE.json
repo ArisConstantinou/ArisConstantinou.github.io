@@ -1,0 +1,847 @@
+{
+  "version": "1.6.16",
+  "streams": {
+    "conditions": "Native Chrome GPU, unchanged graphics and 814x358 viewport. Native HEARTH boarding/fire. Frozen same-scene differential ray tests use the shipped 3D slab collision function and actual castle colliders/floors. CPU batches isolate clipping; they are not a phone FPS measurement.",
+    "checks": [],
+    "errors": [],
+    "board": true,
+    "firing": true,
+    "comparison": {
+      "pixelBytes": 1538784,
+      "cases": [
+        {
+          "position": [
+            0,
+            0,
+            16
+          ],
+          "yaw": 0,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            16
+          ],
+          "yaw": 0.7853981633974483,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            16
+          ],
+          "yaw": 1.5707963267948966,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            16
+          ],
+          "yaw": 2.356194490192345,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            16
+          ],
+          "yaw": 3.141592653589793,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            16
+          ],
+          "yaw": 3.9269908169872414,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            16
+          ],
+          "yaw": 4.71238898038469,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            16
+          ],
+          "yaw": 5.497787143782138,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -3.1
+          ],
+          "yaw": 0,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -3.1
+          ],
+          "yaw": 0.7853981633974483,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -3.1
+          ],
+          "yaw": 1.5707963267948966,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -3.1
+          ],
+          "yaw": 2.356194490192345,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -3.1
+          ],
+          "yaw": 3.141592653589793,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -3.1
+          ],
+          "yaw": 3.9269908169872414,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -3.1
+          ],
+          "yaw": 4.71238898038469,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -3.1
+          ],
+          "yaw": 5.497787143782138,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -27.625
+          ],
+          "yaw": 0,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -27.625
+          ],
+          "yaw": 0.7853981633974483,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -27.625
+          ],
+          "yaw": 1.5707963267948966,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -27.625
+          ],
+          "yaw": 2.356194490192345,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -27.625
+          ],
+          "yaw": 3.141592653589793,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -27.625
+          ],
+          "yaw": 3.9269908169872414,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -27.625
+          ],
+          "yaw": 4.71238898038469,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            -51.375,
+            0,
+            -27.625
+          ],
+          "yaw": 5.497787143782138,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            24.675,
+            0,
+            -46.475
+          ],
+          "yaw": 0,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            24.675,
+            0,
+            -46.475
+          ],
+          "yaw": 0.7853981633974483,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            24.675,
+            0,
+            -46.475
+          ],
+          "yaw": 1.5707963267948966,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            24.675,
+            0,
+            -46.475
+          ],
+          "yaw": 2.356194490192345,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            24.675,
+            0,
+            -46.475
+          ],
+          "yaw": 3.141592653589793,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            24.675,
+            0,
+            -46.475
+          ],
+          "yaw": 3.9269908169872414,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            24.675,
+            0,
+            -46.475
+          ],
+          "yaw": 4.71238898038469,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            24.675,
+            0,
+            -46.475
+          ],
+          "yaw": 5.497787143782138,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            2
+          ],
+          "yaw": 0,
+          "equal": true,
+          "baselineCalls": 22,
+          "candidateCalls": 9,
+          "lengths": [
+            2.0999999999999996,
+            2.5
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            2
+          ],
+          "yaw": 0.7853981633974483,
+          "equal": true,
+          "baselineCalls": 20,
+          "candidateCalls": 8,
+          "lengths": [
+            1.2999999999999998,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            2
+          ],
+          "yaw": 1.5707963267948966,
+          "equal": true,
+          "baselineCalls": 25,
+          "candidateCalls": 8,
+          "lengths": [
+            2.3,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            2
+          ],
+          "yaw": 2.356194490192345,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            2
+          ],
+          "yaw": 3.141592653589793,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            2
+          ],
+          "yaw": 3.9269908169872414,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            2
+          ],
+          "yaw": 4.71238898038469,
+          "equal": true,
+          "baselineCalls": 28,
+          "candidateCalls": 5,
+          "lengths": [
+            3.700000000000001,
+            2.3
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            2
+          ],
+          "yaw": 5.497787143782138,
+          "equal": true,
+          "baselineCalls": 23,
+          "candidateCalls": 5,
+          "lengths": [
+            3.700000000000001,
+            1.2999999999999998
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            -1
+          ],
+          "yaw": 0,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            -1
+          ],
+          "yaw": 0.7853981633974483,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            -1
+          ],
+          "yaw": 1.5707963267948966,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            -1
+          ],
+          "yaw": 2.356194490192345,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            -1
+          ],
+          "yaw": 3.141592653589793,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            -1
+          ],
+          "yaw": 3.9269908169872414,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            -1
+          ],
+          "yaw": 4.71238898038469,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        },
+        {
+          "position": [
+            0,
+            0,
+            -1
+          ],
+          "yaw": 5.497787143782138,
+          "equal": true,
+          "baselineCalls": 31,
+          "candidateCalls": 4,
+          "lengths": [
+            3.700000000000001,
+            3.1000000000000005
+          ]
+        }
+      ],
+      "passes": [
+        {
+          "label": "before",
+          "iterations": 200,
+          "cpuMs": 36.30000001192093,
+          "clearCalls": 6200
+        },
+        {
+          "label": "after",
+          "iterations": 200,
+          "cpuMs": 5,
+          "clearCalls": 800
+        },
+        {
+          "label": "after",
+          "iterations": 200,
+          "cpuMs": 4.899999976158142,
+          "clearCalls": 800
+        },
+        {
+          "label": "before",
+          "iterations": 200,
+          "cpuMs": 36.20000001788139,
+          "clearCalls": 6200
+        }
+      ],
+      "beforeHash": "7d067986",
+      "beforeRepeat": "7fa35c81",
+      "afterHash": "cf69032f",
+      "afterRepeat": "cf69032f",
+      "pixels": {
+        "aa": {
+          "changedBytes": 3,
+          "maxDelta": 1
+        },
+        "ab": {
+          "changedBytes": 16,
+          "maxDelta": 1
+        },
+        "bb": {
+          "changedBytes": 0,
+          "maxDelta": 0
+        }
+      },
+      "obstacles": 902
+    },
+    "visualCriterion": "Identical stream data; maximum one 8-bit level in at most 0.01% of channels, with unchanged A/A and B/B render controls. Prior strict hashes failed on unchanged controls too.",
+    "passed": true,
+    "cleanup": {
+      "closed": true,
+      "remainingPids": []
+    }
+  },
+  "layout": {
+    "url": "http://127.0.0.1:5173/performance-check/after/stream-visibility-1.6.16/index.html?benchmark=1",
+    "checks": [
+      {
+        "name": "desktop controls and instructions stay separate",
+        "pass": true,
+        "detail": {
+          "version": "1.6.16",
+          "input": "keyboard",
+          "bad": [],
+          "panel": {
+            "x": 12,
+            "y": 836,
+            "w": 242.96875,
+            "h": 52
+          }
+        }
+      },
+      {
+        "name": "landscape controls and instructions stay separate",
+        "pass": true,
+        "detail": {
+          "version": "1.6.16",
+          "input": "touch",
+          "bad": [],
+          "panel": {
+            "x": 12,
+            "y": 146,
+            "w": 242.96875,
+            "h": 52
+          }
+        }
+      },
+      {
+        "name": "portrait controls and instructions stay separate",
+        "pass": true,
+        "detail": {
+          "version": "1.6.16",
+          "input": "touch",
+          "bad": [],
+          "panel": {
+            "x": 12,
+            "y": 533,
+            "w": 242.96875,
+            "h": 52
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "passed": true,
+    "cleanup": {
+      "closed": true,
+      "remainingPids": []
+    }
+  },
+  "nativeGameplayIterations": 2,
+  "tests": 351,
+  "graphicsSettingsAndAssetsUnchanged": true,
+  "phonePerformanceVerified": false,
+  "phoneEvidence": "source/iphone-render-diagnosis-20261017/PHONE-EVIDENCE.json"
+}
