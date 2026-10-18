@@ -596,3 +596,12 @@ body[data-input="touch"] .status-panel .panel-title { font-size:26px; padding-ri
   body[data-input="touch"] .potion-tools { bottom:calc(18px + var(--safe-bottom)); right:calc(202px + var(--safe-right)); }
   body[data-input="touch"] .toasts { bottom:calc(115px + var(--safe-bottom)); max-width:calc(100% - 430px); left:45%; }
 }
+
+/* Version/update controls do not change the canvas or graphics settings. */
+.release-button { position: fixed; z-index: 5; top: max(10px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); min-height: 44px; padding: 10px 14px; border: 1px solid #cbb87c; border-radius: 6px; background: #101a1df0; color: #e8dba9; font: 14px/1.35 system-ui, sans-serif; cursor: pointer; }
+.settings-row .release-pause { font-size: 14px; min-height: 44px; }
+.updates-panel { width: min(480px, 92vw); max-height: 90dvh; overflow-y: auto; }
+.updates-panel #update-status, .updates-panel .update-note { font: 16px/1.5 system-ui, sans-serif; margin: 16px 0; }
+.updates-panel .update-note { color: #b6c1bf; }
+.updates-panel button { min-height: 44px; font-size: 14px; }
+.updates-panel .panel-title { font-size: clamp(23px, 5vw, 32px); }

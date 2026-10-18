@@ -29,3 +29,7 @@ test('resource estimate deduplicates GPU texture handles and geometry payloads',
  const scene=new THREE.Scene(),texture=new THREE.Texture({width:8,height:8});texture.generateMipmaps=false;const geometry=new THREE.BoxGeometry(),material=new THREE.MeshBasicMaterial({map:texture});scene.add(new THREE.Mesh(geometry,material),new THREE.Mesh(geometry,material));
  const renderer={properties:{get:()=>({__webglTexture:texture})},info:{memory:{textures:1,geometries:1},programs:[]}};const result=estimateResources(renderer,scene);assert.equal(result.uploadedTextureBytes,256);assert.equal(result.actualVramBytes,null);assert(result.loadedGeometryPayloadBytes>0);assert.equal(result.kind,'estimate');geometry.dispose();material.dispose();texture.dispose();
 });
+
+test('resource estimates count different views of one shared geometry buffer once',()=>{
+ const scene=new THREE.Scene(),data=new Float32Array(120),a=new THREE.BufferGeometry(),b=new THREE.BufferGeometry();a.setAttribute('position',new THREE.BufferAttribute(data,3));b.setAttribute('position',new THREE.BufferAttribute(data.subarray(30,60),3));scene.add(new THREE.Mesh(a),new THREE.Mesh(b));const renderer={properties:{get:()=>({})},info:{memory:{},programs:[]}};assert.equal(estimateResources(renderer,scene).loadedGeometryPayloadBytes,data.byteLength);
+});

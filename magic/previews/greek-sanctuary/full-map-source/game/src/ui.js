@@ -58,6 +58,7 @@ export function createUI(callbacks = {}) {
   let modal = null;
   let modalReturnFocus = null;
   let loaded = false;
+  let updateState={status:'idle',version:callbacks.version,available:null};
   let muted = false;
   let quality = 'high';
   let profile = { shards: 0, best: 0, runs: 0, wins: 0, upgrades: {} };
@@ -83,6 +84,7 @@ export function createUI(callbacks = {}) {
   host.innerHTML = `
     <div class="edge-shade"></div>
     <section class="screen menu-screen" id="menu-screen" aria-label="Αρχική οθόνη">
+      <button class="release-button" id="menu-updates" type="button">Έκδοση ${esc(callbacks.version)} · Ενημέρωση</button>
       <div class="menu-content">
         <div class="menu-rune">${icon('rune', 'rune')}<span class="overline">ΣΚΟΤΕΙΝΗ ΜΑΓΕΙΑ<br>ΔΥΝΑΜΗ ΤΟΥ ΝΟΥ</span></div>
         <h1 class="hero-title">MAGIC</h1>
@@ -139,7 +141,7 @@ export function createUI(callbacks = {}) {
       </div>
     </section>
 
-    <section class="screen overlay-screen" id="pause-screen" hidden><div class="panel pause-panel" role="dialog" aria-modal="true" aria-labelledby="pause-title">${icon('rune', 'rune')}<p class="panel-eyebrow">ΜΙΑ ΣΤΙΓΜΗ ΗΣΥΧΙΑΣ</p><h2 class="panel-title" id="pause-title">Η δύναμη περιμένει.</h2><p class="panel-description">Το κάστρο κρατά την ανάσα του.</p><div class="panel-buttons"><button class="primary-button" id="resume-button" type="button"><span>ΣΥΝΕΧΙΣΕ</span>${icon('play')}</button><button class="secondary-button" id="pause-restart" type="button"><span>ΝΕΑ ΠΡΟΣΠΑΘΕΙΑ</span>${icon('arrow')}</button></div><div class="settings-row"><button class="text-button" id="pause-status" type="button">Αποστολή & κατάσταση</button><button class="text-button" id="pause-help" type="button">Χειρισμός</button><button class="text-button" id="pause-mute" type="button">Ήχος ενεργός</button><button class="text-button" id="pause-quality" type="button">Γραφικά: υψηλά</button></div></div></section>
+    <section class="screen overlay-screen" id="pause-screen" hidden><div class="panel pause-panel" role="dialog" aria-modal="true" aria-labelledby="pause-title">${icon('rune', 'rune')}<p class="panel-eyebrow">ΜΙΑ ΣΤΙΓΜΗ ΗΣΥΧΙΑΣ</p><h2 class="panel-title" id="pause-title">Η δύναμη περιμένει.</h2><p class="panel-description">Το κάστρο κρατά την ανάσα του.</p><div class="panel-buttons"><button class="primary-button" id="resume-button" type="button"><span>ΣΥΝΕΧΙΣΕ</span>${icon('play')}</button><button class="secondary-button" id="pause-restart" type="button"><span>ΝΕΑ ΠΡΟΣΠΑΘΕΙΑ</span>${icon('arrow')}</button></div><div class="settings-row"><button class="text-button release-pause" id="pause-updates" type="button">Έκδοση ${esc(callbacks.version)} · Ενημέρωση</button><button class="text-button" id="pause-status" type="button">Αποστολή & κατάσταση</button><button class="text-button" id="pause-help" type="button">Χειρισμός</button><button class="text-button" id="pause-mute" type="button">Ήχος ενεργός</button><button class="text-button" id="pause-quality" type="button">Γραφικά: υψηλά</button></div></div></section>
 
     <section class="screen overlay-screen" id="result-screen" hidden><div class="panel result-panel" id="result-panel" role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="result-sigil" id="result-sigil">${icon('scepter')}</div><p class="panel-eyebrow" id="result-eyebrow">Η ΑΠΟΣΤΟΛΗ ΟΛΟΚΛΗΡΩΘΗΚΕ</p><h2 class="panel-title" id="result-title">Το σκήπτρο είναι δικό σου.</h2><p class="panel-description" id="result-description">Η πύλη έκλεισε. Η δύναμή σου μόλις μεγάλωσε.</p><div class="result-stats"><div class="result-stat"><strong id="result-shards">0</strong><span>ΘΡΑΥΣΜΑΤΑ</span></div><div class="result-stat"><strong id="result-kills">0</strong><span>ΕΧΘΡΟΙ</span></div><div class="result-stat"><strong id="result-time">0:00</strong><span>ΧΡΟΝΟΣ</span></div></div><div class="score-line"><span>Βαθμολογία <strong id="result-score">0</strong></span><span>Ρεκόρ <strong id="result-best">0</strong></span></div><p class="result-reason" id="result-reason" hidden></p><div class="panel-buttons"><button class="primary-button" id="result-restart" type="button"><span>ΑΚΟΜΗ ΜΙΑ ΕΙΣΒΟΛΗ</span>${icon('arrow')}</button><button class="secondary-button" id="result-upgrades" type="button"><span class="button-name">${icon('rune')}ΜΟΝΙΜΕΣ ΔΥΝΑΜΕΙΣ</span><span class="shard-pill" id="result-wallet">0 ◇</span></button></div><button class="text-button" id="result-menu" type="button">Επιστροφή στην αρχή</button></div></section>
 
@@ -154,6 +156,9 @@ export function createUI(callbacks = {}) {
   const byAction = (name) => allAbilities.filter((button) => button.dataset.action === name);
   const actionGroups = Object.fromEntries(['conjure', 'drop', 'pulse', 'dash', 'shield', 'interact','fire'].map((name) => [name, byAction(name)]));
   const text = (id, value) => { const output = String(value ?? ''); if (changed.get(id) !== output) { el[id].textContent = output; changed.set(id, output); } };
+  // Avoid unchanged reflected boolean and ARIA writes in every frame.
+  const bool = (node,key,value) => { value=!!value;if(node[key]!==value)node[key]=value; };
+  const attr = (node,key,value) => { value=String(value);if(node.getAttribute(key)!==value)node.setAttribute(key,value); };
   const listen = (node, type, handler, options = {}) => node.addEventListener(type, handler, { ...options, signal });
   const live = () => phase === 'playing' && !modal;
   protectGameplayGestures({document,signal,active:()=>{
@@ -256,6 +261,7 @@ export function createUI(callbacks = {}) {
     document.body.classList.toggle('is-status-open', kind === 'status');
     el['throw-mark'].hidden = true;
     clearInput(); modalReturnFocus = document.activeElement; modal = kind;
+    el['menu-updates'].hidden=true;
     el['modal-content'].innerHTML = contents;
     el['modal-panel'].className = `panel ${kind === 'help' ? 'help-panel' : 'upgrades-panel'}`;
     el['modal-screen'].hidden = false;
@@ -264,9 +270,10 @@ export function createUI(callbacks = {}) {
   }
 
   function hideModal() {
+    if(modal==='updates'&&updateState.status==='applying')return;
     document.body.classList.remove('is-status-open');
     document.body.classList.remove('is-inventory-open');
-    el['modal-screen'].hidden = true; modal = null; clearInput();
+    el['modal-screen'].hidden = true; modal = null; clearInput();el['menu-updates'].hidden=false;
     if (modalReturnFocus?.isConnected && !modalReturnFocus.closest('[hidden]')) modalReturnFocus.focus({ preventScroll: true });
     modalReturnFocus = null;
     invoke('onInventoryClose');
@@ -288,6 +295,27 @@ export function createUI(callbacks = {}) {
     if(modal==='inventory'){el['modal-content'].innerHTML=contents;el['modal-content'].querySelector(`[data-item="${inventorySelected}"]`)?.focus({preventScroll:true});}
     else openModal('inventory',contents);
     el['modal-panel'].className='panel inventory-panel';document.body.classList.add('is-inventory-open');
+  }
+
+  function setUpdateState(state){
+    updateState=state;
+    const available=state.available, busy=['checking','applying'].includes(state.status);
+    const message={idle:'Έλεγξε αν υπάρχει νεότερη έκδοση.',checking:'Έλεγχος δημοσιευμένης έκδοσης…',current:'Έχεις την τελευταία δημοσιευμένη έκδοση.',ahead:'Αυτή η έκδοση είναι νεότερη από τη δημοσιευμένη.',available:'Διαθέσιμη έκδοση '+available+'.',unavailable:'Δεν ήταν δυνατός ο έλεγχος. Έλεγξε τη σύνδεσή σου και δοκίμασε ξανά.',applying:'Επαλήθευση και εγκατάσταση της ενημέρωσης…',failed:'Η ενημέρωση δεν ολοκληρώθηκε. Μπορείς να συνεχίσεις το παιχνίδι και να δοκιμάσεις ξανά.'}[state.status];
+    for(const id of ['menu-updates','pause-updates'])text(id,'Έκδοση '+state.version+' · '+(available?'Νέα έκδοση':'Ενημέρωση'));
+    if(modal!=='updates')return;
+    $('update-status').textContent=message;
+    $('update-check').disabled=busy;
+    $('update-apply').hidden=!available;
+    $('update-apply').disabled=busy||!loaded;
+    el['modal-close'].disabled=state.status==='applying';
+  }
+  function showUpdates(){
+    if(modal==='updates')return;
+    openModal('updates','<p class="panel-eyebrow">MAGIC · ΕΚΔΟΣΗ '+esc(callbacks.version)+'</p><h2 class="panel-title" id="modal-title">Ενημέρωση παιχνιδιού</h2><p id="update-status" role="status" aria-live="polite"></p><p class="update-note">Η αποθηκευμένη πρόοδος και ο εξοπλισμός διατηρούνται. Η ενημέρωση επανεκκινεί το παιχνίδι· η τρέχουσα εισβολή τελειώνει.</p><div class="panel-buttons"><button class="primary-button" id="update-apply" type="button" hidden>Ενημέρωση &amp; επανεκκίνηση</button><button class="secondary-button" id="update-check" type="button">Έλεγχος ενημέρωσης</button></div>');
+    el['modal-panel'].className='panel updates-panel';
+    listen($('update-check'),'click',()=>invoke('onUpdateCheck'));
+    listen($('update-apply'),'click',()=>invoke('onUpdateApply'));
+    setUpdateState(updateState);invoke('onUpdateCheck');
   }
 
   function showHelp() {
@@ -363,7 +391,7 @@ export function createUI(callbacks = {}) {
 
   function updateThrowMark(mark) {
     const visible = touchMode && phase === 'playing' && !modal && mark?.visible;
-    el['throw-mark'].hidden = !visible;
+    bool(el['throw-mark'],'hidden',!visible);
     if (!visible) return;
     el['throw-mark'].style.left = `${mark.x}px`;
     el['throw-mark'].style.top = `${mark.y}px`;
@@ -381,27 +409,27 @@ export function createUI(callbacks = {}) {
     el['mouse-right'].classList.toggle('pressed',!!(mouseButtons&2));
     for(const kbd of host.querySelectorAll('.wasd kbd'))kbd.classList.toggle('pressed',keys.has('Key'+kbd.textContent));
     if(pulseMounted!==mounted){pulseMounted=mounted;
-      for(const b of actionGroups.pulse){b.querySelector('.ability-name').textContent=mounted?'ΠΑΤΗΜΑ':b.closest('.desktop-controls')?'ΩΣΤΙΚΟ ΚΥΜΑ':'ΚΥΜΑ';b.querySelector('.ability-disc svg').innerHTML=PATHS[mounted?'stomp':'pulse'];const key=b.querySelector('.ability-key');if(key)key.textContent=mounted?'F / RMB':'F';b.setAttribute('aria-label',mounted?'Πάτημα εδάφους, δεξί κλικ ή F':'Ωστικό κύμα, F');}
+      for(const b of actionGroups.pulse){b.querySelector('.ability-name').textContent=mounted?'ΠΑΤΗΜΑ':b.closest('.desktop-controls')?'ΩΣΤΙΚΟ ΚΥΜΑ':'ΚΥΜΑ';b.querySelector('.ability-disc svg').innerHTML=PATHS[mounted?'stomp':'pulse'];const key=b.querySelector('.ability-key');if(key)key.textContent=mounted?'F / RMB':'F';attr(b,'aria-label',mounted?'Πάτημα εδάφους, δεξί κλικ ή F':'Ωστικό κύμα, F');}
       for(const b of actionGroups.conjure){b.querySelector('.ability-name').textContent=mounted?'ΠΥΡ':'ΠΕΤΡΑ';b.querySelector('.ability-disc svg').innerHTML=PATHS[mounted?'fire':'stone'];const key=b.querySelector('.ability-key');if(key)key.textContent=mounted?'R / LMB':'R';}
-      for(const b of actionGroups.dash){b.querySelector('.ability-name').textContent=mounted?'ΕΞΟΔΟΣ':b.closest('.desktop-controls')?'ΕΦΟΡΜΗΣΗ':'ΕΦΟΔΟΣ';b.querySelector('.ability-disc svg').innerHTML=PATHS[mounted?'portal':'dash'];const key=b.querySelector('.ability-key');if(key)key.textContent=mounted?'E':'SPACE';b.setAttribute('aria-label',mounted?'Έξοδος από τη μηχανή, E':'Εφόρμηση, Space');}
+      for(const b of actionGroups.dash){b.querySelector('.ability-name').textContent=mounted?'ΕΞΟΔΟΣ':b.closest('.desktop-controls')?'ΕΦΟΡΜΗΣΗ':'ΕΦΟΔΟΣ';b.querySelector('.ability-disc svg').innerHTML=PATHS[mounted?'portal':'dash'];const key=b.querySelector('.ability-key');if(key)key.textContent=mounted?'E':'SPACE';attr(b,'aria-label',mounted?'Έξοδος από τη μηχανή, E':'Εφόρμηση, Space');}
     }
     el['game-hud'].classList.toggle('is-mounted', mounted);
     const fireControl = host.querySelector('.fire-sample-control');
     if (fireControl) fireControl.classList.toggle('mobile-unavailable', mounted || !state.fireAvailable);
     const hearthActions = host.querySelector('.hearth-actions');
-    if (hearthActions) {hearthActions.hidden=true;}
-    if(callbacks.hearth&&state.hearth){const h=state.hearth;const labels={sleep:'Κοιμάται · κρύα καρδιά',waking:'Ξυπνά…',ready:'Έτοιμη για είσοδο',boarding:'Είσοδος από τη σκάλα',piloted:'Οδηγείς τη στολή',exiting:'Έξοδος από τη σκάλα',depleting:'Η καρδιά άδειασε'};text('hearth-state',labels[h.state]+(h.occupied?'':' · '+h.roomLabel));text('hearth-charge',state.fireCharged?'Αποθηκευμένη φλόγα · E στην καρδιά':`Καρδιά ${h.endless&&h.fuel>0?"∞":Math.ceil(h.fuel)+"%"}`);el['hearth-fill'].style.width=h.fuel+'%';el['hearth-meter'].setAttribute('aria-valuenow',String(Math.round(h.fuel)));el['hearth-meter'].setAttribute('aria-valuetext',h.endless&&h.fuel>0?'Απεριόριστη ενέργεια':Math.round(h.fuel)+'%');el['hearth-status'].hidden=false;for(const b of byAction('fire'))b.disabled=!state.fireAvailable;for(const b of byAction('flamethrower'))b.disabled=h.state!=='piloted'||state.holding;for(const b of actionGroups.dash)b.disabled=h.occupied&&h.state!=='piloted';for(const b of actionGroups.pulse)b.disabled=h.occupied&&h.state!=='piloted';}
+    if (hearthActions) {bool(hearthActions,'hidden',true);}
+    if(callbacks.hearth&&state.hearth){const h=state.hearth;const labels={sleep:'Κοιμάται · κρύα καρδιά',waking:'Ξυπνά…',ready:'Έτοιμη για είσοδο',boarding:'Είσοδος από τη σκάλα',piloted:'Οδηγείς τη στολή',exiting:'Έξοδος από τη σκάλα',depleting:'Η καρδιά άδειασε'};text('hearth-state',labels[h.state]+(h.occupied?'':' · '+h.roomLabel));text('hearth-charge',state.fireCharged?'Αποθηκευμένη φλόγα · E στην καρδιά':`Καρδιά ${h.endless&&h.fuel>0?"∞":Math.ceil(h.fuel)+"%"}`);el['hearth-fill'].style.width=h.fuel+'%';attr(el['hearth-meter'],'aria-valuenow',String(Math.round(h.fuel)));attr(el['hearth-meter'],'aria-valuetext',h.endless&&h.fuel>0?'Απεριόριστη ενέργεια':Math.round(h.fuel)+'%');bool(el['hearth-status'],'hidden',false);for(const b of byAction('fire'))bool(b,'disabled',!state.fireAvailable);for(const b of byAction('flamethrower'))bool(b,'disabled',h.state!=='piloted'||state.holding);for(const b of actionGroups.dash)bool(b,'disabled',h.occupied&&h.state!=='piloted');for(const b of actionGroups.pulse)bool(b,'disabled',h.occupied&&h.state!=='piloted');}
     if (state.hp !== undefined) {
       const hp = Math.max(0, number(state.hp)); const maxHp = Math.max(1, number(state.maxHp, 100));
       el['health-fill'].style.width = `${Math.min(1, hp / maxHp) * 100}%`;
-      text('health-value', state.unlimitedHealth?'∞':Math.ceil(hp)); el['health-meter'].setAttribute('aria-valuenow', String(Math.ceil(hp))); el['health-meter'].setAttribute('aria-valuemax', String(maxHp));
-      if(state.unlimitedHealth)el['health-meter'].setAttribute('aria-valuetext','Απεριόριστη ζωή');else el['health-meter'].removeAttribute('aria-valuetext');
+      text('health-value', state.unlimitedHealth?'∞':Math.ceil(hp)); attr(el['health-meter'],'aria-valuenow', String(Math.ceil(hp))); attr(el['health-meter'],'aria-valuemax', String(maxHp));
+      if(state.unlimitedHealth)attr(el['health-meter'],'aria-valuetext','Απεριόριστη ζωή');else el['health-meter'].removeAttribute('aria-valuetext');
       el['vitals-block'].classList.toggle('low-health', hp > 0 && hp / maxHp < .27);
     }
     if (state.mana !== undefined) {
       const mana = Math.max(0, number(state.mana)); const maxMana = Math.max(1, number(state.maxMana, 100));
       el['mana-fill'].style.width = `${Math.min(1, mana / maxMana) * 100}%`;
-      text('mana-value', Math.ceil(mana)); el['mana-meter'].setAttribute('aria-valuenow', String(Math.ceil(mana))); el['mana-meter'].setAttribute('aria-valuemax', String(maxMana));
+      text('mana-value', Math.ceil(mana)); attr(el['mana-meter'],'aria-valuenow', String(Math.ceil(mana))); attr(el['mana-meter'],'aria-valuemax', String(maxMana));
     }
     if (state.zone !== undefined) text('zone-name', state.zone);
     if('fps' in state){text('fps-counter',Number.isFinite(state.fps)?state.fps+' FPS':'— FPS');el['fps-counter'].classList.toggle('is-low',Number.isFinite(state.fps)&&state.fps<30);}
@@ -409,45 +437,45 @@ export function createUI(callbacks = {}) {
     const holding = Boolean(state.holding); const target = state.targetName;
     const dragging = holding && Boolean(state.dragging || dragPointer);
     holdingObject = holding;
-    el['held-state'].hidden = !holding && !target;
+    bool(el['held-state'],'hidden',!holding && !target);
     el['held-state'].classList.toggle('target', !holding);
     el['held-state'].classList.toggle('is-shielding',!!state.shielding);
     text('held-text', holding ? state.shielding ? (state.heldName || 'ΑΣΠΙΔΑ') : `${state.heldName || 'Στα χέρια σου'} · ${dragging ? 'άφησε για ρίψη' : 'πάτησέ το και σύρε'}` : (target ? `${target} · πάτησε και κράτησε` : ''));
     for (const button of actionGroups.drop) {
-      button.disabled = !holding;
-      button.setAttribute('aria-label', 'Άφησε το αντικείμενο χωρίς ρίψη');
+      bool(button,'disabled',!holding);
+      attr(button,'aria-label', 'Άφησε το αντικείμενο χωρίς ρίψη');
     }
     for(const button of actionGroups.fire){
-      button.disabled=!state.fireAvailable;
+      bool(button,'disabled',!state.fireAvailable);
       button.classList.toggle('is-charged',!!state.fireCharged);
       text('fire-status',state.fireCharged?'Φωτιά έτοιμη':state.fireAvailable?'Πάρε φωτιά':'Πλησίασε πυρσό / πυλώνα');
     }
     for (const button of actionGroups.conjure) {
-      button.disabled = mounted?state.hearth.state!=='piloted':holding && number(state.stones)<7;
-      button.setAttribute('aria-label', mounted?'Κράτησε για φλογοβόλο, αριστερό κλικ ή R':'Πέτρα: έως 10. Με 7 κοντινές πέτρες κράτησε για Goliath.');
+      bool(button,'disabled',mounted?state.hearth.state!=='piloted':holding && number(state.stones)<7);
+      attr(button,'aria-label', mounted?'Κράτησε για φλογοβόλο, αριστερό κλικ ή R':'Πέτρα: έως 10. Με 7 κοντινές πέτρες κράτησε για Goliath.');
     }
     for (const [action, cooldown] of [['pulse', mounted?state.hearth?.stompCooldown:state.pulseCooldown], ['dash', state.dashCooldown]]) {
       const remaining = Math.max(0, number(cooldown));
       for (const button of actionGroups[action]) {
         button.classList.toggle('cooling', remaining > .05);
-        const label = button.querySelector('.cooldown-number'); label.hidden = remaining <= .05;
+        const label = button.querySelector('.cooldown-number'); bool(label,'hidden',remaining <= .05);
         const value = remaining >= 10 ? `${Math.ceil(remaining)}` : remaining.toFixed(1);
         if (label.textContent !== value) label.textContent = value;
       }
     }
     const combo = number(state.combo); const multiplier = number(state.comboMultiplier, combo);
-    el['combo-display'].hidden = combo < 2 && multiplier < 2;
+    bool(el['combo-display'],'hidden',combo < 2 && multiplier < 2);
     text('combo-value', `×${Math.max(1, multiplier).toLocaleString('el-GR', { maximumFractionDigits: 1 })}`);
     if (touchMode && holding && !state.shielding) text('held-text', `${state.heldName || 'Αντικείμενο'} · στόχευσε το σημάδι · άφησε`);
     const bossVisible = state.bossHP !== undefined && number(state.bossMaxHP) > 0 && number(state.bossHP) > 0;
     text('stone-count', `${number(state.stones)} / 10 πέτρες`);
     text('goliath-state', state.ritualPhase==='charge'?'Κράτησε · '+Math.ceil(number(state.ritualProgress)*100)+'%':state.ritualPhase==='assemble'?'Συναρμολόγηση · '+number(state.assembled)+' / 7':state.goliathHP>0?'Goliath · '+Math.ceil(state.goliathHP)+' ΖΩΗ · '+Math.ceil(state.goliathTime)+'s':number(state.readyStones)>=7?'Κράτησε R / ΠΕΤΡΑ για 2s → Goliath':number(state.readyStones)+' / 7 κοντινές πέτρες');
     el['goliath-fill'].style.width=`${Math.min(1,number(state.ritualProgress)||number(state.goliathHP)/420)*100}%`;
-    el['goliath-bar'].hidden=state.ritualPhase==='idle'&&!state.goliathHP;
+    bool(el['goliath-bar'],'hidden',state.ritualPhase==='idle'&&!state.goliathHP);
     text('boss-channel', state.bossChannel>0?'Επίκληση · '+Math.ceil(state.bossChannel*100)+'% · χτύπα για διακοπή':'');
-    el['boss-channel-bar'].hidden=!(state.bossChannel>0);
+    bool(el['boss-channel-bar'],'hidden',!(state.bossChannel>0));
     el['boss-channel-fill'].style.width=`${number(state.bossChannel)*100}%`;
-    el['boss-track'].hidden = !bossVisible;
+    bool(el['boss-track'],'hidden',!bossVisible);
     if (bossVisible) { el['boss-fill'].style.width = `${Math.max(0, Math.min(1, number(state.bossHP) / number(state.bossMaxHP))) * 100}%`; if (state.bossName) text('boss-name', state.bossName); }
     if (state.quality !== undefined && state.quality !== quality) setQuality(state.quality);
     const shielding = mouseShield || touchShield;
@@ -635,6 +663,7 @@ export function createUI(callbacks = {}) {
   listen(el['start-button'], 'click', () => { if (loaded) { clearInput(); invoke('onStart'); } });
   for (const id of ['menu-mute', 'pause-mute', 'hud-mute']) listen(el[id], 'click', toggleMute);
   for (const id of ['menu-quality', 'pause-quality']) listen(el[id], 'click', toggleQuality);
+  for(const id of ['menu-updates','pause-updates'])listen(el[id],'click',showUpdates);
   for (const id of ['menu-help', 'pause-help']) listen(el[id], 'click', () => { showHelp(); invoke('onHelp'); });
   for (const id of ['menu-upgrades', 'result-upgrades']) listen(el[id], 'click', requestUpgrades);
   listen(el['hud-pause'], 'click', requestPause);
@@ -669,7 +698,7 @@ export function createUI(callbacks = {}) {
   }
 
   updateProfile(profile); update({ hp: 100, maxHp: 100, mana: 100, maxMana: 100, time: 0 });
-  function updateContext(value){contextUse.hidden=!value||phase!=='playing';if(!value)return;contextUse.dataset.action=value.kind==='door-strike'?'doorStrike':'context';contextUse.querySelector('kbd').textContent=value.key||'E';contextUse.style.left=value.x+'px';contextUse.style.top=value.y+'px';contextUse.disabled=!value.enabled;if(contextUse.dataset.icon!==value.icon){contextUse.querySelector('.icon').outerHTML=icon(value.icon);contextUse.dataset.icon=value.icon;}if(contextUse.getAttribute('aria-label')!==value.label){contextUse.setAttribute('aria-label',value.label);contextUse.querySelector('span').textContent=value.label;}}
-  return { setLoading, setDownloadProgress, ready, showMenu, start, update, toast, showPause, showResult, showUpgrades, showInventory, showStatus, updateThrowMark, hideModal, setMuted, getInput, consumeActions, destroy, showError, showHelp, setQuality,updateContext,setShieldMode:value=>{touchShield=!!value;},
-    updatePotions:counts=>{text('health-potions',counts.health);text('mana-potions',counts.mana);el['quick-health'].disabled=!counts.health;el['quick-mana'].disabled=!counts.mana;el['quick-health'].classList.toggle('mobile-unavailable',!counts.health);el['quick-mana'].classList.toggle('mobile-unavailable',!counts.mana);} };
+  function updateContext(value){bool(contextUse,'hidden',!value||phase!=='playing');if(!value)return;attr(contextUse,'data-action',value.kind==='door-strike'?'doorStrike':'context');const key=contextUse.querySelector('kbd'),keyText=value.key||'E';if(key.textContent!==keyText)key.textContent=keyText;contextUse.style.left=value.x+'px';contextUse.style.top=value.y+'px';bool(contextUse,'disabled',!value.enabled);if(contextUse.dataset.icon!==value.icon){contextUse.querySelector('.icon').outerHTML=icon(value.icon);contextUse.dataset.icon=value.icon;}if(contextUse.getAttribute('aria-label')!==value.label){contextUse.setAttribute('aria-label',value.label);contextUse.querySelector('span').textContent=value.label;}}
+  return { setUpdateState, setLoading, setDownloadProgress, ready, showMenu, start, update, toast, showPause, showResult, showUpgrades, showInventory, showStatus, updateThrowMark, hideModal, setMuted, getInput, consumeActions, destroy, showError, showHelp, setQuality,updateContext,setShieldMode:value=>{touchShield=!!value;},
+    updatePotions:counts=>{text('health-potions',counts.health);text('mana-potions',counts.mana);bool(el['quick-health'],'disabled',!counts.health);bool(el['quick-mana'],'disabled',!counts.mana);el['quick-health'].classList.toggle('mobile-unavailable',!counts.health);el['quick-mana'].classList.toggle('mobile-unavailable',!counts.mana);} };
 }

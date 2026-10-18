@@ -1,3 +1,4 @@
+import {createGameUpdates} from './game-updates.js';
 import {greekEnabled,loadGreekAssets,addGreekArchitecture,createGreekPuzzles} from './greek-environment.js';
 import {benchmarkMode,createPerformanceTest} from './performance-test.js';
 import {createBenchmarkFixtures} from './benchmark-fixtures.js';
@@ -110,6 +111,8 @@ let contextTarget=null,contextAt=-Infinity,contextHighlight;
 const contextPoint=new THREE.Vector3();
 const ui=createUI({
   version:packageInfo.version,
+  onUpdateCheck:()=>gameUpdates.check({force:true}),
+  onUpdateApply:()=>gameUpdates.apply(),
   fireEnabled:FIRE_ENABLED,
   hearth:true,
   onLoading:label=>performanceTest?.stage(label),
@@ -140,6 +143,8 @@ const ui=createUI({
   onConjureEnd:()=>endConjure(),
   onConjureCancel:()=>cancelRitual(),
 });
+const gameUpdates=createGameUpdates({version:packageInfo.version,href:location.href,serviceWorker:navigator.serviceWorker,onChange:state=>ui.setUpdateState(state),canApply:()=>ready&&['menu','paused','result'].includes(phase)});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ready&&!candidate)void gameUpdates.check();});
 ui.setMuted(save.profile.muted);
 ui.setQuality(quality);
 const benchmarkFixtures=createBenchmarkFixtures(()=>({player,entities,nav,world:worldMap,hearth,camera,time:runTime,startRun,setCamera:()=>{setPlayCamera();updateCamera(100);},pulse,conjure,dash,hold:holdEntity,throw:throwHeld,event:(...a)=>performanceTest.event(...a)}));
@@ -1607,7 +1612,7 @@ async function boot(){
     // Preserve the prior complete offline release until encoded background
     // assets have arrived. Playing the first room need not wait for them.
     const assetsReady=new Promise(resolve=>setTimeout(resolve,1000)).then(prefetchEncodedTextures).then(complete=>{if(complete&&!candidate)notifyReleaseReady(navigator.serviceWorker,packageInfo.version);return complete;});
-    performanceTest?.ready();ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);
+    performanceTest?.ready();ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);if(!candidate)void gameUpdates.check();
     observeAssetLoading(null);requestAnimationFrame(frame);
     window.__MAGIC__={version:packageInfo.version,assetsReady,textureMemory:()=>({...textureMemoryStats(),pending:!!texturePreparation}),prepareTextures:prepareFrameTextures,snapshot:()=>({puzzles:greekPuzzles?.snapshot(),hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
       kills,relicTaken,holding:held?.label||null,dragging:!!drag,shielding:!!player?.shielding,context:contextTarget?{id:contextTarget.id,label:contextTarget.label,enabled:contextTarget.enabled}:null,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,

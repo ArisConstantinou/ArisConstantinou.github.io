@@ -11,8 +11,8 @@ export function estimateResources(renderer,scene,targets=[]){
       do{textureBytes+=w*h*(im.depth||1)*channels*component;if(!t.generateMipmaps)break;w=Math.floor(w/2);h=Math.floor(h/2);}while(w>=1&&h>=1);
     }
   };
-  const attribute=a=>{const array=a?.isInterleavedBufferAttribute?a.data.array:a?.array;if(array&&!arrays.has(array)){arrays.add(array);geometryPayloadBytes+=array.byteLength;}};
-  scene.traverse(o=>{if(o.geometry){attribute(o.geometry.index);Object.values(o.geometry.attributes).forEach(attribute);for(const list of Object.values(o.geometry.morphAttributes))list.forEach(attribute);}attribute(o.instanceMatrix);attribute(o.instanceColor);if(o.skeleton)texture(o.skeleton.boneTexture);for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m)for(const t of Object.values(m))texture(t);});
+  const attribute=a=>{const array=a?.isInterleavedBufferAttribute?a.data.array:a?.array,buffer=array?.buffer??array;if(buffer&&!arrays.has(buffer)){arrays.add(buffer);geometryPayloadBytes+=buffer.byteLength;}};
+  scene.traverse(o=>{if(o.geometry){attribute(o.geometry.index);Object.values(o.geometry.attributes).forEach(attribute);for(const list of Object.values(o.geometry.morphAttributes))list.forEach(attribute);}for(const a of o.userData?.staticIndexStreams||[])attribute(a);attribute(o.instanceMatrix);attribute(o.instanceColor);if(o.skeleton)texture(o.skeleton.boneTexture);for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m)for(const t of Object.values(m))texture(t);});
   texture(scene.environment);texture(scene.background);
   for(const rt of new Set(targets.filter(Boolean))){texture(rt.texture);texture(rt.depthTexture);if(rt.depthBuffer&&!rt.depthTexture)renderTargetBytes+=rt.width*rt.height*4;if(rt.samples)renderTargetBytes+=rt.width*rt.height*8*rt.samples;}
   return {kind:'estimate',uploadedTextureBytes:textureBytes,loadedGeometryPayloadBytes:geometryPayloadBytes,renderTargetAuxiliaryBytes:renderTargetBytes,knownResourceBytes:textureBytes+geometryPayloadBytes+renderTargetBytes,rendererCounts:{...renderer.info.memory,programs:renderer.info.programs?.length||0},actualVramBytes:null,
