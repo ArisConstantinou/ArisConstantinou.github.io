@@ -8,6 +8,8 @@ import {loadTextureProfile} from './asset-profile.js';
 import {ensureReleaseWorker,notifyReleaseReady,releaseReloadURL} from './release-worker.js';
 import {prepareVisibleTextures,textureMemoryStats,prefetchEncodedTextures,configureTextureMemory} from './texture-memory.js';
 import * as THREE from 'three';
+import {guardZeroContributionLights} from './zero-light-work.js';
+guardZeroContributionLights(THREE.ShaderChunk);
 import {loadSiegeAssets,addSiegeDressing,siegeEnabled} from './siege-environment.js';
 import * as CANNON from 'cannon-es';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
