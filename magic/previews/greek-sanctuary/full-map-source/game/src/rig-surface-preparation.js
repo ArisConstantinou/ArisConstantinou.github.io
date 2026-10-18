@@ -1,3 +1,4 @@
+import {prepareObjectPickingAsync} from './triangle-picking.js';
 // Keep detail hidden until its original textures and both colour-target shader
 // variants are ready. Upload one unique texture between animation frames.
 import {Sphere,Vector3} from 'three';
@@ -12,6 +13,7 @@ export function createRigSurfacePreparer({renderer,scene,camera,renderTargets=[]
     // visible frame caused another CPU hitch. Measure the original surface
     // in bounded batches, retaining the sphere on all immutable clones.
     object.updateMatrixWorld(true);
+    await prepareObjectPickingAsync(object,nextFrame);
     const skins=[];object.traverse(o=>{if(o.isSkinnedMesh&&o.boundingSphere===null)skins.push(o)});
     const point=new Vector3();
     for(const mesh of skins){const sphere=new Sphere().makeEmpty(),count=mesh.geometry.attributes.position.count;

@@ -30,7 +30,7 @@ import { clamp, distance, lineClear, pointSegmentDistance, NavigationGrid, Profi
 import { PointerMotion, gestureThrowVelocity, clampDragPoint, constrainDragPoint } from './drag.js';
 import {mobileDragPointer} from './mobile-drag-pointer.js';
 import {FrameRateMeter} from './frame-rate.js';
-import {intersectAnimatedObject} from './animated-picking.js';
+import {intersectVisibleAnimatedObject,prepareObjectPicking} from './animated-picking.js';
 import {shieldGesture,nearestContext} from './context-controls.js';
 import { aimedThrowVelocity, floorThrowTarget } from './throw-aim.js';
 import {equipmentStats,isPotion,rollLoot,TIERS,itemName} from './loot.js';
@@ -323,7 +323,7 @@ function actor(kind,x,z,isPlayer=false,bossType=null,room=null){
   const shadow=new THREE.Mesh(new THREE.CircleGeometry(.5*scale,24),new THREE.MeshBasicMaterial({color:0x031010,transparent:true,opacity:.26,depthWrite:false}));
   shadow.rotation.x=-Math.PI/2;scene.add(shadow);e.shadow=shadow;
   body.entity=e;body.addEventListener('collide',event=>impact(e,event));
-  physics.addBody(body);scene.add(e.mesh);entities.push(e);return e;
+  prepareObjectPicking(e.mesh);physics.addBody(body);scene.add(e.mesh);entities.push(e);return e;
 }
 function prop(kind,x,z,options={}){
   const item=createPropMesh(kind),mesh=item.mesh;
@@ -337,7 +337,7 @@ function prop(kind,x,z,options={}){
     indestructible:!!item.indestructible,flammable:item.flammable,woodFraction:item.woodFraction,
     removed:false,dead:false,thrownUntil:0,thrownBy:null,collisionTimes:new Map(),pendingBreak:false,ephemeral:!!options.ephemeral,expireAt:runTime+18,spawn:{x,z,y:body.position.y}};
   body.entity=e;body.addEventListener('collide',event=>impact(e,event));
-  physics.addBody(body);scene.add(mesh);entities.push(e);return e;
+  prepareObjectPicking(e.mesh);physics.addBody(body);scene.add(mesh);entities.push(e);return e;
 }
 function removeEntity(e){
   if(e.removed)return;if(e===held)releaseHeld(false);
@@ -469,7 +469,7 @@ function pickObject(info,ignore=null){
     const p=e.body.position,r=Math.hypot(e.radius,e.ext?.y||e.cy*1.3)+.3;
     if(raycaster.ray.distanceSqToPoint(new THREE.Vector3(p.x,p.y,p.z))>r*r)continue;
     // Exact current-pose bounds and intersections share the same skinned vertices.
-    for(const hit of intersectAnimatedObject(raycaster,e.mesh)){
+    for(const hit of intersectVisibleAnimatedObject(raycaster,e.mesh)){
       let visible=true;for(let node=hit.object;node;node=node.parent)if(!node.visible){visible=false;break;}
       if(visible&&hit.distance<nearest){nearest=hit.distance;selected=e;}
     }

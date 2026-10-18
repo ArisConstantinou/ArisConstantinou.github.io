@@ -1,4 +1,5 @@
 import {loadGltfAsset} from './asset-loading.js';
+import {prepareObjectPickingAsync} from './triangle-picking.js';
 import * as THREE from 'three';
 import { createLocalRigLoader } from './local-rig-loader.js';
 import { clone as cloneSkeleton } from 'three/addons/utils/SkeletonUtils.js';
@@ -125,6 +126,7 @@ export async function loadCharacters(onProgress = () => {}) {
         clips.set(name, movementWithCasting(clips.get(movement), clips.get('Blocking'), name));
       }
     }
+    await prepareObjectPickingAsync(gltf.scene);
     templates.set(kind, { scene: gltf.scene, clips, preservePbr: file.startsWith('redesign/'), closeFile:file.startsWith('redesign/')?'models/'+file.replace(/-lods\.glb$/,'-close.glb'):null });
     loaded++;
     onProgress(loaded / entries.length, { loaded, total: entries.length, kind });
