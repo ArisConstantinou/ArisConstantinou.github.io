@@ -805,6 +805,9 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     const t = Number.isFinite(time) ? time : 0;
     const delta = Math.min(Number.isFinite(dt) ? dt : 0, 0.05);
     siegeFire?.update(t);
+    // The accepted siege shader owns the visible flames. Its hidden legacy
+    // meshes need no animation or instance-buffer writes.
+    if(!siegeFire){
     for (let i = 0; i < torchPositions.length; i++) {
       const p = torchPositions[i];
       const f = torches[i].lit ? 0.84 + Math.sin(t * 11.6 + i * 8.3) * 0.1 + Math.sin(t * 23 + i) * 0.08 : 0;
@@ -820,6 +823,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     }
     flames.instanceMatrix.needsUpdate = true;
     cores.instanceMatrix.needsUpdate = true;
+    }
     if(focus){const positions=siegeEnabled?torches.filter(torch=>torch.lit).map(torch=>torch.position):torchPositions;const near=[...positions].sort((a,b)=>(a.x-focus.x)**2+(a.z-focus.z)**2-((b.x-focus.x)**2+(b.z-focus.z)**2));lights.forEach((light,i)=>{light.userData.sourceActive=!!near[i];if(near[i])light.position.copy(near[i]).add(new THREE.Vector3(0,.3,0));});}
     lights.forEach((light, i) => { light.intensity = (light.userData.sourceActive===false?0:1)*light.userData.baseIntensity * (0.93 + Math.sin(t * 7.7 + i * 3.7) * 0.045 + Math.sin(t * 17.5 + i) * 0.035); });
     sceptre.position.y = Math.sin(t * 1.65) * 0.095;

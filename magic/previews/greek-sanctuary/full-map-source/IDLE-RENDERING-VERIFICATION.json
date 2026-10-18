@@ -1,0 +1,21 @@
+{
+  "status": "experimental_source_only",
+  "sourceCheckpoint": "4d9fefc",
+  "base": "b829d0f6718d96f72825a3fbb35972f81be76450",
+  "branch": "codex/idle-rendering-uploads-20261018",
+  "tests": 387,
+  "newRegressions": 3,
+  "buildPassed": true,
+  "nativeTouchOrientations": 2,
+  "installedClientIterations": 2,
+  "desktop": {
+    "uploadsPerFrame": 8.017278617710582,
+    "draws": 665,
+    "triangles": 1783477
+  },
+  "visualStatus": "Five frozen states exact once; strict follow-up original/original control unstable and retained inconclusive",
+  "physicalIPhone60Verified": false,
+  "full19FpsCauseConfirmed": false,
+  "graphicsDowngrade": false,
+  "publicRuntimeChanged": false
+}

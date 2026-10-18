@@ -79,7 +79,17 @@ export function siegeTorchFlames(root,torches){
  const geometry=new THREE.PlaneGeometry(1,1);geometry.setAttribute('flameSeed',new THREE.InstancedBufferAttribute(Float32Array.from(torches,(_,i)=>i*2.71),1));
  const material=new THREE.ShaderMaterial({uniforms:{time:{value:0}},vertexShader:flameVertex,fragmentShader:flameFragment,transparent:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});
  const mesh=new THREE.InstancedMesh(geometry,material,torches.length);mesh.name='Siege living fire';mesh.frustumCulled=false;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.renderOrder=2;root.add(mesh);
- const dummy=new THREE.Object3D();return {update(time){material.uniforms.time.value=time;for(const [i,t]of torches.entries()){const s=t.lit?(t.infinite?1.35:1):0;dummy.position.copy(t.position);dummy.position.y+=.16*s;dummy.scale.set(.67*s,.92*s,1);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);}mesh.instanceMatrix.needsUpdate=true;},dispose(){geometry.dispose();material.dispose();}};
+ const dummy=new THREE.Object3D(),previous=[];
+ return {update(time){
+  material.uniforms.time.value=time;let changed=false;
+  for(const [i,t]of torches.entries()){
+   const s=t.lit?(t.infinite?1.35:1):0,p=t.position,old=previous[i];
+   if(old&&old.x===p.x&&old.y===p.y&&old.z===p.z&&old.s===s)continue;
+   dummy.position.copy(p);dummy.position.y+=.16*s;dummy.scale.set(.67*s,.92*s,1);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);
+   previous[i]={x:p.x,y:p.y,z:p.z,s};changed=true;
+  }
+  if(changed)mesh.instanceMatrix.needsUpdate=true;
+ },dispose(){geometry.dispose();material.dispose();}};
 }
 
 export function addSiegeDressing(world){

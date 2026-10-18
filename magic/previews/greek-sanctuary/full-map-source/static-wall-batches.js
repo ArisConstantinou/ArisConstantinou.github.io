@@ -1,5 +1,6 @@
 import {BatchedMesh,Matrix4,Material,Frustum,Sphere,Mesh,BufferGeometry,BufferAttribute,DynamicDrawUsage} from 'three';
 import {indexExactGeometry} from './exact-index.js';
+const staticDrawStreams=new WeakMap();
 
 /** World-baked vertices need no per-vertex batching matrix/indirection lookup.
  * Keep Three's original per-instance culling and triangle order, then submit
@@ -26,6 +27,7 @@ export function compactIdentityBatch(batch){
    stream.length=n;stream.count=offset;stream.index.clearUpdateRanges();if(offset)stream.index.addUpdateRange(0,offset);stream.index.needsUpdate=true;
   }
   geometry.setIndex(stream.index);geometry.setDrawRange(0,stream.count);
+  staticDrawStreams.get(batch)?.restore();
  }
  mesh.onBeforeRender=prepare;mesh.onBeforeShadow=(renderer,object,camera,shadowCamera)=>prepare(renderer,null,shadowCamera);
  return mesh;
@@ -34,23 +36,43 @@ export function compactIdentityBatch(batch){
 /** Pinned Three0.180 draw-list adapter. Immutable masonry needs its bounds
  * transformed once, not once per instance in every colour/shadow pass. */
 export function cacheStaticBatchBounds(batch){
+ if(staticDrawStreams.has(batch))return batch;
  const entries=[],matrix=new Matrix4(),frustum=new Frustum();
  const bytes=batch.geometry.index?.array.BYTES_PER_ELEMENT||1;
  for(let id=0;id<batch.instanceCount;id++){
   const geometry=batch.getGeometryIdAt(id),range=batch.getGeometryRangeAt(geometry);
   batch.getMatrixAt(id,matrix);entries.push({id,start:range.start*bytes,count:range.count,sphere:batch.getBoundingSphereAt(geometry,new Sphere()).applyMatrix4(matrix)});
  }
- const original=batch.onBeforeRender;
+ const original=batch.onBeforeRender,after=batch.onAfterRender,afterShadow=batch.onAfterShadow,dispose=batch.dispose,base=batch._indirectTexture,cameras=new Map();
+ const restore=()=>{batch._indirectTexture=base;};staticDrawStreams.set(batch,{restore});
+ function streamFor(camera){
+  let stream=cameras.get(camera);
+  if(stream){cameras.delete(camera);cameras.set(camera,stream);return stream;}
+  // Each view has a separate immutable integer draw-ID source. Updating one
+  // texture for shadows then colour forced a GPU upload on every idle frame.
+  const texture=base.clone();texture.source=new base.source.constructor({...base.image,data:new base.image.data.constructor(base.image.data.length)});texture.needsUpdate=true;
+  stream={texture,count:-1};cameras.set(camera,stream);
+  // Main/shadow cameras are stable; bound temporary camera retention too.
+  if(cameras.size>4){const oldest=cameras.keys().next().value;cameras.get(oldest).texture.dispose();cameras.delete(oldest);}
+  return stream;
+ }
  batch.onBeforeRender=function(renderer,scene,camera,geometry,material){
-  if(camera.isArrayCamera||this.sortObjects)return original.call(this,renderer,scene,camera,geometry,material);
+  if(camera.isArrayCamera||this.sortObjects){restore();return original.call(this,renderer,scene,camera,geometry,material);}
+  const stream=streamFor(camera);this._indirectTexture=stream.texture;
+  try{
   frustum.setFromProjectionMatrix(matrix.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse).multiply(this.matrixWorld),camera.coordinateSystem,camera.reversedDepth);
   const indirect=this._indirectTexture.image.data;let count=0,changed=this._visibilityChanged;
   for(const e of entries)if(this.getVisibleAt(e.id)&&(!this.perObjectFrustumCulled||frustum.intersectsSphere(e.sphere))){
    changed=changed||indirect[count]!==e.id;this._multiDrawStarts[count]=e.start;this._multiDrawCounts[count]=e.count;indirect[count++]=e.id;
   }
-  if(changed||count!==this._multiDrawCount)this._indirectTexture.needsUpdate=true;
+  if(changed||count!==stream.count)this._indirectTexture.needsUpdate=true;
+  stream.count=count;
   this._multiDrawCount=count;this._visibilityChanged=false;
+  }catch(error){restore();throw error;}
  };
+ batch.onAfterRender=function(...args){try{return after?.apply(this,args);}finally{restore();}};
+ batch.onAfterShadow=function(...args){try{return afterShadow?.apply(this,args);}finally{restore();}};
+ batch.dispose=function(...args){restore();for(const stream of cameras.values())stream.texture.dispose();cameras.clear();staticDrawStreams.delete(this);return dispose.apply(this,args);};
  return batch;
 }
 

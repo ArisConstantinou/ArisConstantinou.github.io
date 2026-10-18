@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs/promises';import {Group,Mesh,BoxGeometry,MeshStandardMaterial,Matrix4,Raycaster,Vector3,PerspectiveCamera,BatchedMesh} from './game/node_modules/three/build/three.module.js';
 const three=new URL('./game/node_modules/three/build/three.module.js',import.meta.url).href;
-const source=(await fs.readFile(new URL('./static-wall-batches.js',import.meta.url),'utf8')).replace("from 'three'",`from '${three}'`).replace("from './exact-index.js'",`from '${new URL('./exact-index.js',import.meta.url).href}'`);
+const source=(await fs.readFile(new URL(process.env.MAGIC_STATIC_BATCH_SOURCE||'./static-wall-batches.js',import.meta.url),'utf8')).replace("from 'three'",`from '${three}'`).replace("from './exact-index.js'",`from '${new URL('./exact-index.js',import.meta.url).href}'`);
 const {batchStaticWalls,cacheStaticBatchBounds,compactIdentityBatch}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 test('cached static bounds produce Three identical draw lists for camera and shadow views and cutaways',()=>{
  const batch=new BatchedMesh(8,24,36,new MeshStandardMaterial()),g=batch.addGeometry(new BoxGeometry()),matrix=new Matrix4();batch.sortObjects=false;
@@ -42,4 +42,20 @@ test('compact index streams match every original triangle across colour, shadow 
  }
  assert.equal(compact.geometry.attributes.position,batch.geometry.attributes.position);assert.equal(compact.material,batch.material);
  batch.setMatrixAt(0,matrix.makeTranslation(1,0,0));assert.equal(compactIdentityBatch(batch),null,'non-identity geometry keeps the original transform path');
+});
+
+test('alternating colour and shadow cameras retain independent unchanged GPU draw-ID sources',()=>{
+ const batch=new BatchedMesh(12,24,36,new MeshStandardMaterial()),geometry=batch.addGeometry(new BoxGeometry()),matrix=new Matrix4();batch.sortObjects=false;
+ for(let i=0;i<12;i++)batch.setMatrixAt(batch.addInstance(geometry),matrix.makeTranslation((i-5)*3,0,-12-i));
+ const base=batch._indirectTexture,cameras=[new PerspectiveCamera(32,1,.1,100),new PerspectiveCamera(95,1,.1,100)];cameras[1].position.set(8,9,5);cameras.forEach(c=>{c.lookAt(0,0,-18);c.updateMatrixWorld();});
+ cacheStaticBatchBounds(batch);const textures=[],versions=[],lists=[];
+ for(const camera of cameras){batch.onBeforeRender(null,null,camera,batch.geometry,batch.material);textures.push(batch._indirectTexture);versions.push(batch._indirectTexture.version);lists.push(Array.from(batch._indirectTexture.image.data.slice(0,batch._multiDrawCount)));batch.onAfterRender();}
+ assert.notDeepEqual(lists[0],lists[1]);assert.notEqual(textures[0],textures[1]);
+ for(let i=0;i<16;i++)for(let j=0;j<2;j++){batch.onBeforeRender(null,null,cameras[j],batch.geometry,batch.material);assert.equal(batch._indirectTexture,textures[j]);assert.equal(textures[j].version,versions[j],'unchanged view must not request another upload');assert.deepEqual(Array.from(batch._indirectTexture.image.data.slice(0,batch._multiDrawCount)),lists[j]);batch.onAfterRender();assert.equal(batch._indirectTexture,base);}
+ batch.setVisibleAt(5,false);for(const camera of cameras){BatchedMesh.prototype.onBeforeRender.call(batch,null,null,camera,batch.geometry,batch.material);const expected=Array.from(batch._indirectTexture.image.data.slice(0,batch._multiDrawCount));batch.onBeforeRender(null,null,camera,batch.geometry,batch.material);assert.deepEqual(Array.from(batch._indirectTexture.image.data.slice(0,batch._multiDrawCount)),expected);batch.onAfterRender();}batch.dispose();
+});
+test('temporary view streams are bounded and disposed with their batch',()=>{
+ const batch=new BatchedMesh(4,24,36,new MeshStandardMaterial()),geometry=batch.addGeometry(new BoxGeometry());batch.sortObjects=false;for(let i=0;i<4;i++)batch.addInstance(geometry);cacheStaticBatchBounds(batch);let disposed=0;
+ for(let i=0;i<7;i++){const camera=new PerspectiveCamera(50,1,.1,100);camera.position.z=5+i;camera.updateMatrixWorld();batch.onBeforeRender(null,null,camera,batch.geometry,batch.material);batch._indirectTexture.addEventListener('dispose',()=>disposed++);batch.onAfterRender();}
+ assert.equal(disposed,3,'only four camera streams remain live');batch.dispose();assert.equal(disposed,7);
 });
