@@ -1,0 +1,43 @@
+{
+  "status": "experimental_source_only",
+  "sourceCheckpoint": "1064bcd",
+  "base": "b829d0f6718d96f72825a3fbb35972f81be76450",
+  "branch": "codex/mobile-idle-culling-20261019",
+  "sourceChanges": [
+    "game/src/main.js",
+    "game/src/rigid-draw-culling.js",
+    "game/src/rigid-draw-culling.test.js",
+    "combined-integration.mjs"
+  ],
+  "priorLocalValidation": {
+    "tests": 392,
+    "gameTests": 330,
+    "rootTests": 62,
+    "newRegressions": 8,
+    "withoutGuard": {
+      "pass": 3,
+      "fail": 5
+    },
+    "buildPassed": true,
+    "exactColourAndShadowCases": 5,
+    "nativeTouchOrientations": 2,
+    "installedClientIterations": 2,
+    "saveIsolationVerified": true
+  },
+  "draws": {
+    "before": 665,
+    "after": 634
+  },
+  "triangles": {
+    "before": 1783477,
+    "after": 1668185
+  },
+  "desktopTimingConclusion": "All windows meet desktop60Hz cadence. No defensible mobile FPS gain or consistent whole-frame GPU gain established. Do not extrapolate a60FPS phone result.",
+  "physicalIPhone60Verified": false,
+  "full28FpsCauseConfirmed": false,
+  "newPhysicalMeasurements": 0,
+  "graphicsDowngrade": false,
+  "publicRuntimeChanged": false,
+  "publicPromoted": false,
+  "remainingAcceptance": "Actual same-device sustained frame time/p95/spikes during idle, movement and combat; no late collapse after10s; image/control fidelity and resource behavior. Idle A/B/A alone cannot certify full-game60."
+}

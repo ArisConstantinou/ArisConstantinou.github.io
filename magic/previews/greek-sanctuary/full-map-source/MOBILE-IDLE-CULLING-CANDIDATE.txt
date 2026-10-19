@@ -1,0 +1,11 @@
+Experimental source branch: codex/mobile-idle-culling-20261019
+
+Based on public MAGIC 1.6.21 (b829d0f6718d96f72825a3fbb35972f81be76450). Exactly four source/test changes and two evidence files are included. The compiled public game is unchanged; this branch is not a release or a verified fix for 28 FPS on mobile.
+
+Conservative rigid box-frustum rejection supplements the ordinary sphere test before submitting a draw, using the actual colour or shadow camera. Uncertain, deformed and custom shader paths retain the ordinary renderer. Bounds are cached and refreshed for vertex/instance changes. Geometry, original vertices, materials, shaders, textures, AA, resolution, lighting, shadow maps, AI and physics are unchanged.
+
+The isolated preview uses its own save key and does not register a service worker. The production path and save are unchanged. Prior experimental upload streams, rejected finite-light filtering and unsafe occlusion-result reuse are excluded.
+
+Local candidate validation previously passed: 392 tests (330 game, 62 root), build, eight new regressions (five fail without the guard), five exact colour/shadow A/B/restored comparisons, native touch in both orientations and two installed-client iterations. Publication checks verify source hashes; these runtime tests are not rerun by the push script.
+
+In the standing landscape scene, draws decrease from 665 to 634 and triangles from 1,783,477 to 1,668,185. The 40-second desktop A/B/A is capped at 60 Hz and establishes neither a consistent whole-frame GPU gain nor a mobile FPS gain. The physical phone was unavailable. Sustained 60 FPS on the same phone during idle, movement and combat, late slowdown and resource behavior remain unverified. No public promotion is accepted from these results alone.

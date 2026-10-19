@@ -1,3 +1,4 @@
+import {installRigidDrawCulling} from './rigid-draw-culling.js';
 import {createGameUpdates} from './game-updates.js';
 import {greekEnabled,loadGreekAssets,addGreekArchitecture,createGreekPuzzles} from './greek-environment.js';
 import {benchmarkMode,createPerformanceTest} from './performance-test.js';
@@ -192,6 +193,8 @@ function usePotion(kind,id){
 function setupRenderer(){
   const canvas=document.getElementById('game-canvas');
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+  const rigidDrawCulling=installRigidDrawCulling(renderer);
+  if(new URL(location.href).searchParams.has('hearthQA'))renderer.rigidDrawCulling=rigidDrawCulling;
   if(benchmarkMode)renderer.debug.onShaderError=(gl,program,vertex,fragment)=>performanceTest?.error(new Error('WebGL shader: '+[gl.getProgramInfoLog(program),gl.getShaderInfoLog(vertex),gl.getShaderInfoLog(fragment)].filter(Boolean).join('\n')));
   textureUpload=async texture=>{await new Promise(requestAnimationFrame);renderer.initTexture(texture);};
   // Lost-context GPU objects are already invalid. Recreate the generated
