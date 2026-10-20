@@ -143,28 +143,55 @@ export function createLegSolver(upper, lower, foot) {
   if (!upper || !lower || !foot) throw new Error('Locomotion requires hip, knee and ankle bones.');
   const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), dir = new THREE.Vector3(), bend = new THREE.Vector3(), knee = new THREE.Vector3(), from = new THREE.Vector3(), to = new THREE.Vector3();
   const delta = new THREE.Quaternion(), world = new THREE.Quaternion(), parent = new THREE.Quaternion();
-  function orient(bone, current, desired) {
+  const decompositionPosition = new THREE.Vector3(), decompositionScale = new THREE.Vector3();
+  function orient(bone, current, desired, direct) {
     if (current.lengthSq() < 1e-10 || desired.lengthSq() < 1e-10) return;
     delta.setFromUnitVectors(current.normalize(), desired.normalize());
-    bone.getWorldQuaternion(world).premultiply(delta);
-    bone.parent.getWorldQuaternion(parent).invert(); bone.quaternion.copy(parent.multiply(world)).normalize();
-    bone.updateWorldMatrix(true,false);
+    if (direct) {
+      bone.matrixWorld.decompose(decompositionPosition, world, decompositionScale);
+    } else {
+      bone.getWorldQuaternion(world);
+    }
+    world.premultiply(delta);
+    if (direct) bone.parent.matrixWorld.decompose(decompositionPosition, parent, decompositionScale);
+    else bone.parent.getWorldQuaternion(parent);
+    parent.invert(); bone.quaternion.copy(parent.multiply(world)).normalize();
+    bone.updateWorldMatrix(!direct,false);
   }
   return { upper, lower, foot, solve(target, pole, footRotation) {
-    upper.getWorldPosition(a); lower.getWorldPosition(b); foot.getWorldPosition(c);
+    // The known three-joint chain has no intervening mutations: refresh its
+    // ancestors once, then only the joints changed by this solve. Recheck the
+    // hierarchy each call; other rigs retain the original ancestor-safe path.
+    const direct = upper.parent !== null && lower.parent === upper && foot.parent === lower;
+    if (direct) {
+      upper.parent.updateWorldMatrix(true,false);
+      upper.updateWorldMatrix(false,false); lower.updateWorldMatrix(false,false); foot.updateWorldMatrix(false,false);
+      a.setFromMatrixPosition(upper.matrixWorld); b.setFromMatrixPosition(lower.matrixWorld); c.setFromMatrixPosition(foot.matrixWorld);
+    } else {
+      upper.getWorldPosition(a); lower.getWorldPosition(b); foot.getWorldPosition(c);
+    }
     const l1 = a.distanceTo(b), l2 = b.distanceTo(c);
     dir.copy(target).sub(a); const wanted = dir.length(), d = clamp(wanted, Math.abs(l1 - l2) + .00001, l1 + l2 - .00001); dir.normalize();
     const along = (l1 * l1 - l2 * l2 + d * d) / (2 * d), height = Math.sqrt(Math.max(0, l1 * l1 - along * along));
     bend.copy(pole).addScaledVector(dir, -pole.dot(dir));
     if (bend.lengthSq() < .00001) bend.set(1, 0, 0).addScaledVector(dir, -dir.x);
     bend.normalize(); knee.copy(a).addScaledVector(dir, along).addScaledVector(bend, height);
-    orient(upper, from.copy(b).sub(a), to.copy(knee).sub(a));
-    lower.getWorldPosition(b); foot.getWorldPosition(c);
-    orient(lower, from.copy(c).sub(b), to.copy(target).sub(b));
-    if (footRotation) {
-      foot.parent.getWorldQuaternion(parent).invert(); foot.quaternion.copy(parent.multiply(footRotation)).normalize(); foot.updateWorldMatrix(true,false);
+    orient(upper, from.copy(b).sub(a), to.copy(knee).sub(a), direct);
+    if (direct) {
+      lower.updateWorldMatrix(false,false); foot.updateWorldMatrix(false,false);
+      b.setFromMatrixPosition(lower.matrixWorld); c.setFromMatrixPosition(foot.matrixWorld);
+    } else {
+      lower.getWorldPosition(b); foot.getWorldPosition(c);
     }
-    foot.getWorldPosition(c);
+    orient(lower, from.copy(c).sub(b), to.copy(target).sub(b), direct);
+    if (footRotation) {
+      if (direct) foot.parent.matrixWorld.decompose(decompositionPosition, parent, decompositionScale);
+      else foot.parent.getWorldQuaternion(parent);
+      parent.invert(); foot.quaternion.copy(parent.multiply(footRotation)).normalize();
+      if (!direct) foot.updateWorldMatrix(true,false);
+    }
+    if (direct) { foot.updateWorldMatrix(false,false); c.setFromMatrixPosition(foot.matrixWorld); }
+    else foot.getWorldPosition(c);
     return c.distanceTo(target);
   } };
 }

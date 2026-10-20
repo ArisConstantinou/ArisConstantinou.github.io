@@ -586,6 +586,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     torchGlowGeo.attributes.position.setXYZ(id,torch.position.x,lit?torch.position.y:-100,torch.position.z);
     torchGlowGeo.attributes.position.needsUpdate=true;
   }
+  let roomTorchFilter=null;
   const lights = [];
   for (const [x, y, z, power] of [[-8.7, 3.0, 12.7, 64], [8.7, 3.0, 12.7, 64], [-7.7, 3.0, -2.9, 53], [7.7, 3.0, -2.9, 53], [0, 3.5, -20.6, 41]]) {
     const light = new THREE.PointLight(0xffac5d, power, 14, 2);
@@ -805,7 +806,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     const t = Number.isFinite(time) ? time : 0;
     const delta = Math.min(Number.isFinite(dt) ? dt : 0, 0.05);
     siegeFire?.update(t);
-    for (let i = 0; i < torchPositions.length; i++) {
+    if(!siegeFire)for (let i = 0; i < torchPositions.length; i++) {
       const p = torchPositions[i];
       const f = torches[i].lit ? 0.84 + Math.sin(t * 11.6 + i * 8.3) * 0.1 + Math.sin(t * 23 + i) * 0.08 : 0;
       temp.position.set(p.x + Math.sin(t * 7 + i) * 0.034, p.y, p.z + Math.cos(t * 6 + i) * 0.025);
@@ -818,9 +819,8 @@ export function createWorld(scene,{fireEnabled=true}={}) {
       temp.updateMatrix();
       cores.setMatrixAt(i, temp.matrix);
     }
-    flames.instanceMatrix.needsUpdate = true;
-    cores.instanceMatrix.needsUpdate = true;
-    if(focus){const positions=siegeEnabled?torches.filter(torch=>torch.lit).map(torch=>torch.position):torchPositions;const near=[...positions].sort((a,b)=>(a.x-focus.x)**2+(a.z-focus.z)**2-((b.x-focus.x)**2+(b.z-focus.z)**2));lights.forEach((light,i)=>{light.userData.sourceActive=!!near[i];if(near[i])light.position.copy(near[i]).add(new THREE.Vector3(0,.3,0));});}
+    if(!siegeFire){flames.instanceMatrix.needsUpdate = true;cores.instanceMatrix.needsUpdate = true;}
+    if(focus){const positions=siegeEnabled?torches.filter(torch=>torch.lit&&(!roomTorchFilter||roomTorchFilter(torch,focus))).map(torch=>torch.position):torchPositions;const near=[...positions].sort((a,b)=>(a.x-focus.x)**2+(a.z-focus.z)**2-((b.x-focus.x)**2+(b.z-focus.z)**2));lights.forEach((light,i)=>{light.userData.sourceActive=!!near[i];if(near[i])light.position.copy(near[i]).add(new THREE.Vector3(0,.3,0));});}
     lights.forEach((light, i) => { light.intensity = (light.userData.sourceActive===false?0:1)*light.userData.baseIntensity * (0.93 + Math.sin(t * 7.7 + i * 3.7) * 0.045 + Math.sin(t * 17.5 + i) * 0.035); });
     sceptre.position.y = Math.sin(t * 1.65) * 0.095;
     sceptre.rotation.y = t * 0.36;
@@ -878,6 +878,7 @@ export function createWorld(scene,{fireEnabled=true}={}) {
     woodenSurfaces,
     torches,
     setTorchLit,
+    setRoomTorchFilter(filter){roomTorchFilter=filter;},
     resetWood(){for(const wood of woodenSurfaces){wood.burnUntil=0;wood.burnLastTime=undefined;wood.woodFuel=1;wood.woodExhausted=false;wood.mesh.setColorAt(wood.index,wood.baseColor);wood.mesh.instanceColor.needsUpdate=true;}},
     scorchWood(wood){wood.mesh.setColorAt(wood.index,wood.baseColor.clone().lerp(new THREE.Color(0x171311),1-(wood.woodFuel??1)));wood.mesh.instanceColor.needsUpdate=true;},
     rooms:[...existingRooms,...newRooms],
