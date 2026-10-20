@@ -34,6 +34,7 @@ import { clamp, distance, lineClear, pointSegmentDistance, NavigationGrid, Profi
 import { PointerMotion, gestureThrowVelocity, clampDragPoint, constrainDragPoint } from './drag.js';
 import {mobileDragPointer} from './mobile-drag-pointer.js';
 import {FrameRateMeter} from './frame-rate.js';
+import {createFrameDiagnostics,downloadFrameReport} from './frame-diagnostics.js';
 import {intersectVisibleAnimatedObject,prepareObjectPicking} from './animated-picking.js';
 import {shieldGesture,nearestContext} from './context-controls.js';
 import { aimedThrowVelocity, floorThrowTarget } from './throw-aim.js';
@@ -102,6 +103,7 @@ let renderer, composer, camera, scene, fx, moon, bloom, targetRing, playerRing, 
 let actorMaterial, solidMaterial;
 let drag=null;
 const frameRate=new FrameRateMeter();
+const frameDiagnostics=createFrameDiagnostics({version:packageInfo.version,details:()=>({position:player?[player.body.position.x,player.body.position.y,player.body.position.z]:null,speed:player?.body.velocity.length(),quality,canvas:renderer?[renderer.domElement.width,renderer.domElement.height]:null,room:roomVisibility?.snapshot().room,textures:textureMemoryStats(),texturePending:!!texturePreparation,resources:renderer?{...renderer.info.memory}:null,shadows:staticShadowCache?{...staticShadowCache.stats}:null,bodies:physics?.bodies.length,awakeBodies:physics?.bodies.filter(b=>b.type!==CANNON.Body.STATIC&&b.sleepState!==CANNON.Body.SLEEPING).length})});
 let trajectoryPredictor,throwPreview=null,previewAt=-Infinity,previewBody=null,previewVelocity=null;
 let previewBusy=false;
 let impactMarker;
@@ -126,6 +128,7 @@ const ui=createUI({
   onStart:()=>{if(ready)startRun();},
   onRestart:()=>{if(ready)startRun();},
   onPause:()=>togglePause(),
+  onPerformanceReport:()=>downloadFrameReport(frameDiagnostics.report()),
   onResume:()=>{if(phase==='paused'){phase='playing';ui.showPause(false);sound.start();}},
   onUpgrades:()=>ui.showUpgrades(save.profile,save.upgrades()),
   onUpgrade:id=>{if(save.buy(id)){sound.sound('pickup');ui.showUpgrades(save.profile,save.upgrades());}else ui.toast('Δεν έχεις αρκετά θραύσματα.','info');},
@@ -399,6 +402,7 @@ function populate(){
 }
 function setPlayCamera(){cameraTarget.set(player.body.position.x,0,player.body.position.z-2);}
 function startRun(){
+  frameDiagnostics.startRun();
   roomVisibility?.reset();
   frameRate.reset();
   contextTarget=null;contextAt=-Infinity;
@@ -1513,8 +1517,9 @@ let controlledUntil=0;
 function frame(now,manual=false){
   if(benchmarkMode&&performanceTest?.report?.outcome)return;
   if(!manual&&now<controlledUntil){lastTime=now;requestAnimationFrame(frame);return;}
-  if(texturePreparation||renderer?.getContext().isContextLost()){lastTime=now;if(!manual)requestAnimationFrame(frame);return;}
+  if(texturePreparation||renderer?.getContext().isContextLost()){if(!manual)frameDiagnostics.gap(texturePreparation?'texture-preparation':'context-lost');lastTime=now;if(!manual)requestAnimationFrame(frame);return;}
   if(!manual)performanceTest?.beginFrame(phase);
+  if(!manual){if(phase==='playing'&&!document.hidden)frameDiagnostics.begin(now);else frameDiagnostics.suspend();}
   const dt=Math.min(.045,Math.max(.001,(now-lastTime)/1000));lastTime=now;worldTime+=dt;
   try{
     if(worldMap)worldMap.update(dt,worldTime,player?.body.position);
@@ -1541,7 +1546,7 @@ function frame(now,manual=false){
           updateRitual(dt);updateReinforcements();
           updateEntities(dt);
           performanceTest?.mark('gameplay');
-          physics.step(1/120,dt,6);performanceTest?.mark('physics');greekPuzzles?.update(dt,hearth.engine,player);
+          if(!manual)frameDiagnostics.mark('gameplay');physics.step(1/120,dt,6);if(!manual)frameDiagnostics.mark('physics');performanceTest?.mark('physics');greekPuzzles?.update(dt,hearth.engine,player);
           if(FIRE_ENABLED)updateFire();
           updateArrows(dt);updatePickups(dt);updateLoot(dt);
           if(relicTaken&&runTime>nextWave){spawnReinforcements();nextWave=runTime+24;}
@@ -1556,11 +1561,11 @@ function frame(now,manual=false){
       if(FIRE_ENABLED)fireFX.update({spell:fireSpell,player,entities,surfaces:worldMap.woodenSurfaces,time:runTime,camera,playing:['playing','paused'].includes(phase),source:fireSpell.sourceFor(player,fireLineClear,aimPoint)});
     }
     sound.setFlamethrower(phase==='playing'&&!document.hidden&&!!hearth?.engine?.heart.firing);
-    performanceTest?.mark('visuals');
+    if(!manual)frameDiagnostics.mark('visuals');performanceTest?.mark('visuals');
     if(renderer&&ready){
       const preparation=prepareFrameTextures();
-      if(preparation){sound.setPaused(true);sound.setFlamethrower(false);texturePreparation=preparation.catch(error=>{if(!renderer.getContext().isContextLost())showError(error);}).finally(()=>{texturePreparation=null;lastTime=performance.now();});}
-      else{performanceTest?.mark('textureCheck');performanceTest?.beginRender(renderer);renderer.info.reset();if(quality==='high')composer.render();else renderer.render(scene,camera);if(!manual){if(phase==='playing')frameRate.presented(performance.now());else frameRate.reset();performanceTest?.endFrame(renderer);}}
+      if(preparation){if(!manual)frameDiagnostics.gap('texture-preparation');sound.setPaused(true);sound.setFlamethrower(false);texturePreparation=preparation.catch(error=>{if(!renderer.getContext().isContextLost())showError(error);}).finally(()=>{texturePreparation=null;lastTime=performance.now();});}
+      else{performanceTest?.mark('textureCheck');performanceTest?.beginRender(renderer);renderer.info.reset();if(!manual){frameDiagnostics.mark('textures');frameDiagnostics.beginGpu(renderer);}try{if(quality==='high')composer.render();else renderer.render(scene,camera);}finally{if(!manual)frameDiagnostics.endGpu();}if(!manual){if(phase==='playing'){frameRate.presented(performance.now());frameDiagnostics.finish(renderer.info.render);}else{frameRate.reset();frameDiagnostics.suspend();}performanceTest?.endFrame(renderer);}}
     }
     if(!manual)requestAnimationFrame(frame);
   }catch(error){showError(error);}
@@ -1621,10 +1626,10 @@ async function boot(){
     }
     // Preserve the prior complete offline release until encoded background
     // assets have arrived. Playing the first room need not wait for them.
-    const assetsReady=new Promise(resolve=>setTimeout(resolve,1000)).then(prefetchEncodedTextures).then(complete=>{if(complete&&!candidate)notifyReleaseReady(navigator.serviceWorker,packageInfo.version);return complete;});
+    const assetsReady=new Promise(resolve=>setTimeout(resolve,1000)).then(prefetchEncodedTextures).then(complete=>{frameDiagnostics.note(complete?'background-assets-ready':'background-assets-incomplete');if(complete&&!candidate)notifyReleaseReady(navigator.serviceWorker,packageInfo.version);return complete;});
     performanceTest?.ready();ready=true;phase='menu';ui.setLoading(1,'Έτοιμο');ui.ready();ui.showMenu(save.profile);if(!candidate)void gameUpdates.check();
     observeAssetLoading(null);requestAnimationFrame(frame);
-    window.__MAGIC__={version:packageInfo.version,assetsReady,textureMemory:()=>({...textureMemoryStats(),pending:!!texturePreparation}),prepareTextures:prepareFrameTextures,snapshot:()=>({staticShadows:{...staticShadowCache?.stats},roomVisibility:roomVisibility?.snapshot(),puzzles:greekPuzzles?.snapshot(),hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
+    window.__MAGIC__={version:packageInfo.version,performance:()=>frameDiagnostics.report(),assetsReady,textureMemory:()=>({...textureMemoryStats(),pending:!!texturePreparation}),prepareTextures:prepareFrameTextures,snapshot:()=>({staticShadows:{...staticShadowCache?.stats},roomVisibility:roomVisibility?.snapshot(),puzzles:greekPuzzles?.snapshot(),hearth:hearth.snapshot(),phase,hp:player?.hp,mana:player?.mana,position:player?{x:player.body.position.x,z:player.body.position.z}:null,
       kills,relicTaken,holding:held?.label||null,dragging:!!drag,shielding:!!player?.shielding,context:contextTarget?{id:contextTarget.id,label:contextTarget.label,enabled:contextTarget.enabled}:null,controls:'drag-release',entities:entities.filter(e=>!e.removed).length,renderer:renderer.info.render,
       pathToRelic:nav.path(worldMap.spawn,{x:worldMap.relic.position.x,z:worldMap.relic.position.z+3}).length,profile:{runs:save.profile.runs,wins:save.profile.wins},time:runTime,candidate,
       inventory:{items:save.profile.loot.items.map(i=>({...i})),equipped:{...save.profile.loot.equipped},shards:save.profile.shards,storage:save.available},gear:player?.gear,
@@ -1641,7 +1646,7 @@ async function boot(){
     window.render_game_to_text=()=>JSON.stringify({...window.__MAGIC__.snapshot(),coordinates:'metres: X east, Y up, Z south',bosses:entities.filter(e=>e.bossType&&!e.removed).map(e=>({type:e.bossType,room:e.room.name,hp:e.hp,dead:e.dead,clip:e.mesh.userData.animationState,attackTime:e.bossTime,guardBreak:e.guardBreak,x:e.body.position.x,z:e.body.position.z}))});
     if(FIRE_ENABLED&&FIRE_BENCHMARK)window.__FIRE_BENCHMARK__=enabled=>{fireFX.setEnabled(enabled);renderer.info.autoReset=false;};
     window.advanceTime=ms=>{controlledUntil=performance.now()+1000;const steps=Math.max(1,Math.ceil(ms/(1000/60)));for(let i=0;i<steps;i++)frame(lastTime+ms/steps,true);lastTime=performance.now();};
-    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get staticShadowCache(){return staticShadowCache;},get roomVisibility(){return roomVisibility;},trajectoryWorld:()=>captureTrajectoryWorld(physics,held?.body,runTime),get puzzles(){return greekPuzzles;},get goliathNav(){return goliathNav;},get held(){return held;},hurt,get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get nav(){return nav;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,pulse,stoneFixture:createStoneCreature,get time(){return runTime;},pause:togglePause,render:()=>{controlledUntil=performance.now()+60000;if(quality==='high')composer.render();else renderer.render(scene,camera);},impactSnapshot:()=>fx.stompSnapshot(),step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);greekPuzzles?.update(dt,hearth.engine,player);syncVisuals(dt);hearth.sync(dt);fx.update(dt,camera,dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
+    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get frameDiagnostics(){return frameDiagnostics;},get staticShadowCache(){return staticShadowCache;},get roomVisibility(){return roomVisibility;},trajectoryWorld:()=>captureTrajectoryWorld(physics,held?.body,runTime),get puzzles(){return greekPuzzles;},get goliathNav(){return goliathNav;},get held(){return held;},hurt,get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get nav(){return nav;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,pulse,stoneFixture:createStoneCreature,get time(){return runTime;},pause:togglePause,render:()=>{controlledUntil=performance.now()+60000;if(quality==='high')composer.render();else renderer.render(scene,camera);},impactSnapshot:()=>fx.stompSnapshot(),step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);greekPuzzles?.update(dt,hearth.engine,player);syncVisuals(dt);hearth.sync(dt);fx.update(dt,camera,dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
   }catch(error){
     const fresh=error.releaseMismatch&&releaseReloadURL(location.href,error.releaseMismatch);
     if(fresh){location.replace(fresh);return;}

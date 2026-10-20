@@ -1,0 +1,85 @@
+{
+  "version": "1.6.24",
+  "build": "e685b5919760288bc4998d3938aa44552c2282d69698ccf8ca491b88cb35424f",
+  "baselineCommit": "fae9d52ba1907c54e7b8223924922eaff39c550e",
+  "implemented": [
+    "Automatic bounded local frame diagnostics, capture on high-to-low FPS transition, pause report export.",
+    "GPU timer where supported and asynchronous zero-timeout completion probes; context recovery and load-gap preservation.",
+    "Move unused prop floor query after the prop return; preserve actor support behavior."
+  ],
+  "validation": {
+    "build": "e685b5919760288bc4998d3938aa44552c2282d69698ccf8ca491b88cb35424f",
+    "version": "1.6.24",
+    "tests": {
+      "game": 364,
+      "root": 63,
+      "total": 427,
+      "failed": 0
+    },
+    "evidence": {
+      "recorder": "output/playwright/idle-bottleneck-20261020/recorder-1792508923833/report.json",
+      "context": "output/playwright/idle-bottleneck-20261020/context-1792508969846/report.json",
+      "touch": "output/playwright/idle-bottleneck-20261020/touch/report.json",
+      "upgrade": "output/playwright/idle-bottleneck-20261020/upgrade-delivery/report.json",
+      "desktop": "output/playwright/idle-bottleneck-20261020/perf-desktop-uncapped-1792508571236/report.json",
+      "client": "output/playwright/idle-bottleneck-20261020/client-game/browser-lifecycle.json"
+    },
+    "gameplay": [
+      {
+        "phase": "playing",
+        "position": {
+          "x": 2.70573434313992,
+          "z": 19.960473240688717
+        }
+      },
+      {
+        "phase": "playing",
+        "position": {
+          "x": 3.9652154350529227,
+          "z": 17.666852108812805
+        }
+      }
+    ],
+    "automaticDropCapture": true,
+    "noGpuTimerFallback": true,
+    "nativeTouchOrientations": 2,
+    "reportExportOrientations": 2,
+    "gpuContextRestoration": true,
+    "exactSaveUpgradeFrom": "1.6.23",
+    "offlineReload": true,
+    "oldRuntimeRetained": true,
+    "publicationChecksPassed": true,
+    "physicalMobile60Verified": false,
+    "pc200AllScenesVerified": false,
+    "idlePhoneDropCause": "unconfirmed",
+    "pcIdleUncapped": [
+      {
+        "fps": 265.7289564644064,
+        "frameMeanMs": 3.763233082706766,
+        "frameP95Ms": 4.699999999998909,
+        "workMeanMs": 3.6270473323129875,
+        "gpuMeanMs": 1.5004789140271502
+      },
+      {
+        "fps": 263.34206474575603,
+        "frameMeanMs": 3.7973424449506443,
+        "frameP95Ms": 4.799999999999272,
+        "workMeanMs": 3.6771623674039593,
+        "gpuMeanMs": 1.5198689268292682
+      }
+    ],
+    "limits": [
+      "Desktop CPU throttle produces a known input for recorder validation; it is not phone emulation.",
+      "PC numbers are uncapped rendering throughput, not a changed display refresh rate.",
+      "Control PC throughput overlaps candidate; no clear gain attributable to the floor-query edit.",
+      "Historical 1.6.23 first-pose portrait one-byte image discrepancy remains unchanged.",
+      "Offline upgrade intentionally produces one worker error for the network-only release-check fetch."
+    ],
+    "checkedAt": "2026-10-20T15:10:57.887Z"
+  },
+  "url": "https://arisconstantinou.github.io/magic/",
+  "overallPerformanceGoal": "open",
+  "mobile60Verified": false,
+  "idleDropCause": "unconfirmed",
+  "authorization": "User requested continued diagnosis/optimization and commit/push related updates to main."
+}
