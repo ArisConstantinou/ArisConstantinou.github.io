@@ -1,0 +1,29 @@
+{
+  "version": "1.6.23",
+  "build": "80ce1b0767f800ba99e01da84f7e810a3408399f58670190b2328339775eaf53",
+  "authorization": "User explicitly requested: use the new methods now on code commit and push",
+  "sourceCommit": "383088b678922b3631dc83c5f9bbb60b5555964f",
+  "previousPublicCommit": "cbee51cd1b243036d5a637f428437d40a7610705",
+  "implemented": "Rigid static directional shadow reuse; moving actors and awake props retain live shadows; input changes invalidate; tiny passes bypass reuse.",
+  "validation": {
+    "tests": 417,
+    "nativeTouchOrientations": 2,
+    "installedClientIterations": 2,
+    "contextRestore": true,
+    "cacheTextureLifecycle": true,
+    "upgradeFrom": "1.6.22",
+    "savePreserved": true,
+    "offlineReload": true
+  },
+  "knownIssue": {
+    "status": "recorded_not_fixed",
+    "viewport": "portrait",
+    "trigger": "first frame after animated pose change",
+    "difference": "six additional channels by 1/255 outside steady-state control envelope",
+    "otherEvidence": "Independent native renderer also shows first-pose one-byte changes; static cached packed-depth maps match exactly.",
+    "publicationAuthorization": "User explicitly requested: use the new methods now on code commit and push",
+    "strictImageGatePassed": false
+  },
+  "physicalMobile60Verified": false,
+  "pc200AllScenesVerified": false
+}

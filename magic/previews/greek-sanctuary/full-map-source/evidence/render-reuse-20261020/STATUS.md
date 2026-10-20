@@ -3,8 +3,8 @@
 Implemented in isolated editable source and a runnable 1.6.23 preview:
 http://127.0.0.1:5173/performance-check/after/render-reuse-20261020/index.html
 
-This is an experiment, not a published release or a verified fix for mobile 28 FPS.
-Accepted public 1.6.22/main cbee51cd1b243036d5a637f428437d40a7610705 is preserved.
+The user subsequently explicitly authorized activation and publication as MAGIC 1.6.23. The strict first-transition image discrepancy is retained as a known issue; neither mobile60 nor PC200 across all scenes is verified.
+Previous public 1.6.22/main cbee51cd1b243036d5a637f428437d40a7610705 and its hashed engine assets remain available for recovery.
 
 The comparative study found static world lighting, room activation and batching in OpenLara, Dungeon Fury, Hordes.io and SWOOOP. MAGIC already has room masks, hidden-rig detachment, batching and room-local torches. The selected new adaptation separates rigid static shadow work from moving casters. This is an original implementation of the principle, not copied client code or a claim that those games use this exact cache.
 
@@ -14,7 +14,7 @@ Observed courtyard mobile-viewport submissions: 375 -> 221 draws, 1,171,696 -> 7
 
 417 unit tests pass: 354 game including five new state/lifecycle regressions, plus 63 root/monument. Build passes. Native touch movement, conjure, pulse, pause/resume pass in both orientations. Installed game client passes two iterations. Screenshots inspected. Cache enable/disable cycles restore exact GPU texture counts; WebGL context restoration passes. All owned browsers close without remaining processes. Sole existing port5173/PID40676 is retained. Accepted 20 source hashes and 259 runtime hashes, and 259 candidate runtime hashes verify.
 
-Strict image validation remains open: 13/14 cases pass the repeated native-control byte envelope. Portrait's first animated-pose frame differs in six additional channels by 1/255. Subsequent cached frames pass. An independent native first-pose control also changes thirteen channels by one byte; eight coordinates coincide with the cached-path depth diagnostic. The cached static packed-depth maps themselves are byte-identical before/after pose and rebuild. This supports a pre-existing transition effect, but is not counted as a passed strict gate. The original failure and all follow-up results are retained. No main/runtime promotion while that gate is open.
+Strict image validation remains open: 13/14 cases pass the repeated native-control byte envelope. Portrait's first animated-pose frame differs in six additional channels by 1/255. Subsequent cached frames pass. An independent native first-pose control also changes thirteen channels by one byte; eight coordinates coincide with the cached-path depth diagnostic. The cached static packed-depth maps themselves are byte-identical before/after pose and rebuild. This supports a pre-existing transition effect, but is not counted as a passed strict gate. The original failure and all follow-up results are retained. The subsequent explicit user instruction authorizes publication with this small known discrepancy; the historical strict gate result remains failed and is not relabelled as passing.
 
 Primary evidence: VERIFICATION.json, SOURCE-DELTA.json; output/playwright/render-reuse-20261020/{probe-1792493210165,probe-1792493302450,probe-built-1792494266387,runtime-1792493494197,runtime-1792494056511,depth-1792493850782,depth-native-1792493930201,perf-desktop-uncapped-1792493673912,touch,client}.
 
