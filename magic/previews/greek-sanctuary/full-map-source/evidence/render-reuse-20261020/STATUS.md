@@ -1,0 +1,21 @@
+# MAGIC rendering reuse experiment — 2026-10-20
+
+Implemented in isolated editable source and a runnable 1.6.23 preview:
+http://127.0.0.1:5173/performance-check/after/render-reuse-20261020/index.html
+
+This is an experiment, not a published release or a verified fix for mobile 28 FPS.
+Accepted public 1.6.22/main cbee51cd1b243036d5a637f428437d40a7610705 is preserved.
+
+The comparative study found static world lighting, room activation and batching in OpenLara, Dungeon Fury, Hordes.io and SWOOOP. MAGIC already has room masks, hidden-rig detachment, batching and room-local torches. The selected new adaptation separates rigid static shadow work from moving casters. This is an original implementation of the principle, not copied client code or a claim that those games use this exact cache.
+
+Pinned Three 0.180.0 PCF-soft directional shadow path: cache both packed shadow colour and hardware depth; rigid world meshes and sleeping/anchored props can reuse it. Animated actors and awake props retain their normal passes. Changes to the light view, room mask, caster visibility, transform, geometry/instance versions or depth-relevant material inputs invalidate before drawing. Moving follow-light uses the normal pass. Tiny rigid passes, such as the library/forge's 28 static triangles, bypass reuse. Extra target allocation is approximately 8 MiB at 1024 square or 32 MiB at 2048 square with RGBA8 plus four-byte depth; actual driver memory is not measured.
+
+Observed courtyard mobile-viewport submissions: 375 -> 221 draws, 1,171,696 -> 713,371 triangles/frame, unchanged resolution/assets/shadow size. Final compiled-build A/B/A on Windows RTX hardware: GPU mean landscape 4.555 -> 4.429 ms (-2.8%), portrait 4.646 -> 3.802 ms (-18.2%), desktop 4.870 -> 4.094 ms (-15.9%). Earlier prototype runs showed 13-21% GPU savings. Preserve this variability; triangle reduction is not an equal FPS gain. No physical mobile FPS is inferred. Uncapped whole-game PC throughput drift overlaps the controls: before 196-224, candidate 226-238, restored 233-243 FPS, so an overall PC FPS gain is not established.
+
+417 unit tests pass: 354 game including five new state/lifecycle regressions, plus 63 root/monument. Build passes. Native touch movement, conjure, pulse, pause/resume pass in both orientations. Installed game client passes two iterations. Screenshots inspected. Cache enable/disable cycles restore exact GPU texture counts; WebGL context restoration passes. All owned browsers close without remaining processes. Sole existing port5173/PID40676 is retained. Accepted 20 source hashes and 259 runtime hashes, and 259 candidate runtime hashes verify.
+
+Strict image validation remains open: 13/14 cases pass the repeated native-control byte envelope. Portrait's first animated-pose frame differs in six additional channels by 1/255. Subsequent cached frames pass. An independent native first-pose control also changes thirteen channels by one byte; eight coordinates coincide with the cached-path depth diagnostic. The cached static packed-depth maps themselves are byte-identical before/after pose and rebuild. This supports a pre-existing transition effect, but is not counted as a passed strict gate. The original failure and all follow-up results are retained. No main/runtime promotion while that gate is open.
+
+Primary evidence: VERIFICATION.json, SOURCE-DELTA.json; output/playwright/render-reuse-20261020/{probe-1792493210165,probe-1792493302450,probe-built-1792494266387,runtime-1792493494197,runtime-1792494056511,depth-1792493850782,depth-native-1792493930201,perf-desktop-uncapped-1792493673912,touch,client}.
+
+The original sustained PC200+/mobile60+ objective remains unverified. The user's phone connection is not a prerequisite to further engineering. No installations, third-party paid calls, new agents or model changes were made in this task. Task-attributable usage/credits are unavailable.

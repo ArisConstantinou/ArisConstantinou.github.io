@@ -55,6 +55,7 @@ export function createRoomVisibility({renderer,scene,world}){
  world.setRoomTorchFilter(policyFilter);
  function applyStatic(){stats.hiddenStatic=0;for(const o of roomSources(world.root)){o.userData.roomFogVisible=!enabled||overlaps(boxFor(o));if(!o.userData.roomFogVisible)stats.hiddenStatic++;}}
  return {
+  get revision(){return signature+':'+enabled;},
   update(subject,yaw=0,entities=[]){
    for(const e of entities)if(e.mesh)entityRoots.set(e.mesh,e);
    const p=subject.body.position,view=policy.view(p,previous);zone=view.zone;previous=zone.id;rects=view.rects;

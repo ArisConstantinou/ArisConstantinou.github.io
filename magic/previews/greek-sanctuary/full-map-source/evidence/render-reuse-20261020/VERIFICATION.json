@@ -1,0 +1,80 @@
+{
+  "status": "experimental_not_release",
+  "version": "1.6.23",
+  "build": "80ce1b0767f800ba99e01da84f7e810a3408399f58670190b2328339775eaf53",
+  "tests": {
+    "game": 354,
+    "root": 63,
+    "total": 417,
+    "failed": 0
+  },
+  "runtimeCases": 14,
+  "strictImageCasesPassed": 13,
+  "strictImageCasesFailed": [
+    {
+      "viewport": "portrait",
+      "label": "animated-actor",
+      "captures": [
+        {
+          "label": "mutation-first",
+          "calls": 162,
+          "triangles": 529953,
+          "error": 0,
+          "changed": 11,
+          "maxDelta": 1,
+          "outsideControlEnvelope": 6
+        }
+      ]
+    }
+  ],
+  "nativeTouchOrientations": 2,
+  "installedClientIterations": 2,
+  "contextRestore": true,
+  "gpuTextureCounts": {
+    "before": {
+      "geometries": 200,
+      "textures": 112
+    },
+    "samples": [
+      {
+        "geometries": 200,
+        "textures": 113
+      },
+      {
+        "geometries": 200,
+        "textures": 113
+      },
+      {
+        "geometries": 200,
+        "textures": 113
+      },
+      {
+        "geometries": 200,
+        "textures": 113
+      },
+      {
+        "geometries": 200,
+        "textures": 113
+      }
+    ],
+    "after": {
+      "geometries": 200,
+      "textures": 112
+    }
+  },
+  "protectedAcceptedSource": 20,
+  "protectedAcceptedRuntime": 259,
+  "candidateRuntime": 259,
+  "physicalMobile60Verified": false,
+  "pc200AllScenesVerified": false,
+  "publicationGatePassed": false,
+  "limits": [
+    "Static shadow packed colour is byte-identical across actor pose changes.",
+    "Independent unmodified-renderer first-pose control also changes thirteen channels by one byte. Eight coordinates coincide with the cached-path diagnostic. This supports a pre-existing transition effect, but does not waive the failed strict image gate.",
+    "No physical phone is required to continue engineering. Desktop viewports cannot establish physical mobile FPS.",
+    "Extra shadow-map target costs approximately 8 MiB at 1024 square or 32 MiB at 2048 square, assuming RGBA8 plus four-byte depth; actual allocation is driver-dependent.",
+    "Moving follow-light keeps the ordinary shadow pass. Tiny rigid shadow passes bypass reuse.",
+    "PC A/B/A whole-game throughput drift overlaps: 196-224 before, 226-238 candidate, 233-243 restored; do not attribute all FPS differences to this patch."
+  ],
+  "checkedAt": "2026-10-20T11:05:33.220Z"
+}
