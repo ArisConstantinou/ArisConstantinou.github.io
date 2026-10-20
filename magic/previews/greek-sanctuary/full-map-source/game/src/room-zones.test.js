@@ -1,0 +1,16 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {createRoomZones,containsPoint} from './room-zones.js';
+import {existingRooms,newRooms,corridors,secretAreas} from './castle-layout.js';
+const policy=createRoomZones([...existingRooms,...newRooms],corridors,secretAreas);
+const focus={x:0,y:.86,z:5.5},torch=(x,z,y=2.5)=>({lit:true,position:{x,y,z}});
+test('distance-only light fixture reproduces cross-wall selection',()=>{const wrong=torch(0,4.8),right=torch(8,12);assert(Math.hypot(wrong.position.x-focus.x,wrong.position.z-focus.z)<Math.hypot(right.position.x-focus.x,right.position.z-focus.z));assert.equal(policy.torchAllowed(wrong,focus),false);assert.equal(policy.torchAllowed(right,focus),true);});
+test('courtyard view does not reveal the hall or crypt',()=>{const view=policy.view({x:0,z:22.5});assert.equal(view.zone.id,'courtyard');assert(!view.rects.some(r=>containsPoint(r,{x:0,z:-5})));assert(view.rects.some(r=>r.id==='bridge'));});
+test('entry switches rooms and retains a narrow threshold hysteresis',()=>{assert.equal(policy.locate({x:0,z:4.97},'courtyard').id,'courtyard');assert.equal(policy.locate({x:0,z:4.8},'courtyard').id,'hall');});
+test('every room centre resolves to its real room',()=>{for(const r of [...existingRooms,...newRooms])assert.equal(policy.locate({x:r.x+r.w/2,z:r.z+r.d/2}).id,r.id);});
+test('corridor reveals doorway shoulders without complete neighbouring rooms',()=>{const c=corridors.find(c=>c.from==='library'),p={x:c.x+c.w/2,z:c.z+c.d/2},view=policy.view(p);assert(view.zone.passage);assert.equal(view.rects.length,3);for(const r of view.rects.filter(r=>r.id.endsWith('threshold')))assert(r.w<=6&&r.d<=6);});
+test('torch source must remain in the same room when player moves',()=>{const source=torch(0,4.8);assert.equal(policy.torchAllowed(source,{x:0,y:.86,z:5.5}),false);assert.equal(policy.torchAllowed(source,{x:0,y:.86,z:4}),true);});
+test('unlit, out of range and below-floor torch lights are excluded',()=>{const source=torch(0,12);source.lit=false;assert(!policy.torchAllowed(source,{x:0,y:.86,z:12}));source.lit=true;assert(!policy.torchAllowed(source,{x:0,y:8.86,z:12}));assert(!policy.torchAllowed(torch(-14,6),{x:14,y:.86,z:23}));});
+test('secret chamber has its own room identity rather than leaking parent light',()=>{for(const s of secretAreas){const p={x:s.x+s.w/2,z:s.z+s.d/2};assert.equal(policy.locate(p).id,s.id);}});
+test('visible mask never exceeds the fixed shader capacity',()=>{for(const r of [...existingRooms,...newRooms,...corridors,...secretAreas]){const view=policy.view({x:r.x+r.w/2,z:r.z+r.d/2});assert(view.rects.length>0&&view.rects.length<=8);}});
+test('compound room reveals each real wing without filling the bounding-box void',()=>{const zones=createRoomZones([{id:'L',x:0,z:0,w:10,d:5},{id:'L',x:0,z:5,w:5,d:5},{id:'other',x:6,z:6,w:3,d:3}]);const view=zones.view({x:2,z:8},'L');assert.equal(view.zone.id,'L');assert.equal(view.rects.length,2);assert(!view.rects.some(r=>containsPoint(r,{x:8,z:8})));});
+test('torch sources in an architectural wing keep their semantic room identity',()=>{const zones=createRoomZones([{id:'L',x:0,z:0,w:10,d:5},{id:'L',x:0,z:5,w:5,d:5}]);assert(zones.torchAllowed(torch(2,8),{x:2,y:1,z:2}));});

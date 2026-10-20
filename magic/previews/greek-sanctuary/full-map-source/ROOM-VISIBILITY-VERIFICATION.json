@@ -1,0 +1,364 @@
+{
+  "status": "experimental_source_only_performance_goal_open",
+  "base": "b829d0f6718d96f72825a3fbb35972f81be76450",
+  "branch": "codex/room-visibility-performance-20261020",
+  "build": "893e86711e9ce41fb75bd959b21e9fefba579ce5efbf0f7b4baa67304236ce53",
+  "sourceChanges": [
+    "game/src/room-minimap.css",
+    "game/src/room-minimap.js",
+    "game/src/room-visibility.js",
+    "game/src/room-zones.js",
+    "game/src/world.js",
+    "game/src/siege-environment.js",
+    "static-wall-batches.js",
+    "game/src/main.js",
+    "combined-integration.mjs",
+    "game/src/room-zones.test.js",
+    "room-render-culling.test.mjs",
+    "game/src/room-fog-shader.js",
+    "game/src/room-fog-shader.test.js",
+    "game/src/siege-flame-updates.test.js",
+    "game/src/room-render-prune.js",
+    "game/src/room-render-prune.test.js"
+  ],
+  "validation": {
+    "tests": 406,
+    "game": 343,
+    "rootAndMonument": 63,
+    "runtimeCases": 9,
+    "zoneCentres": 32,
+    "nativeTouchOrientations": 2,
+    "installedClientIterations": 2,
+    "saveCanaryPreserved": true,
+    "reproducibleSource": true,
+    "pruningForwardPixels": [
+      {
+        "scene": "courtyard-portrait",
+        "changed": 0,
+        "maxDelta": 0,
+        "restoredChanged": 1,
+        "restoredMaxDelta": 1
+      },
+      {
+        "scene": "hall",
+        "changed": 0,
+        "maxDelta": 0,
+        "restoredChanged": 0,
+        "restoredMaxDelta": 0
+      },
+      {
+        "scene": "library",
+        "changed": 0,
+        "maxDelta": 0,
+        "restoredChanged": 0,
+        "restoredMaxDelta": 0
+      },
+      {
+        "scene": "upper-library",
+        "changed": 0,
+        "maxDelta": 0,
+        "restoredChanged": 0,
+        "restoredMaxDelta": 0
+      },
+      {
+        "scene": "corridor",
+        "changed": 0,
+        "maxDelta": 0,
+        "restoredChanged": 0,
+        "restoredMaxDelta": 0
+      },
+      {
+        "scene": "temple",
+        "changed": 0,
+        "maxDelta": 0,
+        "restoredChanged": 0,
+        "restoredMaxDelta": 0
+      },
+      {
+        "scene": "return-courtyard",
+        "changed": 0,
+        "maxDelta": 0,
+        "restoredChanged": 0,
+        "restoredMaxDelta": 0
+      }
+    ]
+  },
+  "performance": {
+    "mode": "Diagnostic uncapped whole-game submission throughput; not displayed FPS",
+    "hardware": {
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "viewport": [
+        2560,
+        1440
+      ],
+      "canvas": [
+        2560,
+        1440
+      ],
+      "dpr": 1,
+      "quality": "high",
+      "threads": 24,
+      "deviceMemoryGiB": 32,
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "actors": 69,
+      "bodies": 1113,
+      "actualVram": "not exposed by WebGL"
+    },
+    "scenes": [
+      {
+        "scene": "idle",
+        "before": {
+          "fps": 211.96337792527953,
+          "p95Ms": 5.699999988079071,
+          "maxMs": 11.300000011920929,
+          "gpuMeanMs": 2.5119068096641097,
+          "draws": 633,
+          "cpu": {
+            "gameplay": 0.17053624041022872,
+            "physics": 0.22351208099141567,
+            "visuals": 1.132999410471919,
+            "textureCheck": 0.026929875964196767,
+            "render": 3.0063052443314384
+          }
+        },
+        "after": {
+          "fps": 265.0975688970941,
+          "p95Ms": 4.599999964237213,
+          "maxMs": 8.099999964237213,
+          "gpuMeanMs": 1.944475898209235,
+          "draws": 389,
+          "cpu": {
+            "gameplay": 0.14132893565799917,
+            "physics": 0.1684260134085746,
+            "visuals": 1.0962299715787256,
+            "textureCheck": 0.022243166761955598,
+            "render": 2.2060791709926417
+          }
+        }
+      },
+      {
+        "scene": "turn",
+        "before": {
+          "fps": 201.9886576566837,
+          "p95Ms": 5.899999976158142,
+          "maxMs": 10.800000011920929,
+          "gpuMeanMs": 2.8629090513296243,
+          "draws": 561.6246134817563,
+          "cpu": {
+            "gameplay": 0.16771799753533517,
+            "physics": 0.22541743889220645,
+            "visuals": 1.1388373533810963,
+            "textureCheck": 0.025664811710848362,
+            "render": 2.9662337663296054
+          }
+        },
+        "after": {
+          "fps": 229.20988826852835,
+          "p95Ms": 5.300000011920929,
+          "maxMs": 9.199999988079071,
+          "gpuMeanMs": 2.5199024471101445,
+          "draws": 368.5496183206107,
+          "cpu": {
+            "gameplay": 0.1568157024185946,
+            "physics": 0.20741548510258173,
+            "visuals": 1.1694111243914103,
+            "textureCheck": 0.021046891694760504,
+            "render": 2.38691384942477
+          }
+        }
+      },
+      {
+        "scene": "crowd",
+        "before": {
+          "fps": 148.8330251386876,
+          "p95Ms": 7.800000011920929,
+          "maxMs": 20.399999976158142,
+          "gpuMeanMs": 3.4006884405641316,
+          "draws": 812.7555406312962,
+          "cpu": {
+            "gameplay": 0.4219610482514345,
+            "physics": 0.3663532570194606,
+            "visuals": 1.6834116859913193,
+            "textureCheck": 0.028744124101263473,
+            "render": 3.9656816654512754
+          }
+        },
+        "after": {
+          "fps": 160.71000239923117,
+          "p95Ms": 7.400000035762787,
+          "maxMs": 20.099999964237213,
+          "gpuMeanMs": 2.88127799004975,
+          "draws": 484.05410447761193,
+          "cpu": {
+            "gameplay": 0.4458333331331685,
+            "physics": 0.365920398439934,
+            "visuals": 1.7862562191723592,
+            "textureCheck": 0.025062188394923707,
+            "render": 3.3311567166032483
+          }
+        }
+      },
+      {
+        "scene": "mage",
+        "before": {
+          "fps": 145.5204963973178,
+          "p95Ms": 8.399999976158142,
+          "maxMs": 19.100000023841858,
+          "gpuMeanMs": 3.4240905986260994,
+          "draws": 793.5,
+          "cpu": {
+            "gameplay": 0.41481844892211706,
+            "physics": 0.4006378806842321,
+            "visuals": 1.8068694795488258,
+            "textureCheck": 0.027232580844740638,
+            "render": 3.926496566336335
+          }
+        },
+        "after": {
+          "fps": 149.6651100356563,
+          "p95Ms": 8.600000023841858,
+          "maxMs": 18.600000023841858,
+          "gpuMeanMs": 3.1057596030534373,
+          "draws": 473.1836832061069,
+          "cpu": {
+            "gameplay": 0.46812977107199094,
+            "physics": 0.42833969434936536,
+            "visuals": 1.9512881684678656,
+            "textureCheck": 0.025906488413119134,
+            "render": 3.478721373721616
+          }
+        }
+      },
+      {
+        "scene": "room:library",
+        "before": {
+          "fps": 164.20668814489616,
+          "p95Ms": 9.199999988079071,
+          "maxMs": 20.5,
+          "gpuMeanMs": 3.1635738281368777,
+          "draws": 510.86996197718634,
+          "cpu": {
+            "gameplay": 0.2993916354251905,
+            "physics": 0.33536121623144405,
+            "visuals": 1.749125475756569,
+            "textureCheck": 0.01840304090949519,
+            "render": 3.298707224026379
+          }
+        },
+        "after": {
+          "fps": 207.7685186335811,
+          "p95Ms": 6.099999964237213,
+          "maxMs": 17.599999964237213,
+          "gpuMeanMs": 2.570342234515933,
+          "draws": 314.41791942273,
+          "cpu": {
+            "gameplay": 0.2704149133744759,
+            "physics": 0.2660252556554252,
+            "visuals": 1.425015032506462,
+            "textureCheck": 0.017979554791659816,
+            "render": 2.468069754518519
+          }
+        }
+      },
+      {
+        "scene": "room:forge",
+        "before": {
+          "fps": 192.13231895521253,
+          "p95Ms": 6.5,
+          "maxMs": 50.5,
+          "gpuMeanMs": 2.6513168686605963,
+          "draws": 362.9817945383615,
+          "cpu": {
+            "gameplay": 0.34648894639722083,
+            "physics": 0.2996098830501497,
+            "visuals": 1.3968140443760335,
+            "textureCheck": 0.016449935259527596,
+            "render": 2.8101430427191008
+          }
+        },
+        "after": {
+          "fps": 223.87127401677316,
+          "p95Ms": 5.400000035762787,
+          "maxMs": 57.80000001192093,
+          "gpuMeanMs": 2.431083089285711,
+          "draws": 263.11607142857144,
+          "cpu": {
+            "gameplay": 0.26958705355147167,
+            "physics": 0.23264508927240968,
+            "visuals": 1.3529575887867915,
+            "textureCheck": 0.013058035734242626,
+            "render": 2.3221540179303184
+          }
+        }
+      },
+      {
+        "scene": "room:sanctum",
+        "before": {
+          "fps": 203.0285614330168,
+          "p95Ms": 5.899999976158142,
+          "maxMs": 24.100000023841858,
+          "gpuMeanMs": 2.7654704443076916,
+          "draws": 517.6676923076923,
+          "cpu": {
+            "gameplay": 0.2707692294854384,
+            "physics": 0.277353846513308,
+            "visuals": 1.3521230780528142,
+            "textureCheck": 0.016123077099139873,
+            "render": 2.817415383338928
+          }
+        },
+        "after": {
+          "fps": 233.87207660008798,
+          "p95Ms": 5.600000023841858,
+          "maxMs": 24,
+          "gpuMeanMs": 2.4252533019775537,
+          "draws": 324.26402993051846,
+          "cpu": {
+            "gameplay": 0.24762159174996096,
+            "physics": 0.2477819351573987,
+            "visuals": 1.1313201495506495,
+            "textureCheck": 0.013468733418758766,
+            "render": 2.441742383656433
+          }
+        }
+      },
+      {
+        "scene": "engine",
+        "before": {
+          "fps": 160.53658804791246,
+          "p95Ms": 7.400000035762787,
+          "maxMs": 16.599999964237213,
+          "gpuMeanMs": 3.5227933250311296,
+          "draws": 787.6628268991283,
+          "cpu": {
+            "gameplay": 0.4060087170762707,
+            "physics": 0.2915317564831576,
+            "visuals": 1.567247820709592,
+            "textureCheck": 0.014850560283453051,
+            "render": 3.7357721047598873
+          }
+        },
+        "after": {
+          "fps": 202.91956206569014,
+          "p95Ms": 6,
+          "maxMs": 17.19999998807907,
+          "gpuMeanMs": 2.767972446415369,
+          "draws": 402.2579453067258,
+          "cpu": {
+            "gameplay": 0.38314855925465313,
+            "physics": 0.23983739846209112,
+            "visuals": 1.4332101503655545,
+            "textureCheck": 0.013353042794613157,
+            "render": 2.6576250310630214
+          }
+        }
+      }
+    ],
+    "conclusion": "Room visibility removes work. Sustained 200+ displayed PC FPS across representative gameplay and physical mobile 60+ FPS remain unverified and are NOT claimed."
+  },
+  "physicalMobileNewMeasurements": 0,
+  "pc200Verified": false,
+  "mobile60Verified": false,
+  "publicRuntimeChanged": false,
+  "publicPromoted": false
+}

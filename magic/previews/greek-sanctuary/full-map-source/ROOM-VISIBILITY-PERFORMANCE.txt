@@ -1,0 +1,9 @@
+Experimental MAGIC room visibility source checkpoint, based on public1.6.21 (b829d0f6718d96f72825a3fbb35972f81be76450).
+
+Adds requested black fog outside the current compound room, same-room torch selection and top-right canvas minimap. Conservatively skips immutable hidden render branches and hidden actor rig animation while retaining physics/AI. Original geometry, textures, rig poses, quality settings and fullscreen High passes remain. Dynamic fire retains its actual draw path and room shader mask. Torch animation time remains live while unchanged instance matrices avoid repeated uploads.
+
+Local validation:406 tests (343 game,63 root/monument), nine runtime cases,32 actual zone centres, native touch in both orientations, two installed-client iterations, protected save canary, source replay and259 runtime hashes. Seven forward pruning image comparisons exactly match. The restored portrait control differs in one channel by1/255; independently observed original-frame settling also varies by1/255. Failed material pooling was rolled back and is excluded.
+
+RTX5080,2560x1440,High diagnostic uncapped submission throughput: idle265,turn229,crowd161,mage150,library208,forge224,sanctum234,HEARTH203 FPS. These are not displayed-FPS measurements. Crowd/Mage P95=7.4/8.6ms. Native headed blank-page and game controls both pace at about56FPS; host mechanism unconfirmed. No new physical iPhone measurement. Neither sustained200+ displayed PC FPS nor physical-mobile60+ FPS is certified.
+
+This branch contains source and sanitized evidence only. It does not update the publicly playable game and is not a release or a verified fix for the reported28FPS. Performance goal remains active. Public promotion requires the separate approval gate.

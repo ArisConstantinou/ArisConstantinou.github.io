@@ -1,3 +1,6 @@
+const fogSources=new WeakMap();
+export const roomSources=root=>fogSources.get(root)||[];
+function registerRoomSource(root,source){let list=fogSources.get(root);if(!list){list=[];fogSources.set(root,list);}list.push(source);}
 import {BatchedMesh,Matrix4,Material,Frustum,Sphere,Mesh,BufferGeometry,BufferAttribute,DynamicDrawUsage} from 'three';
 import {indexExactGeometry} from './exact-index.js';
 
@@ -96,7 +99,7 @@ export function batchStaticWalls(root,meshes){
    }
    source.layers.set(31);source.traverse(o=>{o.updateMatrix();o.matrixAutoUpdate=false;o.matrixWorldAutoUpdate=false;});
    visibilityChains.set(source,Array.from((function*(){for(let node=source;node;node=node.parent)yield node;})()));
-   bindings.push({source,batch,ids:instanceIds,shown:null});
+   registerRoomSource(root,source);bindings.push({source,batch,ids:instanceIds,shown:null});
   }
   // Stored matrices above are world-space; the castle root is identity.
   root.add(batch);batch.matrixAutoUpdate=false;batch.matrixWorldAutoUpdate=false;batch.computeBoundingBox();batch.computeBoundingSphere();cacheStaticBatchBounds(batch);batches.push(batch);
@@ -105,7 +108,7 @@ export function batchStaticWalls(root,meshes){
  // Query objects retain exact geometry and frozen world matrices. Their original
  // ownership chain controls visibility without walking them again in every render pass.
  for(const {source}of bindings)if(!source.children.length)source.removeFromParent();
- function isVisible(source){const chain=visibilityChains.get(source);if(chain)return chain.every(node=>node.visible);for(let node=source;node;node=node.parent)if(!node.visible)return false;return true;}
+ function isVisible(source){const chain=visibilityChains.get(source);if(chain)return chain.every(node=>node.visible&&node.userData.roomFogVisible!==false);for(let node=source;node;node=node.parent)if(!node.visible)return false;return true;}
  function update(){for(const b of bindings){const shown=isVisible(b.source);if(shown===b.shown)continue;b.shown=shown;for(const id of b.ids)b.batch.setVisibleAt(id,shown);}}
  update();return {update,isVisible,meshes:bindings.length,groups:batches.length,instances:bindings.reduce((n,b)=>n+b.ids.length,0)};
 }
