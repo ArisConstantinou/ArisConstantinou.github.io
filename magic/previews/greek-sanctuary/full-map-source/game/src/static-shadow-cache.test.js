@@ -7,16 +7,20 @@ import {createStaticShadowCache} from './static-shadow-cache.js';
 function fixture({segments=80}={}){
  const scene=new Scene(),world={root:new Group()},geometry=new PlaneGeometry(1,1,segments,segments),material=new MeshStandardMaterial(),entities=[],light=new DirectionalLight();scene.add(world.root);
  const meshes=Array.from({length:4},()=>{const m=new Mesh(geometry,material);m.castShadow=true;world.root.add(m);return m;});scene.updateMatrixWorld(true);
- let target=null,disposed=0,normalPasses=0;
+ let target=null,disposed=0,normalPasses=0,preparations=0;
  const makeTarget=()=>({width:1024,height:1024,samples:0,clone:makeTarget,dispose(){disposed++;}});light.shadow.map=makeTarget();
  const gl={READ_FRAMEBUFFER:1,COLOR_BUFFER_BIT:2,DEPTH_BUFFER_BIT:4,NEAREST:5,bindFramebuffer(){},blitFramebuffer(){}};
  const renderer={domElement:new EventTarget(),getContext:()=>gl,clippingPlanes:[],properties:{get:()=>({__webglFramebuffer:{}})},getRenderTarget:()=>target,info:{render:{calls:0,triangles:0}},clear(){},renderBufferDirect(_c,_s,g){this.info.render.calls++;this.info.render.triangles+=g.index.count/3;}};
- renderer.shadowMap={enabled:true,autoUpdate:true,type:2,needsUpdate:false,render(lights,root,camera){normalPasses++;if(!lights.length)return;const old=target;target=lights[0].shadow.map;renderer.clear();root.traverseVisible(o=>{if(o.isMesh&&o.castShadow&&o.layers.test(camera.layers))renderer.renderBufferDirect(lights[0].shadow.camera,null,o.geometry,o.material,o);});target=old;lights[0].shadow.needsUpdate=false;this.needsUpdate=false;}};
+ renderer.shadowMap={enabled:true,autoUpdate:true,type:2,needsUpdate:false,render(lights,root,camera){normalPasses++;if(!lights.length)return;const old=target;target=lights[0].shadow.map;renderer.clear();root.traverseVisible(o=>{if(o.isMesh&&o.castShadow&&o.layers.test(camera.layers)){preparations++;renderer.renderBufferDirect(lights[0].shadow.camera,null,o.geometry,o.material,o);}});target=old;lights[0].shadow.needsUpdate=false;this.needsUpdate=false;}};
  const original={...renderer.shadowMap},camera=light.shadow.camera;
  let revision='room-a';const api=createStaticShadowCache({renderer,scene,world,getEntities:()=>entities,getRevision:()=>revision});
  const render=()=>{scene.updateMatrixWorld(true);light.updateMatrixWorld(true);renderer.shadowMap.render([light],scene,camera);};
- return{api,render,renderer,scene,world,meshes,geometry,material,entities,light,camera,original,setRevision(v){revision=v;},get disposed(){return disposed;},get normalPasses(){return normalPasses;},settle(){for(let i=0;i<8;i++)render();}};
+ return{api,render,renderer,scene,world,meshes,geometry,material,entities,light,camera,original,setRevision(v){revision=v;},get disposed(){return disposed;},get preparations(){return preparations;},get normalPasses(){return normalPasses;},settle(){for(let i=0;i<8;i++)render();}};
 }
+test('cache hit avoids preparing static geometry but retains dynamic descendants',()=>{
+ const f=fixture(),dynamic=new Mesh(f.geometry,f.material);dynamic.isSkinnedMesh=true;dynamic.castShadow=true;f.meshes[0].add(dynamic);f.settle();const before=f.preparations;f.render();assert.equal(f.preparations-before,1);assert(f.meshes.every(o=>o.castShadow));assert(dynamic.castShadow);f.api.dispose();
+});
+test('cache flags restore when shadow rendering throws',()=>{const f=fixture();f.settle();const clear=f.renderer.clear;f.renderer.clear=()=>{throw Error('context interrupted');};assert.throws(()=>f.render(),/context interrupted/);assert(f.meshes.every(o=>o.castShadow));f.renderer.clear=clear;f.render();assert(f.meshes.every(o=>o.castShadow));f.api.dispose();});
 test('static shadow stays reusable across unrelated postprocess scenes while actors still submit',()=>{
  const f=fixture(),actor=new Mesh(f.geometry,f.material);actor.castShadow=true;f.scene.add(actor);f.settle();assert.equal(f.api.stats.builds,1);const before={...f.api.stats},calls=f.renderer.info.render.calls;
  f.renderer.shadowMap.render([],new Scene(),f.camera);f.render();assert.equal(f.api.stats.builds,before.builds);assert.equal(f.api.stats.hits,before.hits+1);assert(f.api.stats.skippedDraws>0);assert.equal(f.renderer.info.render.calls,calls+1,'awake actor must still render');f.api.dispose();

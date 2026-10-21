@@ -4,7 +4,7 @@
 export function createStaticShadowCache({renderer,scene,world,getEntities,getRevision=()=>''}){
  const gl=renderer.getContext(),original={shadow:renderer.shadowMap.render,clear:renderer.clear,direct:renderer.renderBufferDirect};
  const stats={hits:0,builds:0,fallbacks:0,skippedDraws:0,staticCasters:0,blits:0,smallPassBypasses:0,staticDraws:0,staticTriangles:0};
- let enabled=true,cache=null,active=null,building=false,observing=false,observedDraws=0,observedTriangles=0,previous=[],previousView=[],stable=0,valid=false,staticSet=new Set(),disposed=false;
+ let enabled=true,preparationCulling=true,cache=null,active=null,building=false,observing=false,observedDraws=0,observedTriangles=0,previous=[],previousView=[],stable=0,valid=false,staticSet=new Set(),disposed=false;
  const roots=new Set(),inputs=[],casters=[],dynamic=[];
  function same(a,b){if(a.length!==b.length)return false;for(let i=0;i<a.length;i++)if(a[i]!==b[i])return false;return true;}
  function discard(){cache?.dispose();cache=null;valid=false;stable=0;previous=[];previousView=[];}
@@ -93,9 +93,14 @@ export function createStaticShadowCache({renderer,scene,world,getEntities,getRev
    finally{shadow.map=target;for(const o of dynamic)o.castShadow=true;building=false;}
   }else stats.hits++;
   active=light;
-  try{return original.shadow.call(this,lights,root,camera);}finally{active=null;}
+  // The cached colour/depth already contains these casters. Suppress them
+  // before Three prepares geometry and invokes per-object shadow callbacks.
+  // Keep descendants and moving casters live; restore flags even on failure.
+  if(preparationCulling){stats.skippedDraws+=stats.staticDraws;for(const o of staticSet)o.castShadow=false;}
+  try{return original.shadow.call(this,lights,root,camera);}
+  finally{if(preparationCulling)for(const o of staticSet)o.castShadow=true;active=null;}
  }
  const lost=()=>discard();renderer.domElement.addEventListener('webglcontextlost',lost);
  renderer.clear=clear;renderer.renderBufferDirect=direct;renderer.shadowMap.render=shadow;
- return {stats,setEnabled(value){if(enabled!==!!value){enabled=!!value;discard();}},dispose(){if(disposed)return;disposed=true;if(renderer.clear===clear)renderer.clear=original.clear;if(renderer.renderBufferDirect===direct)renderer.renderBufferDirect=original.direct;if(renderer.shadowMap.render===shadow)renderer.shadowMap.render=original.shadow;renderer.domElement.removeEventListener('webglcontextlost',lost);discard();}};
+ return {stats,setPreparationCulling(value){preparationCulling=!!value;},setEnabled(value){if(enabled!==!!value){enabled=!!value;discard();}},dispose(){if(disposed)return;disposed=true;if(renderer.clear===clear)renderer.clear=original.clear;if(renderer.renderBufferDirect===direct)renderer.renderBufferDirect=original.direct;if(renderer.shadowMap.render===shadow)renderer.shadowMap.render=original.shadow;renderer.domElement.removeEventListener('webglcontextlost',lost);discard();}};
 }

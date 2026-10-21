@@ -1,0 +1,122 @@
+{
+  "version": "1.6.25",
+  "build": "3816ec866a2edb48b67622a7d3c2e54931f186afcb387e3ef4c4f839b52cdf8c",
+  "scope": "User selected desktop PC target about 200 FPS at existing High graphics. Physical mobile validation deferred by user.",
+  "releaseChecksPassed": true,
+  "tests": {
+    "game": 376,
+    "root": 63,
+    "total": 439
+  },
+  "regression": "New cached-caster preparation test fails on original code (five preparations instead of one) and passes on candidate; dynamic descendants and failure restoration retained.",
+  "desktop": {
+    "uncapped": true,
+    "runs": [
+      {
+        "version": "1.6.24",
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "resolution": [
+          2560,
+          1440
+        ],
+        "quality": "Γραφικά: υψηλά",
+        "scenes": [
+          {
+            "scene": "idle",
+            "seconds": 15,
+            "min": 264.4660966394911,
+            "max": 291.6500199760296,
+            "mean": 279.4084633928062,
+            "workMaxMs": 5.800000011920929
+          },
+          {
+            "scene": "movement",
+            "seconds": 8,
+            "min": 225.77422577422578,
+            "max": 264.5238570572961,
+            "mean": 254.3060050533374,
+            "workMaxMs": 5.800000011920929
+          },
+          {
+            "scene": "combat",
+            "seconds": 8,
+            "min": 178.37677138043827,
+            "max": 210.34792144352537,
+            "mean": 197.59063109999366,
+            "workMaxMs": 8.100000023841858
+          }
+        ]
+      },
+      {
+        "version": "1.6.25",
+        "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "resolution": [
+          2560,
+          1440
+        ],
+        "quality": "Γραφικά: υψηλά",
+        "scenes": [
+          {
+            "scene": "idle",
+            "seconds": 15,
+            "min": 263.7362637362637,
+            "max": 297.2568578553616,
+            "mean": 286.2088549657483,
+            "workMaxMs": 6.600000023841858
+          },
+          {
+            "scene": "movement",
+            "seconds": 8,
+            "min": 260.47904191616766,
+            "max": 267.6520523319696,
+            "mean": 264.2844759137137,
+            "workMaxMs": 5.100000023841858
+          },
+          {
+            "scene": "combat",
+            "seconds": 8,
+            "min": 194.31988041853512,
+            "max": 220.67594433399603,
+            "mean": 203.9706738226721,
+            "workMaxMs": 6.5
+          }
+        ]
+      }
+    ]
+  },
+  "graphics": {
+    "assetsChanged": 0,
+    "resolutionReduced": false,
+    "shaderQualityReduced": false,
+    "shadowResolutionReduced": false,
+    "desktopExactPixelCases": 8,
+    "desktopRepeatedReadbacks": 72,
+    "shadowTextureComparison": "Packed shadow maps identical in all 14 independent before/candidate/restored cases.",
+    "mobileImageControlVariance": "Earlier original/original readbacks also varied. Those mobile pixel runs did not pass strict equality and are not claimed as mobile certification."
+  },
+  "controls": {
+    "desktopClientPlayingIterations": 2,
+    "touchOrientations": 2,
+    "webglContextRestored": true
+  },
+  "upgrade": {
+    "from": "1.6.24",
+    "to": "1.6.25",
+    "savedProfileExact": true,
+    "offlineReload": true,
+    "unrelatedCachePreserved": true,
+    "expectedOfflineWorkerFetchError": 1
+  },
+  "physicalMobile60Verified": false,
+  "limits": [
+    "PC combat averaged about 204 FPS; one-second windows ranged about 194-221. This is not a minimum-200-every-frame guarantee.",
+    "Uncapped throughput does not imply 200 Hz display presentation.",
+    "Baseline already exceeded 200 FPS in idle and movement. Do not attribute all throughput to this patch.",
+    "Transform reuse and rigid-prop early pruning probes were rejected for lack of repeatable timing gain."
+  ],
+  "evidence": {
+    "desktop": "output/playwright/frame-cost-20261021/desktop-1792592403709/report.json",
+    "visual": "output/playwright/frame-cost-20261021/desktop-visual-1792592529710/report.json",
+    "upgrade": "output/playwright/frame-cost-20261021/upgrade-release/report.json"
+  }
+}

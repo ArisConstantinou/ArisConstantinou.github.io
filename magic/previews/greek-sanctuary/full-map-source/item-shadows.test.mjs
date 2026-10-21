@@ -1,10 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-const moduleText=(await fs.readFile(new URL('./game/src/item-shadows.js',import.meta.url),'utf8')).replace("from 'three'",`from '${pathToFileURL(path.resolve('game/node_modules/three/build/three.module.js')).href}'`);
-const {shadowSupport,projectedHalfExtents,createItemShadows}=await import('data:text/javascript;base64,'+Buffer.from(moduleText).toString('base64'));
+const {shadowSupport,projectedHalfExtents,createItemShadows}=await import(new URL('./game/src/item-shadows.js',import.meta.url));
 const THREE=await import(pathToFileURL(path.resolve('game/node_modules/three/build/three.module.js')));
 const floor={x:0,y:-.3,z:0,w:10,h:.6,d:10},upper={x:0,y:4.6,z:0,w:5,h:.4,d:5};
 test('Choose the floor below the item, without projecting through an upper floor',()=>{
