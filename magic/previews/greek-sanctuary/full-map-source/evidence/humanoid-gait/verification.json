@@ -1,0 +1,344 @@
+{
+  "version": "1.6.27",
+  "scope": "Rebuild humanoid walking/running contact lanes, timings and transitions; publish previously verified room-skin and diagnostic patches.",
+  "units": {
+    "status": "passed",
+    "summary": [
+      "ℹ tests 391",
+      "ℹ suites 0",
+      "ℹ pass 391",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 1266.7788",
+      ""
+    ],
+    "root": [
+      "ℹ tests 31",
+      "ℹ suites 0",
+      "ℹ pass 31",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 241.2572",
+      ""
+    ]
+  },
+  "sourceBaseline": "c4be20415d8d195cbd2e57c500f6b253c9fe0091",
+  "base": "d3ba5c3d84d75728edff6a15b62c747421c36cab",
+  "walks": [
+    {
+      "kind": "mage",
+      "frames": 60,
+      "transitions": [
+        {
+          "angle": 0,
+          "maxError": 2.223043797018156e-7,
+          "maxJump": 0.18333333333333482,
+          "maxDrop": 0.05761903038045946,
+          "settled": true
+        },
+        {
+          "angle": 1.5707963267948966,
+          "maxError": 2.7566060307181324e-7,
+          "maxJump": 0.18333333333333343,
+          "maxDrop": 0.04757275068819653,
+          "settled": true
+        },
+        {
+          "angle": 3.141592653589793,
+          "maxError": 2.762639272251845e-7,
+          "maxJump": 0.18333333333333432,
+          "maxDrop": 0.08377498895136419,
+          "settled": true
+        },
+        {
+          "angle": 4.71238898038469,
+          "maxError": 2.4290613773361996e-7,
+          "maxJump": 0.18333333333333338,
+          "maxDrop": 0.02225201733237608,
+          "settled": true
+        }
+      ]
+    },
+    {
+      "kind": "guard",
+      "frames": 60,
+      "transitions": [
+        {
+          "angle": 0,
+          "maxError": 0.0000016051266655715892,
+          "maxJump": 0.18333333333333487,
+          "maxDrop": 0.21834217312741397,
+          "settled": true
+        },
+        {
+          "angle": 1.5707963267948966,
+          "maxError": 0.0000025760705763455117,
+          "maxJump": 0.18333333333333354,
+          "maxDrop": 0.17962330780189922,
+          "settled": true
+        },
+        {
+          "angle": 3.141592653589793,
+          "maxError": 0.000001970051602490133,
+          "maxJump": 0.18333333333333487,
+          "maxDrop": 0.2058054338062779,
+          "settled": true
+        },
+        {
+          "angle": 4.71238898038469,
+          "maxError": 0.0000021586393780670485,
+          "maxJump": 0.18333333333333354,
+          "maxDrop": 0.24964499818674799,
+          "settled": true
+        }
+      ]
+    },
+    {
+      "kind": "archer",
+      "frames": 60,
+      "transitions": [
+        {
+          "angle": 0,
+          "maxError": 2.8991823429199083e-7,
+          "maxJump": 0.18333333333333482,
+          "maxDrop": 0.2079649426266132,
+          "settled": true
+        },
+        {
+          "angle": 1.5707963267948966,
+          "maxError": 2.6553189874558685e-7,
+          "maxJump": 0.18333333333333374,
+          "maxDrop": 0.13798341305902675,
+          "settled": true
+        },
+        {
+          "angle": 3.141592653589793,
+          "maxError": 2.694460384255795e-7,
+          "maxJump": 0.18333333333333468,
+          "maxDrop": 0.20675165504451376,
+          "settled": true
+        },
+        {
+          "angle": 4.71238898038469,
+          "maxError": 2.868960854326336e-7,
+          "maxJump": 0.18333333333333374,
+          "maxDrop": 0.12427502205801202,
+          "settled": true
+        }
+      ]
+    },
+    {
+      "kind": "heavy",
+      "frames": 60,
+      "transitions": [
+        {
+          "angle": 0,
+          "maxError": 0.0000012777263851669025,
+          "maxJump": 0.1833333333333346,
+          "maxDrop": 0.14336747617022058,
+          "settled": true
+        },
+        {
+          "angle": 1.5707963267948966,
+          "maxError": 0.0000013578725712593012,
+          "maxJump": 0.18333333333333324,
+          "maxDrop": 0.1901833967925317,
+          "settled": true
+        },
+        {
+          "angle": 3.141592653589793,
+          "maxError": 0.000001285753433131172,
+          "maxJump": 0.1833333333333346,
+          "maxDrop": 0.15213863048898807,
+          "settled": true
+        },
+        {
+          "angle": 4.71238898038469,
+          "maxError": 0.0000012064383707805913,
+          "maxJump": 0.18333333333333324,
+          "maxDrop": 0.15883201882589967,
+          "settled": true
+        }
+      ]
+    },
+    {
+      "kind": "boss",
+      "frames": 60,
+      "transitions": [
+        {
+          "angle": 0,
+          "maxError": 0.000001599194759408903,
+          "maxJump": 0.2122408456074221,
+          "maxDrop": 0.10925629203545939,
+          "settled": true
+        },
+        {
+          "angle": 1.5707963267948966,
+          "maxError": 0.0000016875214752635903,
+          "maxJump": 0.2122408456074212,
+          "maxDrop": 0.13450219237471578,
+          "settled": true
+        },
+        {
+          "angle": 3.141592653589793,
+          "maxError": 0.000001676825875826115,
+          "maxJump": 0.2122408456074221,
+          "maxDrop": 0.1136447514401914,
+          "settled": true
+        },
+        {
+          "angle": 4.71238898038469,
+          "maxError": 0.0000017251617299522471,
+          "maxJump": 0.21224084560742076,
+          "maxDrop": 0.12336977924089385,
+          "settled": true
+        }
+      ]
+    },
+    {
+      "kind": "colossus",
+      "frames": 60,
+      "transitions": [
+        {
+          "angle": 0,
+          "maxError": 6.091073140476131e-7,
+          "maxJump": 0.18333333333333507,
+          "maxDrop": 0.0833159216895764,
+          "settled": true
+        },
+        {
+          "angle": 1.5707963267948966,
+          "maxError": 6.082528546191175e-7,
+          "maxJump": 0.18333333333333335,
+          "maxDrop": 0.06595202073942123,
+          "settled": true
+        },
+        {
+          "angle": 3.141592653589793,
+          "maxError": 6.05626795177845e-7,
+          "maxJump": 0.18333333333333507,
+          "maxDrop": 0.047378529146442055,
+          "settled": true
+        },
+        {
+          "angle": 4.71238898038469,
+          "maxError": 6.064505948594524e-7,
+          "maxJump": 0.18333333333333335,
+          "maxDrop": 0.052522078660331775,
+          "settled": true
+        }
+      ]
+    },
+    {
+      "kind": "gargoyle",
+      "frames": 60,
+      "transitions": [
+        {
+          "angle": 0,
+          "maxError": 1.5303673272384418e-7,
+          "maxJump": 0.18333333333333438,
+          "maxDrop": 0.02625946550274426,
+          "settled": true
+        },
+        {
+          "angle": 1.5707963267948966,
+          "maxError": 1.5099153546264883e-7,
+          "maxJump": 0.18333333333333343,
+          "maxDrop": 0.02625946550274426,
+          "settled": true
+        },
+        {
+          "angle": 3.141592653589793,
+          "maxError": 1.5680039927487034e-7,
+          "maxJump": 0.18333333333333438,
+          "maxDrop": 0.02625946550274426,
+          "settled": true
+        },
+        {
+          "angle": 4.71238898038469,
+          "maxError": 1.5878683664455239e-7,
+          "maxJump": 0.18333333333333343,
+          "maxDrop": 0.02625946550274426,
+          "settled": true
+        }
+      ]
+    },
+    {
+      "kind": "stone-minion",
+      "frames": 60,
+      "transitions": [
+        {
+          "angle": 0,
+          "maxError": 1.91270938561537e-7,
+          "maxJump": 0.1833333333333349,
+          "maxDrop": 0.02037968735110104,
+          "settled": true
+        },
+        {
+          "angle": 1.5707963267948966,
+          "maxError": 1.2104558272083732e-7,
+          "maxJump": 0.18333333333333338,
+          "maxDrop": 0.02037968735110104,
+          "settled": true
+        },
+        {
+          "angle": 3.141592653589793,
+          "maxError": 1.0694181498375998e-7,
+          "maxJump": 0.1833333333333349,
+          "maxDrop": 0.02037968735110104,
+          "settled": true
+        },
+        {
+          "angle": 4.71238898038469,
+          "maxError": 1.4518388564783702e-7,
+          "maxJump": 0.18333333333333343,
+          "maxDrop": 0.02037968735110104,
+          "settled": true
+        }
+      ]
+    }
+  ],
+  "cpu": {
+    "scope": "CPU-only eight synthetic measured-proportion rigs; not game FPS or physical mobile evidence",
+    "rows": [
+      {
+        "mode": "before",
+        "actors": 8,
+        "frames": 3000,
+        "msPerEightActors": 0.015389933333333331
+      },
+      {
+        "mode": "after",
+        "actors": 8,
+        "frames": 3000,
+        "msPerEightActors": 0.016242366666666667
+      },
+      {
+        "mode": "after",
+        "actors": 8,
+        "frames": 3000,
+        "msPerEightActors": 0.015612766666666677
+      },
+      {
+        "mode": "before",
+        "actors": 8,
+        "frames": 3000,
+        "msPerEightActors": 0.014987399999999998
+      }
+    ]
+  },
+  "client": {
+    "status": "completed"
+  },
+  "limitations": [
+    "Physical sustained mobile60 and desktop200FPS targets remain open.",
+    "Archer, Iron Warden and Gargoyle replacement model construction remains unfinished and is not included.",
+    "Mechanical HEARTH and rigid seven-stone Goliath retain their separate gait. Floating Wraith has no walking feet.",
+    "Existing asset shading and LOD art are not rebuilt by this animation patch."
+  ],
+  "newPaidCalls": 0
+}

@@ -90,7 +90,7 @@ export class ContactGait {
     this.speed=distance/dt;this.travel+=distance;
     const turn=Math.abs(angleDelta(this.lastYaw,yaw));if(distance>.0001)this.direction.set(dx/distance,0,dz/distance);
     this.runBlend+=((this.speed>this.runningThreshold*scale?1:0)-this.runBlend)*(1-Math.exp(-dt*10));
-    const runStride=Math.min(1.05,Math.max(this.legLength*.85,this.speed/scale*.22));
+    const runStride=Math.min(this.legLength*.9,Math.max(this.legLength*.65,this.speed/scale*.16));
     const stride=THREE.MathUtils.lerp(this.stride,runStride,this.runBlend)*scale;
     const runDuty=Math.min(.30,this.legLength*.4*scale/Math.max(.001,stride)),duty=THREE.MathUtils.lerp(.57,runDuty,this.runBlend);
     let settle=false;for(let i=0;i<2;i++){this.idealFoot(i,position,yaw,this.ideal);if(this.feet[i].target.distanceTo(this.ideal)>.07*scale||Math.abs(angleDelta(this.feet[i].yaw,yaw))>.15)settle=true;}
@@ -108,14 +108,19 @@ export class ContactGait {
       const needsStep=distance>.0001||turn>.001||f.anchor.distanceTo(this.ideal)>.07*scale||Math.abs(angleDelta(f.yaw,yaw))>.15;
       const supportReach=f.anchor.distanceTo(this.ideal)>this.legLength*.40*scale;
       if(f.stance&&advancing&&needsStep&&(this.phase>=f.liftAt||supportReach)){
-        f.from.copy(f.target);f.fromYaw=f.yaw;f.swingStart=this.phase;f.swingSpan=1-duty;f.swingDuty=duty;f.swingStride=stride;f.swingLift=Math.min(this.lift+.06*this.runBlend,this.legLength*.52)*scale;f.stance=false;
+        f.from.copy(f.target);f.fromYaw=f.yaw;f.swingStart=this.phase;f.swingSpan=1-duty;f.swingDuty=duty;f.swingStride=stride;f.swingLift=Math.min(this.lift+this.legLength*.055*this.runBlend,this.legLength*.17)*scale;f.stance=false;
         const seconds=2*stride/Math.max(this.speed,1.8);
-        f.swingElapsed=0;f.swingSeconds=clamp(seconds*f.swingSpan,.20,.36);lifting=true;
-        f.endpoint.copy(this.ideal).addScaledVector(this.direction,this.speed>.12?this.speed*seconds*f.swingSpan+stride*duty:0);
+        f.swingElapsed=0;f.swingSeconds=clamp(seconds*f.swingSpan,.06,.36);lifting=true;
+        f.endpoint.copy(this.ideal).addScaledVector(this.direction,this.speed>.12?this.speed*f.swingSeconds+stride*duty:0);
       }
       if(f.stance){f.target.copy(f.anchor);f.lift=0;continue;}
       // Freeze an airborne foot's arc parameters at lift-off. Changing the
       // walk/run duty ratio mid-step otherwise restarts it above the floor.
+      // Keep phase continuous on acceleration, but do not force a short leg
+      // to remain airborne for an adult-sized minimum of 200 milliseconds.
+      // Otherwise its body travels beyond both feet before either can land.
+      const secondsLimit=Math.max(.06,this.legLength*scale*.85/Math.max(this.speed,.1));
+      if(f.swingSeconds>secondsLimit){f.swingElapsed*=secondsLimit/f.swingSeconds;f.swingSeconds=secondsLimit;}
       if(!lifting)f.swingElapsed+=dt;
       const t=clamp(f.swingElapsed/f.swingSeconds,0,1),easing=smooth(t);
       this.end.copy(this.ideal).addScaledVector(this.direction,this.speed>.12?this.speed*(1-t)*f.swingSeconds+f.swingStride*f.swingDuty:0);
@@ -126,6 +131,7 @@ export class ContactGait {
       // new prediction, including the final landing frame.
       const travel=f.target.distanceTo(f.previous),maximum=11*scale*dt;
       if(travel>maximum)f.target.sub(f.previous).multiplyScalar(maximum/travel).add(f.previous);
+      f.target.y=clamp(f.target.y,f.previous.y-2*scale*dt,f.previous.y+2*scale*dt);
       f.lift=Math.max(0,f.target.y-this.ideal.y);
       if(t>=1&&f.target.distanceTo(f.endpoint)<.00001){f.anchor.copy(f.target);f.lift=0;f.stance=true;f.yaw=yaw;f.liftAt=Math.floor(this.phase+i*.5)+duty-i*.5;if(f.liftAt<=this.phase+.00001)f.liftAt+=1;}
     }
@@ -212,9 +218,19 @@ export function createRigLocomotion(group, model, legs, options = {}) {
   const hipsPose=new THREE.Quaternion(),spinePose=new THREE.Quaternion(),hipsWorld=new THREE.Quaternion(),spineWorld=new THREE.Quaternion(),parentWorld=new THREE.Quaternion(),turnQ=new THREE.Quaternion();
   let turnApplied=false,legYaw=null;
   const a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3();
-  const lengths=legs.map(l=>{l.upper.getWorldPosition(a);l.lower.getWorldPosition(b);l.foot.getWorldPosition(c);return a.distanceTo(b)+b.distanceTo(c);});
+  const initialScale=group.getWorldScale(new THREE.Vector3()).y;
+  const lengths=legs.map(l=>{l.upper.getWorldPosition(a);l.lower.getWorldPosition(b);l.foot.getWorldPosition(c);return (a.distanceTo(b)+b.distanceTo(c))/initialScale;});
   const legLength=Math.min(...lengths);
-  const gait = new ContactGait(offsets, {...options,legLength,stride:options.mechanical?options.stride:Math.min(options.stride||.72,legLength*.72)}), position = new THREE.Vector3(), scale = new THREE.Vector3(), pole = new THREE.Vector3(), footQ = new THREE.Quaternion();
+  // A modelling/idle stance is not a walking lane. The original rigs put the
+  // ankles about twice as far apart as the hip joints. Keep the boots just
+  // outside their own hips, measured in actor space, without changing the rig.
+  if(!options.mechanical){
+    const hipOffsets=legs.map(l=>group.worldToLocal(l.upper.getWorldPosition(new THREE.Vector3())));
+    const centre=(hipOffsets[0].x+hipOffsets[1].x)*.5;
+    for(let i=0;i<2;i++)offsets[i].x=hipOffsets[i].x+Math.sign(hipOffsets[i].x-centre)*legLength*.035;
+  }
+  const continuous=!options.mechanical;
+  const gait = new ContactGait(offsets, {...options,continuous,legLength,lift:options.mechanical?options.lift:Math.min(options.lift??.07,legLength*.085),stride:options.mechanical?options.stride:Math.min(options.stride||.72,legLength*.5)}), position = new THREE.Vector3(), scale = new THREE.Vector3(), pole = new THREE.Vector3(), footQ = new THREE.Quaternion();
   const errors = [0, 0]; let lastBodyOffset = 0,lastLateralOffset=0,supportBlend=0,bodyCompression=0;
   group.userData.locomotion = { get snapshot() { return { ...gait.snapshot(), yaw:legYaw, errors: [...errors] }; } };
   function reset() { beforeAnimation(); gait.reset();legYaw=null;supportBlend=0;bodyCompression=0; }
@@ -245,21 +261,21 @@ export function createRigLocomotion(group, model, legs, options = {}) {
     const moving = gait.speed > .12 || gait.feet.some(f => !f.stance);
     // Make room for an actual bent knee and forward/rear support contact.
     // This offset is visual only: it never alters the physical body or height.
-    if(options.mechanical||options.continuous)supportBlend+=((moving?1:0)-supportBlend)*(1-Math.exp(-dt*10));
-    const support=options.mechanical||options.continuous?supportBlend:moving?1:0;
-    lastBodyOffset = bodyOffset - support*(options.mechanical?.055:legLength*.15);
-    lastLateralOffset=support*(options.mechanical?.065:legLength*(options.sway??.055))*Math.cos(gait.phase*Math.PI*2);
+    supportBlend+=((moving?1:0)-supportBlend)*(1-Math.exp(-dt*10));
+    const support=supportBlend;
+    lastBodyOffset = bodyOffset - support*(options.mechanical?.055:legLength*.025);
+    lastLateralOffset=support*(options.mechanical?.065:legLength*(options.sway??.018))*Math.cos(gait.phase*Math.PI*2);
     model.position.y += lastBodyOffset;model.position.x+=lastLateralOffset;group.updateWorldMatrix(true,false);
     // Preserve actual reachable contacts through authored hip bob/attack poses.
     // Solve the necessary body compression from measured limbs, not a guessed
     // universal pelvis height. Bone lengths and the physics capsule stay fixed.
     let compression=0;
-    for(let i=0;i<2;i++)if(gait.feet[i].stance||footOverride||options.allFeetReach){
+    for(let i=0;i<2;i++)if(gait.feet[i].stance||footOverride||options.allFeetReach||continuous){
       legs[i].upper.getWorldPosition(a);const target=footOverride?.[i]||gait.feet[i].target;
       const reach=lengths[i]*scale.y-.00002,planar=Math.hypot(a.x-target.x,a.z-target.z);
       const maxHeight=Math.sqrt(Math.max(0,reach*reach-planar*planar));compression=Math.min(compression,target.y+maxHeight-a.y);
     }
-    if(options.continuous)bodyCompression=Math.min(compression,bodyCompression*Math.exp(-dt*10));
+    if(continuous)bodyCompression=Math.min(compression,bodyCompression*Math.exp(-dt*10));
     else bodyCompression=compression;
     if(bodyCompression<0){const offset=bodyCompression/scale.y;model.position.y+=offset;lastBodyOffset+=offset;group.updateWorldMatrix(true,false);}
     for (let i = 0; i < 2; i++) {
