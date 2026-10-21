@@ -1,5 +1,5 @@
 {
-  "status": "EXPERIMENTAL_NOT_RELEASED",
+  "status": "source_candidate_validated_no_public_promotion",
   "tests": {
     "game": 374,
     "rootAndMonument": 63,
@@ -391,7 +391,234 @@
         ]
       }
     ],
-    "cause": "Unresolved; native full-upload frames also vary but sampled controls do not cover every candidate value. No hidden tolerance."
+    "cause": "Temporal1-LSB variation reproduced in unchanged accepted1.6.24 default4xMSAA buffer. Dithering toggle does not eliminate it. Explicit4xMSAA target is stable on both builds. Exact underlying GPU data and21/21 controlled4xMSAA image comparisons pass without production changes.",
+    "historicalDefaultFramebufferGatePassed": false,
+    "controlledMsaa4": {
+      "passed": true,
+      "cases": 21,
+      "imagesCompared": 168,
+      "controlsStable": true,
+      "scenes": [
+        {
+          "viewport": "landscape",
+          "scene": "idle",
+          "resolution": [
+            936,
+            411
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "landscape",
+          "scene": "burning",
+          "resolution": [
+            936,
+            411
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "landscape",
+          "scene": "airborne-shadow",
+          "resolution": [
+            936,
+            411
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "landscape",
+          "scene": "pulse",
+          "resolution": [
+            936,
+            411
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "landscape",
+          "scene": "jet",
+          "resolution": [
+            936,
+            411
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "landscape",
+          "scene": "release-smoke",
+          "resolution": [
+            936,
+            411
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "landscape",
+          "scene": "restart",
+          "resolution": [
+            936,
+            411
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "portrait",
+          "scene": "idle",
+          "resolution": [
+            494,
+            849
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "portrait",
+          "scene": "burning",
+          "resolution": [
+            494,
+            849
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "portrait",
+          "scene": "airborne-shadow",
+          "resolution": [
+            494,
+            849
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "portrait",
+          "scene": "pulse",
+          "resolution": [
+            494,
+            849
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "portrait",
+          "scene": "jet",
+          "resolution": [
+            494,
+            849
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "portrait",
+          "scene": "release-smoke",
+          "resolution": [
+            494,
+            849
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "portrait",
+          "scene": "restart",
+          "resolution": [
+            494,
+            849
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: ομαλά"
+        },
+        {
+          "viewport": "desktop-high",
+          "scene": "idle",
+          "resolution": [
+            1280,
+            720
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: υψηλά"
+        },
+        {
+          "viewport": "desktop-high",
+          "scene": "burning",
+          "resolution": [
+            1280,
+            720
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: υψηλά"
+        },
+        {
+          "viewport": "desktop-high",
+          "scene": "airborne-shadow",
+          "resolution": [
+            1280,
+            720
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: υψηλά"
+        },
+        {
+          "viewport": "desktop-high",
+          "scene": "pulse",
+          "resolution": [
+            1280,
+            720
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: υψηλά"
+        },
+        {
+          "viewport": "desktop-high",
+          "scene": "jet",
+          "resolution": [
+            1280,
+            720
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: υψηλά"
+        },
+        {
+          "viewport": "desktop-high",
+          "scene": "release-smoke",
+          "resolution": [
+            1280,
+            720
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: υψηλά"
+        },
+        {
+          "viewport": "desktop-high",
+          "scene": "restart",
+          "resolution": [
+            1280,
+            720
+          ],
+          "samples": 4,
+          "quality": "Γραφικά: υψηλά"
+        }
+      ],
+      "evidence": "output/playwright/render-active-20261021/msaa-equivalence-1792588142392/report.json"
+    },
+    "isolationEvidence": [
+      "output/playwright/render-active-20261021/quantization-1792587990819/report.json",
+      "output/playwright/render-active-20261021/msaa-isolation-1792588055323/report.json"
+    ],
+    "productionRendererChanged": false,
+    "assetsQualityReduced": false,
+    "sourceQualityGatePassed": true
   },
   "context": true,
   "touch": [
@@ -400,5 +627,12 @@
   ],
   "physicalMobileVerified": false,
   "promote": false,
-  "port": 5173
+  "port": 5173,
+  "runtime": {
+    "nativeTouchOrientations": 2,
+    "contextRecovery": true,
+    "installedClientGameplayIterations": 2
+  },
+  "defaultFramebufferTemporalVarianceRemains": true,
+  "publicPromotionAuthorized": false
 }
