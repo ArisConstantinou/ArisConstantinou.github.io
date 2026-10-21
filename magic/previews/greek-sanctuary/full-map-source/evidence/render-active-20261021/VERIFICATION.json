@@ -1,0 +1,404 @@
+{
+  "status": "EXPERIMENTAL_NOT_RELEASED",
+  "tests": {
+    "game": 374,
+    "rootAndMonument": 63,
+    "total": 437,
+    "failed": 0
+  },
+  "build": "5793d3ebc86400326bafd57c72f0f0ac286657ed536cbc1ef80aa99c11ed5227",
+  "uploads": [
+    {
+      "scene": "idle",
+      "before": 77320,
+      "after": 22024,
+      "reductionPercent": 71.51577858251423
+    },
+    {
+      "scene": "crowd-fire",
+      "before": 78720,
+      "after": 25344,
+      "reductionPercent": 67.80487804878048
+    }
+  ],
+  "timing": [
+    {
+      "variant": "idle-bottleneck-20261020",
+      "hardware": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+        "viewport": [
+          2560,
+          1440
+        ],
+        "canvas": [
+          2560,
+          1440
+        ],
+        "dpr": 1,
+        "quality": "Γραφικά: υψηλά",
+        "threads": 24,
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "windows": [
+        {
+          "fps": 111.60311767416695,
+          "frame": {
+            "count": 557,
+            "mean": 8.960323159784563,
+            "p50": 9.19999999999709,
+            "p95": 12.700000000000728,
+            "p99": 13.600000000002183,
+            "max": 14.799999999999272
+          },
+          "cpu": {
+            "count": 558,
+            "mean": 8.672759856267643,
+            "p50": 8.800000011920929,
+            "p95": 12.399999976158142,
+            "p99": 13.399999976158142,
+            "max": 14.5
+          },
+          "gpu": {
+            "count": 552,
+            "mean": 2.383007246376809,
+            "p50": 0.77264,
+            "p95": 10.366912,
+            "p99": 12.367904,
+            "max": 16.832224
+          },
+          "heap": {
+            "used": 574570842,
+            "total": 636405498
+          },
+          "over50ms": 0
+        },
+        {
+          "fps": 125.31529006686156,
+          "frame": {
+            "count": 626,
+            "mean": 7.97987220447284,
+            "p50": 8.100000000002183,
+            "p95": 11.400000000001455,
+            "p99": 12.799999999999272,
+            "max": 14.100000000002183
+          },
+          "cpu": {
+            "count": 627,
+            "mean": 7.706379585193865,
+            "p50": 7.800000011920929,
+            "p95": 11.199999988079071,
+            "p99": 12.5,
+            "max": 13.699999988079071
+          },
+          "gpu": {
+            "count": 621,
+            "mean": 2.4765171529790666,
+            "p50": 0.763936,
+            "p95": 9.259648,
+            "p99": 13.129984,
+            "max": 18.222624
+          },
+          "heap": {
+            "used": 606529950,
+            "total": 651077370
+          },
+          "over50ms": 0
+        }
+      ]
+    },
+    {
+      "variant": "render-active-20261021",
+      "hardware": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+        "viewport": [
+          2560,
+          1440
+        ],
+        "canvas": [
+          2560,
+          1440
+        ],
+        "dpr": 1,
+        "quality": "Γραφικά: υψηλά",
+        "threads": 24,
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "windows": [
+        {
+          "fps": 124.58688032048076,
+          "frame": {
+            "count": 622,
+            "mean": 8.026527331189708,
+            "p50": 8.200000000000728,
+            "p95": 11.400000000001455,
+            "p99": 12.599999999998545,
+            "max": 16.599999999998545
+          },
+          "cpu": {
+            "count": 623,
+            "mean": 7.7563402906275485,
+            "p50": 7.900000035762787,
+            "p95": 11.199999988079071,
+            "p99": 12.300000011920929,
+            "max": 16.30000001192093
+          },
+          "gpu": {
+            "count": 617,
+            "mean": 2.5894364732576975,
+            "p50": 0.784864,
+            "p95": 10.008096,
+            "p99": 12.52624,
+            "max": 19.846752
+          },
+          "heap": {
+            "used": 584484759,
+            "total": 640526067
+          },
+          "over50ms": 0
+        },
+        {
+          "fps": 123.18521777386718,
+          "frame": {
+            "count": 616,
+            "mean": 8.11785714285714,
+            "p50": 8.299999999999272,
+            "p95": 11.200000000000728,
+            "p99": 11.900000000001455,
+            "max": 14.5
+          },
+          "cpu": {
+            "count": 617,
+            "mean": 7.8294975706398775,
+            "p50": 7.900000035762787,
+            "p95": 10.900000035762787,
+            "p99": 11.600000023841858,
+            "max": 14.400000035762787
+          },
+          "gpu": {
+            "count": 610,
+            "mean": 2.385701455737705,
+            "p50": 0.763776,
+            "p95": 9.608608,
+            "p99": 13.691072,
+            "max": 17.38032
+          },
+          "heap": {
+            "used": 606509023,
+            "total": 655099635
+          },
+          "over50ms": 0
+        }
+      ]
+    },
+    {
+      "variant": "idle-bottleneck-20261020",
+      "hardware": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+        "viewport": [
+          2560,
+          1440
+        ],
+        "canvas": [
+          2560,
+          1440
+        ],
+        "dpr": 1,
+        "quality": "Γραφικά: υψηλά",
+        "threads": 24,
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "windows": [
+        {
+          "fps": 110.2676787854574,
+          "frame": {
+            "count": 552,
+            "mean": 9.068840579710148,
+            "p50": 9,
+            "p95": 13.900000000001455,
+            "p99": 16.69999999999709,
+            "max": 31.19999999999709
+          },
+          "cpu": {
+            "count": 553,
+            "mean": 8.77558770285377,
+            "p50": 8.699999988079071,
+            "p95": 13.400000035762787,
+            "p99": 15.800000011920929,
+            "max": 30.600000023841858
+          },
+          "gpu": {
+            "count": 547,
+            "mean": 2.6556974917733087,
+            "p50": 0.78096,
+            "p95": 10.269568,
+            "p99": 13.40832,
+            "max": 17.539072
+          },
+          "heap": {
+            "used": 571066966,
+            "total": 639436538
+          },
+          "over50ms": 0
+        },
+        {
+          "fps": 106.32972226115858,
+          "frame": {
+            "count": 531,
+            "mean": 9.40470809792844,
+            "p50": 9.400000000001455,
+            "p95": 12.900000000001455,
+            "p99": 14.099999999998545,
+            "max": 16
+          },
+          "cpu": {
+            "count": 532,
+            "mean": 9.08928571462183,
+            "p50": 9.099999964237213,
+            "p95": 12.5,
+            "p99": 13.699999988079071,
+            "max": 15.700000047683716
+          },
+          "gpu": {
+            "count": 526,
+            "mean": 2.2850990722433453,
+            "p50": 0.779328,
+            "p95": 7.619712,
+            "p99": 12.008192,
+            "max": 17.810752
+          },
+          "heap": {
+            "used": 604544074,
+            "total": 651077370
+          },
+          "over50ms": 0
+        }
+      ]
+    }
+  ],
+  "timingConclusion": "Accepted controls drift; no established whole-game FPS improvement or physical phone proof.",
+  "fidelity": {
+    "initialWholeImageCasesPassed": 19,
+    "total": 21,
+    "strictPixels": false,
+    "actualGpuData": {
+      "allMapped": true,
+      "allCpuUsedEqual": true,
+      "allGpuUsedEqualBaseline": true,
+      "allGpuFullEqualBaseline": true,
+      "frozenStateExact": true,
+      "noGlErrors": true,
+      "nonBlack": true,
+      "mapVisible": true,
+      "noConsoleErrors": true
+    },
+    "additionalPortraitCases": [
+      {
+        "scene": "idle",
+        "exactMatch": false,
+        "outsideNativeEnvelope": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "scene": "burning",
+        "exactMatch": true,
+        "outsideNativeEnvelope": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "scene": "airborne-shadow",
+        "exactMatch": false,
+        "outsideNativeEnvelope": [
+          0,
+          9,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "scene": "pulse",
+        "exactMatch": true,
+        "outsideNativeEnvelope": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "scene": "jet",
+        "exactMatch": false,
+        "outsideNativeEnvelope": [
+          8,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "scene": "release-smoke",
+        "exactMatch": false,
+        "outsideNativeEnvelope": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          9,
+          0
+        ]
+      },
+      {
+        "scene": "restart",
+        "exactMatch": true,
+        "outsideNativeEnvelope": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "cause": "Unresolved; native full-upload frames also vary but sampled controls do not cover every candidate value. No hidden tolerance."
+  },
+  "context": true,
+  "touch": [
+    "landscape",
+    "portrait"
+  ],
+  "physicalMobileVerified": false,
+  "promote": false,
+  "port": 5173
+}

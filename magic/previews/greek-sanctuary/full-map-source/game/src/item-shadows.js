@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {markActiveAttribute} from './active-buffer-range.js';
 
 // Airborne props use one vertical placement shadow. Their original directional
 // casters are restored as soon as the placement shadow stops being displayed.
@@ -86,7 +87,7 @@ export function createItemShadows(scene) {
         records.push({id:e.body.id,kind:e.kind,x:p.x,y:floor.y,z:p.z,height,width:transform.scale.x,depth:transform.scale.z});count++;
       }
       for(const e of suppressed.keys())if(!active.has(e))restore(e);
-      mesh.count=count;mesh.instanceMatrix.needsUpdate=true;parameters.needsUpdate=true;limits.needsUpdate=true;
+      mesh.count=count;markActiveAttribute(mesh.instanceMatrix,count*16);markActiveAttribute(parameters,count*2);markActiveAttribute(limits,count*4);
     },
     snapshot:()=>({count:mesh.count,drawCalls:mesh.count?1:0,items:records}),
     dispose(){for(const e of suppressed.keys())restore(e);mesh.removeFromParent();geometry.dispose();material.dispose();},

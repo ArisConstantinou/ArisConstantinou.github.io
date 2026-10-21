@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {markActiveAttribute} from './active-buffer-range.js';
 import {createStoredFire} from './stored-fire.js';
 // One fixed instanced pool covers every burnable object and actor in this map.
 const CAPACITY=512;
@@ -55,7 +56,7 @@ export function createFireEffects(scene){
    const d=Math.hypot(pos.x-player.body.position.x,pos.z-player.body.position.z);
    if(d<nearest){nearest=d;light.position.copy(pos);light.color.setHex(0xff8a24);light.distance=5;light.intensity=5.5+Math.sin(time*17)*.5;}
   }
-  flames.count=count;flames.instanceMatrix.needsUpdate=true;
+  flames.count=count;markActiveAttribute(flames.instanceMatrix,count*16);
  }
  function clear(){count=0;flames.count=0;light.intensity=0;marker.visible=false;stored.clear();}
  return{update,clear,setEnabled(value){enabled=!!value;if(!enabled)clear();},counts:()=>({flamePlanes:count,capacity:CAPACITY,drawCalls:(count?1:0)+(stored.visible?3:0),lights:1,stored:stored.snapshot()})};

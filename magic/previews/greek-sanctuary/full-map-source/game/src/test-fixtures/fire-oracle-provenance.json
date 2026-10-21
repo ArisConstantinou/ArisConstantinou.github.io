@@ -1,0 +1,19 @@
+{
+  "release": "1.6.22",
+  "commit": "cbee51cd1b243036d5a637f428437d40a7610705",
+  "purpose": "Unmodified pre-optimization fire/smoke factory behavior oracle; no graphics or simulation changes.",
+  "files": [
+    {
+      "sourceFile": "magic/previews/greek-sanctuary/full-map-source/game/src/fire-effects.js",
+      "originalSha256": "95e23b49945b2e0571ed6f91c2f723b697ca392eacc403a81cd5a4a4fa7c2364",
+      "fixtureFile": "fire-effects-1.6.22.js",
+      "fixtureSha256": "27bafc0ce52da332082330c55fd4716d026b61ee27446ad86af540853eb5308c",
+      "adjustment": "Only stored-fire.js import changed from ./ to ../ so the original factory uses the same current dependency.",
+      "originalCheckoutSha256": "e81345fbc6de2c6e1e79b8d1b01ae333bc4bc94cb46905fd6a9987107f8d914e",
+      "fixtureCheckoutSha256": "563afb7c6d03b7c3ddce6f06d1d8932f58033ff9c985ced105c74f9279d839cd",
+      "originalGitBlob": "a5b8c259fca861e46c5e6c8c89945482778dc97c",
+      "originalGitSha256Verified": true
+    }
+  ],
+  "hashNormalization": "UTF-8 with CRLF normalized to LF; hashes are portable across Git checkout line-ending settings."
+}
