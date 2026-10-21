@@ -1,7 +1,7 @@
 import flamethrowerUrl from './assets/hearth-flamethrower.mp3?url';
 
 export class MagicAudio {
-  constructor(muted=false){this.muted=muted;this.paused=false;this.ctx=null;this.master=null;this.ambient=null;this.flameWanted=false;this.flameBuffer=null;this.flameLoading=null;this.flameVoice=null;this.flameStopTimer=null;this.flamePlaying=false;this.flameError=null;}
+  constructor(muted=false){this.muted=muted;this.paused=false;this.ctx=null;this.master=null;this.flameWanted=false;this.flameBuffer=null;this.flameLoading=null;this.flameVoice=null;this.flameStopTimer=null;this.flamePlaying=false;this.flameError=null;}
   async start(){
     try{
       if(!this.ctx){
@@ -9,8 +9,6 @@ export class MagicAudio {
         this.master=this.ctx.createGain();this.master.gain.value=this.muted||this.paused?0:.24;this.master.connect(this.ctx.destination);
         const noise=this.ctx.createBuffer(1,this.ctx.sampleRate,this.ctx.sampleRate),d=noise.getChannelData(0);
         for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;this.noise=noise;
-        const ag=this.ctx.createGain();ag.gain.value=.1;ag.connect(this.master);this.ambient=ag;
-        for(const hz of [55,82.41,110.4]){const o=this.ctx.createOscillator();o.type='sine';o.frequency.value=hz;o.connect(ag);o.start();}
       }
       if(this.ctx.state==='suspended')await this.ctx.resume();
       this.loadFlamethrower();
