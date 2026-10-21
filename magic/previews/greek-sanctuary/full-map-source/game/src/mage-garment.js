@@ -23,7 +23,7 @@ export function createMageGarment(group,model,bones){
   function ownerFor(mesh){
     if(!owners.has(mesh)){
       if(mesh.geometry.morphAttributes.position?.length)throw Error('Mage cloth probes require the authored unmorphed surface');
-      if(!skinStates.has(mesh.skeleton))skinStates.set(mesh.skeleton,{skeleton:mesh.skeleton,matrices:mesh.skeleton.bones.map(()=>new THREE.Matrix4())});
+      if(!skinStates.has(mesh.skeleton))skinStates.set(mesh.skeleton,{skeleton:mesh.skeleton,matrices:mesh.skeleton.bones.map(()=>new THREE.Matrix4()),indices:new Set()});
       owners.set(mesh,{mesh,skin:skinStates.get(mesh.skeleton),placement:new THREE.Matrix4()});
     }
     return owners.get(mesh);
@@ -39,14 +39,17 @@ export function createMageGarment(group,model,bones){
       if(!bins.has(key)||strength>bins.get(key).strength)bins.set(key,{owner:ownerFor(mesh),indices:Array.from({length:4},(_,j)=>indices.getComponent(i,j)),weights:Array.from({length:4},(_,j)=>weights.getComponent(i,j)),influence,strength,rest:point.clone(),clearance:limbs.map(l=>Math.min(l.radius,segmentDistance(point,l.restHead,l.restTail)))});
     }
   }
-  return [...bins.values()];}
+  const result=[...bins.values()];
+  // Only joints with nonzero weight contribute. Keep every probe and iteration.
+  for(const probe of result)for(let j=0;j<4;j++)if(probe.weights[j])probe.owner.skin.indices.add(probe.indices[j]);
+  return result;}
   let probes=makeProbes(skins),probeOwners=[...new Set(probes.map(p=>p.owner))],probeSkins=[...new Set(probeOwners.map(o=>o.skin))],usingClose=false;const severity=new Float64Array(8);let applied=false,maximum=0,iterations=0;
   function beforeAnimation(){if(applied){for(const p of panels)p.bone.quaternion.copy(p.authored);applied=false}}
   function measure(){
     // Evaluate each joint matrix once per pose, as the GPU skinning palette
     // does. getVertexPosition otherwise rebuilds four full matrices for every
     // probe, even when thousands of probes use the same eight cloth joints.
-    for(const state of probeSkins)for(let n=0;n<state.matrices.length;n++)state.matrices[n].multiplyMatrices(state.skeleton.bones[n].matrixWorld,state.skeleton.boneInverses[n]);
+    for(const state of probeSkins)for(const n of state.indices)state.matrices[n].multiplyMatrices(state.skeleton.bones[n].matrixWorld,state.skeleton.boneInverses[n]);
     for(const owner of probeOwners)owner.placement.multiplyMatrices(owner.mesh.matrixWorld,owner.mesh.bindMatrixInverse);
     severity.fill(0);maximum=0;
     for(const probe of probes){let x=0,y=0,z=0;const r=probe.rest;for(let j=0;j<4;j++){const w=probe.weights[j];if(!w)continue;const m=probe.owner.skin.matrices[probe.indices[j]].elements;x+=(m[0]*r.x+m[4]*r.y+m[8]*r.z+m[12])*w;y+=(m[1]*r.x+m[5]*r.y+m[9]*r.z+m[13])*w;z+=(m[2]*r.x+m[6]*r.y+m[10]*r.z+m[14])*w}point.set(x,y,z).applyMatrix4(probe.owner.placement);let penetration=0;for(let n=0;n<limbs.length;n++)penetration=Math.max(penetration,(probe.clearance[n]+.006)*group.scale.y-segmentDistance(point,limbs[n].head,limbs[n].tail));maximum=Math.max(maximum,penetration);if(penetration>.0015*group.scale.y)for(let n=0;n<8;n++)severity[n]=Math.max(severity[n],penetration*probe.influence[n])}

@@ -1,6 +1,7 @@
 import {createStaticShadowCache} from './static-shadow-cache.js';
 let staticShadowCache;
 import {createRoomVisibility} from './room-visibility.js';
+import {cacheRigidWorldMatrices} from './rigid-matrix-cache.js';
 let roomVisibility;
 import {createGameUpdates} from './game-updates.js';
 import {greekEnabled,loadGreekAssets,addGreekArchitecture,createGreekPuzzles} from './greek-environment.js';
@@ -344,12 +345,13 @@ function prop(kind,x,z,options={}){
     indestructible:!!item.indestructible,flammable:item.flammable,woodFraction:item.woodFraction,
     removed:false,dead:false,thrownUntil:0,thrownBy:null,collisionTimes:new Map(),pendingBreak:false,ephemeral:!!options.ephemeral,expireAt:runTime+18,spawn:{x,z,y:body.position.y}};
   body.entity=e;body.addEventListener('collide',event=>impact(e,event));
+  e.rigidMatrixCache=cacheRigidWorldMatrices(mesh);
   prepareObjectPicking(e.mesh);physics.addBody(body);scene.add(mesh);entities.push(e);return e;
 }
 function removeEntity(e){
   if(e.removed)return;if(e===held)releaseHeld(false);
   if(e.kind==='boss')interruptChannel(e);
-  e.removed=true;physics.removeBody(e.body);scene.remove(e.mesh);
+  e.removed=true;physics.removeBody(e.body);scene.remove(e.mesh);e.rigidMatrixCache?.dispose();
   if(e.healthBar){scene.remove(e.healthBar);e.healthBar.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});}
   if(e.telegraph){scene.remove(e.telegraph);e.telegraph.geometry.dispose();e.telegraph.material.dispose();}
   if(e.shadow){scene.remove(e.shadow);e.shadow.geometry.dispose();e.shadow.material.dispose();}
@@ -1284,7 +1286,7 @@ function syncVisuals(dt){
     if(e.removed||e.assemblyRestore)continue;
     const p=e.body.position;
     if(e.isPlayer&&hearth.occupied)continue;
-    if(e.category==='prop'){e.mesh.position.copy(p);e.mesh.quaternion.copy(e.body.quaternion);continue;}
+    if(e.category==='prop'){e.mesh.position.copy(p);const q=e.body.quaternion,m=e.mesh.quaternion;if(m.x!==q.x||m.y!==q.y||m.z!==q.z||m.w!==q.w)m.copy(q);continue;}
     const airborne=e===held||(!e.body.fixedRotation&&p.y>e.cy+.45);
     if(airborne){e.mesh.quaternion.copy(e.body.quaternion);tempV.set(0,e.cy,0).applyQuaternion(e.mesh.quaternion);e.mesh.position.copy(p).sub(tempV);}
     else{e.mesh.position.set(p.x,p.y-e.cy,p.z);e.mesh.rotation.set(0,e.yaw,0);}

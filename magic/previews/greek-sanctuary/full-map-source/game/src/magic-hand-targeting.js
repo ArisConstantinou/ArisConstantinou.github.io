@@ -28,7 +28,7 @@ export function createMagicHandTargeting(group, model, bones) {
     if(active){target.copy(objectPosition);hasTarget=true;}
     weight=THREE.MathUtils.lerp(weight,active?1:0,1-Math.exp(-14*Math.max(0,dt)));
     if(weight<.0001||!hasTarget){weight=0;return;}
-    model.updateMatrixWorld(true);group.getWorldQuaternion(rotation);group.getWorldScale(scale);
+    group.updateWorldMatrix(true,false);group.matrixWorld.decompose(shoulder,rotation,scale);
     right.set(1,0,0).applyQuaternion(rotation);forward.set(0,0,1).applyQuaternion(rotation);
     for(const arm of arms){
       const side=arm.index===0?1:-1;

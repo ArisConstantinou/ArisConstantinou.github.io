@@ -57,7 +57,9 @@ export function createFrameDiagnostics({version,details=()=>null,clock=()=>perfo
   const row={run,at:now,fps:1000*intervals/intervalTotal,frameIntervalMs:intervalTotal/intervals,frames,workMaxMs:maxWork,mean:Object.fromEntries(Object.entries(sums).map(([k,v])=>[k,v/frames])),details:extra};
   rows.push(row);if(rows.length>capacity)rows.shift();if(early.length<12)early.push(row);
   if(row.fps>=50)highSeen=true;
-  lowWindows=highSeen&&row.fps<36?lowWindows+1:0;
+  // Capture the observed sustained 60 -> 39-40 FPS idle regression too.
+  // Three consecutive windows still distinguish it from a short stall.
+  lowWindows=highSeen&&row.fps<45?lowWindows+1:0;
   if(lowWindows>=3&&!drop){
    drop={observedAt:now,reason:'observed-60-to-low-cadence-transition',cause:'unconfirmed',rows:rows.slice(-15),early:early.slice()};
    // Writing after the frame keeps storage/serialization outside its work

@@ -36,7 +36,9 @@ function icon(name, className = '') {
 }
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
 const number = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
-const formatNumber = (value) => Math.round(number(value)).toLocaleString('el-GR');
+const integerFormat = new Intl.NumberFormat('el-GR');
+const comboFormat = new Intl.NumberFormat('el-GR', { maximumFractionDigits: 1 });
+const formatNumber = (value) => integerFormat.format(Math.round(number(value)));
 const clock = (seconds) => `${Math.floor(number(seconds) / 60)}:${String(Math.floor(number(seconds) % 60)).padStart(2, '0')}`;
 
 function ability(action, name, glyph, key = '', extra = '') {
@@ -466,7 +468,7 @@ export function createUI(callbacks = {}) {
     }
     const combo = number(state.combo); const multiplier = number(state.comboMultiplier, combo);
     bool(el['combo-display'],'hidden',combo < 2 && multiplier < 2);
-    text('combo-value', `×${Math.max(1, multiplier).toLocaleString('el-GR', { maximumFractionDigits: 1 })}`);
+    text('combo-value', `×${comboFormat.format(Math.max(1, multiplier))}`);
     if (touchMode && holding && !state.shielding) text('held-text', `${state.heldName || 'Αντικείμενο'} · στόχευσε το σημάδι · άφησε`);
     const bossVisible = state.bossHP !== undefined && number(state.bossMaxHP) > 0 && number(state.bossHP) > 0;
     text('stone-count', `${number(state.stones)} / 10 πέτρες`);

@@ -5,27 +5,39 @@ export function createStaticShadowCache({renderer,scene,world,getEntities,getRev
  const gl=renderer.getContext(),original={shadow:renderer.shadowMap.render,clear:renderer.clear,direct:renderer.renderBufferDirect};
  const stats={hits:0,builds:0,fallbacks:0,skippedDraws:0,staticCasters:0,blits:0,smallPassBypasses:0,staticDraws:0,staticTriangles:0};
  let enabled=true,preparationCulling=true,cache=null,active=null,building=false,observing=false,observedDraws=0,observedTriangles=0,previous=[],previousView=[],stable=0,valid=false,staticSet=new Set(),disposed=false;
- const roots=new Set(),inputs=[],casters=[],dynamic=[];
+ const roots=new Set(),inputs=[],casters=[],dynamic=[],geometries=new Set();
+ const rigidMaterial=m=>m&&!m.isShaderMaterial&&!m.isRawShaderMaterial&&!m.displacementMap&&!m.alphaHash&&!(m.clipShadows&&m.clippingPlanes?.length);
  function same(a,b){if(a.length!==b.length)return false;for(let i=0;i<a.length;i++)if(a[i]!==b[i])return false;return true;}
  function discard(){cache?.dispose();cache=null;valid=false;stable=0;previous=[];previousView=[];}
  function rigid(o){
-  if(!o.isMesh||o.isSkinnedMesh||o.isBatchedMesh||o.customDepthMaterial||o.morphTargetInfluences?.length||Object.keys(o.geometry.morphAttributes).length)return false;
+  if(!o.isMesh||o.isSkinnedMesh||o.isBatchedMesh||o.customDepthMaterial||o.morphTargetInfluences?.length)return false;
+  for(const key in o.geometry.morphAttributes)if(Object.hasOwn(o.geometry.morphAttributes,key))return false;
   if(Object.hasOwn(o,'onBeforeShadow')&&!o.userData.staticIndexStreams)return false;
   if(Object.hasOwn(o,'onBeforeRender')&&!o.userData.staticIndexStreams)return false;
   if(o.isInstancedMesh&&o.instanceMatrix.usage===35048)return false;
-  if(![o.material].flat().every(m=>m&&!m.isShaderMaterial&&!m.isRawShaderMaterial&&!m.displacementMap&&!m.alphaHash&&!(m.clipShadows&&m.clippingPlanes?.length)))return false;
+  if(Array.isArray(o.material)){for(const m of o.material)if(!rigidMaterial(m))return false;}
+  else if(!rigidMaterial(o.material))return false;
   for(let n=o;n;n=n.parent)if(roots.has(n))return true;
   return false;
  }
  function append(o){
-  const g=o.geometry;inputs.push(o,o.layers.mask,o.castShadow,g,g.index,g.index?.version,g.drawRange.start,g.drawRange.count,...o.matrixWorld.elements);
-  for(const a of Object.values(g.attributes))inputs.push(a,a.version,a.data?.version);
+  const g=o.geometry;inputs.push(o,o.layers.mask,o.castShadow,g,...o.matrixWorld.elements);
+  // Shared immutable geometry has the same input versions for every caster.
+  // Per-camera index-stream callbacks may mutate it between casters: those
+  // deliberately keep a complete snapshot at every occurrence.
+  if(o.userData.staticIndexStreams||!geometries.has(g)){
+   inputs.push(g.index,g.index?.version,g.drawRange.start,g.drawRange.count);
+   for(const key in g.attributes)if(Object.hasOwn(g.attributes,key)){const a=g.attributes[key];inputs.push(a,a.version,a.data?.version);}
+   for(const group of g.groups)inputs.push(group.start,group.count,group.materialIndex);
+   if(!o.userData.staticIndexStreams)geometries.add(g);
+  }
   if(o.isInstancedMesh)inputs.push(o.count,o.instanceMatrix,o.instanceMatrix.version);
-  for(const m of [o.material].flat()){
+  if(Array.isArray(o.material)){for(const m of o.material)appendMaterial(m);}
+  else appendMaterial(o.material);
+ }
+ function appendMaterial(m){
    inputs.push(m,m.version,m.visible,m.side,m.shadowSide,m.wireframe,m.wireframeLinewidth,m.alphaTest,m.alphaToCoverage,m.map,m.map?.version,m.alphaMap,m.alphaMap?.version,m.clipShadows);
    if(m.alphaTest>0)for(const t of [m.map,m.alphaMap])if(t)inputs.push(t.offset.x,t.offset.y,t.repeat.x,t.repeat.y,t.rotation,t.center.x,t.center.y,t.channel,t.wrapS,t.wrapT,...t.matrix.elements);
-  }
-  for(const group of g.groups)inputs.push(group.start,group.count,group.materialIndex);
  }
  function clear(...args){
   const value=original.clear.apply(this,args);
@@ -68,7 +80,7 @@ export function createStaticShadowCache({renderer,scene,world,getEntities,getRev
   if(!same(view,previousView)){previousView=view;valid=false;stable=0;previous=[];stats.fallbacks++;return original.shadow.call(this,lights,root,camera);}
   roots.clear();roots.add(world.root);
   for(const e of getEntities())if(!e.removed&&e.category==='prop'&&e.mesh&&(e.anchored||e.body?.mass===0||e.body?.sleepState===2))roots.add(e.mesh);
-  inputs.length=casters.length=dynamic.length=0;
+  inputs.length=casters.length=dynamic.length=0;geometries.clear();
   inputs.push(...view);
   scene.traverseVisible(o=>{
    if(!o.isMesh||!o.castShadow||!o.layers.test(camera.layers))return;
@@ -77,7 +89,7 @@ export function createStaticShadowCache({renderer,scene,world,getEntities,getRev
    casters.push(o);append(o);
   });
   stats.staticCasters=casters.length;
-  staticSet=new Set(casters);
+  staticSet.clear();for(const caster of casters)staticSet.add(caster);
   const changed=!same(inputs,previous)||this.needsUpdate||shadow.needsUpdate;
   if(changed){previous=inputs.slice();stable=0;valid=false;}
   if(!casters.length||!valid&&++stable<3){stats.fallbacks++;return observe(lights,root,camera);}

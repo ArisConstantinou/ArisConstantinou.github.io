@@ -21,7 +21,7 @@ export function createTwoHandWeaponGrip(model,bones,{socketPrefix='AxeSocket'}={
     applied=false;
   }
   function update(){
-    model.updateMatrixWorld(true);
+    // Each world-space read refreshes its chain; other character parts are unrelated.
     for(const arm of arms){
       arm.authored[0].copy(arm.upper.quaternion);arm.authored[1].copy(arm.lower.quaternion);arm.authored[2].copy(arm.wrist.quaternion);
       arm.upper.getWorldPosition(shoulder);arm.lower.getWorldPosition(elbow);arm.socket.getWorldPosition(target);

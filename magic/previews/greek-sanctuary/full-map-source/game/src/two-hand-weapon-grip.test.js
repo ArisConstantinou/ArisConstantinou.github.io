@@ -28,3 +28,7 @@ test('restore/reset returns the authored pose before animation, without accumula
  assert.ok(f.grip.snapshot().arms.every(a=>a.error<1e-6));f.grip.reset();
  for(const [name,q] of Object.entries(authored))assert.ok(f.bones[name].quaternion.angleTo(q)<1e-7);
 });
+
+test('weapon grip refreshes its contact chains without visiting unrelated character branches',()=>{
+ const f=fixture(),decoration=new THREE.Object3D();f.model.add(decoration);let visits=0;const update=decoration.updateMatrixWorld;decoration.updateMatrixWorld=function(...args){visits++;return update.apply(this,args)};f.grip.update();assert.equal(visits,0);assert.ok(f.grip.snapshot().arms.every(a=>a.error<1e-6));
+});

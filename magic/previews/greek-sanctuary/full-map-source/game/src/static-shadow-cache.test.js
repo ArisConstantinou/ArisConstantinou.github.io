@@ -39,3 +39,16 @@ test('tiny rigid passes keep native rendering and never allocate a full-size cac
 test('context loss and disabling release cached GPU targets; disposal restores hooks once',()=>{
  const f=fixture();f.settle();f.renderer.domElement.dispatchEvent(new Event('webglcontextlost'));assert.equal(f.disposed,1);f.settle();assert.equal(f.api.stats.builds,2);f.api.setEnabled(false);assert.equal(f.disposed,2);f.api.dispose();f.api.dispose();assert.equal(f.renderer.shadowMap.render,f.original.render);assert.equal(f.disposed,2);
 });
+
+test('material arrays and geometry attribute revisions invalidate without dropping shadow inputs',()=>{
+ const f=fixture(),other=new MeshStandardMaterial();f.meshes[0].material=[f.material,other];f.settle();
+ for(const change of [()=>{other.side=1;},()=>{f.geometry.attributes.position.needsUpdate=true;},()=>{f.geometry.addGroup(0,6,1);},()=>{other.alphaTest=.4;}]){
+  const hits=f.api.stats.hits,builds=f.api.stats.builds;change();f.render();assert.equal(f.api.stats.hits,hits);f.settle();assert.equal(f.api.stats.builds,builds+1);
+ }
+ f.api.dispose();other.dispose();
+});
+
+test('per-camera index streams remain individually validated on shared geometry',()=>{
+ const f=fixture();let count=600;const stream=f.meshes[1];stream.userData.staticIndexStreams=true;stream.onBeforeShadow=()=>f.geometry.setDrawRange(0,count);f.settle();
+ const builds=f.api.stats.builds,hits=f.api.stats.hits;count=900;f.render();assert.equal(f.api.stats.hits,hits);f.settle();assert.equal(f.api.stats.builds,builds+1);f.api.dispose();
+});

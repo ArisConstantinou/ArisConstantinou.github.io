@@ -41,3 +41,7 @@ test('death, stun, reset and invalid targets leave finite, restorable transforms
   step(f,new THREE.Vector3(0,2.1,1.8),{disabled:true});assert.equal(f.hands.snapshot().weight,0);
   f.hands.reset();for(const bone of Object.values(f.bones))assert.ok(bone.quaternion.toArray().every(Number.isFinite));
 });
+
+test('targeting refreshes its arm chains without visiting unrelated character branches',()=>{
+ const f=fixture(),decoration=new THREE.Object3D();f.model.add(decoration);let visits=0;const update=decoration.updateMatrixWorld;decoration.updateMatrixWorld=function(...args){visits++;return update.apply(this,args)};step(f,new THREE.Vector3(0,2.1,1.8));assert.equal(visits,0);assert.ok(f.hands.snapshot().arms.every(a=>a.error<1e-6));
+});

@@ -220,7 +220,8 @@ export function createRigLocomotion(group, model, legs, options = {}) {
   function reset() { beforeAnimation(); gait.reset();legYaw=null;supportBlend=0;bodyCompression=0; }
   function beforeAnimation() { model.position.y -= lastBodyOffset; model.position.x-=lastLateralOffset;lastBodyOffset = lastLateralOffset = 0;if(turnApplied){hips.quaternion.copy(hipsPose);spine.quaternion.copy(spinePose);turnApplied=false;} }
   function update(dt, { grounded = true, dead = false, airborne = false, footOverride = null, bodyOffset = 0, align = null, heading:requestedHeading = null } = {}) {
-    group.updateWorldMatrix(true,false); group.getWorldPosition(position); group.getWorldScale(scale); group.getWorldQuaternion(rotation);
+    // One ancestor refresh supplies the same position, scale and rotation.
+    group.updateWorldMatrix(true,false); group.matrixWorld.decompose(position,rotation,scale);
     pole.set(0, 0, 1).applyQuaternion(rotation); pole.y = 0; pole.normalize();
     const aimYaw = Math.atan2(pole.x, pole.z), disabled = !grounded || airborne || dead;
     if(disabled)legYaw=null;

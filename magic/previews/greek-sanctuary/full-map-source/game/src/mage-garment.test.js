@@ -9,9 +9,11 @@ test('a shared belt pivot bends each panel outward and restores its authored pos
   for(let n=0;n<8;n++){const angle=n*Math.PI/4,root=bone('skirt_'+n,hips,[0,0,0]),index=list.indexOf(root);bone('skirt_tip_'+n,root,[Math.sin(angle)*.23,-.325,Math.cos(angle)*.18]);
     for(const y of [.3,.5,.7]){positions.push(Math.sin(angle)*.22,y,Math.cos(angle)*.22);indices.push(index,0,0,0);weights.push(1,0,0,0)}
   }
+  const unused=bone('unweighted-decoration',model,[0,2,0]);
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(indices,4));geometry.setAttribute('skinWeight',new THREE.Float32BufferAttribute(weights,4));
   const mesh=new THREE.SkinnedMesh(geometry,new THREE.MeshBasicMaterial());mesh.userData.redesignLod=1;model.add(mesh);group.updateMatrixWorld(true);mesh.bind(new THREE.Skeleton(list));
-  const garment=createMageGarment(group,model,bones);bones.upperlegl.position.z+=.15;group.updateMatrixWorld(true);garment.update(1/60);
+  const garment=createMageGarment(group,model,bones);bones.upperlegl.position.z+=.15;group.updateMatrixWorld(true);let unweightedProducts=0;const multiply=THREE.Matrix4.prototype.multiplyMatrices;THREE.Matrix4.prototype.multiplyMatrices=function(a,b){if(b===mesh.skeleton.boneInverses[list.indexOf(unused)])unweightedProducts++;return multiply.call(this,a,b)};
+  try{garment.update(1/60)}finally{THREE.Matrix4.prototype.multiplyMatrices=multiply}assert.equal(unweightedProducts,0,'unweighted joints must not rebuild unused probe palettes');
   const state=garment.snapshot();assert.ok(state.offsets.some(v=>v>.05),'the actual leg displacement must trigger a panel correction');assert.ok(state.maximum<=.0021,JSON.stringify(state));
   garment.beforeAnimation();for(let n=0;n<8;n++)assert.ok(bones['skirt_'+n].quaternion.angleTo(new THREE.Quaternion())<1e-7,'authored rotations must be restored');
   garment.update(1/60,{disabled:true});assert.ok(garment.snapshot().offsets.every(v=>v===0));garment.reset();assert.ok(list.every(b=>b.matrixWorld.elements.every(Number.isFinite)));geometry.dispose();mesh.material.dispose();mesh.skeleton.dispose();
