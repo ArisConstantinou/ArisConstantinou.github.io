@@ -9,7 +9,8 @@ export function enemySpawnAllowed(point, zones, spawn, radius=.65) {
   return !!room&&(point.x<room.xMin-radius||point.x>room.xMax+radius||point.z<room.zMin-radius||point.z>room.zMax+radius);
 }
 
-export function hearthSpawnRooms(zones, spawn) {
+export function hearthSpawnRooms(zones, spawn, doorways=null) {
   const start=zoneAt(zones,spawn);
-  return zones.filter(r=>r.name!==start?.name&&r.name!=='bridge'&&!r.secret);
+  const neighbours=doorways&&new Set(doorways.filter(d=>d.rooms.includes(start?.name)&&d.kind!=='fire').flatMap(d=>d.rooms));
+  return zones.filter(r=>r.name!==start?.name&&r.name!=='bridge'&&!r.secret&&(!neighbours||neighbours.has(r.name)));
 }

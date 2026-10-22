@@ -65,7 +65,7 @@ export function createRoomVisibility({renderer,scene,world}){
  function applyStatic(){stats.hiddenStatic=0;for(const o of roomSources(world.root)){o.userData.roomFogVisible=!enabled||overlaps(boxFor(o));if(!o.userData.roomFogVisible)stats.hiddenStatic++;}}
  return {
   get revision(){return signature+':'+enabled;},
-  update(subject,yaw=0,entities=[]){
+  update(subject,yaw=0,entities=[],engine=null){
    for(const e of entities)if(e.mesh)entityRoots.set(e.mesh,e);
    const p=subject.body.position,view=policy.view(p,previous);zone=view.zone;previous=zone.id;rects=view.rects;
    const next=rects.map(r=>[r.id,r.x,r.z,r.w,r.d].join(',')).join('|');
@@ -76,7 +76,7 @@ export function createRoomVisibility({renderer,scene,world}){
    if(pruneSignature!==zone.id){pruneSignature=zone.id;const coarse=zone.passage?[zone,...policy.rooms.filter(r=>r.id===zone.from||r.id===zone.to)]:rects;branches=hiddenRoomBranches(scene,boxFor,box=>overlapsRects(box,coarse));}
    uniforms.roomFogCount.value=enabled?rects.length:0;scene.background=enabled?black:oldBackground;
    for(const t of world.torches)t.roomVisible=!enabled||overlaps({min:{x:t.position.x,z:t.position.z},max:{x:t.position.x,z:t.position.z}});
-   minimap.update(p,yaw,zone);
+   minimap.update(p,yaw,zone,engine);
   },
   setEnabled(value){if(enabled===!!value)return;enabled=!!value;signature='';uniforms.roomFogCount.value=enabled?rects.length:0;for(const m of patched.keys())m.needsUpdate=true;applyStatic();},
   setPruning(value){pruning=!!value;},

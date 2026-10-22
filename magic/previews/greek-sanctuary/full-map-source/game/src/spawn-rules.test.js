@@ -20,3 +20,10 @@ test('HEARTH honors actual resized crypt bounds',()=>{
  const location=placeHearth(()=>.2,()=>true,null,[crypt]);
  assert.equal(location.room.zMin,crypt.zMin);assert.equal(location.room.zMax,crypt.zMax);
 });
+test('HEARTH stays in neighbouring rooms rather than requiring a castle-wide search',()=>{
+ const distant={name:'crypt',xMin:-10,xMax:10,zMin:-30,zMax:-10};
+ const side={name:'gatehouse',xMin:-30,xMax:-14,zMin:4,zMax:20};
+ const doors=[{rooms:['courtyard','hall']},{rooms:['courtyard','gatehouse']},{rooms:['hall','crypt']}];
+ assert.deepEqual(hearthSpawnRooms([...zones,distant,side],spawn,doors).map(r=>r.name),['hall','gatehouse']);
+ assert.deepEqual(hearthSpawnRooms([...zones,distant],spawn,[{rooms:['hall','crypt']}]),[]);
+});

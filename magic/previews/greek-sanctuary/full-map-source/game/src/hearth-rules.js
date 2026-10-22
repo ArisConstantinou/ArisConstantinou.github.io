@@ -38,7 +38,7 @@ export function placeHearth(random,isClear,previousRoom,availableRooms=BOSS_ROOM
  const rooms=availableRooms.map(r=>availableRooms===BOSS_ROOMS&&r.name==='crypt'?{...r,zMin:-23,zMax:-10}:r);
  const first=Math.min(rooms.length-1,Math.floor(random()*rooms.length));
  rooms.push(...rooms.splice(0,first));
- if(rooms[0].name===previousRoom)rooms.push(rooms.shift());
+ if(rooms[0]?.name===previousRoom&&rooms.length)rooms.push(rooms.shift());
  for(const room of rooms){
   // Search clear off-centre pockets; preserve the central route and room thresholds.
   const candidates=[];

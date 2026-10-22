@@ -3,6 +3,7 @@ import * as CANNON from 'cannon-es';
 import {HearthHeart,HEARTH,HEARTH_STOMP,placeHearth} from './hearth-rules.js';
 import {createHearthStreams,updateHearthStreams,hearthStreamsHit} from './hearth-streams.js';
 import {hearthSpawnRooms} from './spawn-rules.js';
+import {createHearthAccess} from './hearth-access.js';
 import {createHearth} from './hearth-character.js';
 import {igniteActor,igniteWood,consumeBurnDamage} from './fire.js';
 import {poseHearthPilot} from './hearth-pilot.js';
@@ -14,7 +15,7 @@ import {createHearthFacing} from './hearth-facing.js';
 import {DoorStrike,angleDifference} from './door-strike-rules.js';
 import {supportHeight,standingClear,supportedRoute,supportSightClear} from './walkable-support.js';
 
-export function createHearthSystem({scene,physics,worldMap,nav,material,spell,getPlayer,getEntities,getHeld,getAimPoint=()=>null,getAimEntity=()=>null,getEnvironmentalTargets=()=>[],releaseHeld,hurt,clear,sound,toast,fx,driveResponse=9}){
+export function createHearthSystem({scene,physics,worldMap,nav,material,spell,getPlayer,getEntities,getHeld,getGates=()=>[],getAimPoint=()=>null,getAimEntity=()=>null,getEnvironmentalTargets=()=>[],releaseHeld,hurt,clear,sound,toast,fx,driveResponse=9}){
  let engine,previousRoom,jetBurstTime=-10;
  const p3=new THREE.Vector3(),q=new THREE.Quaternion();
  const support=(p,referenceY=0)=>{const y=supportHeight(worldMap.floors,p.x,p.z,referenceY);return y===null?null:{...p,y};};
@@ -26,7 +27,8 @@ export function createHearthSystem({scene,physics,worldMap,nav,material,spell,ge
   });
  };
  function reset(){
-  dispose();const location=placeHearth(Math.random,footprintClear,previousRoom,hearthSpawnRooms(worldMap.zones,worldMap.spawn));previousRoom=location.room.name;
+  dispose();const accessible=createHearthAccess(worldMap,getGates());
+  const location=placeHearth(Math.random,(p,r)=>footprintClear(p,r)&&accessible(p),previousRoom,hearthSpawnRooms(worldMap.zones,worldMap.spawn,worldMap.doorways));previousRoom=location.room.name;
   const visual=createHearth(),heart=new HearthHeart();scene.add(visual.group);
   const floorY=support(location)?.y??0;
   const body=new CANNON.Body({mass:0,material,position:new CANNON.Vec3(location.x,floorY+1.24,location.z),fixedRotation:true,allowSleep:false,linearDamping:.3});

@@ -2,12 +2,14 @@
 #room-minimap .minimap-heading{display:flex;justify-content:space-between;gap:12px;font-size:12px;line-height:16px;letter-spacing:.08em}
 #room-minimap canvas{display:block;width:100%;height:auto;margin:4px 0}
 #room-minimap .minimap-room{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;line-height:18px;color:#c9e0d3}
+#room-minimap .minimap-hearth{display:block;margin-top:4px;font-size:12px;line-height:16px;color:#e6b969}
+#room-minimap .minimap-hearth[hidden]{display:none}
 #game-hud .game-header .header-tools{position:fixed;right:calc(208px + var(--safe-right,0px));top:calc(12px + var(--safe-top,0px))}
 body[data-input="touch"] #room-minimap{right:max(12px,var(--safe-right,0px));width:140px;padding:7px 8px}
-body[data-input="touch"] #game-hud .game-header .header-tools{right:max(12px,var(--safe-right,0px));top:calc(160px + var(--safe-top,0px))}
+body[data-input="touch"] #game-hud .game-header .header-tools{right:max(12px,var(--safe-right,0px));top:calc(200px + var(--safe-top,0px))}
 body[data-input="touch"] #game-hud .vitals-block{max-width:calc(100vw - 178px)}
-body[data-input="touch"] #game-hud .boss-track{top:calc(218px + var(--safe-top,0px))}
-@media(max-height:500px){body[data-input="touch"] #room-minimap{width:130px;padding:5px 7px}#room-minimap canvas{max-height:68px;object-fit:contain}body[data-input="touch"] #game-hud .game-header .header-tools{top:calc(142px + var(--safe-top,0px))}}
+body[data-input="touch"] #game-hud .boss-track{top:calc(258px + var(--safe-top,0px))}
+@media(max-height:500px){body[data-input="touch"] #room-minimap{width:130px;padding:5px 7px}#room-minimap canvas{max-height:68px;object-fit:contain}body[data-input="touch"] #game-hud .game-header .header-tools{top:calc(182px + var(--safe-top,0px))}}
 @media(max-width:380px){body[data-input="touch"] #room-minimap{width:126px}}
 @media(max-height:500px){body[data-input="touch"] #game-hud .boss-track{top:calc(18px + var(--safe-top,0px));right:calc(158px + var(--safe-right,0px));left:auto;width:min(220px,26vw);transform:none}}
 @media(max-height:500px) and (max-width:740px){body[data-input="touch"] #game-hud .boss-track{top:calc(198px + var(--safe-top,0px));right:max(12px,var(--safe-right,0px));width:190px}}

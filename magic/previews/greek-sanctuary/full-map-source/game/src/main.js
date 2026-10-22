@@ -1279,7 +1279,7 @@ function updateEntities(dt){
   entities=entities.filter(e=>!e.removed);
 }
 function syncVisuals(dt){
-  roomVisibility?.update(hearth?.occupied?{body:hearth.engine.body}:player,player.yaw||0,entities);
+  roomVisibility?.update(hearth?.occupied?{body:hearth.engine.body}:player,player.yaw||0,entities,hearth?.engine);
   // Clear first: stale worker replies, drops and cancelled gestures cannot leave a mark.
   if(!held||phase!=='playing')ui.updateThrowMark(null);
   for(const e of entities){
@@ -1603,7 +1603,7 @@ async function boot(){
     await loadCharacters((fraction)=>ui.setLoading(.2+fraction*.65,'Οι φύλακες παίρνουν θέση…'));
     await Promise.all([loadBossCharacters(),loadStoneMinion({camera})]);
     await loadHearth();hearthFX=createHearthEffects(scene);
-    hearth=createHearthSystem({scene,physics,worldMap,nav,material:actorMaterial,spell:fireSpell,getPlayer:()=>player,getEntities:()=>entities,getHeld:()=>held,getAimPoint:()=>aimPoint,getAimEntity:()=>target||greekPuzzles?.aimTarget(hearth?.engine,player?.yaw||0),getEnvironmentalTargets:()=>greekPuzzles?.aimTargets(hearth?.engine)||[],releaseHeld,hurt,clear:(a,b)=>visibleLine(a,b,.01),sound,toast:ui.toast,fx});
+    hearth=createHearthSystem({scene,physics,worldMap,nav,material:actorMaterial,spell:fireSpell,getPlayer:()=>player,getEntities:()=>entities,getHeld:()=>held,getGates:()=>greekPuzzles?.gates||[],getAimPoint:()=>aimPoint,getAimEntity:()=>target||greekPuzzles?.aimTarget(hearth?.engine,player?.yaw||0),getEnvironmentalTargets:()=>greekPuzzles?.aimTargets(hearth?.engine)||[],releaseHeld,hurt,clear:(a,b)=>visibleLine(a,b,.01),sound,toast:ui.toast,fx});
     greekPuzzles=createGreekPuzzles({architecture:greekArchitecture,world:worldMap,physics,staticBox,navs:()=>[nav,goliathNav],spawn:prop,getHeld:()=>held,releaseHeld,toast:ui.toast,fx});
     ui.setLoading(.9,'Η μαγεία σχηματίζεται…');populate();
     roomVisibility=createRoomVisibility({renderer,scene,world:worldMap});
