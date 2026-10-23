@@ -22,7 +22,7 @@ export const singleRoomCombatPlugin={name:'magic-live-single-room-combat',async 
   code=replace(code,'if(!benchmarkMode)boot();',`const singleRoomCombat=createSingleRoomCombat(()=>({version:packageInfo.version,player,entities,actor,freePosition,hearth,world:worldMap,nav,renderer,scene,physics,activePointLights,staticShadowCache,quality,sound,ui,aimPoint,aimDirection,phase,start:startPreparedRun,suspend:()=>{phase='benchmark-results';sound.setPaused(true);sound.setFlamethrower(false);},resources:()=>({...estimateResources(renderer,scene,[moon?.shadow.map,environmentTarget,composer?.renderTarget1,composer?.renderTarget2]),textureLifecycle:textureMemoryStats()})}));\nif(!benchmarkMode)boot();`);
   code=replace(code,'// Settle dynamic props before input begins.','singleRoomCombat.populate();\n  // Settle dynamic props before input begins.');
   code=replace(code,"phase='playing';ui.start();setPlayCamera();","phase='playing';ui.start();setPlayCamera();singleRoomCombat.begin();");
-  code=replace(code,'function updateEnemy(e,dt){','function updateEnemy(e,dt){if(singleRoomCombat.holdEnemies)return;');
+  code=replace(code,'function updateEnemy(e,dt){','function updateEnemy(e,dt){if(singleRoomCombat.holdEnemy(e))return;');
   code=replace(code,'chooseTarget(input);','singleRoomCombat.aim();chooseTarget(input);');
   code=replace(code,'updatePlayer(dt,input);','singleRoomCombat.control(input,dt);updatePlayer(dt,input);');
   code=replace(code,'e.hp=e.isPlayer&&benchmarkMode?e.maxHp:Math.max(0,e.hp-amount);','e.hp=e.isPlayer?e.maxHp:Math.max(0,e.hp-amount);singleRoomCombat.hit(e,amount);');

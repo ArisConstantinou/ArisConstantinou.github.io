@@ -1,0 +1,752 @@
+{
+  "version": "1.6.35",
+  "status": "diagnostic_disables_implemented_phone_comparison_pending",
+  "physicalPhone": false,
+  "unitTests": 476,
+  "priorPhone": {
+    "version": "1.6.34",
+    "combatFPS": 20.06496348683453,
+    "textureSavingMiB": 115.33333333333333,
+    "conclusion": "Texture memory decreased, sustained phone FPS did not improve. Boss cause remains unresolved."
+  },
+  "cases": [
+    {
+      "id": "baseline6",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 6,
+        "regularEnemyCount": 6,
+        "bossCount": 0,
+        "bossTypes": [],
+        "bossSummoning": false,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "baseline6",
+        "isolationLabel": "1 · 6 εχθροί · BOSSES OFF (παλιά βάση)",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 13,
+          "omitted": 78,
+          "maxOmitted": 6,
+          "active": 5,
+          "slots": 5
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 48,
+        "actors": 7,
+        "programs": 153,
+        "quality": "low"
+      },
+      "initialCount": 6,
+      "outcome": "complete",
+      "kills": 6,
+      "bossKills": 0,
+      "errors": []
+    },
+    {
+      "id": "regular12",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 12,
+        "regularEnemyCount": 12,
+        "bossCount": 0,
+        "bossTypes": [],
+        "bossSummoning": false,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "regular12",
+        "isolationLabel": "2 · 12 εχθροί · BOSSES OFF",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 54,
+        "actors": 13,
+        "programs": 139,
+        "quality": "low"
+      },
+      "initialCount": 12,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": []
+    },
+    {
+      "id": "warden",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 13,
+        "regularEnemyCount": 12,
+        "bossCount": 1,
+        "bossTypes": [
+          "warden"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "warden",
+        "isolationLabel": "3 · 12 εχθροί + Warden μόνο",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 55,
+        "actors": 14,
+        "programs": 148,
+        "quality": "low"
+      },
+      "initialCount": 13,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": []
+    },
+    {
+      "id": "colossus",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 13,
+        "regularEnemyCount": 12,
+        "bossCount": 1,
+        "bossTypes": [
+          "colossus"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "colossus",
+        "isolationLabel": "4 · 12 εχθροί + Colossus μόνο",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 55,
+        "actors": 14,
+        "programs": 139,
+        "quality": "low"
+      },
+      "initialCount": 13,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": []
+    },
+    {
+      "id": "gargoyle",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 13,
+        "regularEnemyCount": 12,
+        "bossCount": 1,
+        "bossTypes": [
+          "gargoyle"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "gargoyle",
+        "isolationLabel": "5 · 12 εχθροί + Gargoyle μόνο",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 55,
+        "actors": 14,
+        "programs": 139,
+        "quality": "low"
+      },
+      "initialCount": 13,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": []
+    },
+    {
+      "id": "wraith",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 13,
+        "regularEnemyCount": 12,
+        "bossCount": 1,
+        "bossTypes": [
+          "wraith"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "wraith",
+        "isolationLabel": "6 · 12 εχθροί + Wraith μόνο",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 55,
+        "actors": 14,
+        "programs": 163,
+        "quality": "low"
+      },
+      "initialCount": 13,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": []
+    },
+    {
+      "id": "render-off",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 16,
+        "regularEnemyCount": 12,
+        "bossCount": 4,
+        "bossTypes": [
+          "warden",
+          "colossus",
+          "gargoyle",
+          "wraith"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "render-off",
+        "isolationLabel": "8 · Όλοι · εμφάνιση bosses OFF / AI ON",
+        "bossRendering": false,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 58,
+        "actors": 17,
+        "programs": 172,
+        "quality": "low"
+      },
+      "initialCount": 16,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": [],
+      "renderIsolation": {
+        "animationUpdates": 336,
+        "bosses": [
+          {
+            "visible": false,
+            "body": true,
+            "heldByAI": true
+          },
+          {
+            "visible": false,
+            "body": true,
+            "heldByAI": true
+          },
+          {
+            "visible": false,
+            "body": true,
+            "heldByAI": true
+          },
+          {
+            "visible": false,
+            "body": true,
+            "heldByAI": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "ai-off",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 16,
+        "regularEnemyCount": 12,
+        "bossCount": 4,
+        "bossTypes": [
+          "warden",
+          "colossus",
+          "gargoyle",
+          "wraith"
+        ],
+        "bossSummoning": false,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "ai-off",
+        "isolationLabel": "9 · Όλοι · AI bosses OFF / εμφάνιση ON",
+        "bossRendering": true,
+        "bossAI": false,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 58,
+        "actors": 17,
+        "programs": 172,
+        "quality": "low"
+      },
+      "initialCount": 16,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": [],
+      "aiIsolation": [
+        {
+          "kind": "boss",
+          "bossType": null,
+          "held": true,
+          "visible": true,
+          "channel": 0
+        },
+        {
+          "kind": "boss",
+          "bossType": "colossus",
+          "held": true,
+          "visible": true,
+          "channel": 0,
+          "bossTime": 0,
+          "attackIndex": 0
+        },
+        {
+          "kind": "boss",
+          "bossType": "gargoyle",
+          "held": true,
+          "visible": true,
+          "channel": 0,
+          "bossTime": 0,
+          "attackIndex": 0
+        },
+        {
+          "kind": "boss",
+          "bossType": "wraith",
+          "held": true,
+          "visible": true,
+          "channel": 0,
+          "bossTime": 0,
+          "attackIndex": 0
+        },
+        {
+          "kind": "guard",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "archer",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "heavy",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "guard",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "archer",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "heavy",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "heavy",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "guard",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "archer",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "heavy",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "guard",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "archer",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "id": "all",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 16,
+        "regularEnemyCount": 12,
+        "bossCount": 4,
+        "bossTypes": [
+          "warden",
+          "colossus",
+          "gargoyle",
+          "wraith"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "all",
+        "isolationLabel": "7 · 12 εχθροί + ΟΛΟΙ οι bosses",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 58,
+        "actors": 17,
+        "programs": 172,
+        "quality": "low"
+      },
+      "initialCount": 16,
+      "outcome": "complete",
+      "kills": 19,
+      "bossKills": 4,
+      "errors": []
+    }
+  ],
+  "limitations": [
+    "PC Chrome functional validation with mobile asset profile is not a physical iPhone FPS result.",
+    "Disables are explicitly labelled temporary diagnostics. Default six enemies has no bosses.",
+    "Rendering OFF suppresses boss model draws after animations; physics, AI, animations, health bars and attack effects remain.",
+    "AI OFF holds all four boss types, including Warden, with rendering/physics retained."
+  ]
+}
