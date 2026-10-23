@@ -1,9 +1,11 @@
 // A zero-intensity light contributes no colour, but Three still allocates a
-// shader slot for it. Omit only those exact zero contributions during render
-// and compilation; restore the gameplay-owned scene immediately afterwards.
-export function createActivePointLights(renderer) {
+// shader slot for it. Filtering is diagnostic-only: changing the number of
+// lights while walking causes new NUM_POINT_LIGHTS shader variants and stalls.
+// Default rendering keeps the original stable list. Explicit A/B callers may
+// omit exact zero contributions and restore gameplay-owned scene visibility.
+export function createActivePointLights(renderer,{enabled:initialEnabled=false}={}) {
   const render=renderer.render,compile=renderer.compile;
-  let enabled=true;
+  let enabled=!!initialEnabled;
   const stats={renders:0,omitted:0,maxOmitted:0};
   function withActiveLights(scenes,action,count=false) {
     if(!enabled)return action();

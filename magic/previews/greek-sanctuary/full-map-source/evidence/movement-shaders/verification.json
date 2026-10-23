@@ -1,0 +1,90 @@
+{
+  "scope": "Source-only correction to introduced movement shader-variant regression. Live runtime remains prior1.6.27.",
+  "cause": "Removing zero point lights changes NUM_POINT_LIGHTS, part of pinnedThree0.180 program cache key.",
+  "before": [
+    {
+      "filterEnabled": false,
+      "newPrograms": 5,
+      "newShaderLinks": 9,
+      "walkDistanceMetres": 34.43,
+      "rooms": [
+        "courtyard",
+        "hall",
+        "bridge"
+      ],
+      "worstWorkMs": 809
+    },
+    {
+      "filterEnabled": true,
+      "newPrograms": 178,
+      "newShaderLinks": 180,
+      "walkDistanceMetres": 22.29,
+      "rooms": [
+        "courtyard",
+        "hall",
+        "bridge"
+      ],
+      "worstWorkMs": 2591.899999976158
+    }
+  ],
+  "afterActualDefault": {
+    "filterEnabled": null,
+    "newPrograms": 0,
+    "newShaderLinks": 0,
+    "walkDistanceMetres": 34.45,
+    "rooms": [
+      "courtyard",
+      "hall",
+      "bridge"
+    ],
+    "worstWorkMs": 70.80000007152557
+  },
+  "units": {
+    "status": "passed",
+    "summary": [
+      "ℹ tests 423",
+      "ℹ suites 0",
+      "ℹ pass 423",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 1653.1686",
+      ""
+    ],
+    "root": [
+      "ℹ tests 31",
+      "ℹ suites 0",
+      "ℹ pass 31",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 224.0497",
+      ""
+    ]
+  },
+  "client": {
+    "status": "completed",
+    "muted": true,
+    "maskReview": false,
+    "expectMask": true,
+    "expectFragment": true,
+    "expectSplit": false,
+    "expectStableLights": true,
+    "iterations": 2
+  },
+  "afterEngineSha256": "f1b7d8d9bd96828f875a6bbc5f2e39aee875ef21104cf80ab2ea5b44eb46233f",
+  "graphics": "Original high1280x720; active lights, shadows, geometry unchanged. Filter disabled by default, explicit diagnostic opt-in retained.",
+  "limitations": [
+    "PC diagnostic, no physicaliPhone60FPS claim.",
+    "Pressure weights placed on trays for deterministic access; these are exploration traces, not combat acceptance.",
+    "Frame probes add overhead; control paths diverge under physics/frame timing.",
+    "Full-map sustained60 and combat acceptance remain open.",
+    "No compiled runtime or model assets promoted."
+  ],
+  "sourceSha256": {
+    "magic/previews/greek-sanctuary/full-map-source/game/src/active-point-lights.js": "7e19cfc145d3987d0dc404065a5ff246971fb306c99b47be7b6ad2af97b3ec32",
+    "magic/previews/greek-sanctuary/full-map-source/game/src/active-point-lights.test.js": "52407eb6d0cafb5eec087298b6bef4e09e8cc539162304bc17ca5d2980c611bb"
+  }
+}
