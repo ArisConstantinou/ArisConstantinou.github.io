@@ -1,0 +1,194 @@
+{
+  "status": "diagnosis_complete_fix_unverified",
+  "sourceSha256": [
+    "4e54ff81ed6666e07f2a829a4e6320858a876d87603ece2925824aa46d292a0d",
+    "121b161f5a87ffdf5559784ac94d5bdd5895a88a154f407772732891059fa504"
+  ],
+  "phone": [
+    {
+      "version": "1.6.32",
+      "canvas": [
+        494,
+        856
+      ],
+      "quality": "low",
+      "kills": 6,
+      "phases": {
+        "idle": {
+          "frames": 890,
+          "fps": 59.353117705901965,
+          "meanIntervalMs": 16.848314606741575,
+          "meanMeasuredCpuMs": 3.449438202247191,
+          "over50ms": 1,
+          "maxMs": 145,
+          "drawCalls": 147.35730337078652,
+          "triangles": 554338.997752809
+        },
+        "combat": {
+          "frames": 725,
+          "fps": 59.26107569069805,
+          "meanIntervalMs": 16.87448275862069,
+          "meanMeasuredCpuMs": 3.5351724137931035,
+          "over50ms": 0,
+          "maxMs": 40,
+          "drawCalls": 145.53931034482758,
+          "triangles": 555302.5048275862
+        },
+        "settle": {
+          "frames": 170,
+          "fps": 56.124133377352265,
+          "meanIntervalMs": 17.81764705882353,
+          "meanMeasuredCpuMs": 3.4411764705882355,
+          "over50ms": 1,
+          "maxMs": 84,
+          "drawCalls": 141.87058823529412,
+          "triangles": 555262.1529411764
+        }
+      },
+      "peakEstimatedUploadedTexturesMiB": 139.64160919189453,
+      "gpuTiming": {
+        "supported": false,
+        "reason": "\u039f browser \u03b4\u03b5\u03bd \u03b5\u03ba\u03b8\u03ad\u03c4\u03b5\u03b9 EXT_disjoint_timer_query_webgl2.",
+        "samples": 0,
+        "discarded": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "version": "1.6.33",
+      "canvas": [
+        494,
+        856
+      ],
+      "quality": "low",
+      "kills": 19,
+      "phases": {
+        "idle": {
+          "frames": 770,
+          "fps": 51.439641926648406,
+          "meanIntervalMs": 19.44025974025974,
+          "meanMeasuredCpuMs": 4.964935064935065,
+          "over50ms": 1,
+          "maxMs": 248,
+          "drawCalls": 221.55844155844156,
+          "triangles": 750963.9168831169
+        },
+        "combat": {
+          "frames": 942,
+          "fps": 20.77818951826363,
+          "meanIntervalMs": 48.12738853503185,
+          "meanMeasuredCpuMs": 9.889596602972398,
+          "over50ms": 311,
+          "maxMs": 340,
+          "drawCalls": 250.32908704883226,
+          "triangles": 759837.2622080679
+        },
+        "settle": {
+          "frames": 91,
+          "fps": 29.535864978902957,
+          "meanIntervalMs": 33.857142857142854,
+          "meanMeasuredCpuMs": 7.725274725274725,
+          "over50ms": 0,
+          "maxMs": 50,
+          "drawCalls": 175.5934065934066,
+          "triangles": 579634.3186813187
+        }
+      },
+      "peakEstimatedUploadedTexturesMiB": 389.061466217041,
+      "gpuTiming": {
+        "supported": false,
+        "reason": "\u039f browser \u03b4\u03b5\u03bd \u03b5\u03ba\u03b8\u03ad\u03c4\u03b5\u03b9 EXT_disjoint_timer_query_webgl2.",
+        "samples": 0,
+        "discarded": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "pcModelInventory": [
+    {
+      "actor": "boss::81",
+      "draws": 12,
+      "triangles": 27982,
+      "lods": [
+        2
+      ],
+      "projectedBodyPixels": 49.45939657837031
+    },
+    {
+      "actor": "boss:colossus:82",
+      "draws": 1,
+      "triangles": 13000,
+      "lods": [
+        2
+      ],
+      "projectedBodyPixels": 72.82535320131959
+    },
+    {
+      "actor": "boss:gargoyle:83",
+      "draws": 13,
+      "triangles": 24999,
+      "lods": [
+        2
+      ],
+      "projectedBodyPixels": 70.38064251752105
+    },
+    {
+      "actor": "boss:wraith:84",
+      "draws": 3,
+      "triangles": 17053,
+      "lods": [
+        2
+      ],
+      "projectedBodyPixels": 70.34298679258305
+    },
+    {
+      "actor": "archer::86",
+      "draws": 10,
+      "triangles": 19998,
+      "lods": [
+        2
+      ],
+      "projectedBodyPixels": 39.40192075927997
+    },
+    {
+      "actor": "archer::89",
+      "draws": 10,
+      "triangles": 19998,
+      "lods": [
+        2
+      ],
+      "projectedBodyPixels": 39.22470051287544
+    },
+    {
+      "actor": "archer::93",
+      "draws": 10,
+      "triangles": 19998,
+      "lods": [
+        2
+      ],
+      "projectedBodyPixels": 40.01825764377592
+    },
+    {
+      "actor": "archer::96",
+      "draws": 10,
+      "triangles": 19998,
+      "lods": [
+        2
+      ],
+      "projectedBodyPixels": 40.01825764377592
+    }
+  ],
+  "pcInventoryOnly": true,
+  "phoneModelInventoryAvailable": false,
+  "browserProbeCleanup": "Functional capture succeeded; StorageGuard rejected remaining descendants and stopped only its contained process tree.",
+  "conclusions": [
+    "Sustained phone frame-rate regression is confirmed; no JavaScript error or context loss was reported.",
+    "Workloads differ: six enemies versus sixteen initial enemies, four bosses and three summons. This is not a controlled model A/B.",
+    "Archer was already present in the successful 1.6.32 run. Warden and Gargoyle now appear in the battle.",
+    "PC runtime uses far LOD2 for these enemies. Archer has 10 material submissions, Warden 12, Gargoyle 13. No accidental close-LOD selection was observed on PC.",
+    "The phone drops during idle before AI and fire begin. Combat measured CPU sections average about 9.9 ms versus 48.1 ms frame interval; this gap is not a GPU measurement.",
+    "Higher model/material/texture workload is confirmed. Exact contributions of GPU work, browser scheduling and device conditions remain unisolated.",
+    "No visual downgrade, enemy removal, asset replacement or speculative performance fix was published."
+  ],
+  "nextGate": "Compare unchanged geometry, rig and material appearance against a validated material-atlas candidate on the same phone and encounter. Preserve all four bosses and twelve regular enemies. Do not claim resolution from PC results."
+}
