@@ -190,5 +190,78 @@
     "Higher model/material/texture workload is confirmed. Exact contributions of GPU work, browser scheduling and device conditions remain unisolated.",
     "No visual downgrade, enemy removal, asset replacement or speculative performance fix was published."
   ],
-  "nextGate": "Compare unchanged geometry, rig and material appearance against a validated material-atlas candidate on the same phone and encounter. Preserve all four bosses and twelve regular enemies. Do not claim resolution from PC results."
+  "nextGate": "Compare unchanged geometry, rig and material appearance against a validated material-atlas candidate on the same phone and encounter. Preserve all four bosses and twelve regular enemies. Do not claim resolution from PC results.",
+  "latestRepeat": {
+    "status": "validated_repeated_slowdown",
+    "matchingDeviceAndInitialSettings": true,
+    "runs": [
+      {
+        "sha256": "121b161f5a87ffdf5559784ac94d5bdd5895a88a154f407772732891059fa504",
+        "version": "1.6.33",
+        "phases": {
+          "idle": {
+            "fps": 51.439641926648406,
+            "p95Ms": 39,
+            "maxMs": 248,
+            "over50ms": 1,
+            "frameCount": 770
+          },
+          "combat": {
+            "fps": 20.77818951826363,
+            "p95Ms": 59,
+            "maxMs": 340,
+            "over50ms": 311,
+            "frameCount": 942
+          },
+          "settle": {
+            "fps": 29.535864978902957,
+            "p95Ms": 36,
+            "maxMs": 50,
+            "over50ms": 0,
+            "frameCount": 91
+          }
+        },
+        "lastFiveIdleSecondsFPS": 37.17845659163987,
+        "navigationToReadyMs": 27443,
+        "kills": 19,
+        "bossKills": 4,
+        "summons": 3,
+        "peakEstimatedUploadedTexturesMiB": 389.061466217041
+      },
+      {
+        "sha256": "30cdb9f6838825ecd9a8af35d58307fe1c2bd0f69ecb90bce340c4ae0e6612dd",
+        "version": "1.6.33",
+        "phases": {
+          "idle": {
+            "fps": 50.11662779073642,
+            "p95Ms": 40,
+            "maxMs": 244,
+            "over50ms": 2,
+            "frameCount": 752
+          },
+          "combat": {
+            "fps": 20.999489254704752,
+            "p95Ms": 59,
+            "maxMs": 128,
+            "over50ms": 389,
+            "frameCount": 1069
+          },
+          "settle": {
+            "fps": 30.461840812315756,
+            "p95Ms": 35,
+            "maxMs": 45,
+            "over50ms": 0,
+            "frameCount": 93
+          }
+        },
+        "lastFiveIdleSecondsFPS": 34.572864321608044,
+        "navigationToReadyMs": 9623,
+        "kills": 22,
+        "bossKills": 4,
+        "summons": 6,
+        "peakEstimatedUploadedTexturesMiB": 388.9156684875488
+      }
+    ],
+    "conclusion": "Approximately 21 combat FPS repeats despite faster loading and fewer extreme spikes. Idle slowdown also repeats before AI/fire. Summon counts differ, so these are matching initial scenarios, not deterministic identical battles. No model-only cause or GPU/thermal mechanism is proven."
+  }
 }
