@@ -1,0 +1,3040 @@
+{
+  "status": "TEMPORARY_SINGLE_ROOM_BENCHMARK_VERIFIED_ON_PC",
+  "version": "1.6.29",
+  "engineSha256": "74a94b11c4549f693a6d9848d66bbd1674160432ad9809f46205cca08701a5eb",
+  "physicalPhoneAccepted": false,
+  "fullWorldEnabled": false,
+  "configuration": {
+    "world": "single-courtyard",
+    "fullWorld": false,
+    "baselineSeconds": 15,
+    "maximumSeconds": 90,
+    "enemyCount": 6,
+    "enemyHealth": "normal",
+    "playerHealth": "unlimited",
+    "torchFlames": true,
+    "activeTorchLights": true,
+    "physics": true,
+    "props": true,
+    "statues": true,
+    "animations": true,
+    "enemyAI": "held during baseline; normal during combat",
+    "autoFire": true,
+    "autoStomp": true,
+    "staticShadowCache": true,
+    "batchShadowCache": false,
+    "muted": true,
+    "navigationExperiment": false,
+    "freezeShadows": true,
+    "omitZeroLights": true,
+    "shadowAutoUpdate": true,
+    "lightFilter": {
+      "enabled": true,
+      "renders": 6,
+      "omitted": 36,
+      "maxOmitted": 6
+    },
+    "rooms": [
+      "courtyard"
+    ],
+    "floors": 1,
+    "bodies": 48,
+    "actors": 7,
+    "programs": 566,
+    "quality": "low"
+  },
+  "configurationAtEnd": {
+    "world": "single-courtyard",
+    "fullWorld": false,
+    "baselineSeconds": 15,
+    "maximumSeconds": 90,
+    "enemyCount": 6,
+    "enemyHealth": "normal",
+    "playerHealth": "unlimited",
+    "torchFlames": true,
+    "activeTorchLights": true,
+    "physics": true,
+    "props": true,
+    "statues": true,
+    "animations": true,
+    "enemyAI": "held during baseline; normal during combat",
+    "autoFire": true,
+    "autoStomp": true,
+    "staticShadowCache": true,
+    "batchShadowCache": false,
+    "muted": true,
+    "navigationExperiment": false,
+    "freezeShadows": true,
+    "omitZeroLights": true,
+    "shadowAutoUpdate": false,
+    "lightFilter": {
+      "enabled": true,
+      "renders": 1710,
+      "omitted": 7687,
+      "maxOmitted": 6
+    },
+    "rooms": [
+      "courtyard"
+    ],
+    "floors": 1,
+    "bodies": 48,
+    "actors": 7,
+    "programs": 568,
+    "quality": "low"
+  },
+  "combat": {
+    "stomps": 5,
+    "stompImpacts": 4,
+    "fireHitCalls": 362,
+    "stompHitCalls": 27
+  },
+  "kills": 6,
+  "scenes": [
+    {
+      "type": "idle",
+      "label": "15 s · ακίνητος μέσα στο HEARTH",
+      "summary": {
+        "frames": {
+          "count": 845,
+          "mean": 17.748757396506136,
+          "p50": 17.600000023841858,
+          "p95": 18.600000023841858,
+          "max": 52.10000002384186,
+          "over50": 1,
+          "over100": 0
+        },
+        "fps": 56.34197243559435,
+        "minInstantFPS": 19.193857956667614,
+        "cpu": {
+          "gameplay": {
+            "count": 845,
+            "mean": 0.09325443908307679,
+            "p50": 0.10000002384185791,
+            "p95": 0.20000004768371582,
+            "max": 1.2999999523162842,
+            "over50": 0,
+            "over100": 0
+          },
+          "physics": {
+            "count": 845,
+            "mean": 0.10911242651516163,
+            "p50": 0.10000002384185791,
+            "p95": 0.5,
+            "max": 2.4000000953674316,
+            "over50": 0,
+            "over100": 0
+          },
+          "visuals": {
+            "count": 845,
+            "mean": 0.6584615382922472,
+            "p50": 0.6000000238418579,
+            "p95": 0.8000000715255737,
+            "max": 1.899999976158142,
+            "over50": 0,
+            "over100": 0
+          },
+          "textureCheck": {
+            "count": 845,
+            "mean": 0.02260355074730145,
+            "p50": 0,
+            "p95": 0.10000002384185791,
+            "max": 0.20000004768371582,
+            "over50": 0,
+            "over100": 0
+          },
+          "render": {
+            "count": 845,
+            "mean": 1.396923079152079,
+            "p50": 1.399999976158142,
+            "p95": 1.600000023841858,
+            "max": 31.100000023841858,
+            "over50": 0,
+            "over100": 0
+          }
+        },
+        "gpu": {
+          "count": 845,
+          "mean": 3.612141102958576,
+          "p50": 3.631904,
+          "p95": 4.368576,
+          "max": 5.1992,
+          "over50": 0,
+          "over100": 0
+        },
+        "drawCalls": {
+          "count": 845,
+          "mean": 133.34319526627218,
+          "p50": 133,
+          "p95": 133,
+          "max": 278,
+          "over50": 845,
+          "over100": 845
+        },
+        "triangles": {
+          "count": 845,
+          "mean": 523953.4071005917,
+          "p50": 522271,
+          "p95": 522271,
+          "max": 1233238,
+          "over50": 845,
+          "over100": 845
+        },
+        "worst": [
+          {
+            "at": 52.10000002384186,
+            "elapsed": 52.10000002384186,
+            "stage": "idle",
+            "active": true,
+            "interval": 52.10000002384186,
+            "cpu": {
+              "gameplay": 1.2999999523162842,
+              "physics": 0.8000000715255737,
+              "visuals": 1.899999976158142,
+              "textureCheck": 0,
+              "render": 31.100000023841858
+            },
+            "calls": 278,
+            "triangles": 1233238,
+            "gpuMs": 2.057088
+          },
+          {
+            "at": 99.5,
+            "elapsed": 99.5,
+            "stage": "idle",
+            "active": true,
+            "interval": 47.39999997615814,
+            "cpu": {
+              "gameplay": 0.5999999046325684,
+              "physics": 2.4000000953674316,
+              "visuals": 1.1999999284744263,
+              "textureCheck": 0.10000002384185791,
+              "render": 2.5
+            },
+            "calls": 278,
+            "triangles": 1233238,
+            "gpuMs": 1.800128
+          },
+          {
+            "at": 10118,
+            "elapsed": 10118,
+            "stage": "idle",
+            "active": true,
+            "interval": 20.5,
+            "cpu": {
+              "gameplay": 0.09999990463256836,
+              "physics": 0.10000002384185791,
+              "visuals": 1.7000000476837158,
+              "textureCheck": 0,
+              "render": 2.399999976158142
+            },
+            "calls": 133,
+            "triangles": 522271,
+            "gpuMs": 3.162848
+          },
+          {
+            "at": 4983.5,
+            "elapsed": 4983.5,
+            "stage": "idle",
+            "active": true,
+            "interval": 19.100000023841858,
+            "cpu": {
+              "gameplay": 0,
+              "physics": 0.10000002384185791,
+              "visuals": 0.6000000238418579,
+              "textureCheck": 0,
+              "render": 1.399999976158142
+            },
+            "calls": 133,
+            "triangles": 522271,
+            "gpuMs": 4.241056
+          },
+          {
+            "at": 7783.5,
+            "elapsed": 7783.5,
+            "stage": "idle",
+            "active": true,
+            "interval": 19.100000023841858,
+            "cpu": {
+              "gameplay": 0.19999992847442627,
+              "physics": 0,
+              "visuals": 0.8000000715255737,
+              "textureCheck": 0,
+              "render": 1.399999976158142
+            },
+            "calls": 133,
+            "triangles": 522271,
+            "gpuMs": 4.009088
+          },
+          {
+            "at": 12908.799999952316,
+            "elapsed": 12908.799999952316,
+            "stage": "idle",
+            "active": true,
+            "interval": 19.09999990463257,
+            "cpu": {
+              "gameplay": 0,
+              "physics": 0.10000002384185791,
+              "visuals": 0.7000000476837158,
+              "textureCheck": 0,
+              "render": 1.5999999046325684
+            },
+            "calls": 133,
+            "triangles": 522271,
+            "gpuMs": 4.004992
+          },
+          {
+            "at": 2055.399999976158,
+            "elapsed": 2055.399999976158,
+            "stage": "idle",
+            "active": true,
+            "interval": 19,
+            "cpu": {
+              "gameplay": 0.09999990463256836,
+              "physics": 0.10000002384185791,
+              "visuals": 0.8000000715255737,
+              "textureCheck": 0.09999990463256836,
+              "render": 1.600000023841858
+            },
+            "calls": 133,
+            "triangles": 522271,
+            "gpuMs": 4.510656
+          },
+          {
+            "at": 13404.700000047684,
+            "elapsed": 13404.700000047684,
+            "stage": "idle",
+            "active": true,
+            "interval": 18.90000009536743,
+            "cpu": {
+              "gameplay": 0.20000004768371582,
+              "physics": 0,
+              "visuals": 0.6999999284744263,
+              "textureCheck": 0,
+              "render": 1.8000000715255737
+            },
+            "calls": 133,
+            "triangles": 522271,
+            "gpuMs": 3.201888
+          },
+          {
+            "at": 393.89999997615814,
+            "elapsed": 393.89999997615814,
+            "stage": "idle",
+            "active": true,
+            "interval": 18.899999976158142,
+            "cpu": {
+              "gameplay": 0.10000002384185791,
+              "physics": 0.5999999046325684,
+              "visuals": 0.8000000715255737,
+              "textureCheck": 0,
+              "render": 1.7999999523162842
+            },
+            "calls": 133,
+            "triangles": 522271,
+            "gpuMs": 3.009952
+          },
+          {
+            "at": 1152.6000000238419,
+            "elapsed": 1152.6000000238419,
+            "stage": "idle",
+            "active": true,
+            "interval": 18.899999976158142,
+            "cpu": {
+              "gameplay": 0.10000002384185791,
+              "physics": 0.2999999523162842,
+              "visuals": 1,
+              "textureCheck": 0,
+              "render": 1.7000000476837158
+            },
+            "calls": 133,
+            "triangles": 522271,
+            "gpuMs": 3.149152
+          }
+        ]
+      },
+      "windows": {
+        "all": {
+          "frames": {
+            "count": 845,
+            "mean": 17.748757396506136,
+            "p50": 17.600000023841858,
+            "p95": 18.600000023841858,
+            "max": 52.10000002384186,
+            "over50": 1,
+            "over100": 0
+          },
+          "fps": 56.34197243559435,
+          "minInstantFPS": 19.193857956667614,
+          "cpu": {
+            "gameplay": {
+              "count": 845,
+              "mean": 0.09325443908307679,
+              "p50": 0.10000002384185791,
+              "p95": 0.20000004768371582,
+              "max": 1.2999999523162842,
+              "over50": 0,
+              "over100": 0
+            },
+            "physics": {
+              "count": 845,
+              "mean": 0.10911242651516163,
+              "p50": 0.10000002384185791,
+              "p95": 0.5,
+              "max": 2.4000000953674316,
+              "over50": 0,
+              "over100": 0
+            },
+            "visuals": {
+              "count": 845,
+              "mean": 0.6584615382922472,
+              "p50": 0.6000000238418579,
+              "p95": 0.8000000715255737,
+              "max": 1.899999976158142,
+              "over50": 0,
+              "over100": 0
+            },
+            "textureCheck": {
+              "count": 845,
+              "mean": 0.02260355074730145,
+              "p50": 0,
+              "p95": 0.10000002384185791,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "render": {
+              "count": 845,
+              "mean": 1.396923079152079,
+              "p50": 1.399999976158142,
+              "p95": 1.600000023841858,
+              "max": 31.100000023841858,
+              "over50": 0,
+              "over100": 0
+            }
+          },
+          "gpu": {
+            "count": 845,
+            "mean": 3.612141102958576,
+            "p50": 3.631904,
+            "p95": 4.368576,
+            "max": 5.1992,
+            "over50": 0,
+            "over100": 0
+          },
+          "drawCalls": {
+            "count": 845,
+            "mean": 133.34319526627218,
+            "p50": 133,
+            "p95": 133,
+            "max": 278,
+            "over50": 845,
+            "over100": 845
+          },
+          "triangles": {
+            "count": 845,
+            "mean": 523953.4071005917,
+            "p50": 522271,
+            "p95": 522271,
+            "max": 1233238,
+            "over50": 845,
+            "over100": 845
+          },
+          "worst": [
+            {
+              "at": 52.10000002384186,
+              "elapsed": 52.10000002384186,
+              "stage": "idle",
+              "active": true,
+              "interval": 52.10000002384186,
+              "cpu": {
+                "gameplay": 1.2999999523162842,
+                "physics": 0.8000000715255737,
+                "visuals": 1.899999976158142,
+                "textureCheck": 0,
+                "render": 31.100000023841858
+              },
+              "calls": 278,
+              "triangles": 1233238,
+              "gpuMs": 2.057088
+            },
+            {
+              "at": 99.5,
+              "elapsed": 99.5,
+              "stage": "idle",
+              "active": true,
+              "interval": 47.39999997615814,
+              "cpu": {
+                "gameplay": 0.5999999046325684,
+                "physics": 2.4000000953674316,
+                "visuals": 1.1999999284744263,
+                "textureCheck": 0.10000002384185791,
+                "render": 2.5
+              },
+              "calls": 278,
+              "triangles": 1233238,
+              "gpuMs": 1.800128
+            },
+            {
+              "at": 10118,
+              "elapsed": 10118,
+              "stage": "idle",
+              "active": true,
+              "interval": 20.5,
+              "cpu": {
+                "gameplay": 0.09999990463256836,
+                "physics": 0.10000002384185791,
+                "visuals": 1.7000000476837158,
+                "textureCheck": 0,
+                "render": 2.399999976158142
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.162848
+            },
+            {
+              "at": 4983.5,
+              "elapsed": 4983.5,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.100000023841858,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0,
+                "render": 1.399999976158142
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 4.241056
+            },
+            {
+              "at": 7783.5,
+              "elapsed": 7783.5,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.100000023841858,
+              "cpu": {
+                "gameplay": 0.19999992847442627,
+                "physics": 0,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0,
+                "render": 1.399999976158142
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 4.009088
+            },
+            {
+              "at": 12908.799999952316,
+              "elapsed": 12908.799999952316,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.09999990463257,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.10000002384185791,
+                "visuals": 0.7000000476837158,
+                "textureCheck": 0,
+                "render": 1.5999999046325684
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 4.004992
+            },
+            {
+              "at": 2055.399999976158,
+              "elapsed": 2055.399999976158,
+              "stage": "idle",
+              "active": true,
+              "interval": 19,
+              "cpu": {
+                "gameplay": 0.09999990463256836,
+                "physics": 0.10000002384185791,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0.09999990463256836,
+                "render": 1.600000023841858
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 4.510656
+            },
+            {
+              "at": 13404.700000047684,
+              "elapsed": 13404.700000047684,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.90000009536743,
+              "cpu": {
+                "gameplay": 0.20000004768371582,
+                "physics": 0,
+                "visuals": 0.6999999284744263,
+                "textureCheck": 0,
+                "render": 1.8000000715255737
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.201888
+            },
+            {
+              "at": 393.89999997615814,
+              "elapsed": 393.89999997615814,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.899999976158142,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.5999999046325684,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0,
+                "render": 1.7999999523162842
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.009952
+            },
+            {
+              "at": 1152.6000000238419,
+              "elapsed": 1152.6000000238419,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.899999976158142,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.2999999523162842,
+                "visuals": 1,
+                "textureCheck": 0,
+                "render": 1.7000000476837158
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.149152
+            }
+          ]
+        },
+        "firstTwoSeconds": {
+          "frames": {
+            "count": 109,
+            "mean": 18.196330275010624,
+            "p50": 17.699999928474426,
+            "p95": 18.700000047683716,
+            "max": 52.10000002384186,
+            "over50": 1,
+            "over100": 0
+          },
+          "fps": 54.95613592886471,
+          "minInstantFPS": 19.193857956667614,
+          "cpu": {
+            "gameplay": {
+              "count": 109,
+              "mean": 0.13669725186234222,
+              "p50": 0.10000002384185791,
+              "p95": 0.20000004768371582,
+              "max": 1.2999999523162842,
+              "over50": 0,
+              "over100": 0
+            },
+            "physics": {
+              "count": 109,
+              "mean": 0.3944954150313631,
+              "p50": 0.3999999761581421,
+              "p95": 0.7999999523162842,
+              "max": 2.4000000953674316,
+              "over50": 0,
+              "over100": 0
+            },
+            "visuals": {
+              "count": 109,
+              "mean": 0.7752293556108387,
+              "p50": 0.7999999523162842,
+              "p95": 1,
+              "max": 1.899999976158142,
+              "over50": 0,
+              "over100": 0
+            },
+            "textureCheck": {
+              "count": 109,
+              "mean": 0.025688075144356545,
+              "p50": 0,
+              "p95": 0.10000002384185791,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "render": {
+              "count": 109,
+              "mean": 1.7477064231120119,
+              "p50": 1.5,
+              "p95": 1.7999999523162842,
+              "max": 31.100000023841858,
+              "over50": 0,
+              "over100": 0
+            }
+          },
+          "gpu": {
+            "count": 109,
+            "mean": 3.5367198532110082,
+            "p50": 3.541056,
+            "p95": 4.37152,
+            "max": 4.614304,
+            "over50": 0,
+            "over100": 0
+          },
+          "drawCalls": {
+            "count": 109,
+            "mean": 135.6605504587156,
+            "p50": 133,
+            "p95": 133,
+            "max": 278,
+            "over50": 109,
+            "over100": 109
+          },
+          "triangles": {
+            "count": 109,
+            "mean": 535313.5137614679,
+            "p50": 522271,
+            "p95": 522271,
+            "max": 1233238,
+            "over50": 109,
+            "over100": 109
+          },
+          "worst": [
+            {
+              "at": 52.10000002384186,
+              "elapsed": 52.10000002384186,
+              "stage": "idle",
+              "active": true,
+              "interval": 52.10000002384186,
+              "cpu": {
+                "gameplay": 1.2999999523162842,
+                "physics": 0.8000000715255737,
+                "visuals": 1.899999976158142,
+                "textureCheck": 0,
+                "render": 31.100000023841858
+              },
+              "calls": 278,
+              "triangles": 1233238,
+              "gpuMs": 2.057088
+            },
+            {
+              "at": 99.5,
+              "elapsed": 99.5,
+              "stage": "idle",
+              "active": true,
+              "interval": 47.39999997615814,
+              "cpu": {
+                "gameplay": 0.5999999046325684,
+                "physics": 2.4000000953674316,
+                "visuals": 1.1999999284744263,
+                "textureCheck": 0.10000002384185791,
+                "render": 2.5
+              },
+              "calls": 278,
+              "triangles": 1233238,
+              "gpuMs": 1.800128
+            },
+            {
+              "at": 393.89999997615814,
+              "elapsed": 393.89999997615814,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.899999976158142,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.5999999046325684,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0,
+                "render": 1.7999999523162842
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.009952
+            },
+            {
+              "at": 1152.6000000238419,
+              "elapsed": 1152.6000000238419,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.899999976158142,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.2999999523162842,
+                "visuals": 1,
+                "textureCheck": 0,
+                "render": 1.7000000476837158
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.149152
+            },
+            {
+              "at": 464.7000000476837,
+              "elapsed": 464.7000000476837,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.800000071525574,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.5,
+                "visuals": 0.8999999761581421,
+                "textureCheck": 0,
+                "render": 1.600000023841858
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.303296
+            },
+            {
+              "at": 1646.5,
+              "elapsed": 1646.5,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.700000047683716,
+              "cpu": {
+                "gameplay": 0.20000004768371582,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6999999284744263,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.600000023841858
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.823008
+            },
+            {
+              "at": 305.39999997615814,
+              "elapsed": 305.39999997615814,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.699999928474426,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.6000000238418579,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0,
+                "render": 1.899999976158142
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.904128
+            },
+            {
+              "at": 500.7000000476837,
+              "elapsed": 500.7000000476837,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.600000023841858,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.7999999523162842,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0,
+                "render": 1.5
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.491616
+            },
+            {
+              "at": 250.79999995231628,
+              "elapsed": 250.79999995231628,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.7999999523162842,
+                "visuals": 0.9000000953674316,
+                "textureCheck": 0,
+                "render": 1.5999999046325684
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 2.825408
+            },
+            {
+              "at": 358,
+              "elapsed": 358,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.8000000715255737,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0,
+                "render": 1.5
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.137536
+            }
+          ]
+        },
+        "steady": {
+          "frames": {
+            "count": 736,
+            "mean": 17.68247282618414,
+            "p50": 17.600000023841858,
+            "p95": 18.600000023841858,
+            "max": 20.5,
+            "over50": 0,
+            "over100": 0
+          },
+          "fps": 56.55317612133999,
+          "minInstantFPS": 48.78048780487805,
+          "cpu": {
+            "gameplay": {
+              "count": 736,
+              "mean": 0.08682065295136493,
+              "p50": 0.10000002384185791,
+              "p95": 0.20000004768371582,
+              "max": 0.30000007152557373,
+              "over50": 0,
+              "over100": 0
+            },
+            "physics": {
+              "count": 736,
+              "mean": 0.06684782631371332,
+              "p50": 0.10000002384185791,
+              "p95": 0.19999992847442627,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "visuals": {
+              "count": 736,
+              "mean": 0.6411684783904449,
+              "p50": 0.6000000238418579,
+              "p95": 0.8000000715255737,
+              "max": 1.7000000476837158,
+              "over50": 0,
+              "over100": 0
+            },
+            "textureCheck": {
+              "count": 736,
+              "mean": 0.02214673938958541,
+              "p50": 0,
+              "p95": 0.10000002384185791,
+              "max": 0.10000002384185791,
+              "over50": 0,
+              "over100": 0
+            },
+            "render": {
+              "count": 736,
+              "mean": 1.3449728284840998,
+              "p50": 1.3000000715255737,
+              "p95": 1.600000023841858,
+              "max": 2.399999976158142,
+              "over50": 0,
+              "over100": 0
+            }
+          },
+          "gpu": {
+            "count": 736,
+            "mean": 3.6233108260869535,
+            "p50": 3.639168,
+            "p95": 4.368576,
+            "max": 5.1992,
+            "over50": 0,
+            "over100": 0
+          },
+          "drawCalls": {
+            "count": 736,
+            "mean": 133,
+            "p50": 133,
+            "p95": 133,
+            "max": 133,
+            "over50": 736,
+            "over100": 736
+          },
+          "triangles": {
+            "count": 736,
+            "mean": 522271,
+            "p50": 522271,
+            "p95": 522271,
+            "max": 522271,
+            "over50": 736,
+            "over100": 736
+          },
+          "worst": [
+            {
+              "at": 10118,
+              "elapsed": 10118,
+              "stage": "idle",
+              "active": true,
+              "interval": 20.5,
+              "cpu": {
+                "gameplay": 0.09999990463256836,
+                "physics": 0.10000002384185791,
+                "visuals": 1.7000000476837158,
+                "textureCheck": 0,
+                "render": 2.399999976158142
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.162848
+            },
+            {
+              "at": 4983.5,
+              "elapsed": 4983.5,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.100000023841858,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0,
+                "render": 1.399999976158142
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 4.241056
+            },
+            {
+              "at": 7783.5,
+              "elapsed": 7783.5,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.100000023841858,
+              "cpu": {
+                "gameplay": 0.19999992847442627,
+                "physics": 0,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0,
+                "render": 1.399999976158142
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 4.009088
+            },
+            {
+              "at": 12908.799999952316,
+              "elapsed": 12908.799999952316,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.09999990463257,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.10000002384185791,
+                "visuals": 0.7000000476837158,
+                "textureCheck": 0,
+                "render": 1.5999999046325684
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 4.004992
+            },
+            {
+              "at": 2055.399999976158,
+              "elapsed": 2055.399999976158,
+              "stage": "idle",
+              "active": true,
+              "interval": 19,
+              "cpu": {
+                "gameplay": 0.09999990463256836,
+                "physics": 0.10000002384185791,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0.09999990463256836,
+                "render": 1.600000023841858
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 4.510656
+            },
+            {
+              "at": 13404.700000047684,
+              "elapsed": 13404.700000047684,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.90000009536743,
+              "cpu": {
+                "gameplay": 0.20000004768371582,
+                "physics": 0,
+                "visuals": 0.6999999284744263,
+                "textureCheck": 0,
+                "render": 1.8000000715255737
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.201888
+            },
+            {
+              "at": 2568,
+              "elapsed": 2568,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.899999976158142,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0,
+                "render": 1.5
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.458048
+            },
+            {
+              "at": 3538,
+              "elapsed": 3538,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.899999976158142,
+              "cpu": {
+                "gameplay": 0.30000007152557373,
+                "physics": 0,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0,
+                "render": 1.5
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.265984
+            },
+            {
+              "at": 3752.5,
+              "elapsed": 3752.5,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.899999976158142,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0,
+                "render": 1.5
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.671712
+            },
+            {
+              "at": 4717.5,
+              "elapsed": 4717.5,
+              "stage": "idle",
+              "active": true,
+              "interval": 18.899999976158142,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0,
+                "render": 1.399999976158142
+              },
+              "calls": 133,
+              "triangles": 522271,
+              "gpuMs": 3.792704
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "combat",
+      "label": "Αυτόματη μάχη",
+      "summary": {
+        "frames": {
+          "count": 683,
+          "mean": 18.105710102384297,
+          "p50": 17.600000023841858,
+          "p95": 18.799999952316284,
+          "max": 88,
+          "over50": 5,
+          "over100": 0
+        },
+        "fps": 55.231194708475556,
+        "minInstantFPS": 11.363636363636363,
+        "cpu": {
+          "gameplay": {
+            "count": 683,
+            "mean": 0.3383601731123024,
+            "p50": 0.30000007152557373,
+            "p95": 0.6999999284744263,
+            "max": 3.3000000715255737,
+            "over50": 0,
+            "over100": 0
+          },
+          "physics": {
+            "count": 683,
+            "mean": 0.11200585860982647,
+            "p50": 0.10000002384185791,
+            "p95": 0.20000004768371582,
+            "max": 0.30000007152557373,
+            "over50": 0,
+            "over100": 0
+          },
+          "visuals": {
+            "count": 683,
+            "mean": 0.6913616395450441,
+            "p50": 0.6999999284744263,
+            "p95": 1,
+            "max": 1.6999999284744263,
+            "over50": 0,
+            "over100": 0
+          },
+          "textureCheck": {
+            "count": 683,
+            "mean": 0.021669107858817014,
+            "p50": 0,
+            "p95": 0.10000002384185791,
+            "max": 0.20000004768371582,
+            "over50": 0,
+            "over100": 0
+          },
+          "render": {
+            "count": 683,
+            "mean": 1.5439238644274575,
+            "p50": 1.4000000953674316,
+            "p95": 2,
+            "max": 14,
+            "over50": 0,
+            "over100": 0
+          }
+        },
+        "gpu": {
+          "count": 683,
+          "mean": 4.177610916544657,
+          "p50": 3.679712,
+          "p95": 4.828928,
+          "max": 115.554976,
+          "over50": 3,
+          "over100": 3
+        },
+        "drawCalls": {
+          "count": 683,
+          "mean": 131.3440702781845,
+          "p50": 131,
+          "p95": 140,
+          "max": 142,
+          "over50": 683,
+          "over100": 683
+        },
+        "triangles": {
+          "count": 683,
+          "mean": 524666.5109809663,
+          "p50": 525590,
+          "p95": 531772,
+          "max": 532923,
+          "over50": 683,
+          "over100": 683
+        },
+        "worst": [
+          {
+            "at": 15139.299999952316,
+            "elapsed": 139.29999995231628,
+            "stage": "combat",
+            "active": true,
+            "interval": 88,
+            "cpu": {
+              "gameplay": 0.6000000238418579,
+              "physics": 0.19999992847442627,
+              "visuals": 0.8000000715255737,
+              "textureCheck": 0,
+              "render": 1.6999999284744263
+            },
+            "calls": 137,
+            "triangles": 522003,
+            "gpuMs": 1.011328
+          },
+          {
+            "at": 15577.899999976158,
+            "elapsed": 577.8999999761581,
+            "stage": "combat",
+            "active": true,
+            "interval": 85.69999992847443,
+            "cpu": {
+              "gameplay": 0.19999992847442627,
+              "physics": 0.20000004768371582,
+              "visuals": 0.8999999761581421,
+              "textureCheck": 0,
+              "render": 2
+            },
+            "calls": 132,
+            "triangles": 524279,
+            "gpuMs": 1.985312
+          },
+          {
+            "at": 17731.100000023842,
+            "elapsed": 2731.100000023842,
+            "stage": "combat",
+            "active": true,
+            "interval": 83.5,
+            "cpu": {
+              "gameplay": 0.5,
+              "physics": 0.19999992847442627,
+              "visuals": 0.8000000715255737,
+              "textureCheck": 0,
+              "render": 1.5
+            },
+            "calls": 139,
+            "triangles": 526112,
+            "gpuMs": 0.919936
+          },
+          {
+            "at": 16920.299999952316,
+            "elapsed": 1920.2999999523163,
+            "stage": "combat",
+            "active": true,
+            "interval": 83,
+            "cpu": {
+              "gameplay": 0.5,
+              "physics": 0.30000007152557373,
+              "visuals": 0.6999999284744263,
+              "textureCheck": 0,
+              "render": 2
+            },
+            "calls": 141,
+            "triangles": 528149,
+            "gpuMs": 0.524704
+          },
+          {
+            "at": 15272.399999976158,
+            "elapsed": 272.39999997615814,
+            "stage": "combat",
+            "active": true,
+            "interval": 81.19999992847443,
+            "cpu": {
+              "gameplay": 0.7000000476837158,
+              "physics": 0.10000002384185791,
+              "visuals": 0.8999999761581421,
+              "textureCheck": 0.10000002384185791,
+              "render": 1.2999999523162842
+            },
+            "calls": 136,
+            "triangles": 525893,
+            "gpuMs": 1.71168
+          },
+          {
+            "at": 15402.200000047684,
+            "elapsed": 402.2000000476837,
+            "stage": "combat",
+            "active": true,
+            "interval": 33.10000002384186,
+            "cpu": {
+              "gameplay": 3.3000000715255737,
+              "physics": 0.09999990463256836,
+              "visuals": 0.8000000715255737,
+              "textureCheck": 0.10000002384185791,
+              "render": 14
+            },
+            "calls": 136,
+            "triangles": 525547,
+            "gpuMs": 14.4592
+          },
+          {
+            "at": 18954.899999976158,
+            "elapsed": 3954.899999976158,
+            "stage": "combat",
+            "active": true,
+            "interval": 30.100000023841858,
+            "cpu": {
+              "gameplay": 1.5,
+              "physics": 0.09999990463256836,
+              "visuals": 0.9000000953674316,
+              "textureCheck": 0.09999990463256836,
+              "render": 11.100000023841858
+            },
+            "calls": 137,
+            "triangles": 520798,
+            "gpuMs": 13.603456
+          },
+          {
+            "at": 21746.5,
+            "elapsed": 6746.5,
+            "stage": "combat",
+            "active": true,
+            "interval": 23.399999976158142,
+            "cpu": {
+              "gameplay": 1.0999999046325684,
+              "physics": 0.20000004768371582,
+              "visuals": 0.7999999523162842,
+              "textureCheck": 0,
+              "render": 6.200000047683716
+            },
+            "calls": 132,
+            "triangles": 525642,
+            "gpuMs": 7.4992
+          },
+          {
+            "at": 27363.899999976158,
+            "elapsed": 12363.899999976158,
+            "stage": "combat",
+            "active": true,
+            "interval": 23.199999928474426,
+            "cpu": {
+              "gameplay": 0.8999999761581421,
+              "physics": 0,
+              "visuals": 0.6000000238418579,
+              "textureCheck": 0,
+              "render": 5.899999976158142
+            },
+            "calls": 130,
+            "triangles": 513671,
+            "gpuMs": 7.130176
+          },
+          {
+            "at": 16098.299999952316,
+            "elapsed": 1098.2999999523163,
+            "stage": "combat",
+            "active": true,
+            "interval": 23.09999990463257,
+            "cpu": {
+              "gameplay": 1.4000000953674316,
+              "physics": 0.09999990463256836,
+              "visuals": 1,
+              "textureCheck": 0,
+              "render": 5
+            },
+            "calls": 138,
+            "triangles": 528495,
+            "gpuMs": 6.882816
+          }
+        ]
+      },
+      "windows": {
+        "all": {
+          "frames": {
+            "count": 683,
+            "mean": 18.105710102384297,
+            "p50": 17.600000023841858,
+            "p95": 18.799999952316284,
+            "max": 88,
+            "over50": 5,
+            "over100": 0
+          },
+          "fps": 55.231194708475556,
+          "minInstantFPS": 11.363636363636363,
+          "cpu": {
+            "gameplay": {
+              "count": 683,
+              "mean": 0.3383601731123024,
+              "p50": 0.30000007152557373,
+              "p95": 0.6999999284744263,
+              "max": 3.3000000715255737,
+              "over50": 0,
+              "over100": 0
+            },
+            "physics": {
+              "count": 683,
+              "mean": 0.11200585860982647,
+              "p50": 0.10000002384185791,
+              "p95": 0.20000004768371582,
+              "max": 0.30000007152557373,
+              "over50": 0,
+              "over100": 0
+            },
+            "visuals": {
+              "count": 683,
+              "mean": 0.6913616395450441,
+              "p50": 0.6999999284744263,
+              "p95": 1,
+              "max": 1.6999999284744263,
+              "over50": 0,
+              "over100": 0
+            },
+            "textureCheck": {
+              "count": 683,
+              "mean": 0.021669107858817014,
+              "p50": 0,
+              "p95": 0.10000002384185791,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "render": {
+              "count": 683,
+              "mean": 1.5439238644274575,
+              "p50": 1.4000000953674316,
+              "p95": 2,
+              "max": 14,
+              "over50": 0,
+              "over100": 0
+            }
+          },
+          "gpu": {
+            "count": 683,
+            "mean": 4.177610916544657,
+            "p50": 3.679712,
+            "p95": 4.828928,
+            "max": 115.554976,
+            "over50": 3,
+            "over100": 3
+          },
+          "drawCalls": {
+            "count": 683,
+            "mean": 131.3440702781845,
+            "p50": 131,
+            "p95": 140,
+            "max": 142,
+            "over50": 683,
+            "over100": 683
+          },
+          "triangles": {
+            "count": 683,
+            "mean": 524666.5109809663,
+            "p50": 525590,
+            "p95": 531772,
+            "max": 532923,
+            "over50": 683,
+            "over100": 683
+          },
+          "worst": [
+            {
+              "at": 15139.299999952316,
+              "elapsed": 139.29999995231628,
+              "stage": "combat",
+              "active": true,
+              "interval": 88,
+              "cpu": {
+                "gameplay": 0.6000000238418579,
+                "physics": 0.19999992847442627,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0,
+                "render": 1.6999999284744263
+              },
+              "calls": 137,
+              "triangles": 522003,
+              "gpuMs": 1.011328
+            },
+            {
+              "at": 15577.899999976158,
+              "elapsed": 577.8999999761581,
+              "stage": "combat",
+              "active": true,
+              "interval": 85.69999992847443,
+              "cpu": {
+                "gameplay": 0.19999992847442627,
+                "physics": 0.20000004768371582,
+                "visuals": 0.8999999761581421,
+                "textureCheck": 0,
+                "render": 2
+              },
+              "calls": 132,
+              "triangles": 524279,
+              "gpuMs": 1.985312
+            },
+            {
+              "at": 17731.100000023842,
+              "elapsed": 2731.100000023842,
+              "stage": "combat",
+              "active": true,
+              "interval": 83.5,
+              "cpu": {
+                "gameplay": 0.5,
+                "physics": 0.19999992847442627,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0,
+                "render": 1.5
+              },
+              "calls": 139,
+              "triangles": 526112,
+              "gpuMs": 0.919936
+            },
+            {
+              "at": 16920.299999952316,
+              "elapsed": 1920.2999999523163,
+              "stage": "combat",
+              "active": true,
+              "interval": 83,
+              "cpu": {
+                "gameplay": 0.5,
+                "physics": 0.30000007152557373,
+                "visuals": 0.6999999284744263,
+                "textureCheck": 0,
+                "render": 2
+              },
+              "calls": 141,
+              "triangles": 528149,
+              "gpuMs": 0.524704
+            },
+            {
+              "at": 15272.399999976158,
+              "elapsed": 272.39999997615814,
+              "stage": "combat",
+              "active": true,
+              "interval": 81.19999992847443,
+              "cpu": {
+                "gameplay": 0.7000000476837158,
+                "physics": 0.10000002384185791,
+                "visuals": 0.8999999761581421,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.2999999523162842
+              },
+              "calls": 136,
+              "triangles": 525893,
+              "gpuMs": 1.71168
+            },
+            {
+              "at": 15402.200000047684,
+              "elapsed": 402.2000000476837,
+              "stage": "combat",
+              "active": true,
+              "interval": 33.10000002384186,
+              "cpu": {
+                "gameplay": 3.3000000715255737,
+                "physics": 0.09999990463256836,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0.10000002384185791,
+                "render": 14
+              },
+              "calls": 136,
+              "triangles": 525547,
+              "gpuMs": 14.4592
+            },
+            {
+              "at": 18954.899999976158,
+              "elapsed": 3954.899999976158,
+              "stage": "combat",
+              "active": true,
+              "interval": 30.100000023841858,
+              "cpu": {
+                "gameplay": 1.5,
+                "physics": 0.09999990463256836,
+                "visuals": 0.9000000953674316,
+                "textureCheck": 0.09999990463256836,
+                "render": 11.100000023841858
+              },
+              "calls": 137,
+              "triangles": 520798,
+              "gpuMs": 13.603456
+            },
+            {
+              "at": 21746.5,
+              "elapsed": 6746.5,
+              "stage": "combat",
+              "active": true,
+              "interval": 23.399999976158142,
+              "cpu": {
+                "gameplay": 1.0999999046325684,
+                "physics": 0.20000004768371582,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0,
+                "render": 6.200000047683716
+              },
+              "calls": 132,
+              "triangles": 525642,
+              "gpuMs": 7.4992
+            },
+            {
+              "at": 27363.899999976158,
+              "elapsed": 12363.899999976158,
+              "stage": "combat",
+              "active": true,
+              "interval": 23.199999928474426,
+              "cpu": {
+                "gameplay": 0.8999999761581421,
+                "physics": 0,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0,
+                "render": 5.899999976158142
+              },
+              "calls": 130,
+              "triangles": 513671,
+              "gpuMs": 7.130176
+            },
+            {
+              "at": 16098.299999952316,
+              "elapsed": 1098.2999999523163,
+              "stage": "combat",
+              "active": true,
+              "interval": 23.09999990463257,
+              "cpu": {
+                "gameplay": 1.4000000953674316,
+                "physics": 0.09999990463256836,
+                "visuals": 1,
+                "textureCheck": 0,
+                "render": 5
+              },
+              "calls": 138,
+              "triangles": 528495,
+              "gpuMs": 6.882816
+            }
+          ]
+        },
+        "firstTwoSeconds": {
+          "frames": {
+            "count": 100,
+            "mean": 19.99,
+            "p50": 17.600000023841858,
+            "p95": 23.09999990463257,
+            "max": 88,
+            "over50": 4,
+            "over100": 0
+          },
+          "fps": 50.025012506253134,
+          "minInstantFPS": 11.363636363636363,
+          "cpu": {
+            "gameplay": {
+              "count": 100,
+              "mean": 0.3380000054836273,
+              "p50": 0.20000004768371582,
+              "p95": 0.7999999523162842,
+              "max": 3.3000000715255737,
+              "over50": 0,
+              "over100": 0
+            },
+            "physics": {
+              "count": 100,
+              "mean": 0.11499999165534973,
+              "p50": 0.10000002384185791,
+              "p95": 0.20000004768371582,
+              "max": 0.30000007152557373,
+              "over50": 0,
+              "over100": 0
+            },
+            "visuals": {
+              "count": 100,
+              "mean": 0.8090000009536743,
+              "p50": 0.7999999523162842,
+              "p95": 1.0999999046325684,
+              "max": 1.3000000715255737,
+              "over50": 0,
+              "over100": 0
+            },
+            "textureCheck": {
+              "count": 100,
+              "mean": 0.03200000047683716,
+              "p50": 0,
+              "p95": 0.10000002384185791,
+              "max": 0.10000002384185791,
+              "over50": 0,
+              "over100": 0
+            },
+            "render": {
+              "count": 100,
+              "mean": 1.736000008583069,
+              "p50": 1.5999999046325684,
+              "p95": 2,
+              "max": 14,
+              "over50": 0,
+              "over100": 0
+            }
+          },
+          "gpu": {
+            "count": 100,
+            "mean": 6.05121696,
+            "p50": 3.585952,
+            "p95": 6.882816,
+            "max": 115.554976,
+            "over50": 2,
+            "over100": 2
+          },
+          "drawCalls": {
+            "count": 100,
+            "mean": 136.14,
+            "p50": 138,
+            "p95": 141,
+            "max": 142,
+            "over50": 100,
+            "over100": 100
+          },
+          "triangles": {
+            "count": 100,
+            "mean": 525984.52,
+            "p50": 525893,
+            "p95": 528683,
+            "max": 529169,
+            "over50": 100,
+            "over100": 100
+          },
+          "worst": [
+            {
+              "at": 15139.299999952316,
+              "elapsed": 139.29999995231628,
+              "stage": "combat",
+              "active": true,
+              "interval": 88,
+              "cpu": {
+                "gameplay": 0.6000000238418579,
+                "physics": 0.19999992847442627,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0,
+                "render": 1.6999999284744263
+              },
+              "calls": 137,
+              "triangles": 522003,
+              "gpuMs": 1.011328
+            },
+            {
+              "at": 15577.899999976158,
+              "elapsed": 577.8999999761581,
+              "stage": "combat",
+              "active": true,
+              "interval": 85.69999992847443,
+              "cpu": {
+                "gameplay": 0.19999992847442627,
+                "physics": 0.20000004768371582,
+                "visuals": 0.8999999761581421,
+                "textureCheck": 0,
+                "render": 2
+              },
+              "calls": 132,
+              "triangles": 524279,
+              "gpuMs": 1.985312
+            },
+            {
+              "at": 16920.299999952316,
+              "elapsed": 1920.2999999523163,
+              "stage": "combat",
+              "active": true,
+              "interval": 83,
+              "cpu": {
+                "gameplay": 0.5,
+                "physics": 0.30000007152557373,
+                "visuals": 0.6999999284744263,
+                "textureCheck": 0,
+                "render": 2
+              },
+              "calls": 141,
+              "triangles": 528149,
+              "gpuMs": 0.524704
+            },
+            {
+              "at": 15272.399999976158,
+              "elapsed": 272.39999997615814,
+              "stage": "combat",
+              "active": true,
+              "interval": 81.19999992847443,
+              "cpu": {
+                "gameplay": 0.7000000476837158,
+                "physics": 0.10000002384185791,
+                "visuals": 0.8999999761581421,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.2999999523162842
+              },
+              "calls": 136,
+              "triangles": 525893,
+              "gpuMs": 1.71168
+            },
+            {
+              "at": 15402.200000047684,
+              "elapsed": 402.2000000476837,
+              "stage": "combat",
+              "active": true,
+              "interval": 33.10000002384186,
+              "cpu": {
+                "gameplay": 3.3000000715255737,
+                "physics": 0.09999990463256836,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0.10000002384185791,
+                "render": 14
+              },
+              "calls": 136,
+              "triangles": 525547,
+              "gpuMs": 14.4592
+            },
+            {
+              "at": 16098.299999952316,
+              "elapsed": 1098.2999999523163,
+              "stage": "combat",
+              "active": true,
+              "interval": 23.09999990463257,
+              "cpu": {
+                "gameplay": 1.4000000953674316,
+                "physics": 0.09999990463256836,
+                "visuals": 1,
+                "textureCheck": 0,
+                "render": 5
+              },
+              "calls": 138,
+              "triangles": 528495,
+              "gpuMs": 6.882816
+            },
+            {
+              "at": 15018.5,
+              "elapsed": 18.5,
+              "stage": "combat",
+              "active": true,
+              "interval": 20.799999952316284,
+              "cpu": {
+                "gameplay": 1.600000023841858,
+                "physics": 0.09999990463256836,
+                "visuals": 1.3000000715255737,
+                "textureCheck": 0,
+                "render": 1.899999976158142
+              },
+              "calls": 135,
+              "triangles": 522295,
+              "gpuMs": 115.554976
+            },
+            {
+              "at": 16676.899999976158,
+              "elapsed": 1676.8999999761581,
+              "stage": "combat",
+              "active": true,
+              "interval": 19.299999952316284,
+              "cpu": {
+                "gameplay": 0.20000004768371582,
+                "physics": 0.19999992847442627,
+                "visuals": 0.7000000476837158,
+                "textureCheck": 0,
+                "render": 1.899999976158142
+              },
+              "calls": 140,
+              "triangles": 528655,
+              "gpuMs": 3.55792
+            },
+            {
+              "at": 16552.299999952316,
+              "elapsed": 1552.2999999523163,
+              "stage": "combat",
+              "active": true,
+              "interval": 19.09999990463257,
+              "cpu": {
+                "gameplay": 0.2999999523162842,
+                "physics": 0.10000002384185791,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.2999999523162842
+              },
+              "calls": 140,
+              "triangles": 528655,
+              "gpuMs": 2.939008
+            },
+            {
+              "at": 15633.799999952316,
+              "elapsed": 633.7999999523163,
+              "stage": "combat",
+              "active": true,
+              "interval": 18.59999990463257,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0,
+                "render": 1.399999976158142
+              },
+              "calls": 132,
+              "triangles": 524279,
+              "gpuMs": 2.316832
+            }
+          ]
+        },
+        "steady": {
+          "frames": {
+            "count": 583,
+            "mean": 17.78250428804198,
+            "p50": 17.600000023841858,
+            "p95": 18.700000047683716,
+            "max": 83.5,
+            "over50": 1,
+            "over100": 0
+          },
+          "fps": 56.23504900108247,
+          "minInstantFPS": 11.976047904191617,
+          "cpu": {
+            "gameplay": {
+              "count": 583,
+              "mean": 0.33842195143626036,
+              "p50": 0.3999999761581421,
+              "p95": 0.6999999284744263,
+              "max": 1.5,
+              "over50": 0,
+              "over100": 0
+            },
+            "physics": {
+              "count": 583,
+              "mean": 0.11149228518863893,
+              "p50": 0.10000002384185791,
+              "p95": 0.20000004768371582,
+              "max": 0.30000007152557373,
+              "over50": 0,
+              "over100": 0
+            },
+            "visuals": {
+              "count": 583,
+              "mean": 0.6711835329569429,
+              "p50": 0.6000000238418579,
+              "p95": 1,
+              "max": 1.6999999284744263,
+              "over50": 0,
+              "over100": 0
+            },
+            "textureCheck": {
+              "count": 583,
+              "mean": 0.019897085111300696,
+              "p50": 0,
+              "p95": 0.10000002384185791,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "render": {
+              "count": 583,
+              "mean": 1.5109776990491366,
+              "p50": 1.4000000953674316,
+              "p95": 1.9000000953674316,
+              "max": 11.100000023841858,
+              "over50": 0,
+              "over100": 0
+            }
+          },
+          "gpu": {
+            "count": 583,
+            "mean": 3.856237667238422,
+            "p50": 3.6936,
+            "p95": 4.71728,
+            "max": 115.041792,
+            "over50": 1,
+            "over100": 1
+          },
+          "drawCalls": {
+            "count": 583,
+            "mean": 130.52144082332762,
+            "p50": 129,
+            "p95": 140,
+            "max": 142,
+            "over50": 583,
+            "over100": 583
+          },
+          "triangles": {
+            "count": 583,
+            "mean": 524440.4373927959,
+            "p50": 525586,
+            "p95": 531860,
+            "max": 532923,
+            "over50": 583,
+            "over100": 583
+          },
+          "worst": [
+            {
+              "at": 17731.100000023842,
+              "elapsed": 2731.100000023842,
+              "stage": "combat",
+              "active": true,
+              "interval": 83.5,
+              "cpu": {
+                "gameplay": 0.5,
+                "physics": 0.19999992847442627,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0,
+                "render": 1.5
+              },
+              "calls": 139,
+              "triangles": 526112,
+              "gpuMs": 0.919936
+            },
+            {
+              "at": 18954.899999976158,
+              "elapsed": 3954.899999976158,
+              "stage": "combat",
+              "active": true,
+              "interval": 30.100000023841858,
+              "cpu": {
+                "gameplay": 1.5,
+                "physics": 0.09999990463256836,
+                "visuals": 0.9000000953674316,
+                "textureCheck": 0.09999990463256836,
+                "render": 11.100000023841858
+              },
+              "calls": 137,
+              "triangles": 520798,
+              "gpuMs": 13.603456
+            },
+            {
+              "at": 21746.5,
+              "elapsed": 6746.5,
+              "stage": "combat",
+              "active": true,
+              "interval": 23.399999976158142,
+              "cpu": {
+                "gameplay": 1.0999999046325684,
+                "physics": 0.20000004768371582,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0,
+                "render": 6.200000047683716
+              },
+              "calls": 132,
+              "triangles": 525642,
+              "gpuMs": 7.4992
+            },
+            {
+              "at": 27363.899999976158,
+              "elapsed": 12363.899999976158,
+              "stage": "combat",
+              "active": true,
+              "interval": 23.199999928474426,
+              "cpu": {
+                "gameplay": 0.8999999761581421,
+                "physics": 0,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0,
+                "render": 5.899999976158142
+              },
+              "calls": 130,
+              "triangles": 513671,
+              "gpuMs": 7.130176
+            },
+            {
+              "at": 24570.200000047684,
+              "elapsed": 9570.200000047684,
+              "stage": "combat",
+              "active": true,
+              "interval": 22.40000009536743,
+              "cpu": {
+                "gameplay": 1.100000023841858,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6999999284744263,
+                "textureCheck": 0,
+                "render": 5.300000071525574
+              },
+              "calls": 132,
+              "triangles": 525790,
+              "gpuMs": 8.661312
+            },
+            {
+              "at": 17776.299999952316,
+              "elapsed": 2776.2999999523163,
+              "stage": "combat",
+              "active": true,
+              "interval": 22.199999928474426,
+              "cpu": {
+                "gameplay": 1.5,
+                "physics": 0.2999999523162842,
+                "visuals": 1.100000023841858,
+                "textureCheck": 0.10000002384185791,
+                "render": 3.5999999046325684
+              },
+              "calls": 137,
+              "triangles": 525880,
+              "gpuMs": 7.171616
+            },
+            {
+              "at": 19901.200000047684,
+              "elapsed": 4901.200000047684,
+              "stage": "combat",
+              "active": true,
+              "interval": 20.600000023841858,
+              "cpu": {
+                "gameplay": 0.6999999284744263,
+                "physics": 0.20000004768371582,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0,
+                "render": 4
+              },
+              "calls": 136,
+              "triangles": 531700,
+              "gpuMs": 4.840128
+            },
+            {
+              "at": 17862.899999976158,
+              "elapsed": 2862.899999976158,
+              "stage": "combat",
+              "active": true,
+              "interval": 20.100000023841858,
+              "cpu": {
+                "gameplay": 0.8999999761581421,
+                "physics": 0.10000002384185791,
+                "visuals": 1,
+                "textureCheck": 0,
+                "render": 3
+              },
+              "calls": 136,
+              "triangles": 525204,
+              "gpuMs": 5.82368
+            },
+            {
+              "at": 17455.700000047684,
+              "elapsed": 2455.7000000476837,
+              "stage": "combat",
+              "active": true,
+              "interval": 19.800000071525574,
+              "cpu": {
+                "gameplay": 0.7999999523162842,
+                "physics": 0.30000007152557373,
+                "visuals": 1.5,
+                "textureCheck": 0,
+                "render": 3
+              },
+              "calls": 141,
+              "triangles": 532031,
+              "gpuMs": 5.559712
+            },
+            {
+              "at": 17156.899999976158,
+              "elapsed": 2156.899999976158,
+              "stage": "combat",
+              "active": true,
+              "interval": 19.699999928474426,
+              "cpu": {
+                "gameplay": 0.8000000715255737,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6999999284744263,
+                "textureCheck": 0,
+                "render": 2
+              },
+              "calls": 140,
+              "triangles": 529289,
+              "gpuMs": 5.255232
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "settle",
+      "label": "Μετά τη μάχη",
+      "summary": {
+        "frames": {
+          "count": 172,
+          "mean": 17.57616279083629,
+          "p50": 17.600000023841858,
+          "p95": 18.40000009536743,
+          "max": 18.700000047683716,
+          "over50": 0,
+          "over100": 0
+        },
+        "fps": 56.8952399849967,
+        "minInstantFPS": 53.47593569251704,
+        "cpu": {
+          "gameplay": {
+            "count": 172,
+            "mean": 0.0808139582012975,
+            "p50": 0.10000002384185791,
+            "p95": 0.20000004768371582,
+            "max": 0.20000004768371582,
+            "over50": 0,
+            "over100": 0
+          },
+          "physics": {
+            "count": 172,
+            "mean": 0.07906976758047592,
+            "p50": 0.10000002384185791,
+            "p95": 0.20000004768371582,
+            "max": 0.20000004768371582,
+            "over50": 0,
+            "over100": 0
+          },
+          "visuals": {
+            "count": 172,
+            "mean": 0.5662790668565173,
+            "p50": 0.5,
+            "p95": 0.7000000476837158,
+            "max": 1,
+            "over50": 0,
+            "over100": 0
+          },
+          "textureCheck": {
+            "count": 172,
+            "mean": 0.019186045541319738,
+            "p50": 0,
+            "p95": 0.10000002384185791,
+            "max": 0.19999992847442627,
+            "over50": 0,
+            "over100": 0
+          },
+          "render": {
+            "count": 172,
+            "mean": 1.3331395366857217,
+            "p50": 1.2999999523162842,
+            "p95": 1.7000000476837158,
+            "max": 2.100000023841858,
+            "over50": 0,
+            "over100": 0
+          }
+        },
+        "gpu": {
+          "count": 172,
+          "mean": 3.552151627906975,
+          "p50": 3.455168,
+          "p95": 4.609376,
+          "max": 12.111488,
+          "over50": 0,
+          "over100": 0
+        },
+        "drawCalls": {
+          "count": 172,
+          "mean": 126.79651162790698,
+          "p50": 127,
+          "p95": 130,
+          "max": 130,
+          "over50": 172,
+          "over100": 172
+        },
+        "triangles": {
+          "count": 172,
+          "mean": 513441.56976744183,
+          "p50": 513525,
+          "p95": 513667,
+          "max": 513671,
+          "over50": 172,
+          "over100": 172
+        },
+        "worst": [
+          {
+            "at": 30142,
+            "elapsed": 30142,
+            "stage": "settle",
+            "active": true,
+            "interval": 18.700000047683716,
+            "cpu": {
+              "gameplay": 0,
+              "physics": 0.10000002384185791,
+              "visuals": 0.5,
+              "textureCheck": 0.10000002384185791,
+              "render": 1.5
+            },
+            "calls": 125,
+            "triangles": 513517,
+            "gpuMs": 3.27776
+          },
+          {
+            "at": 29016.700000047684,
+            "elapsed": 29016.700000047684,
+            "stage": "settle",
+            "active": true,
+            "interval": 18.600000023841858,
+            "cpu": {
+              "gameplay": 0,
+              "physics": 0.10000002384185791,
+              "visuals": 0.3999999761581421,
+              "textureCheck": 0.10000002384185791,
+              "render": 1.100000023841858
+            },
+            "calls": 127,
+            "triangles": 513521,
+            "gpuMs": 3.445376
+          },
+          {
+            "at": 27395,
+            "elapsed": 27395,
+            "stage": "settle",
+            "active": true,
+            "interval": 18.5,
+            "cpu": {
+              "gameplay": 0.10000002384185791,
+              "physics": 0.09999990463256836,
+              "visuals": 0.6000000238418579,
+              "textureCheck": 0.10000002384185791,
+              "render": 1.5
+            },
+            "calls": 130,
+            "triangles": 513671,
+            "gpuMs": 4.509856
+          },
+          {
+            "at": 27693.5,
+            "elapsed": 27693.5,
+            "stage": "settle",
+            "active": true,
+            "interval": 18.5,
+            "cpu": {
+              "gameplay": 0.10000002384185791,
+              "physics": 0.10000002384185791,
+              "visuals": 0.6999999284744263,
+              "textureCheck": 0.10000002384185791,
+              "render": 1.5
+            },
+            "calls": 129,
+            "triangles": 513643,
+            "gpuMs": 3.594912
+          },
+          {
+            "at": 27764.399999976158,
+            "elapsed": 27764.399999976158,
+            "stage": "settle",
+            "active": true,
+            "interval": 18.5,
+            "cpu": {
+              "gameplay": 0.10000002384185791,
+              "physics": 0.09999990463256836,
+              "visuals": 1,
+              "textureCheck": 0,
+              "render": 2.100000023841858
+            },
+            "calls": 129,
+            "triangles": 513635,
+            "gpuMs": 4.067104
+          },
+          {
+            "at": 29245.200000047684,
+            "elapsed": 29245.200000047684,
+            "stage": "settle",
+            "active": true,
+            "interval": 18.5,
+            "cpu": {
+              "gameplay": 0.10000002384185791,
+              "physics": 0.20000004768371582,
+              "visuals": 0.3999999761581421,
+              "textureCheck": 0.10000002384185791,
+              "render": 1.100000023841858
+            },
+            "calls": 125,
+            "triangles": 513517,
+            "gpuMs": 3.332832
+          },
+          {
+            "at": 29843,
+            "elapsed": 29843,
+            "stage": "settle",
+            "active": true,
+            "interval": 18.5,
+            "cpu": {
+              "gameplay": 0.10000002384185791,
+              "physics": 0,
+              "visuals": 0.5,
+              "textureCheck": 0,
+              "render": 1.2999999523162842
+            },
+            "calls": 125,
+            "triangles": 513517,
+            "gpuMs": 3.238208
+          },
+          {
+            "at": 28452.200000047684,
+            "elapsed": 28452.200000047684,
+            "stage": "settle",
+            "active": true,
+            "interval": 18.40000009536743,
+            "cpu": {
+              "gameplay": 0.10000002384185791,
+              "physics": 0.10000002384185791,
+              "visuals": 0.5,
+              "textureCheck": 0.10000002384185791,
+              "render": 1
+            },
+            "calls": 127,
+            "triangles": 513575,
+            "gpuMs": 3.421216
+          },
+          {
+            "at": 29369.200000047684,
+            "elapsed": 29369.200000047684,
+            "stage": "settle",
+            "active": true,
+            "interval": 18.40000009536743,
+            "cpu": {
+              "gameplay": 0.10000002384185791,
+              "physics": 0.10000002384185791,
+              "visuals": 0.5,
+              "textureCheck": 0.09999990463256836,
+              "render": 1.4000000953674316
+            },
+            "calls": 125,
+            "triangles": 513517,
+            "gpuMs": 3.697248
+          },
+          {
+            "at": 27852.5,
+            "elapsed": 27852.5,
+            "stage": "settle",
+            "active": true,
+            "interval": 18.399999976158142,
+            "cpu": {
+              "gameplay": 0.09999990463256836,
+              "physics": 0,
+              "visuals": 0.6000000238418579,
+              "textureCheck": 0,
+              "render": 1.600000023841858
+            },
+            "calls": 129,
+            "triangles": 513635,
+            "gpuMs": 4.102848
+          }
+        ]
+      },
+      "windows": {
+        "all": {
+          "frames": {
+            "count": 172,
+            "mean": 17.57616279083629,
+            "p50": 17.600000023841858,
+            "p95": 18.40000009536743,
+            "max": 18.700000047683716,
+            "over50": 0,
+            "over100": 0
+          },
+          "fps": 56.8952399849967,
+          "minInstantFPS": 53.47593569251704,
+          "cpu": {
+            "gameplay": {
+              "count": 172,
+              "mean": 0.0808139582012975,
+              "p50": 0.10000002384185791,
+              "p95": 0.20000004768371582,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "physics": {
+              "count": 172,
+              "mean": 0.07906976758047592,
+              "p50": 0.10000002384185791,
+              "p95": 0.20000004768371582,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "visuals": {
+              "count": 172,
+              "mean": 0.5662790668565173,
+              "p50": 0.5,
+              "p95": 0.7000000476837158,
+              "max": 1,
+              "over50": 0,
+              "over100": 0
+            },
+            "textureCheck": {
+              "count": 172,
+              "mean": 0.019186045541319738,
+              "p50": 0,
+              "p95": 0.10000002384185791,
+              "max": 0.19999992847442627,
+              "over50": 0,
+              "over100": 0
+            },
+            "render": {
+              "count": 172,
+              "mean": 1.3331395366857217,
+              "p50": 1.2999999523162842,
+              "p95": 1.7000000476837158,
+              "max": 2.100000023841858,
+              "over50": 0,
+              "over100": 0
+            }
+          },
+          "gpu": {
+            "count": 172,
+            "mean": 3.552151627906975,
+            "p50": 3.455168,
+            "p95": 4.609376,
+            "max": 12.111488,
+            "over50": 0,
+            "over100": 0
+          },
+          "drawCalls": {
+            "count": 172,
+            "mean": 126.79651162790698,
+            "p50": 127,
+            "p95": 130,
+            "max": 130,
+            "over50": 172,
+            "over100": 172
+          },
+          "triangles": {
+            "count": 172,
+            "mean": 513441.56976744183,
+            "p50": 513525,
+            "p95": 513667,
+            "max": 513671,
+            "over50": 172,
+            "over100": 172
+          },
+          "worst": [
+            {
+              "at": 30142,
+              "elapsed": 30142,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.700000047683716,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.5
+              },
+              "calls": 125,
+              "triangles": 513517,
+              "gpuMs": 3.27776
+            },
+            {
+              "at": 29016.700000047684,
+              "elapsed": 29016.700000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.600000023841858,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.10000002384185791,
+                "visuals": 0.3999999761581421,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.100000023841858
+              },
+              "calls": 127,
+              "triangles": 513521,
+              "gpuMs": 3.445376
+            },
+            {
+              "at": 27395,
+              "elapsed": 27395,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.09999990463256836,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.5
+              },
+              "calls": 130,
+              "triangles": 513671,
+              "gpuMs": 4.509856
+            },
+            {
+              "at": 27693.5,
+              "elapsed": 27693.5,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6999999284744263,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.5
+              },
+              "calls": 129,
+              "triangles": 513643,
+              "gpuMs": 3.594912
+            },
+            {
+              "at": 27764.399999976158,
+              "elapsed": 27764.399999976158,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.09999990463256836,
+                "visuals": 1,
+                "textureCheck": 0,
+                "render": 2.100000023841858
+              },
+              "calls": 129,
+              "triangles": 513635,
+              "gpuMs": 4.067104
+            },
+            {
+              "at": 29245.200000047684,
+              "elapsed": 29245.200000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.20000004768371582,
+                "visuals": 0.3999999761581421,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.100000023841858
+              },
+              "calls": 125,
+              "triangles": 513517,
+              "gpuMs": 3.332832
+            },
+            {
+              "at": 29843,
+              "elapsed": 29843,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0,
+                "visuals": 0.5,
+                "textureCheck": 0,
+                "render": 1.2999999523162842
+              },
+              "calls": 125,
+              "triangles": 513517,
+              "gpuMs": 3.238208
+            },
+            {
+              "at": 28452.200000047684,
+              "elapsed": 28452.200000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.40000009536743,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5,
+                "textureCheck": 0.10000002384185791,
+                "render": 1
+              },
+              "calls": 127,
+              "triangles": 513575,
+              "gpuMs": 3.421216
+            },
+            {
+              "at": 29369.200000047684,
+              "elapsed": 29369.200000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.40000009536743,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5,
+                "textureCheck": 0.09999990463256836,
+                "render": 1.4000000953674316
+              },
+              "calls": 125,
+              "triangles": 513517,
+              "gpuMs": 3.697248
+            },
+            {
+              "at": 27852.5,
+              "elapsed": 27852.5,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.399999976158142,
+              "cpu": {
+                "gameplay": 0.09999990463256836,
+                "physics": 0,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0,
+                "render": 1.600000023841858
+              },
+              "calls": 129,
+              "triangles": 513635,
+              "gpuMs": 4.102848
+            }
+          ]
+        },
+        "firstTwoSeconds": null,
+        "steady": {
+          "frames": {
+            "count": 172,
+            "mean": 17.57616279083629,
+            "p50": 17.600000023841858,
+            "p95": 18.40000009536743,
+            "max": 18.700000047683716,
+            "over50": 0,
+            "over100": 0
+          },
+          "fps": 56.8952399849967,
+          "minInstantFPS": 53.47593569251704,
+          "cpu": {
+            "gameplay": {
+              "count": 172,
+              "mean": 0.0808139582012975,
+              "p50": 0.10000002384185791,
+              "p95": 0.20000004768371582,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "physics": {
+              "count": 172,
+              "mean": 0.07906976758047592,
+              "p50": 0.10000002384185791,
+              "p95": 0.20000004768371582,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "visuals": {
+              "count": 172,
+              "mean": 0.5662790668565173,
+              "p50": 0.5,
+              "p95": 0.7000000476837158,
+              "max": 1,
+              "over50": 0,
+              "over100": 0
+            },
+            "textureCheck": {
+              "count": 172,
+              "mean": 0.019186045541319738,
+              "p50": 0,
+              "p95": 0.10000002384185791,
+              "max": 0.19999992847442627,
+              "over50": 0,
+              "over100": 0
+            },
+            "render": {
+              "count": 172,
+              "mean": 1.3331395366857217,
+              "p50": 1.2999999523162842,
+              "p95": 1.7000000476837158,
+              "max": 2.100000023841858,
+              "over50": 0,
+              "over100": 0
+            }
+          },
+          "gpu": {
+            "count": 172,
+            "mean": 3.552151627906975,
+            "p50": 3.455168,
+            "p95": 4.609376,
+            "max": 12.111488,
+            "over50": 0,
+            "over100": 0
+          },
+          "drawCalls": {
+            "count": 172,
+            "mean": 126.79651162790698,
+            "p50": 127,
+            "p95": 130,
+            "max": 130,
+            "over50": 172,
+            "over100": 172
+          },
+          "triangles": {
+            "count": 172,
+            "mean": 513441.56976744183,
+            "p50": 513525,
+            "p95": 513667,
+            "max": 513671,
+            "over50": 172,
+            "over100": 172
+          },
+          "worst": [
+            {
+              "at": 30142,
+              "elapsed": 30142,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.700000047683716,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.5
+              },
+              "calls": 125,
+              "triangles": 513517,
+              "gpuMs": 3.27776
+            },
+            {
+              "at": 29016.700000047684,
+              "elapsed": 29016.700000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.600000023841858,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.10000002384185791,
+                "visuals": 0.3999999761581421,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.100000023841858
+              },
+              "calls": 127,
+              "triangles": 513521,
+              "gpuMs": 3.445376
+            },
+            {
+              "at": 27395,
+              "elapsed": 27395,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.09999990463256836,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.5
+              },
+              "calls": 130,
+              "triangles": 513671,
+              "gpuMs": 4.509856
+            },
+            {
+              "at": 27693.5,
+              "elapsed": 27693.5,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6999999284744263,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.5
+              },
+              "calls": 129,
+              "triangles": 513643,
+              "gpuMs": 3.594912
+            },
+            {
+              "at": 27764.399999976158,
+              "elapsed": 27764.399999976158,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.09999990463256836,
+                "visuals": 1,
+                "textureCheck": 0,
+                "render": 2.100000023841858
+              },
+              "calls": 129,
+              "triangles": 513635,
+              "gpuMs": 4.067104
+            },
+            {
+              "at": 29245.200000047684,
+              "elapsed": 29245.200000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.20000004768371582,
+                "visuals": 0.3999999761581421,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.100000023841858
+              },
+              "calls": 125,
+              "triangles": 513517,
+              "gpuMs": 3.332832
+            },
+            {
+              "at": 29843,
+              "elapsed": 29843,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0,
+                "visuals": 0.5,
+                "textureCheck": 0,
+                "render": 1.2999999523162842
+              },
+              "calls": 125,
+              "triangles": 513517,
+              "gpuMs": 3.238208
+            },
+            {
+              "at": 28452.200000047684,
+              "elapsed": 28452.200000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.40000009536743,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5,
+                "textureCheck": 0.10000002384185791,
+                "render": 1
+              },
+              "calls": 127,
+              "triangles": 513575,
+              "gpuMs": 3.421216
+            },
+            {
+              "at": 29369.200000047684,
+              "elapsed": 29369.200000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.40000009536743,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5,
+                "textureCheck": 0.09999990463256836,
+                "render": 1.4000000953674316
+              },
+              "calls": 125,
+              "triangles": 513517,
+              "gpuMs": 3.697248
+            },
+            {
+              "at": 27852.5,
+              "elapsed": 27852.5,
+              "stage": "settle",
+              "active": true,
+              "interval": 18.399999976158142,
+              "cpu": {
+                "gameplay": 0.09999990463256836,
+                "physics": 0,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0,
+                "render": 1.600000023841858
+              },
+              "calls": 129,
+              "triangles": 513635,
+              "gpuMs": 4.102848
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "device": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+    "viewport": [
+      430,
+      745
+    ],
+    "canvas": [
+      494,
+      856
+    ],
+    "dpr": 3,
+    "quality": "low",
+    "threads": 24,
+    "deviceMemoryGiB": 32,
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "physicalPhoneTestByAgent": false
+  },
+  "shaderPreparation": {
+    "programs": 552,
+    "pointLightCounts": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ]
+  },
+  "units": {
+    "status": "passed",
+    "summary": [
+      "ℹ tests 433",
+      "ℹ suites 0",
+      "ℹ pass 433",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 1514.1278",
+      ""
+    ],
+    "root": [
+      "ℹ tests 34",
+      "ℹ suites 0",
+      "ℹ pass 34",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 332.5178",
+      ""
+    ]
+  },
+  "client": {
+    "status": "completed",
+    "muted": true,
+    "maskReview": false,
+    "expectMask": true,
+    "expectFragment": false,
+    "expectSplit": false,
+    "expectStableLights": false,
+    "iterations": 2
+  },
+  "exportVerified": true,
+  "alternateSettingsAndRestartVerified": true,
+  "errors": [],
+  "limitations": [
+    "PC mobile viewport is not a physical iPhone performance test.",
+    "Initial shadow generation is frozen by default as an explicit diagnostic removal, not a final graphics-preserving fix.",
+    "Enemy AI held for15seconds baseline, then normal AI/combat. Six normal-health enemies; player health unlimited.",
+    "Full world, new enemy assets and unverified navigation optimization are excluded."
+  ]
+}

@@ -1,6 +1,6 @@
 // Compile the actual run's materials after population, for the colour target
 // this quality uses. The menu's actors are disposed when a new run starts.
-export async function prepareRunShaders({renderer,scene,camera,quality,composer,objects=[],nextFrame=()=>new Promise(requestAnimationFrame)}) {
+export async function prepareRunShaders({renderer,scene,camera,quality,composer,objects=[],pointLightVariants=false,nextFrame=()=>new Promise(requestAnimationFrame)}) {
   if(!renderer.compileAsync)return;
   // Distant actors are deliberately detached by syncVisuals, not only hidden.
   // Compile those actual objects against the scene's lights/environment while
@@ -10,10 +10,21 @@ export async function prepareRunShaders({renderer,scene,camera,quality,composer,
     return true;
   }))];
   const variants=quality==='high'&&composer?[composer.readBuffer]:[null];
-  for(const variant of variants){
+  // The diagnostic room omits exactly-zero lights. Fire can change their count,
+  // which changes NUM_POINT_LIGHTS and therefore the program cache key. Prepare
+  // every possible count while loading, restoring lights before any await/frame.
+  // This is opt-in: normal full-world preparation keeps its stable light slots.
+  const lights=[];
+  if(pointLightVariants)scene.traverseVisible(object=>{if(object.isPointLight&&object.children.length===0)lights.push(object);});
+  const counts=pointLightVariants?Array.from({length:lights.length+1},(_,i)=>i):[null];
+  for(const variant of variants)for(const lightCount of counts){
     const previous=renderer.getRenderTarget(),pending=[];
-    try{renderer.setRenderTarget(variant);for(const root of roots)pending.push(renderer.compileAsync(root,camera,root===scene?undefined:scene));}
-    finally{renderer.setRenderTarget(previous);}
+    const saved=lights.map(light=>({intensity:light.intensity,color:light.color.clone()}));
+    try{
+      lights.forEach((light,i)=>{light.intensity=i<lightCount?1:0;if(i<lightCount)light.color.setRGB(1,1,1);});
+      renderer.setRenderTarget(variant);for(const root of roots)pending.push(renderer.compileAsync(root,camera,root===scene?undefined:scene));
+    }
+    finally{renderer.setRenderTarget(previous);lights.forEach((light,i)=>{light.intensity=saved[i].intensity;light.color.copy(saved[i].color);});}
     await Promise.all(pending);
   }
   // Three r180's compileAsync only polls program.isReady(). Its first-use
@@ -34,4 +45,5 @@ export async function prepareRunShaders({renderer,scene,camera,quality,composer,
     if(count++%4===0)await nextFrame();
     program.getUniforms();program.getAttributes();
   }
+  return {programs:programs.size,pointLightCounts:counts.filter(count=>count!==null)};
 }
