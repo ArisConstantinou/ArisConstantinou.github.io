@@ -1,3 +1,4 @@
+import {BENCHMARK_FILENAME} from './benchmark-filename.js';
 import {frameSummary,phaseSummary} from './performance-metrics.js';
 import {createGpuTimer} from './benchmark-gpu.js';
 import {createBenchmarkStorage,compactReport} from './benchmark-storage.js';
@@ -108,7 +109,7 @@ export function createPerformanceTest({version,boot,setup,step,suspend,device,sa
   on('benchmark-begin',()=>begin('auto'));on('benchmark-manual',()=>begin('manual'));on('benchmark-stop',()=>finish(mode==='manual'?null:'διακοπή από τον χρήστη'));on('benchmark-issue',markIssue);on('benchmark-expand',()=>panel.classList.toggle('is-minimal'));
   const textReport=()=>JSON.stringify(compactReport(report),null,2);
   on('benchmark-copy',async()=>{try{await navigator.clipboard.writeText(textReport());feedback('Αντιγράφηκε.');}catch{feedback('Χρησιμοποίησε ΛΗΨΗ JSON.');}});
-  const downloadFile=()=>{const href=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=href;a.download=`magic-benchmark-${report.version}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(href),1000);};
+  const downloadFile=()=>{const href=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=href;a.download=BENCHMARK_FILENAME;a.click();setTimeout(()=>URL.revokeObjectURL(href),1000);};
   on('benchmark-download',downloadFile);on('benchmark-share',async()=>{try{if(navigator.share)await navigator.share({title:'MAGIC benchmark',text:textReport()});else downloadFile();}catch(e){feedback(e.name==='AbortError'?'Η κοινοποίηση ακυρώθηκε.':'Χρησιμοποίησε ΛΗΨΗ JSON.');}});
   storage.load().then(saved=>{if(saved&&!started){report=saved;result();}});
   const url=new URL(location.href);if(url.searchParams.get('benchmarkStart')==='1'){const selected=url.searchParams.get('benchmarkMode')==='manual'?'manual':'auto';url.searchParams.delete('benchmarkStart');history.replaceState(null,'',url);queueMicrotask(()=>begin(selected));}

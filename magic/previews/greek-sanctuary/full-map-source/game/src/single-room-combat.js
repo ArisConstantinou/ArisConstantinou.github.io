@@ -1,4 +1,5 @@
 import {frameSummary,phaseSummary} from './performance-metrics.js';
+import {BENCHMARK_FILENAME} from './benchmark-filename.js';
 import {createGpuTimer} from './benchmark-gpu.js';
 import {createBenchmarkStorage} from './benchmark-storage.js';
 import {selectCombatTarget,combatMovement,combatComplete,CONFIG,FINDINGS} from './single-room-combat-rules.js';
@@ -108,7 +109,7 @@ export function createSingleRoomCombat(get){
   for(const [id,key]of [['sc-freeze','freezeShadows'],['sc-zero','omitZeroLights']])$(id).onchange=()=>{settings[key]=$(id).checked;render();};
   $('sc-retry').onclick=()=>{panel.hidden=true;void get().start();};
   const text=()=>JSON.stringify(report,null,2);
-  const file=()=>new File([text()],`magic-${get().version}-${report.id}.json`,{type:'application/json'});
+  const file=()=>new File([text()],BENCHMARK_FILENAME,{type:'application/json'});
   const download=()=>{const url=URL.createObjectURL(file()),a=document.createElement('a');a.href=url;a.download=file().name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
   $('sc-download').onclick=download;
   $('sc-copy').onclick=async()=>{try{await navigator.clipboard.writeText(text());$('sc-feedback').textContent='Το JSON αντιγράφηκε.';}catch{$('sc-feedback').textContent='Χρησιμοποίησε ΛΗΨΗ JSON.';}};

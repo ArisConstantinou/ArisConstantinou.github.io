@@ -1,3 +1,4 @@
+import {BENCHMARK_FILENAME} from './benchmark-filename.js';
 // Bounded, local measurements of real frames. No synthetic frames, quality
 // changes, synchronous GPU waits, network requests or external telemetry.
 export function createFrameDiagnostics({version,details=()=>null,clock=()=>performance.now(),storage=()=>globalThis.localStorage,schedule=(fn,ms)=>setTimeout(fn,ms),cancel=id=>clearTimeout(id),capacity=180}={}){
@@ -76,5 +77,5 @@ export function createFrameDiagnostics({version,details=()=>null,clock=()=>perfo
 
 export function downloadFrameReport(report,{document=globalThis.document,URL=globalThis.URL,schedule=setTimeout}={}){
  const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');
- link.href=url;link.download=`magic-${report.version}-performance.json`;link.hidden=true;document.body.append(link);link.click();link.remove();schedule(()=>URL.revokeObjectURL(url),30000);
+ link.href=url;link.download=BENCHMARK_FILENAME;link.hidden=true;document.body.append(link);link.click();link.remove();schedule(()=>URL.revokeObjectURL(url),30000);
 }
