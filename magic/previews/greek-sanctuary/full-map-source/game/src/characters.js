@@ -15,8 +15,9 @@ import { createTwoHandWeaponGrip } from './two-hand-weapon-grip.js';
 const MODEL_FILES = {
   mage: 'redesign/mage-fingers-1-6-1-lods.glb',
   guard: 'redesign/guard-meshy-lods.glb',
-  archer: 'archer.glb',
+  archer: 'redesign/archer-mobile-lods.glb',
   heavy: 'redesign/heavy-meshy-native-lods.glb',
+  warden: 'redesign/iron-warden-mobile-lods.glb',
 };
 const HEIGHT = 1.85;
 const templates = new Map();
@@ -51,7 +52,7 @@ function modelUrl(filename) {
 }
 
 function isUpperBody(track) {
-  return /^(spine|chest|head|upperarm|lowerarm|wrist|hand|finger_|Axe|cape)/i.test(track.name);
+  return /^(spine|chest|neck|head|shoulder|upperarm|lowerarm|wrist|hand|finger_|Axe|Poleaxe|Crossbow|ReloadBolt|Quiver|pauldron|couter|cape|cloth_|archer_linen)/i.test(track.name);
 }
 
 function withoutHorizontalRootMotion(source) {
@@ -85,19 +86,19 @@ function movementWithCasting(locomotion, spell, name) {
  * onProgress receives (fraction, { loaded, total, kind }) with fraction 0..1.
  * Rejects on a missing/broken asset instead of replacing a human with primitives.
  */
-export async function loadCharacters(onProgress = () => {}) {
-  if (templates.size === Object.keys(MODEL_FILES).length) {
+export async function loadCharacters(onProgress = () => {}, kinds = Object.keys(MODEL_FILES)) {
+  for(const kind of kinds)if(!MODEL_FILES[kind])throw Error('Unknown character '+kind);
+  if (kinds.every(kind=>templates.has(kind))) {
     onProgress(1, { loaded: templates.size, total: templates.size, kind: null });
     return [...templates.keys()];
   }
   if (loadPromise) {
     await loadPromise;
-    onProgress(1, { loaded: templates.size, total: templates.size, kind: null });
-    return [...templates.keys()];
+    return loadCharacters(onProgress,kinds);
   }
 
   const { loader, disposeDecoder } = createLocalRigLoader();
-  const entries = Object.entries(MODEL_FILES);
+  const entries = kinds.filter(kind=>!templates.has(kind)).map(kind=>[kind,MODEL_FILES[kind]]);
   let loaded = 0;
   onProgress(0, { loaded, total: entries.length, kind: null });
   const jobs = entries.map(async ([kind, file]) => {
@@ -113,7 +114,7 @@ export async function loadCharacters(onProgress = () => {}) {
     // during backwards travel makes a planted ankle physically unreachable.
     // Keep the authored strike/recoil above the waist; grounded legs/hips are
     // owned by the contact solver, including movement during the whole attack.
-    for(const name of ['Spellcast_Shoot','1H_Melee_Attack_Slice_Horizontal','2H_Ranged_Shoot','2H_Melee_Attack_Chop','Hit_A']){
+    for(const name of ['Spellcast_Shoot','1H_Melee_Attack_Slice_Horizontal','2H_Ranged_Shoot','Reload','2H_Melee_Attack_Chop','Hit_A']){
       const source=clips.get(name);if(source)clips.set(name,new THREE.AnimationClip(name,source.duration,source.tracks.filter(isUpperBody).map(track=>track.clone())));
     }
     if (kind === 'mage') {
@@ -127,7 +128,7 @@ export async function loadCharacters(onProgress = () => {}) {
       }
     }
     await prepareObjectPickingAsync(gltf.scene);
-    templates.set(kind, { scene: gltf.scene, clips, preservePbr: file.startsWith('redesign/'), closeFile:file.startsWith('redesign/')?'models/'+file.replace(/-lods\.glb$/,'-close.glb'):null });
+    templates.set(kind, { scene: gltf.scene, clips, authoredClips:gltf.animations, preservePbr: file.startsWith('redesign/'), closeFile:file.startsWith('redesign/')?'models/'+file.replace(/-lods\.glb$/,'-close.glb'):null });
     loaded++;
     onProgress(loaded / entries.length, { loaded, total: entries.length, kind });
   });
@@ -142,6 +143,7 @@ export async function loadCharacters(onProgress = () => {}) {
     throw error;
   } finally {
     await Promise.allSettled(jobs);
+    loadPromise = undefined;
     disposeDecoder();
   }
 }
@@ -261,6 +263,8 @@ export function createCharacter(kind = 'mage') {
     partBounds.setFromObject(object, true);
     standingBounds.union(partBounds);
   });
+  const authoredBody = model.userData.characterBodyBounds;
+  if(authoredBody){standingBounds.min.y=authoredBody.minY;standingBounds.max.y=authoredBody.maxY;}
   const sourceHeight = standingBounds.max.y - standingBounds.min.y;
   if (!Number.isFinite(sourceHeight) || sourceHeight < 0.1) throw new Error(`Invalid bounds for ${kind}.`);
   const normalization = HEIGHT / sourceHeight;
@@ -287,6 +291,7 @@ export function createCharacter(kind = 'mage') {
     guard: '1H_Melee_Attack_Slice_Horizontal',
     archer: '2H_Ranged_Shoot',
     heavy: '2H_Melee_Attack_Chop',
+    warden: '2H_Melee_Attack_Chop',
   }[kind];
 
   function update(dt, options = {}) {
@@ -309,15 +314,20 @@ export function createCharacter(kind = 'mage') {
     } else {
       if (wasDead || wasStunned) transient = null;
       if (transient) transient.remaining -= step;
-      if (transient && transient.remaining <= 0) transient = null;
+      if (transient && transient.remaining <= 0) {
+        if(kind==='archer'&&transient.phase==='shot'&&template.clips.has('Reload')){
+          const reload=play('Reload',{once:true,restart:true,fade:.06});
+          transient={remaining:reload.getClip().duration,phase:'reload'};
+        }else transient=null;
+      }
       if (isAttacking && (!wasAttacking || !transient)) {
         // The independently animated two-hand axe reaches contact at 66%
         // of its authored clip. Preserve the gameplay windup/damage time.
-        const attackSpeed = kind === 'heavy' && template.preservePbr
+        const attackSpeed = (kind === 'heavy' || kind === 'warden') && template.preservePbr
           ? getAction(attackClip).getClip().duration * .66 / Math.max(.1, options.attackWindup || .9)
-          : kind === 'heavy' ? 0.96 : 1.25;
+          : kind === 'archer' ? .65/Math.max(.1,options.attackWindup||.65) : kind === 'heavy' ? 0.96 : 1.25;
         const action = play(attackClip, { once: true, speed: attackSpeed, restart: true, fade: 0.09 });
-        transient = { remaining: action.getClip().duration / attackSpeed };
+        transient = { remaining: action.getClip().duration / attackSpeed, phase:kind==='archer'?'shot':'attack' };
       }
 
       if (!transient) {
@@ -337,7 +347,7 @@ export function createCharacter(kind = 'mage') {
           name = 'Blocking';
         } else if (kind === 'archer') {
           name = '2H_Ranged_Aiming';
-        } else if (kind === 'heavy') {
+        } else if (kind === 'heavy' || kind === 'warden') {
           name = '2H_Melee_Idle';
         } else {
           name = 'Idle';
@@ -397,5 +407,5 @@ export function createCharacter(kind = 'mage') {
     group.clear();
   }
 
-  return { group, model, locomotion, magicHands, garment, weaponGrip, update, setTint, reset, dispose };
+  return { group, model, locomotion, magicHands, garment, weaponGrip, update, setTint, reset, dispose, __reviewClips:template.authoredClips, rigLod };
 }

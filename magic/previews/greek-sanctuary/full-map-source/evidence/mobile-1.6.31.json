@@ -1,0 +1,1545 @@
+{
+  "version": "1.6.31",
+  "engineSha256": "cd95edd4647a1cb5a843054900d284635c93a9d529f01746f59111cff94c689e",
+  "unit": {
+    "status": "passed",
+    "summary": [
+      "ℹ tests 436",
+      "ℹ suites 0",
+      "ℹ pass 436",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 1448.5572",
+      ""
+    ],
+    "root": [
+      "ℹ tests 34",
+      "ℹ suites 0",
+      "ℹ pass 34",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 330.8113",
+      ""
+    ]
+  },
+  "client": {
+    "status": "completed",
+    "muted": true,
+    "maskReview": false,
+    "expectMask": true,
+    "expectFragment": false,
+    "expectSplit": false,
+    "expectStableLights": false,
+    "iterations": 2
+  },
+  "models": {
+    "status": "passed",
+    "physicalPhone": false,
+    "errors": [],
+    "models": [
+      {
+        "kind": "archer",
+        "close": {
+          "level": 0,
+          "triangles": 368823
+        },
+        "far": {
+          "level": 2,
+          "triangles": 20000
+        },
+        "badWeights": 0,
+        "nonfinite": 0,
+        "clipStates": [
+          "2H_Ranged_Shoot",
+          "2H_Ranged_Shoot",
+          "2H_Ranged_Shoot",
+          "2H_Ranged_Shoot",
+          "2H_Ranged_Shoot",
+          "2H_Ranged_Shoot",
+          "2H_Ranged_Shoot",
+          "Reload",
+          "Reload",
+          "Reload",
+          "Reload",
+          "Reload",
+          "Reload",
+          "Reload",
+          "Reload",
+          "Reload",
+          "Reload",
+          "2H_Ranged_Aiming",
+          "2H_Ranged_Aiming",
+          "2H_Ranged_Aiming",
+          "2H_Ranged_Aiming",
+          "2H_Ranged_Aiming"
+        ]
+      },
+      {
+        "kind": "warden",
+        "close": {
+          "level": 0,
+          "triangles": 664752
+        },
+        "far": {
+          "level": 2,
+          "triangles": 27984
+        },
+        "badWeights": 0,
+        "nonfinite": 0,
+        "clipStates": [
+          "2H_Melee_Attack_Chop",
+          "2H_Melee_Attack_Chop",
+          "2H_Melee_Attack_Chop",
+          "2H_Melee_Attack_Chop",
+          "2H_Melee_Attack_Chop",
+          "2H_Melee_Attack_Chop",
+          "2H_Melee_Attack_Chop",
+          "2H_Melee_Attack_Chop",
+          "2H_Melee_Attack_Chop",
+          "2H_Melee_Attack_Chop",
+          "2H_Melee_Idle",
+          "2H_Melee_Idle",
+          "2H_Melee_Idle",
+          "2H_Melee_Idle",
+          "2H_Melee_Idle",
+          "2H_Melee_Idle",
+          "2H_Melee_Idle",
+          "2H_Melee_Idle",
+          "2H_Melee_Idle",
+          "2H_Melee_Idle",
+          "2H_Melee_Idle",
+          "2H_Melee_Idle"
+        ]
+      },
+      {
+        "kind": "gargoyle",
+        "close": {
+          "level": 0,
+          "triangles": 427596
+        },
+        "far": {
+          "level": 2,
+          "triangles": 25001
+        },
+        "badWeights": 0,
+        "nonfinite": 0,
+        "clips": {
+          "Claw": 1.899999976158142,
+          "Death": 3,
+          "Dive": 2.799999952316284,
+          "Hover": 1.600000023841858,
+          "Idle": 2.4000000953674316,
+          "Stagger": 0.6666666865348816,
+          "Walk": 1.100000023841858
+        }
+      }
+    ]
+  },
+  "combat": {
+    "kills": 6,
+    "loading": {
+      "shaderPreparation": {
+        "programs": 138,
+        "pointLightCounts": [
+          5,
+          7,
+          11
+        ]
+      },
+      "navigationToReadyMs": 6925.899999976158,
+      "resources": [
+        {
+          "file": "engine/index.js",
+          "duration": 6.5,
+          "transferBytes": 1372848,
+          "decodedBytes": 1372548
+        },
+        {
+          "file": "engine/index.css",
+          "duration": 4.100000023841858,
+          "transferBytes": 61146,
+          "decodedBytes": 60846
+        },
+        {
+          "file": "canonical/manifest.webmanifest",
+          "duration": 3.299999952316284,
+          "transferBytes": 1131,
+          "decodedBytes": 831
+        },
+        {
+          "file": "wooden_crate_02/wooden_crate_02.gltf",
+          "duration": 2.0999999046325684,
+          "transferBytes": 3233,
+          "decodedBytes": 2933
+        },
+        {
+          "file": "wooden_barrels_01/wooden_barrels_01.gltf",
+          "duration": 1.899999976158142,
+          "transferBytes": 20033,
+          "decodedBytes": 19733
+        },
+        {
+          "file": "wooden_crate_02/wooden_crate_02.bin",
+          "duration": 4.100000023841858,
+          "transferBytes": 150364,
+          "decodedBytes": 150064
+        },
+        {
+          "file": "textures/wooden_crate_02_nor_gl_1k.jpg",
+          "duration": 5,
+          "transferBytes": 546619,
+          "decodedBytes": 546319
+        },
+        {
+          "file": "textures/wooden_crate_02_diff_1k.jpg",
+          "duration": 5.400000095367432,
+          "transferBytes": 716410,
+          "decodedBytes": 716110
+        },
+        {
+          "file": "textures/wooden_crate_02_arm_1k.jpg",
+          "duration": 5.700000047683716,
+          "transferBytes": 819877,
+          "decodedBytes": 819577
+        },
+        {
+          "file": "wooden_barrels_01/wooden_barrels_01.bin",
+          "duration": 8.800000071525574,
+          "transferBytes": 1243856,
+          "decodedBytes": 1243556
+        },
+        {
+          "file": "textures/wooden_barrels_01_barrel01_nor_gl_1k.jpg",
+          "duration": 5.600000023841858,
+          "transferBytes": 538934,
+          "decodedBytes": 538634
+        },
+        {
+          "file": "textures/wooden_barrels_01_barrel01_diff_1k.jpg",
+          "duration": 8.5,
+          "transferBytes": 605363,
+          "decodedBytes": 605063
+        },
+        {
+          "file": "textures/wooden_barrels_01_barrel01_arm_1k.jpg",
+          "duration": 11.399999976158142,
+          "transferBytes": 852952,
+          "decodedBytes": 852652
+        },
+        {
+          "file": "textures/wooden_barrels_01_barrel02_nor_gl_1k.jpg",
+          "duration": 10.200000047683716,
+          "transferBytes": 556254,
+          "decodedBytes": 555954
+        },
+        {
+          "file": "textures/wooden_barrels_01_barrel02_diff_1k.jpg",
+          "duration": 11.700000047683716,
+          "transferBytes": 618795,
+          "decodedBytes": 618495
+        },
+        {
+          "file": "textures/wooden_barrels_01_barrel02_arm_1k.jpg",
+          "duration": 12.5,
+          "transferBytes": 848351,
+          "decodedBytes": 848051
+        },
+        {
+          "file": "textures/wooden_barrels_01_pieces_nor_gl_1k.jpg",
+          "duration": 13.399999976158142,
+          "transferBytes": 620576,
+          "decodedBytes": 620276
+        },
+        {
+          "file": "textures/wooden_barrels_01_pieces_diff_1k.jpg",
+          "duration": 13.5,
+          "transferBytes": 672904,
+          "decodedBytes": 672604
+        },
+        {
+          "file": "textures/wooden_barrels_01_pieces_arm_1k.jpg",
+          "duration": 13.699999928474426,
+          "transferBytes": 904845,
+          "decodedBytes": 904545
+        },
+        {
+          "file": "icons/magic-rune.svg",
+          "duration": 1.600000023841858,
+          "transferBytes": 1815,
+          "decodedBytes": 1515
+        },
+        {
+          "file": "kite_shield/kite_shield.gltf",
+          "duration": 1.9000000953674316,
+          "transferBytes": 5338,
+          "decodedBytes": 5038
+        },
+        {
+          "file": "large_castle_door/large_castle_door.gltf",
+          "duration": 1.5,
+          "transferBytes": 4393,
+          "decodedBytes": 4093
+        },
+        {
+          "file": "kite_shield/kite_shield.bin",
+          "duration": 2.899999976158142,
+          "transferBytes": 290104,
+          "decodedBytes": 289804
+        },
+        {
+          "file": "textures/kite_shield_body_nor_gl_1k.jpg",
+          "duration": 4.100000023841858,
+          "transferBytes": 843537,
+          "decodedBytes": 843237
+        },
+        {
+          "file": "textures/kite_shield_body_diff_1k.jpg",
+          "duration": 3.899999976158142,
+          "transferBytes": 761692,
+          "decodedBytes": 761392
+        },
+        {
+          "file": "textures/kite_shield_body_arm_1k.jpg",
+          "duration": 3.600000023841858,
+          "transferBytes": 563672,
+          "decodedBytes": 563372
+        },
+        {
+          "file": "textures/kite_shield_clamps_trim_nor_gl_1k.jpg",
+          "duration": 3.399999976158142,
+          "transferBytes": 413810,
+          "decodedBytes": 413510
+        },
+        {
+          "file": "textures/kite_shield_clamps_trim_diff_1k.jpg",
+          "duration": 3.399999976158142,
+          "transferBytes": 417867,
+          "decodedBytes": 417567
+        },
+        {
+          "file": "textures/kite_shield_clamps_trim_arm_1k.jpg",
+          "duration": 6.899999976158142,
+          "transferBytes": 522272,
+          "decodedBytes": 521972
+        },
+        {
+          "file": "large_castle_door/large_castle_door.bin",
+          "duration": 6.700000047683716,
+          "transferBytes": 422736,
+          "decodedBytes": 422436
+        },
+        {
+          "file": "textures/large_castle_door_nor_gl_1k.jpg",
+          "duration": 7.899999976158142,
+          "transferBytes": 1023395,
+          "decodedBytes": 1023095
+        },
+        {
+          "file": "textures/large_castle_door_diff_1k.jpg",
+          "duration": 7.700000047683716,
+          "transferBytes": 803553,
+          "decodedBytes": 803253
+        },
+        {
+          "file": "textures/large_castle_door_arm_1k.jpg",
+          "duration": 8,
+          "transferBytes": 1016411,
+          "decodedBytes": 1016111
+        },
+        {
+          "file": "stone_01/stone_01-runtime.glb",
+          "duration": 2,
+          "transferBytes": 105644,
+          "decodedBytes": 105344
+        },
+        {
+          "file": "antique_ceramic_vase_01/antique_ceramic_vase_01.gltf",
+          "duration": 1.8000000715255737,
+          "transferBytes": 2475,
+          "decodedBytes": 2175
+        },
+        {
+          "file": "greek-sanctuary/column.glb",
+          "duration": 2.100000023841858,
+          "transferBytes": 379548,
+          "decodedBytes": 379248
+        },
+        {
+          "file": "antique_ceramic_vase_01/antique_ceramic_vase_01.bin",
+          "duration": 2.200000047683716,
+          "transferBytes": 217516,
+          "decodedBytes": 217216
+        },
+        {
+          "file": "textures/antique_ceramic_vase_01_nor_gl_1k.jpg",
+          "duration": 1.899999976158142,
+          "transferBytes": 33362,
+          "decodedBytes": 33062
+        },
+        {
+          "file": "textures/antique_ceramic_vase_01_diff_1k.jpg",
+          "duration": 2.100000023841858,
+          "transferBytes": 192637,
+          "decodedBytes": 192337
+        },
+        {
+          "file": "textures/antique_ceramic_vase_01_arm_1k.jpg",
+          "duration": 2.100000023841858,
+          "transferBytes": 80837,
+          "decodedBytes": 80537
+        },
+        {
+          "file": "greek-sanctuary/entablature.glb",
+          "duration": 7.699999928474426,
+          "transferBytes": 2462916,
+          "decodedBytes": 2462616
+        },
+        {
+          "file": "greek-sanctuary/bronze-leaf.glb",
+          "duration": 3.5,
+          "transferBytes": 1046508,
+          "decodedBytes": 1046208
+        },
+        {
+          "file": "greek-sanctuary/wood-leaf.glb",
+          "duration": 2.100000023841858,
+          "transferBytes": 391408,
+          "decodedBytes": 391108
+        },
+        {
+          "file": "greek-sanctuary/weight.glb",
+          "duration": 1.6999999284744263,
+          "transferBytes": 321280,
+          "decodedBytes": 320980
+        },
+        {
+          "file": "greek-sanctuary/plate.glb",
+          "duration": 1.399999976158142,
+          "transferBytes": 199652,
+          "decodedBytes": 199352
+        },
+        {
+          "file": "greek-sanctuary/single-tray.glb",
+          "duration": 2.3000000715255737,
+          "transferBytes": 337876,
+          "decodedBytes": 337576
+        },
+        {
+          "file": "greek-sanctuary/double-tray.glb",
+          "duration": 3,
+          "transferBytes": 519296,
+          "decodedBytes": 518996
+        },
+        {
+          "file": "greek-sanctuary/shield.glb",
+          "duration": 1.2999999523162842,
+          "transferBytes": 127884,
+          "decodedBytes": 127584
+        },
+        {
+          "file": "slate_floor/diff.jpg",
+          "duration": 5.700000047683716,
+          "transferBytes": 3009943,
+          "decodedBytes": 3009643
+        },
+        {
+          "file": "slate_floor/normal.jpg",
+          "duration": 7,
+          "transferBytes": 3408756,
+          "decodedBytes": 3408456
+        },
+        {
+          "file": "slate_floor/arm.jpg",
+          "duration": 13.899999976158142,
+          "transferBytes": 4211084,
+          "decodedBytes": 4210784
+        },
+        {
+          "file": "models/caryatid.glb",
+          "duration": 2.8000000715255737,
+          "transferBytes": 701568,
+          "decodedBytes": 701268
+        },
+        {
+          "file": "draco/draco_wasm_wrapper.js",
+          "duration": 2,
+          "transferBytes": 58756,
+          "decodedBytes": 58456
+        },
+        {
+          "file": "draco/draco_decoder.wasm",
+          "duration": 1.899999976158142,
+          "transferBytes": 192720,
+          "decodedBytes": 192420
+        },
+        {
+          "file": "models/caryatid-fragments.glb",
+          "duration": 2.799999952316284,
+          "transferBytes": 843636,
+          "decodedBytes": 843336
+        },
+        {
+          "file": "monastery_stone_floor/diff.jpg",
+          "duration": 332.6999999284744,
+          "transferBytes": 3021440,
+          "decodedBytes": 3021140
+        },
+        {
+          "file": "monastery_stone_floor/normal.jpg",
+          "duration": 339.39999997615814,
+          "transferBytes": 4249120,
+          "decodedBytes": 4248820
+        },
+        {
+          "file": "monastery_stone_floor/arm.jpg",
+          "duration": 7,
+          "transferBytes": 2331825,
+          "decodedBytes": 2331525
+        },
+        {
+          "file": "castle_wall_slates/diff.jpg",
+          "duration": 4.600000023841858,
+          "transferBytes": 2381726,
+          "decodedBytes": 2381426
+        },
+        {
+          "file": "castle_wall_slates/normal.jpg",
+          "duration": 7.200000047683716,
+          "transferBytes": 4055165,
+          "decodedBytes": 4054865
+        },
+        {
+          "file": "castle_wall_slates/arm.jpg",
+          "duration": 2.799999952316284,
+          "transferBytes": 1149978,
+          "decodedBytes": 1149678
+        },
+        {
+          "file": "redesign/guard-meshy-lods.glb",
+          "duration": 2.899999976158142,
+          "transferBytes": 920296,
+          "decodedBytes": 919996
+        },
+        {
+          "file": "redesign/mage-fingers-1-6-1-lods.glb",
+          "duration": 3.399999976158142,
+          "transferBytes": 1283472,
+          "decodedBytes": 1283172
+        },
+        {
+          "file": "engine/trajectory-worker.js",
+          "duration": -2.600000023841858,
+          "transferBytes": 96113,
+          "decodedBytes": 95813
+        },
+        {
+          "file": "draco/draco_decoder.wasm",
+          "duration": 1.6999999284744263,
+          "transferBytes": 192720,
+          "decodedBytes": 192420
+        },
+        {
+          "file": "draco/draco_wasm_wrapper.js",
+          "duration": 1.5999999046325684,
+          "transferBytes": 58756,
+          "decodedBytes": 58456
+        },
+        {
+          "file": "redesign/archer-mobile-lods.glb",
+          "duration": 18,
+          "transferBytes": 10148492,
+          "decodedBytes": 10148192
+        },
+        {
+          "file": "redesign/heavy-meshy-native-lods.glb",
+          "duration": 22.699999928474426,
+          "transferBytes": 2155220,
+          "decodedBytes": 2154920
+        },
+        {
+          "file": "hearth-bulwark/hearth-bulwark.glb",
+          "duration": 7.5,
+          "transferBytes": 3139448,
+          "decodedBytes": 3139148
+        },
+        {
+          "file": "draco/draco_wasm_wrapper.js",
+          "duration": 2,
+          "transferBytes": 58756,
+          "decodedBytes": 58456
+        },
+        {
+          "file": "draco/draco_decoder.wasm",
+          "duration": 2.100000023841858,
+          "transferBytes": 192720,
+          "decodedBytes": 192420
+        },
+        {
+          "file": "shared/082d790814355dbdd623f33803675b13037f329084543e1f2cdebd8d4893d401.webp",
+          "duration": 10.800000071525574,
+          "transferBytes": 4749384,
+          "decodedBytes": 4749084
+        },
+        {
+          "file": "shared/07d28680085369ce1cdbe76c2be212ed0f45e5169e7b3568f5f16fed56b758b9.webp",
+          "duration": 1.899999976158142,
+          "transferBytes": 29134,
+          "decodedBytes": 28834
+        },
+        {
+          "file": "shared/f256f920cc9eb7f8f2f152e48ae0ab9bb4171495ae848b5523434e9691218e67.webp",
+          "duration": 8.5,
+          "transferBytes": 5175092,
+          "decodedBytes": 5174792
+        },
+        {
+          "file": "shared/1172661e1be5cf9459013aef9b9eeb7ff6c24e6b068b06913741de672da2e342.webp",
+          "duration": 7.699999928474426,
+          "transferBytes": 3399860,
+          "decodedBytes": 3399560
+        },
+        {
+          "file": "shared/c3171a6108bf1b3656b4a3576b329065d7acf6e337506a9e1a15511300c8fc88.jpg",
+          "duration": 3,
+          "transferBytes": 649435,
+          "decodedBytes": 649135
+        },
+        {
+          "file": "shared/4d08a934f846913e96152260c824f7d5e642350ede76569ce82d6dc50c45f535.jpg",
+          "duration": 3.399999976158142,
+          "transferBytes": 1012965,
+          "decodedBytes": 1012665
+        },
+        {
+          "file": "shared/1cb342823b2883e9885bf7bfe0ed12cd897d2f99a49d3c25b5e2c8f30f38263e.jpg",
+          "duration": 3,
+          "transferBytes": 846634,
+          "decodedBytes": 846334
+        },
+        {
+          "file": "shared/a448f17820cf81ced339a49f6a5bd562bff1eb5ea69fbd6e4a2a68afcd5914f7.webp",
+          "duration": 7,
+          "transferBytes": 3682304,
+          "decodedBytes": 3682004
+        },
+        {
+          "file": "shared/f7004b79288d50e842d039daf41c0bfffa3b4d504ff2ad9d671d324e225fe57d.webp",
+          "duration": 1.9000000953674316,
+          "transferBytes": 2110,
+          "decodedBytes": 1810
+        },
+        {
+          "file": "shared/54dc706e13060e59b03cc01ac42baaa7f2264e818dc1d260989843841fa3aad9.webp",
+          "duration": 6.600000023841858,
+          "transferBytes": 2531058,
+          "decodedBytes": 2530758
+        },
+        {
+          "file": "shared/d36a5cb193da71bc0ff98432904a718bab6bd90a64affb145e2bd37a6787a2c0.webp",
+          "duration": 5.399999976158142,
+          "transferBytes": 1456734,
+          "decodedBytes": 1456434
+        },
+        {
+          "file": "shared/fbdd5e53f7354b92a1c104038e58a988949a34b419e4662ed539f6b472e82d58.webp",
+          "duration": 4.699999928474426,
+          "transferBytes": 2496514,
+          "decodedBytes": 2496214
+        },
+        {
+          "file": "shared/590687750c72d7faa70603fe3cc4c35bfcafa4bec41fc19fa023a298c01a8dae.webp",
+          "duration": 2.299999952316284,
+          "transferBytes": 6346,
+          "decodedBytes": 6046
+        },
+        {
+          "file": "shared/18fc52bfc010f6d495b27e52ae71c0aa9008b98dceaca51af09ff229eb811a6f.webp",
+          "duration": 4.699999928474426,
+          "transferBytes": 2067530,
+          "decodedBytes": 2067230
+        },
+        {
+          "file": "shared/239f5a1841c2db4b8e7f55cba30b6b5a1761a805a097ef97ab56c4a86b6e45b8.webp",
+          "duration": 7.299999952316284,
+          "transferBytes": 1893368,
+          "decodedBytes": 1893068
+        },
+        {
+          "file": "shared/c6069172db26da84ae18c274705b40abfb1b8577c7175b2086cfc2c95a693035.webp",
+          "duration": 8.5,
+          "transferBytes": 3258202,
+          "decodedBytes": 3257902
+        },
+        {
+          "file": "shared/c3d618252375e9267e54350d8d379462639ac934ab615d7662ff5b961a4d5e3a.webp",
+          "duration": 1.899999976158142,
+          "transferBytes": 1642,
+          "decodedBytes": 1342
+        },
+        {
+          "file": "shared/413d301a100720b086f6f89bef03dd93993dd17fe1276a2a4d0be4f889cd53a2.webp",
+          "duration": 8,
+          "transferBytes": 3537008,
+          "decodedBytes": 3536708
+        },
+        {
+          "file": "shared/e1ec0e5cf33e2f8597d7050098163c56b68f5559c71d5f84d389beb3f239341c.webp",
+          "duration": 4.600000023841858,
+          "transferBytes": 1680154,
+          "decodedBytes": 1679854
+        },
+        {
+          "file": "shared/18a7dcb197e6dc53fb281420ee99f242862fa2c60e7ad61624dc23c41755a859.webp",
+          "duration": 2.600000023841858,
+          "transferBytes": 410,
+          "decodedBytes": 110
+        },
+        {
+          "file": "shared/a461694b5fa493147f8456c7e94844ebd8fb4524c0f15472e1f7e05cecfdd146.webp",
+          "duration": 2.200000047683716,
+          "transferBytes": 452,
+          "decodedBytes": 152
+        },
+        {
+          "file": "engine/hearth-flamethrower.mp3",
+          "duration": 2,
+          "transferBytes": 87896,
+          "decodedBytes": 87596
+        },
+        {
+          "file": "shared/6a257a887b70cec0ed9b65e382f692f6583ac57150f3c9a42663ee7670ca5785.png",
+          "duration": 9.299999952316284,
+          "transferBytes": 4338294,
+          "decodedBytes": 4337994
+        },
+        {
+          "file": "shared/8be8fef9543f11fe761f1532add47e3c906d7a3369311d299d49ec3080ff24d8.png",
+          "duration": 1.8000000715255737,
+          "transferBytes": 200752,
+          "decodedBytes": 200452
+        },
+        {
+          "file": "shared/63747c89f3d446ce62935efd762aff716fd2c93a73604d337ce3824451e57e2a.webp",
+          "duration": 1.399999976158142,
+          "transferBytes": 444,
+          "decodedBytes": 144
+        }
+      ]
+    },
+    "scenes": [
+      {
+        "type": "idle",
+        "summary": {
+          "frames": {
+            "count": 823,
+            "mean": 18.22235722964763,
+            "p50": 18.100000023841858,
+            "p95": 19.100000023841858,
+            "max": 63.5,
+            "over50": 1,
+            "over100": 0
+          },
+          "fps": 54.877642195105686,
+          "minInstantFPS": 15.748031496062993,
+          "cpu": {
+            "gameplay": {
+              "count": 823,
+              "mean": 0.07290401102415991,
+              "p50": 0.10000002384185791,
+              "p95": 0.19999992847442627,
+              "max": 1.2999999523162842,
+              "over50": 0,
+              "over100": 0
+            },
+            "physics": {
+              "count": 823,
+              "mean": 0.09538274735465808,
+              "p50": 0.09999990463256836,
+              "p95": 0.5,
+              "max": 2.100000023841858,
+              "over50": 0,
+              "over100": 0
+            },
+            "visuals": {
+              "count": 823,
+              "mean": 0.5865127581147928,
+              "p50": 0.6000000238418579,
+              "p95": 0.7999999523162842,
+              "max": 2.0999999046325684,
+              "over50": 0,
+              "over100": 0
+            },
+            "textureCheck": {
+              "count": 823,
+              "mean": 0.01859052155171391,
+              "p50": 0,
+              "p95": 0.10000002384185791,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "render": {
+              "count": 823,
+              "mean": 1.3275820180538358,
+              "p50": 1.2000000476837158,
+              "p95": 1.600000023841858,
+              "max": 41.10000002384186,
+              "over50": 0,
+              "over100": 0
+            }
+          },
+          "gpu": {
+            "count": 823,
+            "mean": 5.404151894289183,
+            "p50": 5.37,
+            "p95": 5.472656,
+            "max": 19.624531,
+            "over50": 0,
+            "over100": 0
+          },
+          "drawCalls": {
+            "count": 823,
+            "mean": 147.38639125151883,
+            "p50": 147,
+            "p95": 147,
+            "max": 306,
+            "over50": 823,
+            "over100": 823
+          },
+          "triangles": {
+            "count": 823,
+            "mean": 554473.8967193195,
+            "p50": 552673,
+            "p95": 552673,
+            "max": 1294042,
+            "over50": 823,
+            "over100": 823
+          },
+          "worst": [
+            {
+              "at": 63.5,
+              "elapsed": 63.5,
+              "stage": "idle",
+              "active": true,
+              "interval": 63.5,
+              "cpu": {
+                "gameplay": 1.2999999523162842,
+                "physics": 0.7000000476837158,
+                "visuals": 2.0999999046325684,
+                "textureCheck": 0.10000002384185791,
+                "render": 41.10000002384186
+              },
+              "calls": 306,
+              "triangles": 1294042,
+              "gpuMs": 19.624531
+            },
+            {
+              "at": 13123.100000023842,
+              "elapsed": 13123.100000023842,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.700000047683716,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0.09999990463256836,
+                "render": 1.8000000715255737
+              },
+              "calls": 147,
+              "triangles": 552673,
+              "gpuMs": 5.409739
+            },
+            {
+              "at": 8674,
+              "elapsed": 8674,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.600000023841858,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5999999046325684,
+                "textureCheck": 0,
+                "render": 1.7000000476837158
+              },
+              "calls": 147,
+              "triangles": 552673,
+              "gpuMs": 5.372864
+            },
+            {
+              "at": 7055.299999952316,
+              "elapsed": 7055.299999952316,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.59999990463257,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.5999999046325684
+              },
+              "calls": 147,
+              "triangles": 552673,
+              "gpuMs": 5.392916
+            },
+            {
+              "at": 8434.799999952316,
+              "elapsed": 8434.799999952316,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.59999990463257,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.09999990463256836,
+                "visuals": 0.5,
+                "textureCheck": 0,
+                "render": 1
+              },
+              "calls": 147,
+              "triangles": 552673,
+              "gpuMs": 5.34677
+            },
+            {
+              "at": 1548.2000000476837,
+              "elapsed": 1548.2000000476837,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.5,
+              "cpu": {
+                "gameplay": 0.09999990463256836,
+                "physics": 0.10000002384185791,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0.09999990463256836,
+                "render": 1.4000000953674316
+              },
+              "calls": 147,
+              "triangles": 552673,
+              "gpuMs": 5.33625
+            },
+            {
+              "at": 241.20000004768372,
+              "elapsed": 241.20000004768372,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.40000009536743,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.7999999523162842,
+                "visuals": 0.8000000715255737,
+                "textureCheck": 0,
+                "render": 1.5
+              },
+              "calls": 147,
+              "triangles": 552673,
+              "gpuMs": 5.388905
+            },
+            {
+              "at": 11794.200000047684,
+              "elapsed": 11794.200000047684,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.40000009536743,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0,
+                "visuals": 0.7000000476837158,
+                "textureCheck": 0,
+                "render": 2.100000023841858
+              },
+              "calls": 147,
+              "triangles": 552673,
+              "gpuMs": 5.458854
+            },
+            {
+              "at": 965.5,
+              "elapsed": 965.5,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.399999976158142,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.6999999284744263,
+                "visuals": 0.7000000476837158,
+                "textureCheck": 0,
+                "render": 1.399999976158142
+              },
+              "calls": 147,
+              "triangles": 552673,
+              "gpuMs": 5.327604
+            },
+            {
+              "at": 10039.899999976158,
+              "elapsed": 10039.899999976158,
+              "stage": "idle",
+              "active": true,
+              "interval": 19.399999976158142,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.20000004768371582,
+                "visuals": 0.5999999046325684,
+                "textureCheck": 0,
+                "render": 1.600000023841858
+              },
+              "calls": 147,
+              "triangles": 552673,
+              "gpuMs": 5.369739
+            }
+          ]
+        }
+      },
+      {
+        "type": "combat",
+        "summary": {
+          "frames": {
+            "count": 670,
+            "mean": 18.524626865671642,
+            "p50": 18.200000047683716,
+            "p95": 19.299999952316284,
+            "max": 90.20000004768372,
+            "over50": 3,
+            "over100": 0
+          },
+          "fps": 53.98219393304596,
+          "minInstantFPS": 11.086474495247845,
+          "cpu": {
+            "gameplay": {
+              "count": 670,
+              "mean": 0.3097014932490107,
+              "p50": 0.30000007152557373,
+              "p95": 0.6000000238418579,
+              "max": 3.1999999284744263,
+              "over50": 0,
+              "over100": 0
+            },
+            "physics": {
+              "count": 670,
+              "mean": 0.1011940306691981,
+              "p50": 0.10000002384185791,
+              "p95": 0.20000004768371582,
+              "max": 0.30000007152557373,
+              "over50": 0,
+              "over100": 0
+            },
+            "visuals": {
+              "count": 670,
+              "mean": 0.6476119402629226,
+              "p50": 0.6000000238418579,
+              "p95": 0.8000000715255737,
+              "max": 1.600000023841858,
+              "over50": 0,
+              "over100": 0
+            },
+            "textureCheck": {
+              "count": 670,
+              "mean": 0.020149254443040533,
+              "p50": 0,
+              "p95": 0.10000002384185791,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "render": {
+              "count": 670,
+              "mean": 1.5305970156370703,
+              "p50": 1.5,
+              "p95": 1.899999976158142,
+              "max": 14.200000047683716,
+              "over50": 0,
+              "over100": 0
+            }
+          },
+          "gpu": {
+            "count": 670,
+            "mean": 7.9585429895522415,
+            "p50": 7.822395,
+            "p95": 9.467864,
+            "max": 113.357552,
+            "over50": 1,
+            "over100": 1
+          },
+          "drawCalls": {
+            "count": 670,
+            "mean": 146.64328358208957,
+            "p50": 146,
+            "p95": 154,
+            "max": 156,
+            "over50": 670,
+            "over100": 670
+          },
+          "triangles": {
+            "count": 670,
+            "mean": 588355.756716418,
+            "p50": 561972,
+            "p95": 639736,
+            "max": 639932,
+            "over50": 670,
+            "over100": 670
+          },
+          "worst": [
+            {
+              "at": 15252.700000047684,
+              "elapsed": 252.70000004768372,
+              "stage": "combat",
+              "active": true,
+              "interval": 90.20000004768372,
+              "cpu": {
+                "gameplay": 0.7000000476837158,
+                "physics": 0,
+                "visuals": 1,
+                "textureCheck": 0,
+                "render": 1.600000023841858
+              },
+              "calls": 150,
+              "triangles": 556291,
+              "gpuMs": 7.663177
+            },
+            {
+              "at": 15135.600000023842,
+              "elapsed": 135.60000002384186,
+              "stage": "combat",
+              "active": true,
+              "interval": 83.39999997615814,
+              "cpu": {
+                "gameplay": 1,
+                "physics": 0.09999990463256836,
+                "visuals": 1.600000023841858,
+                "textureCheck": 0,
+                "render": 2.700000047683716
+              },
+              "calls": 152,
+              "triangles": 552715,
+              "gpuMs": 8.302342
+            },
+            {
+              "at": 20706.399999976158,
+              "elapsed": 5706.399999976158,
+              "stage": "combat",
+              "active": true,
+              "interval": 74.5,
+              "cpu": {
+                "gameplay": 0.6000000238418579,
+                "physics": 0,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0,
+                "render": 1.899999976158142
+              },
+              "calls": 140,
+              "triangles": 639588,
+              "gpuMs": 9.071354
+            },
+            {
+              "at": 15392.600000023842,
+              "elapsed": 392.60000002384186,
+              "stage": "combat",
+              "active": true,
+              "interval": 33.39999997615814,
+              "cpu": {
+                "gameplay": 3.1999999284744263,
+                "physics": 0.10000002384185791,
+                "visuals": 0.8999999761581421,
+                "textureCheck": 0,
+                "render": 14.200000047683716
+              },
+              "calls": 149,
+              "triangles": 555261,
+              "gpuMs": 15.125415
+            },
+            {
+              "at": 18931.5,
+              "elapsed": 3931.5,
+              "stage": "combat",
+              "active": true,
+              "interval": 29.600000023841858,
+              "cpu": {
+                "gameplay": 1.5,
+                "physics": 0.20000004768371582,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0,
+                "render": 11.5
+              },
+              "calls": 152,
+              "triangles": 555688,
+              "gpuMs": 14.634582
+            },
+            {
+              "at": 27408.5,
+              "elapsed": 12408.5,
+              "stage": "combat",
+              "active": true,
+              "interval": 28.200000047683716,
+              "cpu": {
+                "gameplay": 0.7000000476837158,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5,
+                "textureCheck": 0.10000002384185791,
+                "render": 10.299999952316284
+              },
+              "calls": 143,
+              "triangles": 544851,
+              "gpuMs": 9.638645
+            },
+            {
+              "at": 16115,
+              "elapsed": 1115,
+              "stage": "combat",
+              "active": true,
+              "interval": 23.299999952316284,
+              "cpu": {
+                "gameplay": 1.399999976158142,
+                "physics": 0.10000002384185791,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0,
+                "render": 4.700000047683716
+              },
+              "calls": 150,
+              "triangles": 558021,
+              "gpuMs": 11.02052
+            },
+            {
+              "at": 22349.100000023842,
+              "elapsed": 7349.100000023842,
+              "stage": "combat",
+              "active": true,
+              "interval": 22.5,
+              "cpu": {
+                "gameplay": 0.20000004768371582,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0.09999990463256836,
+                "render": 5.300000071525574
+              },
+              "calls": 147,
+              "triangles": 639716,
+              "gpuMs": 7.404583
+            },
+            {
+              "at": 15018.100000023842,
+              "elapsed": 18.100000023841858,
+              "stage": "combat",
+              "active": true,
+              "interval": 21.100000023841858,
+              "cpu": {
+                "gameplay": 1.600000023841858,
+                "physics": 0.09999990463256836,
+                "visuals": 1.3000000715255737,
+                "textureCheck": 0,
+                "render": 1.899999976158142
+              },
+              "calls": 149,
+              "triangles": 552697,
+              "gpuMs": 113.357552
+            },
+            {
+              "at": 15162.5,
+              "elapsed": 162.5,
+              "stage": "combat",
+              "active": true,
+              "interval": 20.299999952316284,
+              "cpu": {
+                "gameplay": 0.8000000715255737,
+                "physics": 0.10000002384185791,
+                "visuals": 0.7999999523162842,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.399999976158142
+              },
+              "calls": 152,
+              "triangles": 552415,
+              "gpuMs": 7.918854
+            }
+          ]
+        }
+      },
+      {
+        "type": "settle",
+        "summary": {
+          "frames": {
+            "count": 167,
+            "mean": 18.0706586823492,
+            "p50": 18.100000023841858,
+            "p95": 19,
+            "max": 19.5,
+            "over50": 0,
+            "over100": 0
+          },
+          "fps": 55.33832593367311,
+          "minInstantFPS": 51.282051282051285,
+          "cpu": {
+            "gameplay": {
+              "count": 167,
+              "mean": 0.07844310963225222,
+              "p50": 0.10000002384185791,
+              "p95": 0.19999992847442627,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "physics": {
+              "count": 167,
+              "mean": 0.07065868306302739,
+              "p50": 0.10000002384185791,
+              "p95": 0.19999992847442627,
+              "max": 0.20000004768371582,
+              "over50": 0,
+              "over100": 0
+            },
+            "visuals": {
+              "count": 167,
+              "mean": 0.5281437135742096,
+              "p50": 0.5,
+              "p95": 0.6999999284744263,
+              "max": 0.7000000476837158,
+              "over50": 0,
+              "over100": 0
+            },
+            "textureCheck": {
+              "count": 167,
+              "mean": 0.017365266462999903,
+              "p50": 0,
+              "p95": 0.10000002384185791,
+              "max": 0.10000002384185791,
+              "over50": 0,
+              "over100": 0
+            },
+            "render": {
+              "count": 167,
+              "mean": 1.3449101854941088,
+              "p50": 1.3000000715255737,
+              "p95": 1.7000000476837158,
+              "max": 2,
+              "over50": 0,
+              "over100": 0
+            }
+          },
+          "gpu": {
+            "count": 167,
+            "mean": 5.947036401197607,
+            "p50": 5.798541,
+            "p95": 6.120989,
+            "max": 16.443854,
+            "over50": 0,
+            "over100": 0
+          },
+          "drawCalls": {
+            "count": 167,
+            "mean": 139.77245508982037,
+            "p50": 140,
+            "p95": 143,
+            "max": 143,
+            "over50": 167,
+            "over100": 167
+          },
+          "triangles": {
+            "count": 167,
+            "mean": 544617.4550898203,
+            "p50": 544705,
+            "p95": 544847,
+            "max": 544851,
+            "over50": 167,
+            "over100": 167
+          },
+          "worst": [
+            {
+              "at": 28795.700000047684,
+              "elapsed": 28795.700000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 19.5,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0,
+                "render": 1.600000023841858
+              },
+              "calls": 140,
+              "triangles": 544731,
+              "gpuMs": 5.81177
+            },
+            {
+              "at": 28722.700000047684,
+              "elapsed": 28722.700000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 19.40000009536743,
+              "cpu": {
+                "gameplay": 0.20000004768371582,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5,
+                "textureCheck": 0,
+                "render": 1.5
+              },
+              "calls": 140,
+              "triangles": 544731,
+              "gpuMs": 5.797864
+            },
+            {
+              "at": 30045.600000023842,
+              "elapsed": 30045.600000023842,
+              "stage": "settle",
+              "active": true,
+              "interval": 19.399999976158142,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5,
+                "textureCheck": 0,
+                "render": 1.399999976158142
+              },
+              "calls": 138,
+              "triangles": 544697,
+              "gpuMs": 5.848697
+            },
+            {
+              "at": 30426.299999952316,
+              "elapsed": 30426.299999952316,
+              "stage": "settle",
+              "active": true,
+              "interval": 19.399999976158142,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5,
+                "textureCheck": 0,
+                "render": 1.5999999046325684
+              },
+              "calls": 137,
+              "triangles": 542393,
+              "gpuMs": 9.407083
+            },
+            {
+              "at": 29212,
+              "elapsed": 29212,
+              "stage": "settle",
+              "active": true,
+              "interval": 19.200000047683716,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0.10000002384185791,
+                "visuals": 0.3999999761581421,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.2999999523162842
+              },
+              "calls": 138,
+              "triangles": 544697,
+              "gpuMs": 5.708281
+            },
+            {
+              "at": 29249.299999952316,
+              "elapsed": 29249.299999952316,
+              "stage": "settle",
+              "active": true,
+              "interval": 19.199999928474426,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.19999992847442627,
+                "visuals": 0.5,
+                "textureCheck": 0,
+                "render": 1.5
+              },
+              "calls": 138,
+              "triangles": 544697,
+              "gpuMs": 5.729427
+            },
+            {
+              "at": 27708.200000047684,
+              "elapsed": 27708.200000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 19.100000023841858,
+              "cpu": {
+                "gameplay": 0.09999990463256836,
+                "physics": 0.10000002384185791,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0.10000002384185791,
+                "render": 1.600000023841858
+              },
+              "calls": 142,
+              "triangles": 544823,
+              "gpuMs": 6.116666
+            },
+            {
+              "at": 28269.299999952316,
+              "elapsed": 28269.299999952316,
+              "stage": "settle",
+              "active": true,
+              "interval": 19.09999990463257,
+              "cpu": {
+                "gameplay": 0.10000002384185791,
+                "physics": 0,
+                "visuals": 0.6000000238418579,
+                "textureCheck": 0,
+                "render": 1.5999999046325684
+              },
+              "calls": 142,
+              "triangles": 544775,
+              "gpuMs": 5.972916
+            },
+            {
+              "at": 27762.700000047684,
+              "elapsed": 27762.700000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 19,
+              "cpu": {
+                "gameplay": 0.09999990463256836,
+                "physics": 0.10000002384185791,
+                "visuals": 0.7000000476837158,
+                "textureCheck": 0,
+                "render": 1.600000023841858
+              },
+              "calls": 142,
+              "triangles": 544819,
+              "gpuMs": 6.072864
+            },
+            {
+              "at": 28068.200000047684,
+              "elapsed": 28068.200000047684,
+              "stage": "settle",
+              "active": true,
+              "interval": 19,
+              "cpu": {
+                "gameplay": 0,
+                "physics": 0.10000002384185791,
+                "visuals": 0.5999999046325684,
+                "textureCheck": 0,
+                "render": 1.4000000953674316
+              },
+              "calls": 142,
+              "triangles": 544795,
+              "gpuMs": 5.880312
+            }
+          ]
+        }
+      }
+    ],
+    "errors": [],
+    "device": {
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "viewport": [
+        430,
+        745
+      ],
+      "canvas": [
+        494,
+        856
+      ],
+      "dpr": 3,
+      "quality": "low",
+      "threads": 24,
+      "deviceMemoryGiB": 32,
+      "gpu": "ANGLE (Intel, Intel(R) Graphics (0x00007D67) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "physicalPhoneTestByAgent": false
+    }
+  },
+  "limitations": [
+    "The public gameplay route remains the single-courtyard diagnostic. Archer is in that encounter; Warden and Gargoyle are available in the model viewer and wired into their existing full-map source slots.",
+    "Close-up Archer sleeve/hand refinement and the older Gargoyle internal watertightness audit are not claimed complete by this runtime update.",
+    "Physical iPhone frame rate is not verified."
+  ]
+}

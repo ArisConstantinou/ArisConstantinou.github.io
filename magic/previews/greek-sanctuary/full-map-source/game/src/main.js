@@ -128,6 +128,7 @@ const ui=createUI({
   fireEnabled:FIRE_ENABLED,
   hearth:true,
   onLoading:label=>performanceTest?.stage(label),
+  onModels:()=>location.assign(new URL('models.html',location.href).href),
   onBenchmark:()=>{const url=new URL(location.href);url.searchParams.set('benchmark','1');location.assign(url.href);},
   onStart:()=>{if(ready)void startPreparedRun();},
   onRestart:()=>{if(ready)void startPreparedRun();},
@@ -305,7 +306,7 @@ function createHealthBar(){
 function actor(kind,x,z,isPlayer=false,bossType=null,room=null){
   const bossMode=kind==='boss',definition=bossType?BOSS_DEFINITIONS[bossType]:null;
   const stoneMinion=kind==='stone-minion';
-  const visual=definition?createBossCharacter(bossType):stoneMinion?createStoneMinion():createCharacter(bossMode?'heavy':kind),scale=definition?1:bossMode?1.3:1;
+  const visual=definition?createBossCharacter(bossType):stoneMinion?createStoneMinion():createCharacter(bossMode?'warden':kind),scale=definition?1:bossMode?1.3:1;
   if(bossMode&&!definition)visual.group.scale.multiplyScalar(scale);
   const stats=definition?{...definition,label:definition.name}:{mage:{hp:120,speed:5.0,mass:5,label:'Εξόριστος'},
     guard:{hp:65,speed:2.3,mass:4,label:'Φρουρός'},archer:{hp:48,speed:1.9,mass:3,label:'Τοξότης'},

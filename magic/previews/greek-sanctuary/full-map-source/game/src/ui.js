@@ -103,6 +103,7 @@ export function createUI(callbacks = {}) {
           <button class="secondary-button" id="menu-upgrades" type="button"><span class="button-name">${icon('rune')}ΜΟΝΙΜΕΣ ΔΥΝΑΜΕΙΣ</span><span class="shard-pill" id="menu-shards">0 ◇</span></button>
           <button class="secondary-button" id="menu-inventory" type="button"><span class="button-name">${icon('book')}ΕΞΟΠΛΙΣΜΟΣ</span><kbd>I</kbd></button>
           <button class="secondary-button" id="menu-benchmark" type="button">ΕΛΕΓΧΟΣ ΑΠΟΔΟΣΗΣ · BENCHMARK</button>
+          <button class="secondary-button" id="menu-models" type="button">ARCHER · WARDEN · GARGOYLE</button>
           <div class="menu-footer"><button class="text-button" id="menu-help" type="button">Πώς παίζεται</button><button class="text-button" id="menu-mute" type="button">Ήχος ενεργός</button><button class="text-button" id="menu-quality" type="button">Γραφικά: υψηλά</button></div>
           <p class="menu-achievement" id="menu-achievement">Κάθε απόδραση σε κάνει ισχυρότερο.</p>
         </div>
@@ -669,6 +670,7 @@ export function createUI(callbacks = {}) {
   coarseMedia.addEventListener('change', setTouchMode);
 
   listen(el['menu-benchmark'],'click',()=>invoke('onBenchmark'));
+  listen(el['menu-models'],'click',()=>invoke('onModels'));
   listen(el['start-button'], 'click', () => { if (loaded) { clearInput(); invoke('onStart'); } });
   for (const id of ['menu-mute', 'pause-mute', 'hud-mute']) listen(el[id], 'click', toggleMute);
   for (const id of ['menu-quality', 'pause-quality']) listen(el[id], 'click', toggleQuality);

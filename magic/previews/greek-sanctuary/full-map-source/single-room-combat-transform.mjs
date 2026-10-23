@@ -13,6 +13,7 @@ export const singleRoomCombatPlugin={name:'magic-live-single-room-combat',async 
  if(name.endsWith('/src/spawn-rules.js'))code=replace(code,'export function hearthSpawnRooms(zones, spawn, doorways=null) {',"export function hearthSpawnRooms(zones, spawn, doorways=null) {return zones.filter(r=>r.name==='courtyard');");
  if(name.endsWith('/src/performance-test.js'))code=replace(code,"export const benchmarkMode=typeof location!=='undefined'&&new URL(location.href).searchParams.get('benchmark')==='1';",'export const benchmarkMode=false;');
  if(name.endsWith('/src/main.js')){
+  code=replace(code,"await loadCharacters((fraction)=>ui.setLoading(.2+fraction*.65,'Οι φύλακες παίρνουν θέση…'));","await loadCharacters((fraction)=>ui.setLoading(.2+fraction*.65,'Οι φύλακες παίρνουν θέση…'),['mage','guard','archer','heavy']);");
   code=`import {createSingleRoomCombat} from '${controller}';\n`+code;
   code=code.replaceAll('await prepareRunShaders({renderer,scene,camera,quality,composer,objects:', 'singleRoomCombat.prepared(await prepareRunShaders({renderer,scene,camera,quality,composer,pointLightVariants:activePointLights.snapshot().enabled,lightCountPolicy:activePointLights,objects:').replaceAll("map(e=>e.mesh)});","map(e=>e.mesh)}));");
   code=replace(code,'activePointLights=createActivePointLights(renderer);','activePointLights=createActivePointLights(renderer);activePointLights.setBuckets([5,7,11]);');

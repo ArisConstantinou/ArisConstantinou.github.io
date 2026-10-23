@@ -29,7 +29,7 @@ export async function loadBossCharacters(types = BOSS_TYPES) {
   const jobs = types.map(async type => {
     if (templates.has(type)) return;
     const file = type === 'colossus' ? 'models/redesign/colossus-meshy-lods.glb'
-      : type === 'wraith' ? 'models/redesign/wraith-1-6-1-lods.glb' : `models/bosses/${type}.glb`;
+      : type === 'wraith' ? 'models/redesign/wraith-1-6-1-lods.glb' : 'models/redesign/gargoyle-mobile-lods.glb';
     const gltf = await loadGltfAsset(loader,new URL(file,document.baseURI).href);
     if (!gltf.animations.length) throw new Error(`Boss ${type} has no animations`);
     let skins = 0;
@@ -48,7 +48,7 @@ export function createBossCharacter(type) {
   const group = new THREE.Group();
   const model = clone(template.scene);
   shareBossSkeletons(model);
-  model.rotation.y = type === 'wraith' ? 0 : Math.PI; // New Wraith source exports facing glTF +Z.
+  model.rotation.y = type === 'colossus' ? Math.PI : 0; // Authored Wraith/Gargoyle sources face glTF +Z.
   group.add(model);
   const materials = [];
   model.traverse(o => {
@@ -60,7 +60,8 @@ export function createBossCharacter(type) {
   });
   const mixer = new THREE.AnimationMixer(model);
   const rigLod = type === 'colossus' ? createRigLod(group,model,{height:3.4,closeFile:'models/redesign/colossus-meshy-close.glb',farPixels:155})
-    : type === 'wraith' ? createRigLod(group,model,{height:3.3,closeFile:'models/redesign/wraith-1-6-1-close.glb',farPixels:155}) : null;
+    : type === 'wraith' ? createRigLod(group,model,{height:3.3,closeFile:'models/redesign/wraith-1-6-1-close.glb',farPixels:155})
+    : createRigLod(group,model,{height:3.2,closeFile:'models/redesign/gargoyle-mobile-close.glb',farPixels:155});
   const chainConstraints = type === 'wraith' ? createWraithChainConstraints(model) : null;
   const clips = new Map(template.animations.map(c => [c.name, c]));
   const actions = new Map();
@@ -115,7 +116,9 @@ export function createBossCharacter(type) {
     group.removeFromParent();
   }
   update(0,{flying:false});
-  if(type!=='wraith'){
+  // Gargoyle has an authored digitigrade hip/knee/hock/ankle chain. The old
+  // two-segment biped solver cannot preserve that chain's planted contacts.
+  if(type==='colossus'){
     const bones={};model.traverse(o=>{if(o.isBone)bones[o.name]=o;});
     locomotion=createRigLocomotion(group,model,['L','R'].map(s=>({upper:bones['thigh_'+s],lower:bones['shin_'+s],foot:bones['foot_'+s]})),{allFeetReach:type==='colossus',stride:type==='colossus'?.84:.72,lift:type==='colossus'?.22:.19});
   }

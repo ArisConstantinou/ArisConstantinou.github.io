@@ -374,5 +374,13 @@
     "licensingNote": "Generated asset subject to provider terms. Account-plan-specific ownership was not independently verified. Meshy attribution is supplied; no CC0 claim is made for this asset.",
     "sha256": "8a63479252161f25e42ee1d8c9cac1c9b8b1382cdb0001dc0bacbd599435dd02",
     "closeSha256": "9e1c20c712f353c82019f0ec2ef14576b3e5d03990c55cd6fbba9edb8c216d6a"
+  },
+  "mobileRedesignUpdate": {
+    "version": "1.6.31",
+    "provenance": "models/redesign/mobile-1.6.31.json",
+    "origin": "Existing project Meshy sculpt sources with local Blender surface, rig, material, animation and LOD authoring. No new generation or third-party model download in this update.",
+    "provider": "Meshy",
+    "providerUrl": "https://www.meshy.ai/",
+    "licensingNote": "Provider terms apply; no CC0 claim for generated sculpt geometry. Existing KayKit CC0 animation/hand donor attribution remains in assets-credit.json."
   }
 }
