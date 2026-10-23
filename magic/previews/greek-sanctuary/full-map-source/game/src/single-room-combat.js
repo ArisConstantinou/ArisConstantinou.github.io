@@ -21,7 +21,7 @@ export function createSingleRoomCombat(get){
   for(const e of get().entities)if(e.category==='actor'&&!e.isPlayer&&!e.ally&&!e.removed&&!setupTargets.includes(e))setupTargets.push(e);
   return setupTargets.filter(e=>!e.dead&&!e.removed);
  }
- function roster(){return setupTargets.map(e=>({id:e.body.id,kind:e.kind,bossType:e.kind==='boss'?(e.bossType||'warden'):null,summoned:!!e.summoner,hp:e.hp,maxHp:e.maxHp,dead:e.dead,removed:e.removed,room:typeof e.room==='string'?e.room:e.room?.name,x:e.body.position.x,y:e.body.position.y,z:e.body.position.z,clip:e.bossClip||e.mesh.userData.animationState,attacks:e.attackIndex||0}));}
+ function roster(){return setupTargets.map(e=>({id:e.body.id,kind:e.kind,bossType:e.kind==='boss'?(e.bossType||'warden'):null,summoned:!!e.summoner,hp:e.hp,maxHp:e.maxHp,dead:e.dead,removed:e.removed,room:typeof e.room==='string'?e.room:e.room?.name,x:e.body.position.x,y:e.body.position.y,z:e.body.position.z,clip:e.bossClip||e.mesh.userData.animationState,attacks:e.attackIndex||0,lod:e.mesh.userData.redesignLod??null,projectedBodyPixels:e.mesh.userData.redesignPixels??null}));}
  function table(parent,head,entries){const t=document.createElement('table'),h=t.createTHead().insertRow();for(const text of head){const th=document.createElement('th');th.textContent=text;h.append(th);}const b=t.createTBody();for(const row of entries){const tr=b.insertRow();for(const text of row)tr.insertCell().textContent=String(text);}const wrap=document.createElement('div');wrap.className='sc-table';wrap.append(t);parent.append(wrap);}
  function lists(parent){
   const c=report?.configuration||{...CONFIG,...settings},history=document.createElement('h3');history.textContent='Πρόοδος ανά JSON / έκδοση';parent.append(history);

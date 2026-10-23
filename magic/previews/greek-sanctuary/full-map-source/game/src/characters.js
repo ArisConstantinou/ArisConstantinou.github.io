@@ -15,7 +15,7 @@ import { createTwoHandWeaponGrip } from './two-hand-weapon-grip.js';
 const MODEL_FILES = {
   mage: 'redesign/mage-fingers-1-6-1-lods.glb',
   guard: 'redesign/guard-meshy-lods.glb',
-  archer: 'redesign/archer-mobile-lods.glb',
+  archer: 'redesign/archer-mobile-optimized-lods.glb',
   heavy: 'redesign/heavy-meshy-native-lods.glb',
   warden: 'redesign/iron-warden-mobile-lods.glb',
 };
@@ -128,7 +128,7 @@ export async function loadCharacters(onProgress = () => {}, kinds = Object.keys(
       }
     }
     await prepareObjectPickingAsync(gltf.scene);
-    templates.set(kind, { scene: gltf.scene, clips, authoredClips:gltf.animations, preservePbr: file.startsWith('redesign/'), closeFile:file.startsWith('redesign/')?'models/'+file.replace(/-lods\.glb$/,'-close.glb'):null });
+    templates.set(kind, { scene: gltf.scene, clips, authoredClips:gltf.animations, preservePbr: file.startsWith('redesign/'), closeFile:file.startsWith('redesign/')?'models/'+file.replace(/-(?:optimized-)?lods\.glb$/,'-close.glb'):null });
     loaded++;
     onProgress(loaded / entries.length, { loaded, total: entries.length, kind });
   });

@@ -1,0 +1,4567 @@
+{
+  "errors": [],
+  "models": {
+    "iron-warden": [
+      {
+        "name": "iron-warden_LOD1_1",
+        "material": "Iron Warden reference blackened body493",
+        "uv": [
+          0.0009765679715201259,
+          0.0030492544174194336,
+          0.9969355463981628,
+          0.9990234375
+        ],
+        "triangles": 57175,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD1_2",
+        "material": "Iron Warden native baked cape pigment520",
+        "uv": [
+          0.0009765679715201259,
+          0.0030733346939086914,
+          0.9969114661216736,
+          0.9990234375
+        ],
+        "triangles": 13595,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD1_3",
+        "material": "IRON_WARDEN_DARK_FLEXIBLE_ANKLE_UNDERLAY",
+        "uv": [
+          0.019578274339437485,
+          0.024254322052001953,
+          0.9800053834915161,
+          0.9873855710029602
+        ],
+        "triangles": 1130,
+        "maps": [
+          {
+            "key": "map",
+            "width": 256,
+            "height": 256,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 256,
+            "height": 256,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 256,
+            "height": 256,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 256,
+            "height": 256,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD1_4",
+        "material": "IRON_WARDEN_SOURCE_SCALE_CHAINMAIL",
+        "uv": [
+          -22.8125,
+          -25.195646286010742,
+          45,
+          7.617387771606445
+        ],
+        "triangles": 3396,
+        "maps": [
+          {
+            "key": "map",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "aoMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD1_5",
+        "material": "IRON_WARDEN_BLACKENED_STEEL_INTERIOR",
+        "uv": [
+          -3.1422407627105713,
+          -0.8518383502960205,
+          1.5636756420135498,
+          2.9561948776245117
+        ],
+        "triangles": 1915,
+        "maps": []
+      },
+      {
+        "name": "iron-warden_LOD1_6",
+        "material": "IRON_WARDEN_BAKED_HOLSTER_LEATHER",
+        "uv": [
+          -1.0545324087142944,
+          0.20124173164367676,
+          0.9777060747146606,
+          2.400101661682129
+        ],
+        "triangles": 728,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD1_7",
+        "material": "Iron Warden enclosed wrist interface reference493",
+        "uv": [
+          0,
+          1,
+          0,
+          1
+        ],
+        "triangles": 34,
+        "maps": []
+      },
+      {
+        "name": "iron-warden_LOD1_8",
+        "material": "Iron Warden aged leather baked PBR471",
+        "uv": [
+          0.00868984591215849,
+          0.03389930725097656,
+          0.9882794618606567,
+          0.9915907382965088
+        ],
+        "triangles": 664,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD1_9",
+        "material": "Iron Warden reference blackened gauntlet493",
+        "uv": [
+          0.008771170862019062,
+          0.009674549102783203,
+          0.9908793568611145,
+          0.9912582039833069
+        ],
+        "triangles": 395,
+        "maps": [
+          {
+            "key": "map",
+            "width": 640,
+            "height": 640,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 640,
+            "height": 640,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 640,
+            "height": 640,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 640,
+            "height": 640,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD1_10",
+        "material": "Iron Warden warm worn edge metal294 reference493",
+        "uv": [
+          0.008799700066447258,
+          0.009674549102783203,
+          0.9908793568611145,
+          0.9912596940994263
+        ],
+        "triangles": 386,
+        "maps": []
+      },
+      {
+        "name": "iron-warden_LOD1_11",
+        "material": "Iron Warden forged plate inner steel294 reference493",
+        "uv": [
+          0.008771170862019062,
+          0.010625243186950684,
+          0.9908793568611145,
+          0.9908451437950134
+        ],
+        "triangles": 361,
+        "maps": []
+      },
+      {
+        "name": "iron-warden_LOD1_12",
+        "material": "Iron Warden glove baked standard PBR.001",
+        "uv": [
+          -3.645256996154785,
+          -6.360576152801514,
+          3.000885486602783,
+          1.0013718605041504
+        ],
+        "triangles": 204,
+        "maps": [
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD2_1",
+        "material": "Iron Warden reference blackened body493",
+        "uv": [
+          0.0009765679715201259,
+          0.0030492544174194336,
+          0.9969355463981628,
+          0.9990234375
+        ],
+        "triangles": 19538,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD2_2",
+        "material": "Iron Warden native baked cape pigment520",
+        "uv": [
+          0.0009765679715201259,
+          0.0030801892280578613,
+          0.9969046115875244,
+          0.9990234375
+        ],
+        "triangles": 5100,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD2_3",
+        "material": "IRON_WARDEN_DARK_FLEXIBLE_ANKLE_UNDERLAY",
+        "uv": [
+          0.019999999552965164,
+          0.024453282356262207,
+          0.9800000190734863,
+          0.9800001382827759
+        ],
+        "triangles": 354,
+        "maps": [
+          {
+            "key": "map",
+            "width": 256,
+            "height": 256,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 256,
+            "height": 256,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 256,
+            "height": 256,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 256,
+            "height": 256,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD2_4",
+        "material": "IRON_WARDEN_SOURCE_SCALE_CHAINMAIL",
+        "uv": [
+          -22.75113296508789,
+          -25.1899471282959,
+          45.000003814697266,
+          7.50965690612793
+        ],
+        "triangles": 1172,
+        "maps": [
+          {
+            "key": "map",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "aoMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD2_5",
+        "material": "IRON_WARDEN_BLACKENED_STEEL_INTERIOR",
+        "uv": [
+          -3.1422407627105713,
+          -0.8370169401168823,
+          1.5349366664886475,
+          2.945976734161377
+        ],
+        "triangles": 712,
+        "maps": []
+      },
+      {
+        "name": "iron-warden_LOD2_6",
+        "material": "IRON_WARDEN_BAKED_HOLSTER_LEATHER",
+        "uv": [
+          -1.0355710983276367,
+          0.20124173164367676,
+          0.9701273441314697,
+          2.400101661682129
+        ],
+        "triangles": 370,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD2_7",
+        "material": "Iron Warden enclosed wrist interface reference493",
+        "uv": [
+          0,
+          1,
+          0,
+          1
+        ],
+        "triangles": 14,
+        "maps": []
+      },
+      {
+        "name": "iron-warden_LOD2_8",
+        "material": "Iron Warden aged leather baked PBR471",
+        "uv": [
+          0.00868984591215849,
+          0.03732705116271973,
+          0.9524837136268616,
+          0.9915904402732849
+        ],
+        "triangles": 230,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD2_9",
+        "material": "Iron Warden reference blackened gauntlet493",
+        "uv": [
+          0.008771170862019062,
+          0.009752333164215088,
+          0.9907935857772827,
+          0.9907557368278503
+        ],
+        "triangles": 196,
+        "maps": [
+          {
+            "key": "map",
+            "width": 640,
+            "height": 640,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 640,
+            "height": 640,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 640,
+            "height": 640,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 640,
+            "height": 640,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "iron-warden_LOD2_10",
+        "material": "Iron Warden warm worn edge metal294 reference493",
+        "uv": [
+          0.010089187882840633,
+          0.009752333164215088,
+          0.9907069206237793,
+          0.9906245470046997
+        ],
+        "triangles": 62,
+        "maps": []
+      },
+      {
+        "name": "iron-warden_LOD2_11",
+        "material": "Iron Warden forged plate inner steel294 reference493",
+        "uv": [
+          0.008771170862019062,
+          0.010720968246459961,
+          0.9907935857772827,
+          0.990765392780304
+        ],
+        "triangles": 158,
+        "maps": []
+      },
+      {
+        "name": "iron-warden_LOD2_12",
+        "material": "Iron Warden glove baked standard PBR.001",
+        "uv": [
+          -3.614776134490967,
+          -6.360576152801514,
+          2.9462485313415527,
+          1.0004005432128906
+        ],
+        "triangles": 76,
+        "maps": [
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      }
+    ],
+    "gargoyle": [
+      {
+        "name": "gargoyle_LOD1_1",
+        "material": "gargoyle baked distance PBR",
+        "uv": [
+          0.0009765177965164185,
+          0.002111673355102539,
+          0.997827410697937,
+          0.9990234375
+        ],
+        "triangles": 72873,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_2",
+        "material": "Gargoyle inner membrane, actual source PBR colour matched.001",
+        "uv": [
+          0.259765625,
+          0.771484375,
+          0.3007813096046448,
+          0.8125000596046448
+        ],
+        "triangles": 160,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_3",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.001",
+        "uv": [
+          0.275390625,
+          0.2109375,
+          0.2892436981201172,
+          0.22460941970348358
+        ],
+        "triangles": 314,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_4",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.002",
+        "uv": [
+          0.275390625,
+          0.2109375,
+          0.2890625,
+          0.224609375
+        ],
+        "triangles": 145,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_5",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.003",
+        "uv": [
+          0.275390625,
+          0.2109375,
+          0.2890625,
+          0.224609375
+        ],
+        "triangles": 246,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_6",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.004",
+        "uv": [
+          0.275390625,
+          0.2109375,
+          0.2890625,
+          0.224609375
+        ],
+        "triangles": 139,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_7",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.005",
+        "uv": [
+          0.275390625,
+          0.2109375,
+          0.2890625,
+          0.224609375
+        ],
+        "triangles": 250,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_8",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.006",
+        "uv": [
+          0.27612510323524475,
+          0.21171987056732178,
+          0.28853195905685425,
+          0.22444617748260498
+        ],
+        "triangles": 159,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_9",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.007",
+        "uv": [
+          0.2762908935546875,
+          0.21124017238616943,
+          0.2884730398654938,
+          0.22447025775909424
+        ],
+        "triangles": 178,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_10",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.008",
+        "uv": [
+          0.2776513695716858,
+          0.21128380298614502,
+          0.2874356806278229,
+          0.21644388139247894
+        ],
+        "triangles": 102,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_11",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.009",
+        "uv": [
+          0.2757158875465393,
+          0.21222186088562012,
+          0.28886091709136963,
+          0.22444581985473633
+        ],
+        "triangles": 159,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_12",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.010",
+        "uv": [
+          0.2757291793823242,
+          0.21125316619873047,
+          0.2887835204601288,
+          0.2243240475654602
+        ],
+        "triangles": 158,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD1_13",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.011",
+        "uv": [
+          0.2758391797542572,
+          0.21103036403656006,
+          0.2887439727783203,
+          0.2163342535495758
+        ],
+        "triangles": 116,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_1",
+        "material": "gargoyle baked distance PBR",
+        "uv": [
+          0.0009765778668224812,
+          0.002111673355102539,
+          0.9977970719337463,
+          0.9990234375
+        ],
+        "triangles": 23858,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_2",
+        "material": "Gargoyle inner membrane, actual source PBR colour matched.001",
+        "uv": [
+          0.2597792148590088,
+          0.771484375,
+          0.3007667362689972,
+          0.8125000596046448
+        ],
+        "triangles": 77,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_3",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.001",
+        "uv": [
+          0.275390625,
+          0.2109375,
+          0.2890625,
+          0.224609375
+        ],
+        "triangles": 196,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_4",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.002",
+        "uv": [
+          0.275390625,
+          0.2109375,
+          0.2890625,
+          0.224609375
+        ],
+        "triangles": 109,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_5",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.003",
+        "uv": [
+          0.275390625,
+          0.2109375,
+          0.2890625,
+          0.224609375
+        ],
+        "triangles": 170,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_6",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.004",
+        "uv": [
+          0.27530476450920105,
+          0.2109375,
+          0.2890625,
+          0.224609375
+        ],
+        "triangles": 105,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_7",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.005",
+        "uv": [
+          0.275390625,
+          0.2109375,
+          0.2890625,
+          0.224609375
+        ],
+        "triangles": 168,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_8",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.006",
+        "uv": [
+          0.27630847692489624,
+          0.2118958830833435,
+          0.2885320484638214,
+          0.22434300184249878
+        ],
+        "triangles": 58,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_9",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.007",
+        "uv": [
+          0.2769252061843872,
+          0.21144521236419678,
+          0.2876666486263275,
+          0.22433435916900635
+        ],
+        "triangles": 68,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_10",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.008",
+        "uv": [
+          0.27786824107170105,
+          0.21128380298614502,
+          0.28730902075767517,
+          0.21641670167446136
+        ],
+        "triangles": 38,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_11",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.009",
+        "uv": [
+          0.27635592222213745,
+          0.21225488185882568,
+          0.2886310815811157,
+          0.22417809069156647
+        ],
+        "triangles": 56,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_12",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.010",
+        "uv": [
+          0.2760019600391388,
+          0.2115989327430725,
+          0.28768470883369446,
+          0.22430729866027832
+        ],
+        "triangles": 56,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "gargoyle_LOD2_13",
+        "material": "Gargoyle reconstructed inner stone, actual source PBR.011",
+        "uv": [
+          0.2759331166744232,
+          0.21123236417770386,
+          0.2881201505661011,
+          0.2163277268409729
+        ],
+        "triangles": 40,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      }
+    ],
+    "archer": [
+      {
+        "name": "archer_LOD1_1",
+        "material": "Material_0",
+        "uv": [
+          0.0001748822833178565,
+          0.013268887996673584,
+          0.9975035190582275,
+          0.9986511468887329
+        ],
+        "triangles": 2050,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD1_2",
+        "material": "ARCHER longitudinal aged walnut, bake required.001",
+        "uv": [
+          0.005746947135776281,
+          0.0057795047760009766,
+          0.5754221081733704,
+          0.9942530989646912
+        ],
+        "triangles": 102,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD1_3",
+        "material": "Archer trigger forged steel",
+        "uv": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "triangles": 425,
+        "maps": []
+      },
+      {
+        "name": "archer_LOD1_4",
+        "material": "archer baked distance PBR",
+        "uv": [
+          0.0009765177383087575,
+          0.008772492408752441,
+          0.9912533164024353,
+          0.9990190863609314
+        ],
+        "triangles": 53504,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD1_5",
+        "material": "Archer repaired walnut - bake pending.001",
+        "uv": [
+          0.005854937247931957,
+          0.21204227209091187,
+          0.2876433730125427,
+          0.9960374236106873
+        ],
+        "triangles": 14,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD1_6",
+        "material": "ARCHER tapered spring steel, edge forged",
+        "uv": [
+          0.006815176457166672,
+          0.06085371971130371,
+          0.587141215801239,
+          0.9950631856918335
+        ],
+        "triangles": 270,
+        "maps": []
+      },
+      {
+        "name": "archer_LOD1_7",
+        "material": "Crossbow twisted linen",
+        "uv": [
+          0.1478271335363388,
+          0.003962695598602295,
+          0.26485970616340637,
+          0.9960374236106873
+        ],
+        "triangles": 18,
+        "maps": []
+      },
+      {
+        "name": "archer_LOD1_8",
+        "material": "Archer flax gusset, physical plain weave",
+        "uv": [
+          -14.504486083984375,
+          -5.867169380187988,
+          15.44013786315918,
+          11.487324714660645
+        ],
+        "triangles": 560,
+        "maps": [
+          {
+            "key": "map",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD1_9",
+        "material": "Archer narrow linen sleeve binding.001",
+        "uv": [
+          0,
+          -0.8610409498214722,
+          28.41716957092285,
+          1.020862102508545
+        ],
+        "triangles": 212,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD1_10",
+        "material": "Archer right linen, source-matched colour.001",
+        "uv": [
+          0,
+          -7.25,
+          10.922500610351562,
+          1.0000009536743164
+        ],
+        "triangles": 2844,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD2_1",
+        "material": "Material_0",
+        "uv": [
+          0.0008593190577812493,
+          0.01352161169052124,
+          0.9968806505203247,
+          0.9956060647964478
+        ],
+        "triangles": 684,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD2_2",
+        "material": "ARCHER longitudinal aged walnut, bake required.001",
+        "uv": [
+          0.010428503155708313,
+          0.005834996700286865,
+          0.5687224864959717,
+          0.9941601157188416
+        ],
+        "triangles": 28,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD2_3",
+        "material": "Archer trigger forged steel",
+        "uv": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "triangles": 147,
+        "maps": []
+      },
+      {
+        "name": "archer_LOD2_4",
+        "material": "archer baked distance PBR",
+        "uv": [
+          0.0009765177383087575,
+          0.011033058166503906,
+          0.9912416338920593,
+          0.999016523361206
+        ],
+        "triangles": 17746,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "emissiveMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD2_5",
+        "material": "Archer repaired walnut - bake pending.001",
+        "uv": [
+          0.010414906777441502,
+          0.13595128059387207,
+          0.2876478135585785,
+          0.9960374236106873
+        ],
+        "triangles": 9,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD2_6",
+        "material": "ARCHER tapered spring steel, edge forged",
+        "uv": [
+          0.010657643899321556,
+          0.11542153358459473,
+          0.43228429555892944,
+          0.9950631856918335
+        ],
+        "triangles": 124,
+        "maps": []
+      },
+      {
+        "name": "archer_LOD2_7",
+        "material": "Crossbow twisted linen",
+        "uv": [
+          0.14865440130233765,
+          0.003962695598602295,
+          0.22572241723537445,
+          0.9960374236106873
+        ],
+        "triangles": 12,
+        "maps": []
+      },
+      {
+        "name": "archer_LOD2_8",
+        "material": "Archer flax gusset, physical plain weave",
+        "uv": [
+          -14.504486083984375,
+          -5.701576232910156,
+          15.40975570678711,
+          10.869365692138672
+        ],
+        "triangles": 182,
+        "maps": [
+          {
+            "key": "map",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD2_9",
+        "material": "Archer narrow linen sleeve binding.001",
+        "uv": [
+          0,
+          -0.8507921695709229,
+          28.366865158081055,
+          1.005271315574646
+        ],
+        "triangles": 84,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      },
+      {
+        "name": "archer_LOD2_10",
+        "material": "Archer right linen, source-matched colour.001",
+        "uv": [
+          0,
+          -7.247160911560059,
+          10.922500610351562,
+          1.0000066757202148
+        ],
+        "triangles": 982,
+        "maps": [
+          {
+            "key": "map",
+            "width": 1024,
+            "height": 1024,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "normalMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "roughnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          },
+          {
+            "key": "metalnessMap",
+            "width": 512,
+            "height": 512,
+            "repeat": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "wrapS": 1000,
+            "wrapT": 1000
+          }
+        ]
+      }
+    ]
+  }
+}

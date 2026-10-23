@@ -1,0 +1,631 @@
+{
+  "version": "1.6.34",
+  "status": "implemented_and_pc_validated_phone_fps_pending",
+  "physicalPhone": false,
+  "sourceModelsUnchanged": true,
+  "geometryRigAnimationsUnchanged": true,
+  "models": [
+    {
+      "kind": "archer",
+      "sourceSha256": "576f9366fbbd4c3c9b95a87122315698193a5c01917d17ef16eb5503b3a2bd2b",
+      "outputSha256": "5a211d638fea6f993a7c94a8852fb1cdf57e2691c54bf67cc2b3d6ae87915ddb",
+      "bytes": 10131372,
+      "changes": [
+        {
+          "image": 0,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            1,
+            1
+          ],
+          "box": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "uniform": true,
+          "originalImageSha256": "29561e13d96dfe31d6b17237b4e19d8c04fc7f7a151dad184153b2cd5f603d0c",
+          "retainedPixelsSha256": "709e80c88487a2411e1ee4dfb9f22a861492d20c4765150c0c794abd70f8147c",
+          "savedRgbaMipBytes": 5592400
+        }
+      ],
+      "unchangedGeometryRigAnimationBytes": true,
+      "savedRgbaMipMiB": 5.3333282470703125,
+      "status": "candidate_requires_visual_and_runtime_validation",
+      "output": "archer-mobile-optimized-lods.glb"
+    },
+    {
+      "kind": "gargoyle",
+      "sourceSha256": "04682930bc4ffacf2165137ce31ec7458e85fb5bdbfa624861a05e685e964868",
+      "outputSha256": "d0003f77c214b9d93ccedd97f5e709b5ec9fe998db8ebc1f3c066579320f0fc4",
+      "bytes": 7227892,
+      "changes": [
+        {
+          "image": 5,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "6d8c5bec37a20f06be1c23ef1ba5bc4c5e27549b808e9e809c8f8f50248d052c",
+          "retainedPixelsSha256": "eca5368edaadfbb7c79c241b2b8b0c09710c3b580f4aab907760e3e03c5efad0",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 6,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "152178bfdf27a4cc696ec59ad071e2d6069ee723334d675002c4f53dbe1dbda5",
+          "retainedPixelsSha256": "026ea30bb26302a5b9b06563f113f723acd71edb1a7ee35ea12deb29c4701546",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 7,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "c9286a7cdb17a312d7348ee53428914f7117683adece9ee748d3614c57e44584",
+          "retainedPixelsSha256": "d25b3ac405ceb00bcebda90bcf5c3b58beccc0dbe340af4ef0ac3e69c4738f03",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 8,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "9ce2dbff2f51c3cb8c6e7ef75d7e392e953af2b4c8e84698097658424d430e36",
+          "retainedPixelsSha256": "850610ac6f3f4949c4f5408e3b308e94076f6c9abf69d343b657d7a5b6cf676d",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 9,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "bb633e16425cde6591502d3a79da01750274bf1033860872b5bd650646a0223d",
+          "retainedPixelsSha256": "ffd0ad5763688545f73c8d3357a37478ca76b4588f09a723214f63d9408c43bb",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 10,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "2adf0c584788251009a29ecca9152b3903cf59d83f5efd098228ee4aaab010cf",
+          "retainedPixelsSha256": "9ace62ca33a5b2eacfc582caf058e9708ed21717d748da452b5dfb3ce57e29fc",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 11,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "ccca327c5f8d6d0501c2878d79e9413bde7e24e42ac8159289e5369843774525",
+          "retainedPixelsSha256": "1406129972145e5151e6db7981d85b8267becd821343d4224125a47e7c681ab9",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 12,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "50103ced170987b3ccc5e8cf4c2be659ef809fbb185b382b097829ee588f61b8",
+          "retainedPixelsSha256": "7215707b5d361a34a30b88e1a60968c4fb2d1da801ad31f713efc1511153f6d0",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 13,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "7e742f656956e87aa5029964a652a3a326ed7077955d115a40a6634aa251844a",
+          "retainedPixelsSha256": "02c815d5b9dec21d2fb2049db0f2929a00b875b1a03e100bc13107875cfda2d2",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 14,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "35b54edbae95c18e7497cbe91ad0af98973a4dca93572ae49e667dde560b47ca",
+          "retainedPixelsSha256": "08f005bc72009ca3600a9b20cd4b37e630958bf91f779a9b40d440dd9d32ab95",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 15,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "401246f89a5cf5ba4e38a0e449784693f20eea4dcd6a0c6ec0b0c75dfddeac3a",
+          "retainedPixelsSha256": "d9bd613d92405ed26cd983ab44e38f9cdc54a9380334afbf6934b2ec5c2a0ced",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 16,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "c846f7d188545e377b8b83b4d11b9b55c4c228891e4c1b4f5caf5aa7be291194",
+          "retainedPixelsSha256": "670e597e2c9ff812a80a2e80e6f213b6539ff3d7daee60fb480e2fbf075fb108",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 17,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "84465f29027432da5b5515d902a6874ed592cc06bdc06f93973e3eaa0a14d3d1",
+          "retainedPixelsSha256": "9a4f771dd1decf3fb2219d2b3f5a7f545c2b2453d123194ebc54bdba18ff9faa",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 18,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "626827c9959c743b59ed83c90bb7099df70b0ed11dc4079ce6a024ca7ad294ae",
+          "retainedPixelsSha256": "5001cfeed01260311ae2c970e52e32fae4522c1b2218e77f8ace79c11eca966c",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 19,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "a2aa07ec47c057d5272f103cc62bf4e741cfe54f2615d06d1fd4beb0cf865749",
+          "retainedPixelsSha256": "ef57c7069f54d7d97bf659bcbededd9a5ca309f56acdaac706d98e60ae009456",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 20,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "0457ba2d16c03325c08d84720161832dfe7e3b61467254340906ce848adcf153",
+          "retainedPixelsSha256": "342fc6e0d00c2c815a054c14798cebe7b3c6fde21223e83fca205bd29ca18057",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 21,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "1bfa506bb73e88002b8e14780af2f539e1e66c396c16f5620d654a3659a214ea",
+          "retainedPixelsSha256": "65e0a1298fc048934dc20f9bdfc75a84e7c75e77c8dd57fcdb3ff34c41ef7783",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 22,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "0898d912c83d1a56ad7c03428387711ff02d3dec7627d621cc54bf86a12b842d",
+          "retainedPixelsSha256": "789f14b5d5433d9086f7fc94ce6d2f8be32050c8683414b1d9b1fbbeef32651a",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 23,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "b4f4b20ff1eae8fdd05480acdf993490c53bc70761cab07268dcbfdf3fb362f4",
+          "retainedPixelsSha256": "01919c5d4b36089a30b93c543633e0030f43d26ab8b641a9a543c62dce04bec7",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 24,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "da69ba8f131c801808b62fcfcfdb8c682825313edeb96943d2632be4ddf5584c",
+          "retainedPixelsSha256": "072e85856befa431d8e057a1fd13c8ca69c37e46edb064741f9937066245293e",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 25,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "7256872e74d9e55434cc743ef53f36de1d1ce0e65194c4f0de9566442a3bf71e",
+          "retainedPixelsSha256": "0933ee29867bc4feeb6ec329e24f63c4898c6e071064e0d6bcac09e59d5143da",
+          "savedRgbaMipBytes": 5242880
+        },
+        {
+          "image": 26,
+          "before": [
+            1024,
+            1024
+          ],
+          "after": [
+            256,
+            256
+          ],
+          "box": [
+            128,
+            64,
+            384,
+            320
+          ],
+          "uniform": false,
+          "originalImageSha256": "99343ae637a1a88147ad0fed085abbf30d9f95018a5bf30ff7fd355f1e4e3554",
+          "retainedPixelsSha256": "87c8ef4e316331374c7eb5c93ac922bb9e11396b72cd30d3188f402723b80a5a",
+          "savedRgbaMipBytes": 5242880
+        }
+      ],
+      "unchangedGeometryRigAnimationBytes": true,
+      "savedRgbaMipMiB": 110,
+      "status": "candidate_requires_visual_and_runtime_validation",
+      "output": "gargoyle-mobile-optimized-lods.glb"
+    }
+  ],
+  "actualUploadedTextureBytes": {
+    "before": 401280920,
+    "after": 280345160,
+    "saved": 120935760
+  },
+  "pixelComparison": {
+    "status": "passed",
+    "errors": [],
+    "swaps": 52,
+    "cases": [
+      {
+        "name": "game-idle",
+        "changedChannels": 0,
+        "maxChannelDifference": 0,
+        "meanChannelDifference": 0,
+        "restore": {
+          "changedChannels": 0,
+          "maxChannelDifference": 0,
+          "meanChannelDifference": 0
+        },
+        "callsBefore": 222,
+        "callsAfter": 222,
+        "trianglesBefore": 718332,
+        "trianglesAfter": 718332
+      },
+      {
+        "name": "hover",
+        "changedChannels": 0,
+        "maxChannelDifference": 0,
+        "meanChannelDifference": 0,
+        "restore": {
+          "changedChannels": 0,
+          "maxChannelDifference": 0,
+          "meanChannelDifference": 0
+        },
+        "callsBefore": 152,
+        "callsAfter": 152,
+        "trianglesBefore": 1150285,
+        "trianglesAfter": 1150285
+      },
+      {
+        "name": "claw",
+        "changedChannels": 0,
+        "maxChannelDifference": 0,
+        "meanChannelDifference": 0,
+        "restore": {
+          "changedChannels": 0,
+          "maxChannelDifference": 0,
+          "meanChannelDifference": 0
+        },
+        "callsBefore": 124,
+        "callsAfter": 124,
+        "trianglesBefore": 938577,
+        "trianglesAfter": 938577
+      },
+      {
+        "name": "dive",
+        "changedChannels": 0,
+        "maxChannelDifference": 0,
+        "meanChannelDifference": 0,
+        "restore": {
+          "changedChannels": 0,
+          "maxChannelDifference": 0,
+          "meanChannelDifference": 0
+        },
+        "callsBefore": 152,
+        "callsAfter": 152,
+        "trianglesBefore": 1150285,
+        "trianglesAfter": 1150285
+      },
+      {
+        "name": "death",
+        "changedChannels": 0,
+        "maxChannelDifference": 0,
+        "meanChannelDifference": 0,
+        "restore": {
+          "changedChannels": 0,
+          "maxChannelDifference": 0,
+          "meanChannelDifference": 0
+        },
+        "callsBefore": 157,
+        "callsAfter": 157,
+        "trianglesBefore": 638489,
+        "trianglesAfter": 638489
+      },
+      {
+        "name": "distant",
+        "changedChannels": 0,
+        "maxChannelDifference": 0,
+        "meanChannelDifference": 0,
+        "restore": {
+          "changedChannels": 0,
+          "maxChannelDifference": 0,
+          "meanChannelDifference": 0
+        },
+        "callsBefore": 274,
+        "callsAfter": 274,
+        "trianglesBefore": 907432,
+        "trianglesAfter": 907432
+      }
+    ]
+  },
+  "unitTests": 473,
+  "combat": {
+    "kills": 22,
+    "bossKills": 4,
+    "summons": 6,
+    "errors": []
+  },
+  "archerCloseStream": true,
+  "limitations": [
+    "Memory and pixel comparisons were measured in PC Chrome with the mobile asset profile; physical iPhone frame-rate recovery requires a new report.",
+    "Material draw counts and the sixteen initial opponents are unchanged.",
+    "Texture crops retain original texels with conservative aligned borders; tested game/hover/claw/dive/death/distant comparisons match exactly."
+  ]
+}

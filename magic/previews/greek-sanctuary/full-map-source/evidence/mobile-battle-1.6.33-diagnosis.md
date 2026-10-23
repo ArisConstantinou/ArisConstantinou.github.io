@@ -1,5 +1,15 @@
 # Mobile battle FPS regression — 1.6.33
 
+## Implemented correction — 1.6.34
+
+This release includes an actual asset/runtime change. Twenty-two Gargoyle textures had tiny UV islands inside1024x1024images. Their original texels are retained in aligned256x256crops with at least64pixels of surrounding border and explicit KHR_texture_transform mapping. One entirely uniform Archer texture becomes1x1. Tiled/large-domain images, Warden, geometry, skins, skeletons, animations and close assets are unchanged. Generated optimized assets use new filenames; original assets remain intact.
+
+The same runtime with the mobile asset profile measured estimated uploaded texture allocation382.6913MiB before versus267.3580MiB after:115.3333MiB saved (about30%). This is a resource estimate, not a physical VRAM measurement. Six nonempty same-scene original/candidate/restored image comparisons (game, Hover, Claw, Dive, Death, distant) had zero differing channels and equal triangle/draw counts. The initial harness accumulated draw counters; it was corrected to reset counters per render, and close comparisons were centered on Gargoyle before acceptance. The pixel criterion was not relaxed.
+
+473unit tests, canonical build, two installed-client iterations and a full battle passed. The battle defeated22enemies including4bosses and6summons, with zero errors; fixed JSON export, restart16enemies and the original Archer close-asset stream passed. Browser tests completed cleanly under StorageGuard. LIST/JSON now includes the two phone regressions and this implemented change; exported rosters include actual LOD/projected-size fields. Physical iPhone FPS recovery remains unverified until a new1.6.34phone report. Material draw-call consolidation remains a separate possible optimization; it is not claimed implemented here.
+
+Evidence: canonical tests/mobile-model-optimization/texture-optimization.json, pixel-comparison.json, runtime.json and original-claw.png/cropped-claw.png. The publication manifest and receipt use work/single-room-publication/texture-optimization-*.json.
+
 ## Latest repeated phone report
 
 The second all-boss 1.6.33 report repeats the sustained slowdown with matching device, canvas, quality and initial encounter/settings: idle50.12 FPS, combat21.00 FPS (previous20.78), settle30.46 FPS. Combat P95 remains59 ms; maximum falls from340 to128 ms. It completed22 kills including4 bosses and6 summons, with zero errors. Summon counts differ from the previous19 kills/3 summons, so this is not a deterministic identical battle.
@@ -18,4 +28,4 @@ Progress: JSON comparison complete; runtime LOD/material inventory complete; acc
 
 The useful next optimization target is material/texture consolidation for the native distance models while retaining geometry, joints, animation and appearance. A new atlas requires visual/material validation and a same-phone before/after comparison. It is a candidate direction, not an implemented or verified fix.
 
-Evidence: mobile-battle-1.6.33-comparison.json. Detailed PC inventory and screenshot are retained in the canonical local test folder. Local runtime: http://127.0.0.1:5173/performance-check/canonical/index.html?hearthQA=1 . Public runtime remains 1.6.33; this report does not change the in-game LIST/JSON table.
+Historical1.6.33evidence: E:/CodexGenerated/Magic/staging/tests/mobile-battle-diagnosis/comparison.json, inventory.json and combat-before.png. Local runtime: http://127.0.0.1:5173/performance-check/canonical/index.html?hearthQA=1 . The1.6.34implementation and new LIST/JSON entries are described above.

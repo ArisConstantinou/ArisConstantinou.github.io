@@ -29,7 +29,7 @@ export async function loadBossCharacters(types = BOSS_TYPES) {
   const jobs = types.map(async type => {
     if (templates.has(type)) return;
     const file = type === 'colossus' ? 'models/redesign/colossus-meshy-lods.glb'
-      : type === 'wraith' ? 'models/redesign/wraith-1-6-1-lods.glb' : 'models/redesign/gargoyle-mobile-lods.glb';
+      : type === 'wraith' ? 'models/redesign/wraith-1-6-1-lods.glb' : 'models/redesign/gargoyle-mobile-optimized-lods.glb';
     const gltf = await loadGltfAsset(loader,new URL(file,document.baseURI).href);
     if (!gltf.animations.length) throw new Error(`Boss ${type} has no animations`);
     let skins = 0;
