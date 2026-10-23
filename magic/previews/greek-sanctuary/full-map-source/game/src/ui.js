@@ -376,8 +376,14 @@ export function createUI(callbacks = {}) {
     text('loading-label', `Έκδοση ${callbacks.version || ''} · Πάτησε · σύρε · άφησε για ρίψη`);
   }
 
+  function prepareRun() {
+    setPhase('menu');loaded=false;el['start-button'].disabled=true;
+    text('start-label','ΕΤΟΙΜΑΖΕΤΑΙ ΤΟ ΚΑΣΤΡΟ…');
+    el['loading-line'].hidden=false;setLoading(.95,'Ετοιμάζεται η νέα προσπάθεια…');
+  }
+
   function showMenu(nextProfile) { updateProfile(nextProfile); setPhase('menu'); }
-  function start() { setPhase('playing'); }
+  function start() { ready();setPhase('playing'); }
 
   function showStatus() {
     const s = latestState, h = s.hearth;
@@ -702,6 +708,6 @@ export function createUI(callbacks = {}) {
 
   updateProfile(profile); update({ hp: 100, maxHp: 100, mana: 100, maxMana: 100, time: 0 });
   function updateContext(value){bool(contextUse,'hidden',!value||phase!=='playing');if(!value)return;attr(contextUse,'data-action',value.kind==='door-strike'?'doorStrike':'context');const key=contextUse.querySelector('kbd'),keyText=value.key||'E';if(key.textContent!==keyText)key.textContent=keyText;contextUse.style.left=value.x+'px';contextUse.style.top=value.y+'px';bool(contextUse,'disabled',!value.enabled);if(contextUse.dataset.icon!==value.icon){contextUse.querySelector('.icon').outerHTML=icon(value.icon);contextUse.dataset.icon=value.icon;}if(contextUse.getAttribute('aria-label')!==value.label){contextUse.setAttribute('aria-label',value.label);contextUse.querySelector('span').textContent=value.label;}}
-  return { setUpdateState, setLoading, setDownloadProgress, ready, showMenu, start, update, toast, showPause, showResult, showUpgrades, showInventory, showStatus, updateThrowMark, hideModal, setMuted, getInput, consumeActions, destroy, showError, showHelp, setQuality,updateContext,setShieldMode:value=>{touchShield=!!value;},
+  return { setUpdateState, setLoading, setDownloadProgress, ready, prepareRun, showMenu, start, update, toast, showPause, showResult, showUpgrades, showInventory, showStatus, updateThrowMark, hideModal, setMuted, getInput, consumeActions, destroy, showError, showHelp, setQuality,updateContext,setShieldMode:value=>{touchShield=!!value;},
     updatePotions:counts=>{text('health-potions',counts.health);text('mana-potions',counts.mana);bool(el['quick-health'],'disabled',!counts.health);bool(el['quick-mana'],'disabled',!counts.mana);el['quick-health'].classList.toggle('mobile-unavailable',!counts.health);el['quick-mana'].classList.toggle('mobile-unavailable',!counts.mana);} };
 }

@@ -27,6 +27,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createWorld, createPropMesh } from './world.js';
 import { loadCharacters, createCharacter } from './characters.js';
 import { configureRigSurfacePreparation } from './rig-surface-preparation.js';
+import {prepareRunShaders} from './run-shader-preparation.js';
 import { loadBossCharacters, createBossCharacter } from './boss-characters.js';
 import { BOSS_DEFINITIONS, createBossLayout, insideBossRoom, bossAttackCrossed } from './boss-rules.js';
 import {gargoyleFlightHeight,gargoyleLiftAcceleration} from './gargoyle-flight.js';
@@ -128,8 +129,8 @@ const ui=createUI({
   hearth:true,
   onLoading:label=>performanceTest?.stage(label),
   onBenchmark:()=>{const url=new URL(location.href);url.searchParams.set('benchmark','1');location.assign(url.href);},
-  onStart:()=>{if(ready)startRun();},
-  onRestart:()=>{if(ready)startRun();},
+  onStart:()=>{if(ready)void startPreparedRun();},
+  onRestart:()=>{if(ready)void startPreparedRun();},
   onPause:()=>togglePause(),
   onPerformanceReport:()=>downloadFrameReport(frameDiagnostics.report()),
   onResume:()=>{if(phase==='paused'){phase='playing';ui.showPause(false);sound.start();}},
@@ -406,7 +407,7 @@ function populate(){
   syncVisuals(0);
 }
 function setPlayCamera(){cameraTarget.set(player.body.position.x,0,player.body.position.z-2);}
-function startRun(){
+function resetRun(){
   frameDiagnostics.startRun();
   roomVisibility?.reset();
   frameRate.reset();
@@ -417,9 +418,29 @@ function startRun(){
     engine.yaw=engine.aimYaw=player.yaw=Math.PI;engine.facing.reset(Math.PI);engine.heart.state='piloted';engine.heart.fuel=100;
     player.body.type=CANNON.Body.KINEMATIC;player.body.collisionFilterMask=0;player.body.position.set(0,player.cy+.06,17.5);player.body.velocity.set(0,0,0);player.radius=1.22;player.invulnerable=.8;hearth.sync(0);
   }
+}
+function enterRun(){
   phase='playing';ui.start();setPlayCamera();
   ui.toast(mobile?'Άγγιξε ένα αντικείμενο, κράτησε και σύρε. Άφησε το δάχτυλο για ρίψη.':'Κάνε κλικ πάνω σε ένα αντικείμενο, κράτησε και σύρε. Άφησε το κλικ για ρίψη.','info');
   if(!save.available)ui.toast('Η πρόοδος κρατιέται για αυτή τη συνεδρία. Ο browser δεν επιτρέπει αποθήκευση.','info');
+}
+// Deterministic QA/benchmark fixtures retain their synchronous start contract.
+function startRun(){resetRun();enterRun();}
+let runPreparation=null;
+function startPreparedRun(){
+  if(runPreparation)return runPreparation;
+  // Unlock WebAudio inside the user's click before asynchronous preparation.
+  sound.start();
+  phase='loading';ui.prepareRun();
+  // Defer work one frame so the loading state is actually presented. Rendering
+  // and simulation stay suspended until these replacement actors are compiled.
+  runPreparation=new Promise(requestAnimationFrame).then(async()=>{
+    resetRun();setPlayCamera();syncVisuals(0);
+    await prepareRunShaders({renderer,scene,camera,quality,composer,objects:entities.filter(e=>!e.removed&&e.category==='actor').map(e=>e.mesh)});
+    enterRun();
+    if(document.hidden){phase='paused';sound.setPaused(true);ui.showPause(true);}
+  }).catch(showError).finally(()=>{runPreparation=null;lastTime=performance.now();});
+  return runPreparation;
 }
 function togglePause(){
   if(phase==='playing'){cancelRitual();releaseHeld(false);hearth.engine.heart.firing=false;phase='paused';ui.showPause(true);}
@@ -1521,6 +1542,7 @@ function updateHUD(){
 let controlledUntil=0;
 function frame(now,manual=false){
   if(benchmarkMode&&performanceTest?.report?.outcome)return;
+  if(runPreparation){lastTime=now;if(!manual)requestAnimationFrame(frame);return;}
   if(!manual&&now<controlledUntil){lastTime=now;requestAnimationFrame(frame);return;}
   if(texturePreparation||renderer?.getContext().isContextLost()){if(!manual)frameDiagnostics.gap(texturePreparation?'texture-preparation':'context-lost');lastTime=now;if(!manual)requestAnimationFrame(frame);return;}
   if(!manual)performanceTest?.beginFrame(phase);
@@ -1616,19 +1638,7 @@ async function boot(){
     // surfaces. The menu and play cameras expose different original textures.
     phase='playing';setPlayCamera();updateCamera(0);syncVisuals(0);await prepareFrameTextures();
     phase='loading';updateCamera(100);syncVisuals(0);await prepareFrameTextures();
-    if(renderer.compileAsync){
-      // Compile the target actually used by this quality setting.
-      if(!composer||quality==='low')await renderer.compileAsync(scene,camera);
-      // Desktop renders through a linear HDR target. Precompile that variant
-      // too: compiling only the screen/sRGB variant stalls on the first shot.
-      if(composer){
-        const target=renderer.getRenderTarget();
-        renderer.setRenderTarget(composer.readBuffer);
-        const pending=renderer.compileAsync(scene,camera);
-        renderer.setRenderTarget(target);
-        await pending;
-      }
-    }
+    await prepareRunShaders({renderer,scene,camera,quality,composer,objects:entities.filter(e=>!e.removed&&e.category==='actor').map(e=>e.mesh)});
     // Preserve the prior complete offline release until encoded background
     // assets have arrived. Playing the first room need not wait for them.
     const assetsReady=new Promise(resolve=>setTimeout(resolve,1000)).then(prefetchEncodedTextures).then(complete=>{frameDiagnostics.note(complete?'background-assets-ready':'background-assets-incomplete');if(complete&&!candidate)notifyReleaseReady(navigator.serviceWorker,packageInfo.version);return complete;});

@@ -1,0 +1,58 @@
+{
+  "status": "PC_TARGETED_WARMUP_VERIFIED_NOT_A_LIVE_RELEASE",
+  "physicalPhoneAccepted": false,
+  "fullWorldCombatAccepted": false,
+  "engineSha256": "6ee396457507756029accb746ca11b09b8fd3ca81c12330be7f265b6b059bd89",
+  "tests": {
+    "status": "passed",
+    "summary": [
+      "ℹ tests 428",
+      "ℹ suites 0",
+      "ℹ pass 428",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 1437.2235",
+      ""
+    ],
+    "root": [
+      "ℹ tests 31",
+      "ℹ suites 0",
+      "ℹ pass 31",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 205.4614",
+      ""
+    ]
+  },
+  "client": {
+    "status": "completed",
+    "muted": true,
+    "maskReview": false,
+    "expectMask": true,
+    "expectFragment": true,
+    "expectSplit": false,
+    "expectStableLights": true,
+    "iterations": 2
+  },
+  "initialWraithMaterialCount": 6,
+  "initialWraithPrepared": 0,
+  "initialProgramsDeleted": 5,
+  "initialLinksDuringPlay": 5,
+  "afterWraithPrepared": 6,
+  "afterRestartWraithPrepared": 6,
+  "afterLinksDuringPlay": 0,
+  "ritualWalking": {
+    "count": 2448,
+    "fps": 143.70413853830348,
+    "p95": 9.19999999999709,
+    "max": 56.900000000001455,
+    "over50": 1
+  },
+  "ritualNewLinks": 0,
+  "reflectionSelfMs": 0,
+  "scope": "Same real high1280x720 PC graphics. Compile detached actors against real scene, then replacement actors and bounded first-use driver reflection before UI play. QA fixture start remains synchronous. No shader/geometry/texture/light/shadow quality changes. This addresses first-use shader stalls; sustained physical-phone idle/combat60FPS remains unverified. Live1.6.27/main stays unchanged."
+}
