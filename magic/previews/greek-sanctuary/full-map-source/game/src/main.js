@@ -15,6 +15,7 @@ import {prepareVisibleTextures,textureMemoryStats,prefetchEncodedTextures,config
 import * as THREE from 'three';
 import {guardZeroContributionLights} from './zero-light-work.js';
 import {createActivePointLights} from './active-point-lights.js';
+import {installMobileMaterialProfile} from './mobile-material-profile.js';
 let activePointLights;
 guardZeroContributionLights(THREE.ShaderChunk);
 import {loadSiegeAssets,addSiegeDressing,siegeEnabled} from './siege-environment.js';
@@ -72,6 +73,10 @@ import {engineEscort} from './engine-escort.js';
 import packageInfo from '../package.json';
 
 const mobile = matchMedia('(pointer: coarse)').matches;
+// Temporary mobile performance profile; retain the full reference via ?mobileIBL=1.
+const environmentLightingEnabled=!mobile||new URL(location.href).searchParams.get('mobileIBL')==='1';
+const normalMapsEnabled=!mobile||new URL(location.href).searchParams.get('mobileNormals')==='1';
+const mobileLightingModel=mobile&&!environmentLightingEnabled?(['pbr','phong'].includes(new URL(location.href).searchParams.get('mobileShading'))?new URL(location.href).searchParams.get('mobileShading'):'lambert'):'pbr';
 const FIRE_ENABLED=new URL(location.href).searchParams.get('fire')!=='0';
 const FIRE_PREVIEW=location.pathname.includes('/.cache/')||greekEnabled;
 const FIRE_BENCHMARK=new URL(location.href).searchParams.has('benchmarkFire');
@@ -95,7 +100,8 @@ let phase='loading', ready=false, quality=mobile?'low':'high', worldMap, physics
 let textureUpload,texturePreparation=null,environmentTarget;
 function prepareFrameTextures(){return prepareVisibleTextures(renderer,scene,textureUpload,camera);}
 function prepareEnvironment(){
-  environmentTarget?.dispose();
+  environmentTarget?.dispose();environmentTarget=null;
+  if(!environmentLightingEnabled){scene.environment=null;scene.environmentIntensity=.2;return;}
   const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();
   environmentTarget=pmrem.fromScene(room,.04);scene.environment=environmentTarget.texture;scene.environmentIntensity=.2;room.dispose();pmrem.dispose();
 }
@@ -1624,6 +1630,8 @@ async function boot(){
     if(!candidate&&!import.meta.env.DEV)await ensureReleaseWorker(navigator.serviceWorker,document.baseURI,packageInfo.version);
     await loadTextureProfile(readAsset);
     ui.setLoading(.05,'Ανάβουν οι δάδες…');setupRenderer();
+    scene.userData.mobileLighting=mobileLightingModel;
+    installMobileMaterialProfile(renderer,{normalMaps:normalMapsEnabled,lighting:mobileLightingModel});
     configureRigSurfacePreparation({renderer,scene,camera,renderTargets:composer?[composer.readBuffer]:[]});
     await Promise.all([loadSiegeAssets(),loadGreekAssets()]);
     worldMap=createWorld(scene,{fireEnabled:FIRE_ENABLED});

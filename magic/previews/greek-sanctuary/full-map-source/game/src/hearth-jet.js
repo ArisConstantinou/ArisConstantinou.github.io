@@ -1,15 +1,18 @@
 import * as THREE from 'three';
+import {volumeNoiseTexture,sampledVolumeNoise} from './volume-noise.js';
 
 // Reference: Newsflare wO4Z7zM3Aag, especially 1.75s and 11.75s.
 // A narrow fuel stream opens into rolling fire; smoke carries momentum then rises.
 // This is a bounded procedural volume, rather than a fluid simulation.
-const noise3=`
+const proceduralNoise3=`
 float hash3(vec3 p){p=fract(p*.3183099+vec3(.13,.37,.71));p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
 float noise3(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
  return mix(mix(mix(hash3(i),hash3(i+vec3(1,0,0)),f.x),mix(hash3(i+vec3(0,1,0)),hash3(i+vec3(1,1,0)),f.x),f.y),
  mix(mix(hash3(i+vec3(0,0,1)),hash3(i+vec3(1,0,1)),f.x),mix(hash3(i+vec3(0,1,1)),hash3(i+vec3(1,1,1)),f.x),f.y),f.z);}
 float fbm(vec3 p){return .57*noise3(p)+.29*noise3(p*2.03+7.1)+.14*noise3(p*4.11+13.7);}
 `;
+const sampledNoise=typeof matchMedia==='function'&&matchMedia('(pointer: coarse)').matches&&new URL(location.href).searchParams.get('fireNoise')!=='procedural';
+const noise3=sampledNoise?sampledVolumeNoise:proceduralNoise3;
 const volumeVertex=`varying vec3 localPosition;void main(){localPosition=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 const volumeFragment=`
 uniform float time,lengthM,lift,strength,steps,axialOffset;uniform vec3 boxSize,viewDirection;uniform mat4 inverseWorld;
@@ -116,12 +119,14 @@ void main(){
 }`;
 
 export function createHearthJet(scene,slot=0){
+ scene.userData.volumeNoise=sampledNoise?'sampled-3d':'procedural';
  const uniforms={time:{value:0},lengthM:{value:7},lift:{value:.6},strength:{value:0},steps:{value:48},axialOffset:{value:3.5},boxSize:{value:new THREE.Vector3()},viewDirection:{value:new THREE.Vector3()},inverseWorld:{value:new THREE.Matrix4()}};
+ if(sampledNoise)uniforms.fireNoiseLattice={value:volumeNoiseTexture()};
  const material=new THREE.ShaderMaterial({uniforms,vertexShader:volumeVertex,fragmentShader:volumeFragment,transparent:true,depthWrite:false,side:THREE.BackSide,toneMapped:false});
  const volume=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),material);volume.name='hearth-jet-volume';volume.visible=false;volume.renderOrder=3;scene.add(volume);
  const capacity=48,geometry=new THREE.PlaneGeometry(1,1);
  const puff=new THREE.InstancedBufferAttribute(new Float32Array(capacity*3),3);puff.setUsage(THREE.DynamicDrawUsage);geometry.setAttribute('puff',puff);
- const smokeMaterial=new THREE.ShaderMaterial({vertexShader:smokeVertex,fragmentShader:smokeFragment,transparent:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});
+ const smokeMaterial=new THREE.ShaderMaterial({uniforms:sampledNoise?{fireNoiseLattice:{value:volumeNoiseTexture()}}:{},vertexShader:smokeVertex,fragmentShader:smokeFragment,transparent:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});
  const smoke=new THREE.InstancedMesh(geometry,smokeMaterial,capacity);smoke.name='hearth-jet-smoke';smoke.instanceMatrix.setUsage(THREE.DynamicDrawUsage);smoke.frustumCulled=false;smoke.count=0;smoke.renderOrder=4;scene.add(smoke);
  const light=new THREE.PointLight(0xff8c29,0,11,2);light.name='hearth-jet-light';scene.add(light);
  const packets=Array.from({length:capacity},(_,i)=>({position:new THREE.Vector3(),velocity:new THREE.Vector3(),age:3,life:2.4,seed:i*2.39996,size:1}));

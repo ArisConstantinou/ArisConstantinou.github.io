@@ -1,8 +1,11 @@
 import {Box3,Matrix4,Vector3} from 'three';
 const fragmentOnlyCallbacks=new WeakMap();
-// Explicit contract for an authored callback that only changes fragment code.
+// Explicit contract for an authored callback that preserves vertex positions.
 // Remember its identity: an unrelated replacement must use the safe fallback.
 export function registerFragmentOnlySkinMaterial(material){fragmentOnlyCallbacks.set(material,material.onBeforeCompile);}
+// Stock Lambert changes vertex lighting, while using the same morph, skinning,
+// displacement and projection chunks as Standard. Its bounds remain valid.
+export function registerPositionPreservingSkinMaterial(material){fragmentOnlyCallbacks.set(material,material.onBeforeCompile);}
 export const hasFragmentOnlySkinCallback=(material,compile)=>fragmentOnlyCallbacks.get(material)===compile&&fragmentOnlyCallbacks.has(material);
 
 // Room uniforms expand rectangles by .5 and smoothstep reaches .9 farther.
