@@ -36,7 +36,7 @@ export function createBenchmarkStorage({local=()=>globalThis.localStorage,indexe
       const candidates=[];
       try{const value=JSON.parse(local().getItem(key));if(value)candidates.push(value);}catch{}
       try{const value=await transact('readonly',s=>s.get('latest'));if(value)candidates.push(value);}catch{}
-      return candidates.filter(r=>[1,2].includes(r.schema)).sort((a,b)=>String(b.finishedAt||b.createdAt).localeCompare(String(a.finishedAt||a.createdAt))||Number(!!a.imagesOmitted)-Number(!!b.imagesOmitted))[0]||null;
+      return candidates.filter(r=>[1,2,3].includes(r.schema)).sort((a,b)=>String(b.finishedAt||b.createdAt).localeCompare(String(a.finishedAt||a.createdAt))||Number(!!a.imagesOmitted)-Number(!!b.imagesOmitted))[0]||null;
     }
   };
 }

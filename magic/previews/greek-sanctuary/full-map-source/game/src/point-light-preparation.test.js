@@ -13,3 +13,10 @@ for(const fail of [false,true])test(`light count preparation restores original l
  if(fail)await assert.rejects(promise,/compile failed/);else{const result=await promise;assert.deepEqual(counts,[0,1,2]);assert.deepEqual(result.pointLightCounts,[0,1,2]);}
  for(let i=0;i<2;i++){assert.equal([a,b][i].intensity,expected[i].intensity);assert([a,b][i].color.equals(expected[i].color));assert([a,b][i].visible);}
 });
+
+test('detached pooled effects are compiled against scene lights before combat',async()=>{
+ const scene=new THREE.Scene(),sprite=new THREE.Sprite(new THREE.SpriteMaterial()),calls=[];
+ const renderer={getRenderTarget:()=>null,setRenderTarget(){},compileAsync:(root,camera,targetScene)=>{calls.push({root,targetScene});return Promise.resolve();},properties:{get:()=>({})}};
+ await prepareRunShaders({renderer,scene,camera:{},quality:'low',effectObjects:[sprite],nextFrame:async()=>{}});
+ assert.equal(calls.length,2);assert.equal(calls[1].root,sprite);assert.equal(calls[1].targetScene,scene);assert.equal(sprite.parent,null);
+});

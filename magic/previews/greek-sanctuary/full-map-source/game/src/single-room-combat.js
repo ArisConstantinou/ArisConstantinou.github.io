@@ -4,7 +4,7 @@ import {createGpuTimer} from './benchmark-gpu.js';
 import {createBenchmarkStorage} from './benchmark-storage.js';
 import {selectCombatTarget,combatMovement,combatComplete,CONFIG,FINDINGS,ENCOUNTER,REPORT_HISTORY} from './single-room-combat-rules.js';
 import './single-room-combat.css';
-import {ISOLATION_PRESETS,isolationPreset,isolationEncounter,isolationConfig,holdIsolatedEnemy,applyBossRenderIsolation} from './boss-isolation.js';
+import {ISOLATION_PRESETS,isolationPreset,isolationEncounter,isolationConfig,holdIsolatedEnemy,applyBossRenderIsolation,isolationAssets} from './boss-isolation.js';
 
 // Temporary, explicitly labelled diagnostic fixture. Normal damage, animation,
 // physics, flames and HEARTH abilities run through the game's existing systems.
@@ -17,7 +17,7 @@ export function createSingleRoomCombat(get){
  const event=(name,detail={})=>{if(report&&events.length<500)events.push({at:performance.now()-start,name,...detail});};
  const f=(v,d=1)=>Number.isFinite(v)?v.toFixed(d):'—';
  function device(){const c=get(),gl=c.renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return {userAgent:navigator.userAgent,viewport:[innerWidth,innerHeight],canvas:[c.renderer.domElement.width,c.renderer.domElement.height],dpr:devicePixelRatio,quality:c.quality,threads:navigator.hardwareConcurrency||null,deviceMemoryGiB:navigator.deviceMemory||null,gpu:gl.getParameter(ext?ext.UNMASKED_RENDERER_WEBGL:gl.RENDERER),physicalPhoneTestByAgent:false};}
- function config(){const c=get();return {...CONFIG,...isolationConfig(active.isolation),freezeShadows:active.freezeShadows,omitZeroLights:active.omitZeroLights,shadowAutoUpdate:c.renderer.shadowMap.autoUpdate,lightFilter:c.activePointLights.snapshot(),rooms:c.world.rooms.map(r=>r.id),floors:c.world.floors.length,bodies:c.physics.bodies.length,actors:c.entities.filter(e=>e.category==='actor'&&!e.removed).length,programs:c.renderer.info.programs.length,quality:c.quality,muted:c.sound.muted??true};}
+ function config(){const c=get();return {...CONFIG,...isolationConfig(active.isolation),loadedAssetPlan:isolationAssets(active.isolation),effectResources:'pooled and shaders prepared before start',freezeShadows:active.freezeShadows,omitZeroLights:active.omitZeroLights,shadowAutoUpdate:c.renderer.shadowMap.autoUpdate,lightFilter:c.activePointLights.snapshot(),rooms:c.world.rooms.map(r=>r.id),floors:c.world.floors.length,bodies:c.physics.bodies.length,actors:c.entities.filter(e=>e.category==='actor'&&!e.removed).length,programs:c.renderer.info.programs.length,quality:c.quality,muted:c.sound.muted??true};}
  function living(){
   for(const e of get().entities)if(e.category==='actor'&&!e.isPlayer&&!e.ally&&!e.removed&&!setupTargets.includes(e))setupTargets.push(e);
   return setupTargets.filter(e=>!e.dead&&!e.removed);
@@ -135,6 +135,6 @@ export function createSingleRoomCombat(get){
   const fail=error=>{if(!running)return;report.errors.push({at:performance.now()-start,message:String(error?.message||error)});void finish('runtime error');};
   window.addEventListener('error',e=>fail(e.error||e.message));window.addEventListener('unhandledrejection',e=>fail(e.reason));get().renderer.domElement.addEventListener('webglcontextlost',()=>fail('WebGL context lost'));
  }
- const api={prepared:value=>{shaderPreparation=value;},populate,ready,begin,beginFrame,control,aim,hit,mark,beginRender,endFrame,show,finish,get report(){return report;},get running(){return running;},get holdEnemies(){return !running||stage==='idle';},holdEnemy:e=>!running||stage==='idle'||holdIsolatedEnemy(e,active.isolation),snapshot:()=>({running,stage,remaining:living().length,totalEnemies:setupTargets.length,roster:roster(),configuration:config()})};
+ const api={get assets(){return isolationAssets(settings.isolation);},prepared:value=>{shaderPreparation=value;},populate,ready,begin,beginFrame,control,aim,hit,mark,beginRender,endFrame,show,finish,get report(){return report;},get running(){return running;},get holdEnemies(){return !running||stage==='idle';},holdEnemy:e=>!running||stage==='idle'||holdIsolatedEnemy(e,active.isolation),snapshot:()=>({running,stage,remaining:living().length,totalEnemies:setupTargets.length,roster:roster(),configuration:config()})};
  globalThis.__MAGIC_SINGLE_COMBAT__=api;return api;
 }

@@ -1,11 +1,11 @@
 // Compile the actual run's materials after population, for the colour target
 // this quality uses. The menu's actors are disposed when a new run starts.
-export async function prepareRunShaders({renderer,scene,camera,quality,composer,objects=[],fadeObjects=[],pointLightVariants=false,lightCountPolicy=null,nextFrame=()=>new Promise(requestAnimationFrame)}) {
+export async function prepareRunShaders({renderer,scene,camera,quality,composer,objects=[],effectObjects=[],fadeObjects=[],pointLightVariants=false,lightCountPolicy=null,nextFrame=()=>new Promise(requestAnimationFrame)}) {
   if(!renderer.compileAsync)return;
   // Distant actors are deliberately detached by syncVisuals, not only hidden.
   // Compile those actual objects against the scene's lights/environment while
   // preserving their parent, visibility and every gameplay transform.
-  const roots=[scene,...new Set(objects.filter(object=>{
+  const roots=[scene,...new Set([...objects,...effectObjects].filter(object=>{
     for(let p=object;p;p=p.parent)if(p===scene)return false;
     return true;
   }))];

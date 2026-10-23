@@ -16,6 +16,15 @@ export function createEffects(scene) {
     fragmentShader:'varying vec3 vColor; varying float vLife; void main(){float d=length(gl_PointCoord-0.5)*2.0;float a=pow(max(0.0,1.0-d),1.8)*vLife;gl_FragColor=vec4(vColor*1.5,a);}'});
   const cloud=new THREE.Points(geo,mat);cloud.frustumCulled=false;scene.add(cloud);
   let cursor=0;const rings=[],texts=[],keyedTexts=new Map(),textTextures=createDamageTextureCache(64);
+  // Keep material/program ownership between hits. Expiry detaches meshes;
+  // it no longer destroys the same sprite/ring shaders every second.
+  const ringGeometry=new THREE.RingGeometry(.91,1,64);
+  const placeholder=new THREE.DataTexture(new Uint8Array([255,255,255,255]),1,1);placeholder.colorSpace=THREE.SRGBColorSpace;placeholder.needsUpdate=true;
+  const makeRing=()=>new THREE.Mesh(ringGeometry,new THREE.MeshBasicMaterial({color:0x7affa9,side:THREE.DoubleSide,transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false}));
+  const makeText=()=>new THREE.Sprite(new THREE.SpriteMaterial({map:placeholder,depthTest:false,transparent:true}));
+  const ringPool=[makeRing()],textPool=[makeText()];
+  function releaseRing(mesh){mesh.removeFromParent();if(ringPool.length<16)ringPool.push(mesh);else mesh.material.dispose();}
+  function releaseText(entry){entry.mesh.removeFromParent();textTextures.release(entry.texture);entry.mesh.material.map=placeholder;entry.mesh.material.opacity=1;if(textPool.length<23)textPool.push(entry.mesh);else entry.mesh.material.dispose();}
   const tetherGeo=new THREE.BufferGeometry();tetherGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(28*3),3));
   const tether=new THREE.Line(tetherGeo,new THREE.LineBasicMaterial({color:0x77ffcf,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false}));
   tether.frustumCulled=false;tether.visible=false;scene.add(tether);
@@ -30,8 +39,7 @@ export function createEffects(scene) {
     geo.attributes.color.needsUpdate=geo.attributes.aSize.needsUpdate=true;
   }
   function ring(p,hex=0x7affa9,radius=3,duration=.45){
-    const m=new THREE.Mesh(new THREE.RingGeometry(.91,1,64),
-      new THREE.MeshBasicMaterial({color:hex,side:THREE.DoubleSide,transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false}));
+    const m=ringPool.pop()||makeRing();m.material.color.set(hex);m.material.opacity=.8;
     m.rotation.x=-Math.PI/2;m.position.set(p.x,.08,p.z);m.scale.setScalar(.15);scene.add(m);rings.push({mesh:m,age:0,duration,radius});
   }
   function number(p,value,hex='#e6fff4',key=null){
@@ -44,7 +52,7 @@ export function createEffects(scene) {
     });
     const tex=texture.texture;
     if(existing){textTextures.release(existing.texture);existing.texture=texture;existing.mesh.material.map=tex;existing.age=0;existing.anchor=p;existing.mesh.position.set(p.x,p.y+1.35,p.z);return;}
-    const m=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false,transparent:true}));
+    const m=textPool.pop()||makeText();m.material.map=tex;m.material.opacity=1;
     m.position.set(p.x,p.y+(key?1.35:1.8),p.z);m.scale.set(key?1.25:2.1,key ? .53 : .9,1);scene.add(m);const entry={mesh:m,texture,age:0,key,anchor:p};texts.push(entry);if(key)keyedTexts.set(key,entry);
   }
   function connect(from,to,time){
@@ -60,9 +68,9 @@ export function createEffects(scene) {
     for(let i=0;i<N;i++){if(life[i]<=0)continue;age[i]+=dt;life[i]=Math.max(0,1-age[i]/duration[i]);const k=i*3;
       positions[k]+=velocity[k]*dt;positions[k+1]+=velocity[k+1]*dt;positions[k+2]+=velocity[k+2]*dt;velocity[k+1]-=3*dt;velocity[k]*=1-dt*.7;velocity[k+2]*=1-dt*.7;}
     geo.attributes.position.needsUpdate=geo.attributes.aLife.needsUpdate=true;
-    for(let i=rings.length-1;i>=0;i--){const r=rings[i];r.age+=dt;const t=r.age/r.duration;r.mesh.scale.setScalar(.15+r.radius*Math.sqrt(Math.min(1,t)));r.mesh.material.opacity=.75*(1-t);if(t>=1){scene.remove(r.mesh);r.mesh.geometry.dispose();r.mesh.material.dispose();rings.splice(i,1);}}
-    for(let i=texts.length-1;i>=0;i--){const t=texts[i];t.age+=dt;if(t.key&&t.age<.25)t.mesh.position.set(t.anchor.x,t.anchor.y+1.35,t.anchor.z);else t.mesh.position.y+=dt*.85;t.mesh.material.opacity=Math.min(1,(1-t.age)*2);if(t.age>=1){scene.remove(t.mesh);if(t.key)keyedTexts.delete(t.key);textTextures.release(t.texture);t.mesh.material.dispose();texts.splice(i,1);}}
+    for(let i=rings.length-1;i>=0;i--){const r=rings[i];r.age+=dt;const t=r.age/r.duration;r.mesh.scale.setScalar(.15+r.radius*Math.sqrt(Math.min(1,t)));r.mesh.material.opacity=.75*(1-t);if(t>=1){releaseRing(r.mesh);rings.splice(i,1);}}
+    for(let i=texts.length-1;i>=0;i--){const t=texts[i];t.age+=dt;if(t.key&&t.age<.25)t.mesh.position.set(t.anchor.x,t.anchor.y+1.35,t.anchor.z);else t.mesh.position.y+=dt*.85;t.mesh.material.opacity=Math.min(1,(1-t.age)*2);if(t.age>=1){if(t.key)keyedTexts.delete(t.key);releaseText(t);texts.splice(i,1);}}
   }
-  function clear(){stompEffects.clear();life.fill(0);tether.visible=false;for(const r of rings){scene.remove(r.mesh);r.mesh.geometry.dispose();r.mesh.material.dispose();}rings.length=0;for(const t of texts){scene.remove(t.mesh);textTextures.release(t.texture);t.mesh.material.dispose();}texts.length=0;keyedTexts.clear();textTextures.clear();}
-  return {burst,ring,number,connect,update,clear,stomp:stompEffects.impact,stompSnapshot:stompEffects.snapshot};
+  function clear(){stompEffects.clear();life.fill(0);tether.visible=false;for(const r of rings)releaseRing(r.mesh);rings.length=0;for(const t of texts)releaseText(t);texts.length=0;keyedTexts.clear();textTextures.clear();}
+  return {get preparationObjects(){return [...ringPool,...textPool];},poolSnapshot:()=>({activeRings:rings.length,activeTexts:texts.length,idleRings:ringPool.length,idleTexts:textPool.length}),burst,ring,number,connect,update,clear,stomp:stompEffects.impact,stompSnapshot:stompEffects.snapshot};
 }

@@ -14,7 +14,8 @@ export const REPORT_HISTORY=Object.freeze([
  {version:'1.6.32',measurement:'iPhone · μάχη 59,26 FPS · max 40 ms',action:'Σταθερό magic-benchmark.json · καμία αλλαγή απόδοσης',status:'6/6 · 0 σφάλματα · εκτός μάχης 145/84 ms'},
  {version:'1.6.33',measurement:'iPhone · μάχη 20,78 / 21,00 FPS · 2 JSON',action:'Πτώση επαναλαμβάνεται · ίδια αρχική σύνθεση · 0 σφάλματα',status:'Επιβάρυνση μοντέλων/υφών · ακριβής αιτία ανοικτή'},
  {version:'1.6.34',measurement:'Περίπου 115 MiB λιγότερα texels μαζί με mipmaps',action:'Gargoyle: αχρησιμοποίητα περιθώρια υφών · Archer: ομοιόχρωμη υφή',status:'Νέο iPhone JSON: 20,06 FPS · η μνήμη μειώθηκε, τα FPS ΟΧΙ'},
- {version:'1.6.35',measurement:'Απομόνωση · η αιτία παραμένει ανοικτή',action:'Προεπιλογή: 6 εχθροί / bosses OFF · 12 χωρίς / κάθε boss / όλοι / εμφάνιση OFF / AI OFF',status:'Απαιτεί σύγκριση JSON στην ίδια συσκευή · όχι ισχυρισμός 60 FPS'},
+ {version:'1.6.35',measurement:'Απομόνωση · η αιτία παραμένει ανοικτή',action:'Προεπιλογή: 6 εχθροί / bosses OFF · 12 χωρίς / κάθε boss / όλοι / εμφάνιση OFF / AI OFF',status:'iPhone: 6 εχθροί / bosses OFF · μάχη 45,67 FPS · max 224 ms'},
+ {version:'1.6.36',measurement:'Διόρθωση φόρτωσης και επαναχρησιμοποίηση εφέ',action:'Μόνο επιλεγμένα μοντέλα · pool αριθμών/δακτυλίων · shaders πριν τη μάχη · ανάκτηση JSON',status:'Εφαρμοσμένα · επίδραση στα FPS κινητού προς μέτρηση'},
 ]);
 export const FINDINGS=Object.freeze([
  {label:'Ένα δωμάτιο μόνο',measurement:'45 s · late 45,8 FPS',result:'Δεν αρκούσε για 60'},

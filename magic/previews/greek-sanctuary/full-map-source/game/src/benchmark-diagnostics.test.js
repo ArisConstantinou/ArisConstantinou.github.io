@@ -33,3 +33,9 @@ test('resource estimate deduplicates GPU texture handles and geometry payloads',
 test('resource estimates count different views of one shared geometry buffer once',()=>{
  const scene=new THREE.Scene(),data=new Float32Array(120),a=new THREE.BufferGeometry(),b=new THREE.BufferGeometry();a.setAttribute('position',new THREE.BufferAttribute(data,3));b.setAttribute('position',new THREE.BufferAttribute(data.subarray(30,60),3));scene.add(new THREE.Mesh(a),new THREE.Mesh(b));const renderer={properties:{get:()=>({})},info:{memory:{},programs:[]}};assert.equal(estimateResources(renderer,scene).loadedGeometryPayloadBytes,data.byteLength);
 });
+
+test('current schema 3 combat JSON survives reload from fallback storage',async()=>{
+ const saved={schema:3,scenario:'single-room-hearth-combat',createdAt:'2026-10-23',scenes:[],issues:[]};
+ const storage=createBenchmarkStorage({local:()=>({getItem:()=>JSON.stringify(saved)}),indexed:()=>null});
+ assert.deepEqual(await storage.load(),saved);
+});

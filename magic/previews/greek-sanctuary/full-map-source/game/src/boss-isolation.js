@@ -30,3 +30,8 @@ export function applyBossRenderIsolation(entities,id){
  // suppress only the boss model draw. Health bars/attack effects remain visible.
  for(const e of entities)if(e.kind==='boss'&&!e.removed)e.mesh.visible=false;
 }
+
+export function isolationAssets(id){
+ const c=isolationConfig(id);
+ return {characters:['mage','guard','archer','heavy',...(c.bossTypes.includes('warden')?['warden']:[])],bosses:c.bossTypes.filter(type=>type!=='warden'),stoneMinion:c.bossSummoning};
+}

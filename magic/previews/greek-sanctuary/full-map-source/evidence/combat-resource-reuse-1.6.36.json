@@ -1,0 +1,1073 @@
+{
+  "effectComparison": {
+    "status": "passed",
+    "comparison": "same geometry, material render properties, canvas sizes and transforms at five effect states; not a pixel screenshot comparison",
+    "states": 5,
+    "oldMaterialDisposals": 3,
+    "newMaterialDisposals": 0,
+    "pool": {
+      "activeRings": 1,
+      "activeTexts": 1,
+      "idleRings": 0,
+      "idleTexts": 1
+    }
+  },
+  "version": "1.6.36",
+  "status": "resource_overhead_fixed_phone_fps_pending",
+  "physicalPhone": false,
+  "unitTests": 481,
+  "regressions": {
+    "before": [
+      "schema3 reload failed",
+      "ring material disposed per expiry"
+    ],
+    "after": "both pass; pooled resources retained and latest JSON restored"
+  },
+  "priorPhone": {
+    "version": "1.6.35",
+    "isolation": "baseline6",
+    "combatFPS": 45.67478979620921,
+    "idleFPS": 53.361792956243335,
+    "maxCombatMs": 224,
+    "conclusion": "No-boss workload improved relative to all bosses, but remaining hitches and device FPS cause are unresolved."
+  },
+  "restoredReportId": "magic-mvkypxdh",
+  "cases": [
+    {
+      "id": "baseline6",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 6,
+        "regularEnemyCount": 6,
+        "bossCount": 0,
+        "bossTypes": [],
+        "bossSummoning": false,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "baseline6",
+        "isolationLabel": "1 · 6 εχθροί · BOSSES OFF (παλιά βάση)",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "loadedAssetPlan": {
+          "characters": [
+            "mage",
+            "guard",
+            "archer",
+            "heavy"
+          ],
+          "bosses": [],
+          "stoneMinion": false
+        },
+        "effectResources": "pooled and shaders prepared before start",
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 13,
+          "omitted": 78,
+          "maxOmitted": 6,
+          "active": 5,
+          "slots": 5
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 48,
+        "actors": 7,
+        "programs": 155,
+        "quality": "low"
+      },
+      "modelRequests": [
+        "caryatid.glb",
+        "caryatid-fragments.glb",
+        "redesign/mage-fingers-1-6-1-lods.glb",
+        "redesign/guard-meshy-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/archer-mobile-optimized-lods.glb",
+        "redesign/heavy-meshy-native-lods.glb",
+        "hearth-bulwark/hearth-bulwark.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm"
+      ],
+      "initialCount": 6,
+      "outcome": "complete",
+      "kills": 6,
+      "bossKills": 0,
+      "errors": [],
+      "initialPrograms": 155,
+      "endPrograms": 157
+    },
+    {
+      "id": "regular12",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 12,
+        "regularEnemyCount": 12,
+        "bossCount": 0,
+        "bossTypes": [],
+        "bossSummoning": false,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "regular12",
+        "isolationLabel": "2 · 12 εχθροί · BOSSES OFF",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "loadedAssetPlan": {
+          "characters": [
+            "mage",
+            "guard",
+            "archer",
+            "heavy"
+          ],
+          "bosses": [],
+          "stoneMinion": false
+        },
+        "effectResources": "pooled and shaders prepared before start",
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 54,
+        "actors": 13,
+        "programs": 141,
+        "quality": "low"
+      },
+      "modelRequests": [
+        "caryatid.glb",
+        "caryatid-fragments.glb",
+        "redesign/mage-fingers-1-6-1-lods.glb",
+        "redesign/guard-meshy-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/archer-mobile-optimized-lods.glb",
+        "redesign/heavy-meshy-native-lods.glb",
+        "hearth-bulwark/hearth-bulwark.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm"
+      ],
+      "initialCount": 12,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": [],
+      "initialPrograms": 141,
+      "endPrograms": 155
+    },
+    {
+      "id": "warden",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 13,
+        "regularEnemyCount": 12,
+        "bossCount": 1,
+        "bossTypes": [
+          "warden"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "warden",
+        "isolationLabel": "3 · 12 εχθροί + Warden μόνο",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "loadedAssetPlan": {
+          "characters": [
+            "mage",
+            "guard",
+            "archer",
+            "heavy",
+            "warden"
+          ],
+          "bosses": [],
+          "stoneMinion": true
+        },
+        "effectResources": "pooled and shaders prepared before start",
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 55,
+        "actors": 14,
+        "programs": 151,
+        "quality": "low"
+      },
+      "modelRequests": [
+        "caryatid.glb",
+        "caryatid-fragments.glb",
+        "redesign/mage-fingers-1-6-1-lods.glb",
+        "redesign/guard-meshy-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/archer-mobile-optimized-lods.glb",
+        "redesign/heavy-meshy-native-lods.glb",
+        "redesign/iron-warden-mobile-lods.glb",
+        "redesign/stone-minion-1-6-1-far.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "hearth-bulwark/hearth-bulwark.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm"
+      ],
+      "initialCount": 13,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": [],
+      "initialPrograms": 151,
+      "endPrograms": 165
+    },
+    {
+      "id": "colossus",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 13,
+        "regularEnemyCount": 12,
+        "bossCount": 1,
+        "bossTypes": [
+          "colossus"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "colossus",
+        "isolationLabel": "4 · 12 εχθροί + Colossus μόνο",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "loadedAssetPlan": {
+          "characters": [
+            "mage",
+            "guard",
+            "archer",
+            "heavy"
+          ],
+          "bosses": [
+            "colossus"
+          ],
+          "stoneMinion": true
+        },
+        "effectResources": "pooled and shaders prepared before start",
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 55,
+        "actors": 14,
+        "programs": 142,
+        "quality": "low"
+      },
+      "modelRequests": [
+        "caryatid.glb",
+        "caryatid-fragments.glb",
+        "redesign/mage-fingers-1-6-1-lods.glb",
+        "redesign/guard-meshy-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/archer-mobile-optimized-lods.glb",
+        "redesign/heavy-meshy-native-lods.glb",
+        "redesign/colossus-meshy-lods.glb",
+        "redesign/stone-minion-1-6-1-far.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "hearth-bulwark/hearth-bulwark.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm"
+      ],
+      "initialCount": 13,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": [],
+      "initialPrograms": 142,
+      "endPrograms": 156
+    },
+    {
+      "id": "gargoyle",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 13,
+        "regularEnemyCount": 12,
+        "bossCount": 1,
+        "bossTypes": [
+          "gargoyle"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "gargoyle",
+        "isolationLabel": "5 · 12 εχθροί + Gargoyle μόνο",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "loadedAssetPlan": {
+          "characters": [
+            "mage",
+            "guard",
+            "archer",
+            "heavy"
+          ],
+          "bosses": [
+            "gargoyle"
+          ],
+          "stoneMinion": true
+        },
+        "effectResources": "pooled and shaders prepared before start",
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 55,
+        "actors": 14,
+        "programs": 142,
+        "quality": "low"
+      },
+      "modelRequests": [
+        "caryatid.glb",
+        "caryatid-fragments.glb",
+        "redesign/mage-fingers-1-6-1-lods.glb",
+        "redesign/guard-meshy-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/archer-mobile-optimized-lods.glb",
+        "redesign/heavy-meshy-native-lods.glb",
+        "redesign/gargoyle-mobile-optimized-lods.glb",
+        "redesign/stone-minion-1-6-1-far.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "hearth-bulwark/hearth-bulwark.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm"
+      ],
+      "initialCount": 13,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": [],
+      "initialPrograms": 142,
+      "endPrograms": 156
+    },
+    {
+      "id": "wraith",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 13,
+        "regularEnemyCount": 12,
+        "bossCount": 1,
+        "bossTypes": [
+          "wraith"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "wraith",
+        "isolationLabel": "6 · 12 εχθροί + Wraith μόνο",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "loadedAssetPlan": {
+          "characters": [
+            "mage",
+            "guard",
+            "archer",
+            "heavy"
+          ],
+          "bosses": [
+            "wraith"
+          ],
+          "stoneMinion": true
+        },
+        "effectResources": "pooled and shaders prepared before start",
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 55,
+        "actors": 14,
+        "programs": 166,
+        "quality": "low"
+      },
+      "modelRequests": [
+        "caryatid.glb",
+        "caryatid-fragments.glb",
+        "redesign/mage-fingers-1-6-1-lods.glb",
+        "redesign/guard-meshy-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/archer-mobile-optimized-lods.glb",
+        "redesign/heavy-meshy-native-lods.glb",
+        "redesign/wraith-1-6-1-lods.glb",
+        "redesign/stone-minion-1-6-1-far.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "hearth-bulwark/hearth-bulwark.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm"
+      ],
+      "initialCount": 13,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": [],
+      "initialPrograms": 166,
+      "endPrograms": 180
+    },
+    {
+      "id": "render-off",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 16,
+        "regularEnemyCount": 12,
+        "bossCount": 4,
+        "bossTypes": [
+          "warden",
+          "colossus",
+          "gargoyle",
+          "wraith"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "render-off",
+        "isolationLabel": "8 · Όλοι · εμφάνιση bosses OFF / AI ON",
+        "bossRendering": false,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "loadedAssetPlan": {
+          "characters": [
+            "mage",
+            "guard",
+            "archer",
+            "heavy",
+            "warden"
+          ],
+          "bosses": [
+            "colossus",
+            "gargoyle",
+            "wraith"
+          ],
+          "stoneMinion": true
+        },
+        "effectResources": "pooled and shaders prepared before start",
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 58,
+        "actors": 17,
+        "programs": 175,
+        "quality": "low"
+      },
+      "modelRequests": [
+        "caryatid.glb",
+        "caryatid-fragments.glb",
+        "redesign/mage-fingers-1-6-1-lods.glb",
+        "redesign/guard-meshy-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/archer-mobile-optimized-lods.glb",
+        "redesign/heavy-meshy-native-lods.glb",
+        "redesign/iron-warden-mobile-lods.glb",
+        "redesign/colossus-meshy-lods.glb",
+        "redesign/gargoyle-mobile-optimized-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/wraith-1-6-1-lods.glb",
+        "redesign/stone-minion-1-6-1-far.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "hearth-bulwark/hearth-bulwark.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm"
+      ],
+      "initialCount": 16,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": [],
+      "initialPrograms": 175,
+      "endPrograms": 189,
+      "renderIsolation": {
+        "animationUpdates": 336,
+        "bosses": [
+          {
+            "visible": false,
+            "body": true,
+            "heldByAI": true
+          },
+          {
+            "visible": false,
+            "body": true,
+            "heldByAI": true
+          },
+          {
+            "visible": false,
+            "body": true,
+            "heldByAI": true
+          },
+          {
+            "visible": false,
+            "body": true,
+            "heldByAI": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "ai-off",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 16,
+        "regularEnemyCount": 12,
+        "bossCount": 4,
+        "bossTypes": [
+          "warden",
+          "colossus",
+          "gargoyle",
+          "wraith"
+        ],
+        "bossSummoning": false,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "ai-off",
+        "isolationLabel": "9 · Όλοι · AI bosses OFF / εμφάνιση ON",
+        "bossRendering": true,
+        "bossAI": false,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "loadedAssetPlan": {
+          "characters": [
+            "mage",
+            "guard",
+            "archer",
+            "heavy",
+            "warden"
+          ],
+          "bosses": [
+            "colossus",
+            "gargoyle",
+            "wraith"
+          ],
+          "stoneMinion": false
+        },
+        "effectResources": "pooled and shaders prepared before start",
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 58,
+        "actors": 17,
+        "programs": 174,
+        "quality": "low"
+      },
+      "modelRequests": [
+        "caryatid.glb",
+        "caryatid-fragments.glb",
+        "redesign/mage-fingers-1-6-1-lods.glb",
+        "redesign/guard-meshy-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/archer-mobile-optimized-lods.glb",
+        "redesign/heavy-meshy-native-lods.glb",
+        "redesign/iron-warden-mobile-lods.glb",
+        "redesign/colossus-meshy-lods.glb",
+        "redesign/gargoyle-mobile-optimized-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/wraith-1-6-1-lods.glb",
+        "hearth-bulwark/hearth-bulwark.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm"
+      ],
+      "initialCount": 16,
+      "outcome": "partial",
+      "kills": 0,
+      "bossKills": 0,
+      "errors": [],
+      "initialPrograms": 174,
+      "endPrograms": 188,
+      "aiIsolation": [
+        {
+          "kind": "boss",
+          "bossType": null,
+          "held": true,
+          "visible": true,
+          "channel": 0
+        },
+        {
+          "kind": "boss",
+          "bossType": "colossus",
+          "held": true,
+          "visible": true,
+          "channel": 0,
+          "bossTime": 0,
+          "attackIndex": 0
+        },
+        {
+          "kind": "boss",
+          "bossType": "gargoyle",
+          "held": true,
+          "visible": true,
+          "channel": 0,
+          "bossTime": 0,
+          "attackIndex": 0
+        },
+        {
+          "kind": "boss",
+          "bossType": "wraith",
+          "held": true,
+          "visible": true,
+          "channel": 0,
+          "bossTime": 0,
+          "attackIndex": 0
+        },
+        {
+          "kind": "guard",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "archer",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "heavy",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "guard",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "archer",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "heavy",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "heavy",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "guard",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "archer",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "heavy",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "guard",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        },
+        {
+          "kind": "archer",
+          "bossType": null,
+          "held": false,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "id": "all",
+      "configuration": {
+        "world": "single-courtyard",
+        "fullWorld": false,
+        "baselineSeconds": 15,
+        "maximumSeconds": 180,
+        "enemyCount": 16,
+        "regularEnemyCount": 12,
+        "bossCount": 4,
+        "bossTypes": [
+          "warden",
+          "colossus",
+          "gargoyle",
+          "wraith"
+        ],
+        "bossSummoning": true,
+        "enemyHealth": "normal",
+        "playerHealth": "unlimited",
+        "torchFlames": true,
+        "activeTorchLights": true,
+        "physics": true,
+        "props": true,
+        "statues": true,
+        "animations": true,
+        "enemyAI": "held during baseline; normal during combat",
+        "autoFire": true,
+        "autoStomp": true,
+        "staticShadowCache": true,
+        "batchShadowCache": false,
+        "muted": true,
+        "navigationExperiment": false,
+        "isolation": "all",
+        "isolationLabel": "7 · 12 εχθροί + ΟΛΟΙ οι bosses",
+        "bossRendering": true,
+        "bossAI": true,
+        "bossAnimations": true,
+        "freshDocument": true,
+        "loadedAssetPlan": {
+          "characters": [
+            "mage",
+            "guard",
+            "archer",
+            "heavy",
+            "warden"
+          ],
+          "bosses": [
+            "colossus",
+            "gargoyle",
+            "wraith"
+          ],
+          "stoneMinion": true
+        },
+        "effectResources": "pooled and shaders prepared before start",
+        "freezeShadows": true,
+        "omitZeroLights": true,
+        "shadowAutoUpdate": true,
+        "lightFilter": {
+          "enabled": true,
+          "buckets": [
+            5,
+            7,
+            11
+          ],
+          "renders": 0,
+          "omitted": 0,
+          "maxOmitted": 0,
+          "active": 0,
+          "slots": 0
+        },
+        "rooms": [
+          "courtyard"
+        ],
+        "floors": 1,
+        "bodies": 58,
+        "actors": 17,
+        "programs": 175,
+        "quality": "low"
+      },
+      "modelRequests": [
+        "caryatid.glb",
+        "caryatid-fragments.glb",
+        "redesign/mage-fingers-1-6-1-lods.glb",
+        "redesign/guard-meshy-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/archer-mobile-optimized-lods.glb",
+        "redesign/heavy-meshy-native-lods.glb",
+        "redesign/iron-warden-mobile-lods.glb",
+        "redesign/colossus-meshy-lods.glb",
+        "redesign/gargoyle-mobile-optimized-lods.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "redesign/wraith-1-6-1-lods.glb",
+        "redesign/stone-minion-1-6-1-far.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm",
+        "hearth-bulwark/hearth-bulwark.glb",
+        "draco/draco_wasm_wrapper.js",
+        "draco/draco_decoder.wasm"
+      ],
+      "initialCount": 16,
+      "outcome": "complete",
+      "kills": 25,
+      "bossKills": 4,
+      "errors": [],
+      "initialPrograms": 175,
+      "endPrograms": 167
+    }
+  ],
+  "limitations": [
+    "PC Chrome functional checks are not physical iPhone FPS proof.",
+    "Visual materials, mesh detail, enemy composition, HP and animation are unchanged.",
+    "Models unused by the chosen scenario are not downloaded or parsed; each selection still reloads the document.",
+    "Sprite/ring pooling retains materials and compiled programs between effects, with bounded idle pools."
+  ]
+}
