@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs/promises';import {pathToFileURL} from 'node:url';import path from 'node:path';
 import * as T from './game/node_modules/three/build/three.module.js';
 const three=pathToFileURL(path.resolve('game/node_modules/three/build/three.module.js')).href;
-const batches=(await fs.readFile('static-wall-batches.js','utf8')).replace("from 'three'",`from '${three}'`).replace("from './exact-index.js'",`from '${new URL('./exact-index.js',import.meta.url).href}'`);
+const batches=(await fs.readFile('static-wall-batches.js','utf8')).replace("from 'three'",`from '${three}'`).replace("from './exact-index.js'",`from '${new URL('./exact-index.js',import.meta.url).href}'`).replace("from './game/src/static-masonry-cache.js'",`from '${new URL('./game/src/static-masonry-cache.js',import.meta.url).href}'`);
 const file=process.env.MAGIC_WALL_BEFORE==='1'?'../../combat-performance-1.6.8/source/occlusion.js':'occlusion.js';
 const code=(await fs.readFile(file,'utf8')).replace("from 'three'",`from '${three}'`).replace("from './static-wall-batches.js'",`from 'data:text/javascript;base64,${Buffer.from(batches).toString('base64')}'`);
 const {installFullMapOcclusion,updateFullMapOcclusion}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));

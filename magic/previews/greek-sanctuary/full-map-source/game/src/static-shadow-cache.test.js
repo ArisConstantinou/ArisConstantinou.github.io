@@ -1,6 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {Scene,Group,Mesh,PlaneGeometry,MeshStandardMaterial,DirectionalLight} from 'three';
+import {Scene,Group,Mesh,BatchedMesh,PlaneGeometry,MeshStandardMaterial,DirectionalLight} from 'three';
 import {createStaticShadowCache} from './static-shadow-cache.js';
+import {registerStaticMasonryBatch} from './static-masonry-cache.js';
 
 // Real Three scene objects, instrumented render-target boundary. These tests
 // cover state invalidation/lifecycle; real-WebGL image tests remain separate.
@@ -17,6 +18,14 @@ function fixture({segments=80}={}){
  const render=()=>{scene.updateMatrixWorld(true);light.updateMatrixWorld(true);renderer.shadowMap.render([light],scene,camera);};
  return{api,render,renderer,scene,world,meshes,geometry,material,entities,light,camera,original,setRevision(v){revision=v;},get disposed(){return disposed;},get preparations(){return preparations;},get normalPasses(){return normalPasses;},settle(){for(let i=0;i<8;i++)render();}};
 }
+test('known immutable masonry batches reuse shadows and invalidate before visibility changes',()=>{
+ const f=fixture(); // Keep the room casters so the real minimum-size cache threshold is exercised.
+ const batch=new BatchedMesh(3,f.geometry.attributes.position.count,f.geometry.index.count,f.material),geometry=batch.addGeometry(f.geometry);for(let i=0;i<3;i++)batch.addInstance(geometry);
+ batch.castShadow=true;batch.matrixAutoUpdate=batch.matrixWorldAutoUpdate=false;f.world.root.add(batch);registerStaticMasonryBatch(batch);f.api.setBatchCaching(true);f.settle();
+ assert.equal(f.api.stats.batchCasters,1);assert.equal(f.api.stats.builds,1);const before=f.preparations;f.render();assert.equal(f.preparations,before);assert(batch.castShadow);
+ const hits=f.api.stats.hits;batch.setVisibleAt(0,false);f.render();assert.equal(f.api.stats.hits,hits);f.settle();assert.equal(f.api.stats.builds,2);
+ const callback=batch.onBeforeRender;batch.onBeforeRender=()=>{};const prior=f.api.stats.hits;f.render();assert.equal(f.api.stats.hits,prior);assert.equal(f.api.stats.batchCasters,0);batch.onBeforeRender=callback;f.api.dispose();batch.dispose();
+});
 test('cache hit avoids preparing static geometry but retains dynamic descendants',()=>{
  const f=fixture(),dynamic=new Mesh(f.geometry,f.material);dynamic.isSkinnedMesh=true;dynamic.castShadow=true;f.meshes[0].add(dynamic);f.settle();const before=f.preparations;f.render();assert.equal(f.preparations-before,1);assert(f.meshes.every(o=>o.castShadow));assert(dynamic.castShadow);f.api.dispose();
 });

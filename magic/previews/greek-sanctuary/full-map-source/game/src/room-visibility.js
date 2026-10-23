@@ -5,14 +5,14 @@ import {createRoomMinimap} from './room-minimap.js';
 import {roomSources} from '../../static-wall-batches.js';
 import {applyRoomFogShader,roomFogShaderKind} from './room-fog-shader.js';
 import {hiddenRoomBranches,renderWithoutBranches} from './room-render-prune.js';
-import {createSkinnedRoomBounds,skinOverlapsRooms} from './skinned-room-bounds.js';
+import {createSkinnedRoomBounds,skinOverlapsRooms,hasFragmentOnlySkinCallback} from './skinned-room-bounds.js';
 export function createRoomVisibility({renderer,scene,world}){
  const realZones=world.zones.map(z=>({id:z.name,label:z.label,secret:z.secret,x:z.xMin,z:z.zMin,w:z.xMax-z.xMin,d:z.zMax-z.zMin}));
  const policy=createRoomZones(realZones.filter(z=>!z.secret),corridors,realZones.filter(z=>z.secret)),minimap=createRoomMinimap(policy);
  const original=renderer.renderBufferDirect,originalRender=renderer.render,originalCompile=renderer.compileAsync,oldBackground=scene.background,black=new Color(0x000000),boxes=new WeakMap(),patched=new Map(),scratch=new Box3(),entityRoots=new WeakMap(),owners=new WeakMap();
- const uniforms={roomFogRects:{value:Array.from({length:8},()=>new Vector4())},roomFogCount:{value:0}};
- const skinBounds=createSkinnedRoomBounds();let renderFrame=0,skinCulling=true;
- let enabled=true,pruning=true,branches=[],pruneSignature='',rects=[],zone=null,signature='',previous=null;const stats={tested:0,culled:0,hiddenStatic:0,skinCulled:0};
+ const uniforms={roomFogRects:{value:Array.from({length:8},()=>new Vector4())},roomFogCount:{value:0},roomFogShortCircuit:{value:true}};
+ const skinBounds=createSkinnedRoomBounds();let renderFrame=0,skinCulling=true,fragmentSkinCulling=true,fragmentMaskCentroid=true;
+ let enabled=true,pruning=true,branches=[],pruneSignature='',rects=[],zone=null,signature='',previous=null;const stats={tested:0,culled:0,hiddenStatic:0,skinCulled:0,fragmentSkinCulled:0};
  function entityBox(entity){const p=entity.body.position,r=Math.max(6,(entity.radius||1)*3);scratch.min.set(p.x-r,-100,p.z-r);scratch.max.set(p.x+r,100,p.z+r);return scratch;}
  function boxFor(o){
   if(o.isBatchedMesh||!o.geometry?.attributes.position)return null;
@@ -33,11 +33,11 @@ export function createRoomVisibility({renderer,scene,world}){
   const compile=material.onBeforeCompile,key=material.customProgramCacheKey,cacheKey=key===Material.prototype.customProgramCacheKey?compile.toString():null;
   material.onBeforeCompile=function(shader,...args){
    compile.call(this,shader,...args);
-   if(enabled)applyRoomFogShader(shader,uniforms,{sprite:material.isSpriteMaterial,custom});
+   if(enabled)applyRoomFogShader(shader,uniforms,{sprite:material.isSpriteMaterial,custom,centroid:fragmentMaskCentroid&&hasFragmentOnlySkinCallback(material,compile)});
   };
-  material.customProgramCacheKey=function(){return(cacheKey??key.call(this))+(enabled?':room-fog-3:':':room-original-3:')+(custom||'builtin');};
+  material.customProgramCacheKey=function(){return(cacheKey??key.call(this))+(enabled?':room-fog-3:':':room-original-3:')+(custom||'builtin')+(fragmentMaskCentroid&&hasFragmentOnlySkinCallback(material,compile)?':skin-centroid-1':'');};
   const released=()=>{material.onBeforeCompile=compile;material.customProgramCacheKey=key;material.removeEventListener('dispose',released);patched.delete(material);};
-  material.addEventListener('dispose',released);material.needsUpdate=true;patched.set(material,{compile,key,released});
+  material.addEventListener('dispose',released);material.needsUpdate=true;patched.set(material,{compile,key,released,wrapper:material.onBeforeCompile});
  }
  function guarded(camera,root,geometry,material,object,group){
   // EffectComposer renders separate fullscreen meshes/scenes. Their screen
@@ -48,9 +48,10 @@ export function createRoomVisibility({renderer,scene,world}){
   if(enabled&&rects.length){stats.tested++;if(!overlaps(coarse)){stats.culled++;return;}}
   // Colour only: fully room-masked skins cannot contribute any visible pixel.
   // Keep the existing shadow path; a hidden actor can still cast a visible shadow.
-  if(enabled&&skinCulling&&rects.length&&root===scene&&object.isSkinnedMesh&&!material.isShaderMaterial&&!material.displacementMap&&patched.get(material)?.compile===Material.prototype.onBeforeCompile
+  const entry=patched.get(material),nativeSkin=entry?.compile===Material.prototype.onBeforeCompile,fragmentSkin=entry&&fragmentSkinCulling&&fragmentMaskCentroid&&hasFragmentOnlySkinCallback(material,entry.compile);
+  if(enabled&&skinCulling&&rects.length&&root===scene&&object.isSkinnedMesh&&!material.isShaderMaterial&&!material.displacementMap&&entry?.wrapper===material.onBeforeCompile&&(nativeSkin||fragmentSkin)
     &&!rects.some(r=>coarse&&coarse.min.x>=r.x&&coarse.max.x<=r.x+r.w&&coarse.min.z>=r.z&&coarse.max.z<=r.z+r.d)){
-   const bound=skinBounds.boxFor(object,renderFrame);if(bound&&!skinOverlapsRooms(bound,rects)){stats.skinCulled++;return;}
+   const bound=skinBounds.boxFor(object,renderFrame);if(bound&&!skinOverlapsRooms(bound,rects)){stats.skinCulled++;if(fragmentSkin&&!nativeSkin)stats.fragmentSkinCulled++;return;}
   }
   patch(material,root===scene);return original.call(this,camera,root,geometry,material,object,group);
  }
@@ -81,9 +82,12 @@ export function createRoomVisibility({renderer,scene,world}){
   setEnabled(value){if(enabled===!!value)return;enabled=!!value;signature='';uniforms.roomFogCount.value=enabled?rects.length:0;for(const m of patched.keys())m.needsUpdate=true;applyStatic();},
   setPruning(value){pruning=!!value;},
   setSkinCulling(value){skinCulling=!!value;},
+  setFragmentSkinCulling(value){fragmentSkinCulling=!!value;},
+  setFragmentMaskCentroid(value){if(fragmentMaskCentroid===!!value)return;fragmentMaskCentroid=!!value;for(const [material,entry]of patched)if(hasFragmentOnlySkinCallback(material,entry.compile))material.needsUpdate=true;},
+  setMaskShortCircuit(value){uniforms.roomFogShortCircuit.value=!!value;},
   entityVisible(entity){return !enabled||!rects.length||overlaps(entityBox(entity));},
   reset(){previous=null;signature='';pruneSignature='';minimap.reset();},
-  snapshot:()=>({enabled,pruning,prunedBranches:branches.length,room:zone?.id,rects:rects.map(r=>({id:r.id,x:r.x,z:r.z,w:r.w,d:r.d})),...stats,minimap:minimap.snapshot()}),
+  snapshot:()=>({enabled,pruning,fragmentSkinCulling,fragmentMaskCentroid,maskShortCircuit:uniforms.roomFogShortCircuit.value,prunedBranches:branches.length,room:zone?.id,rects:rects.map(r=>({id:r.id,x:r.x,z:r.z,w:r.w,d:r.d})),...stats,minimap:minimap.snapshot()}),
   dispose(){if(renderer.render===renderReady)renderer.render=originalRender;if(renderer.renderBufferDirect===guarded)renderer.renderBufferDirect=original;if(renderer.compileAsync===compileReady)renderer.compileAsync=originalCompile;for(const [m,{compile,key,released}]of patched){m.removeEventListener('dispose',released);m.onBeforeCompile=compile;m.customProgramCacheKey=key;m.needsUpdate=true;}patched.clear();for(const o of roomSources(world.root))delete o.userData.roomFogVisible;world.setRoomTorchFilter(null);for(const t of world.torches)delete t.roomVisible;scene.background=oldBackground;minimap.dispose();}
  };
 }

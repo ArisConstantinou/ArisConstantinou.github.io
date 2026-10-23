@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';import fs f
 import {Group,Mesh,BoxGeometry,MeshStandardMaterial,Raycaster,Vector3} from './game/node_modules/three/build/three.module.js';
 const base=new URL('./',import.meta.url);
 const file=process.env.MAGIC_STABILITY_BEFORE?new URL('./stability/before/static-wall-batches.js',import.meta.url):new URL('static-wall-batches.js',base);
-const code=(await fs.readFile(file,'utf8')).replace("from 'three'",`from '${new URL('./game/node_modules/three/build/three.module.js',import.meta.url).href}'`).replace("from './exact-index.js'",`from '${new URL('exact-index.js',base).href}'`);
+const code=(await fs.readFile(file,'utf8')).replace("from 'three'",`from '${new URL('./game/node_modules/three/build/three.module.js',import.meta.url).href}'`).replace("from './exact-index.js'",`from '${new URL('exact-index.js',base).href}'`).replace("from './game/src/static-masonry-cache.js'",`from '${new URL('./game/src/static-masonry-cache.js',import.meta.url).href}'`);
 const {batchStaticWalls}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
 test('render traversal excludes query-only leaves while exact ray hits and owner cutaways survive',()=>{
  const scene=new Group(),root=new Group(),owners=[],sources=[],mat=new MeshStandardMaterial();scene.add(root);

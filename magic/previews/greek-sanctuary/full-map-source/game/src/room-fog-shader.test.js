@@ -1,6 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {ShaderLib} from 'three';
 import {applyRoomFogShader,roomFogShaderKind} from './room-fog-shader.js';
 const fresh=(kind='standard')=>({vertexShader:ShaderLib[kind].vertexShader,fragmentShader:ShaderLib[kind].fragmentShader,uniforms:{}});
+test('known skin mask can request matching centroid declarations without changing its mask arithmetic',()=>{const a=fresh(),b=fresh();applyRoomFogShader(a,{});applyRoomFogShader(b,{}, {centroid:true});assert(b.vertexShader.startsWith('centroid varying vec2 roomFogPosition;'));assert(b.fragmentShader.startsWith('centroid varying vec2 roomFogPosition;'));assert.equal(b.vertexShader.replace('centroid ',''),a.vertexShader);assert.equal(b.fragmentShader.replace('centroid ',''),a.fragmentShader);assert.equal(applyRoomFogShader(b,{}, {centroid:true}),false);});
 test('chained temple stone and pavement compilation inject room fog only once',()=>{
  const shader=fresh(),uniforms={roomFogCount:{value:2},roomFogRects:{value:[]}};
  const stone=s=>applyRoomFogShader(s,uniforms),pavement=s=>{stone(s);s.fragmentShader+='\n// original pavement patina';applyRoomFogShader(s,uniforms);};pavement(shader);

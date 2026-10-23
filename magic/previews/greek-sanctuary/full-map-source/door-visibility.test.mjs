@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';import fs f
 import * as T from './game/node_modules/three/build/three.module.js';
 const before=process.env.MAGIC_DOOR_BEFORE==='1',file=before?'../hearth-door-before-458865a/occlusion.js':'./occlusion.js';
 const three=pathToFileURL(path.resolve('game/node_modules/three/build/three.module.js')).href;
-const batchSource=(await fs.readFile(new URL('./static-wall-batches.js',import.meta.url),'utf8')).replace("from 'three'",`from '${three}'`).replace("from './exact-index.js'",`from '${new URL('./exact-index.js',import.meta.url).href}'`);
+const batchSource=(await fs.readFile(new URL('./static-wall-batches.js',import.meta.url),'utf8')).replace("from 'three'",`from '${three}'`).replace("from './exact-index.js'",`from '${new URL('./exact-index.js',import.meta.url).href}'`).replace("from './game/src/static-masonry-cache.js'",`from '${new URL('./game/src/static-masonry-cache.js',import.meta.url).href}'`);
 const batchURL='data:text/javascript;base64,'+Buffer.from(batchSource).toString('base64');
 const source=(await fs.readFile(new URL(file,import.meta.url),'utf8')).replace("from 'three'",`from '${three}'`).replace("from './static-wall-batches.js'",`from '${batchURL}'`);
 const {installFullMapOcclusion,updateFullMapOcclusion}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));

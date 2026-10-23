@@ -3,6 +3,7 @@ export const roomSources=root=>fogSources.get(root)||[];
 function registerRoomSource(root,source){let list=fogSources.get(root);if(!list){list=[];fogSources.set(root,list);}list.push(source);}
 import {BatchedMesh,Matrix4,Material,Frustum,Sphere,Mesh,BufferGeometry,BufferAttribute,DynamicDrawUsage} from 'three';
 import {indexExactGeometry} from './exact-index.js';
+import {registerStaticMasonryBatch} from './game/src/static-masonry-cache.js';
 
 /** World-baked vertices need no per-vertex batching matrix/indirection lookup.
  * Keep Three's original per-instance culling and triangle order, then submit
@@ -102,7 +103,7 @@ export function batchStaticWalls(root,meshes){
    registerRoomSource(root,source);bindings.push({source,batch,ids:instanceIds,shown:null});
   }
   // Stored matrices above are world-space; the castle root is identity.
-  root.add(batch);batch.matrixAutoUpdate=false;batch.matrixWorldAutoUpdate=false;batch.computeBoundingBox();batch.computeBoundingSphere();cacheStaticBatchBounds(batch);batches.push(batch);
+  root.add(batch);batch.matrixAutoUpdate=false;batch.matrixWorldAutoUpdate=false;batch.computeBoundingBox();batch.computeBoundingSphere();cacheStaticBatchBounds(batch);registerStaticMasonryBatch(batch);batches.push(batch);
   const compact=compactIdentityBatch(batch);if(compact){batch.visible=false;root.add(compact);}
  }
  // Query objects retain exact geometry and frozen world matrices. Their original

@@ -14,6 +14,8 @@ import {ensureReleaseWorker,notifyReleaseReady,releaseReloadURL} from './release
 import {prepareVisibleTextures,textureMemoryStats,prefetchEncodedTextures,configureTextureMemory} from './texture-memory.js';
 import * as THREE from 'three';
 import {guardZeroContributionLights} from './zero-light-work.js';
+import {createActivePointLights} from './active-point-lights.js';
+let activePointLights;
 guardZeroContributionLights(THREE.ShaderChunk);
 import {loadSiegeAssets,addSiegeDressing,siegeEnabled} from './siege-environment.js';
 import * as CANNON from 'cannon-es';
@@ -200,6 +202,7 @@ function usePotion(kind,id){
 function setupRenderer(){
   const canvas=document.getElementById('game-canvas');
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+  activePointLights=createActivePointLights(renderer);
   if(benchmarkMode)renderer.debug.onShaderError=(gl,program,vertex,fragment)=>performanceTest?.error(new Error('WebGL shader: '+[gl.getProgramInfoLog(program),gl.getShaderInfoLog(vertex),gl.getShaderInfoLog(fragment)].filter(Boolean).join('\n')));
   textureUpload=async texture=>{await new Promise(requestAnimationFrame);renderer.initTexture(texture);};
   // Lost-context GPU objects are already invalid. Recreate the generated
@@ -1648,7 +1651,7 @@ async function boot(){
     window.render_game_to_text=()=>JSON.stringify({...window.__MAGIC__.snapshot(),coordinates:'metres: X east, Y up, Z south',bosses:entities.filter(e=>e.bossType&&!e.removed).map(e=>({type:e.bossType,room:e.room.name,hp:e.hp,dead:e.dead,clip:e.mesh.userData.animationState,attackTime:e.bossTime,guardBreak:e.guardBreak,x:e.body.position.x,z:e.body.position.z}))});
     if(FIRE_ENABLED&&FIRE_BENCHMARK)window.__FIRE_BENCHMARK__=enabled=>{fireFX.setEnabled(enabled);renderer.info.autoReset=false;};
     window.advanceTime=ms=>{controlledUntil=performance.now()+1000;const steps=Math.max(1,Math.ceil(ms/(1000/60)));for(let i=0;i<steps;i++)frame(lastTime+ms/steps,true);lastTime=performance.now();};
-    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get frameDiagnostics(){return frameDiagnostics;},get staticShadowCache(){return staticShadowCache;},get roomVisibility(){return roomVisibility;},trajectoryWorld:()=>captureTrajectoryWorld(physics,held?.body,runTime),get puzzles(){return greekPuzzles;},get goliathNav(){return goliathNav;},get held(){return held;},hurt,get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get nav(){return nav;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,pulse,stoneFixture:createStoneCreature,get time(){return runTime;},pause:togglePause,render:()=>{controlledUntil=performance.now()+60000;if(quality==='high')composer.render();else renderer.render(scene,camera);},impactSnapshot:()=>fx.stompSnapshot(),step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);greekPuzzles?.update(dt,hearth.engine,player);syncVisuals(dt);hearth.sync(dt);fx.update(dt,camera,dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
+    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get activePointLights(){return activePointLights;},get frameDiagnostics(){return frameDiagnostics;},get staticShadowCache(){return staticShadowCache;},get roomVisibility(){return roomVisibility;},trajectoryWorld:()=>captureTrajectoryWorld(physics,held?.body,runTime),get puzzles(){return greekPuzzles;},get goliathNav(){return goliathNav;},get held(){return held;},hurt,get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get nav(){return nav;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,pulse,stoneFixture:createStoneCreature,get time(){return runTime;},pause:togglePause,render:()=>{controlledUntil=performance.now()+60000;if(quality==='high')composer.render();else renderer.render(scene,camera);},impactSnapshot:()=>fx.stompSnapshot(),step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);greekPuzzles?.update(dt,hearth.engine,player);syncVisuals(dt);hearth.sync(dt);fx.update(dt,camera,dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
   }catch(error){
     const fresh=error.releaseMismatch&&releaseReloadURL(location.href,error.releaseMismatch);
     if(fresh){location.replace(fresh);return;}

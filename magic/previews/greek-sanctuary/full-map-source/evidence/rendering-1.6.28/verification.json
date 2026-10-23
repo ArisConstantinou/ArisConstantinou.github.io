@@ -1,0 +1,75 @@
+{
+  "version": "1.6.28",
+  "engineSha256": "dc772ad860f231949ab8dc0727b77eb073125265c359d7a2c719c43f3519181b",
+  "units": {
+    "status": "passed",
+    "summary": [
+      "ℹ tests 422",
+      "ℹ suites 0",
+      "ℹ pass 422",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 1400.4494",
+      ""
+    ],
+    "root": [
+      "ℹ tests 31",
+      "ℹ suites 0",
+      "ℹ pass 31",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 212.6115",
+      ""
+    ]
+  },
+  "comparisons": {
+    "active-lights-pixels": {
+      "cases": 11,
+      "colourChanged": 0,
+      "shadowChanged": 0
+    },
+    "room-mask-short-circuit": {
+      "cases": 11,
+      "colourChanged": 0,
+      "shadowChanged": 0
+    },
+    "fragment-skin": {
+      "cases": 18,
+      "colourChanged": 0,
+      "shadowChanged": 0
+    }
+  },
+  "client": {
+    "status": "completed",
+    "muted": true,
+    "maskReview": false,
+    "expectMask": true,
+    "expectFragment": true,
+    "expectSplit": false,
+    "iterations": 2
+  },
+  "userConfirmedMilestone": {
+    "scene": "single room",
+    "seconds": 60,
+    "lateFps": 59.95379625927407
+  },
+  "changes": [
+    "Exclude exactly zero-contribution point lights from shader light lists.",
+    "Skip remaining room-mask rectangles only once the union is exactly one.",
+    "Cull fully masked HEARTH colour geometry using its registered fragment-only callback and conservative skinned bounds; preserve shadows.",
+    "Preserve static masonry cache opt-in support, default OFF."
+  ],
+  "limitations": [
+    "Single-room60FPS milestone is not proof of full-map/combat60FPS.",
+    "No new physical iPhone test: user prohibited further device connections.",
+    "No graphics preset, active torch light, flame, dynamic shadow or model detail reduction.",
+    "Rejected split-shadow, partial-copy, room-discard, uniform-array, interior and sparse-skin experiments are excluded.",
+    "Archer/Warden/Gargoyle replacement assets are not included."
+  ],
+  "priorSourceCommit": "42562f2d6bd21005c4ee56b849d7841d67226bc4",
+  "priorLiveCommit": "8cc25cb688f180205b1c7a1b4b286dbedf6a0ce6"
+}

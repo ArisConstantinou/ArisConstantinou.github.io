@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs/promises';
 import {Group,Mesh,BoxGeometry,MeshStandardMaterial} from './game/node_modules/three/build/three.module.js';
 const base=process.env.MAGIC_FOG_BASELINE?new URL('../../frame-stability-20261018/source/',import.meta.url):new URL('./',import.meta.url),three=new URL('./game/node_modules/three/build/three.module.js',import.meta.url).href;
-const code=(await fs.readFile(new URL('static-wall-batches.js',base),'utf8')).replace("from 'three'",`from '${three}'`).replace("from './exact-index.js'",`from '${new URL('exact-index.js',base).href}'`);
+const code=(await fs.readFile(new URL('static-wall-batches.js',base),'utf8')).replace("from 'three'",`from '${three}'`).replace("from './exact-index.js'",`from '${new URL('exact-index.js',base).href}'`).replace("from './game/src/static-masonry-cache.js'",`from '${new URL('./game/src/static-masonry-cache.js',import.meta.url).href}'`);
 const {batchStaticWalls}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
 test('room mask removes static submissions independently of original wall cutaways and restores them',()=>{
  const root=new Group(),m=new MeshStandardMaterial(),g=new BoxGeometry(),sources=[],owners=[];

@@ -1,19 +1,22 @@
 // Pinned Three r180 PCF shadow-map reuse. Cache rigid world geometry and
 // sleeping props; animate actors and awake physics props on every frame.
 // A complete input comparison invalidates before the current shadow pass.
+import {staticMasonryRevision} from './static-masonry-cache.js';
 export function createStaticShadowCache({renderer,scene,world,getEntities,getRevision=()=>''}){
  const gl=renderer.getContext(),original={shadow:renderer.shadowMap.render,clear:renderer.clear,direct:renderer.renderBufferDirect};
  const stats={hits:0,builds:0,fallbacks:0,skippedDraws:0,staticCasters:0,blits:0,smallPassBypasses:0,staticDraws:0,staticTriangles:0};
  let enabled=true,preparationCulling=true,cache=null,active=null,building=false,observing=false,observedDraws=0,observedTriangles=0,previous=[],previousView=[],stable=0,valid=false,staticSet=new Set(),disposed=false;
- const roots=new Set(),inputs=[],casters=[],dynamic=[],geometries=new Set();
+ const roots=new Set(),inputs=[],casters=[],dynamic=[],geometries=new Set(),batchInputs=new WeakMap();let batchCaching=false;
  const rigidMaterial=m=>m&&!m.isShaderMaterial&&!m.isRawShaderMaterial&&!m.displacementMap&&!m.alphaHash&&!(m.clipShadows&&m.clippingPlanes?.length);
  function same(a,b){if(a.length!==b.length)return false;for(let i=0;i<a.length;i++)if(a[i]!==b[i])return false;return true;}
  function discard(){cache?.dispose();cache=null;valid=false;stable=0;previous=[];previousView=[];}
  function rigid(o){
-  if(!o.isMesh||o.isSkinnedMesh||o.isBatchedMesh||o.customDepthMaterial||o.morphTargetInfluences?.length)return false;
+  if(!o.isMesh||o.isSkinnedMesh||o.customDepthMaterial||o.morphTargetInfluences?.length)return false;
+  const batch=o.isBatchedMesh&&batchCaching?staticMasonryRevision(o):null;
+  if(o.isBatchedMesh&&!batch)return false;if(batch)batchInputs.set(o,batch);
   for(const key in o.geometry.morphAttributes)if(Object.hasOwn(o.geometry.morphAttributes,key))return false;
-  if(Object.hasOwn(o,'onBeforeShadow')&&!o.userData.staticIndexStreams)return false;
-  if(Object.hasOwn(o,'onBeforeRender')&&!o.userData.staticIndexStreams)return false;
+  if(Object.hasOwn(o,'onBeforeShadow')&&!o.userData.staticIndexStreams&&!batch)return false;
+  if(Object.hasOwn(o,'onBeforeRender')&&!o.userData.staticIndexStreams&&!batch)return false;
   if(o.isInstancedMesh&&o.instanceMatrix.usage===35048)return false;
   if(Array.isArray(o.material)){for(const m of o.material)if(!rigidMaterial(m))return false;}
   else if(!rigidMaterial(o.material))return false;
@@ -32,6 +35,7 @@ export function createStaticShadowCache({renderer,scene,world,getEntities,getRev
    if(!o.userData.staticIndexStreams)geometries.add(g);
   }
   if(o.isInstancedMesh)inputs.push(o.count,o.instanceMatrix,o.instanceMatrix.version);
+  if(o.isBatchedMesh)for(const value of batchInputs.get(o))inputs.push(value);
   if(Array.isArray(o.material)){for(const m of o.material)appendMaterial(m);}
   else appendMaterial(o.material);
  }
@@ -89,6 +93,7 @@ export function createStaticShadowCache({renderer,scene,world,getEntities,getRev
    casters.push(o);append(o);
   });
   stats.staticCasters=casters.length;
+  stats.batchCasters=casters.filter(o=>o.isBatchedMesh).length;
   staticSet.clear();for(const caster of casters)staticSet.add(caster);
   const changed=!same(inputs,previous)||this.needsUpdate||shadow.needsUpdate;
   if(changed){previous=inputs.slice();stable=0;valid=false;}
@@ -114,5 +119,5 @@ export function createStaticShadowCache({renderer,scene,world,getEntities,getRev
  }
  const lost=()=>discard();renderer.domElement.addEventListener('webglcontextlost',lost);
  renderer.clear=clear;renderer.renderBufferDirect=direct;renderer.shadowMap.render=shadow;
- return {stats,setPreparationCulling(value){preparationCulling=!!value;},setEnabled(value){if(enabled!==!!value){enabled=!!value;discard();}},dispose(){if(disposed)return;disposed=true;if(renderer.clear===clear)renderer.clear=original.clear;if(renderer.renderBufferDirect===direct)renderer.renderBufferDirect=original.direct;if(renderer.shadowMap.render===shadow)renderer.shadowMap.render=original.shadow;renderer.domElement.removeEventListener('webglcontextlost',lost);discard();}};
+ return {stats,setBatchCaching(value){if(batchCaching!==!!value){batchCaching=!!value;discard();}},setPreparationCulling(value){preparationCulling=!!value;},setEnabled(value){if(enabled!==!!value){enabled=!!value;discard();}},dispose(){if(disposed)return;disposed=true;if(renderer.clear===clear)renderer.clear=original.clear;if(renderer.renderBufferDirect===direct)renderer.renderBufferDirect=original.direct;if(renderer.shadowMap.render===shadow)renderer.shadowMap.render=original.shadow;renderer.domElement.removeEventListener('webglcontextlost',lost);discard();}};
 }

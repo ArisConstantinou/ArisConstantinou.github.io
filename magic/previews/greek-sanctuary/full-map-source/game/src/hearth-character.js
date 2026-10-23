@@ -9,6 +9,7 @@ import {createHearthLod} from './hearth-lod.js';
 import {createHearthArmAim} from './hearth-aim.js';
 import {createHearthLadderFold} from './hearth-ladder.js';
 import {createDoorStrikeRig} from './hearth-door-strike.js';
+import {registerFragmentOnlySkinMaterial} from './skinned-room-bounds.js';
 let template;
 let highPromise;
 async function loadModel(path){
@@ -35,6 +36,7 @@ export function createHearth(){
    n.userData.interactionGlow=bodyHighlight;
    n.onBeforeCompile=shader=>{shader.uniforms.hearthInteractionHighlight=bodyHighlight;shader.fragmentShader='uniform float hearthInteractionHighlight;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance += vec3(0.42, 0.28, 0.10) * hearthInteractionHighlight;');};
    n.customProgramCacheKey=()=> 'hearth-body-interaction-v1';
+   registerFragmentOnlySkinMaterial(n);
   }
   materials.push(n);if(n.emissive&&n.name!=='Heart embers')highlightMaterials.push({material:n,color:n.emissive.clone(),intensity:n.emissiveIntensity});return n;
  };o.material=Array.isArray(o.material)?o.material.map(copy):copy(o.material);}}

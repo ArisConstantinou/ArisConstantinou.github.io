@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs/promises';import {Group,Mesh,BoxGeometry,MeshStandardMaterial,Matrix4,Raycaster,Vector3,PerspectiveCamera,BatchedMesh} from './game/node_modules/three/build/three.module.js';
 const three=new URL('./game/node_modules/three/build/three.module.js',import.meta.url).href;
-const source=(await fs.readFile(new URL('./static-wall-batches.js',import.meta.url),'utf8')).replace("from 'three'",`from '${three}'`).replace("from './exact-index.js'",`from '${new URL('./exact-index.js',import.meta.url).href}'`);
+const source=(await fs.readFile(new URL('./static-wall-batches.js',import.meta.url),'utf8')).replace("from 'three'",`from '${three}'`).replace("from './exact-index.js'",`from '${new URL('./exact-index.js',import.meta.url).href}'`).replace("from './game/src/static-masonry-cache.js'",`from '${new URL('./game/src/static-masonry-cache.js',import.meta.url).href}'`);
 const {batchStaticWalls,cacheStaticBatchBounds,compactIdentityBatch}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 test('cached static bounds produce Three identical draw lists for camera and shadow views and cutaways',()=>{
  const batch=new BatchedMesh(8,24,36,new MeshStandardMaterial()),g=batch.addGeometry(new BoxGeometry()),matrix=new Matrix4();batch.sortObjects=false;
