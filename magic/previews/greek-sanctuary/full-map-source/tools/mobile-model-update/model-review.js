@@ -7,6 +7,7 @@ const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:tru
 const viewHeight=()=>Math.max(240,innerHeight-(innerWidth<600?230:160));
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,viewHeight());renderer.setClearColor(0x282e36);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;document.body.prepend(renderer.domElement);
 const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(36,innerWidth/viewHeight(),.05,100);camera.position.set(2,1.6,5.7);
+camera.userData.rigViewportHeight=viewHeight();
 configureRigSurfacePreparation({renderer,scene,camera});
 const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.05,0);controls.enableDamping=true;
 scene.add(new THREE.HemisphereLight(0xddeaff,0x86745b,2));for(const [p,power]of [[[2,4,5],3],[[-3,2,-3],2]]){const light=new THREE.DirectionalLight(0xffffff,power);light.position.set(...p);scene.add(light);}
@@ -37,7 +38,7 @@ function pose(dt){
 // Original clips are loaded through the same decoder as gameplay; exposed by
 // the actor solely for deterministic pose review and regression capture.
 unit.onchange=()=>select(unit.value).catch(e=>{status.textContent=e.message;errors.push(e.message);});clip.onchange=()=>{selected=clip.value;time=0;directAction=null;};pause.onclick=()=>{playing=!playing;pause.textContent=playing?'Παύση':'Κίνηση';};
-addEventListener('resize',()=>{camera.aspect=innerWidth/viewHeight();camera.updateProjectionMatrix();renderer.setSize(innerWidth,viewHeight());});
+addEventListener('resize',()=>{camera.userData.rigViewportHeight=viewHeight();camera.aspect=innerWidth/viewHeight();camera.updateProjectionMatrix();renderer.setSize(innerWidth,viewHeight());});
 function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing)time+=dt;controls.update();pose(dt);renderer.render(scene,camera);if(frameTimes.length<600)frameTimes.push(dt*1000);requestAnimationFrame(frame);}requestAnimationFrame(frame);
 window.__MODEL_REVIEW__={select,pose:(name,t)=>{selected=name;clip.value=name;time=t;playing=false;pose(0);renderer.render(scene,camera);},get actor(){return actor;},camera,renderer,scene,controls,snapshot:()=>({kind,selected,time,loading,errors,draw:renderer.info.render,memory:renderer.info.memory,frameTimes,animation:actor?.group.userData.animationState})};
 select(new URL(location.href).searchParams.get('unit')||'archer').catch(e=>{status.textContent=e.message;errors.push(e.message);});

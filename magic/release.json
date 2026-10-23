@@ -2,7 +2,7 @@
   "schema": 1,
   "channel": "stable",
   "version": "1.6.31",
-  "build": "ac9e33ea9da7080093408460600cd0d350236473ae7e48a266c570a6f8b0cba8",
+  "build": "a098fc30670ac9e3c4c52475c58fa828accf85112bd67c1bb6d84c4a0ab4088f",
   "diagnostic": "single-room-hearth-combat",
   "models": "models.html",
   "shell": [

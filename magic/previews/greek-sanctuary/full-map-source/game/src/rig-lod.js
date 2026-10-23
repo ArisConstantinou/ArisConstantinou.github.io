@@ -100,7 +100,10 @@ export function createRigLod(group, model, { height, closeFile, farPixels = 100,
     let visible=frustum.intersectsSphere(visibilitySphere);
     for(let parent=group;parent&&visible;parent=parent.parent)visible=parent.visible;
     bottom.project(camera);top.project(camera);
-    const pixels = Math.abs(top.y - bottom.y) * innerHeight / 2;
+    // Embedded viewers may reserve screen space for controls below the canvas.
+    // Full-screen gameplay keeps its original viewport without an override.
+    const viewportHeight=Number(camera.userData.rigViewportHeight)||innerHeight;
+    const pixels = Math.abs(top.y - bottom.y) * viewportHeight / 2;
     group.userData.redesignPixels = pixels;
     if (visible && pixels > 280 && !requested) {
       requested = true;
