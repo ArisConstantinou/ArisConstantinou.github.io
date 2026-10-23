@@ -11,7 +11,7 @@ import {ISOLATION_PRESETS,isolationPreset,isolationEncounter,isolationConfig,hol
 export function createSingleRoomCombat(get){
  const storage=createBenchmarkStorage();
  let panel,bar,report=null,running=false,finishing=false,start=0,last=null,stamp=0,cpu={},rows=[],timer=null,at=0,lastUI=0,lastSample=0,lastSave=0,shadowFrames=0,target=null;
- let setupTargets=[],stompWasHit=false,stage='idle',settings={freezeShadows:new URLSearchParams(location.search).get('freeze')!=='0',omitZeroLights:new URLSearchParams(location.search).get('zero')!=='0',isolation:isolationPreset(new URLSearchParams(location.search).get('isolation')).id},active={...settings},memoryPending=false;
+ let setupTargets=[],stompWasHit=false,stage='idle',settings={freezeShadows:new URLSearchParams(location.search).get('freeze')!=='0',omitZeroLights:new URLSearchParams(location.search).get('zero')!=='0',isolation:isolationPreset(new URLSearchParams(location.search).get('isolation')||'all').id},active={...settings},memoryPending=false;
  const events=[];let shaderPreparation=null;
  const $=id=>panel.querySelector('#'+id);
  const event=(name,detail={})=>{if(report&&events.length<500)events.push({at:performance.now()-start,name,...detail});};

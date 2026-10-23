@@ -22,6 +22,7 @@ import * as CANNON from 'cannon-es';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createWorld, createPropMesh } from './world.js';
@@ -203,7 +204,7 @@ function usePotion(kind,id){
 
 function setupRenderer(){
   const canvas=document.getElementById('game-canvas');
-  renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+  renderer=new THREE.WebGLRenderer({canvas,antialias:!mobile,alpha:false,powerPreference:'high-performance'});
   activePointLights=createActivePointLights(renderer);
   if(benchmarkMode)renderer.debug.onShaderError=(gl,program,vertex,fragment)=>performanceTest?.error(new Error('WebGL shader: '+[gl.getProgramInfoLog(program),gl.getShaderInfoLog(vertex),gl.getShaderInfoLog(fragment)].filter(Boolean).join('\n')));
   textureUpload=async texture=>{await new Promise(requestAnimationFrame);renderer.initTexture(texture);};
@@ -228,7 +229,7 @@ function setupRenderer(){
   moon.shadow.normalBias=.07;moon.shadow.bias=-.00015;moon.shadow.mapSize.set(2048,2048);scene.add(moon,moon.target);
   const rim=new THREE.DirectionalLight(0x55bfc0,.6);rim.position.set(8,7,-18);scene.add(rim);
   prepareEnvironment();
-  if(quality==='high')setupComposer();
+  if(quality==='high'||mobile)setupComposer();
   fx=createEffects(scene);
   targetRing=new THREE.Mesh(new THREE.RingGeometry(.72,.77,48),new THREE.MeshBasicMaterial({color:0x86ffda,transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false}));
   for(let i=0;i<4;i++){const tick=new THREE.Mesh(new THREE.PlaneGeometry(.27,.07),targetRing.material);tick.position.set(Math.cos(i*Math.PI/2)*.87,Math.sin(i*Math.PI/2)*.87,.002);tick.rotation.z=i*Math.PI/2;tick.renderOrder=9;targetRing.add(tick);}
@@ -256,7 +257,9 @@ function setupRenderer(){
 function setupComposer(){
   if(composer)return;
   composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
-  bloom=new UnrealBloomPass(new THREE.Vector2(800,600),.34,.58,.93);composer.addPass(bloom);composer.addPass(new OutputPass());
+  bloom=new UnrealBloomPass(new THREE.Vector2(800,600),.34,.58,.93);composer.addPass(bloom);
+  if(mobile)composer.addPass(new SMAAPass());
+  composer.addPass(new OutputPass());
 }
 function resize(){
   if(!renderer)return;
@@ -264,7 +267,8 @@ function resize(){
   const halfH=aspect<1?10.5/aspect:11.3;
   camera.left=-halfH*aspect;camera.right=halfH*aspect;camera.top=halfH;camera.bottom=-halfH;camera.updateProjectionMatrix();
   const ratio=Math.min(window.devicePixelRatio||1,quality==='high'?1.75:1.15);
-  if(quality==='high')setupComposer();
+  if(quality==='high'||mobile)setupComposer();
+  if(bloom)bloom.enabled=quality==='high';
   renderer.setPixelRatio(ratio);renderer.setSize(w,h,false);if(composer){composer.setPixelRatio(ratio);composer.setSize(w,h);}
   const shadowSize=quality==='high'?2048:1024;
   if(moon.shadow.mapSize.x!==shadowSize){moon.shadow.mapSize.set(shadowSize,shadowSize);moon.shadow.map?.dispose();moon.shadow.map=null;}
@@ -437,7 +441,7 @@ function startPreparedRun(){
   // and simulation stay suspended until these replacement actors are compiled.
   runPreparation=new Promise(requestAnimationFrame).then(async()=>{
     resetRun();setPlayCamera();syncVisuals(0);
-    await prepareRunShaders({renderer,scene,camera,quality,composer,objects:entities.filter(e=>!e.removed&&e.category==='actor').map(e=>e.mesh)});
+    await prepareRunShaders({renderer,scene,camera,quality:mobile?'high':quality,composer,objects:entities.filter(e=>!e.removed&&e.category==='actor').map(e=>e.mesh)});
     enterRun();
     if(document.hidden){phase='paused';sound.setPaused(true);ui.showPause(true);}
   }).catch(showError).finally(()=>{runPreparation=null;lastTime=performance.now();});
@@ -1593,7 +1597,7 @@ function frame(now,manual=false){
     if(renderer&&ready){
       const preparation=prepareFrameTextures();
       if(preparation){if(!manual)frameDiagnostics.gap('texture-preparation');sound.setPaused(true);sound.setFlamethrower(false);texturePreparation=preparation.catch(error=>{if(!renderer.getContext().isContextLost())showError(error);}).finally(()=>{texturePreparation=null;lastTime=performance.now();});}
-      else{performanceTest?.mark('textureCheck');performanceTest?.beginRender(renderer);renderer.info.reset();if(!manual){frameDiagnostics.mark('textures');frameDiagnostics.beginGpu(renderer);}try{if(quality==='high')composer.render();else renderer.render(scene,camera);}finally{if(!manual)frameDiagnostics.endGpu();}if(!manual){if(phase==='playing'){frameRate.presented(performance.now());frameDiagnostics.finish(renderer.info.render);}else{frameRate.reset();frameDiagnostics.suspend();}performanceTest?.endFrame(renderer);}}
+      else{performanceTest?.mark('textureCheck');performanceTest?.beginRender(renderer);renderer.info.reset();if(!manual){frameDiagnostics.mark('textures');frameDiagnostics.beginGpu(renderer);}try{if(quality==='high'||mobile)composer.render();else renderer.render(scene,camera);}finally{if(!manual)frameDiagnostics.endGpu();}if(!manual){if(phase==='playing'){frameRate.presented(performance.now());frameDiagnostics.finish(renderer.info.render);}else{frameRate.reset();frameDiagnostics.suspend();}performanceTest?.endFrame(renderer);}}
     }
     if(!manual)requestAnimationFrame(frame);
   }catch(error){showError(error);}
@@ -1639,7 +1643,7 @@ async function boot(){
     // surfaces. The menu and play cameras expose different original textures.
     phase='playing';setPlayCamera();updateCamera(0);syncVisuals(0);await prepareFrameTextures();
     phase='loading';updateCamera(100);syncVisuals(0);await prepareFrameTextures();
-    await prepareRunShaders({renderer,scene,camera,quality,composer,objects:entities.filter(e=>!e.removed&&e.category==='actor').map(e=>e.mesh)});
+    await prepareRunShaders({renderer,scene,camera,quality:mobile?'high':quality,composer,objects:entities.filter(e=>!e.removed&&e.category==='actor').map(e=>e.mesh)});
     // Preserve the prior complete offline release until encoded background
     // assets have arrived. Playing the first room need not wait for them.
     const assetsReady=new Promise(resolve=>setTimeout(resolve,1000)).then(prefetchEncodedTextures).then(complete=>{frameDiagnostics.note(complete?'background-assets-ready':'background-assets-incomplete');if(complete&&!candidate)notifyReleaseReady(navigator.serviceWorker,packageInfo.version);return complete;});
@@ -1662,7 +1666,7 @@ async function boot(){
     window.render_game_to_text=()=>JSON.stringify({...window.__MAGIC__.snapshot(),coordinates:'metres: X east, Y up, Z south',bosses:entities.filter(e=>e.bossType&&!e.removed).map(e=>({type:e.bossType,room:e.room.name,hp:e.hp,dead:e.dead,clip:e.mesh.userData.animationState,attackTime:e.bossTime,guardBreak:e.guardBreak,x:e.body.position.x,z:e.body.position.z}))});
     if(FIRE_ENABLED&&FIRE_BENCHMARK)window.__FIRE_BENCHMARK__=enabled=>{fireFX.setEnabled(enabled);renderer.info.autoReset=false;};
     window.advanceTime=ms=>{controlledUntil=performance.now()+1000;const steps=Math.max(1,Math.ceil(ms/(1000/60)));for(let i=0;i<steps;i++)frame(lastTime+ms/steps,true);lastTime=performance.now();};
-    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get activePointLights(){return activePointLights;},get frameDiagnostics(){return frameDiagnostics;},get staticShadowCache(){return staticShadowCache;},get roomVisibility(){return roomVisibility;},trajectoryWorld:()=>captureTrajectoryWorld(physics,held?.body,runTime),get puzzles(){return greekPuzzles;},get goliathNav(){return goliathNav;},get held(){return held;},hurt,get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get nav(){return nav;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,pulse,stoneFixture:createStoneCreature,get time(){return runTime;},pause:togglePause,render:()=>{controlledUntil=performance.now()+60000;if(quality==='high')composer.render();else renderer.render(scene,camera);},impactSnapshot:()=>fx.stompSnapshot(),step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);greekPuzzles?.update(dt,hearth.engine,player);syncVisuals(dt);hearth.sync(dt);fx.update(dt,camera,dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
+    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get activePointLights(){return activePointLights;},get frameDiagnostics(){return frameDiagnostics;},get staticShadowCache(){return staticShadowCache;},get roomVisibility(){return roomVisibility;},trajectoryWorld:()=>captureTrajectoryWorld(physics,held?.body,runTime),get puzzles(){return greekPuzzles;},get goliathNav(){return goliathNav;},get held(){return held;},hurt,get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get nav(){return nav;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,pulse,stoneFixture:createStoneCreature,get time(){return runTime;},pause:togglePause,render:()=>{controlledUntil=performance.now()+60000;if(quality==='high'||mobile)composer.render();else renderer.render(scene,camera);},impactSnapshot:()=>fx.stompSnapshot(),step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);greekPuzzles?.update(dt,hearth.engine,player);syncVisuals(dt);hearth.sync(dt);fx.update(dt,camera,dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
   }catch(error){
     const fresh=error.releaseMismatch&&releaseReloadURL(location.href,error.releaseMismatch);
     if(fresh){location.replace(fresh);return;}

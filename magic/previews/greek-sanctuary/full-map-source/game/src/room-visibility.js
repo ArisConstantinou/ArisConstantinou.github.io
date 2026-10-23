@@ -1,3 +1,4 @@
+import {insideRoomInterior,createInteriorMaterialCache} from './room-interior-materials.js';
 import {Box3,Color,Vector4,Material,DynamicDrawUsage} from 'three';
 import {corridors} from './castle-layout.js';
 import {createRoomZones} from './room-zones.js';
@@ -11,8 +12,9 @@ export function createRoomVisibility({renderer,scene,world}){
  const policy=createRoomZones(realZones.filter(z=>!z.secret),corridors,realZones.filter(z=>z.secret)),minimap=createRoomMinimap(policy);
  const original=renderer.renderBufferDirect,originalRender=renderer.render,originalCompile=renderer.compileAsync,oldBackground=scene.background,black=new Color(0x000000),boxes=new WeakMap(),patched=new Map(),scratch=new Box3(),entityRoots=new WeakMap(),owners=new WeakMap();
  const uniforms={roomFogRects:{value:Array.from({length:8},()=>new Vector4())},roomFogCount:{value:0},roomFogShortCircuit:{value:true}};
+ const interiors=createInteriorMaterialCache();
  const skinBounds=createSkinnedRoomBounds();let renderFrame=0,skinCulling=true,fragmentSkinCulling=true,fragmentMaskCentroid=true;
- let enabled=true,pruning=true,branches=[],pruneSignature='',rects=[],zone=null,signature='',previous=null;const stats={tested:0,culled:0,hiddenStatic:0,skinCulled:0,fragmentSkinCulled:0};
+ let interiorMaterials=true;let enabled=true,pruning=true,branches=[],pruneSignature='',rects=[],zone=null,signature='',previous=null;const stats={tested:0,culled:0,hiddenStatic:0,skinCulled:0,fragmentSkinCulled:0,interiorDraws:0};
  function entityBox(entity){const p=entity.body.position,r=Math.max(6,(entity.radius||1)*3);scratch.min.set(p.x-r,-100,p.z-r);scratch.max.set(p.x+r,100,p.z+r);return scratch;}
  function boxFor(o){
   if(o.isBatchedMesh||!o.geometry?.attributes.position)return null;
@@ -37,7 +39,7 @@ export function createRoomVisibility({renderer,scene,world}){
   };
   material.customProgramCacheKey=function(){return(cacheKey??key.call(this))+(enabled?':room-fog-3:':':room-original-3:')+(custom||'builtin')+(fragmentMaskCentroid&&hasFragmentOnlySkinCallback(material,compile)?':skin-centroid-1':'');};
   const released=()=>{material.onBeforeCompile=compile;material.customProgramCacheKey=key;material.removeEventListener('dispose',released);patched.delete(material);};
-  material.addEventListener('dispose',released);material.needsUpdate=true;patched.set(material,{compile,key,released,wrapper:material.onBeforeCompile});
+  material.addEventListener('dispose',released);material.needsUpdate=true;patched.set(material,{compile,key,baseKey:cacheKey??key.call(material),released,wrapper:material.onBeforeCompile});
  }
  function guarded(camera,root,geometry,material,object,group){
   // EffectComposer renders separate fullscreen meshes/scenes. Their screen
@@ -53,10 +55,27 @@ export function createRoomVisibility({renderer,scene,world}){
     &&!rects.some(r=>coarse&&coarse.min.x>=r.x&&coarse.max.x<=r.x+r.w&&coarse.min.z>=r.z&&coarse.max.z<=r.z+r.d)){
    const bound=skinBounds.boxFor(object,renderFrame);if(bound&&!skinOverlapsRooms(bound,rects)){stats.skinCulled++;if(fragmentSkin&&!nativeSkin)stats.fragmentSkinCulled++;return;}
   }
-  patch(material,root===scene);return original.call(this,camera,root,geometry,material,object,group);
+  patch(material,root===scene);
+  const insideEntry=patched.get(material);
+  if(interiorMaterials&&enabled&&rects.length&&root===scene&&eligible(object,material,insideEntry)){
+   const bound=object.isSkinnedMesh?skinBounds.boxFor(object,renderFrame):boxFor(object);
+   if(insideRoomInterior(bound,rects)){stats.interiorDraws++;material=interiors.get(material,insideEntry.compile,insideEntry.baseKey,renderFrame);}
+  }
+  return original.call(this,camera,root,geometry,material,object,group);
  }
  const prepare=root=>root.traverse(o=>{let inScene=false;for(let p=o;p;p=p.parent)if(p===scene){inScene=true;break;}for(const m of Array.isArray(o.material)?o.material:o.material?[o.material]:[])patch(m,inScene);});
- function compileReady(root,...args){prepare(root);return originalCompile.call(this,root,...args);}
+ function eligible(object,material,entry){return object.isMesh&&!object.isBatchedMesh&&!material.isShaderMaterial&&!material.transparent&&!material.displacementMap&&!Object.keys(object.geometry.morphAttributes||{}).length&&entry&&(entry.compile===Material.prototype.onBeforeCompile||hasFragmentOnlySkinCallback(material,entry.compile));}
+ async function compileReady(root,...args){
+  prepare(root);root.updateMatrixWorld(true);root.traverse(o=>{if(o.isSkinnedMesh)skinBounds.boxFor(o,renderFrame);});const normal=originalCompile.call(this,root,...args),saved=[];
+  // Compile both exact variants against the same lights and output target while
+  // loading. Restore actual materials synchronously, before yielding a frame.
+  root.traverse(o=>{if(Array.isArray(o.material)||!o.material)return;const m=o.material,e=patched.get(m);if(eligible(o,m,e)){saved.push([o,m]);o.material=interiors.get(m,e.compile,e.baseKey,renderFrame);}});
+  let inside;
+  try{inside=originalCompile.call(this,root,...args);}finally{for(const [o,m]of saved)o.material=m;}
+  await Promise.all([normal,inside]);
+  // Do driver reflection here rather than on the first combat draw.
+  for(const [,m]of saved){const e=patched.get(m),clone=interiors.get(m,e.compile,e.baseKey,renderFrame),programs=renderer.properties?.get(clone).programs;if(programs)for(const program of programs.values()){program.getUniforms();program.getAttributes();}}
+ }
  function renderReady(root,...args){if(root===scene)renderFrame++;return enabled&&pruning&&root===scene?renderWithoutBranches(branches,()=>originalRender.call(this,root,...args)):originalRender.call(this,root,...args);}
  renderer.render=renderReady;
  renderer.renderBufferDirect=guarded;if(originalCompile)renderer.compileAsync=compileReady;
@@ -80,6 +99,7 @@ export function createRoomVisibility({renderer,scene,world}){
    minimap.update(p,yaw,zone,engine);
   },
   setEnabled(value){if(enabled===!!value)return;enabled=!!value;signature='';uniforms.roomFogCount.value=enabled?rects.length:0;for(const m of patched.keys())m.needsUpdate=true;applyStatic();},
+  setInteriorMaterials(value){interiorMaterials=!!value;},
   setPruning(value){pruning=!!value;},
   setSkinCulling(value){skinCulling=!!value;},
   setFragmentSkinCulling(value){fragmentSkinCulling=!!value;},
@@ -87,7 +107,7 @@ export function createRoomVisibility({renderer,scene,world}){
   setMaskShortCircuit(value){uniforms.roomFogShortCircuit.value=!!value;},
   entityVisible(entity){return !enabled||!rects.length||overlaps(entityBox(entity));},
   reset(){previous=null;signature='';pruneSignature='';minimap.reset();},
-  snapshot:()=>({enabled,pruning,fragmentSkinCulling,fragmentMaskCentroid,maskShortCircuit:uniforms.roomFogShortCircuit.value,prunedBranches:branches.length,room:zone?.id,rects:rects.map(r=>({id:r.id,x:r.x,z:r.z,w:r.w,d:r.d})),...stats,minimap:minimap.snapshot()}),
-  dispose(){if(renderer.render===renderReady)renderer.render=originalRender;if(renderer.renderBufferDirect===guarded)renderer.renderBufferDirect=original;if(renderer.compileAsync===compileReady)renderer.compileAsync=originalCompile;for(const [m,{compile,key,released}]of patched){m.removeEventListener('dispose',released);m.onBeforeCompile=compile;m.customProgramCacheKey=key;m.needsUpdate=true;}patched.clear();for(const o of roomSources(world.root))delete o.userData.roomFogVisible;world.setRoomTorchFilter(null);for(const t of world.torches)delete t.roomVisible;scene.background=oldBackground;minimap.dispose();}
+  snapshot:()=>({enabled,pruning,interiorMaterials,fragmentSkinCulling,fragmentMaskCentroid,maskShortCircuit:uniforms.roomFogShortCircuit.value,prunedBranches:branches.length,room:zone?.id,rects:rects.map(r=>({id:r.id,x:r.x,z:r.z,w:r.w,d:r.d})),...stats,minimap:minimap.snapshot()}),
+  dispose(){if(renderer.render===renderReady)renderer.render=originalRender;if(renderer.renderBufferDirect===guarded)renderer.renderBufferDirect=original;if(renderer.compileAsync===compileReady)renderer.compileAsync=originalCompile;for(const [m,{compile,key,released}]of patched){m.removeEventListener('dispose',released);m.onBeforeCompile=compile;m.customProgramCacheKey=key;m.needsUpdate=true;}patched.clear();interiors.dispose();for(const o of roomSources(world.root))delete o.userData.roomFogVisible;world.setRoomTorchFilter(null);for(const t of world.torches)delete t.roomVisible;scene.background=oldBackground;minimap.dispose();}
  };
 }

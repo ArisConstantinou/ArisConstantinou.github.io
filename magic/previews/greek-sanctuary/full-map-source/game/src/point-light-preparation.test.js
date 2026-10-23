@@ -20,3 +20,13 @@ test('detached pooled effects are compiled against scene lights before combat',a
  await prepareRunShaders({renderer,scene,camera:{},quality:'low',effectObjects:[sprite],nextFrame:async()=>{}});
  assert.equal(calls.length,2);assert.equal(calls[1].root,sprite);assert.equal(calls[1].targetScene,scene);assert.equal(sprite.parent,null);
 });
+
+for(const fail of [false,true])test(`GPU warm draw restores lights/target and releases its fence, failure=${fail}`,async()=>{
+ const scene=new THREE.Scene(),light=new THREE.PointLight(0xff2200,2);scene.add(light);
+ const target={},prior={};let current=prior,draws=0,polls=0,deleted=0;
+ const gl={SYNC_GPU_COMMANDS_COMPLETE:1,ALREADY_SIGNALED:2,CONDITION_SATISFIED:3,WAIT_FAILED:4,fenceSync:()=>({}),flush(){},clientWaitSync:()=>fail?4:++polls===1?0:3,deleteSync(){deleted++;}};
+ const renderer={getRenderTarget:()=>current,setRenderTarget:t=>current=t,compileAsync:async()=>{},info:{reset(){}},getContext:()=>gl,properties:{get:()=>({})},render(){assert.equal(current,target);draws++;}};
+ const options={renderer,scene,camera:{},quality:'high',composer:{readBuffer:target},pointLightVariants:true,warmDraw:true,nextFrame:async()=>{assert.equal(current,prior);assert.equal(light.intensity,2);assert.equal(light.color.getHex(),0xff2200);}};
+ if(fail)await assert.rejects(prepareRunShaders(options),/GPU pipeline preparation failed/);else assert.equal((await prepareRunShaders(options)).gpuDrawsPrepared,true);
+ assert(draws>0);assert.equal(deleted,draws);assert.equal(current,prior);assert.equal(light.intensity,2);assert.equal(light.color.getHex(),0xff2200);
+});

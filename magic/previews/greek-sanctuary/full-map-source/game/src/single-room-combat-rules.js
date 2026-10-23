@@ -8,6 +8,7 @@ export const ENCOUNTER=Object.freeze([
 ]);
 export const CONFIG=Object.freeze({world:'single-courtyard',fullWorld:false,baselineSeconds:15,maximumSeconds:180,enemyCount:ENCOUNTER.length,regularEnemyCount:12,bossCount:4,bossTypes:['warden','colossus','gargoyle','wraith'],bossSummoning:true,enemyHealth:'normal',playerHealth:'unlimited',torchFlames:true,activeTorchLights:true,physics:true,props:true,statues:true,animations:true,enemyAI:'held during baseline; normal during combat',autoFire:true,autoStomp:true,staticShadowCache:true,batchShadowCache:false,muted:true,navigationExperiment:false});
 export const REPORT_HISTORY=Object.freeze([
+ {version:'1.6.37',measurement:'iPhone · όλοι οι bosses: παλιό 20,1 FPS · SMAA 37,9 · shader 42,3',action:'SMAA αντί MSAA · ακριβής παράκαμψη μάσκας μόνο μέσα στο δωμάτιο · GPU warm-up',status:'12 εχθροί + 4 bosses ON · καμία νέα απενεργοποίηση · σταθερά 60 FPS ακόμη ανοικτά'},
  {version:'1.6.29',measurement:'iPhone · μάχη 27,94 FPS · max 72 ms',action:'Έλεγχος shaders και φωτισμού',status:'Αρχική μέτρηση · 6 εχθροί'},
  {version:'1.6.30–31',measurement:'PC · λιγότερες παραλλαγές shaders',action:'Προετοιμασία φωτισμού 5/7/11 · νέα μοντέλα',status:'Δημοσιευμένα · όχι απομόνωση αιτίας iPhone'},
  {version:'1.6.31',measurement:'iPhone · μάχη 49,76 FPS · max 965 ms',action:'Έλεγχος αιχμών · κανένα νέο σύστημα OFF',status:'Μεμονωμένα κολλήματα παρέμεναν'},
@@ -15,7 +16,7 @@ export const REPORT_HISTORY=Object.freeze([
  {version:'1.6.33',measurement:'iPhone · μάχη 20,78 / 21,00 FPS · 2 JSON',action:'Πτώση επαναλαμβάνεται · ίδια αρχική σύνθεση · 0 σφάλματα',status:'Επιβάρυνση μοντέλων/υφών · ακριβής αιτία ανοικτή'},
  {version:'1.6.34',measurement:'Περίπου 115 MiB λιγότερα texels μαζί με mipmaps',action:'Gargoyle: αχρησιμοποίητα περιθώρια υφών · Archer: ομοιόχρωμη υφή',status:'Νέο iPhone JSON: 20,06 FPS · η μνήμη μειώθηκε, τα FPS ΟΧΙ'},
  {version:'1.6.35',measurement:'Απομόνωση · η αιτία παραμένει ανοικτή',action:'Προεπιλογή: 6 εχθροί / bosses OFF · 12 χωρίς / κάθε boss / όλοι / εμφάνιση OFF / AI OFF',status:'iPhone: 6 εχθροί / bosses OFF · μάχη 45,67 FPS · max 224 ms'},
- {version:'1.6.36',measurement:'Διόρθωση φόρτωσης και επαναχρησιμοποίηση εφέ',action:'Μόνο επιλεγμένα μοντέλα · pool αριθμών/δακτυλίων · shaders πριν τη μάχη · ανάκτηση JSON',status:'Εφαρμοσμένα · επίδραση στα FPS κινητού προς μέτρηση'},
+ {version:'1.6.36',measurement:'Διόρθωση φόρτωσης και επαναχρησιμοποίηση εφέ',action:'Μόνο επιλεγμένα μοντέλα · pool αριθμών/δακτυλίων · shaders πριν τη μάχη · ανάκτηση JSON',status:'iPhone JSON: 12 εχθροί · 23,59 FPS · bosses δεν απαιτούνται για την πτώση'},
 ]);
 export const FINDINGS=Object.freeze([
  {label:'Ένα δωμάτιο μόνο',measurement:'45 s · late 45,8 FPS',result:'Δεν αρκούσε για 60'},

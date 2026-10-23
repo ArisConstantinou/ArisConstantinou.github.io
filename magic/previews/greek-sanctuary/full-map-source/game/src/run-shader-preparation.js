@@ -1,6 +1,6 @@
 // Compile the actual run's materials after population, for the colour target
 // this quality uses. The menu's actors are disposed when a new run starts.
-export async function prepareRunShaders({renderer,scene,camera,quality,composer,objects=[],effectObjects=[],fadeObjects=[],pointLightVariants=false,lightCountPolicy=null,nextFrame=()=>new Promise(requestAnimationFrame)}) {
+export async function prepareRunShaders({renderer,scene,camera,quality,composer,objects=[],effectObjects=[],fadeObjects=[],pointLightVariants=false,lightCountPolicy=null,warmDraw=false,nextFrame=()=>new Promise(requestAnimationFrame)}) {
   if(!renderer.compileAsync)return;
   // Distant actors are deliberately detached by syncVisuals, not only hidden.
   // Compile those actual objects against the scene's lights/environment while
@@ -31,6 +31,23 @@ export async function prepareRunShaders({renderer,scene,camera,quality,composer,
     }
     finally{renderer.setRenderTarget(previous);lights.forEach((light,i)=>{light.intensity=saved[i].intensity;light.color.copy(saved[i].color);});if(fade)for(const [material,transparent]of fadeMaterials){material.transparent=transparent;material.needsUpdate=true;}}
     await Promise.all(pending);
+    if(warmDraw&&variant){
+      // Metal can defer pipeline creation until the first actual draw despite
+      // successful WebGL linking. Submit the real scene into its existing colour
+      // target during loading and wait asynchronously for completion.
+      try{
+        if(fade)for(const material of fadeMaterials.keys())material.transparent=true;
+        lights.forEach((light,i)=>{light.intensity=i<lightCount?1:0;if(i<lightCount)light.color.setRGB(1,1,1);});
+        renderer.setRenderTarget(variant);renderer.info.reset();renderer.render(scene,camera);
+      }finally{
+        renderer.setRenderTarget(previous);lights.forEach((light,i)=>{light.intensity=saved[i].intensity;light.color.copy(saved[i].color);});
+        if(fade)for(const [material,transparent]of fadeMaterials){material.transparent=transparent;material.needsUpdate=true;}
+      }
+      const gl=renderer.getContext(),fence=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0),started=performance.now();
+      if(!fence)throw Error('Could not prepare GPU pipelines');
+      try{gl.flush();while(true){const status=gl.clientWaitSync(fence,0,0);if(status===gl.ALREADY_SIGNALED||status===gl.CONDITION_SATISFIED)break;if(status===gl.WAIT_FAILED||performance.now()-started>20000)throw Error('GPU pipeline preparation failed');await nextFrame();}}
+      finally{gl.deleteSync(fence);}
+    }
   }
   // Three r180's compileAsync only polls program.isReady(). Its first-use
   // getUniforms/getAttributes still performs driver reflection (including the
@@ -50,5 +67,5 @@ export async function prepareRunShaders({renderer,scene,camera,quality,composer,
     if(count++%4===0)await nextFrame();
     program.getUniforms();program.getAttributes();
   }
-  return {programs:programs.size,pointLightCounts:counts.filter(count=>count!==null)};
+  return {gpuDrawsPrepared:!!warmDraw,programs:programs.size,pointLightCounts:counts.filter(count=>count!==null)};
 }
