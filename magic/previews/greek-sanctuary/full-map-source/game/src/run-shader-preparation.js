@@ -1,6 +1,6 @@
 // Compile the actual run's materials after population, for the colour target
 // this quality uses. The menu's actors are disposed when a new run starts.
-export async function prepareRunShaders({renderer,scene,camera,quality,composer,objects=[],pointLightVariants=false,nextFrame=()=>new Promise(requestAnimationFrame)}) {
+export async function prepareRunShaders({renderer,scene,camera,quality,composer,objects=[],pointLightVariants=false,lightCountPolicy=null,nextFrame=()=>new Promise(requestAnimationFrame)}) {
   if(!renderer.compileAsync)return;
   // Distant actors are deliberately detached by syncVisuals, not only hidden.
   // Compile those actual objects against the scene's lights/environment while
@@ -16,7 +16,7 @@ export async function prepareRunShaders({renderer,scene,camera,quality,composer,
   // This is opt-in: normal full-world preparation keeps its stable light slots.
   const lights=[];
   if(pointLightVariants)scene.traverseVisible(object=>{if(object.isPointLight&&object.children.length===0)lights.push(object);});
-  const counts=pointLightVariants?Array.from({length:lights.length+1},(_,i)=>i):[null];
+  const counts=pointLightVariants?(lightCountPolicy?.preparationCounts(lights.length)??Array.from({length:lights.length+1},(_,i)=>i)):[null];
   for(const variant of variants)for(const lightCount of counts){
     const previous=renderer.getRenderTarget(),pending=[];
     const saved=lights.map(light=>({intensity:light.intensity,color:light.color.clone()}));

@@ -49,7 +49,8 @@ void main(){
   vec2 bounded=p.xy+vec2(curl*.11,0.);
   vec2 uncertainty=vec2(.30,.32)*s;
   float radialLower=length(max(abs(bounded)-uncertainty,vec2(0.))/vec2(1.,.91));
-  float radiusUpper=(.065+min(.61,lengthM*.09)*pow(min(s,1.),.88))*2.673;
+  float radiusBase=.065+min(.61,lengthM*.09)*pow(min(s,1.),.88);
+  float radiusUpper=radiusBase*2.673;
   vec3 bulbLower=vec3(max(abs(bounded-bulbCenter.xy)-uncertainty,vec2(0.)),abs(axial-bulbCenter.z))/(tailRadius*vec3(1.,.94,.92));
   vec3 tongueLower=vec3(max(abs(bounded-tongueCenter.xy)-uncertainty,vec2(0.)),abs(axial-tongueCenter.z))/(tailRadius*vec3(.79,.77,.82));
   bool tailPossible=min(dot(bulbLower,bulbLower),dot(tongueLower,tongueLower))<1.3225;
@@ -63,7 +64,7 @@ void main(){
   float lobe=noise3(vec3(p.xy*2.1,s*5.5-time*3.8));
   p.x+=curl*.11+(lobe-.5)*s*.60;
   p.y+=(noise3(advect*.72+11.)-.5)*s*.64;
-  float radius=.065+min(.61,lengthM*.09)*pow(min(s,1.),.88);
+  float radius=radiusBase;
   radius*=.42+1.2*lobe;
   // Entrained air opens the fuel stream into a broad terminal fire plume.
   radius*=1.+.65*smoothstep(.38,.88,s);
@@ -99,6 +100,10 @@ void main(){vUv=uv;vPuff=puff;gl_Position=projectionMatrix*modelViewMatrix*insta
 const smokeFragment=`varying vec2 vUv;varying vec3 vPuff;${noise3}
 void main(){
  vec2 p=(vUv-.5)*2.;float age=vPuff.x,seed=vPuff.y;
+ // Each curl displacement is bounded by .14. Outside this conservative
+ // support the original smoothstep is exactly one: no visible smoke is lost.
+ vec2 nearest=max(abs(p)-vec2(.14),vec2(0.));
+ if(dot(nearest,nearest)>=.9409)discard;
  float n=fbm(vec3(p*2.3+seed,age*2.4+seed));
  vec2 curl=p+vec2(n-.5,noise3(vec3(p*2.+8.,seed+age))-.5)*.28;
  float shape=1.-smoothstep(.43,.97,length(curl));
