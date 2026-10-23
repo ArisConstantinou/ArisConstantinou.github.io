@@ -1,6 +1,6 @@
 // Compile the actual run's materials after population, for the colour target
 // this quality uses. The menu's actors are disposed when a new run starts.
-export async function prepareRunShaders({renderer,scene,camera,quality,composer,objects=[],pointLightVariants=false,lightCountPolicy=null,nextFrame=()=>new Promise(requestAnimationFrame)}) {
+export async function prepareRunShaders({renderer,scene,camera,quality,composer,objects=[],fadeObjects=[],pointLightVariants=false,lightCountPolicy=null,nextFrame=()=>new Promise(requestAnimationFrame)}) {
   if(!renderer.compileAsync)return;
   // Distant actors are deliberately detached by syncVisuals, not only hidden.
   // Compile those actual objects against the scene's lights/environment while
@@ -17,14 +17,19 @@ export async function prepareRunShaders({renderer,scene,camera,quality,composer,
   const lights=[];
   if(pointLightVariants)scene.traverseVisible(object=>{if(object.isPointLight&&object.children.length===0)lights.push(object);});
   const counts=pointLightVariants?(lightCountPolicy?.preparationCounts(lights.length)??Array.from({length:lights.length+1},(_,i)=>i)):[null];
-  for(const variant of variants)for(const lightCount of counts){
+  const fadeMaterials=new Map();
+  for(const object of fadeObjects)object.traverse(node=>{for(const material of Array.isArray(node.material)?node.material:node.material?[node.material]:[])if(!fadeMaterials.has(material))fadeMaterials.set(material,material.transparent);});
+  // Wraith death changes the opaque program key. Prepare that exact fade
+  // variant for each light bucket without exposing it in the loading scene.
+  for(const fade of fadeMaterials.size?[false,true]:[false])for(const variant of variants)for(const lightCount of counts){
     const previous=renderer.getRenderTarget(),pending=[];
     const saved=lights.map(light=>({intensity:light.intensity,color:light.color.clone()}));
     try{
+      if(fade)for(const material of fadeMaterials.keys())material.transparent=true;
       lights.forEach((light,i)=>{light.intensity=i<lightCount?1:0;if(i<lightCount)light.color.setRGB(1,1,1);});
       renderer.setRenderTarget(variant);for(const root of roots)pending.push(renderer.compileAsync(root,camera,root===scene?undefined:scene));
     }
-    finally{renderer.setRenderTarget(previous);lights.forEach((light,i)=>{light.intensity=saved[i].intensity;light.color.copy(saved[i].color);});}
+    finally{renderer.setRenderTarget(previous);lights.forEach((light,i)=>{light.intensity=saved[i].intensity;light.color.copy(saved[i].color);});if(fade)for(const [material,transparent]of fadeMaterials){material.transparent=transparent;material.needsUpdate=true;}}
     await Promise.all(pending);
   }
   // Three r180's compileAsync only polls program.isReady(). Its first-use

@@ -1,0 +1,63 @@
+{
+  "version": "1.6.33",
+  "physicalPhone": false,
+  "initialEnemies": 16,
+  "bosses": [
+    "warden",
+    "colossus",
+    "gargoyle",
+    "wraith"
+  ],
+  "kills": 19,
+  "bossKills": 4,
+  "summonedEnemies": 3,
+  "errors": [],
+  "wraithFade": {
+    "maxRenderMs": 13.799999952316284
+  },
+  "scenes": [
+    {
+      "type": "idle",
+      "fps": 54.04647997269061,
+      "frames": {
+        "count": 810,
+        "mean": 18.502592592622026,
+        "p50": 18.100000023841858,
+        "p95": 19.200000047683716,
+        "max": 165.20000004768372,
+        "over50": 2,
+        "over100": 2
+      }
+    },
+    {
+      "type": "combat",
+      "fps": 54.144491375438975,
+      "frames": {
+        "count": 2110,
+        "mean": 18.469099526043752,
+        "p50": 18.100000023841858,
+        "p95": 19.299999952316284,
+        "max": 203,
+        "over50": 6,
+        "over100": 4
+      }
+    },
+    {
+      "type": "settle",
+      "fps": 55.28519879410859,
+      "frames": {
+        "count": 167,
+        "mean": 18.088023952381338,
+        "p50": 18.09999990463257,
+        "p95": 18.800000071525574,
+        "max": 19.199999928474426,
+        "over50": 0,
+        "over100": 0
+      }
+    }
+  ],
+  "limitations": [
+    "One courtyard, frozen shadows, unlimited player health and muted diagnostic; actual phone performance needs a new report.",
+    "Small remaining frame spikes are retained in measurements."
+  ]
+}

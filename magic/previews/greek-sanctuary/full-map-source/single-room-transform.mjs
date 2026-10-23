@@ -49,7 +49,7 @@ export function createSingleRoomPlugin({combat=false}={}){return {name:'magic-si
   code=replace(code,'performanceTest?.beginRender(renderer);renderer.info.reset();','performanceTest?.beginRender(renderer);loopAudit.renders++;renderer.info.reset();','count actual main rendering submissions');
   code=replace(code,'populateMonument(worldMap,entities);','/* no off-room monument encounter */','skip absent monument encounter');
   if(!combat)code=replace(code,'greekPuzzles?.reset();hearth.reset();greekPuzzles?.configureForEngine(hearth.engine.location.room.name,hearth.engine.body.position);','greekPuzzles?.reset();hearth.reset();','no off-room engine spawn');
-  code=replace(code,'await Promise.all([loadBossCharacters(),loadStoneMinion({camera})]);','/* no off-room boss/minion model downloads */','skip absent model families');
+  if(!combat)code=replace(code,'await Promise.all([loadBossCharacters(),loadStoneMinion({camera})]);','/* no off-room boss/minion model downloads */','skip absent model families');
   if(!combat)code=replace(code,'await loadHearth();','/* HEARTH absent from this courtyard fixture */','skip absent engine model download');
   code=code.replaceAll("hearth.engine.heart.firing=false;","if(hearth.engine)hearth.engine.heart.firing=false;");
   code+='\nwindow.__MAGIC_ONE_ROOM__={room:"courtyard",diagnostic:true,construction:"one room; outside layout/cells/colliders/props suppressed at construction",audit:()=>({rooms:worldMap.rooms.map(r=>r.id),zones:worldMap.zones.map(r=>r.name),floors:worldMap.floors.length,colliders:worldMap.colliders.length,bodies:physics.bodies.length,entities:entities.length,quality,canvas:[renderer.domElement.width,renderer.domElement.height],interiorBypass:!!roomVisibility.snapshot().interiorBypass})};\n';

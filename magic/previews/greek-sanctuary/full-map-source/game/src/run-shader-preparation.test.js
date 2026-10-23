@@ -1,6 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {prepareRunShaders} from './run-shader-preparation.js';
+test('death-fade variants are compiled and restore opaque materials before awaiting readiness',async()=>{
+ const material={transparent:false},root={traverse:visit=>visit({material})},seen=[];let release;
+ const renderer={getRenderTarget:()=>null,setRenderTarget:()=>{},compileAsync:()=>{seen.push(material.transparent);return material.transparent?new Promise(r=>release=r):Promise.resolve();}};
+ const job=prepareRunShaders({renderer,scene:{},camera:{},quality:'low',fadeObjects:[root]});
+ await new Promise(setImmediate);assert.deepEqual(seen,[false,true]);assert.equal(material.transparent,false);assert.equal(material.needsUpdate,true);release();await job;
+});
+test('death-fade shader failure restores the original material',async()=>{
+ const material={transparent:false},root={traverse:visit=>visit({material})};
+ const renderer={getRenderTarget:()=>null,setRenderTarget:()=>{},compileAsync:()=>{if(material.transparent)throw Error('fade failure');return Promise.resolve();}};
+ await assert.rejects(prepareRunShaders({renderer,scene:{},camera:{},quality:'low',fadeObjects:[root]}),/fade failure/);assert.equal(material.transparent,false);
+});
 test('run preparation waits for the actual HDR program and restores the renderer immediately',async()=>{
  const scene={},camera={},screen={},hdr={},events=[];let current=screen,release;
  const compiling=new Promise(resolve=>release=resolve);

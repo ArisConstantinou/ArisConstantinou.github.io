@@ -1,4 +1,19 @@
-export const CONFIG=Object.freeze({world:'single-courtyard',fullWorld:false,baselineSeconds:15,maximumSeconds:90,enemyCount:6,enemyHealth:'normal',playerHealth:'unlimited',torchFlames:true,activeTorchLights:true,physics:true,props:true,statues:true,animations:true,enemyAI:'held during baseline; normal during combat',autoFire:true,autoStomp:true,staticShadowCache:true,batchShadowCache:false,muted:true,navigationExperiment:false});
+export const ENCOUNTER=Object.freeze([
+ {kind:'boss',bossType:null,name:'Iron Warden',x:-6,z:9},
+ {kind:'boss',bossType:'colossus',name:'Colossus',x:-2,z:9},
+ {kind:'boss',bossType:'gargoyle',name:'Gargoyle',x:2,z:9},
+ {kind:'boss',bossType:'wraith',name:'Wraith',x:6,z:9},
+ ...[-9,-5,-1,3,7,10].map((x,i)=>({kind:['guard','archer','heavy'][i%3],x,z:13})),
+ ...[-10,-7,-4,4,7,10].map((x,i)=>({kind:['heavy','guard','archer'][i%3],x,z:16})),
+]);
+export const CONFIG=Object.freeze({world:'single-courtyard',fullWorld:false,baselineSeconds:15,maximumSeconds:180,enemyCount:ENCOUNTER.length,regularEnemyCount:12,bossCount:4,bossTypes:['warden','colossus','gargoyle','wraith'],bossSummoning:true,enemyHealth:'normal',playerHealth:'unlimited',torchFlames:true,activeTorchLights:true,physics:true,props:true,statues:true,animations:true,enemyAI:'held during baseline; normal during combat',autoFire:true,autoStomp:true,staticShadowCache:true,batchShadowCache:false,muted:true,navigationExperiment:false});
+export const REPORT_HISTORY=Object.freeze([
+ {version:'1.6.29',measurement:'iPhone · μάχη 27,94 FPS · max 72 ms',action:'Έλεγχος shaders και φωτισμού',status:'Αρχική μέτρηση · 6 εχθροί'},
+ {version:'1.6.30–31',measurement:'PC · λιγότερες παραλλαγές shaders',action:'Προετοιμασία φωτισμού 5/7/11 · νέα μοντέλα',status:'Δημοσιευμένα · όχι απομόνωση αιτίας iPhone'},
+ {version:'1.6.31',measurement:'iPhone · μάχη 49,76 FPS · max 965 ms',action:'Έλεγχος αιχμών · κανένα νέο σύστημα OFF',status:'Μεμονωμένα κολλήματα παρέμεναν'},
+ {version:'1.6.32',measurement:'iPhone · μάχη 59,26 FPS · max 40 ms',action:'Σταθερό magic-benchmark.json · καμία αλλαγή απόδοσης',status:'6/6 · 0 σφάλματα · εκτός μάχης 145/84 ms'},
+ {version:'1.6.33',measurement:'12 εχθροί + 4 bosses ταυτόχρονα',action:'Μεγαλύτερη μάχη · ίδια φίλτρα/σκιές · summons ON',status:'Νέα σύνθεση · αναμένεται JSON κινητού'},
+]);
 export const FINDINGS=Object.freeze([
  {label:'Ένα δωμάτιο μόνο',measurement:'45 s · late 45,8 FPS',result:'Δεν αρκούσε για 60'},
  {label:'Ορατές φλόγες OFF',measurement:'45,6 → 45,6 FPS',result:'No effect · φλόγες ON'},
@@ -17,4 +32,4 @@ export const FINDINGS=Object.freeze([
 ]);
 export function selectCombatTarget(enemies,position){let best=null,distance=Infinity;for(const e of enemies){if(e.dead||e.removed)continue;const d=Math.hypot(e.body.position.x-position.x,e.body.position.z-position.z);if(d<distance){distance=d;best=e;}}return best;}
 export function combatMovement(from,to){const dx=to.x-from.x,dz=to.z-from.z,d=Math.hypot(dx,dz);return d>3.15?{moveX:dx/d*.6,moveZ:dz/d*.6}:{moveX:0,moveZ:0};}
-export function combatComplete({elapsedMs,remaining}){return elapsedMs>=90000||elapsedMs>=18000&&remaining===0;}
+export function combatComplete({elapsedMs,remaining}){return elapsedMs>=CONFIG.maximumSeconds*1000||elapsedMs>=18000&&remaining===0;}
