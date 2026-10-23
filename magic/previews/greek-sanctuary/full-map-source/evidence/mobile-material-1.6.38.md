@@ -4,7 +4,7 @@ Physical device only: iPhone14ProMax / iPhone15,3, iOS27.0.1, Chrome iOS. Game b
 
 ## Applied candidate
 
-- Temporary mobile Lambert vertex lighting, environment IBL OFF and normal/bump maps OFF. Metallic/roughness specular shading is omitted in this mobile approximation. User explicitly authorized diagnostic disabling and fixes.
+- Temporary mobile Lambert diffuse lighting, environment IBL OFF and normal/bump maps OFF. In pinned Three r180, Lambert lighting is evaluated per fragment; the gain comes from omitting the specular BRDF, not moving lighting to vertices. Metallic/roughness specular shading is omitted in this mobile approximation. User explicitly authorized diagnostic disabling and fixes.
 - Original mesh geometry, colour/AO/emissive textures, point lights, HEARTH fire, smoke, animations, attacks, summons and physics retained. Original roughness/metalness textures remain in assets and the full reference shader; Lambert does not use their specular lighting.
 - Shared256KiB R8 three-dimensional noise lattice replaces repeated noise hashes in both jets and smoke. Smooth interpolation, volume shape/depth, damage and32mobile ray samples retained. Noise tiles every64units and lattice values use one byte.
 - Material profile applies before shader compilation and also to late material clones. Source textures are not deleted or disposed by the profile.

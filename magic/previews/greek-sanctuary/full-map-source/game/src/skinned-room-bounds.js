@@ -3,7 +3,7 @@ const fragmentOnlyCallbacks=new WeakMap();
 // Explicit contract for an authored callback that preserves vertex positions.
 // Remember its identity: an unrelated replacement must use the safe fallback.
 export function registerFragmentOnlySkinMaterial(material){fragmentOnlyCallbacks.set(material,material.onBeforeCompile);}
-// Stock Lambert changes vertex lighting, while using the same morph, skinning,
+// Stock Lambert uses the same morph, skinning,
 // displacement and projection chunks as Standard. Its bounds remain valid.
 export function registerPositionPreservingSkinMaterial(material){fragmentOnlyCallbacks.set(material,material.onBeforeCompile);}
 export const hasFragmentOnlySkinCallback=(material,compile)=>fragmentOnlyCallbacks.get(material)===compile&&fragmentOnlyCallbacks.has(material);

@@ -28,7 +28,8 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createWorld, createPropMesh } from './world.js';
 import { loadCharacters, createCharacter } from './characters.js';
-import { configureRigSurfacePreparation } from './rig-surface-preparation.js';
+import { configureRigSurfacePreparation,prepareRigSurface } from './rig-surface-preparation.js';
+import {createPreparedSpawns} from './prepared-spawns.js';
 import {prepareRunShaders} from './run-shader-preparation.js';
 import { loadBossCharacters, createBossCharacter } from './boss-characters.js';
 import { BOSS_DEFINITIONS, createBossLayout, insideBossRoom, bossAttackCrossed } from './boss-rules.js';
@@ -313,10 +314,12 @@ function createHealthBar(){
   const fill=new THREE.Mesh(new THREE.PlaneGeometry(.94,.043),new THREE.MeshBasicMaterial({color:0xeebb8f,depthTest:false}));
   fill.position.z=.002;g.add(bg,fill);g.userData.fill=fill;g.visible=false;scene.add(g);return g;
 }
+const preparedSummons=createPreparedSpawns({archer:()=>createCharacter('archer'),heavy:()=>createCharacter('heavy'),'stone-minion':()=>createStoneMinion()});
 function actor(kind,x,z,isPlayer=false,bossType=null,room=null){
   const bossMode=kind==='boss',definition=bossType?BOSS_DEFINITIONS[bossType]:null;
   const stoneMinion=kind==='stone-minion';
-  const visual=definition?createBossCharacter(bossType):stoneMinion?createStoneMinion():createCharacter(bossMode?'warden':kind),scale=definition?1:bossMode?1.3:1;
+  const cached=!definition&&!bossMode?preparedSummons.take(kind):null;
+  const visual=cached||(definition?createBossCharacter(bossType):stoneMinion?createStoneMinion():createCharacter(bossMode?'warden':kind)),scale=definition?1:bossMode?1.3:1;
   if(bossMode&&!definition)visual.group.scale.multiplyScalar(scale);
   const stats=definition?{...definition,label:definition.name}:{mage:{hp:120,speed:5.0,mass:5,label:'Εξόριστος'},
     guard:{hp:65,speed:2.3,mass:4,label:'Φρουρός'},archer:{hp:48,speed:1.9,mass:3,label:'Τοξότης'},
@@ -386,6 +389,7 @@ function clearDynamic(){
   fx.clear();held=target=null;
 }
 function populate(){
+  preparedSummons.clear();
   clearDynamic();kills=runShards=runTime=combo=0;comboUntil=0;relicTaken=false;nextWave=0;alarmTime=0;shake=0;castTime=0;
   worldMap.setAlarm(false);worldMap.setRelicTaken(false);
   if(FIRE_ENABLED){fireSpell.reset();for(const s of fireSpell.sources)worldMap.setTorchLit(s.id,true);worldMap.resetWood();fireFX.clear();fireLastSpark=0;}
@@ -447,7 +451,11 @@ function startPreparedRun(){
   // and simulation stay suspended until these replacement actors are compiled.
   runPreparation=new Promise(requestAnimationFrame).then(async()=>{
     resetRun();setPlayCamera();syncVisuals(0);
+    const unstage=await preparedSummons.prepare({counts:entities.some(e=>e.kind==='boss'&&!e.bossType)?{archer:3,heavy:3,'stone-minion':3}:{},parent:scene,position:player.body.position,prepareSurface:prepareRigSurface});
+    scene.userData.summonPreparation=preparedSummons.snapshot;
+    try{
     await prepareRunShaders({renderer,scene,camera,quality:mobile?'high':quality,composer,objects:entities.filter(e=>!e.removed&&e.category==='actor').map(e=>e.mesh)});
+    }finally{unstage();}
     enterRun();
     if(document.hidden){phase='paused';sound.setPaused(true);ui.showPause(true);}
   }).catch(showError).finally(()=>{runPreparation=null;lastTime=performance.now();});
