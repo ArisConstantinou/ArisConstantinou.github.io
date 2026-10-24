@@ -1,4 +1,5 @@
 import {indexedClone} from '../indexed-geometry.js';
+import {registerShadowPositionMaterial}from'../game/src/shadow-position-contract.js';
 import * as T from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {siegeSurface} from '../game/src/siege-environment.js';
@@ -17,7 +18,7 @@ function materials(){if(palette)return palette;
  templeP=(modelMatrix*templePosition).xyz;templeN=normalize(mat3(modelMatrix)*templeNormal);`);s.fragmentShader='varying vec3 templeP;varying vec3 templeN;\n'+s.fragmentShader;s.fragmentShader=s.fragmentShader.replace('#include <map_fragment>',`vec3 weights=pow(abs(templeN),vec3(6.));weights/=max(.001,weights.x+weights.y+weights.z);vec3 grain=texture2D(map,templeP.zy/3.6).rgb*weights.x+texture2D(map,templeP.xz/3.6).rgb*weights.y+texture2D(map,templeP.xy/3.6).rgb*weights.z;float value=dot(grain,vec3(.2126,.7152,.0722));diffuseColor.rgb*=.65+.82*value;`);};stone.customProgramCacheKey=()=> 'temple-physical-stone-v2';
  palette={stone,edge:stone.clone(),pavement:stone.clone(),dark:new T.MeshStandardMaterial({color:0x8c8d7c,roughness:.95}),bronze:new T.MeshStandardMaterial({color:0x81704b,roughness:.68,metalness:.6})};palette.edge.color.setHex(0xe2d6bd);palette.edge.onBeforeCompile=stone.onBeforeCompile;palette.edge.customProgramCacheKey=stone.customProgramCacheKey;
  palette.pavement.onBeforeCompile=s=>{stone.onBeforeCompile(s);s.fragmentShader=s.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
- if(abs(templeN.y)>.8){vec2 tile=vec2(templeP.x/1.4+mod(floor(templeP.z/1.1),2.)*.5,templeP.z/1.1);vec2 edgeDist=min(fract(tile),1.-fract(tile))*vec2(1.4,1.1);float seam=1.-smoothstep(.008,.022,min(edgeDist.x,edgeDist.y));float patina=fract(sin(dot(floor(tile),vec2(12.9898,78.233)))*43758.5453);diffuseColor.rgb*=mix(.95,1.04,patina)*(1.-seam*.27);}`);};palette.pavement.customProgramCacheKey=()=> 'temple-pavement-v2';return palette;
+ if(abs(templeN.y)>.8){vec2 tile=vec2(templeP.x/1.4+mod(floor(templeP.z/1.1),2.)*.5,templeP.z/1.1);vec2 edgeDist=min(fract(tile),1.-fract(tile))*vec2(1.4,1.1);float seam=1.-smoothstep(.008,.022,min(edgeDist.x,edgeDist.y));float patina=fract(sin(dot(floor(tile),vec2(12.9898,78.233)))*43758.5453);diffuseColor.rgb*=mix(.95,1.04,patina)*(1.-seam*.27);}`);};palette.pavement.customProgramCacheKey=()=> 'temple-pavement-v2';for(const m of [stone,palette.edge,palette.pavement])registerShadowPositionMaterial(m);return palette;
 }
 export function monumentPavement(){return materials().pavement;}
 const boxGeometry=new T.BoxGeometry(1,1,1);

@@ -1,6 +1,13 @@
 import {createStaticShadowCache} from './static-shadow-cache.js';
 let staticShadowCache;
 import {createRoomVisibility} from './room-visibility.js';
+import {createRoomShadowAnchor} from './room-shadow-anchor.js';
+import {createShadowReceiverGuard} from './shadow-receiver-guard.js';
+let sunReceiverGuard,sunReceiverRoot;
+function shadowReceiversSafe(){if(!worldMap?.root)return false;if(sunReceiverRoot!==worldMap.root){sunReceiverRoot=worldMap.root;sunReceiverGuard=createShadowReceiverGuard(worldMap.root,worldMap.floors,{positionsPreserved:m=>roomVisibility?.shadowPositionsPreserved(m)??false,shadowCamera:moon.shadow.camera});}return sunReceiverGuard.check(camera,roomVisibility?.shadowRegions||[]);}
+let stableSun;
+const sunHeightSpan={minY:0,maxY:0};
+function movingShadowSpan(){sunHeightSpan.minY=sunHeightSpan.maxY=0;const include=e=>{if(!e?.body||e.removed)return;const y=e.body.position.y;sunHeightSpan.minY=Math.min(sunHeightSpan.minY,y-(e.cy||0)-2);sunHeightSpan.maxY=Math.max(sunHeightSpan.maxY,y+Math.max(6,(e.radius||1)*4));};for(const e of entities)if(e.body&&e.mesh?.visible&&(!roomVisibility||roomVisibility.entityVisible(e)))include(e);if(hearth?.engine&&(!roomVisibility||roomVisibility.entityVisible(hearth.engine)))include(hearth.engine);return sunHeightSpan;}
 import {cacheRigidWorldMatrices} from './rigid-matrix-cache.js';
 let roomVisibility;
 import {createGameUpdates} from './game-updates.js';
@@ -234,6 +241,7 @@ function setupRenderer(){
   moon=new THREE.DirectionalLight(0xdceafc,3.5);moon.position.set(-16,32,13);moon.castShadow=true;
   Object.assign(moon.shadow.camera,{left:-22,right:22,top:22,bottom:-22,near:1,far:85});
   moon.shadow.normalBias=.07;moon.shadow.bias=-.00015;moon.shadow.mapSize.set(2048,2048);scene.add(moon,moon.target);
+  stableSun=mobile&&new URL(location.href).searchParams.get('sunAnchor')!=='original'?createRoomShadowAnchor(moon.shadow.camera):null;
   const rim=new THREE.DirectionalLight(0x55bfc0,.6);rim.position.set(8,7,-18);scene.add(rim);
   prepareEnvironment();
   if(quality==='high'||mobile)setupComposer();
@@ -1459,7 +1467,8 @@ function updateCamera(dt){
   const shakeAmount=phase==='playing'?shake:0;
   camera.position.x+=(Math.random()-.5)*shakeAmount;camera.position.z+=(Math.random()-.5)*shakeAmount;
   camera.lookAt(cameraTarget);shake=Math.max(0,shake-dt*1.5);
-  moon.position.set(cameraTarget.x-16,32,cameraTarget.z+13);moon.target.position.set(cameraTarget.x,0,cameraTarget.z);
+  const shadowTarget=stableSun?.target(cameraTarget,roomVisibility?.shadowRegions||[],movingShadowSpan(),shadowReceiversSafe())??cameraTarget;
+  moon.position.set(shadowTarget.x-16,shadowTarget.y+32,shadowTarget.z+13);moon.target.position.set(shadowTarget.x,shadowTarget.y,shadowTarget.z);
   for(const mesh of worldMap.occluders||[]){
     const focus=player.body.position;
     const box=new THREE.Box3().setFromObject(mesh);
@@ -1685,7 +1694,7 @@ async function boot(){
     window.render_game_to_text=()=>JSON.stringify({...window.__MAGIC__.snapshot(),coordinates:'metres: X east, Y up, Z south',bosses:entities.filter(e=>e.bossType&&!e.removed).map(e=>({type:e.bossType,room:e.room.name,hp:e.hp,dead:e.dead,clip:e.mesh.userData.animationState,attackTime:e.bossTime,guardBreak:e.guardBreak,x:e.body.position.x,z:e.body.position.z}))});
     if(FIRE_ENABLED&&FIRE_BENCHMARK)window.__FIRE_BENCHMARK__=enabled=>{fireFX.setEnabled(enabled);renderer.info.autoReset=false;};
     window.advanceTime=ms=>{controlledUntil=performance.now()+1000;const steps=Math.max(1,Math.ceil(ms/(1000/60)));for(let i=0;i<steps;i++)frame(lastTime+ms/steps,true);lastTime=performance.now();};
-    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get activePointLights(){return activePointLights;},get frameDiagnostics(){return frameDiagnostics;},get staticShadowCache(){return staticShadowCache;},get roomVisibility(){return roomVisibility;},trajectoryWorld:()=>captureTrajectoryWorld(physics,held?.body,runTime),get puzzles(){return greekPuzzles;},get goliathNav(){return goliathNav;},get held(){return held;},hurt,get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get nav(){return nav;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,pulse,stoneFixture:createStoneCreature,get time(){return runTime;},pause:togglePause,render:()=>{controlledUntil=performance.now()+60000;if(quality==='high'||mobile)composer.render();else renderer.render(scene,camera);},impactSnapshot:()=>fx.stompSnapshot(),step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);greekPuzzles?.update(dt,hearth.engine,player);syncVisuals(dt);hearth.sync(dt);fx.update(dt,camera,dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
+    if(new URL(location.href).searchParams.has('hearthQA'))window.__HEARTH_QA__={get activePointLights(){return activePointLights;},get frameDiagnostics(){return frameDiagnostics;},get staticShadowCache(){return staticShadowCache;},get shadowAnchor(){return stableSun?{...stableSun.snapshot(),receivers:sunReceiverGuard?.snapshot()??null}:null;},get roomVisibility(){return roomVisibility;},trajectoryWorld:()=>captureTrajectoryWorld(physics,held?.body,runTime),get puzzles(){return greekPuzzles;},get goliathNav(){return goliathNav;},get held(){return held;},hurt,get engine(){return hearth.engine;},get player(){return player;},get entities(){return entities;},get spell(){return fireSpell;},get world(){return worldMap;},get nav(){return nav;},get physics(){return physics;},get camera(){return camera;},hearth,startRun,interact,absorbFire,holdEntity,throwHeld,releaseHeld,pulse,stoneFixture:createStoneCreature,get time(){return runTime;},pause:togglePause,render:()=>{controlledUntil=performance.now()+60000;if(quality==='high'||mobile)composer.render();else renderer.render(scene,camera);},impactSnapshot:()=>fx.stompSnapshot(),step:(dt,input={moveX:0,moveZ:0,firing:false})=>{if(phase==='playing'){runTime+=dt;updatePlayer(dt,{...input,pointerActive:false});hearth.update(dt,input,runTime);physics.step(1/120,dt,6);greekPuzzles?.update(dt,hearth.engine,player);syncVisuals(dt);hearth.sync(dt);fx.update(dt,camera,dt);hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera});}},renderer};
   }catch(error){
     const fresh=error.releaseMismatch&&releaseReloadURL(location.href,error.releaseMismatch);
     if(fresh){location.replace(fresh);return;}

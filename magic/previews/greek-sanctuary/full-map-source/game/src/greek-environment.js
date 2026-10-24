@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {registerShadowPositionMaterial}from'./shadow-position-contract.js';
 import {loadGltfAsset} from './asset-loading.js';
 import {selectStrikeDoor} from './door-strike-rules.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
@@ -20,7 +21,7 @@ function patina(m){
   s.fragmentShader=s.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
    float n=sin(greekPosition.x*37.+sin(greekPosition.z*19.))*sin(greekPosition.y*41.+greekPosition.z*23.);
    diffuseColor.rgb*=.94+.06*n;`);
- };m.customProgramCacheKey=()=> 'greek-patina-v1';
+ };registerShadowPositionMaterial(m);m.customProgramCacheKey=()=> 'greek-patina-v1';
 }
 [stone,edge,pigment].forEach(patina);
 const architectureBatches=new WeakMap(),palettes=new Map();
@@ -88,7 +89,7 @@ export function greekFloor(room){
   s.uniforms.greekWeather={value:surface.map};s.fragmentShader='uniform sampler2D greekWeather;\n'+s.fragmentShader;
   s.fragmentShader=s.fragmentShader.replace('#include <map_fragment>',`#include <map_fragment>
    vec3 weather=texture2D(greekWeather,vMapUv*.73).rgb;float stoneGrain=dot(weather,vec3(.2126,.7152,.0722));diffuseColor.rgb*=.83+.24*stoneGrain;`);
- };mat.customProgramCacheKey=()=> 'greek-floor-weather-v1';return mat;
+ };registerShadowPositionMaterial(mat);mat.customProgramCacheKey=()=> 'greek-floor-weather-v1';return mat;
 }
 export function dressGreekRooms(root,rooms,boundary){
  if(!greekEnabled)return null;

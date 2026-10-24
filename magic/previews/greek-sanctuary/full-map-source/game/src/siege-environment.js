@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {loadGltfAsset,loadTextureAsset} from './asset-loading.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {registerShadowPositionMaterial}from'./shadow-position-contract.js';
 
 // Local CC0 assets, recorded in environment-b/asset-provenance.json. A/B is
 // restricted to the isolated preview; no network API or paid service at runtime.
@@ -27,7 +28,7 @@ export function siegeFloor(room){
  const map=copy(maps.map),normalMap=copy(maps.normalMap),arm=copy(maps.arm);
  const mat=new THREE.MeshStandardMaterial({map,normalMap,normalScale:new THREE.Vector2(.45,.45),roughnessMap:arm,aoMap:arm,aoMapIntensity:.7,roughness:1,color:0xffffff,metalness:0});
  mat.onBeforeCompile=s=>{s.fragmentShader=s.fragmentShader.replace('#include <map_fragment>',`#include <map_fragment>
-  float stoneLuma=dot(diffuseColor.rgb,vec3(.2126,.7152,.0722));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(stoneLuma)*vec3(.97,1.,1.025),.82)*1.25;`);};mat.customProgramCacheKey=()=> 'siege-floor-v2';return mat;
+  float stoneLuma=dot(diffuseColor.rgb,vec3(.2126,.7152,.0722));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(stoneLuma)*vec3(.97,1.,1.025),.82)*1.25;`);};registerShadowPositionMaterial(mat);mat.customProgramCacheKey=()=> 'siege-floor-v2';return mat;
 }
 export function dressSiegeMaterials(materials){
  if(!siegeEnabled||!surfaces.size)return;
@@ -50,7 +51,7 @@ export function dressSiegeMaterials(materials){
     diffuseColor.rgb=mix(vec3(.65),diffuseColor.rgb,.22)*mix(vec3(.85),stone,.72)*1.6;
     diffuseColor.rgb*=mix(.70,1.,smoothstep(0.,1.2,siegeWorld.y));`);
   };
-  m.customProgramCacheKey=()=>`siege-stone-v1-${key}`;m.needsUpdate=true;
+  registerShadowPositionMaterial(m);m.customProgramCacheKey=()=>`siege-stone-v1-${key}`;m.needsUpdate=true;
  }
  materials.bronze.color.setHex(0x665342);materials.bronze.metalness=.65;materials.bronze.roughness=.66;
  materials.metal.roughness=.64;materials.metal.metalness=.65;

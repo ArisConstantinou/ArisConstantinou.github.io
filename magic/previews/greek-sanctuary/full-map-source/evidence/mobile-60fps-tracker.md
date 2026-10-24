@@ -10,13 +10,13 @@ Goal: full world including real combat at sustained approximately 60 FPS on the 
 
 ## Current protected release
 
-1.6.41,b2fe5dde4b6a71cf9fc39df0a728b8d8d76a85ab. Pages40048723203success; runtime/source hashes verified. The physical iPhone loaded the public01c24b7dengine with noQA/hooks and identical save/report hashes. Mounted mage now updates its existing LOD from the mobile camera (40551to10353triangles). Latest complete native fight46.89FPS/P9528/max85/four frames>50ms; sustained60FPS remains OPEN. Previous HEARTH projected-body and prepared-summon fixes retained. Source `.source/combat-fps-20261021/source/game`; canonical build `E:/CodexGenerated/Magic/staging/build`.
+1.6.42, commit97ceb1d9f2794c2c30455c30aa7e2fd787d0c02c. Pages40053701515success; committed source and public runtime hashes verified. The physical iPhone loaded public engined1e813d45fd2 with noQA/hooks and identical save/report hashes. HEARTH now shares its three equal palettes:12to4KiB, same Fire-pose pixels exactly. Full native fight45.58FPS/P9529/max85/fivecombat intervals>50ms,19kills/4bosses/3summons,0errors/misses. No meanFPS gain is claimed for the small redundant-work fix. Mounted-pilot/projected-HEARTHLOD and prepared-summon fixes retained. Sustained60FPS remains OPEN. Source `.source/combat-fps-20261021/source/game`; one canonical build `E:/CodexGenerated/Magic/staging/build`.
 
 ## Checked / fixed / disabled
 
 | Area | State | Evidence / next step |
 | --- | --- | --- |
-| Device USB / inspector | Connected | iPhone15,3, iOS27.0.1, Chrome; visible public game menu; 430x745 viewport /494x856 buffer. |
+| Device USB / inspector | Connected | Physical iPhone15,3/Chrome; private43stage and exactengine proof succeed after fresh inspector reattach. Main save/report preserved across completed controls. |
 | PC rendering | Not running | All gameplay/FPS work on phone. Epiphanios coordination message sent to active owner; no competing Unreal process in host snapshot. |
 | Mobile antialiasing | Fixed in1.6.37 | SMAA replaces native MSAA at same canvas size. |
 | Interior room-mask shader | Fixed in1.6.37 | Conservative bound fast path; boundary path retained. |
@@ -27,14 +27,23 @@ Goal: full world including real combat at sustained approximately 60 FPS on the 
 | Mobile surface lighting | Temporary approximation | Lambert per-fragment diffuse; IBL, normal/bump and metallic/roughness specular omitted. Full-reference query remains documented. |
 | Fire noise | Temporary sampled approximation | Shared256KiB64cubed lattice; same32mobile samples/shape/lights/smoke. Rejected shader/proxy experiments are absent from runtime. |
 | Mounted mage | Fixed in1.6.41 | Existing LOD2 now selected from the camera after seated posing;10353vs40551triangles,116timed samples at32.59–33.49CSSpixels. No asset/rig/animation changes. |
-| Shadows | Existing diagnostic freeze | First frames generate original shadow maps; subsequent maps frozen in the existing courtyard fixture. Must address before full-world acceptance. |
+| HEARTH bone palettes | Fixed in1.6.42 | Three exactly equal live bindings share one palette;8192bytes and two redundant palette updates removed,0changedFire-pose channels. No new feature disabled. |
+| Shadows | Existing default freeze retained; cache fix verified privately |43dynamic nativecontrol:40.66FPS/P9533,19kills/all4bosses/3summons, cachehits3947to6087,0uncovered static triangles/latecallbackfailures. Full/cached/full-repeat Fireimages0changed channels. Dynamic-default proposal rejected; final43default-profile verification pending. Must restore dynamics before full-world acceptance. |
 | Full world | Not yet under test | Courtyard gate must pass first. |
 
 Private raw evidence and save backups stay under the fixed generated tests/phone directories. Never publish private phone connection data or storage backups. Benchmark export remains `magic-benchmark.json`.
 
 ## Current next step
 
-Keep the first-room60FPS gate. Geometry is now a demonstrated cost under the current diffuse pipeline. Inspect the remaining imported far-surface budgets (heavy/archer/Mage and static world/props), existing LOD assets and their projected sizes before changing them. Retain original close surfaces/rigs/textures; any new far surface needs same-pose phone image and real full-combat verification. Dynamic shadow restoration is still required before room expansion. No PC FPS tests.
+Latest authoritative checkpoint:523CPUchecks/buildpass. Fixed actual static-triangle coverage and room/Lambert shader-wrapper proof propagation, same original1024/44unit map and light direction. Full dynamic43control completed with exact source/save/pixelproof, but40.66FPS is below60;43retains42's existing default freeze. FINAL default-profile actualengine82dd9fff4a4b proof and fullfight passed:48.35FPS/P9528/max85/threecombat>50ms,25kills/all4bosses/9summons,0errors/misses; idle58.82/settle60.05. Separate live-shadow full/cached/fullrepeat pixels0changed; exactstorage restored.42baseline45.58had3summons, so no causal meanFPS-gain claim. Publication preparation follows; no43pushyet. Then integrate/test the PRIVATE Heavy5276triangle indexsidecar (original21889) on the phone;28actualclip CPUposes pass and original buffers/rig remain shared. Exact2Meshoptimizerfiles approved/downloaded/verified. Earlier notes below are superseded checkpoints.
+
+Private1.6.43: fixed-room sun projection and conservative receiver guard now integrated;516CPUchecks and canonical build pass. Whole1.401roomfade fringe is covered with .8unit spare margin (>18current shadow texels). Unknown vertex callbacks, exposed foundations, adjoining rooms and unsupported actor heights retain the original following sun. The actual foundation rocks extend to-13.33m; receiver visibility uses the perspective frustum/floor occlusion proof rather than ignoring them. Native42 dynamic-shadow reference37.59FPS/P9538/max90/10combat intervals>50ms,19kills/4bosses/3summons.43native stage/sourceproof/combat/full-cached-full image gate pending USB reconnection; no performance gain claimed and no43commit/push. Unknown custom world-material callbacks may still force safe fallback and need exact native inspection before reviewed contracts are added. Production shadow freeze unchanged; candidate tests explicitly use freeze=0.
+
+Independent far-LOD path: actual original67bone/7clip Heavy rig decoded offline,28numericposes checked; index-only sidecar loader shares original vertex/skin/UV buffers and validates provenance atomically. It remains unimported, with no new model installed. Pending user approval for only pinned Meshoptimizer v1.3JS67671bytes+MIT1079bytes; no download or global installation performed. This is separate from the pending phone reconnection question.
+
+Default494x856 retained. Native42 pixel-budget control: A53.50FPS/19kills/3summons vs B50.82FPS/25kills/9summons at365x633; differing workloads confound causality and no practical gain was established. ThirdA skipped. Exactphone saves/benchmark/public42menu/nativeDPR3 restored, connectionsclosed. No lower-resolution production change.
+
+Allactors already use existingfarLOD2: regularArcher19,998triangles,Heavy21,889 at~39–40CSSpixels. Heavy authoring source and original compressed geometry/bindings identified. Derived Blendercollapse prototype only reaches20,217 atrequested.25ratio; strippingUVs or removingArmature during reduction gives exactlysame count. No acceptednewasset and no invalid-source claim. See HEAVY-FAR-STATE.json for exact hashes/results and next alternative retaining skinIndex/skinWeight. No repeats of unchanged failed methods. Native pose/image/fullcombat tests required before publication; dynamicshadow restoration stillrequired before room2.
 
 ## Earlier controls — historical1.6.37/PBR pipeline
 
@@ -125,3 +134,15 @@ Next applied candidate42: share HEARTH's exactly equal live joint/inverse-bind p
 
 
 Candidate42 palette fix verified on physical iPhone:3skins/1palette/4096bytes before and after the complete native battle;19kills/4bosses/3summons,0errors/0reserve misses.45.58FPS/P9529/max85/fivecombat intervals>50ms. Separate/shared/separate Fire-pose images:3/1/3palettes,12288/4096/12288bytes,0changed channels in shared and restored views.507local CPUchecks passed including13private experiment tests excluded from publication. Saves/report exactly restored; public41menu/nohooks/connectionsclosed. Publication of the narrow resource fix is next; no FPS gain or60FPS acceptance claimed.
+
+
+42publication completed:97ceb1d main+benchmark, Pages40053701515success, allpublicruntime/sourcehashesverified, release4020abc2fe2f4ccfff5231e225e311c05fc4bdf3b50ef8aaba742b8e461b22e7. Physicalpublic42source readback and exactsavehashes passed; noQA/hooks. Next bounded phone pixel-budget control running.
+
+
+Heavyfar offline checkpoint: originalsourcehash093d4557... unchanged. Derived20,217triangle draft is NOT integrated/accepted. UV and Armature-stack hypotheses rejected by equal-result controls. Current42defaultresolution/models unchanged. Goalactive45.0%.
+
+Private43 continuation: reviewed world shader contracts registered separately from skin/interior eligibility; Lambert propagation and late callback invalidation verified.519CPUchecks/buildpassed. See ROOM-SHADOW-ANCHOR.md. USB remains absent; no native43 measurement/publication.
+
+Blocked audit: USB absent for3consecutive goal turns (latest authoritative usbmux=[]). No activephone job;519CPUchecks/buildalreadycomplete. Goalmarkedblocked pending physical reconnection/resume. Protectedpublic42; private43notpublished; fullworld60FPSunachieved. Separate exact2fileMeshoptimizer approval stillpending.
+
+2026-10-24 native shadow milestone (PRIVATE43): exact static triangles + safe room/Lambert wrapper compositions fixed; dynamicsON realfight40.66FPS/P9533/max86,19kills/all4bosses/3summons;exactcachehits3947to6087;6243roomframes/0uncoveredtriangles/0latecallbackfailures. Full/cached/full-repeat Fireimage0changed channels, exact storage restored. Dynamic-default proposal REJECTED;43finaldefaultretains42freeze.523CPUchecks/buildpassed. Final default-profile native39335 live; no43pushyet.

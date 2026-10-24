@@ -7,6 +7,7 @@ import {roomSources} from '../../static-wall-batches.js';
 import {applyRoomFogShader,roomFogShaderKind} from './room-fog-shader.js';
 import {hiddenRoomBranches,renderWithoutBranches} from './room-render-prune.js';
 import {createSkinnedRoomBounds,skinOverlapsRooms,hasFragmentOnlySkinCallback} from './skinned-room-bounds.js';
+import {shadowPositionsPreserved,registerShadowPositionMaterial}from'./shadow-position-contract.js';
 export function createRoomVisibility({renderer,scene,world}){
  const realZones=world.zones.map(z=>({id:z.name,label:z.label,secret:z.secret,x:z.xMin,z:z.zMin,w:z.xMax-z.xMin,d:z.zMax-z.zMin}));
  const policy=createRoomZones(realZones.filter(z=>!z.secret),corridors,realZones.filter(z=>z.secret)),minimap=createRoomMinimap(policy);
@@ -33,10 +34,12 @@ export function createRoomVisibility({renderer,scene,world}){
   const custom=material.isShaderMaterial?roomFogShaderKind(material):null;
   if(material.isShaderMaterial&&(!allowCustom||!custom))return;
   const compile=material.onBeforeCompile,key=material.customProgramCacheKey,cacheKey=key===Material.prototype.customProgramCacheKey?compile.toString():null;
+  const shadowSafe=shadowPositionsPreserved(material,compile);
   material.onBeforeCompile=function(shader,...args){
    compile.call(this,shader,...args);
    if(enabled)applyRoomFogShader(shader,uniforms,{sprite:material.isSpriteMaterial,custom,centroid:fragmentMaskCentroid&&hasFragmentOnlySkinCallback(material,compile)});
   };
+  if(shadowSafe)registerShadowPositionMaterial(material);
   material.customProgramCacheKey=function(){return(cacheKey??key.call(this))+(enabled?':room-fog-3:':':room-original-3:')+(custom||'builtin')+(fragmentMaskCentroid&&hasFragmentOnlySkinCallback(material,compile)?':skin-centroid-1':'');};
   const released=()=>{material.onBeforeCompile=compile;material.customProgramCacheKey=key;material.removeEventListener('dispose',released);patched.delete(material);};
   material.addEventListener('dispose',released);material.needsUpdate=true;patched.set(material,{compile,key,baseKey:cacheKey??key.call(material),released,wrapper:material.onBeforeCompile});
@@ -85,6 +88,8 @@ export function createRoomVisibility({renderer,scene,world}){
  function applyStatic(){stats.hiddenStatic=0;for(const o of roomSources(world.root)){o.userData.roomFogVisible=!enabled||overlaps(boxFor(o));if(!o.userData.roomFogVisible)stats.hiddenStatic++;}}
  return {
   get revision(){return signature+':'+enabled;},
+  get shadowRegions(){return enabled?rects:[];},
+  shadowPositionsPreserved(material){return shadowPositionsPreserved(material);},
   update(subject,yaw=0,entities=[],engine=null){
    for(const e of entities)if(e.mesh)entityRoots.set(e.mesh,e);
    const p=subject.body.position,view=policy.view(p,previous);zone=view.zone;previous=zone.id;rects=view.rects;

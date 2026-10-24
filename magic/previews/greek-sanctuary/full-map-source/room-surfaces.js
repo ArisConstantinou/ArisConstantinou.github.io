@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {registerShadowPositionMaterial}from'./game/src/shadow-position-contract.js';
 import {loadTextureAsset} from './game/src/asset-loading.js';
 import {usesMobileTextures} from './game/src/asset-profile.js';
 import {downsampleNormalPixels} from './room-texture-pixels.js';
@@ -127,6 +128,6 @@ export function makeRoomSurface(room,photographicStone){
    ${p.weather==='dust'?`diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.28,.255,.20),.09*(1.-smoothstep(.0,2.,edgeDistance)));`:''}
   `);
  };
- mat.customProgramCacheKey=()=>`room-surface-v2-${room.id}-${!!photographicStone?.map}`;
+ registerShadowPositionMaterial(mat);mat.customProgramCacheKey=()=>`room-surface-v2-${room.id}-${!!photographicStone?.map}`;
  return mat;
 }

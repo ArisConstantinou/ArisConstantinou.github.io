@@ -1,4 +1,5 @@
 import {indexedClone} from './indexed-geometry.js';
+import {registerShadowPositionMaterial}from'./game/src/shadow-position-contract.js';
 import * as T from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {siegeSurface} from './game/src/siege-environment.js';
@@ -18,7 +19,7 @@ function material(key,color,stone=false){
    s.fragmentShader='varying vec3 regionalP; varying vec3 regionalN;\n'+s.fragmentShader;
    s.fragmentShader=s.fragmentShader.replace('#include <map_fragment>',`vec3 w=pow(abs(regionalN),vec3(6.));w/=max(.001,w.x+w.y+w.z);vec3 tex=texture2D(map,regionalP.zy/2.8).rgb*w.x+texture2D(map,regionalP.xz/2.8).rgb*w.y+texture2D(map,regionalP.xy/2.8).rgb*w.z;diffuseColor.rgb*=mix(vec3(.72),tex*1.5,.66);`);
   };m.customProgramCacheKey=()=> 'regional-stone-v1';m.userData.worldBakedBatch=true;
- }}materials.set(key,m);return m;
+ }}registerShadowPositionMaterial(m);materials.set(key,m);return m;
 }
 function palette(style){const gothic=style==='gothic',house=style==='greek-house',tomb=style==='greek-tomb';return {
  core:material(gothic?'gothic-stone':house?'house-plaster':tomb?'tomb-stone':'hellenic-stone',gothic?0x9b978b:house?0xd2c3a2:tomb?0x969d8a:0xc3c0a5,!house),

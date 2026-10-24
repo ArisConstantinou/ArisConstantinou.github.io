@@ -1,11 +1,12 @@
 import {indexedClone} from '../indexed-geometry.js';
+import {registerShadowPositionMaterial}from'../game/src/shadow-position-contract.js';
 import * as T from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {architectureProfile} from '../architecture-plan.js';
 import {siegeSurface} from '../game/src/siege-environment.js';
 export function regionalGateIsGothic(spec){const ids=[spec.from,spec.to,spec.approach,spec.id==='archive-secret'?'library':spec.id?.split('-')[0]];return ids.some(id=>id&&architectureProfile(id).style==='gothic');}
 let sandstone,iron;
-function materials(){if(sandstone)return;const maps=siegeSurface('castle_wall_slates');sandstone=new T.MeshStandardMaterial({color:0xb9ab90,roughness:.91,map:maps.map});sandstone.onBeforeCompile=s=>{s.vertexShader='varying vec3 portalP;\n'+s.vertexShader;s.vertexShader=s.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\n portalP=(modelMatrix*vec4(transformed,1.)).xyz;');s.fragmentShader='varying vec3 portalP;\n'+s.fragmentShader;s.fragmentShader=s.fragmentShader.replace('#include <map_fragment>','diffuseColor.rgb*=mix(texture2D(map,portalP.xy/2.8).rgb*1.5,texture2D(map,portalP.zy/2.8).rgb*1.5,.5);');};sandstone.customProgramCacheKey=()=> 'gothic-portal-sandstone-v1';iron=new T.MeshStandardMaterial({color:0x343c3d,roughness:.78,metalness:.48});}
+function materials(){if(sandstone)return;const maps=siegeSurface('castle_wall_slates');sandstone=new T.MeshStandardMaterial({color:0xb9ab90,roughness:.91,map:maps.map});sandstone.onBeforeCompile=s=>{s.vertexShader='varying vec3 portalP;\n'+s.vertexShader;s.vertexShader=s.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\n portalP=(modelMatrix*vec4(transformed,1.)).xyz;');s.fragmentShader='varying vec3 portalP;\n'+s.fragmentShader;s.fragmentShader=s.fragmentShader.replace('#include <map_fragment>','diffuseColor.rgb*=mix(texture2D(map,portalP.xy/2.8).rgb*1.5,texture2D(map,portalP.zy/2.8).rgb*1.5,.5);');};registerShadowPositionMaterial(sandstone);sandstone.customProgramCacheKey=()=> 'gothic-portal-sandstone-v1';iron=new T.MeshStandardMaterial({color:0x343c3d,roughness:.78,metalness:.48});}
 // Square-headed medieval portal: moulded clustered jambs, deep rebates,
 // carved quatrefoil lintel and ironbound timber. Its opening exactly retains
 // the established physical rectangle and never narrows the HEARTH route.

@@ -1,5 +1,6 @@
 import {Material,ShaderChunk,ShaderLib} from 'three';
 import {registerFragmentOnlySkinMaterial,registerPositionPreservingSkinMaterial,hasFragmentOnlySkinCallback} from './skinned-room-bounds.js';
+import {shadowPositionsPreserved,registerShadowPositionMaterial}from'./shadow-position-contract.js';
 
 // Mobile approximation using Three's normalized Blinn-Phong lighting. Keep the
 // glTF colour, roughness and metalness maps and every real light/shadow. IBL is
@@ -16,6 +17,7 @@ export function applyMobileLighting(material,{model='phong'}={}){
  const original=material.onBeforeCompile,key=material.customProgramCacheKey;
  const baseKey=key===Material.prototype.customProgramCacheKey?original.toString():null;
  const safe=original===Material.prototype.onBeforeCompile||hasFragmentOnlySkinCallback(material,original);
+ const shadowSafe=shadowPositionsPreserved(material,original);
  const wrapper=function(shader,...args){
   if(model==='lambert'){
    shader.vertexShader=ShaderLib.lambert.vertexShader;
@@ -31,5 +33,6 @@ export function applyMobileLighting(material,{model='phong'}={}){
  materials.add(material);wrappers.add(wrapper);material.onBeforeCompile=wrapper;
  material.customProgramCacheKey=function(){return(baseKey??key.call(this))+':mobile-lighting-'+model+'-1';};
  if(safe){if(model==='lambert')registerPositionPreservingSkinMaterial(material);else registerFragmentOnlySkinMaterial(material);}
+ if(shadowSafe)registerShadowPositionMaterial(material);
  material.needsUpdate=true;
 }
