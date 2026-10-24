@@ -111,6 +111,7 @@ export class FrogGame {
   frame(now){
     let dt=Math.min(.05,Math.max(.001,(now-this.last)/1000));this.last=now;this.frameTime+=dt;this.fps=THREE.MathUtils.lerp(this.fps,1/dt,.03);
     if(this.input.hit('KeyC')&&this.started&&!this.ended){cycleGameView(this);this.input.pressed.delete('KeyC');}
+    if(this.input.hit('KeyB')){this.toggleHUDControls();this.input.pressed.delete('KeyB');}
     if(this.ui.panel&&this.started&&!this.buildPlacement?.active){
       if((this.ui.panel==='build'&&this.input.hit('KeyV'))||(['roster','map'].includes(this.ui.panel)&&this.input.hit('Tab'))){this.ui.closePanels();this.paused=false;this.input.pressed.delete('KeyV');this.input.pressed.delete('Tab');this.input.lock();}
       else if(this.ui.panel==='build'){for(let i=0;i<8;i++)if(this.input.hit(`Digit${i+1}`)){const b=this.buildOptions()[i];if(b?.enabled)this.build(b.type);this.input.pressed.delete(`Digit${i+1}`);}}
@@ -486,8 +487,10 @@ export class FrogGame {
     if(command==='promote'){if(!promote(f,this.resources)){this.ui.toast({icon:'crown',value:f.tier,tone:'warning'});return;}f.model.setTier(f.tier);this.updateFrogPortrait(f,true);this.audio.play?.('levelup');this.ui.toast({icon:'crown',portrait:this.portraits?.[f.id],value:f.tier,tone:'success'});this.updateUI(dayState(this.elapsed));this.ui.renderPanel?.(true);this.save();}
     else this.gangCommand(command,[f.id]);
   }
+  toggleHUDControls(){if(!this.started||this.paused||this.ended||this.ui.panel||this.buildPlacement?.active)return false;this.ui.toggleHudDisclosure?.('actions');return true;}
   openPanel(name){if(this.buildPlacement?.active)return;if(this.ui.panel===name){this.ui.closePanels();this.paused=false;this.input.lock();return;}this.updateUI(dayState(this.elapsed));this.ui.showPanel(name);this.ignoreUnlockUntil=performance.now()+500;this.input.unlock();}
   onAction(action,payload={}){
+    if(action==='hud-disclosure'){if(payload.open){this.ignoreUnlockUntil=performance.now()+700;this.input.clear?.();this.input.unlock?.();}return;}
     if(action==='begin-placement'){this.beginBuildingPlacement(payload.type,{dragging:!!payload.dragging});return;}
     if(action==='move-placement'){updateBuildingPlacement(this,payload);return;}
     if(action==='drop-placement'){updateBuildingPlacement(this,{...payload,dragging:true});confirmBuildingPlacement(this);if(this.buildPlacement)this.buildPlacement.dragging=false;this.updateUI(dayState(this.elapsed));return;}
@@ -521,7 +524,9 @@ export class FrogGame {
     const selectedIds=[...(this.selectedIds||[])].filter(id=>allies.some(f=>f.id===id));
     const hunt=this.hunt&&!this.hunt.dead?{...this.hunt,portrait:this.portraits?.[this.hunt.boss?'boss-'+this.hunt.type:this.hunt.type],objective:predatorObjective(this.hunt)}:null;
     const roster=allies.map(f=>({id:f.id,name:f.name,hp:f.hp,maxHp:f.maxHp,stomach:f.stomach,maxStomach:100,level:f.level,tier:f.tier,role:f.role,guard:f.guard,order:f.order||(f.guard?'guard':'follow'),selected:selectedIds.includes(f.id),portrait:this.portraits?.[f.id],home:f.home,healing:(f.healingUntil||0)>this.elapsed,trained:f.trained,trainingProgress:f.trainingPaid?(f.trainingProgress||0)/TRAINING.duration:0,canTrain:canTrain(f,c,this.resources),canPromote:canPromote(f,this.resources),promoteCost:promoteCost(f),team:'ally',skinColor:f.skinColor}));
-    const ctx=this.context(),contextState={type:ctx.type,progress:ctx.progress??(ctx.type==='gather'?Math.min(1,(ctx.entity?.flies||0)/20):ctx.type==='home'?(c?.hp||1)/(c?.maxHp||1):1),portrait:ctx.entity?.model?this.portraits?.[ctx.entity.id]:null,cost:ctx.cost};
+    const ctx=this.context(),contextState={type:ctx.type,progress:ctx.progress??(ctx.type==='gather'?Math.min(1,(ctx.entity?.flies||0)/20):ctx.type==='home'?(c?.hp||1)/(c?.maxHp||1):1),portrait:ctx.entity?.model?this.portraits?.[ctx.entity.id]:null,cost:ctx.cost,
+      actionLabel:ctx.type==='ally'?(ctx.entity.guard?'Ακολούθησε':'Φρούρησε'):ctx.type==='loot'&&ctx.entity.lootTaken?'Κατασκευές':undefined,
+      actionIcon:ctx.type==='ally'?(ctx.entity.guard?'follow':'shield'):ctx.type==='loot'&&ctx.entity.lootTaken?'camp':undefined};
     const placement=this.placement();
     this.ui.update({
       player:{hp:p.hp,maxHp:p.maxHp,stamina:p.stamina,maxStamina:100,stomach:p.stomach,maxStomach:100,level:p.level,xp:p.xp,nextXp:nextLevelXP(p.level),tier:p.tier,portrait:this.portraits?.[p.id],specialIndex:this.specialIndex,specialCD:p.specialCD,specialDuration:p.specialDuration||5.2,attackCD:p.attackCD,roarCD:p.roarCD,dodgeCD:p.dodgeCD},

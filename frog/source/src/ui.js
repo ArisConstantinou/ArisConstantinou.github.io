@@ -1,4 +1,6 @@
 import './style.css';
+import './hud-layout.css';
+import {describeObjective} from './guidance.js';
 import {pictogram,gangEmblem,frogAvatar,rolePictogram} from './visuals.js';
 
 const $ = (root, selector) => root.querySelector(selector);
@@ -10,6 +12,10 @@ const available = n => Math.max(0, Math.floor(Number(n) || 0));
 const whole = n => Math.max(0, Math.round(Number(n) || 0));
 const fraction = (n, d) => clamp((Number(n) || 0) / (Number(d) || 100));
 const placementTypes=new Set(['shelter','store','nursery','training','watchtower','palisade']);
+const actionCaptions={'primary-attack':'Γλώσσα','special-attack':'Κλωτσιά',dodge:'Αποφυγή',interact:'Πλησίασε','open-build':'Χτίσε','hud-more':'Άλλα',intimidate:'Εκφόβισε','gang-toggle':'Επίθεση ομάδας','gang-forage':'Βρείτε τροφή','cycle-view':'Κάμερα','open-roster':'Ομάδα','open-map':'Χάρτης','open-pause':'Παύση'};
+const compactCaptions={'Στρατολόγησε':'Ένταξη','Κατασκευές':'Χτίσε','Ακολούθησε':'Έλα','Φρούρησε':'Φρουρά','Αποφυγή':'Ελιγμός'};
+const captionMarkup=label=>`<span class="fg-caption-wide">${esc(label)}</span><span class="fg-caption-compact">${esc(compactCaptions[label]||label)}</span>`;
+const goalCaption=g=>({'gather-food':'Τροφή',food:'Τροφή','gather-reeds':'Υλικά',reeds:'Υλικά','build-shelter':'Καταφύγιο',shelter:'Καταφύγιο','build-store':'Αποθήκη',store:'Αποθήκη','build-nursery':'Φωλιά',nursery:'Φωλιά','build-training':'Εκπαιδευτήριο',training:'Εκπαιδευτήριο','recruit-allies':'Σύμμαχοι',allies:'Σύμμαχοι','train-starters':'Εκπαιδευμένοι',trained:'Εκπαιδευμένοι','train-army':'Εκπαιδευμένοι','expand-shelters':'Καταφύγια','expand-buildings':'Κτίρια',territories:'Περιοχές'}[g.id]||({heron:'Ερωδιός',snake:'Νερόφιδο',fish:'Ψάρι'}[g.type||g.icon]?(g.boss?'Αρχηγός ':'')+({heron:'Ερωδιός',snake:'Νερόφιδο',fish:'Ψάρι'}[g.type||g.icon]):describeObjective(g).title));
 const roleNames = { scout:'Ανιχνευτής', hunter:'Κυνηγός', bruiser:'Μαχητής', brute:'Βαρύς μαχητής', guardian:'Φύλακας', guard:'Φρουρός', leader:'Αρχηγός', agile:'Ακροβάτης', warrior:'Πολεμιστής', striker:'Μαχητής', intimidator:'Εκφοβιστής', caller:'Κράχτης' };
 const predatorNames = {heron:'ΕΡΩΔΙΟΣ',snake:'ΝΕΡΟΦΙΔΟ',fish:'ΑΡΠΑΚΤΙΚΟ ΨΑΡΙ'};
 const predatorNotes = {heron:'Απέφυγε το ράμφος. Χτύπησε όταν ορμήσει.',snake:'Άνοιξε την ομάδα. Επίθεση από τα πλάγια.',fish:'Πήγαινε σε πέτρες και ρηχά. Πρόσεχε τη σκιά.'};
@@ -32,6 +38,7 @@ const icons = {
   eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
   pin:'<path d="M19 9c0 5-7 13-7 13S5 14 5 9a7 7 0 1 1 14 0Z"/><circle cx="12" cy="9" r="2"/>',
   skull:'<path d="M8 21v-4H5V9a7 7 0 0 1 14 0v8h-3v4ZM12 18v3"/><circle cx="9" cy="10" r="1.5"/><circle cx="15" cy="10" r="1.5"/>',
+  more:'<circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/>',
   check:'<path d="m4 12 5 5L20 6"/>',
 };
 function icon(name, cls='') { return `<svg class="fg-icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.leaf}</svg>`; }
@@ -48,7 +55,7 @@ export class GameUI {
     this.callbacks={onAction,onStart,onResume,onSettings};
     this.abort=new AbortController(); this.state={}; this.portraits={};
     this.panel=null; this.menu=null; this.lastDraw=0; this.lastPanel=0;
-    this.rosterFilter='all';this.toastKeys=new Map();this.portraitCache=new Map();
+    this.hudDisclosure=null;this.rosterFilter='all';this.toastKeys=new Map();this.portraitCache=new Map();
     this.settings={quality:'high',volume:0.65,sensitivity:1};
     this.root=document.createElement('div'); this.root.id='frog-ui';
     this.root.innerHTML=this.markup(); document.body.append(this.root);
@@ -60,12 +67,48 @@ export class GameUI {
     document.addEventListener('dragover',e=>this.moveBuildDrag(e),{signal:this.abort.signal});
     document.addEventListener('drop',e=>this.dropBuildDrag(e),{signal:this.abort.signal});
     document.addEventListener('dragend',()=>this.finishBuildDrag(),{signal:this.abort.signal});
+    this.root.addEventListener('scroll',e=>{if(e.target.classList?.contains('fg-illustrated-build'))this.syncBuildCatalog();},{capture:true,signal:this.abort.signal});
     this.root.addEventListener('input', e=>this.setting(e), {signal:this.abort.signal});
     this.root.addEventListener('change', e=>this.setting(e), {signal:this.abort.signal});
     this.root.addEventListener('contextmenu', e=>e.preventDefault(), {signal:this.abort.signal});
-    this.root.addEventListener('keydown', e=>{if(e.target.matches('input,select,button')&&!['Escape','Tab','KeyV'].includes(e.code)&&!this.state.buildPlacement?.active)e.stopPropagation();}, {signal:this.abort.signal});
+    this.root.addEventListener('keydown',e=>this.hudKeydown(e),{signal:this.abort.signal});
+    document.addEventListener('keydown',e=>{if(this.hudDisclosure&&e.code==='Escape'){e.preventDefault();e.stopPropagation();this.closeHudDisclosure(true);}},{capture:true,signal:this.abort.signal});
+    document.addEventListener('pointerdown',e=>{if(this.hudDisclosure&&!e.target.closest?.('.fg-objective,.fg-action-drawer,[data-action="hud-more"]'))this.closeHudDisclosure();},{signal:this.abort.signal});
     window.addEventListener('resize',()=>{this.lastDraw=0;},{signal:this.abort.signal});
     this.setLoading('Δημιουργία του ποταμού…');
+  }
+  toggleHudDisclosure(name){
+    const next=this.hudDisclosure===name?null:name;this.setHudDisclosure(next);
+  }
+  setHudDisclosure(name,restoreFocus=false){
+    const previous=this.hudDisclosure||null;if(previous===name)return;this.hudDisclosure=name;
+    if(this.refs.objectiveDetails)this.refs.objectiveDetails.hidden=name!=='objectives';
+    if(this.refs.actionDrawer)this.refs.actionDrawer.hidden=name!=='actions';
+    this.refs.objectiveToggle?.setAttribute('aria-expanded',String(name==='objectives'));
+    this.refs.moreToggle?.setAttribute('aria-expanded',String(name==='actions'));
+    this.refs.objectiveBox?.classList.toggle('is-expanded',name==='objectives');
+    this.root.classList.toggle('fg-hud-drawer-open',Boolean(name));
+    if(restoreFocus){const button=previous==='objectives'?this.refs.objectiveToggle:this.refs.moreToggle;button?.focus({preventScroll:true});}
+    this.callbacks.onAction('hud-disclosure',{name,open:Boolean(name)});
+  }
+  closeHudDisclosure(restoreFocus=false){if(this.hudDisclosure)this.setHudDisclosure(null,restoreFocus);}
+  hudKeydown(event){
+    if(this.hudDisclosure&&event.code==='Escape'){event.preventDefault();event.stopPropagation();this.closeHudDisclosure(true);return;}
+    const button=event.target.closest?.('button');
+    if(button&&['Space','Enter'].includes(event.code)){event.preventDefault();event.stopPropagation();button.click();return;}
+    if(event.target.matches?.('input,select')||(event.target.closest?.('.fg-panel')&&!['Escape','Tab','KeyV'].includes(event.code)&&!this.state.buildPlacement?.active))event.stopPropagation();
+  }
+  scrollBuildCatalog(direction){
+    const catalog=$(this.refs.panel,'.fg-illustrated-build');if(!catalog)return;
+    const width=$(catalog,'.fg-picture-building')?.getBoundingClientRect().width||220;
+    const reduce=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    catalog.scrollBy({left:Math.sign(direction||1)*(width+14),behavior:reduce?'instant':'smooth'});
+  }
+  syncBuildCatalog(){
+    if(this.panel!=='build')return;const catalog=$(this.refs.panel,'.fg-illustrated-build');if(!catalog)return;
+    const previous=$(this.refs.panel,'[data-action="build-scroll"][data-direction="-1"]'),next=$(this.refs.panel,'[data-action="build-scroll"][data-direction="1"]');
+    if(previous)previous.disabled=catalog.scrollLeft<=2;
+    if(next)next.disabled=catalog.scrollLeft+catalog.clientWidth>=catalog.scrollWidth-2;
   }
   beginBuildDrag(event){
     const card=event.target.closest('.fg-picture-building[draggable="true"]');
@@ -105,6 +148,7 @@ export class GameUI {
   updatePlacement(placement){
     const active=Boolean(placement?.active),r=this.resources(this.state.resources);
     if(!active&&this.draggingBuild)this.finishBuildDrag(false);
+    if(active)this.closeHudDisclosure();
     this.root.classList.toggle('fg-is-placing',active);this.refs.buildPlacement.hidden=!active;
     if(!active)return;
     const valid=Boolean(placement.valid),cost=typeof placement.cost==='number'?{food:placement.cost,reeds:0}:placement.cost||{};
@@ -123,7 +167,7 @@ export class GameUI {
     this.refs.placementMaterials.parentElement.classList.toggle('is-short',r.reeds<(cost.reeds||0));
   }
   actionTile(action,art,k,label,cooldown=''){
-    return `<button class="fg-action-tile" data-action="${action}" data-cooldown="${cooldown}" aria-label="${esc(label)}" title="${esc(label)}"><span class="fg-action-art">${pictogram(art)}</span><span class="fg-cooldown-cover"></span><span class="fg-cooldown-time"></span>${key(k)}<span class="fg-ready-line"></span></button>`;
+    return `<button class="fg-action-tile" data-action="${action}" data-cooldown="${cooldown}" aria-label="${esc(label)}" title="${esc(label)}"><span class="fg-action-art">${art==='more'?icon('more'):pictogram(art)}</span><span class="fg-action-caption">${captionMarkup(actionCaptions[action]||label)}</span><span class="fg-cooldown-cover"></span><span class="fg-cooldown-time"></span>${k?key(k):''}<span class="fg-ready-line"></span></button>`;
   }
   commandButton(command,action='selection-command',id=''){
     const names={follow:'Ακολουθήστε',attack:'Επίθεση',forage:'Βρείτε μύγες · τροφή και θεραπεία',guard:'Υπεράσπιση καταφυγίου',regroup:'Ανασύνταξη όλης της ομάδας',train:'Εκπαίδευση',promote:'Προαγωγή'};
@@ -139,8 +183,8 @@ export class GameUI {
     const hasSite=camps.some(c=>['ally','player','friendly',0].includes(c.team)&&!c.destroyed&&c.hp!==0&&c.buildings?.training);
     const affordable=r.food>=cost.food&&r.reeds>=cost.reeds,enabled=count>0&&hasSite&&affordable;
     const label=count?`Εκπαίδευση ${count} βατράχων · ${whole(cost.food)} τροφή + ${whole(cost.reeds)} υλικά κατασκευής · ${whole(s.training?.duration||18)} δευτερόλεπτα ανά βάτραχο${!hasSite?' · Χρειάζεται χώρος εκπαίδευσης':!affordable?' · Δεν αρκούν τα αποθέματα':''}`:'Επίλεξε βατράχους που χρειάζονται εκπαίδευση';
-    if(scope==='gang')return `<button class="fg-command-image fg-global-training" data-action="gang-command" data-command="train" title="${esc(label)}" aria-label="${esc(label)}" ${enabled?'':'disabled'}>${pictogram('training')}<b>${count}</b></button>`;
-    return `<button class="fg-training-order${!affordable?' is-short':''}" data-action="selection-command" data-command="train" title="${esc(label)}" aria-label="${esc(label)}" ${enabled?'':'disabled'}><span class="fg-training-order-image">${pictogram('training')}<b>${count}</b></span><span class="fg-training-costs"><span>${pictogram('fly')}<b>${whole(cost.food)}</b></span><span>${pictogram('reeds')}<b>${whole(cost.reeds)}</b></span></span><span class="fg-training-state">${pictogram(enabled?'check':'warning')}</span></button>`;
+    if(scope==='gang')return `<button class="fg-command-image fg-global-training" data-action="gang-command" data-command="train" title="${esc(label)}" aria-label="${esc(label)}" ${enabled?'':'disabled'}>${pictogram('training')}<span class="fg-command-caption">Εκπαίδευση</span><b>${count}</b></button>`;
+    return `<button class="fg-training-order${!affordable?' is-short':''}" data-action="selection-command" data-command="train" title="${esc(label)}" aria-label="${esc(label)}" ${enabled?'':'disabled'}><strong class="fg-training-title">Εκπαίδευση</strong><span class="fg-training-order-image">${pictogram('training')}<b>${count}</b></span><span class="fg-training-costs"><span>${pictogram('fly')}<b>${whole(cost.food)}</b></span><span>${pictogram('reeds')}<b>${whole(cost.reeds)}</b></span></span><span class="fg-training-state">${pictogram(enabled?'check':'warning')}</span></button>`;
   }
   portrait(f={}){
     const src=f.portrait||this.portraits[f.id]||this.portraits[f.role];if(src)return src;
@@ -150,7 +194,8 @@ export class GameUI {
   }
   chosen(){return new Set((this.state.selectedIds||this.state.allies?.filter(f=>f.selected).map(f=>f.id)||[]).map(String));}
   markup(){return `
-    <div class="fg-hud fg-visual-hud" data-ref="hud" hidden>
+    <div class="fg-hud fg-visual-hud fg-compact-hud" data-ref="hud" hidden>
+      <div class="fg-hud-top">
       <section class="fg-player" aria-label="Κατάσταση παίκτη">
         <div class="fg-player-top"><div class="fg-avatar"><img data-ref="playerPortrait" alt="Ο βάτραχός σου" hidden><span data-ref="playerBadge">${pictogram('frog')}</span><b data-ref="level">1</b></div><div class="fg-player-crest" title="Πράσινο Ρεύμα">${gangEmblem('ally')}<span data-ref="tier">I</span></div><button class="fg-members-button" data-action="open-roster" title="Διοίκηση συμμορίας · TAB" aria-label="Διοίκηση συμμορίας">${pictogram('group')}<b data-ref="gangCount">1</b></button></div>
         <div class="fg-vital fg-health" title="Υγεία">${pictogram('heart')}<div class="fg-meter"><span data-ref="hpBar"></span></div><small data-ref="hpLabel">100</small></div>
@@ -158,29 +203,32 @@ export class GameUI {
         <div class="fg-vital fg-hunger" title="Στομάχι">${pictogram('stomach')}<div class="fg-meter"><span data-ref="stomachBar"></span></div><small data-ref="stomachLabel">70%</small></div>
         <div class="fg-xp" title="Εμπειρία"><span data-ref="xpBar"></span></div>
       </section>
-      <section class="fg-objective" data-ref="objectiveBox" aria-label="Στόχοι εκστρατείας"><span class="fg-objective-lead" data-ref="objectiveArt">${pictogram('camp')}</span><div class="fg-objective-body"><div class="fg-territories" data-ref="territories"></div><div class="fg-objective-track"><span data-ref="objectiveMeter"></span></div></div><b data-ref="objectiveProgress">0 / 5</b><div class="fg-campaign-strip" data-ref="campaignObjectives"></div></section>
+      <section class="fg-location"><div class="fg-resource-row fg-resource-bank" aria-label="Κοινά αποθέματα"><span title="Κοινό απόθεμα τροφής" aria-label="Τροφή">${pictogram('fly')}<b data-ref="food">0</b><small>Τροφή</small></span><span title="Υλικά κατασκευής (ξύλο, φύλλα, καλάμια)" aria-label="Υλικά κατασκευής">${pictogram('reeds')}<b data-ref="reeds">0</b><small>Υλικά</small></span></div><div class="fg-location-tools"><div class="fg-clock"><span data-ref="dayIcon">${icon('sun')}</span><b data-ref="clock">09:00</b><span data-ref="day">1</span></div><button class="fg-map-button" data-action="open-map" aria-label="Χάρτης" title="Χάρτης">${pictogram('topdown')}<canvas data-ref="minimap" width="64" height="64" hidden></canvas></button></div></section>
+      </div>
+      <section class="fg-objective" data-ref="objectiveBox" aria-label="Στόχοι εκστρατείας">
+        <button class="fg-objective-toggle" data-action="hud-objectives" data-ref="objectiveToggle" aria-expanded="false" aria-controls="fg-objective-details" title="Στόχοι εκστρατείας" aria-label="Άνοιγμα στόχων εκστρατείας"><span class="fg-objective-lead" data-ref="objectiveArt" hidden>${pictogram('camp')}</span><span class="fg-objective-next" data-ref="objectiveNext">${pictogram('fly')}</span><span class="fg-objective-brief"><strong data-ref="objectiveTitle">Βρες τροφή</strong><span class="fg-objective-count"><b data-ref="objectiveSummary">0 / 30</b><span class="fg-objective-track"><span data-ref="objectiveMeter"></span></span></span></span><span class="fg-disclosure-arrow">${icon('arrow')}</span></button>
+        <div class="fg-objective-details" data-ref="objectiveDetails" id="fg-objective-details" hidden><p class="fg-objective-help" data-ref="objectiveHint"></p><div class="fg-conquest-summary"><span class="fg-conquest-label">Συμμορίες</span><div class="fg-territories" data-ref="territories"></div><b data-ref="objectiveProgress">0 / 5</b></div><div class="fg-campaign-strip" data-ref="campaignObjectives"></div></div>
+      </section>
       <section class="fg-hunt" data-ref="hunt" aria-live="polite" hidden>
         <div class="fg-hunt-portrait"><img data-ref="predatorPortrait" alt="Θηρευτής" hidden><span data-ref="predatorFallback">${pictogram('heron')}</span><span class="fg-hunt-badge">${pictogram('enemy')}</span></div>
         <div class="fg-hunt-content"><div class="fg-hunt-heading"><span data-ref="predatorPhaseIcon">${pictogram('windup')}</span><span data-ref="predatorHpLabel">100 / 100</span></div><div class="fg-predator-health"><span data-ref="predatorHp"></span></div><div class="fg-phase-track"><span data-ref="predatorPhaseBar"></span></div><div class="fg-hunt-response" data-ref="predatorResponse"></div></div>
       </section>
-      <section class="fg-location"><div class="fg-resource-row fg-resource-bank" aria-label="Κοινά αποθέματα"><span title="Κοινό απόθεμα τροφής" aria-label="Τροφή">${pictogram('fly')}<b data-ref="food">0</b></span><span title="Υλικά κατασκευής (ξύλο, φύλλα, καλάμια)" aria-label="Υλικά κατασκευής">${pictogram('reeds')}<b data-ref="reeds">0</b></span></div><div class="fg-clock"><span data-ref="dayIcon">${icon('sun')}</span><b data-ref="clock">09:00</b><span data-ref="day">1</span></div><button class="fg-map-button" data-action="open-map" aria-label="Χάρτης" title="Χάρτης"><canvas data-ref="minimap" width="340" height="340"></canvas><span class="fg-map-north">N</span></button></section>
       <div class="fg-crosshair" data-ref="crosshair"><i></i><i></i><i></i><i></i><span></span></div>
       <div class="fg-context" data-ref="context" hidden><span data-ref="contextArt"></span><kbd data-ref="contextKey">E</kbd><div class="fg-context-track"><span data-ref="contextBar"></span></div></div>
-      <div class="fg-selection-dock" data-ref="selectionDock"><div class="fg-selection-dock-head"><span data-ref="squadMode">${pictogram('follow')}</span><b data-ref="selectionCount">0 / 0</b><button data-action="open-roster" aria-label="Άνοιγμα διοίκησης της επιλεγμένης ομάδας" title="Διοίκηση ομάδας">${gangEmblem('ally')}${key('TAB')}</button></div><div class="fg-dock-portraits" data-ref="selectionPortraits"></div><div class="fg-dock-orders">${['follow','forage','guard','regroup'].map(c=>this.commandButton(c)).join('')}</div></div>
-      <div class="fg-actionbar fg-image-actionbar">
+      <section class="fg-selection-dock" data-ref="selectionDock" aria-label="Επιλεγμένη ομάδα"><button class="fg-squad-entry" data-action="open-roster" aria-label="Διοίκηση συμμορίας" title="Διοίκηση συμμορίας · TAB"><span data-ref="squadMode">${pictogram('follow')}</span><span class="fg-squad-caption"><small data-ref="selectionLabel">Ομάδα</small><b data-ref="selectionCount">0</b></span>${gangEmblem('ally')}</button><div class="fg-dock-portraits" data-ref="selectionPortraits"></div></section>
+      <div class="fg-actionbar fg-image-actionbar fg-primary-actions" aria-label="Βασικές ενέργειες">
         ${this.actionTile('primary-attack','tongue','LMB','Επίθεση με τη γλώσσα','attack')}
         ${this.actionTile('special-attack','kick','Q','Ειδική επίθεση','special')}
-        <div class="fg-special-picker" aria-label="Επιλογή ειδικής κίνησης">${['kick','slam','tongue'].map((art,i)=>`<button data-action="special-select" data-index="${i}" title="${['Κλωτσιά','Άλμα κρούσης','Σάρωση γλώσσας'][i]}" aria-label="${['Κλωτσιά','Άλμα κρούσης','Σάρωση γλώσσας'][i]}" class="${i===0?'is-selected':''}">${pictogram(art)}${key(i+1)}</button>`).join('')}</div>
         ${this.actionTile('dodge','dodge','Z','Αποφυγή','dodge')}
-        ${this.actionTile('intimidate','roar','R','Εκφοβισμός','roar')}
         ${this.actionTile('interact','recruit','E','Αλληλεπίδραση','interact')}
-        <i class="fg-action-divider"></i>
-        ${this.actionTile('gang-toggle','attack','F','Επίθεση / ακολουθήστε')}
-        ${this.actionTile('gang-forage','forage','T','Αναζήτηση μυγών και θεραπεία')}
         ${this.actionTile('open-build','camp','V','Κατασκευές')}
-        ${this.actionTile('cycle-view','third','C','Αλλαγή κάμερας','view')}
-        ${this.actionTile('open-pause','pause','ESC','Παύση')}
+        ${this.actionTile('hud-more','more','B','Περισσότερες ενέργειες · B').replace('data-action="hud-more"','data-action="hud-more" data-ref="moreToggle" aria-controls="fg-action-drawer" aria-expanded="false"')}
       </div>
+      <section class="fg-action-drawer" data-ref="actionDrawer" id="fg-action-drawer" aria-label="Πρόσθετες ενέργειες" hidden>
+        <button class="fg-drawer-close" data-action="hud-close" aria-label="Κλείσιμο πρόσθετων ενεργειών" title="Κλείσιμο">${pictogram('close')}</button>
+        <div class="fg-secondary-actions">${this.actionTile('intimidate','roar','R','Εκφοβισμός','roar')}${this.actionTile('gang-toggle','attack','F','Επίθεση / ακολουθήστε')}${this.actionTile('gang-forage','forage','T','Αναζήτηση μυγών και θεραπεία')}${this.actionTile('cycle-view','third','C','Αλλαγή κάμερας','view')}${this.actionTile('open-roster','group','TAB','Διοίκηση συμμορίας')}${this.actionTile('open-map','topdown','','Χάρτης')}${this.actionTile('open-pause','pause','ESC','Παύση')}</div>
+        <div class="fg-special-picker" aria-label="Επιλογή ειδικής κίνησης">${['kick','slam','tongue'].map((art,i)=>`<button data-action="special-select" data-index="${i}" title="${['Κλωτσιά','Άλμα κρούσης','Σάρωση γλώσσας'][i]}" aria-label="${['Κλωτσιά','Άλμα κρούσης','Σάρωση γλώσσας'][i]}" class="${i===0?'is-selected':''}">${pictogram(art)}<span class="fg-special-caption">${['Κλωτσιά','Άλμα','Σάρωση'][i]}</span>${key(i+1)}</button>`).join('')}</div>
+      </section>
       <section class="fg-placement-hud fg-placement-tools" data-ref="buildPlacement" aria-label="Τοποθέτηση κατασκευής" hidden>
         <div class="fg-placement-building"><span data-ref="placementArt">${pictogram('camp')}</span><i data-ref="placementStatus">${pictogram('check')}</i></div>
         <div class="fg-placement-costs"><span title="Τροφή: διαθέσιμη / κόστος">${pictogram('fly')}<b data-ref="placementFood">0 / 0</b></span><span title="Υλικά κατασκευής: διαθέσιμα / κόστος">${pictogram('reeds')}<b data-ref="placementMaterials">0 / 0</b></span></div>
@@ -205,6 +253,11 @@ export class GameUI {
     const target=event.target.closest('[data-action]'); if(!target || target.disabled) return;
     const action=target.dataset.action;
     event.stopPropagation();
+    if(action==='build-scroll'){this.scrollBuildCatalog(Number(target.dataset.direction)||1);return;}
+    if(action==='hud-objectives'){this.toggleHudDisclosure('objectives');return;}
+    if(action==='hud-more'){this.toggleHudDisclosure('actions');return;}
+    if(action==='hud-close'){this.closeHudDisclosure(true);return;}
+    this.closeHudDisclosure();
     if(action==='build'&&performance.now()<(this.dragClickUntil||0))return;
     if(action==='rotate-placement'){target.blur?.();this.callbacks.onAction('rotate-placement',{direction:Number(target.dataset.direction)||1});return;}
     if(action==='confirm-placement'||action==='cancel-placement'){target.blur?.();this.callbacks.onAction(action,{});return;}
@@ -277,11 +330,13 @@ export class GameUI {
     this.refs.newButton.classList.toggle('fg-primary',!hasSave);
   }
   showPause(paused=true){
+    if(paused)this.closeHudDisclosure();
     if(!paused){this.refs.pause.hidden=true;if(this.menu==='pause')this.menu=null;return;}
     this.closePanels();this.menu='pause';this.refs.pause.hidden=false;this.refs.restartConfirm.hidden=true;
     document.exitPointerLock?.();
   }
   hideMenus(){
+    this.closeHudDisclosure();
     for(const name of ['title','pause','ending','panelLayer','loading'])this.refs[name].hidden=true;
     this.panel=null;this.menu=null;
   }
@@ -289,6 +344,7 @@ export class GameUI {
   closePanels(){this.panel=null;this.refs.panelLayer.hidden=true;}
   togglePanel(name,data){if(this.panel===name)this.closePanels();else this.showPanel(name,data);}
   showPanel(name,data){
+    this.closeHudDisclosure();
     this.panel=name;this.panelData=data||{};
     this.refs.pause.hidden=true;
     this.refs.panelLayer.hidden=false;
@@ -312,6 +368,7 @@ export class GameUI {
     this.root.classList.toggle('fg-low-health',fraction(p.hp,p.maxHp)<.25);
     this.root.classList.toggle('fg-low-hunger',fraction(p.stomach,p.maxStomach)<.15);
     const r=this.resources(state.resources);this.setText('food',available(r.food));this.setText('reeds',available(r.reeds));
+    for(const name of ['food','reeds'])this.refs[name].parentElement.classList.toggle('is-large-value',String(available(r[name])).length>5);
     this.setText('clock',state.timeLabel||'09:00');this.setText('day',state.day||1);
     const night=Boolean(state.night);if(night!==this.lastNight){this.refs.dayIcon.innerHTML=icon(night?'moon':'sun');this.lastNight=night;}
     this.refs.crosshair.hidden=this.isBlocking()||state.viewMode==='topdown';this.root.classList.toggle('fg-aiming',Boolean(state.aiming));
@@ -326,23 +383,32 @@ export class GameUI {
     }
     this.meter('objectiveMeter',obj.progress??current/total);this.setText('objectiveProgress',`${whole(current)} / ${whole(total)}`);
     const campaign=state.campaign||{},goals=campaign.objectives||[];
+    const nextGoal=goals.find(g=>!g.done)||goals.at(-1),summaryArt=nextGoal?.icon||'crown';
+    if(summaryArt!==this.summaryArt){this.summaryArt=summaryArt;this.refs.objectiveNext.innerHTML=pictogram(summaryArt);}
+    this.setText('objectiveSummary',nextGoal?`${Math.min(whole(nextGoal.target),['fly','food','reeds','materials'].includes(nextGoal.icon)?available(nextGoal.current):whole(nextGoal.current))} / ${whole(nextGoal.target)}`:`${whole(current)} / ${whole(total)}`);
+    this.meter('objectiveMeter',nextGoal?clamp(nextGoal.progress??nextGoal.current/nextGoal.target):obj.progress??current/total);
+    const objectiveGuide=describeObjective(nextGoal);this.setText('objectiveTitle',objectiveGuide.title);this.setText('objectiveHint',objectiveGuide.hint);
+    this.refs.objectiveToggle.title=materialText(nextGoal?.label||'Στόχοι εκστρατείας');
     const goalSignature=JSON.stringify(goals.map(g=>[g.id,g.icon,g.current,g.target,g.progress,g.done]));
     if(goalSignature!==this.goalSignature){
       this.goalSignature=goalSignature;this.refs.campaignObjectives.hidden=!goals.length;this.refs.campaignObjectives.classList.toggle('has-many',goals.length>6);
       this.refs.campaignObjectives.innerHTML=goals.map(g=>{
-        const count=['food','fly','reeds','materials'].includes(g.icon)?available(g.current):whole(g.current);
-        return `<div class="fg-campaign-goal${g.done?' is-done':''}" title="${esc(materialText(g.label||g.id))}"><span>${pictogram(g.icon||'camp')}</span><b>${count}<small>/ ${whole(g.target)}</small></b><div><i style="width:${clamp(g.progress??g.current/g.target)*100}%"></i></div>${g.done?`<em>${pictogram('check')}</em>`:''}</div>`;
+        const count=Math.min(whole(g.target),['food','fly','reeds','materials'].includes(g.icon)?available(g.current):whole(g.current));
+        return `<div class="fg-campaign-goal${g.done?' is-done':''}" title="${esc(materialText(g.label||g.id))}"><span>${pictogram(g.icon||'camp')}</span><strong class="fg-goal-caption">${esc(goalCaption(g))}</strong><b>${count}<small>/ ${whole(g.target)}</small></b><div><i style="width:${clamp(g.progress??g.current/g.target)*100}%"></i></div>${g.done?`<em>${pictogram('check')}</em>`:''}</div>`;
       }).join('');
     }
     const objectiveArt=({settlement:'camp',hunters:'heron',preparation:'training',bosses:'boss',complete:'crown'}[campaign.phase])||({food:'forage',forage:'forage',build:'camp',shelter:'camp',defend:'shield',conquer:'crown',victory:'crown'}[obj.type])||'camp';
     if(objectiveArt!==this.objectiveArt){this.objectiveArt=objectiveArt;this.refs.objectiveArt.innerHTML=pictogram(objectiveArt);}
     this.refs.objectiveBox.title=typeof state.objective==='string'?state.objective:state.objective?.title||'Στόχοι εκστρατείας';
-    const context=state.context||{},contextType=context.type,contextArt={recruit:'recruit',loot:'store','persuade-camp':'persuade',persuade:'persuade',home:'camp',gather:'forage',reeds:'reeds',ally:'group',flies:'tongue'}[contextType]||contextType;
+    const context=state.context||{},contextType=context.type,contextArt=context.actionIcon||{recruit:'recruit',loot:'store','persuade-camp':'persuade',persuade:'persuade',home:'camp',gather:'forage',reeds:'reeds',ally:'group',flies:'tongue'}[contextType]||contextType;
     this.refs.context.hidden=!contextType||contextType==='none'||this.isBlocking();
     this.refs.context.title=materialText(state.hint||context.label||'');this.refs.context.classList.toggle('is-unavailable',context.available===false);
-    if(contextArt!==this.contextArt){this.contextArt=contextArt;this.refs.contextArt.innerHTML=pictogram(contextArt||'recruit');}
+    if(contextArt!==this.contextArt){this.contextArt=contextArt;this.refs.contextArt.innerHTML=pictogram(contextArt||'recruit');$(this.root,'[data-action="interact"] .fg-action-art').innerHTML=pictogram(contextArt&&contextType!=='none'?contextArt:'recruit');}
+    const interactTile=$(this.root,'[data-action="interact"]');interactTile.classList.toggle('has-context',Boolean(contextType&&contextType!=='none'));interactTile.title=materialText(state.hint||'Πλησίασε βάτραχο, σμήνος ή καταφύγιο');interactTile.disabled=!contextType||contextType==='none'||context.available===false;
+    const contextCaption=context.actionLabel||({recruit:'Στρατολόγησε',loot:'Λάφυρα','persuade-camp':'Πείσε',persuade:'Πείσε',home:'Κατασκευές',gather:'Μάζεψε',reeds:'Μάζεψε',ally:'Ομάδα',flies:'Μάζεψε'}[contextType]||'Πλησίασε');
+    if(contextCaption!==this.contextCaption){this.contextCaption=contextCaption;$(interactTile,'.fg-action-caption').innerHTML=captionMarkup(contextCaption);}
     this.setText('contextKey',contextType==='home'?'V':'E');this.meter('contextBar',context.progress??1);
-    const pred=state.predator,hunting=Boolean(pred&&pred.hp>0);this.refs.hunt.hidden=!hunting;this.refs.objectiveBox.hidden=hunting;
+    const pred=state.predator,hunting=Boolean(pred&&pred.hp>0);if(hunting&&!this.wasHunting)this.closeHudDisclosure();this.wasHunting=hunting;this.root.classList.toggle('fg-is-hunted',hunting);this.refs.hunt.hidden=!hunting;this.refs.objectiveBox.hidden=hunting;
     if(hunting){
       this.refs.hunt.title=`${pred.name||predatorNames[pred.type]||'Θηρευτής'} · ${pred.objective||pred.note||predatorNotes[pred.type]||''}`;
       this.setText('predatorHpLabel',`${whole(pred.hp)} / ${whole(pred.maxHp)}`);this.meter('predatorHp',fraction(pred.hp,pred.maxHp));
@@ -364,14 +430,14 @@ export class GameUI {
       const tile=$(this.root,`.fg-action-tile[data-cooldown="${name}"]`);if(!tile)continue;
       const value=Math.max(0,Number(remaining)||0);tile.style.setProperty('--cooldown',`${clamp(value/totalTime)*100}%`);tile.classList.toggle('is-cooling',value>.02);$(tile,'.fg-cooldown-time').textContent=value>.02?value.toFixed(1):'';
     }
-    const special=Number(p.specialIndex??state.specialIndex??0);if(special!==this.specialIndex){this.specialIndex=special;$(this.root,'[data-cooldown="special"] .fg-action-art').innerHTML=pictogram(['kick','slam','tongue'][special]||'kick');for(const button of $$(this.root,'[data-action="special-select"]'))button.classList.toggle('is-selected',Number(button.dataset.index)===special);}
+    const special=Number(p.specialIndex??state.specialIndex??0);if(special!==this.specialIndex){this.specialIndex=special;$(this.root,'[data-cooldown="special"] .fg-action-caption').innerHTML=captionMarkup(['Κλωτσιά','Άλμα','Σάρωση'][special]||'Ειδική');$(this.root,'[data-cooldown="special"] .fg-action-art').innerHTML=pictogram(['kick','slam','tongue'][special]||'kick');for(const button of $$(this.root,'[data-action="special-select"]'))button.classList.toggle('is-selected',Number(button.dataset.index)===special);}
     if(this.viewMode!==state.viewMode){this.viewMode=state.viewMode;$(this.root,'[data-cooldown="view"] .fg-action-art').innerHTML=pictogram({first:'first',topdown:'topdown'}[state.viewMode]||'third');}
     const mode=state.squadMode||'follow';if(mode!==this.squadMode){this.squadMode=mode;this.refs.squadMode.innerHTML=pictogram({guard:'shield',train:'training',training:'training'}[mode]||mode);}
-    this.setText('selectionCount',`${selected.size} / ${allies.length}`);
+    this.setText('selectionCount',selected.size?`${selected.size} / ${allies.length}`:allies.length);this.refs.selectionDock.hidden=!allies.length;this.setText('selectionLabel',selected.size?'Επιλογή':'Ομάδα');
     const selectionSignature=JSON.stringify([Array.from(selected),allies.map(f=>[f.id,f.hp,f.order,f.guard,f.portrait])]);
     if(selectionSignature!==this.selectionSignature){
-      this.selectionSignature=selectionSignature;const shown=(selected.size?allies.filter(f=>selected.has(String(f.id))):allies).slice(0,5);
-      this.refs.selectionPortraits.innerHTML=shown.map(f=>`<button class="fg-dock-frog${selected.has(String(f.id))?' is-selected':''}" data-action="select-frog" data-id="${esc(f.id)}" aria-label="${esc(f.name||'Βάτραχος')}" title="${esc(f.name||'Βάτραχος')}"><img src="${esc(this.portrait(f))}" alt="${esc(f.name||'Βάτραχος')}"><span style="width:${fraction(f.hp,f.maxHp)*100}%"></span>${f.guard||f.order==='guard'?`<i>${pictogram('shield')}</i>`:''}</button>`).join('')+((selected.size||allies.length)>5?`<button class="fg-dock-more" data-action="open-roster" title="Όλη η ομάδα">+${(selected.size||allies.length)-5}</button>`:'');
+      this.selectionSignature=selectionSignature;const shown=(selected.size?allies.filter(f=>selected.has(String(f.id))):allies).slice(0,2);
+      this.refs.selectionPortraits.innerHTML=shown.map(f=>`<button class="fg-dock-frog${selected.has(String(f.id))?' is-selected':''}" data-action="select-frog" data-id="${esc(f.id)}" aria-label="${esc(f.name||'Βάτραχος')}" title="${esc(f.name||'Βάτραχος')}"><img src="${esc(this.portrait(f))}" alt="${esc(f.name||'Βάτραχος')}"><span style="width:${fraction(f.hp,f.maxHp)*100}%"></span>${f.guard||f.order==='guard'?`<i>${pictogram('shield')}</i>`:''}</button>`).join('')+((selected.size||allies.length)>2?`<button class="fg-dock-more" data-action="open-roster" title="Όλη η ομάδα"><span class="fg-dock-rest-wide">+${(selected.size||allies.length)-2}</span><span class="fg-dock-rest-short">+${(selected.size||allies.length)-1}</span></button>`:'');
       if(this.panel==='roster')this.renderPanel(false);
     }
     if(state.savedAt&&state.savedAt!==this.savedAt){this.savedAt=state.savedAt;this.refs.saveStatus.hidden=false;clearTimeout(this.saveTimer);this.saveTimer=setTimeout(()=>this.refs.saveStatus.hidden=true,2500);}
@@ -389,6 +455,7 @@ export class GameUI {
   }
   renderPanel(force=false){
     const container=this.refs.panel;if(!this.panel||this.draggingBuild)return;
+    const catalogScroll=$(container,'.fg-illustrated-build')?.scrollLeft||0;
     const scrollTop=container.scrollTop,gridScroll=$(container,'.fg-frog-grid')?.scrollTop||0,active=document.activeElement;
     if(!force&&container.contains(active)&&['INPUT','SELECT'].includes(active.tagName))return;
     container.classList.toggle('fg-command-panel',this.panel==='roster');container.classList.toggle('fg-building-panel',this.panel==='build');
@@ -402,7 +469,7 @@ export class GameUI {
       container.innerHTML=this.panelHeader('Ο ΚΟΣΜΟΣ ΣΟΥ','Ο Μεγάλος Ποταμός',this.tabs('map'))+`<div class="fg-large-map"><canvas width="1024" height="720"></canvas><span class="fg-map-north">N</span></div><div class="fg-map-legend"><span><i style="--legend:#c8f3a1"></i>Εσύ & σύμμαχοι</span><span><i style="--legend:#ee9a71"></i>Αντίπαλοι</span><span><i style="--legend:#f6db82"></i>Τροφή</span><span><i style="--legend:#c2b9e8"></i>Ελεύθερες θέσεις</span><span><i style="--legend:#f85a48"></i>Θηρευτές</span></div>`;
       this.drawMap($(container,'canvas'),this.state.world||{},true);
     }
-    container.scrollTop=scrollTop;const grid=$(container,'.fg-frog-grid');if(grid)grid.scrollTop=gridScroll;
+    container.scrollTop=scrollTop;const catalog=$(container,'.fg-illustrated-build');if(catalog){catalog.scrollLeft=catalogScroll;this.syncBuildCatalog();}const grid=$(container,'.fg-frog-grid');if(grid)grid.scrollTop=gridScroll;
   }
   tabs(which){return `<div class="fg-tabs"><button class="${which==='roster'?'active':''}" data-action="tab-roster">${icon('group')} Συμμορία</button><button class="${which==='map'?'active':''}" data-action="tab-map">${icon('pin')} Χάρτης</button></div>`;}
   buildMarkup(){
@@ -423,8 +490,9 @@ export class GameUI {
     const artFor=type=>({shelter:'camp',upgrade:'crown',promote:'crown','promote-player':'crown',repair:'repair'}[type]||type);
     const effectFor=type=>({shelter:'group',store:'fly',nursery:'recruit',watchtower:'shield',palisade:'shield',upgrade:'group',repair:'heart',promote:'attack','promote-player':'attack',training:'training'}[type]||'check');
     return this.panelHeader('ΚΑΤΑΣΚΕΥΗ & ΑΜΥΝΑ','Τα καταφύγιά σου')+`
-      <div class="fg-build-overview"><div class="fg-camp-illustration">${pictogram('camp')}${gangEmblem('ally')}</div><div class="fg-base-health"><h3>${esc(camp?.name||s.campName||'Νέο καταφύγιο')}</h3><div class="fg-base-healthbar"><span style="width:${camp?fraction(camp.hp,camp.maxHp)*100:100}%"></span></div><div class="fg-base-badges"><span title="Αντοχή καταφυγίου">${pictogram('heart')}<b>${camp?`${whole(camp.hp)} / ${whole(camp.maxHp)}`:'—'}</b></span><span title="Συμμαχικά καταφύγια">${pictogram('camp')}<b>${owned.length}</b></span><span title="Θέσεις αυτόματης γέννησης στη φωλιά · οι στρατολογήσεις είναι απεριόριστες">${pictogram('nursery')}<b>${s.capacity??'∞'}</b></span></div></div><div class="fg-build-bank" aria-label="Κοινά αποθέματα"><div title="Κοινό απόθεμα τροφής">${pictogram('fly')}<b>${available(r.food)}</b></div><div title="Υλικά κατασκευής (ξύλο, φύλλα, καλάμια)">${pictogram('reeds')}<b>${available(r.reeds)}</b></div></div></div>
-      <div class="fg-build-grid fg-illustrated-build">${options.map((o,i)=>{
+      <div class="fg-build-overview"><div class="fg-camp-illustration">${pictogram('camp')}${gangEmblem('ally')}</div><div class="fg-base-health"><h3>${esc(camp?.name||s.campName||'Νέο καταφύγιο')}</h3><div class="fg-base-healthbar"><span style="width:${camp?fraction(camp.hp,camp.maxHp)*100:100}%"></span></div><div class="fg-base-badges"><span title="Αντοχή καταφυγίου">${pictogram('heart')}<b>${camp?`${whole(camp.hp)} / ${whole(camp.maxHp)}`:'—'}</b></span><span title="Συμμαχικά καταφύγια">${pictogram('camp')}<b>${owned.length}</b></span><span title="Θέσεις αυτόματης γέννησης στη φωλιά · οι στρατολογήσεις είναι απεριόριστες">${pictogram('nursery')}<b>${s.capacity??'∞'}</b></span></div></div><div class="fg-build-bank" aria-label="Διαθέσιμα κοινά αποθέματα"><span class="fg-bank-label">Διαθέσιμα</span><div title="Κοινό απόθεμα τροφής">${pictogram('fly')}<b>${available(r.food)}</b><small>Τροφή</small></div><div title="Υλικά κατασκευής (ξύλο, φύλλα, καλάμια)">${pictogram('reeds')}<b>${available(r.reeds)}</b><small>Υλικά</small></div></div></div>
+      <div class="fg-build-catalog-toolbar"><span>Κτίρια · σύρε ή επίλεξε</span><div><button class="fg-build-nav" data-action="build-scroll" data-direction="-1" title="Προηγούμενα κτίρια" aria-label="Προηγούμενα κτίρια">${icon('arrow')}</button><button class="fg-build-nav" data-action="build-scroll" data-direction="1" title="Επόμενα κτίρια" aria-label="Επόμενα κτίρια">${icon('arrow')}</button></div></div>
+      <div class="fg-build-grid fg-illustrated-build" role="region" aria-label="Κατάλογος κτιρίων" tabindex="0">${options.map((o,i)=>{
         const cost=typeof o.cost==='number'?{food:o.cost,reeds:0}:(o.cost||{}),affordable=r.food>=(cost.food||0)&&r.reeds>=(cost.reeds||0);
         const built=Boolean(o.built||camp?.buildings?.[o.type]),siteOK=o.type==='shelter'?valid:Boolean(camp)||['promote','promote-player'].includes(o.type);
         const enabled=o.enabled!==false&&affordable&&!built&&siteOK;
@@ -432,7 +500,7 @@ export class GameUI {
         const explanation=materialText(o.reason||(!siteOK?'Απαιτείται κατάλληλη θέση ή συμμαχικό καταφύγιο':!affordable?'Δεν αρκούν τα κοινά αποθέματα':built?'Έχει ήδη κατασκευαστεί':o.description||''));
         const dragHelp=enabled&&placementTypes.has(o.type)?' · Σύρε στον χώρο ή κάνε κλικ και τοποθέτησε · Q/R περιστροφή · Esc ακύρωση':'';
         const statusArt={built:'check',site:'warning',resources:'store',ready:'repair',locked:'warning'}[status];
-        return `<button class="fg-build-card fg-picture-building is-${status}" data-action="build" data-type="${esc(o.type)}" draggable="${enabled&&placementTypes.has(o.type)?'true':'false'}" data-camp="${esc(camp?.id||s.currentCampId||'')}" title="${esc((o.name||o.type)+' · '+explanation+dragHelp)}" aria-label="${esc((o.name||o.type)+' · '+explanation+dragHelp)}" ${enabled?'':'disabled'}><div class="fg-building-art">${pictogram(artFor(o.type))}${enabled&&placementTypes.has(o.type)?`<span class="fg-building-drag" title="Σύρε και τοποθέτησε">${pictogram('place')}</span>`:''}<span class="fg-building-benefit" title="${esc(o.description||'')}">${pictogram(effectFor(o.type))}</span><span class="fg-building-state">${pictogram(statusArt)}</span></div><h3>${esc(o.name||o.type)}</h3><div class="fg-material-requirements">${[['food','fly','Τροφή'],['reeds','reeds','Υλικά κατασκευής']].map(([resource,art,label])=>`<div class="fg-material ${r[resource]>=(cost[resource]||0)?'is-enough':'is-short'}" title="${label}: ${available(r[resource])} / ${whole(cost[resource]||0)}">${pictogram(art)}<div><b>${available(r[resource])}<small> / ${whole(cost[resource]||0)}</small></b><span><i style="width:${cost[resource]?clamp(r[resource]/cost[resource])*100:100}%"></i></span></div></div>`).join('')}</div><div class="fg-build-purchase">${key(i+1)}<span>${pictogram(built?'check':enabled?(placementTypes.has(o.type)?'place':'repair'):'warning')}</span></div></button>`;
+        return `<button class="fg-build-card fg-picture-building is-${status}" data-action="build" data-type="${esc(o.type)}" draggable="${enabled&&placementTypes.has(o.type)?'true':'false'}" data-camp="${esc(camp?.id||s.currentCampId||'')}" title="${esc((o.name||o.type)+' · '+explanation+dragHelp)}" aria-label="${esc((o.name||o.type)+' · '+explanation+dragHelp)}" ${enabled?'':'disabled'}><div class="fg-building-art">${pictogram(artFor(o.type))}${enabled&&placementTypes.has(o.type)?`<span class="fg-building-drag" title="Σύρε και τοποθέτησε">${pictogram('place')}</span>`:''}<span class="fg-building-benefit" title="${esc(o.description||'')}">${pictogram(effectFor(o.type))}</span><span class="fg-building-state">${pictogram(statusArt)}</span></div><h3>${esc(o.name||o.type)}</h3><span class="fg-cost-label">Κόστος</span><div class="fg-material-requirements">${[['food','fly','Τροφή'],['reeds','reeds','Υλικά κατασκευής']].map(([resource,art,label])=>`<div class="fg-material ${r[resource]>=(cost[resource]||0)?'is-enough':'is-short'}" title="${label}: ${available(r[resource])} / ${whole(cost[resource]||0)}">${pictogram(art)}<div><b>${whole(cost[resource]||0)}</b><span><i style="width:${cost[resource]?clamp(r[resource]/cost[resource])*100:100}%"></i></span></div></div>`).join('')}</div><div class="fg-build-purchase">${key(i+1)}<span>${pictogram(built?'check':enabled?(placementTypes.has(o.type)?'place':'repair'):'warning')}</span></div></button>`;
       }).join('')}</div>
       <div class="fg-build-footer"><div class="fg-placement-status${valid?'':' is-invalid'}" title="${esc(materialText(s.placement?.reason||(valid?'Κατάλληλη θέση κατασκευής':'Ακατάλληλη θέση κατασκευής')))}">${pictogram('camp')}${pictogram(valid?'check':'warning')}</div><button class="fg-image-meal" data-action="consume" title="Τροφή από κοινά αποθέματα" aria-label="Τροφή από κοινά αποθέματα" ${s.inCamp||camp?'':'disabled'}>${pictogram('fly')}${pictogram('heal')}${key('G')}</button><button class="fg-image-meal" data-action="gang-forage" title="Η ομάδα βρίσκει μύγες και θεραπεύεται" aria-label="Αναζήτηση τροφής">${pictogram('forage')}${key('T')}</button><div class="fg-build-exit">${key('V')}${key('ESC')}</div></div>`;
   }
@@ -509,7 +577,7 @@ export class GameUI {
     const value=item.value??detail.match(/\+\s*\d+/)?.[0],life=['warning','danger'].includes(tone)?5200:3600;
     const toast=document.createElement('div');toast.className=`fg-toast fg-visual-toast fg-notice-${tone}`;toast.title=detail;toast.setAttribute('aria-label',detail||art);toast.style.setProperty('--notice-life',`${life}ms`);
     toast.innerHTML=`<span class="fg-notice-art">${item.portrait?`<img src="${esc(item.portrait)}" alt="">`:pictogram(art)}</span><span class="fg-notice-payload">${pictogram(item.portrait?art:item.secondaryIcon||(['warning','danger'].includes(tone)?'warning':'check'))}${value!==undefined?`<b>${esc(value)}</b>`:''}${item.progress!==undefined?`<span class="fg-notice-progress"><span style="width:${clamp(item.progress)*100}%"></span></span>`:''}</span><span class="fg-notice-lifetime"></span>`;
-    this.refs.toasts.append(toast);while(this.refs.toasts.children.length>3)this.refs.toasts.firstChild.remove();
+    this.refs.toasts.append(toast);while(this.refs.toasts.children.length>2)this.refs.toasts.firstChild.remove();
     setTimeout(()=>{toast.classList.add('fg-toast-out');setTimeout(()=>toast.remove(),250);},life);
   }
   showEnding(victory,stats={}){
