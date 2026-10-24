@@ -1,4 +1,7 @@
 import {loadGltfAsset} from './asset-loading.js';
+import heavyDistanceRecipe from 'magic:heavy-index-lod';
+import {usesMobileTextures} from './asset-profile.js';
+import {attachIndexLod} from './index-lod.js';
 import {prepareObjectPickingAsync} from './triangle-picking.js';
 import * as THREE from 'three';
 import { createLocalRigLoader } from './local-rig-loader.js';
@@ -109,6 +112,16 @@ export async function loadCharacters(onProgress = () => {}, kinds = Object.keys(
       throw new Error(`Character ${kind} is missing its rig or animation clips.`);
     }
     combineCompatibleSkinParts(gltf.scene,gltf.animations);
+    // The extra distance surface reuses the original vertex data, live joints
+    // and materials. Validate it before picking/shader preparation, never on
+    // the first combat frame. A missing sidecar keeps the original asset.
+    if(kind==='heavy'&&usesMobileTextures()&&new URLSearchParams(globalThis.location?.search||'').get('heavyFar')!=='off'){
+      try{
+        const data=heavyDistanceRecipe;
+        if(data.id!=='3f66653e390008e85f06a7bc3b129510e7588f57d933e9e3aa9da79ad16f2b69')throw Error('Unexpected Heavy distance recipe');
+        await attachIndexLod(gltf.scene,data);
+      }catch(error){gltf.scene.userData.indexLodError=error.message;}
+    }
     const clips = new Map(gltf.animations.map(clip => [clip.name, withoutHorizontalRootMotion(clip)]));
     // Combat clips author a forward hip lunge. Applying that full-body lunge
     // during backwards travel makes a planted ankle physically unreachable.

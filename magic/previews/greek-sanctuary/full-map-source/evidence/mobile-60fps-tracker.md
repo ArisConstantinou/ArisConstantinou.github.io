@@ -8,9 +8,9 @@ Goal: full world including real combat at sustained approximately 60 FPS on the 
 2. Add one adjoining room and verify fighting, movement, doorway transitions, loading stalls and saved-state recovery on the phone.
 3. Repeat room-by-room. Full-world acceptance requires traversing the whole native world and repeating representative heavy combat, not just loading the map.
 
-## Current protected release
+## Protected base43 and verified update44
 
-1.6.42, commit97ceb1d9f2794c2c30455c30aa7e2fd787d0c02c. Pages40053701515success; committed source and public runtime hashes verified. The physical iPhone loaded public engined1e813d45fd2 with noQA/hooks and identical save/report hashes. HEARTH now shares its three equal palettes:12to4KiB, same Fire-pose pixels exactly. Full native fight45.58FPS/P9529/max85/fivecombat intervals>50ms,19kills/4bosses/3summons,0errors/misses. No meanFPS gain is claimed for the small redundant-work fix. Mounted-pilot/projected-HEARTHLOD and prepared-summon fixes retained. Sustained60FPS remains OPEN. Source `.source/combat-fps-20261021/source/game`; one canonical build `E:/CodexGenerated/Magic/staging/build`.
+1.6.43, commitb97eb2421e8539a221ec0cb663d3d3eaca4eb9db. Pages40065347567success; scopedsource/publicruntime hashesverified. Actualphysicalphone public43menu engine82dd9fff4a4b/noQA/renderhooks/defaultprofile/savehashesverified. Native sameengine beforepublication:48.35combatFPS/P9528/max85/threecombat>50ms,25kills/all4bosses/9summons; separatefull/cached/fullrepeat live-shadow Fireimages0changedchannels. Specificcachecorrectness/resourcefix; no causalmeanFPSgain or60FPSclaim. Existing42freeze/Lambert/IBL/normal compromises retained; dynamicdefault40.66FPS rejected. Heavy5276triangle surface is now integrated and physically verified in44; see the44milestone below. Original43is the protected predecessor during publication. Sustained60/fullworld/late-fightdrop remain OPEN.
 
 ## Checked / fixed / disabled
 
@@ -146,3 +146,12 @@ Private43 continuation: reviewed world shader contracts registered separately fr
 Blocked audit: USB absent for3consecutive goal turns (latest authoritative usbmux=[]). No activephone job;519CPUchecks/buildalreadycomplete. Goalmarkedblocked pending physical reconnection/resume. Protectedpublic42; private43notpublished; fullworld60FPSunachieved. Separate exact2fileMeshoptimizer approval stillpending.
 
 2026-10-24 native shadow milestone (PRIVATE43): exact static triangles + safe room/Lambert wrapper compositions fixed; dynamicsON realfight40.66FPS/P9533/max86,19kills/all4bosses/3summons;exactcachehits3947to6087;6243roomframes/0uncoveredtriangles/0latecallbackfailures. Full/cached/full-repeat Fireimage0changed channels, exact storage restored. Dynamic-default proposal REJECTED;43finaldefaultretains42freeze.523CPUchecks/buildpassed. Final default-profile native39335 live; no43pushyet.
+
+43milestone verified: commit/pushmain+benchmark, Pages, allsource/runtimehashes and actualpubliciPhone43default/source/storage proof passed. GoalACTIVE48.0%; courtyard60gate NOT passed; no adjoiningroom expansion. NextHeavy5276sidecar nativeimage/fullcombat/tailvalidation; futurepublicationbaseb97/priorroom-shadow-plan/version44. Do notrerun43push.
+
+
+## 1.6.44 — Heavy mobile LOD verified; publication identity in release.json
+- FIXED: distant Heavy21889→5276triangles, same original vertex attributes/materials/live rig; no extra bone palette. Optional3rd distance band51/69CSSpx; near models unchanged. New JSON records actual installation/LOD/triangles/errors.
+- CHECKED:524CPU checks,28numeric actual-rig poses,12inspected native same-pose images, complete iPhone fights with all4bosses. Original43.13FPS/9summons; candidate48.76FPS/3summons. Workloads differ: no causal FPS-gain claim. Exact saves/benchmark restored.
+- DISABLED: no new disable; existing Lambert/IBL/normal/specular omissions and diagnostic shadow freeze remain.60FPS/fullworld and room2gate still OPEN.
+- See HEAVY-INDEX-LOD.md and native heavy-index-lod comparison/visual-review evidence. Prior separate image fixture with results-overlay obstruction is rejected.

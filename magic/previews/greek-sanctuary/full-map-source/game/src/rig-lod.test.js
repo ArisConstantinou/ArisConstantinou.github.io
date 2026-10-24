@@ -34,3 +34,16 @@ test('a streamed far rig preserves hysteresis when its normal surface arrives',(
  try{for(const [pixels,expected] of [[90,2],[120,1],[90,1],[80,2]]){camera.zoom=pixels/140;camera.updateProjectionMatrix();controller.update(camera);assert.equal(group.userData.redesignLod,expected)}}
  finally{if(previous===undefined)delete globalThis.innerHeight;else globalThis.innerHeight=previous;controller.dispose();geometry.dispose();material.dispose()}
 });
+
+test('optional distance surface wins over inherited LOD2 and preserves both hysteresis bands',()=>{
+ const group=new THREE.Group(),model=new THREE.Group();group.add(model);
+ const geometry=new THREE.BufferGeometry(),material=new THREE.MeshBasicMaterial(),meshes=new Map();
+ const farParent=new THREE.Group();farParent.userData.redesignLod=2;model.add(farParent);
+ for(const level of [1,2,3]){const mesh=new THREE.Mesh(geometry,material);mesh.userData.redesignLod=level;(level===1?model:farParent).add(mesh);meshes.set(level,mesh)}
+ assert.equal(rigLodLevel(meshes.get(3),model),3);
+ const controller=createRigLod(group,model,{height:1.4,closeFile:'unused',initialLevel:2});
+ const camera=new THREE.OrthographicCamera(-5,5,5,-5,.01,100);camera.position.set(0,.7,10);camera.lookAt(0,.7,0);camera.updateMatrixWorld();group.updateMatrixWorld();
+ const previous=globalThis.innerHeight;globalThis.innerHeight=1000;
+ try{for(const [pixels,expected] of [[40,3],[60,3],[70,2],[110,2],[120,1],[80,2],[50,3]]){camera.zoom=pixels/140;camera.updateProjectionMatrix();controller.update(camera);assert.equal(group.userData.redesignLod,expected);for(const [level,mesh]of meshes)assert.equal(mesh.visible,level===expected)}}
+ finally{if(previous===undefined)delete globalThis.innerHeight;else globalThis.innerHeight=previous;controller.dispose();geometry.dispose();material.dispose()}
+});

@@ -10,7 +10,7 @@ export function rigLodLevel(object, model) {
   for (let node=object;node;node=node.parent) {
     if (node.userData.redesignLod !== undefined) {
       const level=Number(node.userData.redesignLod);
-      if ([0,1,2].includes(level)) return level;
+      if ([0,1,2,3].includes(level)) return level;
     }
     if (/LOD2/.test(node.name)) return 2;
     if (/LOD1/.test(node.name)) return 1;
@@ -31,8 +31,8 @@ function loadClose(url) {
 
 /** All distances share the actor's live joints and mixer. Close surfaces are
  * loaded once per type on demand, without an extra animated skeleton tree. */
-export function createRigLod(group, model, { height, closeFile, farPixels = 100, initialLevel = 1, visibilityRadius = height * .85 }) {
-  const levels = new Map([[0, []], [1, []], [2, []]]), nodes = new Map(), bones = new Map();
+export function createRigLod(group, model, { height, closeFile, farPixels = 100, extraFarPixels = 60, initialLevel = 1, visibilityRadius = height * .85 }) {
+  const levels = new Map([[0, []], [1, []], [2, []], [3, []]]), nodes = new Map(), bones = new Map();
   model.traverse(o => {
     nodes.set(o.name, o);
     if (o.isBone) bones.set(o.name, o);
@@ -113,8 +113,9 @@ export function createRigLod(group, model, { height, closeFile, farPixels = 100,
       });
     }
     const close = visible && levels.get(0).length && pixels > (level === 0 ? 320 : 380);
-    const far = !visible || pixels < farPixels * (level === 2 ? 1.15 : .85);
-    setLevel(close ? 0 : far ? 2 : 1);
+    const far = !visible || pixels < farPixels * (level >= 2 ? 1.15 : .85);
+    const extraFar = levels.get(3).length && (!visible || pixels < extraFarPixels * (level === 3 ? 1.15 : .85));
+    setLevel(close ? 0 : extraFar ? 3 : far ? 2 : 1);
   }
   function setTint(multiplier) {
     tint.copy(multiplier);
