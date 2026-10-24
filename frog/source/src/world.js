@@ -1,11 +1,14 @@
 import * as THREE from 'three';
 import { Water } from 'three/addons/objects/Water.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { EXTRA_HUT_FOOTPRINT } from './placement-rules.js';
 
 // Everything here is authored geometry. The water is a planar reflection with a
 // moving normal field; leaves, cliffs and vegetation deliberately avoid flat
 // discs, unmodified spheres, and stock low-poly terrain.
 const TAU = Math.PI * 2;
+export const SHELTER_SCALE = 2.15;
+export const SHELTER_RADIUS = 12.3;
 const clamp = THREE.MathUtils.clamp;
 const smooth = (a,b,t) => { t=clamp((t-a)/(b-a),0,1); return t*t*(3-2*t); };
 function rng(seed) { return () => { seed|=0; seed=(seed+0x6D2B79F5)|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
@@ -136,7 +139,7 @@ function flyGeometry() {
 
 export function createWorld(scene, renderer, options={}) {
   const seed=options.seed??731,random=rng(seed),group=new THREE.Group();group.name='The living creek';scene.add(group);
-  const platforms=[],hotspots=[],shelters=new Set(),disposables=[],buckets=new Map(),bucketSize=6;
+  const platforms=[],hotspots=[],shelters=new Set(),buildingPreviews=new Set(),disposables=[],buckets=new Map(),bucketSize=6;let buildArea=null;
   const skyColor=new THREE.Color('#8aaab0'),fogColor=new THREE.Color('#819e91');
   if(!scene.fog)scene.fog=new THREE.FogExp2(fogColor,.0042);
   const stoneMap=stoneTexture(seed),mossMap=stoneTexture(seed+9,true),leafMap=leafTexture(seed),normals=waterNormals(seed);
@@ -165,6 +168,9 @@ export function createWorld(scene, renderer, options={}) {
     {id:'quietbend',x:29,z:32,radius:6.8,team:'neutral',name:'Quiet Bend'},
     {id:'foxglove',x:-39,z:2,radius:6.8,team:'neutral',name:'Foxglove Island'}
   ];
+  // Room for a real communal camp, its walkable courtyard and purchased wings.
+  // The soft irregular shore still leaves a water route between neighbouring sites.
+  for(const site of campSites)site.radius=Math.max(15,site.radius*2.1);
   function bedHeight(x,z) {
     const channel=Math.sin(z*.032)*15+Math.sin(z*.073)*5,dist=Math.abs(x-channel);
     let h=-2.2+noise(x,z)*.47+smooth(44,71,dist)*6;
@@ -248,7 +254,7 @@ export function createWorld(scene, renderer, options={}) {
   materials.plant.customProgramCacheKey=()=> 'creek-wind-1';
 
   function surface(x,z){let h=bedHeight(x,z),type=h>-.1?'land':'water',chosen=null;if(h<=-.1)h=-.25;const near=buckets.get(Math.floor(x/bucketSize)+':'+Math.floor(z/bucketSize))||[];
-    for(const p of near){if(p.type==='land')continue;const d=Math.hypot(x-p.x,z-p.z);if(d<=p.radius){let ph=p.y;if(p.type==='rock')ph-=smooth(p.radius*.62,p.radius,d)*.14*p.scaleY;if(ph>h){h=ph;type=p.type;chosen=p;}}}
+    for(const p of near){if(p.type==='land')continue;const d=Math.hypot(x-p.x,z-p.z);if(d<=p.radius){let ph=p.y;if(p.type==='rock')ph-=smooth(p.radius*.62,p.radius,d)*.14*p.scaleY;if(ph>h){h=ph;type=p.type==='shelter'?'land':p.type;chosen=p;}}}
     return {height:h,type,platform:chosen};}
   function sampleHeight(x,z){return surface(x,z).height;}
 
@@ -287,7 +293,7 @@ export function createWorld(scene, renderer, options={}) {
     for(let i=0;i<n;i++){const id=dropCursor++%dropCount,d=drops[id],a=random()*TAU,s=(.6+random()*2.7)*Math.sqrt(strength);d.life=d.max=.5+random()*.8;d.vx=Math.cos(a)*s;d.vz=Math.sin(a)*s;d.vy=(1.5+random()*4)*Math.sqrt(strength);d.water=isWater;dropPos.set([position.x+(random()-.5)*.3,(position.y??0)+.12,position.z+(random()-.5)*.3],id*3);c.clone().multiplyScalar(.85+random()*.3).toArray(dropColor,id*3);dropSize[id]=(.045+random()*.085)*(isWater?1:.8);dropAlpha[id]=.9;}
     dropGeo.attributes.aColor.needsUpdate=true;dropGeo.attributes.aSize.needsUpdate=true;}
   function splash(position,strength=1,tint){strength=clamp(strength,.1,4);addRipple({x:position.x,y:.01,z:position.z},strength,tint);particles({x:position.x,y:.03,z:position.z},strength,tint,true);}
-  function impact(position,tint='#e9cb87',strength=1){particles(position,strength,tint,false);if(surface(position.x,position.z).type==='water')addRipple({x:position.x,y:.01,z:position.z},strength,tint);}
+  function impact(position,tint='#e9cb87',strength=1){particles(position,strength,tint,false);}
 
   function roofGeometry(width,length,height,seedValue=1){const p=[],uv=[],idx=[],cols=[],r=rng(seedValue);const rows=16,columns=20;
     for(let z=0;z<=rows;z++)for(let x=0;x<=columns;x++){const u=x/columns*2-1,v=z/rows,y=.5+Math.sqrt(Math.max(0,1-u*u))*height+.06*Math.sin(v*23+u*5),xx=u*width*(.97+.025*Math.sin(v*19));p.push(xx,y,(v-.5)*length);uv.push(x/columns,z/rows);const c=color('#809549').multiplyScalar(.85+r()*.23);c.toArray(cols,cols.length);}
@@ -300,17 +306,76 @@ export function createWorld(scene, renderer, options={}) {
     for(let row=0;row<7;row++){const h=.16+row*.12,beam=tube([[-1.65,h,-1.8],[0,h+.025,-1.88],[1.65,h,-1.8]],.036,materials.reed,8);owned.push(beam.geometry);g.add(beam);}
     mergeStaticParts(g,owned,new Set([roof]));g.scale.setScalar(scale);g.userData.roof=roof;return g;}
   const teamColors={player:'#8ecf75',friendly:'#8ecf75',ally:'#8ecf75',enemy:'#cf7554',neutral:'#ceb785'};
-  function teamColor(team){if(typeof team==='string'&&team.startsWith('enemy')){const shades=['#cf7554','#c8a456','#a57db4','#69a3a4','#c38c55','#8d809d'],index=parseInt(team.replace(/\D/g,''),10)||0;return shades[index%shades.length];}return teamColors[team]||teamColors.neutral;}
+  function teamColor(team){if(typeof team==='string'&&team.startsWith('enemy')){const shades=['#e8aa70','#d8786b','#b9ad81','#a9a0d4','#8dc2b8'],index=parseInt(team.replace(/\D/g,''),10)||0;return shades[index%shades.length];}return teamColors[team]||teamColors.neutral;}
+  const bannerMaps=new Map();
+  function bannerTexture(team){
+    if(bannerMaps.has(team))return bannerMaps.get(team);
+    const friendly=['player','ally','friendly'].includes(team),neutral=team==='neutral',variant=(parseInt(String(team).replace(/\D/g,''),10)||0)%5;
+    const map=canvasTexture(256,(ctx,s)=>{
+      ctx.fillStyle='#eee9cb';ctx.fillRect(0,0,s,s);
+      for(let i=0;i<256;i+=4){ctx.fillStyle=i%8?'#ded9bd':'#f3eed3';ctx.fillRect(i,0,1,s);ctx.fillRect(0,i,s,1);}
+      ctx.save();ctx.translate(38,23);ctx.scale(2.8,2.8);ctx.fillStyle=friendly?'#194333':neutral?'#494633':'#472c29';ctx.strokeStyle='#fff2c9';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(32,3);ctx.lineTo(59,14);ctx.lineTo(56,44);ctx.quadraticCurveTo(53,55,32,68);ctx.quadraticCurveTo(11,55,8,44);ctx.lineTo(5,14);ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.lineWidth=3.2;ctx.lineCap='round';ctx.lineJoin='round';
+      const line=points=>{ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.stroke();};
+      if(friendly){ctx.beginPath();ctx.moveTo(43,20);ctx.bezierCurveTo(28,17,18,26,21,38);ctx.bezierCurveTo(24,48,35,47,40,37);ctx.bezierCurveTo(43,30,40,24,43,20);ctx.stroke();line([[20,51],[37,27]]);line([[28,40],[23,32]]);line([[32,35],[39,34]]);}
+      else if(neutral){line([[24,27],[32,19],[40,27]]);line([[32,19],[32,49]]);line([[23,40],[32,49],[41,40]]);}
+      else if(variant===0){line([[20,19],[27,31],[22,44]]);line([[44,19],[37,31],[42,44]]);line([[28,46],[36,46]]);}
+      else if(variant===1){line([[22,18],[18,36],[32,49],[46,36],[42,18]]);line([[25,30],[32,36],[39,30]]);}
+      else if(variant===2){for(const [x,y] of [[21,20],[32,15],[43,20]]){line([[x,y],[x,49]]);line([[x-4,y+6],[x+4,y+6]]);}}
+      else if(variant===3){ctx.beginPath();ctx.moveTo(44,17);ctx.bezierCurveTo(15,9,11,48,32,52);ctx.bezierCurveTo(39,53,44,50,47,45);ctx.bezierCurveTo(29,43,26,26,44,17);ctx.stroke();}
+      else line([[18,24],[25,30],[32,17],[39,30],[46,24],[41,46],[23,46],[18,24]]);
+      ctx.restore();
+    });map.wrapS=map.wrapT=THREE.ClampToEdgeWrapping;bannerMaps.set(team,map);disposables.push(map);return map;
+  }
+  function buildFoundation(s,owned,yaw=0){
+    const foundation=new THREE.Group();foundation.name='Woven reed courtyard and rooted foundations';
+    const radius=5.68;
+    // The irregular edges and crossed, curved timbers read as a constructed
+    // platform. The upper weave is also the gameplay support surface.
+    for(let i=0;i<43;i++){
+      const z=-5.58+i*.266,span=Math.sqrt(Math.max(0,radius*radius-z*z))*(.97+.02*Math.sin(i*1.7));
+      const plank=tube([[-span,-.045,z],[-span*.25,-.035,z+.022],[span*.4,-.04,z-.018],[span,-.045,z+.015]],.077,materials.bark,7);plank.receiveShadow=true;owned.push(plank.geometry);foundation.add(plank);
+    }
+    for(let i=0;i<25;i++){
+      const x=-5.4+i*.45,span=Math.sqrt(Math.max(0,radius*radius-x*x))*.98;
+      const tie=tube([[x,.018,-span],[x+.025,.028,0],[x-.018,.02,span]],.027,materials.reed,10);owned.push(tie.geometry);foundation.add(tie);
+    }
+    for(let i=0;i<16;i++){
+      const a=i/16*TAU,x=Math.cos(a)*5.1,z=Math.sin(a)*5.1;
+      const ground=(bedHeight(s.position.x+(x*Math.cos(yaw)+z*Math.sin(yaw))*SHELTER_SCALE,s.position.z+(z*Math.cos(yaw)-x*Math.sin(yaw))*SHELTER_SCALE)-s.position.y)/SHELTER_SCALE;
+      const post=tube([[x,Math.min(-.18,ground-.15),z],[x+.03,-.35,z-.02],[x,-.08,z]],.095,materials.bark,5);owned.push(post.geometry);foundation.add(post);
+    }
+    mergeStaticParts(foundation,owned);s.add(foundation);s.userData.foundation=foundation;
+  }
   function makeBanner(team,owned){const g=new THREE.Group(),pole=tube([[0,0,0],[.04,1.6,0],[-.03,3.1,.02]],.047,materials.bark,7);owned.push(pole.geometry);g.add(pole);
-    const geo=new THREE.BufferGeometry(),p=[0,2.93,0,.9,2.8,.09,1.13,2.12,.02,.6,2.25,-.03,0,2.18,0],uv=[0,1,1,1,1,0,.5,.1,0,0];geo.setAttribute('position',new THREE.Float32BufferAttribute(p,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex([0,1,3,1,2,3,0,3,4]);geo.computeVertexNormals();const mat=new THREE.MeshStandardMaterial({color:teamColor(team),roughness:.8,side:THREE.DoubleSide,map:leafMap});const flag=new THREE.Mesh(geo,mat);flag.castShadow=true;g.add(flag);g.userData.flag=flag;owned.push(geo,mat);return g;}
-  function createShelter(data){
-    const s=new THREE.Group();s.name='Shelter '+(data.id??'');s.position.set(data.x,sampleHeight(data.x,data.z),data.z);s.userData.id=data.id;s.userData.owned=[];const owned=s.userData.owned;
+    const geo=new THREE.BufferGeometry(),p=[0,2.93,0,.9,2.8,.09,1.13,2.12,.02,.6,2.25,-.03,0,2.18,0],uv=[0,1,1,1,1,0,.5,.1,0,0];geo.setAttribute('position',new THREE.Float32BufferAttribute(p,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex([0,1,3,1,2,3,0,3,4]);geo.computeVertexNormals();const mat=new THREE.MeshStandardMaterial({color:teamColor(team),roughness:.8,side:THREE.DoubleSide,map:bannerTexture(team)});const flag=new THREE.Mesh(geo,mat);flag.castShadow=true;g.add(flag);g.userData.flag=flag;g.userData.emblemTeam=team;owned.push(geo,mat);return g;}
+  function createShelter(data,buildOptions={}){
+    const preview=!!buildOptions.preview;
+    const s=new THREE.Group();s.name='Shelter '+(data.id??'');s.position.set(data.x,preview?0:sampleHeight(data.x,data.z),data.z);s.scale.setScalar(SHELTER_SCALE);s.userData.id=data.id;s.userData.radius=SHELTER_RADIUS;s.userData.owned=[];const owned=s.userData.owned;
+    buildFoundation(s,owned,Number.isFinite(data.yaw)?data.yaw:0);
+    if(!preview)s.userData.support=insertPlatform({id:'shelter-'+data.id,type:'shelter',x:data.x,z:data.z,y:s.position.y+.11,radius:SHELTER_RADIUS-.2});
     const core=buildHut(1,teamColors[data.team],owned);core.position.set(-.55,.04,-.5);s.add(core);s.userData.core=core;
     const banner=makeBanner(data.team,owned);banner.position.set(1.8,0,1.1);s.add(banner);s.userData.banner=banner;
     const extra=new THREE.Group();extra.name='Additional sleeping leaves';const hut2=buildHut(.62,teamColors[data.team],owned);hut2.position.set(-3,.01,.2);hut2.rotation.y=-.5;extra.add(hut2);s.add(extra);s.userData.extra=extra;
     const nursery=new THREE.Group();nursery.name='Hatchery';const nestHut=buildHut(.52,teamColors[data.team],owned);nestHut.position.set(3.05,0,-1.8);nestHut.rotation.y=.7;nursery.add(nestHut);
     // A woven circular nursery with damp leaves below its smaller canopy.
     for(let ring=0;ring<5;ring++){const pts=[];for(let i=0;i<=24;i++){const a=i/24*TAU;pts.push([3.05+Math.cos(a)*.74,.06+ring*.065,-1.7+Math.sin(a)*.63]);}const nest=tube(pts,.035,materials.reed,25);owned.push(nest.geometry);nursery.add(nest);}mergeStaticParts(nursery,owned);s.add(nursery);s.userData.nursery=nursery;
+    const training=new THREE.Group();training.name='Leaf training yard and woven sparring dummies';training.position.set(-2.9,.07,-3.2);
+    for(let i=0;i<3;i++){
+      const x=-.82+i*.8,z=i%2?-.2:.2;
+      const pad=new THREE.Mesh(leafGeometry(.46,.65,.04),materials.leaf);pad.position.set(x,.025,z+.6);pad.rotation.y=(i-1)*.35;owned.push(pad.geometry);training.add(pad);
+      for(const dx of [-.21,.21]){const leg=tube([[x+dx,-.02,z-.25],[x+dx*.3,.48,z-.3],[x,.96,z-.25]],.035,materials.bark,5);owned.push(leg.geometry);training.add(leg);}
+      const cross=tube([[x-.4,.64,z-.2],[x,.72,z-.28],[x+.4,.64,z-.2]],.041,materials.reed,6);owned.push(cross.geometry);training.add(cross);
+      // Folded, overlapping practice leaves wrap a wooden body. Paired reed
+      // loops suggest a frog head without pretending the target is a live frog.
+      for(let j=0;j<3;j++){const wrap=new THREE.Mesh(leafGeometry(.23,.37,.15),materials.leaf);wrap.position.set(x+(j-1)*.06,.59,z-.19);wrap.rotation.set(Math.PI/2,(j-1)*.25,(j-1)*.3);owned.push(wrap.geometry);training.add(wrap);}
+      for(const dx of [-.12,.12]){const loop=tube([[x+dx,.89,z-.22],[x+dx*1.45,1.09,z-.22],[x+dx*.5,1.07,z-.19],[x+dx,.89,z-.22]],.025,materials.reed,10);owned.push(loop.geometry);training.add(loop);}
+    }
+    for(const x of [-1.2,1.2]){const post=tube([[x,-.04,-.65],[x*.98,.75,-.68],[x,.98,-.65]],.04,materials.bark,5);owned.push(post.geometry);training.add(post);}
+    for(let j=0;j<2;j++){const rail=tube([[-1.2,.45+j*.28,-.65],[0,.38+j*.28,-.7],[1.2,.45+j*.28,-.65]],.025,materials.reed,10);owned.push(rail.geometry);training.add(rail);}
+    mergeStaticParts(training,owned);s.add(training);s.userData.training=training;
+    s.userData.trainingPoint=new THREE.Vector3(data.x-2.9*SHELTER_SCALE,s.position.y+.12,data.z-2.5*SHELTER_SCALE);
     const storage=new THREE.Group();storage.name='Leaf-wrapped food cache';storage.position.set(-2.8,.04,2.2);const foodMesh=new THREE.InstancedMesh(fruitGeo,materials.fruit,15);
     for(let i=0;i<15;i++){object.position.set((i%4)*.32-.5,Math.floor(i/8)*.25+.15,Math.floor(i/4)%2*.35);object.scale.setScalar(.22+(i%3)*.025);object.rotation.set(i*.7,i*.4,0);object.updateMatrix();foodMesh.setMatrixAt(i,object.matrix);foodMesh.setColorAt(i,color(i%3?'#b7b06c':'#6d673f'));}storage.add(foodMesh);
     for(let j=0;j<3;j++){const log=tube([[-.85,.05,-.3+j*.45],[0,.02,-.3+j*.45],[.85,.08,-.3+j*.45]],.075,materials.bark,5);owned.push(log.geometry);storage.add(log);}const cover=new THREE.Mesh(leafGeometry(1,.8,.23),materials.leaf);cover.position.set(0,.5,.1);cover.rotation.z=.17;owned.push(cover.geometry);storage.add(cover);mergeStaticParts(storage,owned);s.add(storage);s.userData.storage=storage;s.userData.foodMesh=foodMesh;s.userData.storageCover=cover;
@@ -322,6 +387,17 @@ export function createWorld(scene, renderer, options={}) {
     const palisade=new THREE.Group();palisade.name='Root-and-reed defences';const fenceGeos=[];
     for(let i=0;i<54;i++){const a=i/54*TAU;if(Math.abs(Math.sin(a))<.19)continue;const x=Math.cos(a)*5.2,z=Math.sin(a)*4.5,h=.65+(i%5)*.12;const stake=tube([[x,-.07,z],[x*1.008,h*.6,z*1.008],[x*1.025,h,z*1.025]],.055,materials.bark,3);fenceGeos.push(stake.geometry);}
     const merged=mergeGeometries(fenceGeos,false);for(const g of fenceGeos)g.dispose();const fence=new THREE.Mesh(merged,materials.bark);fence.castShadow=true;owned.push(merged);palisade.add(fence);s.add(palisade);s.userData.palisade=palisade;
+    // New placements use a proper, movable defensive section. Existing saves
+    // without a position keep the original purchased perimeter intact.
+    const fenceSection=new THREE.Group();fenceSection.name='Placeable woven timber palisade';fenceSection.position.z=9.8/SHELTER_SCALE;
+    for(let i=0;i<13;i++){
+      const x=-1.5+i*.25,z=.025*Math.sin(i*1.7),h=.82+(i%4)*.095;
+      const stake=tube([[x,-.05,z],[x+.018,.55,z+.02],[x-.015,h,z-.025]],.055,materials.bark,5);owned.push(stake.geometry);fenceSection.add(stake);
+      for(const y of [.34,.66]){const tie=tube([[x-.055,y,z-.065],[x-.065,y+.045,z+.08],[x+.055,y+.07,z+.07],[x+.06,y+.015,z-.06],[x-.055,y,z-.065]],.016,materials.reed,10);owned.push(tie.geometry);fenceSection.add(tie);}
+    }
+    for(const y of [.37,.69]){const rail=tube([[-1.55,y,.08],[0,y-.035,.095],[1.55,y,.075]],.035,materials.reed,14);owned.push(rail.geometry);fenceSection.add(rail);}
+    for(const side of [-1,1]){const brace=tube([[side*1.38,.12,-.09],[side*.78,.44,-.10],[side*.15,.79,-.085]],.041,materials.bark,7);owned.push(brace.geometry);fenceSection.add(brace);}
+    mergeStaticParts(fenceSection,owned);s.add(fenceSection);s.userData.palisadeSection=fenceSection;
     const stones=new THREE.InstancedMesh(rockGeos[1],materials.mossRock,25);for(let i=0;i<25;i++){const a=i/25*TAU;object.position.set(Math.cos(a)*2.15,-.12,Math.sin(a)*2.35-.5);object.rotation.set(0,a,0);object.scale.set(.25,.25,.25);object.updateMatrix();stones.setMatrixAt(i,object.matrix);}s.add(stones);
     // Ruins are a separate low silhouette: torn roofing, snapped ribs and the
     // fallen banner. The original meshes stay intact for an exact rebuild.
@@ -340,21 +416,38 @@ export function createWorld(scene, renderer, options={}) {
     for(let i=0;i<8;i++){object.position.set(-.5+(i%4)*.29,.12+Math.floor(i/4)*.08,1.35+Math.floor(i/4)*.31);object.rotation.set(i*.43,i*1.31,.2);object.scale.setScalar(.16+(i%3)*.025);object.updateMatrix();looseLoot.setMatrixAt(i,object.matrix);looseLoot.setColorAt(i,color(i%2?'#a99958':'#d9a253'));}s.add(looseLoot);s.userData.looseLoot=looseLoot;
     const lampMat=new THREE.MeshStandardMaterial({color:'#edc371',emissive:'#e5a64c',emissiveIntensity:.7,roughness:.7});owned.push(lampMat);const lamp=new THREE.Mesh(fruitGeo,lampMat);lamp.position.set(1.7,.55,1.1);lamp.scale.set(.15,.22,.15);s.add(lamp);s.userData.lamp=lamp;
     // A small warm point light makes camp silhouettes readable after sunset.
-    const light=new THREE.PointLight('#ffd098',1.8,12,2);light.position.set(0,2.3,1.8);s.add(light);s.userData.light=light;
-    group.add(s);shelters.add(s);updateShelter(s,data);return s;
+    const light=new THREE.PointLight('#ffd098',1.8,25,2);light.position.set(0,2.3,1.8);s.add(light);s.userData.light=light;
+    // Every placeable pivot is the real rendered XZ centre. Offsetting the old
+    // subgroup underneath it preserves the exact geometry of legacy layouts.
+    s.updateMatrixWorld(true);s.userData.buildingGroups={};s.userData.defaultPlacements={};
+    for(const [type,key] of Object.entries({store:'storage',nursery:'nursery',watchtower:'watchtower',training:'training',palisade:'palisadeSection'})){
+      const body=s.userData[key],bounds=new THREE.Box3().setFromObject(body),centre=s.worldToLocal(bounds.getCenter(new THREE.Vector3())),pivot=new THREE.Group();
+      pivot.name=body.name+' placement';pivot.position.set(centre.x,body.position.y,centre.z);s.add(pivot);body.position.sub(pivot.position);pivot.add(body);s.userData[key]=pivot;
+      s.userData.buildingGroups[type]=pivot;s.userData.defaultPlacements[type]={x:centre.x*SHELTER_SCALE,z:centre.z*SHELTER_SCALE,yaw:0};
+    }
+    s.updateMatrixWorld(true);const coreBounds=new THREE.Box3().setFromObject(core),coreCentre=s.worldToLocal(coreBounds.getCenter(new THREE.Vector3())),coreSize=coreBounds.getSize(new THREE.Vector3());
+    s.userData.coreFootprint={x:coreCentre.x*SHELTER_SCALE,z:coreCentre.z*SHELTER_SCALE,width:coreSize.x,depth:coreSize.z};
+    if(!preview){group.add(s);shelters.add(s);}updateShelter(s,data);return s;
   }
   function updateShelter(s,data={}){if(!s)return;
     const previous=s.userData.visualState||{},state={...previous,...data},tier=Math.max(1,state.tier??1),b=state.buildings||{},health=clamp((state.hp??state.maxHp??100)/(state.maxHp??100),0,1),destroyed=!!state.destroyed||health<=0;
     const team=state.team??previous.team??'neutral';
     // Retain only render data, never the gameplay mesh reference or a cycle.
-    s.userData.visualState={team,tier,hp:state.hp,maxHp:state.maxHp,buildings:{...b},storage:state.storage,resources:state.resources,lootTaken:!!state.lootTaken,destroyed};
+    const placements={};for(const [type,p] of Object.entries(state.buildingPlacements||{}))if(s.userData.buildingGroups[type]&&p&&Number.isFinite(p.x)&&Number.isFinite(p.z)&&Number.isFinite(p.yaw??0))placements[type]={x:p.x,z:p.z,yaw:p.yaw??0};
+    s.userData.visualState={team,tier,hp:state.hp,maxHp:state.maxHp,buildings:{...b},buildingPlacements:placements,yaw:Number.isFinite(state.yaw)?state.yaw:0,storage:state.storage,resources:state.resources,lootTaken:!!state.lootTaken,destroyed};
+    s.rotation.y=s.userData.visualState.yaw;
+    for(const [type,node] of Object.entries(s.userData.buildingGroups)){const p=placements[type]||s.userData.defaultPlacements[type];node.position.x=p.x/SHELTER_SCALE;node.position.z=p.z/SHELTER_SCALE;node.rotation.y=p.yaw;}
+    const training=s.userData.buildingGroups.training;s.updateMatrixWorld(true);s.userData.trainingPoint.copy(training.getWorldPosition(new THREE.Vector3()));s.userData.trainingPoint.y=s.position.y+.12;
     s.userData.team=team;s.userData.tier=tier;s.userData.health=health;s.userData.destroyed=destroyed;
     s.userData.banner.userData.flag.material.color.set(teamColor(team));
+    if(s.userData.banner.userData.emblemTeam!==team){s.userData.banner.userData.flag.material.map=bannerTexture(team);s.userData.banner.userData.flag.material.needsUpdate=true;s.userData.banner.userData.emblemTeam=team;}
     const hasStore=!!(b.storage??b.store??false);
     s.userData.core.visible=!destroyed;s.userData.extra.visible=!destroyed&&tier>=2;s.userData.ruin.visible=destroyed;
     s.userData.nursery.visible=!destroyed&&!!(b.nursery||b.hatchery||b.spawn||b.breeding);
+    s.userData.training.visible=!destroyed&&!!(b.training||b.trainingGround||b.drill);
     s.userData.watchtower.visible=!destroyed&&!!(b.watchtower||b.tower||b.guards);
-    s.userData.palisade.visible=!destroyed&&!!(b.palisade||b.walls||b.wall||b.defense);
+    const hasPalisade=!destroyed&&!!(b.palisade||b.walls||b.wall||b.defense);
+    s.userData.palisade.visible=hasPalisade&&!placements.palisade;s.userData.palisadeSection.visible=hasPalisade&&!!placements.palisade;
     s.userData.core.rotation.z=destroyed?0:(1-health)*.09;s.userData.core.userData.roof.scale.y=destroyed?1:.78+.22*health;
     let amount=typeof state.storage==='number'?state.storage:(state.storage?.food??state.resources??0);if(!Number.isFinite(amount))amount=0;amount=Math.max(0,amount);
     const hasLoot=amount>0&&!state.lootTaken;
@@ -365,7 +458,67 @@ export function createWorld(scene, renderer, options={}) {
     s.userData.banner.position.y=destroyed?.035:0;s.userData.banner.rotation.set(destroyed?.08:0,destroyed?.35:0,destroyed?1.49:health<.25?.22:0);
     s.userData.lamp.visible=!destroyed;if(destroyed)s.userData.light.visible=false;
   }
-  function removeShelter(s){if(!s)return;group.remove(s);shelters.delete(s);s.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const d of s.userData.owned||[])d.dispose?.();}
+  function removeShelter(s){if(!s)return;if(buildArea?.userData.camp===s)hideBuildArea();group.remove(s);shelters.delete(s);const support=s.userData.support;if(support){const at=platforms.indexOf(support);if(at>=0)platforms.splice(at,1);for(const list of buckets.values()){const i=list.indexOf(support);if(i>=0)list.splice(i,1);}}s.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const d of s.userData.owned||[])d.dispose?.();}
+
+  /** Real construction geometry, built once per placement session, with no support/collision registration. */
+  function createBuildingPreview(type){
+    if(!['shelter','store','nursery','watchtower','training','palisade'].includes(type))return null;
+    const preview=createShelter({id:'construction-preview',x:0,z:0,team:'ally',tier:1,hp:350,maxHp:350,buildings:{},storage:{food:80}},{preview:true});
+    preview.name='Construction preview: '+type;preview.userData.previewType=type;preview.userData.previewMaterials=[];
+    if(type!=='shelter'){
+      const selected=preview.userData.buildingGroups[type];
+      for(const child of preview.children)child.visible=child===selected;
+      selected.visible=true;selected.position.x=selected.position.z=0;selected.rotation.y=0;
+    }
+    const materialCopies=new Map();
+    preview.traverse(object=>{
+      if(object.isLight){object.visible=false;return;}
+      if(!object.isMesh)return;object.castShadow=false;object.receiveShadow=false;object.renderOrder=8;
+      const copy=source=>{
+        if(materialCopies.has(source))return materialCopies.get(source);
+        const material=source.clone();material.transparent=true;material.opacity=.46;material.depthWrite=false;material.polygonOffset=true;material.polygonOffsetFactor=-1;material.polygonOffsetUnits=-1;
+        materialCopies.set(source,material);preview.userData.previewMaterials.push(material);preview.userData.owned.push(material);return material;
+      };
+      object.material=Array.isArray(object.material)?object.material.map(copy):copy(object.material);
+    });
+    buildingPreviews.add(preview);group.add(preview);setBuildingPreview(preview,{x:0,y:0,z:0,yaw:0,valid:false});preview.visible=false;return preview;
+  }
+  function setBuildingPreview(preview,{x,y,z,yaw=0,valid=false}={}){
+    if(!preview?.userData.previewType)return;
+    if(Number.isFinite(x))preview.position.x=x;if(Number.isFinite(y))preview.position.y=y;if(Number.isFinite(z))preview.position.z=z;
+    preview.rotation.y=Number.isFinite(yaw)?yaw:0;preview.visible=true;
+    if(preview.userData.previewValid!==!!valid){
+      preview.userData.previewValid=!!valid;
+      for(const material of preview.userData.previewMaterials){material.color?.set(valid?'#69ed89':'#ef665b');material.emissive?.set(valid?'#266c37':'#782d27');if('emissiveIntensity' in material)material.emissiveIntensity=.4;}
+    }
+  }
+  function removeBuildingPreview(preview){if(!preview||!buildingPreviews.has(preview))return;buildingPreviews.delete(preview);preview.removeFromParent();removeShelter(preview);}
+  function hideBuildArea(){
+    if(!buildArea)return;buildArea.removeFromParent();const geometry=new Set(),material=new Set();
+    buildArea.traverse(o=>{if(o.geometry)geometry.add(o.geometry);if(o.material)material.add(o.material);});for(const g of geometry)g.dispose();for(const m of material)m.dispose();buildArea=null;
+  }
+  /** A temporary courtyard grid and reserved hut footprints, shown only while building. */
+  function showBuildArea(camp){
+    const s=camp?.mesh||camp;if(!s?.isObject3D){hideBuildArea();return null;}if(buildArea?.userData.camp===s)return buildArea;hideBuildArea();
+    buildArea=new THREE.Group();buildArea.name='Construction courtyard guide';buildArea.userData.camp=s;const r=(SHELTER_RADIUS-.2)/SHELTER_SCALE,y=.075;
+    const line=(points,tint,opacity,loop=false)=>{
+      const geometry=new THREE.BufferGeometry().setFromPoints(points),material=new THREE.LineBasicMaterial({color:tint,transparent:true,opacity,depthWrite:false});
+      const object=loop?new THREE.LineLoop(geometry,material):new THREE.LineSegments(geometry,material);object.renderOrder=6;buildArea.add(object);return object;
+    };
+    const perimeter=[];for(let i=0;i<96;i++){const a=i/96*TAU;perimeter.push(new THREE.Vector3(Math.cos(a)*r,y,Math.sin(a)*r));}line(perimeter,'#9fe5af',.78,true);
+    const grid=[];for(let k=-7;k<=7;k++){const n=k*.7;if(Math.abs(n)>=r)continue;const span=Math.sqrt(r*r-n*n);grid.push(new THREE.Vector3(n,y,-span),new THREE.Vector3(n,y,span),new THREE.Vector3(-span,y,n),new THREE.Vector3(span,y,n));}line(grid,'#b7ddbc',.22);
+    const footprint=(f,name)=>{
+      const cx=f.x/SHELTER_SCALE,cz=f.z/SHELTER_SCALE,hw=f.width/(2*SHELTER_SCALE)+.025,hd=f.depth/(2*SHELTER_SCALE)+.025,c=Math.cos(f.yaw||0),a=Math.sin(f.yaw||0),top=y+.012;
+      const point=(x,z)=>new THREE.Vector3(cx+x*c+z*a,top,cz+z*c-x*a);
+      line([point(-hw,-hd),point(hw,-hd),point(hw,hd),point(-hw,hd)],'#ec8a72',.8,true).name=name+' outline';
+      const hatch=[];for(let n=-hw-hd;n<=hw+hd;n+=.42){const ends=[];for(const x of [-hw,hw]){const z=n-x;if(z>=-hd&&z<=hd)ends.push(point(x,z));}for(const z of [-hd,hd]){const x=n-z;if(x>-hw&&x<hw)ends.push(point(x,z));}if(ends.length===2)hatch.push(...ends);}line(hatch,'#d9806c',.35).name=name+' hatch';
+    };
+    footprint(s.userData.coreFootprint||{x:-1.1825,z:-1.0664,width:7.68,depth:8.25},'Main hut exclusion');
+    // Reserve the future sleeping wing from the first placement, so new
+    // construction cannot permanently block a later shelter upgrade.
+    footprint(EXTRA_HUT_FOOTPRINT,'Sleeping hut reservation');
+    s.add(buildArea);return buildArea;
+  }
 
   let frame=0;
   const dayWater=color('#2c6258'),nightWater=color('#0c2b32'),daySun=color('#fff0cb'),nightSun=color('#7aa5cb');
@@ -385,6 +538,7 @@ export function createWorld(scene, renderer, options={}) {
     const closeLights=[...shelters].filter(s=>!s.userData.destroyed).sort((a,b)=>playerPos?a.position.distanceToSquared(playerPos)-b.position.distanceToSquared(playerPos):0).slice(0,3);
     for(const s of shelters){s.userData.light.visible=closeLights.includes(s);s.userData.light.intensity=.25+(1-dayFactor)*3;s.userData.lamp.material.emissiveIntensity=.3+(1-dayFactor)*1.3;s.userData.banner.userData.flag.rotation.y=Math.sin(time*1.4+s.position.x)*.06;}
   }
-  function dispose(){scene.remove(group);const geos=new Set(),mats=new Set();group.traverse(o=>{if(o.isInstancedMesh)o.dispose();if(o.geometry)geos.add(o.geometry);if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>mats.add(m));else mats.add(o.material);}});for(const g of geos)g.dispose();for(const m of mats)m.dispose();for(const t of disposables)t.dispose();water.material.uniforms.mirrorSampler?.value?.dispose?.();shelters.clear();}
-  return {group,platforms,hotspots,campSites,sampleHeight,getSurface:surface,update,splash,impact,createShelter,updateShelter,removeShelter,dispose,water};
+  function dispose(){hideBuildArea();for(const preview of [...buildingPreviews])removeBuildingPreview(preview);scene.remove(group);const geos=new Set(),mats=new Set();group.traverse(o=>{if(o.isInstancedMesh)o.dispose();if(o.geometry)geos.add(o.geometry);if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>mats.add(m));else mats.add(o.material);}});for(const g of geos)g.dispose();for(const m of mats)m.dispose();for(const t of disposables)t.dispose();water.material.uniforms.mirrorSampler?.value?.dispose?.();shelters.clear();}
+  return {group,platforms,hotspots,campSites,sampleHeight,getSurface:surface,update,splash,impact,createShelter,updateShelter,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE};
 }
+

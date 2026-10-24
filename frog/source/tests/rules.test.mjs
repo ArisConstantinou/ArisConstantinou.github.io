@@ -158,3 +158,4 @@ test('the day-night cycle begins at 09:00, darkens at night and repeats after 60
   assert.ok(Math.abs(tomorrow.daylight-morning.daylight)<1e-12);
   for(const elapsed of [0,75,150,225,300,450,600,36000]){const state=dayState(elapsed);assert.ok(state.phase>=0&&state.phase<1);assert.ok(state.daylight>=0&&state.daylight<=1);assert.match(state.timeLabel,/^\d{2}:\d{2}$/);}
 });
+

@@ -67,3 +67,4 @@ for r in records:
  draw.text((x+16,y+505),f"{r['stats']['boneCount']} bones · {r['stats']['triangles']:,} triangles",font=small,fill='#b5c5b5')
  print('Rendered',r['type'],r['pose'],flush=True)
 sheet.save(ROOT/'creature-geometry-check.png')
+

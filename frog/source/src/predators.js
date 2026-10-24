@@ -14,10 +14,18 @@ const mouthPosition = new THREE.Vector3();
 
 function initialize(p) {
   if(p._aiReady)return;
-  p._aiReady=true;p.baseSpeed=PREDATORS[p.type].speed;p.speed=0;p.health=p.hp;
+  const defaults=PREDATORS[p.type];
+  p._aiReady=true;p.baseSpeed=Number.isFinite(p.baseSpeed)&&p.baseSpeed>0?p.baseSpeed:Number.isFinite(p.speed)&&p.speed>0?p.speed:defaults.speed;p.speed=0;p.health=p.hp;
+  p.baseWindup=Number.isFinite(p.windup)&&p.windup>0?p.windup:defaults.windup;
+  p.baseRecover=Number.isFinite(p.recover)&&p.recover>0?p.recover:defaults.recover;
+  p.windup=p.baseWindup;p.recover=p.baseRecover;
+  p.strikeRadius=Number.isFinite(p.strikeRadius)&&p.strikeRadius>0?p.strikeRadius:radius[p.type]*(p.boss?(p.type==='fish'?1.8:1.45):1);
+  p.lungeTime=Number.isFinite(p.lungeTime)&&p.lungeTime>0?p.lungeTime:lungeDuration[p.type];
+  p.burstCount=Number.isFinite(p.burstCount)?clamp(Math.round(p.burstCount),1,5):p.boss?(p.type==='heron'?2:p.type==='snake'?3:1):1;
+  p.burstRemaining=0;p.burstIndex=0;p.enraged=!!p.boss&&p.hp<=p.maxHp*.5;p.defeatNotified=false;
   p.grabCooldown=0;p.thinkTime=0;p.chaseTime=0;p.lostTime=0;p.huntUntil=0;
   p.playerDamage=0;p.lastCombatAt=-100;p.engagedPlayer=false;p.hitAnim=0;
-  p.repelAwarded=false;p.killAwarded=false;p.provokedUntil=0;p.hunting=false;
+  p.repelAwarded=false;p.killAwarded=false;p.provokedUntil=0;p.hunting=false;p.fearPressure=0;
   p.attackDuration=1;p.attackType='lunge';p.movePulse=0;p.grace=p.grace||0;
 }
 function surface(game,x,z) {return game.world.getSurface(x,z);}
@@ -100,7 +108,7 @@ function setHeight(game,p) {
   if(p.type==='fish') {
     let y=-1.52+Math.sin(game.elapsed*1.8)*.055;
     if(p.phase==='windup')y+=clamp(p.phaseTime/p.windup,0,1)*.32;
-    if(p.phase==='lunge')y=-1.15+Math.sin(clamp(p.phaseTime/lungeDuration.fish,0,1)*Math.PI)*1.05;
+    if(p.phase==='lunge')y=-1.15+Math.sin(clamp(p.phaseTime/p.lungeTime,0,1)*Math.PI)*(p.boss?1.55:1.05);
     if(p.phase==='grab')y=-.74+Math.sin(game.elapsed*3)*.08;
     if(p.phase==='recover')y=-1.52+Math.max(0,1-p.phaseTime/.7)*.40;
     if(p.dead)y=-.78;
@@ -115,15 +123,19 @@ function forget(game,p) {
   p.cooldown=Math.max(p.cooldown,2.5);p.huntUntil=Math.min(p.huntUntil,game.elapsed+3);
   enter(p,'patrol');
 }
-function beginWindup(game,p) {
+function beginWindup(game,p,continuation=false) {
   const f=p.target;if(!canReach(game,p,f)){forget(game,p);return;}
+  if(!continuation){p.burstRemaining=Math.max(p.burstCount,p.boss&&p.type==='fish'&&p.enraged?2:1)-1;p.burstIndex=0;}else p.burstIndex++;
+  p.windup=Math.max(.8,p.baseWindup*(p.enraged?.78:1));
   enter(p,'windup');
   // A committed landing point is readable and dodgable; it never tracks the cursor/player.
   p.strike={x:clamp(f.x+(f.vx||0)*.12,-106,106),z:clamp(f.z+(f.vz||0)*.12,-106,106)};
-  p.attackType='lunge';p.attackDuration=p.windup+lungeDuration[p.type];p.attackAnim=p.attackDuration;
+  if(p.boss&&p.type==='snake'){const yaw=Math.atan2(f.x-p.x,f.z-p.z),side=p.burstIndex%2?1:-1;p.strike.x=clamp(p.strike.x+Math.cos(yaw)*side*.75,-106,106);p.strike.z=clamp(p.strike.z-Math.sin(yaw)*side*.75,-106,106);}
+  p.attackType='lunge';p.attackDuration=p.windup+p.lungeTime;p.attackAnim=p.attackDuration;
   const s=surface(game,p.strike.x,p.strike.z),position=new THREE.Vector3(p.strike.x,Math.max(.05,s.height),p.strike.z);
-  game.vfx?.cue?.(position,radius[p.type],p.windup,p.type==='fish'?0xffbd58:0xff7055);
-  if(p.type==='fish')game.world.splash(position,.65,'#adcfba');
+  // The rig's crouch/neck coil and the HUD phase bar telegraph the attack.
+  // No coloured ground ring: the landing point is committed but dodgable.
+  if(p.type==='fish')game.world.splash(position,p.boss?1.1:.65,'#adcfba');
   sound(game,p,p.type,.9);
   if(friendly(f)&&visibleToPlayer(game,p,42))activateHunt(game,p);
 }
@@ -131,7 +143,7 @@ function beginLunge(game,p) {
   enter(p,'lunge');p.struck=false;p.lungeStart={x:p.x,z:p.z};
   const dx=p.strike.x-p.x,dz=p.strike.z-p.z,len=Math.hypot(dx,dz)||1;
   p.yaw=Math.atan2(dx,dz);
-  const travel=Math.max(0,Math.min(len-mouthOffset[p.type],p.reach+1.3));
+  const travel=Math.max(0,Math.min(len-mouthOffset[p.type]*(p.boss?1.45:1),p.reach+1.3));
   p.lungeEnd={x:p.x+dx/len*travel,z:p.z+dz/len*travel};
   if(p.type==='heron')sound(game,p,'flap',.7);
 }
@@ -147,13 +159,14 @@ function beginGrab(game,p,f) {
 function strike(game,p) {
   if(p.struck)return;p.struck=true;
   const pos=new THREE.Vector3(p.strike.x,Math.max(.08,game.world.sampleHeight(p.strike.x,p.strike.z)),p.strike.z);
-  game.world.splash(pos,p.type==='fish'?2.2:p.type==='heron'?1.25:.8);
+  if(wet(game,pos.x,pos.z))game.world.splash(pos,(p.type==='fish'?2.2:p.type==='heron'?1.25:.8)*(p.boss?1.65:1));
+  game.vfx?.strike?.(p.type,pos,p.yaw,(p.type==='fish'?1.8:1.2)*(p.boss?1.5:1));
   game.world.impact(pos,'#d7d7a6',p.type==='snake'?.8:1.4);sound(game,p,p.type==='fish'?'fish':'slam',.85);
   let grabbed=null;
   for(const f of game.frogs) {
     if(!alive(f)||f.grabbedBy||protectedByGrace(game,p,f))continue;
     if(p.type==='fish'&&!wet(game,f.x,f.z))continue;
-    if(distance(f,p.strike)>radius[p.type]||f.y>pos.y+(p.type==='heron'?2:1.15))continue;
+    if(distance(f,p.strike)>p.strikeRadius||f.y>pos.y+(p.type==='heron'?2:1.15)*(p.boss?1.4:1))continue;
     const oldHp=f.hp,wasInvulnerable=(f.invulnerable||0)>0;
     const candidate=f===p.target&&!wasInvulnerable&&!f.blocking&&p.grabCooldown<=0&&(f.hp/f.maxHp<.68||neighbors(game,f,5)<=1);
     game.damage(f,p.damage,p,{knockback:p.type==='snake'?2.8:4.8});
@@ -167,7 +180,7 @@ export function releaseGrab(game,p) {
   const f=p.grabbed;if(!f)return null;
   p.grabbed=null;p.rescueDamage=0;f.grabbedBy=null;
   if(!f.dead) {
-    const a=p.yaw+(p.type==='snake'?1.5:1.1),r=p.type==='heron'?2.6:2.1;
+    const a=p.yaw+(p.type==='snake'?1.5:1.1),r=(p.type==='heron'?2.6:2.1)*(p.boss?1.5:1);
     f.x=clamp(p.x+Math.sin(a)*r,-106,106);f.z=clamp(p.z+Math.cos(a)*r,-106,106);
     f.y=Math.max(game.world.sampleHeight(f.x,f.z)+.45,p.type==='heron'?p.y+.9:.35);
     f.vx=Math.sin(a)*3;f.vz=Math.cos(a)*3;f.vy=3.7;f.grounded=false;f.jumpTime=.7;
@@ -192,16 +205,16 @@ function eatVictim(game,p) {
 }
 function startFlee(game,p) {
   releaseGrab(game,p);enter(p,'flee');p.fleeTime=0;p.target=null;p.targetId=null;p.attackAnim=0;
-  const threat=game.player||p.lastAttacker||{x:0,z:0},dx=p.x-threat.x,dz=p.z-threat.z,len=Math.hypot(dx,dz)||1;
-  p.fleeDestination=distance(p.anchor,threat)>distance(p,threat)+8?{...p.anchor}:{x:clamp(p.anchor.x+dx/len*35,-104,104),z:clamp(p.anchor.z+dz/len*35,-104,104)};
-  if(p.engagedPlayer){p.huntUntil=game.elapsed+24;game.ui?.toast?.(`${p.name} υποχωρεί! Μπορείς να τον καταδιώξεις.`,'success');}
+  const threat=p.lastAttacker||game.player||{x:0,z:0},dx=p.x-threat.x,dz=p.z-threat.z,len=Math.hypot(dx,dz)||1;
+  p.fleeDestination={x:clamp(p.x+dx/len*9,-104,104),z:clamp(p.z+dz/len*9,-104,104)};
+  if(p.engagedPlayer){p.huntUntil=game.elapsed+7;game.ui?.toast?.({icon:'intimidate',portrait:game.portraits?.[p.type],progress:1,tone:'success',detail:`${p.name}: ο εκφοβισμός πέτυχε.`});}
 }
-function retire(game,p,delay,repelled=false) {
-  releaseGrab(game,p);enter(p,'dormant');p.model.group.visible=false;p.respawnAt=game.elapsed+delay;p.hunting=false;p.huntUntil=0;p.speed=0;
-  if(repelled&&p.engagedPlayer&&!p.repelAwarded&&!p.killAwarded) {
-    p.repelAwarded=true;game.stats.predatorsRepelled=(game.stats.predatorsRepelled||0)+1;game.gainXP?.(45);
-    game.ui?.toast?.(`${p.name} απωθήθηκε. Η περιοχή είναι ασφαλέστερη για λίγο.`,'success');sound(game,p,'success',.75);
-  }
+function finishRepel(game,p) {
+  // A successful intimidation creates breathing room, not a health reset or
+  // a fast, endless kite. The wounded animal remains visible and killable.
+  const rewarded=p.engagedPlayer&&!p.repelAwarded&&!p.killAwarded;
+  forget(game,p);p.grace=game.elapsed+35;p.huntUntil=0;p.hunting=false;p.fearPressure=0;
+  if(rewarded){p.repelAwarded=true;game.stats.predatorsRepelled=(game.stats.predatorsRepelled||0)+1;game.gainXP?.(45);sound(game,p,'success',.75);}
   if(game.hunt===p)game.hunt=null;
 }
 function respawn(game,p) {
@@ -209,18 +222,19 @@ function respawn(game,p) {
   p.model.group.visible=true;p.grabbed=null;p.rescueDamage=0;p.target=null;p.targetId=null;
   p.playerDamage=0;p.engagedPlayer=false;p.repelAwarded=false;p.killAwarded=false;p.announced=0;
   p.hunting=false;p.huntUntil=0;p.cooldown=3;p.grabCooldown=3;p.grace=game.elapsed+8;
-  p.attackAnim=0;p.hitAnim=0;p.provokedUntil=0;p.lastCombatAt=-100;p.chaseTime=0;p.lostTime=0;
+  p.attackAnim=0;p.hitAnim=0;p.provokedUntil=0;p.lastCombatAt=-100;p.chaseTime=0;p.lostTime=0;p.fearPressure=0;p.enraged=false;p.defeatNotified=false;p.burstRemaining=0;p.windup=p.baseWindup;p.recover=p.baseRecover;
   enter(p,'patrol');setHeight(game,p);
 }
 function kill(game,p,source) {
-  releaseGrab(game,p);p.dead=true;p.hp=0;p.health=0;p.respawnAt=game.elapsed+220;
+  releaseGrab(game,p);p.dead=true;p.hp=0;p.health=0;p.respawnAt=p.campaignTracked?Infinity:game.elapsed+220;
   enter(p,'dead');p.attackAnim=0;p.target=null;p.targetId=null;p.hunting=false;p.huntUntil=0;
   if((friendly(source)||p.playerDamage>0)&&!p.killAwarded) {
-    p.killAwarded=true;game.stats.predatorsKilled=(game.stats.predatorsKilled||0)+1;game.gainXP?.(100);
-    game.ui?.toast?.(`${p.name} νικήθηκε! +100 εμπειρία`,'success');sound(game,p,'victory',.65);
+    const xp=p.boss?250:100;p.killAwarded=true;game.stats.predatorsKilled=(game.stats.predatorsKilled||0)+1;game.gainXP?.(xp);
+    game.ui?.toast?.({icon:p.boss?'crown':'attack',portrait:game.portraits?.[p.id]||game.portraits?.[p.type],value:xp,progress:1,tone:'success',detail:`${p.name} νικήθηκε!`});sound(game,p,'victory',.65);
   }
   if(game.hunt===p)game.hunt=null;
-  game.world.splash(point(p,-p.y),1.4);
+  if(wet(game,p.x,p.z))game.world.splash(point(p,-p.y),p.boss?2.3:1.4);else game.world.impact(point(p,.1),'#c9bc94',p.boss?1.8:1);
+  if(!p.defeatNotified){p.defeatNotified=true;game.onPredatorDefeated?.(p);}
 }
 
 /** Returns true when a living predator actually took damage. No global stun-lock. */
@@ -228,25 +242,37 @@ export function damagePredator(game,p,amount,source=null) {
   initialize(p);amount=Number(amount);
   if(!Number.isFinite(amount)||amount<=0||p.dead||p.phase==='dormant')return false;
   const damage=Math.min(p.hp,Math.max(1,amount));p.hp=Math.max(0,p.hp-damage);p.health=p.hp;
+  p.enraged=!!p.boss&&p.hp<=p.maxHp*.5;
   p.hitAnim=.23;p.lastCombatAt=game.elapsed;p.lastAttacker=source;
   if(friendly(source)) {
-    p.playerDamage+=damage;p.provokedUntil=game.elapsed+35;
+    p.playerDamage+=damage;p.provokedUntil=game.elapsed+120;p.grace=0;
     if(visibleToPlayer(game,p,45)||source===game.player)activateHunt(game,p);
   }
   if(visibleToPlayer(game,p,35)) {
-    game.vfx?.number?.(point(p,p.type==='heron'?1.5:.25),Math.round(damage),'#ffc877');
     game.world.impact(point(p,p.type==='heron'?1.5:.45),'#ebd9ab',clamp(damage/30,.5,1.8));sound(game,p,'hit',.75);
   }
   if(p.grabbed)p.rescueDamage+=damage;
   if(p.hp<=0){kill(game,p,source);return true;}
   if(p.grabbed&&p.rescueDamage>=45)rescue(game,p);
-  if(p.hp<=p.maxHp*.24&&p.phase!=='flee'){startFlee(game,p);return true;}
+  // An ordinary hit never triggers a low-health escape. Pursuing a deliberately
+  // repelled predator immediately returns it to combat instead of extending flight.
+  if(p.phase==='flee'){p.fearPressure=0;p.target=alive(source)?source:game.player;p.targetId=p.target?.id;enter(p,'stalk');}
   // Damage makes a neutral/strolling predator fight back, but doesn't reset its windup.
-  if(alive(source)&&(p.phase==='patrol'||!p.target)) {
+  if(alive(source)&&(p.phase==='patrol'||!p.target||(friendly(source)&&!friendly(p.target)))) {
     p.target=source;p.targetId=source.id;p.chaseTime=0;p.lostTime=0;
     if(p.phase!=='recover'&&p.phase!=='flee')enter(p,'stalk');
   }
   return true;
+}
+
+/** Deliberate croaks can repel a predator; health loss by itself cannot. */
+export function intimidatePredator(game,p,strength=35) {
+  initialize(p);
+  if(p.dead||p.phase==='dormant'||p.phase==='flee')return false;
+  p.fearPressure=clamp(p.fearPressure+clamp(Number(strength)||0,0,50),0,100);
+  if(p.grabbed){p.rescueDamage+=Math.max(0,strength)*.4;if(p.rescueDamage>=45)rescue(game,p);}
+  if(p.fearPressure>=85){startFlee(game,p);return true;}
+  return false;
 }
 
 /** Dynamic text used alongside the portrait and health bar at the top of the HUD. */
@@ -254,7 +280,7 @@ export function predatorObjective(p) {
   if(!p)return '';
   if(p.grabbed?.team==='player')return 'ΣΕ ΑΡΠΑΞΕ — Πάτα Q / Space / R. Οι σύμμαχοι μπορούν να σε ελευθερώσουν!';
   if(p.grabbed&&friendly(p.grabbed))return `ΔΙΑΣΩΣΗ — Χτύπα τον θηρευτή πριν καταπιεί τον ${p.grabbed.name}!`;
-  if(p.phase==='windup')return p.type==='fish'?'ΕΦΟΔΟΣ ΑΠΟ ΚΑΤΩ — Βγες από τον φωτεινό κύκλο!':'ΕΤΟΙΜΑΖΕΙ ΕΠΙΘΕΣΗ — Απέφυγε τον κύκλο και αντεπιτέσου.';
+  if(p.phase==='windup')return p.type==='fish'?'ΕΦΟΔΟΣ ΑΠΟ ΚΑΤΩ — Πήδηξε σε βράχο ή άλλαξε κατεύθυνση!':'ΕΤΟΙΜΑΖΕΙ ΕΠΙΘΕΣΗ — Απέφυγε την έφοδο και αντεπιτέσου.';
   if(p.phase==='flee')return 'ΥΠΟΧΩΡΕΙ — Απώθησέ τον ή καταδίωξέ τον για να τον νικήσεις.';
   if(p.phase==='recover')return 'ΠΑΡΑΘΥΡΟ ΑΝΤΕΠΙΘΕΣΗΣ — Συντόνισε τα χτυπήματα της ομάδας.';
   return {heron:'Χτύπα τα πόδια και απόφυγε το ράμφος. Η ομάδα μπορεί να διακόψει ένα άρπαγμα.',snake:'Άνοιξε την ομάδα και χτύπα από τα πλάγια. Πρόσεχε την έφοδο από τις καλαμιές.',fish:'Χρησιμοποίησε βράχους και ρηχά. Χτύπα όταν βγει στην επιφάνεια.'}[p.type]||'Πολέμησε για να απωθήσεις ή να σκοτώσεις τον θηρευτή.';
@@ -264,25 +290,20 @@ export function updatePredators(game,dt) {
   dt=clamp(dt,0,.1);
   for(const p of game.predators) {
     initialize(p);p.phaseTime+=dt;p.cooldown=Math.max(0,p.cooldown-dt);p.grabCooldown=Math.max(0,p.grabCooldown-dt);
-    p.thinkTime-=dt;p.speed=0;
+    p.thinkTime-=dt;p.speed=0;p.fearPressure=Math.max(0,p.fearPressure-dt*2);
     if(p.dead||p.phase==='dead') {
       if(p.phaseTime>=4)p.model.group.visible=false;
-      if(game.elapsed>=p.respawnAt&&distance(game.player,p.anchor)>34&&!game.allies().some(f=>distance(f,p.anchor)<15))respawn(game,p);
+      if(!p.campaignTracked&&game.elapsed>=p.respawnAt&&distance(game.player,p.anchor)>34&&!game.allies().some(f=>distance(f,p.anchor)<15))respawn(game,p);
       continue;
     }
     if(p.phase==='dormant') {
-      if(game.elapsed>=p.respawnAt&&distance(game.player,p.anchor)>34&&!game.allies().some(f=>distance(f,p.anchor)<15))respawn(game,p);
+      if(!p.campaignTracked&&game.elapsed>=p.respawnAt&&distance(game.player,p.anchor)>34&&!game.allies().some(f=>distance(f,p.anchor)<15))respawn(game,p);
       continue;
     }
-    if(p.hp<=p.maxHp*.24&&p.phase!=='flee')startFlee(game,p);
     if(p.phase==='flee') {
       p.fleeTime+=dt;
-      if(distance(p,p.fleeDestination)<2.5&&distance(p,game.player)<29) {
-        const a=Math.atan2(p.x-game.player.x,p.z-game.player.z);
-        p.fleeDestination={x:clamp(p.x+Math.sin(a)*25,-105,105),z:clamp(p.z+Math.cos(a)*25,-105,105)};
-      }
-      walk(game,p,p.fleeDestination.x,p.fleeDestination.z,p.baseSpeed*1.65,dt);
-      if(p.fleeTime>2&&distance(p,game.player)>30 || p.fleeTime>17&&distance(p,game.player)>19)retire(game,p,180,true);
+      walk(game,p,p.fleeDestination.x,p.fleeDestination.z,p.baseSpeed*.72,dt);
+      if(p.fleeTime>=6||distance(p,p.fleeDestination)<.6)finishRepel(game,p);
       setHeight(game,p);continue;
     }
     if(p.phase==='grab') {
@@ -302,16 +323,20 @@ export function updatePredators(game,dt) {
       setHeight(game,p);continue;
     }
     if(p.phase==='lunge') {
-      const t=clamp(p.phaseTime/lungeDuration[p.type],0,1),eased=1-Math.pow(1-t,3);
+      const t=clamp(p.phaseTime/p.lungeTime,0,1),eased=1-Math.pow(1-t,3);
       const tx=p.lungeStart.x+(p.lungeEnd.x-p.lungeStart.x)*eased,tz=p.lungeStart.z+(p.lungeEnd.z-p.lungeStart.z)*eased;
       if(p.type!=='fish'||wet(game,tx,tz)){p.speed=distance(p,{x:tx,z:tz})/Math.max(.001,dt);p.x=tx;p.z=tz;}
       if(t>=.55)strike(game,p);
-      if(p.phase==='lunge'&&t>=1){enter(p,'recover');p.cooldown=p.recover;}
+      if(p.phase==='lunge'&&t>=1){
+        if(p.burstRemaining>0&&canReach(game,p,p.target)&&distance(p,p.target)<p.reach+3){p.burstRemaining--;beginWindup(game,p,true);}
+        else{p.burstRemaining=0;p.recover=p.baseRecover*(p.enraged?.72:1);enter(p,'recover');p.cooldown=p.recover;}
+      }
       setHeight(game,p);continue;
     }
     if(p.phase==='recover') {
       if(p.phaseTime>=p.recover) {
-        if(canReach(game,p,p.target)&&distance(p,p.target)<29)enter(p,'stalk');else forget(game,p);
+        const committed=game.elapsed<p.provokedUntil;
+        if(alive(p.target)&&(canReach(game,p,p.target)||committed)&&distance(p,p.target)<(committed?52:29))enter(p,'stalk');else forget(game,p);
       }
       setHeight(game,p);continue;
     }
@@ -319,14 +344,15 @@ export function updatePredators(game,dt) {
       p.chaseTime+=dt;
       if(!alive(p.target)){forget(game,p);setHeight(game,p);continue;}
       if(!canReach(game,p,p.target))p.lostTime+=dt;else p.lostTime=0;
-      if(p.lostTime>2.4||distance(p,p.target)>34||p.chaseTime>36&&distance(p,p.target)>13){forget(game,p);setHeight(game,p);continue;}
+      const committed=game.elapsed<p.provokedUntil;
+      if(p.lostTime>(committed?14:2.4)||distance(p,p.target)>(committed?52:34)||(!committed&&p.chaseTime>36&&distance(p,p.target)>13)){forget(game,p);setHeight(game,p);continue;}
       if(friendly(p.target)&&visibleToPlayer(game,p,42))activateHunt(game,p);
       const d=distance(p,p.target);
       if(d<=p.reach&&p.cooldown<=0&&p.lostTime===0)beginWindup(game,p);
       else {
         let tx=p.target.x,tz=p.target.z;
         if(p.type==='snake'&&d>6){const a=Math.atan2(tx-p.x,tz-p.z)+.48;tx+=Math.cos(a)*1.4;tz-=Math.sin(a)*1.4;}
-        walk(game,p,tx,tz,p.baseSpeed*(p.type==='heron'?1.08:1.02),dt);
+        walk(game,p,tx,tz,p.baseSpeed*(p.type==='heron'?1.08:1.02)*(p.enraged?1.18:1),dt);
       }
       setHeight(game,p);continue;
     }
@@ -343,3 +369,4 @@ export function updatePredators(game,dt) {
   if(!contenders.includes(game.hunt))game.hunt=contenders.sort((a,b)=>distance(a,game.player)-distance(b,game.player))[0]||null;
   const heldPlayer=contenders.find(p=>p.grabbed===game.player);if(heldPlayer)game.hunt=heldPlayer;
 }
+

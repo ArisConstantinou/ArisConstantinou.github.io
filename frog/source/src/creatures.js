@@ -588,3 +588,4 @@ export function createCreature(type = 'frog', options = {}) {
 }
 
 export function creatureModelStats() { return ['frog', 'heron', 'snake', 'fish'].map(type => { const t = getTemplate(type); return { type, vertices: t.skin.attributes.position.count, triangles: t.skin.index.count / 3, bones: t.rig.defs.length }; }); }
+

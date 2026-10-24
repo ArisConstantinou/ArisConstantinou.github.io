@@ -1,4 +1,6 @@
 /** Pure game rules. Rendering and input cannot change these constraints. */
+import {createCampaign, TRAINING} from './campaign.js';
+import {normalizeBuildingPlacements} from './placement-rules.js';
 export const SAVE_VERSION = 1;
 export const SAVE_KEY = 'frog-creek-dominion-v1';
 export const COLORS = {player:0xe4f58c,ally:0x72edbb,enemy:0xff7865,neutral:0xeed585,predator:0xffa54f,surrender:0xffe59b};
@@ -12,6 +14,7 @@ export const BUILDINGS = {
   shelter:{name:'Νέο καταφύγιο',description:'Μια νέα βάση, αποθέματα και ασφαλές σημείο επιστροφής.',cost:{food:12,reeds:30}},
   store:{name:'Αποθήκη',description:'Περισσότερη ασφαλής τροφή και καλύτερη συλλογή πόρων.',cost:{food:10,reeds:20}},
   nursery:{name:'Φωλιά στρατολόγησης',description:'Δημιουργεί νέο βάτραχο κάθε 85″ με κόστος 10 τροφή / 6 καλάμια.',cost:{food:22,reeds:28}},
+  training:{name:'Χώρος εκπαίδευσης',description:'Εκπαιδεύει κάθε σύμμαχο μία φορά: 8 τροφή / 4 υλικά και 18″ για επίπεδο και βαθμίδα II.',cost:{food:18,reeds:24}},
   watchtower:{name:'Σκοπιά',description:'Οι φρουροί εντοπίζουν νωρίτερα επιδρομές και μάχονται καλύτερα.',cost:{food:12,reeds:24}},
   palisade:{name:'Περίφραξη',description:'Προσθέτει 180 αντοχή στη βάση και καθυστερεί επιδρομείς.',cost:{food:8,reeds:30}},
   upgrade:{name:'Αναβάθμιση βάσης',description:'Επόμενη βαθμίδα, περισσότερη αντοχή και θέσεις συμμάχων.',cost:{food:30,reeds:40}},
@@ -58,11 +61,17 @@ export function validateSave(data){
   const copy=JSON.parse(JSON.stringify(data));copy.elapsed=clamp(copy.elapsed||0,0,1e8);
   copy.resources={food:clamp(copy.resources?.food||0,0,1e6),reeds:clamp(copy.resources?.reeds||0,0,1e6)};
   const validTeam=t=>typeof t==='string'&&/^(player|ally|neutral|enemy\d*)$/.test(t);
-  const actor=f=>({...f,name:typeof f.name==='string'?f.name.slice(0,60):'Βάτραχος',role:Object.hasOwn(ROLE_NAMES,f.role)?f.role:'hunter',x:clamp(f.x,-108,108),z:clamp(f.z,-108,108),yaw:Number.isFinite(f.yaw)?f.yaw:0,maxHp:clamp(f.maxHp||100,25,10000),hp:clamp(f.hp,1,clamp(f.maxHp||100,25,10000)),stomach:clamp(f.stomach||0,0,100),maxStomach:100,level:Math.floor(clamp(f.level||1,1,99)),tier:Math.floor(clamp(f.tier||1,1,3)),xp:clamp(f.xp||0,0,1e6),morale:clamp(f.morale??100,0,100),home:typeof f.home==='string'?f.home:null,guard:!!f.guard,leader:!!f.leader,surrendered:!!f.surrendered});
+  const orders=['follow','attack','guard','forage','regroup','training'];
+  const actor=f=>({...f,name:typeof f.name==='string'?f.name.slice(0,60):'Βάτραχος',role:Object.hasOwn(ROLE_NAMES,f.role)?f.role:'hunter',x:clamp(f.x,-108,108),z:clamp(f.z,-108,108),yaw:Number.isFinite(f.yaw)?f.yaw:0,maxHp:clamp(f.maxHp||100,25,10000),hp:clamp(f.hp,1,clamp(f.maxHp||100,25,10000)),stomach:clamp(f.stomach||0,0,100),maxStomach:100,level:Math.floor(clamp(f.level||1,1,99)),tier:Math.floor(clamp(f.tier||1,1,3)),xp:clamp(f.xp||0,0,1e6),morale:clamp(f.morale??100,0,100),home:typeof f.home==='string'?f.home:null,guard:!!f.guard,leader:!!f.leader,surrendered:!!f.surrendered,order:orders.includes(f.order)?f.order:(f.guard?'guard':'follow'),trained:!!f.trained,trainingPaid:!!f.trainingPaid&&!f.trained,trainingProgress:clamp(f.trainingProgress||0,0,TRAINING.duration),trainingCamp:typeof f.trainingCamp==='string'?f.trainingCamp:null,returnOrder:f.returnOrder==='guard'?'guard':'follow'});
   copy.player=actor({...copy.player,team:'player',id:'player'});
   copy.frogs=copy.frogs.filter(f=>f&&typeof f==='object'&&typeof f.id==='string'&&Number.isFinite(f.x)&&Number.isFinite(f.z)&&f.hp>0&&validTeam(f.team)&&f.team!=='player').map(actor);
-  copy.camps=copy.camps.filter(c=>c&&typeof c==='object'&&typeof c.id==='string'&&Number.isFinite(c.x)&&Number.isFinite(c.z)&&validTeam(c.team)).map(c=>({...c,name:typeof c.name==='string'?c.name.slice(0,80):'Καταφύγιο',x:clamp(c.x,-108,108),z:clamp(c.z,-108,108),tier:Math.floor(clamp(c.tier||1,1,3)),maxHp:clamp(c.maxHp||350,100,10000),hp:clamp(c.hp??350,0,clamp(c.maxHp||350,100,10000)),stock:{food:clamp(c.stock?.food||0,0,1e6),reeds:clamp(c.stock?.reeds||0,0,1e6)},buildings:Object.fromEntries(['store','nursery','watchtower','palisade'].map(k=>[k,!!c.buildings?.[k]])),morale:clamp(c.morale??100,0,100),destroyed:!!c.destroyed,originalEnemy:!!c.originalEnemy,spawnTimer:clamp(c.spawnTimer||0,0,10000),mealCount:clamp(c.mealCount||0,0,2),mealDay:clamp(c.mealDay||0,0,1e6)}));
+  copy.camps=copy.camps.filter(c=>c&&typeof c==='object'&&typeof c.id==='string'&&Number.isFinite(c.x)&&Number.isFinite(c.z)&&validTeam(c.team)).map(c=>({...c,name:typeof c.name==='string'?c.name.slice(0,80):'Καταφύγιο',x:clamp(c.x,-108,108),z:clamp(c.z,-108,108),yaw:Number.isFinite(c.yaw)?Math.atan2(Math.sin(c.yaw),Math.cos(c.yaw)):0,tier:Math.floor(clamp(c.tier||1,1,3)),maxHp:clamp(c.maxHp||350,100,10000),hp:clamp(c.hp??350,0,clamp(c.maxHp||350,100,10000)),stock:{food:clamp(c.stock?.food||0,0,1e6),reeds:clamp(c.stock?.reeds||0,0,1e6)},buildings:Object.fromEntries(['store','nursery','training','watchtower','palisade'].map(k=>[k,!!c.buildings?.[k]])),morale:clamp(c.morale??100,0,100),destroyed:!!c.destroyed,originalEnemy:!!c.originalEnemy,supplyMigrated:!!c.supplyMigrated,spawnTimer:clamp(c.spawnTimer||0,0,10000),mealCount:clamp(c.mealCount||0,0,2),mealDay:clamp(c.mealDay||0,0,1e6)}));
+  for(const camp of copy.camps)camp.buildingPlacements=normalizeBuildingPlacements(camp);
+  copy.campaign=copy.campaign&&typeof copy.campaign==='object'?createCampaign(copy.campaign):null;
+  copy.stats={...(copy.stats&&typeof copy.stats==='object'?copy.stats:{})};
+  for(const key of ['trained','gatheredFood','gatheredReeds'])copy.stats[key]=clamp(copy.stats[key]||0,0,1e8);
   copy.idCounter=Math.floor(clamp(copy.idCounter||0,0,1e8));copy.won=!!copy.won;
   return copy;
 }
 export function mulberry32(seed){return()=>{let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
+

@@ -25,3 +25,4 @@ for(const type of ['frog','heron','snake','fish'])for(const pose of ['idle','att
  output.push({type,pose,stats:c.stats,meshes});c.dispose();
 }
 fs.writeFileSync(new URL('./creature-geometry.json',import.meta.url),JSON.stringify(output));console.log('Exported',output.length,'actual posed meshes');
+

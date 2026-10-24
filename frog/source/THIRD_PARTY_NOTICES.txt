@@ -39,3 +39,4 @@ sound effects were created for this project. No external animal model assets,
 stock animal animations or third-party audio recordings are included.
 
 No new license is selected here for the user's original project source or artwork.
+

@@ -34,7 +34,7 @@ export class GameInput {
   }
   setMode(mode){this.mode=mode;this.canvas.style.cursor=mode==='topdown'?'crosshair':'default';if(mode==='topdown')this.clearMouseMotion();}
   clearMouseMotion(){this.dx=0;this.dy=0;this.zoomDelta=0;}
-  lock(){if(this.mode==='topdown')return;try{const p=this.canvas.requestPointerLock();if(p?.catch)p.catch(()=>{});}catch{}}
+  lock(){if(this.mode==='topdown'||this.buildingMode)return;try{const p=this.canvas.requestPointerLock();if(p?.catch)p.catch(()=>{});}catch{}}
   unlock(){if(document.pointerLockElement===this.canvas)document.exitPointerLock();}
   down(k){return this.keys.has(k);}
   hit(k){return this.pressed.has(k);}
@@ -43,3 +43,4 @@ export class GameInput {
   clear(){this.keys.clear();this.pressed.clear();this.released.clear();this.left=false;this.right=false;this.clearMouseMotion();}
   destroy(){this.abort.abort();}
 }
+

@@ -3,3 +3,4 @@ function report(error){console.error(error);const boot=document.getElementById('
 addEventListener('error',e=>report(e.error||e.message));
 addEventListener('unhandledrejection',e=>report(e.reason));
 requestAnimationFrame(()=>{try{window.frogGame=new FrogGame();}catch(error){report(error);}});
+

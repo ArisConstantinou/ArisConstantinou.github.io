@@ -104,3 +104,4 @@ test('a terrain obstruction shortens the boom and keeps transforms finite during
     assert.ok(values.every(Number.isFinite),`camera and aim must remain finite at frame ${frame}`);
   }
 });
+

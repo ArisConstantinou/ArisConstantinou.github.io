@@ -78,7 +78,7 @@ test('recruitment clears an existing attack order before the new ally can be hit
   game.recruit(recruit);
   assert.equal(recruit.team,'ally');assert.equal(recruit.surrendered,false);assert.equal(game.command,'follow');assert.equal(game.targetCommand,null);assert.equal(attacker.intent,null);
   const hp=recruit.hp;game.updateFrogs(.1);assert.equal(recruit.hp,hp);
-  assert.equal(game.resources.food,94);
+  assert.equal(game.resources.food,100);
 });
 
 test('capturing a camp cancels attacks on the camp and all newly converted defenders',()=>{
@@ -111,24 +111,26 @@ test('destroying a hostile camp clears attack targets and pays destruction XP on
 
 test('building on water or beside an existing camp never spends resources',()=>{
   const {game}=fixture();game.world.getSurface=()=>({height:-.25,type:'water'});
-  const before={...game.resources};game.build('shelter');assert.deepEqual(game.resources,before);assert.equal(game.camps.length,0);
+  const before={...game.resources};game.build('shelter');assert.equal(game.confirmBuildingPlacement(),false);assert.deepEqual(game.resources,before);assert.equal(game.camps.length,0);
   game.world.getSurface=()=>({height:.35,type:'land'});game.camps.push(camp({x:2,z:0,team:'ally'}));
-  game.build('shelter');assert.deepEqual(game.resources,before);assert.equal(game.camps.length,1);
+  game.build('shelter');assert.equal(game.confirmBuildingPlacement(),false);assert.deepEqual(game.resources,before);assert.equal(game.camps.length,1);
 });
 
 test('a legal shelter placement charges once and creates a real allied camp',()=>{
   const {game}=fixture();game.resources={food:12,reeds:30};
   game.build('shelter');
+  assert.deepEqual(game.resources,{food:12,reeds:30});assert.equal(game.camps.length,0);
+  assert.equal(game.confirmBuildingPlacement(),true);
   assert.deepEqual(game.resources,{food:0,reeds:0});assert.equal(game.camps.length,1);assert.equal(game.camps[0].team,'ally');assert.equal(game.camps[0].destroyed,false);assert.equal(game.stats.campsBuilt,1);
   game.build('shelter');assert.equal(game.camps.length,1);assert.deepEqual(game.resources,{food:0,reeds:0});
 });
 
 test('a nursery waits for its real cost, then consumes food and reeds atomically',()=>{
-  const {game}=fixture(),base=camp({team:'ally',spawnTimer:84.9,buildings:{nursery:true}}),spawned=[];
+  const {game}=fixture(),base=camp({team:'ally',spawnTimer:84.9,buildings:{nursery:true},stock:{food:0,reeds:0},supplyMigrated:true}),spawned=[];
   game.camps.push(base);game.resources={food:9,reeds:12};game.spawnFrog=data=>{spawned.push(data);return actor(data);};
-  game.updateEconomy(.2);assert.equal(spawned.length,0);assert.deepEqual(game.resources,{food:9,reeds:12});
+  game.updateEconomy(.2);assert.equal(spawned.length,0);assert.ok(Math.abs(game.resources.food-9.05)<1e-9);assert.ok(Math.abs(game.resources.reeds-12.024)<1e-9);
   game.resources.food=10;game.updateEconomy(.1);
-  assert.equal(spawned.length,1);assert.deepEqual(game.resources,{food:0,reeds:6});assert.equal(base.spawnTimer,0);assert.equal(spawned[0].guard,true);assert.equal(spawned[0].home,base.id);
+  assert.equal(spawned.length,1);assert.ok(Math.abs(game.resources.food-.025)<1e-9);assert.ok(Math.abs(game.resources.reeds-6.036)<1e-9);assert.equal(base.spawnTimer,0);assert.equal(spawned[0].guard,true);assert.equal(spawned[0].home,base.id);
 });
 
 test('the actual economy uses the night cycle to slow fly replenishment',()=>{
@@ -144,3 +146,4 @@ test('emergency meals cannot overfill a frog or exceed the daily camp ration',()
   player.stomach=60;game.consume();assert.equal(player.stomach,85);assert.equal(base.mealCount,2);assert.equal(game.resources.food,80);
   player.stomach=10;game.consume();assert.equal(player.stomach,10);assert.equal(base.mealCount,2);assert.equal(game.resources.food,80);
 });
+
