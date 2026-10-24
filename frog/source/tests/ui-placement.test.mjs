@@ -94,18 +94,34 @@ test('native drag keeps its source DOM alive and drop purchases exactly once',t=
   assert.deepEqual(game.resources,afterCost(before,'store'));
 });
 
-test('ending a native drag retains click placement, and cancel spends nothing',t=>{
-  const {game,home,ui,actions}=setup(t),before={...game.resources};
+test('native drag cancellation spends nothing; an invalid world drop retains click placement',t=>{
+  const {game,home,ui,actions,runFrame}=setup(t),before={...game.resources};
   startDrag(ui);ui.finishBuildDrag();
-  assert.equal(game.buildPlacement.active,true);
-  assert.equal(game.buildPlacement.dragging,false);
+  assert.equal(game.buildPlacement,null);
   assert.equal(ui.panel,null);
-  assert.equal(actions.at(-1).action,'end-placement-drag');
+  assert.equal(actions.at(-1).action,'cancel-placement');
+  assert.deepEqual(game.resources,before);
+  startDrag(ui);
+  Object.assign(game.buildPlacement,{x:0,z:0,yaw:0,hasPoint:true});
+  ui.dropBuildDrag({clientX:580,clientY:350,preventDefault(){},stopPropagation(){}});
+  ui.finishBuildDrag();
+  assert.equal(game.buildPlacement.active,true);
+  assert.equal(game.buildPlacement.valid,false);
+  assert.equal(game.buildPlacement.dragging,false);
+  assert.equal(actions.filter(a=>a.action==='cancel-placement').length,1);
   assert.deepEqual(game.resources,before);
   click(ui,'cancel-placement');
   assert.equal(game.buildPlacement,null);
   assert.equal(home.buildings.store,undefined);
   assert.deepEqual(game.resources,before);
+  startDrag(ui);runFrame();game.escape();
+  const actionCount=actions.length;ui.updatePlacement(null);
+  assert.equal(ui.draggingBuild,false,'global cancellation cleans up even if native dragend never bubbles');
+  assert.equal(ui.root.classList.values.has('fg-build-dragging'),false);
+  assert.equal(ui.refs.panelLayer.hidden,true);
+  ui.finishBuildDrag();
+  assert.equal(actions.length,actionCount,'a delivered Escape is not canceled twice by native dragend');
+  assert.equal(game.buildPlacement,null);
 });
 
 test('a stale rejected drag never hides the panel or detaches its source',t=>{

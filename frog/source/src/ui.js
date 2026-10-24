@@ -93,15 +93,18 @@ export class GameUI {
     this.finishBuildDrag(false);
     this.callbacks.onAction('drop-placement',point);
   }
-  finishBuildDrag(notify=true){
+  finishBuildDrag(cancelUnplaced=true){
     if(!this.draggingBuild)return;
     this.draggingBuild=false;this.dragClickUntil=performance.now()+180;
     cancelAnimationFrame(this.dragVisibilityFrame);
     this.root.classList.remove('fg-build-dragging');this.closePanels();
-    if(notify)this.callbacks.onAction('end-placement-drag',{});
+    // A handled document drop clears the drag flag before native dragend.
+    // Remaining dragend events include Escape consumed by the browser itself.
+    if(cancelUnplaced&&this.state.buildPlacement?.active)this.callbacks.onAction('cancel-placement',{});
   }
   updatePlacement(placement){
     const active=Boolean(placement?.active),r=this.resources(this.state.resources);
+    if(!active&&this.draggingBuild)this.finishBuildDrag(false);
     this.root.classList.toggle('fg-is-placing',active);this.refs.buildPlacement.hidden=!active;
     if(!active)return;
     const valid=Boolean(placement.valid),cost=typeof placement.cost==='number'?{food:placement.cost,reeds:0}:placement.cost||{};

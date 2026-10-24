@@ -73,10 +73,10 @@ test('native drop uses the cursor ray in all three views and preserves camp-loca
     const after={...game.resources};game.onAction('drop-placement',pointer);assert.deepEqual(game.resources,after);
   }
 });
-test('ending a native drag without a drop leaves an unpurchased preview that Escape can cancel',()=>{
+test('canceling a native drag clears placement and input mode without purchasing',()=>{
   const {game,base}=setup(),before={...game.resources};game.onAction('begin-placement',{type:'store',dragging:true});
-  game.onAction('end-placement-drag');assert.equal(game.buildPlacement.active,true);assert.equal(game.buildPlacement.dragging,false);
-  assert.deepEqual(game.resources,before);assert.equal(base.buildings.store,undefined);game.escape();assert.equal(game.buildPlacement,null);
+  game.onAction('cancel-placement');assert.equal(game.buildPlacement,null);assert.equal(game.input.buildingMode,false);
+  assert.deepEqual(game.resources,before);assert.equal(base.buildings.store,undefined);
 });
 test('new shelters also wait for confirmation and retain the selected rotation',()=>{
   const {game}=fixture();game.build('shelter');game.rotateBuildingPlacement(1);game.rotateBuildingPlacement(1);

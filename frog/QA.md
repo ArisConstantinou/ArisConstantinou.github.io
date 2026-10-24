@@ -44,7 +44,7 @@ node --test --test-isolation=none --test-reporter=spec tests/*.test.mjs
 
 ## Παραγωγικό build
 
-Το `npm run build` ολοκληρώθηκε επιτυχώς με Vite 6.3.6: 25 modules, JavaScript 812,34 kB και CSS 80,76 kB (πριν από gzip). Το `dist/index.html` χρησιμοποιεί σχετικές διαδρομές για δημοσίευση στον φάκελο `/frog/`. Τα τοπικά βοηθήματα UI δεν περιλαμβάνονται στο build.
+Το `npm run build` ολοκληρώθηκε επιτυχώς με Vite 6.3.6: 25 modules, JavaScript 812,42 kB και CSS 80,76 kB (πριν από gzip). Το `dist/index.html` χρησιμοποιεί σχετικές διαδρομές για δημοσίευση στον φάκελο `/frog/`. Τα τοπικά βοηθήματα UI δεν περιλαμβάνονται στο build.
 
 ## Διεπαφή και μοντέλα
 
