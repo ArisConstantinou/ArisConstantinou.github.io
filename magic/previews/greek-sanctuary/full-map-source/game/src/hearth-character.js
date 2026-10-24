@@ -19,8 +19,21 @@ async function loadModel(path){
 export async function loadHearth(){
  template=await loadModel('models/hearth-bulwark/hearth-bulwark.glb');
 }
+// The actor owns these SkeletonUtils clones. Equal live joints and inverse
+// binds describe the same bone palette, including runtime IK. Keep mesh bind
+// matrices and all independently animated actors untouched.
+export function shareHearthSkeletons(model){
+ const skeletons=[];
+ model.traverse(o=>{
+  if(!o.isSkinnedMesh)return;const current=o.skeleton;
+  const shared=skeletons.find(s=>s.bones.length===current.bones.length&&s.bones.every((bone,i)=>bone===current.bones[i]&&s.boneInverses[i].equals(current.boneInverses[i])));
+  if(shared&&shared!==current){current.dispose();o.skeleton=shared;}else if(!shared)skeletons.push(current);
+ });
+ return skeletons.length;
+}
 export function createHearth(){
  const group=new THREE.Group(),model=clone(template.scene);model.rotation.y=Math.PI;group.add(model);
+ shareHearthSkeletons(model);
  const materials=[],highlightMaterials=[],bones={},bodyHighlight={value:0};
  model.traverse(o=>{if(o.isBone)bones[o.name]=o;});
  function prepareMesh(o){if(o.isMesh){o.castShadow=o.receiveShadow=true;

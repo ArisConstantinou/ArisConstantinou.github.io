@@ -10,7 +10,7 @@ Goal: full world including real combat at sustained approximately 60 FPS on the 
 
 ## Current protected release
 
-1.6.40,3ed15b9135330ecf09ced0a9008338d62dc2709b. Public/source hashes and Pages40046836316 verified. The physical iPhone loaded the exact public engine25e7079f with no QA/hooks; save/report hashes stayed identical. Mobile HEARTH now selects detail from projected body size. Full candidate native battle44.98FPS/P9528ms/max79ms; courtyard60FPS gate remains OPEN. Previous1.6.39 summon-stall fix retained. Source `.source/combat-fps-20261021/source/game`; canonical build `E:/CodexGenerated/Magic/staging/build`.
+1.6.41,b2fe5dde4b6a71cf9fc39df0a728b8d8d76a85ab. Pages40048723203success; runtime/source hashes verified. The physical iPhone loaded the public01c24b7dengine with noQA/hooks and identical save/report hashes. Mounted mage now updates its existing LOD from the mobile camera (40551to10353triangles). Latest complete native fight46.89FPS/P9528/max85/four frames>50ms; sustained60FPS remains OPEN. Previous HEARTH projected-body and prepared-summon fixes retained. Source `.source/combat-fps-20261021/source/game`; canonical build `E:/CodexGenerated/Magic/staging/build`.
 
 ## Checked / fixed / disabled
 
@@ -26,6 +26,7 @@ Goal: full world including real combat at sustained approximately 60 FPS on the 
 | HEARTH geometry | Fixed in1.6.40 | Mobile projected-body LOD uses the existing58892triangle surface at~89.6pixel body size, original rig/textures/nozzles/pilot. Current diffuse A/B/A39.45/47.85/40.70FPS; automatic policy44.98FPS. Desktop metric unchanged. |
 | Mobile surface lighting | Temporary approximation | Lambert per-fragment diffuse; IBL, normal/bump and metallic/roughness specular omitted. Full-reference query remains documented. |
 | Fire noise | Temporary sampled approximation | Shared256KiB64cubed lattice; same32mobile samples/shape/lights/smoke. Rejected shader/proxy experiments are absent from runtime. |
+| Mounted mage | Fixed in1.6.41 | Existing LOD2 now selected from the camera after seated posing;10353vs40551triangles,116timed samples at32.59–33.49CSSpixels. No asset/rig/animation changes. |
 | Shadows | Existing diagnostic freeze | First frames generate original shadow maps; subsequent maps frozen in the existing courtyard fixture. Must address before full-world acceptance. |
 | Full world | Not yet under test | Courtyard gate must pass first. |
 
@@ -107,3 +108,20 @@ Current diffuse public39 A/B/A:39.45/47.85/40.70FPS,same19kills,182024/58892/182
 ## 1.6.41 mounted pilot camera update — verified candidate, publication pending (40.0%)
 
 Public40idleinspectionconfirmedmountedMageLOD1/40551triangles/projectedPixelsnull/scale.72:hearth.syncanimateswithoutcameraandnormalsyncskipspilotedplayer. One mobile rigLod.update(camera)afterpose/camerafixesitusingexisting10353triangleLOD2,noassetschanged. Fullnative41fight46.89FPS/P9528/max85/four>50ms/19kills/4bosses/3summons;116timedsamplesallpilotLOD2at32.59–33.49CSSpixels,previousHEARTHLOD2retained,zeroerrors/misses. Differentpathsfrom40reference44.98FPS:smallFPSdifferenceisnotattributed. Actualengine01c24b7dverified;497localtests/buildpassed,seatimageinspected,savesrestored/public40menu/nohooks/connectionsclosed.60FPS/fullworldOPEN. DetailsMOUNTED-PILOT-LOD.md.
+
+
+1.6.41 publication VERIFIED: b2fe5dde4b6a71cf9fc39df0a728b8d8d76a85ab/main+benchmark;Pages40048723203success;releasehashb58245903057aa94d0326920a3e389ebcf3a95b13b6e0578a4d0aaa275ffd905. Runtime/source hashes match. Actualpublicphone41menuengine01c24b7d/noQA/hooks,save/reporthashesunchanged,connectionsclosed. GoalACTIVE41.0%,not60/fullworldcomplete. Rawpublic40summaryretainedonceinphone/public-release/before.json.
+
+
+## Closed-surface controls — rejected, not shipped
+
+Public41 native opaque FrontSide A/B/A:46.12/53.94/44.98FPS. This broad diagnostic could hide open cloth/interiors and was never a production fix. Exact-position topology classification (including exact skin bindings) admitted only50,144 weighted triangles of552,005 audited opaque DoubleSide triangles. Regular/boss actors already share their palettes; only HEARTH had redundant ones.
+
+The first conservative material-side candidate completed25kills/4bosses/9summons at43.39FPS, P9533ms, max55ms, one combat interval>50ms. Same-pose A/B/A changed13channels, max45/255; restored A matched exactly. The raster-only revision kept the original shader, but still changed34channels, max61/255; restored A again matched exactly. Its frozen render wall times were approximately2–4ms in both modes, not a combatFPS measurement. Both approaches failed the strict pixel gate, were removed from runtime and were NOT committed/published. Private classifier/raster tests remain unused experiments only.
+
+Source check: fire noise already uses a single hardware-trilinear3Dtexture sample per noise evaluation. No second copy of that optimization was added. No new feature was disabled.
+
+Next applied candidate42: share HEARTH's exactly equal live joint/inverse-bind palettes,3to1(12to4KiB visible bone textures). Original mesh bind matrices, rig/IK, geometry, materials and animations retained. This is a small redundant-work correction, not a claimed60FPS solution. Native full battle plus same frozen Fire-pose separate/shared/separate control pending.
+
+
+Candidate42 palette fix verified on physical iPhone:3skins/1palette/4096bytes before and after the complete native battle;19kills/4bosses/3summons,0errors/0reserve misses.45.58FPS/P9529/max85/fivecombat intervals>50ms. Separate/shared/separate Fire-pose images:3/1/3palettes,12288/4096/12288bytes,0changed channels in shared and restored views.507local CPUchecks passed including13private experiment tests excluded from publication. Saves/report exactly restored; public41menu/nohooks/connectionsclosed. Publication of the narrow resource fix is next; no FPS gain or60FPS acceptance claimed.
