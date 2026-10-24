@@ -26,3 +26,13 @@ test('stale attributes, out-of-range indices and a bad second part leave the ori
   await assert.rejects(attachIndexLod(root,data),/Index LOD:/);assert.equal(root.children.length,length);assert.equal(root.userData.indexLod,undefined);assert.equal(mesh.geometry,g);assert.equal(mesh.visible,true);mesh.material.dispose();g.dispose();mesh.skeleton.dispose();
  }
 });
+
+test('a distance recipe retains small accessories exactly and refuses an omitted primitive atomically',async()=>{
+ const {root,mesh,g,data}=await fixture(),accessory=mesh.clone(false);accessory.material=mesh.material.clone();accessory.material.name='crossbow string';root.add(accessory);
+ const length=root.children.length;
+ await assert.rejects(attachIndexLod(root,data),/omits a source primitive/);assert.equal(root.children.length,length);
+ const indices=Array.from(g.index.array);data.parts.push({...data.parts[0],material:accessory.material.name,indices,indexSha256:await indexLodHash(indexBytes(indices))});
+ const result=await attachIndexLod(root,data);assert.equal(result.meshes.length,2);assert.equal(result.triangles,3);assert.deepEqual(Array.from(result.meshes[1].geometry.index.array),indices);
+ assert.equal(result.meshes[1].skeleton,accessory.skeleton);assert.equal(result.meshes[1].material,accessory.material);
+ for(const m of result.meshes)m.geometry.dispose();mesh.material.dispose();accessory.material.dispose();g.dispose();mesh.skeleton.dispose();
+});

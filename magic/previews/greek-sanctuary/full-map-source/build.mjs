@@ -7,10 +7,12 @@ if(!managed){await fs.mkdir(baseline,{recursive:true});for(const name of ['main.
 const changes=[];
 function replace(code,from,to,label,all=false){const count=code.split(from).length-1;if(!count||(!all&&count!==1))throw Error(label+': expected '+(all?'one or more':'one')+' source anchors, found '+count);changes.push({label,count,from,to});return all?code.split(from).join(to):code.replace(from,to);}
 const integration={name:'magic-full-map-integration',
- resolveId(id){if(id==='magic:heavy-index-lod')return '\0magic:heavy-index-lod';},
- async load(id){if(id!=='\0magic:heavy-index-lod')return null;
-  const bytes=await fs.readFile(process.env.MAGIC_HEAVY_INDEX_DATA||path.join(dir,'derived/heavy-index-lod.json'));
-  if(createHash('sha256').update(bytes).digest('hex')!=='21f55dd3f7c3efe1b3af8b3150ddf8701f7767dc8645df8bf0aaa95f6f1e5e5c')throw Error('Heavy index recipe bytes changed');
+ resolveId(id){if(['magic:heavy-index-lod','magic:archer-index-lod'].includes(id))return '\0'+id;},
+ async load(id){if(!['\0magic:heavy-index-lod','\0magic:archer-index-lod'].includes(id))return null;
+  const archer=id==='\0magic:archer-index-lod';
+  const bytes=await fs.readFile(archer?(process.env.MAGIC_ARCHER_INDEX_DATA||path.join(dir,'derived/archer-index-lod.json')):(process.env.MAGIC_HEAVY_INDEX_DATA||path.join(dir,'derived/heavy-index-lod.json')));
+  const expected=archer?'aed8176b7bb2f321317ec5daddd42b19b695026f94b493a54cfdbbeacfb851ef':'21f55dd3f7c3efe1b3af8b3150ddf8701f7767dc8645df8bf0aaa95f6f1e5e5c';
+  if(createHash('sha256').update(bytes).digest('hex')!==expected)throw Error('Index recipe bytes changed');
   return 'export default '+bytes.toString('utf8')+';';
  },async transform(input,id){
  const normalized=id.replaceAll('\\','/');let code=input.replaceAll('\r\n','\n');

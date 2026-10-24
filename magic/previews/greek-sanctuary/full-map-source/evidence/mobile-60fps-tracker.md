@@ -8,9 +8,9 @@ Goal: full world including real combat at sustained approximately 60 FPS on the 
 2. Add one adjoining room and verify fighting, movement, doorway transitions, loading stalls and saved-state recovery on the phone.
 3. Repeat room-by-room. Full-world acceptance requires traversing the whole native world and repeating representative heavy combat, not just loading the map.
 
-## Protected base43 and verified update44
+## Protected base44 and verified update45
 
-1.6.43, commitb97eb2421e8539a221ec0cb663d3d3eaca4eb9db. Pages40065347567success; scopedsource/publicruntime hashesverified. Actualphysicalphone public43menu engine82dd9fff4a4b/noQA/renderhooks/defaultprofile/savehashesverified. Native sameengine beforepublication:48.35combatFPS/P9528/max85/threecombat>50ms,25kills/all4bosses/9summons; separatefull/cached/fullrepeat live-shadow Fireimages0changedchannels. Specificcachecorrectness/resourcefix; no causalmeanFPSgain or60FPSclaim. Existing42freeze/Lambert/IBL/normal compromises retained; dynamicdefault40.66FPS rejected. Heavy5276triangle surface is now integrated and physically verified in44; see the44milestone below. Original43is the protected predecessor during publication. Sustained60/fullworld/late-fightdrop remain OPEN.
+1.6.44, commit e42d046fd26edae634e45705c3ec4d87a5ccfe52: Pages40067999891/nativepublic enginef73bf8be0b63/defaultprofile/savehashes verified. Heavy5276vs21889distance surface shipped, originalnearassets intact. Verified45update below adds Archer5500vs19998triangles; observed native48.71→52.56FPS withsame19kills/4bosses/3summons, not sustained60FPS. Publication identity is served release.json. Fullworld/dynamic-shadow gates remain OPEN.
 
 ## Checked / fixed / disabled
 
@@ -155,3 +155,10 @@ Blocked audit: USB absent for3consecutive goal turns (latest authoritative usbmu
 - CHECKED:524CPU checks,28numeric actual-rig poses,12inspected native same-pose images, complete iPhone fights with all4bosses. Original43.13FPS/9summons; candidate48.76FPS/3summons. Workloads differ: no causal FPS-gain claim. Exact saves/benchmark restored.
 - DISABLED: no new disable; existing Lambert/IBL/normal/specular omissions and diagnostic shadow freeze remain.60FPS/fullworld and room2gate still OPEN.
 - See HEAVY-INDEX-LOD.md and native heavy-index-lod comparison/visual-review evidence. Prior separate image fixture with results-overlay obstruction is rejected.
+
+
+## 1.6.45 — Archer mobile LOD verified
+- FIXED: distant Archer19998→5500triangles; mainbody17746→3248, all9small crossbow/garment parts original. Same92bones/8clips/vertexattrs/materials,1actorpalette. Completeprimitive coverage andunchanged-accessory guards. New JSON records actual ArcherLOD/recipe/triangles/errors. Heavy44retained.
+- CHECKED:525CPUchecks,32actual-rig numericposes,16inspected native aiming/walk/shot/reload front/side images. Allposepairs sharedrig/attrs/bind/worldmatrix assertions passed. CompleteiPhone original48.7108FPS/P9527 vsnew52.5577FPS/P9525/max71, same19kills/4bosses/3summons; exactsaves restored/noerrors. Frame-dependent paths differ; observedpair not guaranteedcausal fixed-frame gain. Steadyinitial geometry528752→470760tris.
+- DISABLED: none new. Existing Lambert/IBL/normal/specular omissions andfreeze remain.25–35s combat47–50FPS stillfails60gate; room2/fullworld OPEN.
+- See ARCHER-INDEX-LOD.md and scoped native evidence.

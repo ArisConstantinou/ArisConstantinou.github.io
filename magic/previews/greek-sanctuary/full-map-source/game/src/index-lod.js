@@ -34,12 +34,16 @@ export async function attachIndexLod(root,data){
    check(await indexLodHash(a.array)===proof.sha256,'source attribute bytes changed: '+name);
   }
   check(g.attributes.skinIndex&&g.attributes.skinWeight,'missing skin binding');
-  check(Array.isArray(part.indices)&&part.indices.length>0&&part.indices.length%3===0&&part.indices.length<g.index.count,'invalid reduction');
+  check(Array.isArray(part.indices)&&part.indices.length>0&&part.indices.length%3===0&&part.indices.length<=g.index.count,'invalid reduction');
+  // Small articulated accessories may stay byte-for-byte original instead
+  // of losing strings, triggers, fingers or garment bindings to a target budget.
+  if(part.indices.length===g.index.count)check(part.indices.every((v,i)=>v===g.index.array[i]),'unchanged part index order changed');
   check(part.indices.every(v=>Number.isSafeInteger(v)&&v>=0&&v<part.sourceVertexCount),'invalid vertex reference');
   const indices=new Uint32Array(part.indices);check(await indexLodHash(indexBytes(indices))===part.indexSha256,'reduced index data changed');
   for(let i=0;i<indices.length;i+=3)check(indices[i]!==indices[i+1]&&indices[i+1]!==indices[i+2]&&indices[i]!==indices[i+2],'degenerate reduced face');
   prepared.push({source,indices});
  }
+ check(seen.size===sources.length,'recipe omits a source primitive');
  // Commit only after EVERY part passes, leaving the original scene untouched
  // when a stale/corrupt sidecar fails. No first-use checks occur during combat.
  const meshes=[];

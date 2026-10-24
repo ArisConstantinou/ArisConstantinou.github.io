@@ -1,5 +1,6 @@
 import {loadGltfAsset} from './asset-loading.js';
 import heavyDistanceRecipe from 'magic:heavy-index-lod';
+import archerDistanceRecipe from 'magic:archer-index-lod';
 import {usesMobileTextures} from './asset-profile.js';
 import {attachIndexLod} from './index-lod.js';
 import {prepareObjectPickingAsync} from './triangle-picking.js';
@@ -115,10 +116,11 @@ export async function loadCharacters(onProgress = () => {}, kinds = Object.keys(
     // The extra distance surface reuses the original vertex data, live joints
     // and materials. Validate it before picking/shader preparation, never on
     // the first combat frame. A missing sidecar keeps the original asset.
-    if(kind==='heavy'&&usesMobileTextures()&&new URLSearchParams(globalThis.location?.search||'').get('heavyFar')!=='off'){
+    const distanceRecipe=kind==='heavy'?heavyDistanceRecipe:kind==='archer'?archerDistanceRecipe:null;
+    if(distanceRecipe&&usesMobileTextures()&&new URLSearchParams(globalThis.location?.search||'').get(kind+'Far')!=='off'){
       try{
-        const data=heavyDistanceRecipe;
-        if(data.id!=='3f66653e390008e85f06a7bc3b129510e7588f57d933e9e3aa9da79ad16f2b69')throw Error('Unexpected Heavy distance recipe');
+        const data=distanceRecipe,expected=kind==='heavy'?'3f66653e390008e85f06a7bc3b129510e7588f57d933e9e3aa9da79ad16f2b69':'85922dd41e70a2f9fccc1a5e3fa468629ee269139dfdf170a19f84d77d0d4363';
+        if(data.id!==expected)throw Error('Unexpected '+kind+' distance recipe');
         await attachIndexLod(gltf.scene,data);
       }catch(error){gltf.scene.userData.indexLodError=error.message;}
     }

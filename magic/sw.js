@@ -1,12 +1,12 @@
-/* MAGIC 1.6.44: do not block boot on optional model downloads. */
+/* MAGIC 1.6.45: do not block boot on optional model downloads. */
 'use strict';
-const RELEASE="1.6.44",SCOPE=new URL(self.registration.scope),INDEX=new URL('index.html',SCOPE).href;
-const PREFIX='magic-exiled:'+SCOPE.pathname+':',NAME=PREFIX+"441baed556daad87a164e3ce411ada35d5968c5e7ddb2abf10b41777dc2947c2";
-const SHELL=["previews/greek-sanctuary/engine/draco_decoder.js","previews/greek-sanctuary/engine/index-9ebe86cf9179.css","previews/greek-sanctuary/engine/index-f73bf8be0b63.js","previews/greek-sanctuary/engine/trajectory-worker.js","index.html"].map(file=>new URL(file,SCOPE).href);
+const RELEASE="1.6.45",SCOPE=new URL(self.registration.scope),INDEX=new URL('index.html',SCOPE).href;
+const PREFIX='magic-exiled:'+SCOPE.pathname+':',NAME=PREFIX+"528bf7df026cbffa3db92c10c739398913de8b6d6fe6ff766dfcdc7f7d5baa95";
+const SHELL=["previews/greek-sanctuary/engine/draco_decoder.js","previews/greek-sanctuary/engine/index-9ebe86cf9179.css","previews/greek-sanctuary/engine/index-2d2a62203f25.js","previews/greek-sanctuary/engine/trajectory-worker.js","index.html"].map(file=>new URL(file,SCOPE).href);
 const writes=new Set();let cacheFailure=false;
 const ASSET_NAME=PREFIX+'verified-assets-v1';
-const ASSET_KEYS=new Map([["previews/greek-sanctuary/engine/draco_decoder.js","8625489da79a805f4f2a7d511c3e52d8b4085608a9d2a4d5f4f9de5db0aea04f"],["previews/greek-sanctuary/engine/hearth-flamethrower.mp3","e1a122a08a93a47e4dcaf3eac5e4c38ef5b6e69a4b9d0a52b52930f10c38583d"],["previews/greek-sanctuary/engine/index-9ebe86cf9179.css","9ebe86cf9179ba7f9c60c5c1e671740347c25bcd65093b2597a96408dbb92b5e"],["previews/greek-sanctuary/engine/index-f73bf8be0b63.js","f73bf8be0b63d812bacc34143042fc20cbeb4ded738a3f64b8b89f98ac596494"],["previews/greek-sanctuary/engine/trajectory-worker.js","80bb8dd808cb74b90986a7fbd1d9d11d5f4aef289a9d736bd73673179d8f6e56"]].map(([file,sha])=>[new URL(file,SCOPE).href,new URL('__content__/'+sha,SCOPE).href]));
-const PREVIOUS_NAME=PREFIX+"317473735339ea689fc89dbd48e0360cec88ce1340e19b3399f04b0b27eea764";
+const ASSET_KEYS=new Map([["previews/greek-sanctuary/engine/draco_decoder.js","8625489da79a805f4f2a7d511c3e52d8b4085608a9d2a4d5f4f9de5db0aea04f"],["previews/greek-sanctuary/engine/hearth-flamethrower.mp3","e1a122a08a93a47e4dcaf3eac5e4c38ef5b6e69a4b9d0a52b52930f10c38583d"],["previews/greek-sanctuary/engine/index-9ebe86cf9179.css","9ebe86cf9179ba7f9c60c5c1e671740347c25bcd65093b2597a96408dbb92b5e"],["previews/greek-sanctuary/engine/index-2d2a62203f25.js","2d2a62203f254efb950f3fefa5c1dffdd1e3d27b65370512650aefc4d23329d9"],["previews/greek-sanctuary/engine/trajectory-worker.js","80bb8dd808cb74b90986a7fbd1d9d11d5f4aef289a9d736bd73673179d8f6e56"]].map(([file,sha])=>[new URL(file,SCOPE).href,new URL('__content__/'+sha,SCOPE).href]));
+const PREVIOUS_NAME=PREFIX+"441baed556daad87a164e3ce411ada35d5968c5e7ddb2abf10b41777dc2947c2";
 const UNCHANGED=new Set(["previews/greek-sanctuary/engine/draco_decoder.js","previews/greek-sanctuary/engine/hearth-flamethrower.mp3","previews/greek-sanctuary/engine/index-9ebe86cf9179.css","previews/greek-sanctuary/engine/trajectory-worker.js"].map(file=>new URL(file,SCOPE).href));
 function cachedResponse(response){const headers=new Headers(response.headers);headers.set('X-Magic-Asset-Source','cache');return new Response(response.body,{status:response.status,statusText:response.statusText,headers});}
 
@@ -18,7 +18,7 @@ function store(cache,key,response){
 }
 self.addEventListener('install',event=>event.waitUntil((async()=>{
  const cache=await caches.open(NAME);
- const digests=new Map([["previews/greek-sanctuary/engine/draco_decoder.js","8625489da79a805f4f2a7d511c3e52d8b4085608a9d2a4d5f4f9de5db0aea04f"],["previews/greek-sanctuary/engine/hearth-flamethrower.mp3","e1a122a08a93a47e4dcaf3eac5e4c38ef5b6e69a4b9d0a52b52930f10c38583d"],["previews/greek-sanctuary/engine/index-9ebe86cf9179.css","9ebe86cf9179ba7f9c60c5c1e671740347c25bcd65093b2597a96408dbb92b5e"],["previews/greek-sanctuary/engine/index-f73bf8be0b63.js","f73bf8be0b63d812bacc34143042fc20cbeb4ded738a3f64b8b89f98ac596494"],["previews/greek-sanctuary/engine/trajectory-worker.js","80bb8dd808cb74b90986a7fbd1d9d11d5f4aef289a9d736bd73673179d8f6e56"],["index.html","1fadb7069cd03d4d418160b5cea0cba1fcb6fd993b2d1c9442dfc339632384f9"]].map(([file,sha])=>[new URL(file,SCOPE).href,sha]));
+ const digests=new Map([["previews/greek-sanctuary/engine/draco_decoder.js","8625489da79a805f4f2a7d511c3e52d8b4085608a9d2a4d5f4f9de5db0aea04f"],["previews/greek-sanctuary/engine/hearth-flamethrower.mp3","e1a122a08a93a47e4dcaf3eac5e4c38ef5b6e69a4b9d0a52b52930f10c38583d"],["previews/greek-sanctuary/engine/index-9ebe86cf9179.css","9ebe86cf9179ba7f9c60c5c1e671740347c25bcd65093b2597a96408dbb92b5e"],["previews/greek-sanctuary/engine/index-2d2a62203f25.js","2d2a62203f254efb950f3fefa5c1dffdd1e3d27b65370512650aefc4d23329d9"],["previews/greek-sanctuary/engine/trajectory-worker.js","80bb8dd808cb74b90986a7fbd1d9d11d5f4aef289a9d736bd73673179d8f6e56"],["index.html","f2f89ebcfae2c3e75a9f223b6daa05f59588eea8d80027971be30a4399b9dc14"]].map(([file,sha])=>[new URL(file,SCOPE).href,sha]));
  const responses=await Promise.all(SHELL.map(async url=>{
   const response=await fetch(new Request(url,{cache:'reload',credentials:'same-origin'}));
   if(!usable(response))throw Error('Incomplete release');
