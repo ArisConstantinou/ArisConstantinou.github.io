@@ -41,7 +41,8 @@ export function createHearth(){
   materials.push(n);if(n.emissive&&n.name!=='Heart embers')highlightMaterials.push({material:n,color:n.emissive.clone(),intensity:n.emissiveIntensity});return n;
  };o.material=Array.isArray(o.material)?o.material.map(copy):copy(o.material);}}
  model.traverse(prepareMesh);
- const lod=createHearthLod(model,{prepareMesh,loadHigh:()=>highPromise??=loadModel('models/hearth-bulwark/hearth-bulwark-close.glb')});
+ const measureProjectedBody=typeof matchMedia==='function'&&matchMedia('(pointer: coarse)').matches&&new URL(location.href).searchParams.get('hearthLod')!=='legacy';
+ const lod=createHearthLod(model,{prepareMesh,measureProjectedBody,loadHigh:()=>highPromise??=loadModel('models/hearth-bulwark/hearth-bulwark-close.glb')});
  const highlightColor=new THREE.Color(0xe9c778);
  function setHighlight(active,time=0){
   group.userData.interactionHighlighted=!!active;

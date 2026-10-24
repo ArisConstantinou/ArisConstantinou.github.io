@@ -7,12 +7,26 @@ export function hearthLodLevel(pixels,current=1,highReady=false){
  if(pixels<90||(current===2&&pixels<115))return 2;
  return 1;
 }
-export function createHearthLod(model,{loadHigh,prepareMesh}){
+// Project the body axis rather than assuming it faces the image plane. The
+// elevated perspective game camera foreshortens an upright body substantially.
+// Measure drawing-buffer pixels, including parent scale and camera roll/zoom.
+export function projectedHearthPixels(model,camera,screen,bottom=new THREE.Vector3(),top=new THREE.Vector3()){
+ model.updateWorldMatrix(true,false);camera.updateMatrixWorld();
+ bottom.set(0,0,0).applyMatrix4(model.matrixWorld);top.set(0,3.4,0).applyMatrix4(model.matrixWorld);
+ const m=camera.matrixWorldInverse.elements;
+ const depth=p=>-(m[2]*p.x+m[6]*p.y+m[10]*p.z+m[14]);
+ const bottomDepth=depth(bottom),topDepth=depth(top),near=Math.min(bottomDepth,topDepth),far=Math.max(bottomDepth,topDepth);
+ if(far<=0)return 0;
+ if(near<=camera.near)return Infinity;
+ bottom.project(camera);top.project(camera);
+ return Math.hypot((top.x-bottom.x)*screen.x,(top.y-bottom.y)*screen.y)*.5;
+}
+export function createHearthLod(model,{loadHigh,prepareMesh,measureProjectedBody=false}){
  const levels=new Map([[0,[]],[1,[]],[2,[]]]),bones={};
  model.traverse(o=>{if(o.isBone)bones[o.name]=o;if(o.isMesh){let n=o;while(n&&!n.userData.hearthLod)n=n.parent;const level=n?.userData.hearthLod;if(level)levels.get(level)?.push(o);}});
  if(!levels.get(1).length)return {update(){},dispose(){},get level(){return 0;}};
  let current=1,requested=false,ready=false,disposed=false,error=null;
- const center=new THREE.Vector3(),eye=new THREE.Vector3(),screen=new THREE.Vector2();
+ const center=new THREE.Vector3(),eye=new THREE.Vector3(),screen=new THREE.Vector2(),bottom=new THREE.Vector3(),top=new THREE.Vector3();
  function select(level){for(const [index,meshes] of levels)for(const mesh of meshes)mesh.visible=index===level;current=level;model.userData.hearthLod=level;}
  select(1);
  function request(){
@@ -39,9 +53,9 @@ export function createHearthLod(model,{loadHigh,prepareMesh}){
   model.getWorldPosition(center);center.y+=1.7;
   const distance=camera.getWorldPosition(eye).distanceTo(center);
   renderer.getDrawingBufferSize(screen);
-  const pixels=camera.isOrthographicCamera?3.4*screen.y*camera.zoom/(camera.top-camera.bottom):3.4*screen.y*camera.projectionMatrix.elements[5]/(2*Math.max(.1,distance));
+  const pixels=measureProjectedBody?projectedHearthPixels(model,camera,screen,bottom,top):camera.isOrthographicCamera?3.4*screen.y*camera.zoom/(camera.top-camera.bottom):3.4*screen.y*camera.projectionMatrix.elements[5]/(2*Math.max(.1,distance));
   if(pixels>280)request();
   select(hearthLodLevel(pixels,current,ready));model.userData.hearthProjectedPixels=pixels;
  }
- return {update,dispose(){disposed=true;},get level(){return current;},get ready(){return ready;},get error(){return error;}};
+ return {update,dispose(){disposed=true;},get level(){return current;},get ready(){return ready;},get error(){return error;},metric:measureProjectedBody?'projected-body':'distance-estimate'};
 }

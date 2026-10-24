@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "channel": "stable",
-  "version": "1.6.39",
-  "build": "ced63cdcb936d55a2080a8ada7c8b081da7d37cccc35b3a2dedf45798dbedc2b",
+  "version": "1.6.40",
+  "build": "ca984a016e8509c288609b099345a13435fabfba5b2b017f9b0172e0dec5e162",
   "diagnostic": "single-room-hearth-combat",
   "models": "models.html",
   "shell": [
@@ -17,9 +17,9 @@
       "bytes": 61266
     },
     {
-      "file": "previews/greek-sanctuary/engine/index-819fa8542c57.js",
-      "sha256": "819fa8542c5734a4294ce2549776f60799f67e6959db8ca2deaf9c5e79280619",
-      "bytes": 1454515
+      "file": "previews/greek-sanctuary/engine/index-25e7079feb42.js",
+      "sha256": "25e7079feb428f9e4d71ac2a6df7b74655b626bbdcb0a78f1b7f377be2509def",
+      "bytes": 1455987
     },
     {
       "file": "previews/greek-sanctuary/engine/trajectory-worker.js",
@@ -28,7 +28,7 @@
     },
     {
       "file": "index.html",
-      "sha256": "0d6903d1f5460668db688ae6a603c460e1f495d1e0241ba371fc02cf34913ae2",
+      "sha256": "f553b4175ccf16a4f4681a3b6b01fbcee6e23681e2071ed6ebbc3ed1e07588bc",
       "bytes": 1452
     }
   ]

@@ -10,7 +10,7 @@ Goal: full world including real combat at sustained approximately 60 FPS on the 
 
 ## Current protected release
 
-1.6.37, ef80cb24041221785c2c008758eb555a9f27ba49. Public and source hashes verified. Editable source: `.source/combat-fps-20261021/source/game`. Canonical build: `E:/CodexGenerated/Magic/staging/build`. Latest previous final phone battle: 34.64 FPS, P95 42 ms, max126 ms. Stable60 unresolved.
+1.6.39,74299a7e0d870ad5baaf121ce38c630b63f199e3. Public/source hashes and Pages run40039978584 verified. This release reduces summon first-use stalls; clean full battles44.12/42.66FPS, P9532/33ms, max75/54ms. Stable60 unresolved. Editable source: `.source/combat-fps-20261021/source/game`; canonical build: `E:/CodexGenerated/Magic/staging/build`. Earlier1.6.37 final phone battle34.64FPS and1.6.38 single visual battle48.33FPS remain historical comparison points, not a guaranteed progression in meanFPS.
 
 ## Checked / fixed / disabled
 
@@ -75,3 +75,21 @@ Bounded one-shot precreation/preparation of nine original visuals during Start l
 Final three complete phone fights: all four bosses killed each; diagnostic run exercised9summons/9preparedhits, clean runs3summons/3hits each;0misses and0errors throughout. Clean summon windows: gameplay12/13ms and render8/11ms, compared with prior57/43ms. Clean full battles44.12/42.66FPS, P9532/33ms, max75/54ms,2/1frames over50ms. This is a stall fix, NOT a mean-FPS improvement or the60FPS gate. Exact saved state/public menu restoration verified.491source tests and canonical build passed; exact phone engine hash819fa8542c5734a4294ce2549776f60799f67e6959db8ca2deaf9c5e79280619.
 
 One visual fight additionally captured WebKit Timeline/native counters and a native draw inventory; diagnostic only. Device-wide GPU utilization was about60–66%, Composite mean wall-time10.14ms (not direct GPU time), layout/paint small. Inventory includes182k HEARTH and41k mage triangles. Next: reduce renderer work while preserving the original geometry and appearance, beginning with the pinned skin-normal shader's matrix calculations. Courtyard near60 repeat and dynamic-shadow gates remain required before room2.
+
+1.6.39 publication completed: commit74299a7 pushed to main and benchmark branch; Pages40039978584 success, all public runtime and committed source hashes matched. Release hashced63cdcb936d55a2080a8ada7c8b081da7d37cccc35b3a2dedf45798dbedc2b. Receipt: `E:/CodexGenerated/Magic/staging/work/single-room-publication/prepared-spawns-receipt.json`.
+
+## Unpublished1.6.40 shader control — no established FPS gain
+
+Reassociated affine skin-normal arithmetic passed200matrix cases, normal/tangent branches, actual shader links, and132/127rig checks with no non-affine inputs. Original-matrix native battle41.71FPS/P9534/max77ms,22kills,789k mean triangles; affine3x3 battle44.63FPS/P9532/max90ms,19kills,758k mean triangles. Different workloads confound that small difference. Both screenshots were captured during idle, outside measured combat; storage restored and public1.6.39 menu returned.
+
+The3x3 shader is now diagnostic opt-in only (`skinNormals=optimized`), NOT enabled by default and NOT published as a performance improvement. Default source uses original math.493source tests and canonical diagnostic build passed. Future controls have seed10837 in the test harness only; those seeded runs have NOT been executed and must not be confused with the existing unseeded evidence. Stronger matched input is needed before attributing small FPS changes. Full-world goal stays ACTIVE; no room expansion yet.
+
+
+## Private40 follow-up: flame raster bounds (31.0%, goal ACTIVE)
+
+Implemented conservative CPU support bounds around the unchanged volume shader;360,000scalar samples and495tests pass. Physical seeded A/B,actual resource96c20574verified,both initial16actors/canvas494x856:39.34FPS/P9537/max74/22kills vs39.54/P9531/max82/19kills. No gain;idle also differed57.76vs48.90with invisible jets. No third repeat or publication;original proxy remains default. Separate frozen two-jet visual fixture uses48samples,not production32: visually intact but2782pixels differ(max9/255,mean0.000407/255),not exactpixel pass. Phone saves restored/public39menu,no hooks/connections. Source safety fix after test preserves transparent sorting centre,CPUcovered;canonical rebuilt,not phoneverified. Details JET-RASTER-BOUNDS.md. Next bounded investigation: original model projected LOD under current diffuse pipeline,not more blind shader controls. No room expansion until60gate.
+
+
+## 1.6.40 projected-body mobile HEARTH LOD — verified candidate, publication pending (36.0%)
+
+Current diffuse public39 A/B/A:39.45/47.85/40.70FPS,same19kills,182024/58892/182024HEARTHtriangles. Fixed mobile LOD projection (actual body endpoints/drawing-buffer span,scale and angle),existing thresholds/hysteresis retained,desktop unchanged. Candidate automatic policy44.98FPS/P9528/max79ms/19kills/4bosses/3summons;109samples allLOD2,88.84–89.97pixels,noerrors,3preparedhits/0misses. Meancombat642183triangles. Allphone saves restored/public39menu/nohooks/connectionsclosed.497localCPUtests/build passed. Skin-normal/flame-proxy experimental integrations removed from runtime. Specific LOD fix is ready for commit/push;60FPS gate and fullworld remainOPEN. Details PROJECTED-HEARTH-LOD.md.
