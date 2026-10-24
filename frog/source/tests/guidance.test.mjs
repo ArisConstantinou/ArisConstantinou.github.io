@@ -42,7 +42,7 @@ test('resource hints distinguish shared stock collection from eating and name th
   assert.match(materials.hint,/πάτησε E/);
   assert.match(materials.hint,/^Πλησίασε σμήνος/);
   assert.match(materials.hint,/υλικά και τροφή/);
-  assert.match(materials.hint,/απομακρύνσου πρώτα από βατράχους και καταφύγια/);
+  assert.match(materials.hint,/ακόμη και με συμμάχους δίπλα σου/);
   assert.match(materials.title,/υλικά κατασκευής/);
   assert.doesNotMatch(materials.hint,/LMB/);
   const recruit=describeObjective({id:'recruit-allies'});

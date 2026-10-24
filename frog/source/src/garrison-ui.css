@@ -1,0 +1,167 @@
+/* Camp defense controls share the compact illustrated interface. */
+#frog-ui .fg-building-panel>.fg-panel-head>.fg-icon-button,#frog-ui .fg-command-panel>.fg-panel-head>.fg-icon-button{width:44px;height:44px;min-width:44px;min-height:44px;flex:0 0 44px;padding:10px}
+#frog-ui .fg-build-views{display:flex;gap:7px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid #b9d59e2b}
+#frog-ui .fg-build-views>button{display:flex;align-items:center;justify-content:center;gap:8px;min-width:120px;min-height:44px;padding:5px 16px;border:1px solid #b5cf9c3d;border-radius:8px;background:#193428;color:#bbccaa;font-weight:600;font-size:13px}
+#frog-ui .fg-build-views>button>.fg-pictogram{width:29px;height:29px}
+#frog-ui .fg-build-views>button.is-active{color:#eef1ce;border-color:#d2e4a88c;background:#38583b}
+#frog-ui .fg-defense-camp-picker{display:flex;align-items:center;gap:14px;margin:0 0 16px;min-width:0}
+#frog-ui .fg-defense-camp-picker>span{display:flex;align-items:center;gap:7px;flex:none;font-size:12px;color:#c6d4b5}
+#frog-ui .fg-defense-camp-picker>span>.fg-pictogram{width:30px;height:30px}
+#frog-ui .fg-defense-camp-picker select{flex:1;min-width:0;min-height:44px;max-width:540px;padding:9px 12px;border:1px solid #b5cd9f4a;border-radius:7px;background:#203b2c;color:#e5ecd0;font-size:14px}
+#frog-ui .fg-defense-camp-picker option{background:#203b2c;color:#e5ecd0}
+#frog-ui .fg-defense-layout{display:grid;grid-template-columns:258px minmax(0,1fr);gap:22px;align-items:start}
+#frog-ui .fg-defense-overview{padding:14px;border:1px solid #c0d69a4a;border-radius:12px;background:linear-gradient(135deg,#2a4930ba,#163125c9);text-align:center}
+#frog-ui .fg-defense-illustration{position:relative;width:144px;height:130px;margin:0 auto 8px}
+#frog-ui .fg-defense-illustration>.fg-pictogram{width:100%;height:100%}
+#frog-ui .fg-defense-illustration>span{position:absolute;right:-3px;bottom:1px;width:39px;height:39px;padding:3px;border:1px solid #b8d59b62;border-radius:9px;background:#26472f}
+#frog-ui .fg-defense-overview h3{font-size:17px;line-height:1.2;font-weight:600;color:#e4ecc7;margin:0 0 5px}
+#frog-ui .fg-defense-state{display:block;font-size:12px;font-weight:600;color:#d7e6b1}
+#frog-ui .fg-defense-overview.is-empty .fg-defense-state,#frog-ui .fg-defense-overview.is-arriving .fg-defense-state{color:#e5cd97}
+#frog-ui .fg-defense-overview.is-under-attack{border-color:#e59b6980;background:linear-gradient(135deg,#5b3e2aa8,#263c2a)}
+#frog-ui .fg-defense-overview.is-under-attack .fg-defense-state{color:#ffbd8f}
+#frog-ui .fg-defense-staffing{margin:12px 0 13px}
+#frog-ui .fg-defense-staffing>span{display:flex;align-items:center;justify-content:center;gap:8px}
+#frog-ui .fg-defense-staffing>span>.fg-pictogram{width:32px;height:31px}
+#frog-ui .fg-defense-staffing b{font-size:25px;line-height:1.1;font-weight:650;font-variant-numeric:tabular-nums}
+#frog-ui .fg-defense-staffing b small{font-size:17px;color:#a9c092}
+#frog-ui .fg-defense-staffing>div{height:5px;margin:7px 0 5px;background:#0b241a;border-radius:3px;overflow:hidden}
+#frog-ui .fg-defense-staffing>div>span{display:block;height:100%;background:#bedc91}
+#frog-ui .fg-defense-staffing>small{display:block;font-size:10px;line-height:1.35;color:#b4c8a3}
+#frog-ui .fg-defense-benefits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:9px;opacity:.68}
+#frog-ui .fg-defense-benefits.is-active{opacity:1}
+#frog-ui .fg-defense-benefits>span{display:grid;grid-template-columns:30px minmax(0,1fr);grid-template-rows:28px auto;gap:2px 4px;align-items:center;padding:7px 5px;border:1px solid #bdd49b2b;border-radius:7px;background:#132d20;text-align:left}
+#frog-ui .fg-defense-benefits .fg-pictogram{width:29px;height:29px}
+#frog-ui .fg-defense-benefits b{font-size:17px;font-weight:650;white-space:nowrap;line-height:1.1}
+#frog-ui .fg-defense-benefits small{grid-column:1/-1;font-size:10px;color:#b7cda0;line-height:1.2;text-align:center}
+#frog-ui .fg-defense-benefit-note{font-size:11px;line-height:1.45;color:#bdcdaa;margin:10px 0 0}
+#frog-ui .fg-defense-team{min-width:0}
+#frog-ui .fg-defense-team-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:1px 0 10px}
+#frog-ui .fg-defense-team-heading h3{font-size:17px;font-weight:600;margin:0;color:#e4ecc7}
+#frog-ui .fg-defense-team-heading>span{font-size:11px;color:#b6c9a5}
+#frog-ui .fg-defense-guards{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:9px;max-height:300px;overflow:auto;padding:2px 3px 4px 1px;scrollbar-width:thin}
+#frog-ui .fg-defense-guard{min-width:0;min-height:150px;padding:9px 6px 8px;border:1px solid #bad39f40;border-radius:9px;background:#203e2c;text-align:center}
+#frog-ui .fg-defense-guard:hover{border-color:#d8e8ad;background:#2c5034}
+#frog-ui .fg-defense-portrait{position:relative;display:block;width:68px;height:67px;margin:0 auto 6px}
+#frog-ui .fg-defense-portrait>img{display:block;width:100%;height:100%;object-fit:cover;border:1px solid #c5d9a957;border-radius:8px}
+#frog-ui .fg-defense-portrait>i{position:absolute;right:-5px;bottom:-2px;width:27px;height:28px;padding:2px;background:#163322;border:1px solid #bfd8a259;border-radius:6px}
+#frog-ui .fg-defense-guard>strong{display:block;max-width:100%;font-size:12px;font-weight:600;line-height:1.25;color:#e6edcc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#frog-ui .fg-defense-health{display:block;height:4px;margin:6px 1px;background:#0d281b;border-radius:2px;overflow:hidden}
+#frog-ui .fg-defense-health>i{display:block;height:100%;background:#b9cf91}
+#frog-ui .fg-defense-guard>small{display:block;font-size:10px;line-height:1.2;color:#b8cfa0}
+#frog-ui .fg-defense-guard.is-arriving>small{color:#e3cc94}
+#frog-ui .fg-defense-guard.is-fighting{border-color:#df966961}
+#frog-ui .fg-defense-guard.is-fighting>small{color:#f3b18b}
+#frog-ui .fg-defense-guard.is-training>small{color:#a8c7e0}
+#frog-ui .fg-defense-vacancy{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;min-height:150px;padding:12px 5px;border:1px dashed #b5c9963d;border-radius:9px;background:#142f2344;color:#adc19a}
+#frog-ui .fg-defense-vacancy>span{width:49px;height:50px;opacity:.35}
+#frog-ui .fg-defense-vacancy>small{font-size:11px}
+#frog-ui .fg-defense-how{font-size:12px;line-height:1.55;color:#bdcfad;margin:13px 0 10px}
+#frog-ui .fg-defense-how b{color:#e2ebc3;font-weight:600}
+#frog-ui .fg-defense-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#frog-ui .fg-defense-action{display:flex;align-items:center;justify-content:center;gap:7px;min-height:54px;min-width:44px;padding:6px 10px;border:1px solid #bdd6a35c;border-radius:8px;background:#294c33;color:#e9efcd;font-size:12px;font-weight:550;line-height:1.3}
+#frog-ui .fg-defense-action>.fg-pictogram{width:31px;height:33px;flex:none}
+#frog-ui .fg-defense-action>b{font-size:14px;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+#frog-ui .fg-defense-action:disabled{opacity:.4}
+#frog-ui .fg-defense-action:not(:disabled):hover{background:#3a603d;border-color:#d7e7af}
+#frog-ui .fg-defense-recall{background:#1c3b2c;border-color:#b7cda545}
+#frog-ui .fg-defense-no-cost{display:block;font-size:10px;line-height:1.45;color:#9eb88f;margin-top:9px}
+#frog-ui .fg-defense-empty{max-width:430px;margin:25px auto;text-align:center;padding:10px 15px}
+#frog-ui .fg-defense-empty>span{display:block;width:108px;height:100px;margin:0 auto}
+#frog-ui .fg-defense-empty h3{font-size:20px;font-weight:600;margin:14px 0 8px}
+#frog-ui .fg-defense-empty p{font-size:13px;line-height:1.65;color:#b8cca5}
+#frog-ui .fg-defense-empty>button{margin:18px auto 0}
+#frog-ui .fg-building-panel .fg-picture-building.is-operational{opacity:1;background:linear-gradient(145deg,#38583d,#213b2b);border-color:#c2dba16b}
+#frog-ui .fg-building-panel .fg-building-operation{display:flex;align-items:center;gap:7px;min-height:36px}
+#frog-ui .fg-building-panel .fg-building-operation>.fg-pictogram{width:29px;height:32px}
+#frog-ui .fg-building-panel .fg-building-operation>b{font-size:18px;white-space:nowrap}
+#frog-ui .fg-building-panel .fg-building-operation>span{font-size:10px;line-height:1.2;color:#c7d7b4}
+#frog-ui .fg-building-panel .fg-build-purchase>strong{font-size:11px;font-weight:550;color:#e3edc5}
+#frog-ui .fg-named-command{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;min-height:62px;padding:4px}
+#frog-ui .fg-named-command>.fg-pictogram{width:32px;height:34px}
+#frog-ui .fg-named-command>.fg-command-caption{font-size:10px;line-height:1.15;font-weight:500;color:#dfe9c5;white-space:nowrap}
+#frog-ui .fg-global-command .fg-named-command{width:73px;height:62px;min-height:62px}
+#frog-ui .fg-command-summary .fg-global-training{width:73px;height:62px}
+#frog-ui .fg-duty-metric{gap:6px}
+#frog-ui .fg-duty-metric>span{display:flex;flex-direction:column;gap:1px;min-width:0}
+#frog-ui .fg-duty-metric>span>b{font-size:24px;line-height:1.1;font-weight:550;color:#ecedce}
+#frog-ui .fg-duty-metric>span>small{font-size:10px;line-height:1.2;white-space:nowrap;color:#adc39a}
+#frog-ui .fg-duty-button{min-height:44px;min-width:44px;padding:0;background:transparent;border:0;text-align:left}
+#frog-ui .fg-duty-button:hover>span>small{color:#e1ebc3}
+#frog-ui .fg-interaction-cost{position:absolute;left:4px;bottom:27px;display:flex;align-items:center;justify-content:center;gap:2px;min-width:28px;height:19px;padding:1px 4px 1px 2px;border:1px solid #cee3ab70;border-radius:5px;background:#213f2cf2;z-index:4;color:#e5efc8;pointer-events:none}
+#frog-ui .fg-interaction-cost>.fg-pictogram{width:16px;height:16px}
+#frog-ui .fg-interaction-cost>b{font-size:11px;line-height:1;font-weight:650}
+#frog-ui .fg-interaction-cost.is-short{background:#5d3925f2;border-color:#e5a774;color:#ffdbb0}
+#frog-ui .fg-compact-hud .fg-action-tile.is-unavailable{border-color:#dda77585}
+#frog-ui .fg-notice-resources{display:grid;gap:3px;width:100%}
+#frog-ui .fg-notice-resources>span{display:flex;align-items:center;justify-content:center;gap:4px}
+#frog-ui .fg-notice-resources .fg-pictogram{width:24px;height:25px}
+#frog-ui .fg-notice-resources b{font-size:18px;line-height:1;font-weight:600;color:#eaf0cb}
+#frog-ui .fg-notice-label{display:block;flex-basis:100%;font-size:10px;line-height:1.25;font-weight:500;color:#e0e9c7;text-align:center}
+#frog-ui .fg-visual-toast.has-label .fg-notice-payload{gap:4px}
+#frog-ui .fg-visual-toast.has-resources .fg-notice-progress{height:3px}
+@media(max-width:1050px){
+ #frog-ui .fg-defense-layout{grid-template-columns:234px minmax(0,1fr);gap:15px}
+ #frog-ui .fg-defense-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #frog-ui .fg-defense-recall{grid-column:1/-1}
+ #frog-ui .fg-command-summary{gap:13px;flex-wrap:wrap}
+ #frog-ui .fg-global-command{margin-left:auto}
+}
+@media(max-width:700px){
+ #frog-ui .fg-build-views{gap:6px;margin-bottom:11px;padding-bottom:9px}
+ #frog-ui .fg-build-views>button{flex:1;min-width:0;padding:5px 9px}
+ #frog-ui .fg-defense-camp-picker{display:block;margin-bottom:12px}
+ #frog-ui .fg-defense-camp-picker>span{font-size:11px;margin-bottom:4px}
+ #frog-ui .fg-defense-camp-picker>span>.fg-pictogram{width:22px;height:22px}
+ #frog-ui .fg-defense-camp-picker select{width:100%;max-width:none;min-height:44px;font-size:12px;padding:8px}
+ #frog-ui .fg-defense-layout{grid-template-columns:minmax(0,1fr);gap:14px}
+ #frog-ui .fg-defense-overview{display:grid;grid-template-columns:84px minmax(0,1fr);align-items:center;gap:3px 10px;padding:10px;text-align:left}
+ #frog-ui .fg-defense-illustration{grid-column:1;grid-row:1/4;width:82px;height:94px;margin:0}
+ #frog-ui .fg-defense-illustration>span{width:30px;height:30px;bottom:0;right:0}
+ #frog-ui .fg-defense-overview h3{grid-column:2;font-size:14px;margin:0}
+ #frog-ui .fg-defense-state{grid-column:2;font-size:10px;line-height:1.3}
+ #frog-ui .fg-defense-staffing{grid-column:2;margin:2px 0 1px}
+ #frog-ui .fg-defense-staffing>span{justify-content:flex-start;gap:6px}
+ #frog-ui .fg-defense-staffing>span>.fg-pictogram{width:25px;height:26px}
+ #frog-ui .fg-defense-staffing b{font-size:23px}
+ #frog-ui .fg-defense-staffing b small{font-size:15px}
+ #frog-ui .fg-defense-staffing>div{margin:4px 0;height:4px}
+ #frog-ui .fg-defense-staffing>small{font-size:9px;line-height:1.25}
+ #frog-ui .fg-defense-benefits{grid-column:1/-1;margin:6px 0 0;gap:6px}
+ #frog-ui .fg-defense-benefits>span{grid-template-columns:25px auto;grid-template-rows:24px auto;padding:5px;gap:1px 5px}
+ #frog-ui .fg-defense-benefits .fg-pictogram{width:25px;height:25px}
+ #frog-ui .fg-defense-benefits b{font-size:16px}
+ #frog-ui .fg-defense-benefits small{font-size:9px}
+ #frog-ui .fg-defense-benefit-note{grid-column:1/-1;font-size:10px;line-height:1.4;margin:4px 0 0}
+ #frog-ui .fg-defense-team{display:flex;flex-direction:column;min-width:0}
+ #frog-ui .fg-defense-team-heading{order:0;margin:0 0 7px}
+ #frog-ui .fg-defense-team-heading h3{font-size:15px}
+ #frog-ui .fg-defense-team-heading>span{font-size:10px}
+ #frog-ui .fg-defense-how{order:1;font-size:11px;margin:0 0 8px;line-height:1.45}
+ #frog-ui .fg-defense-actions{order:2;gap:6px}
+ #frog-ui .fg-defense-action{min-height:48px;padding:5px 7px;gap:5px;font-size:11px}
+ #frog-ui .fg-defense-action>.fg-pictogram{width:27px;height:29px}
+ #frog-ui .fg-defense-action>b{font-size:12px}
+ #frog-ui .fg-defense-no-cost{order:3;font-size:9px;margin:6px 0 10px}
+ #frog-ui .fg-defense-guards{order:4;grid-template-columns:repeat(2,minmax(0,1fr));max-height:310px;gap:7px}
+ #frog-ui .fg-defense-guard{min-height:142px;padding:7px 5px}
+ #frog-ui .fg-defense-vacancy{min-height:105px}
+ #frog-ui .fg-command-summary{gap:10px;padding:10px}
+ #frog-ui .fg-command-summary>.fg-hq-crest{display:none}
+ #frog-ui .fg-duty-metric>.fg-pictogram{width:30px;height:32px}
+ #frog-ui .fg-duty-metric>span>b{font-size:21px}
+ #frog-ui .fg-duty-metric>span>small{font-size:9px}
+ #frog-ui .fg-global-command{width:100%;justify-content:space-between;margin-left:0;padding-top:7px;border-top:1px solid #b7d19e29}
+ #frog-ui .fg-global-command .fg-command-image{flex:1;max-width:100px}
+ #frog-ui .fg-selected-orders{grid-column:1/-1;grid-template-columns:repeat(5,minmax(44px,1fr));gap:4px}
+ #frog-ui .fg-selected-orders .fg-named-command{width:100%;min-width:44px}
+ #frog-ui .fg-selected-orders .fg-command-caption{font-size:9px}
+}
+@media(max-width:767px),(max-height:500px) and (min-width:540px){
+ #frog-ui .fg-interaction-cost{left:1px;bottom:23px;min-width:23px;height:16px;padding:1px 2px 1px 1px;border-radius:4px}
+ #frog-ui .fg-interaction-cost>.fg-pictogram{width:13px;height:14px}
+ #frog-ui .fg-interaction-cost>b{font-size:10px}
+ #frog-ui .fg-notice-resources{gap:2px}
+ #frog-ui .fg-notice-resources .fg-pictogram{width:19px;height:20px}
+ #frog-ui .fg-notice-resources b{font-size:15px}
+ #frog-ui .fg-notice-label{font-size:9px;line-height:1.2}
+}
