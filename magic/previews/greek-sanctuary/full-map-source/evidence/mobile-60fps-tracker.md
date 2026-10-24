@@ -10,7 +10,7 @@ Goal: full world including real combat at sustained approximately 60 FPS on the 
 
 ## Current protected release
 
-1.6.39,74299a7e0d870ad5baaf121ce38c630b63f199e3. Public/source hashes and Pages run40039978584 verified. This release reduces summon first-use stalls; clean full battles44.12/42.66FPS, P9532/33ms, max75/54ms. Stable60 unresolved. Editable source: `.source/combat-fps-20261021/source/game`; canonical build: `E:/CodexGenerated/Magic/staging/build`. Earlier1.6.37 final phone battle34.64FPS and1.6.38 single visual battle48.33FPS remain historical comparison points, not a guaranteed progression in meanFPS.
+1.6.40,3ed15b9135330ecf09ced0a9008338d62dc2709b. Public/source hashes and Pages40046836316 verified. The physical iPhone loaded the exact public engine25e7079f with no QA/hooks; save/report hashes stayed identical. Mobile HEARTH now selects detail from projected body size. Full candidate native battle44.98FPS/P9528ms/max79ms; courtyard60FPS gate remains OPEN. Previous1.6.39 summon-stall fix retained. Source `.source/combat-fps-20261021/source/game`; canonical build `E:/CodexGenerated/Magic/staging/build`.
 
 ## Checked / fixed / disabled
 
@@ -23,13 +23,19 @@ Goal: full world including real combat at sustained approximately 60 FPS on the 
 | First-use GPU pipelines | Prepared in1.6.37 | Actual offscreen warm draw and asynchronous fence. |
 | Bosses / regular enemies | All ON | Four bosses plus twelve initial regular enemies, native summons. |
 | Torch flames / active lights / animation / physics | ON | No new suppression in current control. |
-| HEARTH geometry | Checked, original retained | Phone A/B/A 28.08 /28.88 /27.45 FPS; ~117k fewer triangles did not resolve combat cost. No model-detail change retained. |
+| HEARTH geometry | Fixed in1.6.40 | Mobile projected-body LOD uses the existing58892triangle surface at~89.6pixel body size, original rig/textures/nozzles/pilot. Current diffuse A/B/A39.45/47.85/40.70FPS; automatic policy44.98FPS. Desktop metric unchanged. |
+| Mobile surface lighting | Temporary approximation | Lambert per-fragment diffuse; IBL, normal/bump and metallic/roughness specular omitted. Full-reference query remains documented. |
+| Fire noise | Temporary sampled approximation | Shared256KiB64cubed lattice; same32mobile samples/shape/lights/smoke. Rejected shader/proxy experiments are absent from runtime. |
 | Shadows | Existing diagnostic freeze | First frames generate original shadow maps; subsequent maps frozen in the existing courtyard fixture. Must address before full-world acceptance. |
 | Full world | Not yet under test | Courtyard gate must pass first. |
 
 Private raw evidence and save backups stay under the fixed generated tests/phone directories. Never publish private phone connection data or storage backups. Benchmark export remains `magic-benchmark.json`.
 
-## Current next control
+## Current next step
+
+Keep the first-room60FPS gate. Geometry is now a demonstrated cost under the current diffuse pipeline. Inspect the remaining imported far-surface budgets (heavy/archer/Mage and static world/props), existing LOD assets and their projected sizes before changing them. Retain original close surfaces/rigs/textures; any new far surface needs same-pose phone image and real full-combat verification. Dynamic shadow restoration is still required before room expansion. No PC FPS tests.
+
+## Earlier controls — historical1.6.37/PBR pipeline
 
 Temporarily omit only the two named `hearth-jet-volume` draws, then restore and repeat the full fight. Models, smoke, light values, damage, physics and AI remain active. The volume shader marches32 samples per pixel at mobile quality, with procedural turbulence at each active sample. Causality is pending the phone result.
 
@@ -93,3 +99,11 @@ Implemented conservative CPU support bounds around the unchanged volume shader;3
 ## 1.6.40 projected-body mobile HEARTH LOD — verified candidate, publication pending (36.0%)
 
 Current diffuse public39 A/B/A:39.45/47.85/40.70FPS,same19kills,182024/58892/182024HEARTHtriangles. Fixed mobile LOD projection (actual body endpoints/drawing-buffer span,scale and angle),existing thresholds/hysteresis retained,desktop unchanged. Candidate automatic policy44.98FPS/P9528/max79ms/19kills/4bosses/3summons;109samples allLOD2,88.84–89.97pixels,noerrors,3preparedhits/0misses. Meancombat642183triangles. Allphone saves restored/public39menu/nohooks/connectionsclosed.497localCPUtests/build passed. Skin-normal/flame-proxy experimental integrations removed from runtime. Specific LOD fix is ready for commit/push;60FPS gate and fullworld remainOPEN. Details PROJECTED-HEARTH-LOD.md.
+
+
+1.6.40 publication VERIFIED: commit3ed15b9135330ecf09ced0a9008338d62dc2709b on main+benchmark, Pages40046836316success. Releasehashca984a016e8509c288609b099345a13435fabfba5b2b017f9b0172e0dec5e162, all runtime/source hashes match. Physicalpublic40menu loaded exactengine25e7079f, noQA/hooks; exactsave/report hashes preserved; connectionsclosed. No activejob/writer. GoalACTIVE38.0%,not60/fullworldcomplete.
+
+
+## 1.6.41 mounted pilot camera update — verified candidate, publication pending (40.0%)
+
+Public40idleinspectionconfirmedmountedMageLOD1/40551triangles/projectedPixelsnull/scale.72:hearth.syncanimateswithoutcameraandnormalsyncskipspilotedplayer. One mobile rigLod.update(camera)afterpose/camerafixesitusingexisting10353triangleLOD2,noassetschanged. Fullnative41fight46.89FPS/P9528/max85/four>50ms/19kills/4bosses/3summons;116timedsamplesallpilotLOD2at32.59–33.49CSSpixels,previousHEARTHLOD2retained,zeroerrors/misses. Differentpathsfrom40reference44.98FPS:smallFPSdifferenceisnotattributed. Actualengine01c24b7dverified;497localtests/buildpassed,seatimageinspected,savesrestored/public40menu/nohooks/connectionsclosed.60FPS/fullworldOPEN. DetailsMOUNTED-PILOT-LOD.md.

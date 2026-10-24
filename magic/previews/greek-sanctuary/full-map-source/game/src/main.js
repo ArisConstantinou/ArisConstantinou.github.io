@@ -1602,6 +1602,9 @@ function frame(now,manual=false){
       syncVisuals(animate);updateCamera(dt);updateHUD();fx.update(animate||dt*.25,camera,animate);
       hearth.sync(animate);
       hearth.engine?.visual.lod?.update(camera,renderer);
+      // Mounted pilots are posed by hearth.sync without an animation camera;
+      // syncVisuals skips them. Refresh their existing mobile LOD after posing.
+      if(mobile&&hearth.occupied)player?.visual.rigLod?.update(camera);
       hearthFX.update({spell:{charged:false},player,hearth:hearth.engine,entities:[],time:runTime,camera,quality});
       if(!held)fx.connect(null);
       if(FIRE_ENABLED)fireFX.update({spell:fireSpell,player,entities,surfaces:worldMap.woodenSurfaces,time:runTime,camera,playing:['playing','paused'].includes(phase),source:fireSpell.sourceFor(player,fireLineClear,aimPoint)});
