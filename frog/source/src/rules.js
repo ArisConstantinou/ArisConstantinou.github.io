@@ -68,7 +68,10 @@ export function validateSave(data){
   copy.player=actor({...copy.player,team:'player',id:'player'});
   copy.frogs=copy.frogs.filter(f=>f&&typeof f==='object'&&typeof f.id==='string'&&Number.isFinite(f.x)&&Number.isFinite(f.z)&&f.hp>0&&validTeam(f.team)&&f.team!=='player').map(actor);
   copy.camps=copy.camps.filter(c=>c&&typeof c==='object'&&typeof c.id==='string'&&Number.isFinite(c.x)&&Number.isFinite(c.z)&&validTeam(c.team)).map(c=>({...c,name:typeof c.name==='string'?c.name.slice(0,80):'Καταφύγιο',x:clamp(c.x,-WORLD_BOUNDARY,WORLD_BOUNDARY),z:clamp(c.z,-WORLD_BOUNDARY,WORLD_BOUNDARY),yaw:Number.isFinite(c.yaw)?Math.atan2(Math.sin(c.yaw),Math.cos(c.yaw)):0,tier:Math.floor(clamp(c.tier||1,1,3)),maxHp:clamp(c.maxHp||350,100,10000),gateHp:Number.isFinite(c.gateHp)?clamp(c.gateHp,0,10000):undefined,hp:clamp(c.hp??350,0,clamp(c.maxHp||350,100,10000)),stock:{food:clamp(c.stock?.food||0,0,1e6),reeds:clamp(c.stock?.reeds||0,0,1e6)},buildings:Object.fromEntries(['store','nursery','training','watchtower','palisade'].map(k=>[k,!!c.buildings?.[k]])),morale:clamp(c.morale??100,0,100),destroyed:!!c.destroyed,originalEnemy:!!c.originalEnemy,originalTeam:typeof c.originalTeam==='string'&&/^enemy\d+$/.test(c.originalTeam)?c.originalTeam:null,rivalIndex:Math.floor(clamp(c.rivalIndex??Number((c.team.match(/enemy(\d+)/)||[])[1])??0,0,4)),capturedOnce:!!c.capturedOnce,destroyRewarded:!!c.destroyRewarded,rebuildTimer:clamp(c.rebuildTimer||0,0,300),persuadeCD:clamp(c.persuadeCD||0,0,copy.elapsed+60),supplyMigrated:!!c.supplyMigrated,spawnTimer:clamp(c.spawnTimer||0,0,10000),mealCount:clamp(c.mealCount||0,0,2),mealDay:clamp(c.mealDay||0,0,1e6)}));
-  for(const camp of copy.camps)camp.buildingPlacements=normalizeBuildingPlacements(camp);
+  for(const camp of copy.camps){
+    camp.buildingPlacements=normalizeBuildingPlacements(camp);
+    if(camp.team==='ally'&&!camp.buildings.nursery)camp.spawnTimer=0;
+  }
   copy.campaign=copy.campaign&&typeof copy.campaign==='object'?createCampaign(copy.campaign):null;
   copy.stats={...(copy.stats&&typeof copy.stats==='object'?copy.stats:{})};
   for(const key of ['trained','gatheredFood','gatheredReeds'])copy.stats[key]=clamp(copy.stats[key]||0,0,1e8);

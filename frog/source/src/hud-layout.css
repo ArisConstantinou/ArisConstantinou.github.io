@@ -513,6 +513,26 @@
   #frog-ui .fg-compact-hud .fg-hunt-heading>span:last-child{font-size:12px}
   #frog-ui .fg-compact-hud .fg-hunt-response{justify-content:flex-start}
 }
+
+/* Explain each purchase without requiring a hover, retaining the single row. */
+#frog-ui .fg-building-panel .fg-illustrated-build .fg-picture-building{display:flex;flex-direction:column;align-items:stretch}
+#frog-ui .fg-building-panel .fg-building-description{display:block;min-height:43px;margin:0 0 9px;color:#c6d5b6;font-size:11px;line-height:1.4;text-align:left;white-space:normal;overflow-wrap:break-word}
+#frog-ui .fg-building-panel .fg-building-reason{display:block;margin:0 0 9px;padding:5px 6px;border-radius:5px;background:#61482950;color:#efd09a;font-size:10px;line-height:1.35;text-align:left;white-space:normal}
+#frog-ui .fg-building-panel .fg-picture-building .fg-cost-label{margin-top:auto}
+/* Keep the hunt card inside the gap between player information and the map. */
+@media(min-width:768px) and (max-width:840px) and (min-height:501px){
+  #frog-ui .fg-compact-hud .fg-hunt{left:calc(50% - 9px);width:calc(100vw - 474px);max-width:342px}
+}
+@media(max-height:500px) and (min-width:540px) and (max-width:640px){
+  #frog-ui .fg-compact-hud .fg-hunt{left:calc(50% + 2px);width:min(260px,calc(100vw - 372px));min-height:84px;padding:6px;gap:5px}
+  #frog-ui .fg-compact-hud .fg-hunt-portrait{width:30px;height:36px}
+  #frog-ui .fg-compact-hud .fg-hunt-portrait>span:not(.fg-hunt-badge){width:28px;height:32px}
+  #frog-ui .fg-compact-hud .fg-hunt-heading{height:auto;min-height:22px;flex-wrap:wrap;gap:2px}
+  #frog-ui .fg-compact-hud .fg-hunt-heading>span:last-child{font-size:10px}
+  #frog-ui .fg-compact-hud .fg-hunt-heading [data-ref="predatorPhaseIcon"]{width:18px;height:20px}
+  #frog-ui .fg-compact-hud .fg-hunt-response{height:auto;min-height:18px;flex-wrap:wrap;gap:3px}
+  #frog-ui .fg-compact-hud .fg-hunt-response>.fg-pictogram{width:18px;height:18px}
+}
 #frog-ui .fg-compact-hud .fg-map-stronghold{display:flex;align-items:center;gap:4px;min-height:23px;margin-top:3px;padding-top:4px;border-top:1px solid #d4a97433;font-size:9px;line-height:1.15;color:#ecc39b;white-space:nowrap}
 #frog-ui .fg-compact-hud .fg-map-stronghold>.fg-pictogram{width:20px;height:20px;flex:none}
 #frog-ui .fg-compact-hud .fg-map-stronghold b{font-variant-numeric:tabular-nums;color:#ffdfb0}
@@ -525,6 +545,10 @@
 }
 
 /* Fortifications expose the gate condition only in the construction/defense panels. */
+/* Leave room for boss labels above the action bar on short screens. */
+@media(max-height:500px) and (min-width:540px){
+  #frog-ui .fg-compact-hud .fg-location .fg-map-button.fg-minimap{width:min(100%,max(70px,calc(100dvh - 250px)));margin-inline:auto}
+}
 #frog-ui .fg-base-badges{flex-wrap:wrap;gap:7px 12px}
 #frog-ui .fg-gate-condition{display:flex;align-items:center;justify-content:center;gap:6px;color:#d8dfba}
 #frog-ui .fg-gate-condition>.fg-pictogram{width:28px;height:29px;flex:none}

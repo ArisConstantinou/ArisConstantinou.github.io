@@ -128,6 +128,25 @@ test('construction shelf arrows scroll one card, expose boundary state and never
   assert.equal(html.includes('<b>87<small>'),false);
 });
 
+test('construction cards explain benefits and refusal reasons while preserving castle controls',()=>{
+  const {ui}=fixture();
+  const camp={id:'castle',name:'Οχυρό Ιτιάς',team:'ally',hp:400,maxHp:500,gateHp:120,gateMaxHp:240,buildings:{watchtower:true}};
+  ui.state={resources:{food:20,reeds:40},currentCamp:camp,camps:[camp],allies:[],recruitmentUnlimited:true,buildOptions:[
+    {type:'nursery',name:'Φωλιά',description:'Νέες ενισχύσεις χωρίς όριο πληθυσμού.',cost:{food:22,reeds:28},enabled:false,reason:'Λείπουν 2 τροφή.'},
+    {type:'palisade',name:'Οχυρά τείχη',description:'Ενισχύει την περίμετρο και την πύλη.',cost:{food:8,reeds:30},enabled:true},
+    {type:'watchtower',name:'Σκοπιά',description:'Χρειάζεται πραγματικούς φρουρούς.',cost:{food:12,reeds:24},built:true,enabled:false}
+  ]};
+  const html=ui.buildMarkup();
+  assert.match(html,/<p class="fg-building-description">Νέες ενισχύσεις χωρίς όριο πληθυσμού\.<\/p>/);
+  assert.match(html,/<p class="fg-building-reason">Λείπουν 2 τροφή\.<\/p>/);
+  assert.match(html,/<p class="fg-building-description">Ενισχύει την περίμετρο και την πύλη\.<\/p>/);
+  assert.match(html,/fg-gate-condition/);assert.match(html,/<b>120 \/ 240<\/b>/);
+  assert.match(html,/Όλη η περίμετρος \+ πύλη/);
+  assert.match(html,/data-type="palisade" draggable="false"/);
+  assert.match(html,/data-action="defense-open" data-type="watchtower"/);
+  assert.doesNotMatch(html,/θέσεις στέγασης|slotsUsed|fg-building-slots/);
+});
+
 
 test('the default HUD has a permanent minimap and an explicit uncapped population counter',()=>{
   const {html}=fixture();
