@@ -54,15 +54,30 @@ export function computeHUDLayout({viewport={},bounds={},mainPanel={},pauseOpen=f
 
   const centerWidth=w=>centerAvailable?Math.min(w,corridorWidth):Math.min(w,Math.max(130,leftHUDRight-left),usableWidth);
   const centerX=w=>centerAvailable?corridorLeft+(corridorWidth-w)/2:left;
-  const goalSource=b.hunt||b.objective,goalWidth=centerWidth(b.hunt?342:234),goalX=centerX(goalWidth);
+  const goalSource=b.objective||b.hunt,goalWidth=centerWidth(b.objective?328:342),goalX=centerX(goalWidth);
   const goalTop=centerAvailable?top:topAt(goalX,goalWidth);
   const goal=box(goalX,goalTop,goalWidth,Math.min(goalSource?.height||0,Math.max(0,bottomAt(goalX,goalWidth)-goalTop)));
   result.goal=goal;if(goalSource&&goal.height)reservedRects.push(goal);
 
   let centerObstacles=goalSource&&goal.height?[goal]:[];
-  if(objectiveDetailsOpen&&b.objective&&!b.hunt){
+  if(b.hunt){
+    let huntWidth=centerWidth(342),huntX=centerX(huntWidth);
+    let huntTop=b.objective?Math.max(goal.bottom+gap,topAt(huntX,huntWidth)):goal.top;
+    // Short phones can fit the warning beside the objective, below the map.
+    // Its natural height must stay intact: the health/response UI cannot scroll.
+    if(b.objective&&b.minimap&&huntTop+b.hunt.height>bottomAt(huntX,huntWidth)){
+      const alternateWidth=Math.min(b.minimap.width,usableWidth),alternateX=width-right-alternateWidth;
+      const alternateTop=topAt(alternateX,alternateWidth),alternate=box(alternateX,alternateTop,alternateWidth,b.hunt.height);
+      if(alternate.bottom<=bottomAt(alternateX,alternateWidth)&&![...upper,...lower,goal].some(o=>hudRectsOverlap(alternate,o))){
+        huntWidth=alternateWidth;huntX=alternateX;huntTop=alternateTop;
+      }
+    }
+    result.hunt=b.objective?box(huntX,huntTop,huntWidth,b.hunt.height):goal;
+    if(b.objective&&result.hunt.height){centerObstacles.push(result.hunt);reservedRects.push(result.hunt);}
+  }
+  if(objectiveDetailsOpen&&b.objective){
     const detailWidth=Math.min(376,centerAvailable?corridorWidth:usableWidth),detailX=centerAvailable?corridorLeft+(corridorWidth-detailWidth)/2:left;
-    const detailTop=Math.max(goal.bottom+gap,topAt(detailX,detailWidth));
+    const detailTop=Math.max(goal.bottom+gap,(result.hunt?.bottom||0)+gap,topAt(detailX,detailWidth));
     const constructionWidth=centerWidth(310),constructionX=centerX(constructionWidth);
     const constructionReserve=b.construction&&crossesX(span(detailX,detailWidth),span(constructionX,constructionWidth),gap)?Math.min(b.construction.height,b.constructionHeader?.height||34)+gap:0;
     const detailHeight=Math.min(b.objectiveDetails?.height||220,Math.max(0,bottomAt(detailX,detailWidth)-detailTop-constructionReserve));
@@ -160,13 +175,14 @@ export function refreshHUDLayout(ui){
   const options={viewport:{width,height},bounds,mainPanel,pauseOpen:Boolean(ui.menu==='pause'&&!refs.pause?.hidden&&!hudDrawerOpen),pauseExpanded:ui.pauseExpanded!==false,endingOpen:Boolean(ui.menu==='ending'&&!refs.ending?.hidden&&!hudDrawerOpen),conceptOpen:Boolean(ui.conceptPanelsOpen&&!refs.guideHint?.hidden&&!mainPanel.guide&&!(hudDrawerOpen&&width<590)),objectiveDetailsOpen:ui.hudDisclosure==='objectives',actionDrawerOpen:ui.hudDisclosure==='actions'};
   let layout=computeHUDLayout(options);
   // Width changes can wrap labels. Measure once more synchronously before placing later panels.
-  setPlacement(root,'goal',layout.goal);setPlacement(root,'construction',layout.construction);setPlacement(root,'action-drawer',layout.actionDrawer);
-  const resizedGoal=visibleBounds(refs.hunt?.hidden?refs.objectiveBox:refs.hunt);
-  if(resizedGoal){if(bounds.hunt)bounds.hunt.height=resizedGoal.height;else if(bounds.objective)bounds.objective.height=resizedGoal.height;}
+  setPlacement(root,'goal',layout.goal);setPlacement(root,'hunt',layout.hunt);setPlacement(root,'construction',layout.construction);setPlacement(root,'action-drawer',layout.actionDrawer);
+  const resizedGoal=visibleBounds(refs.objectiveBox),resizedHunt=visibleBounds(refs.hunt);
+  if(resizedGoal&&bounds.objective)bounds.objective.height=resizedGoal.height;
+  if(resizedHunt&&bounds.hunt)bounds.hunt.height=resizedHunt.height;
   if(bounds.construction&&ui.constructionExpanded!==false)bounds.construction.height=Math.min(350,(visibleBounds(refs.constructionToggle)?.height||34)+number(refs.constructionBody?.scrollHeight));
   const resizedDrawer=visibleBounds(refs.actionDrawer,{naturalHeight:true});if(resizedDrawer)bounds.actionDrawer=resizedDrawer;
   layout=computeHUDLayout(options);
-  setPlacement(root,'selection',layout.selection);setPlacement(root,'tactics',layout.tactics);setPlacement(root,'left-panel',layout.left);setPlacement(root,'right-panel',layout.right);setPlacement(root,'goal',layout.goal);setPlacement(root,'goal-details',layout.objectiveDetails);setPlacement(root,'construction',layout.construction);setPlacement(root,'concept',layout.concept);setPlacement(root,'action-drawer',layout.actionDrawer);
+  setPlacement(root,'selection',layout.selection);setPlacement(root,'tactics',layout.tactics);setPlacement(root,'left-panel',layout.left);setPlacement(root,'right-panel',layout.right);setPlacement(root,'goal',layout.goal);setPlacement(root,'hunt',layout.hunt);setPlacement(root,'goal-details',layout.objectiveDetails);setPlacement(root,'construction',layout.construction);setPlacement(root,'concept',layout.concept);setPlacement(root,'action-drawer',layout.actionDrawer);
   root.classList.toggle('fg-full-guide-open',layout.fullGuideOpen);root.classList.toggle('fg-hud-drawer-open',layout.hudDrawerOpen);root.classList.toggle('fg-layout-construction-compact',layout.constructionCompact);root.classList.toggle('fg-layout-stacked-panels',layout.stackedPanels);root.classList.add('fg-layout-ready');
   return layout;
 }

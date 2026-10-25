@@ -28,6 +28,7 @@ import {tickRealmEvents,recordRealmPredatorDefeat,realmDescriptor} from './realm
 import {builderIntent,updateConstructionSites} from './construction.js';
 import {drawConstructionLabels} from './construction-labels.js';
 import {queueCombatStrike,updateCombatFeedback,registerCombatHit,applyCombatImpulse} from './combat-feedback.js';
+import {FROG_HOP,requestFrogTravel,beginFrogJump,advanceFrogTravel,landFrog,frogHopPose} from './frog-locomotion.js';
 
 const V=THREE.Vector3,TAU=Math.PI*2;
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
@@ -56,14 +57,14 @@ export class FrogGame {
     this.selectedIds=new Set();this.portraitCache=new Map();this.portraitQueue=[];this.iconCache=new Map();this.frogs=[];this.predators=[];this.camps=[];this.resources={food:22,reeds:40};this.elapsed=0;this.frameTime=0;this.idCounter=0;this.random=mulberry32(9541);
     this.started=false;this.paused=true;this.ended=false;this.won=false;this.command='follow';this.targetCommand=null;this.specialIndex=0;
     this.ui=new GameUI({onAction:(a,p)=>this.onAction(a,p),onStart:mode=>this.start(mode),onResume:()=>this.resume(),onSettings:s=>this.setSettings(s)});this.ui.setSettings(this.settings);
-    this.input=new GameInput(this.renderer.domElement,a=>{if(a==='escape')this.escape();else if(this.started&&!this.paused&&!this.ui.panel&&!this.activeRecruitId&&!this.ui.conceptPanelsOpen&&performance.now()>(this.ignoreUnlockUntil||0))this.pause();});
+    this.input=new GameInput(this.renderer.domElement,a=>this.handleInputAction(a));
     this.labels=document.createElement('canvas');this.labels.id='world-labels';Object.assign(this.labels.style,{position:'fixed',inset:'0',width:'100%',height:'100%',pointerEvents:'none',zIndex:4});document.body.append(this.labels);this.labelCtx=this.labels.getContext('2d');
     this.timers={ui:0,save:0,objective:0,raids:0,lighting:0,flyAttack:0};this.shake=0;this.hitPause=0;this.stats=this.emptyStats();this.hunt=null;
     this.resetWorld();this.saved=this.readSave();this.ui.showTitle(!!this.saved);this.saveLoadPromise=this.loadCampaignSave();this.applySettings();this.resize();this.makePortraits();
     addEventListener('resize',()=>this.resize());addEventListener('beforeunload',()=>this.save());document.addEventListener('visibilitychange',()=>{if(document.hidden&&this.started){this.save();this.pause();}});
     this.renderer.domElement.addEventListener('click',()=>{if(this.canLockGameplayPointer()&&!this.input.pointerLocked)this.input.lock();});
     this.last=performance.now();this.fps=60;this.renderer.setAnimationLoop(now=>this.frame(now));
-    window.__FROG__={version:'2.1.1',inspect:()=>this.inspect(),save:()=>this.save()};
+    window.__FROG__={version:'2.1.2',inspect:()=>this.inspect(),save:()=>this.save()};
     document.getElementById('boot')?.remove();
   }
   emptyStats(){return {flies:0,recruited:0,kills:0,predatorsKilled:0,predatorsRepelled:0,campsBuilt:0,campsCaptured:0,raidsDefended:0,losses:0,gatheredFood:0,gatheredReeds:0,trained:0,crafted:0};}
@@ -128,10 +129,30 @@ export class FrogGame {
     this.resetWorld(mode==='continue'&&this.saved?this.saved:null);
     this.started=true;this.paused=false;this.ended=false;this.ui.closePanels();this.ui.showPause(false);this.audio.init?.();this.audio.start?.();this.audio.setVolume?.(this.settings.volume);this.input.clear();this.input.lock();
     this.audio.setPaused?.(false);
-    this.ui.toast(mode==='continue'?'WASD κίνηση · Shift τρέξιμο · E αλληλεπίδραση':'Ξεκινάς μόνος ως Ευγενής. Πλησίασε έναν κίτρινο βάτραχο και πάτησε E για να μάθεις τους όρους ένταξης. H: εικονογραφημένος οδηγός.','info');this.discoverGuide('movement');this.save();
+    this.ui.toast(mode==='continue'?'WASD πηδήματα · Shift γρήγορα άλματα · E αλληλεπίδραση · O στόχοι':'Ξεκινάς μόνος ως Ευγενής. Πλησίασε έναν κίτρινο βάτραχο και πάτησε E για να μάθεις τους όρους ένταξης. H: εικονογραφημένος οδηγός.','info');this.discoverGuide('movement');this.save();
   }
-  pause(){if(!this.started||this.ended)return;this.paused=true;this._guidePause=null;this.audio.setPaused?.(true);this.input.clear();this.input.unlock();this.ui.showPause(true);this.save();}
-  canLockGameplayPointer(){return this.started&&!this.paused&&!this.ended&&!this.ui.panel&&!this.ui.hudDisclosure&&!this.ui.conceptPanelsOpen&&!this.activeRecruitId&&!this.buildPlacement?.active;}
+  handleInputAction(action){
+    if(action==='escape'){this.escape();return;}
+    if(action==='cursor-on'){
+      if(!this.started||this.paused||this.ended||this.input.cursorMode)return;
+      this.cursorWasLocked=Boolean(this.input.pointerLocked);this.input.cursorMode=true;
+      this.ignoreUnlockUntil=performance.now()+700;
+      this.input.left=false;this.input.right=false;this.input.pressed?.delete('MouseLeft');this.input.pressed?.delete('MouseRight');this.input.clearMouseMotion?.();
+      this.input.unlock?.();return;
+    }
+    if(action==='cursor-off'){
+      if(!this.input.cursorMode)return;
+      const relock=this.cursorWasLocked;this.cursorWasLocked=false;this.input.cursorMode=false;this.input.clearMouseMotion?.();
+      if(relock&&this.canLockGameplayPointer())this.input.lock?.();return;
+    }
+    if(action==='blur'){
+      this.input.cursorMode=false;this.cursorWasLocked=false;
+      if(this.started&&!this.paused&&!this.ended)this.pause();return;
+    }
+    if(this.started&&!this.paused&&!this.input.cursorMode&&!this.ui.panel&&!this.ui.hudDisclosure&&!this.activeRecruitId&&!this.ui.conceptPanelsOpen&&performance.now()>(this.ignoreUnlockUntil||0))this.pause();
+  }
+  pause(){if(!this.started||this.ended)return;this.paused=true;this._guidePause=null;this.input.cursorMode=false;this.cursorWasLocked=false;this.audio.setPaused?.(true);this.input.clear();this.input.unlock();this.ui.showPause(true);this.save();}
+  canLockGameplayPointer(){return this.started&&!this.paused&&!this.ended&&!this.input?.cursorMode&&!this.ui.panel&&(!this.ui.hudDisclosure||this.ui.hudDisclosure==='objectives')&&!this.ui.conceptPanelsOpen&&!this.buildPlacement?.active;}
   resume(){if(!this.started)return;this.paused=false;this.ended=false;this._guidePause=null;this.ui.hideMenus();this.audio.setPaused?.(false);this.input.clear();if(this.canLockGameplayPointer())this.input.lock();}
   escape(){
     if(['guide','help'].includes(this.ui.panel)&&this.ui.guideReturn){this.ui.closeGuideCard();return;}
@@ -155,6 +176,7 @@ export class FrogGame {
     if(this.input.hit('KeyC')&&this.started&&!this.ended){cycleGameView(this);this.input.pressed.delete('KeyC');}
     if(this.input.hit('KeyB')){this.toggleHUDControls();this.input.pressed.delete('KeyB');}
     if(this.input.hit('KeyU')){this.toggleConceptPanels();this.input.pressed.delete('KeyU');}
+    if(this.input.hit('KeyO')){this.toggleObjectives();this.input.pressed.delete('KeyO');}
     if(this.ui.panel&&this.started&&!this.paused&&!this.buildPlacement?.active){
       if((this.ui.panel==='build'&&this.input.hit('KeyV'))||(['roster','map'].includes(this.ui.panel)&&this.input.hit('Tab'))){this.ui.closePanels();this.paused=false;this.input.pressed.delete('KeyV');this.input.pressed.delete('Tab');if(this.canLockGameplayPointer())this.input.lock();}
       else if(this.ui.panel==='build'){for(let i=0;i<8;i++)if(this.input.hit(`Digit${i+1}`)){const b=this.buildOptions()[i];if(b?.enabled)this.build(b.type);this.input.pressed.delete(`Digit${i+1}`);}}
@@ -184,18 +206,21 @@ export class FrogGame {
   updatePlayer(dt){
     const p=this.player;p.surrendered=false;if(p.dead){this.deathTimer+=dt;if(this.deathTimer>3)this.respawn();return;}
     for(const k of ['attackCD','specialCD','invulnerable','stun','eatCD','roarCD','dodgeCD'])p[k]=Math.max(0,(p[k]||0)-dt);
-    if(p.grabbedBy){if(this.input.hit('KeyQ')||this.input.hit('Space')||this.input.hit('KeyR')){p.grabbedBy.rescueDamage+=13;this.audio.play?.('hit');}return;}
+    if(p.grabbedBy){p.hop=null;if(this.input.hit('KeyQ')||this.input.hit('Space')||this.input.hit('KeyR')){p.grabbedBy.rescueDamage+=13;this.audio.play?.('hit');}return;}
     const ix=(this.input.down('KeyD')?1:0)-(this.input.down('KeyA')?1:0),iz=(this.input.down('KeyW')?1:0)-(this.input.down('KeyS')?1:0),len=Math.hypot(ix,iz);
     const sprint=this.input.down('ShiftLeft')&&p.stamina>8&&len>0,blocking=!this.buildPlacement?.active&&this.input.right&&p.stamina>2;p.blocking=blocking;if(blocking)this.discoverGuide('block',{pause:false});if(sprint)this.discoverGuide('sprint',{pause:false});
     let speed=(sprint?MOVEMENT.sprint:MOVEMENT.walk)*(p.stomach<10?.78:1)*(p.swimming?MOVEMENT.swimming:1)*(blocking?.55:1)*(p.stun>0?.1:1);
     const moveYaw=this.viewMode==='topdown'?0:this.cameraYaw;
     const mx=len?(Math.sin(moveYaw)*iz-Math.cos(moveYaw)*ix)/len:0,mz=len?(Math.cos(moveYaw)*iz+Math.sin(moveYaw)*ix)/len:0;
-    p.vx=THREE.MathUtils.damp(p.vx,mx*speed,MOVEMENT.acceleration,dt);p.vz=THREE.MathUtils.damp(p.vz,mz*speed,MOVEMENT.acceleration,dt);
-    if(len)p.yaw=angleLerp(p.yaw,Math.atan2(mx,mz),dt*14);if(blocking||this.input.left||this.viewMode==='first'||this.viewMode==='topdown')p.yaw=angleLerp(p.yaw,this.aimYaw??this.cameraYaw,dt*14);
-    if(this.input.hit('Space')&&p.grounded&&p.stamina>12)p.charge=0;
+    requestFrogTravel(p,mx*speed,mz*speed);
+    // Looking/aiming may turn a stationary frog, but locomotion always faces
+    // the committed take-off direction, including side/backward input.
+    if(!len&&p.grounded&&(blocking||this.input.left||this.viewMode==='first'||this.viewMode==='topdown'))p.yaw=angleLerp(p.yaw,this.aimYaw??this.cameraYaw,dt*14);
+    if(this.input.hit('Space')&&p.stamina>12){p.charge=0;p.jumpReleaseQueued=false;}
     if(p.charge>=0&&this.input.down('Space'))p.charge=Math.min(.65,p.charge+dt);
-    if(this.input.up('Space')&&p.charge>=0){this.jump(p,8+p.charge*4);p.stamina-=12+p.charge*8;p.charge=-1;}
-    if(this.input.hit('KeyZ')&&p.dodgeCD===0&&p.stamina>=22){p.stamina-=22;p.dodgeCD=1.5;p.invulnerable=.42;this.discoverGuide('dodge',{pause:false});p.vx=(mx||Math.sin(this.cameraYaw))*MOVEMENT.dodge;p.vz=(mz||Math.cos(this.cameraYaw))*MOVEMENT.dodge;this.jump(p,4.5);this.audio.play?.('jump');}
+    if(this.input.up('Space')&&p.charge>=0)p.jumpReleaseQueued=true;
+    if(p.jumpReleaseQueued&&p.charge>=0&&p.grounded){const cost=12+p.charge*8;if(p.stamina>=cost){this.jump(p,8+p.charge*4);p.stamina-=cost;}p.charge=-1;p.jumpReleaseQueued=false;}
+    if(this.input.hit('KeyZ'))this.dodge();
     this.moveActor(p,dt);p.stamina=clamp(p.stamina+dt*(sprint?-12:blocking?-3.5:15),0,100);p.stomach=clamp(p.stomach-dt*(sprint?.14:.085),0,100);
     if(p.stomach<=0&&this.elapsed%2<dt)this.damage(p,2,null);
     if(this.buildPlacement?.active){if(this.input.hit('KeyQ'))this.rotateBuildingPlacement(-1);if(this.input.hit('KeyR'))this.rotateBuildingPlacement(1);if(this.input.hit('MouseLeft'))this.confirmBuildingPlacement();return;}this.aimTarget=this.findAim();
@@ -210,12 +235,31 @@ export class FrogGame {
     for(let i=0;i<3;i++)if(this.input.hit(`Digit${i+4}`))this.handleKingdomAction(this.input.down('ShiftLeft')?'save-group':'select-group',{groupId:String(i+1)});
     if(this.input.hit('KeyG'))this.consume();for(let i=0;i<3;i++)if(this.input.hit(`Digit${i+1}`)){this.specialIndex=i;this.ui.toast(`Ειδική κίνηση: ${['Εναέρια κλωτσιά','Βαριά προσγείωση','Χτύπημα γλώσσας'][i]}`);}
   }
-  jump(f,strength=7){if(!f.grounded&&!f.swimming)return;f.vy=strength;f.grounded=false;f.jumpTime=.8;this.world.splash(new V(f.x,Math.max(0,f.y),f.z),.4);if(f===this.player){this.audio.play?.('jump');this.discoverGuide('jump',{pause:false});}}
+  jump(f,strength=7,options={}){if(!beginFrogJump(f,strength,options))return false;this.world.splash(new V(f.x,Math.max(0,f.y),f.z),.4);if(f===this.player){this.audio.play?.('jump');this.discoverGuide('jump',{pause:false});}return true;}
+  dodge(){
+    const p=this.player;if(!p||p.dead||p.grabbedBy||(p.dodgeCD||0)>0||p.stamina<22||this.paused||this.ended)return false;
+    const ix=(this.input.down('KeyD')?1:0)-(this.input.down('KeyA')?1:0),iz=(this.input.down('KeyW')?1:0)-(this.input.down('KeyS')?1:0),len=Math.hypot(ix,iz),yaw=this.viewMode==='topdown'?0:this.cameraYaw;
+    const dx=len?(Math.sin(yaw)*iz-Math.cos(yaw)*ix)/len:Math.sin(this.aimYaw??this.cameraYaw??p.yaw),dz=len?(Math.cos(yaw)*iz+Math.sin(yaw)*ix)/len:Math.cos(this.aimYaw??this.cameraYaw??p.yaw);
+    p.vx=dx*MOVEMENT.dodge;p.vz=dz*MOVEMENT.dodge;
+    // An explicit dodge can redirect in the air. Ordinary movement cannot;
+    // this starts a new visible impulse and commits its own heading/pose.
+    if(!this.jump(p,4.5,{redirect:true}))return false;
+    p.stamina-=22;p.dodgeCD=1.5;p.invulnerable=.42;p.charge=-1;p.jumpReleaseQueued=false;
+    this.discoverGuide('dodge',{pause:false});return true;
+  }
   moveActor(f,dt){
-    const recoil=applyCombatImpulse(f,dt),intended={x:clamp(f.x+f.vx*dt+recoil.dx,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1),z:clamp(f.z+f.vz*dt+recoil.dz,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1)},resolved=resolveFortMovement(this.camps,f,intended);let nx=resolved.x,nz=resolved.z,surface=this.world.getSurface(nx,nz),height=surface.height;
-    if(height>f.y+.65&&f.grounded){nx=f.x;nz=f.z;surface=this.world.getSurface(nx,nz);height=surface.height;if(f!==this.player)this.jump(f,7.5);}
-    f.x=nx;f.z=nz;f.speed=Math.hypot(f.vx,f.vz);f.swimming=surface.type==='water';
-    if(!f.grounded){f.vy-=20*dt;f.y+=f.vy*dt;if(f.y<=height&&f.vy<=0){const force=Math.abs(f.vy);f.y=height;f.vy=0;f.grounded=true;f.jumpTime=0;if(f.swimming||surface.type==='lily')this.world.splash(new V(f.x,0,f.z),Math.min(1.2,force*.12));if(f===this.player&&force>5)this.audio.play?.('land');}}
+    // A small terrain probe gives AI frogs a higher take-off when a rock is
+    // immediately ahead. The same collision/surface solver still owns travel.
+    f.hopStrength=FROG_HOP.strength;
+    if(f.grounded&&f.travelWish){const wish=f.travelWish,d=Math.hypot(wish.vx,wish.vz);if(d>.05){const ahead=this.world.getSurface(f.x+wish.vx/d*.9,f.z+wish.vz/d*.9),rise=ahead.height-f.y;if(rise>.45&&f!==this.player)f.hopStrength=Math.min(8.5,Math.sqrt(2*FROG_HOP.gravity*(rise+.25)));if(f.swimming&&ahead.type!=='water'&&rise>.1&&!(f.charge>=0)){const strength=Math.min(8.5,Math.max(FROG_HOP.strength,Math.sqrt(2*FROG_HOP.gravity*(rise+.25))));beginFrogJump(f,strength,{automatic:true});}}}
+    const motionDt=advanceFrogTravel(f,dt);
+    const recoil=applyCombatImpulse(f,dt),intended={x:clamp(f.x+f.vx*motionDt+recoil.dx,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1),z:clamp(f.z+f.vz*motionDt+recoil.dz,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1)},resolved=resolveFortMovement(this.camps,f,intended);let nx=resolved.x,nz=resolved.z,surface=this.world.getSurface(nx,nz),height=surface.height;
+    const nextY=f.y+f.vy*motionDt-.5*FROG_HOP.gravity*motionDt*motionDt;
+    if(height>Math.max(f.y,nextY)+.16){nx=f.x;nz=f.z;surface=this.world.getSurface(nx,nz);height=surface.height;}
+    let landingRemainder=0;
+    if(!f.grounded&&nextY<=height+1e-7&&f.vy-FROG_HOP.gravity*motionDt<=0){const discriminant=f.vy*f.vy+2*FROG_HOP.gravity*(f.y-height);if(discriminant>=0){const contact=clamp((f.vy+Math.sqrt(discriminant))/FROG_HOP.gravity,0,motionDt),ratio=motionDt>0?contact/motionDt:0;nx=f.x+(nx-f.x)*ratio;nz=f.z+(nz-f.z)*ratio;landingRemainder=motionDt-contact;surface=this.world.getSurface(nx,nz);height=surface.height;}}
+    const oldX=f.x,oldZ=f.z;f.x=nx;f.z=nz;f.speed=Math.hypot(nx-oldX,nz-oldZ)/Math.max(dt,.00001);f.swimming=surface.type==='water';
+    if(!f.grounded){f.y=nextY;f.vy-=FROG_HOP.gravity*motionDt;if(f.y<=height+1e-7&&f.vy<=0){const force=Math.abs(f.vy),automatic=f.hop?.automatic;f.y=height;landFrog(f);f.hop.time=landingRemainder;if(f.swimming||surface.type==='lily')this.world.splash(new V(f.x,0,f.z),Math.min(1.2,force*.12));if(f===this.player&&force>5&&!automatic)this.audio.play?.('land');}}
     else if(f.y>height+.2){f.grounded=false;f.vy=0;}else{f.y=height+(f.swimming?Math.sin(this.elapsed*4+f.seed)*.025:0);}
     f.jump=f.grounded?0:clamp(f.vy/10,-1,1);if(f.swimming&&f.speed>1&&Math.random()<dt*3)this.world.splash(new V(f.x,0,f.z),.12);
   }
@@ -319,7 +363,7 @@ export class FrogGame {
     const type=f===this.player?['kick','slam','tongue'][this.specialIndex]:f.role==='bruiser'?'slam':f.role==='hunter'?'tongue':'kick';
     f.specialCD=type==='slam'?5.2:4;f.specialDuration=f.specialCD;f.attackAnim=.65;f.attackDuration=.65;f.attackType=type;if(f===this.player)f.stamina-=23;
     const aim=f===this.player?(this.aimYaw??this.cameraYaw):f.yaw;f.yaw=aim;const radius=type==='tongue'?8:type==='slam'?4.6:3.8;
-    if(type==='kick'){this.jump(f,5.3);f.vx=Math.sin(aim)*8;f.vz=Math.cos(aim)*8;}
+    if(type==='kick'){if(f.grounded||f.swimming){f.vx=Math.sin(aim)*8;f.vz=Math.cos(aim)*8;this.jump(f,5.3);}}
     queueCombatStrike(this,{source:f,kind:type,damage:attackDamage(type==='kick'?43:type==='slam'?33:29,f.tier,f.level),range:radius,yaw:aim,arc:type==='slam'?-1:-.1,area:true,includeCamps:true,slot:'special'});
     if(type==='tongue')this.vfx.tongue(f,new V(f.x+Math.sin(aim)*radius,f.y+.65,f.z+Math.cos(aim)*radius));
     if(f===this.player)this.discoverGuide(type==='tongue'?'sweep':type,{pause:false});
@@ -504,29 +548,28 @@ export class FrogGame {
   }
   updateFrogs(dt){
     const p=this.player,allies=this.allies();this.rebuildActorGrid();this.fieldFormation=new Map(allies.filter(f=>!f.guard&&f.order!=='training').map((f,i)=>[f.id,i]));
-    for(const f of this.frogs){if(f===p)continue;if(f.dead){f.deadTime=(f.deadTime||0)+dt;continue;}for(const key of ['attackCD','specialCD','roarCD','invulnerable','stun','eatCD','fear'])f[key]=Math.max(0,(f[key]||0)-dt);f.stomach=clamp(f.stomach-dt*.055,0,100);if(f.trainingPaid&&!this.camps.some(c=>c.id===f.trainingCamp&&c.team==='ally'&&!c.destroyed&&c.buildings.training))this.cancelTraining(f);if(f.grabbedBy)continue;
-      if(f.surrendered){f.surrenderTimer=Math.max(0,(f.surrenderTimer??90)-dt);const home=this.camps.find(c=>c.id===f.home&&c.team===f.team);if(!f.surrenderTimer&&home&&dist(f,this.player)>32&&!this.frogs.some(a=>['ally','player'].includes(a.team)&&!a.dead&&dist(a,home)<SHELTER_RADIUS+15)){f.surrendered=false;f.hp=Math.max(f.hp,f.maxHp*.5);f.morale=65;f.guard=true;f.intent=null;f.brain=0;}f.vx=THREE.MathUtils.damp(f.vx,0,8,dt);f.vz=THREE.MathUtils.damp(f.vz,0,8,dt);this.moveActor(f,dt);continue;}
+    for(const f of this.frogs){if(f===p)continue;if(f.dead){f.deadTime=(f.deadTime||0)+dt;continue;}for(const key of ['attackCD','specialCD','roarCD','invulnerable','stun','eatCD','fear'])f[key]=Math.max(0,(f[key]||0)-dt);f.stomach=clamp(f.stomach-dt*.055,0,100);if(f.trainingPaid&&!this.camps.some(c=>c.id===f.trainingCamp&&c.team==='ally'&&!c.destroyed&&c.buildings.training))this.cancelTraining(f);if(f.grabbedBy){f.hop=null;continue;}
+      if(f.surrendered){f.surrenderTimer=Math.max(0,(f.surrenderTimer??90)-dt);const home=this.camps.find(c=>c.id===f.home&&c.team===f.team);if(!f.surrenderTimer&&home&&dist(f,this.player)>32&&!this.frogs.some(a=>['ally','player'].includes(a.team)&&!a.dead&&dist(a,home)<SHELTER_RADIUS+15)){f.surrendered=false;f.hp=Math.max(f.hp,f.maxHp*.5);f.morale=65;f.guard=true;f.intent=null;f.brain=0;}requestFrogTravel(f,0,0);this.moveActor(f,dt);continue;}
       f.brain-=dt;if(f.brain<=0){f.brain=f.team==='ally'?.18:dist(f,p)>65?.65:.2;f.intent=this.thinkFrog(f,allies);}
-      let intent=f.intent;if(!intent){f.vx=0;f.vz=0;this.moveActor(f,dt);continue;}
+      let intent=f.intent;if(!intent){requestFrogTravel(f,0,0);this.moveActor(f,dt);continue;}
       if(intent.kind==='attack'&&intent.target){const barrier=this.camps.find(c=>!c.destroyed&&(c.gateHp??gateMaxHealth(c))>0&&!canPassGate(c,f)&&!insideFort(c,f)&&insideFort(c,intent.target));if(barrier){f.intent=intent={kind:'camp-attack',target:barrier};f.brain=Math.max(f.brain,.2);}}
       const attackInvalid=intent.kind==='attack'&&(!intent.target||intent.target.dead||isSurrendered(intent.target)||intent.target.phase==='dormant'||(intent.target.team!=='predator'&&!this.hostile(f,intent.target)));
       const campInvalid=intent.kind==='camp-attack'&&(!intent.target||intent.target.destroyed||intent.target.team==='neutral'||(f.team==='player'?'ally':f.team)===(intent.target.team==='player'?'ally':intent.target.team));
-      if(attackInvalid||campInvalid){f.intent=null;f.brain=0;f.vx=0;f.vz=0;this.moveActor(f,dt);continue;}
+      if(attackInvalid||campInvalid){f.intent=null;f.brain=0;requestFrogTravel(f,0,0);this.moveActor(f,dt);continue;}
       const target=intent.target,siegeGate=intent.kind==='camp-attack'&&(target.gateHp??gateMaxHealth(target))>0&&!insideFort(target,f),goal=siegeGate?gatePoint(target,2.2):target,waypoint=fortWaypoint(this.camps,f,goal),routing=dist(waypoint,goal)>.1,d=dist(f,waypoint),travelling=f.team==='ally'&&!f.guard&&f.order!=='training';
       let speed=(f.team==='ally'?(f.role==='scout'?MOVEMENT.allyScout:MOVEMENT.ally):(f.role==='scout'?MOVEMENT.enemyScout:MOVEMENT.enemy))*(f.stomach<10?.8:1);
-      // A walking or sprinting player must not permanently outrun the squad.
+      // A hopping or sprinting player must not permanently outrun the squad.
       // Catch-up remains physical movement, and ends as allies reach formation/combat range.
       if(travelling&&(intent.formation||intent.support)&&d>4.5)speed=Math.max(speed,dist(f,p)>22?MOVEMENT.farCatchUp:MOVEMENT.catchUp);
       const stop=routing?.25:siegeGate?2.8:intent.kind==='attack'?(target.team==='predator'?(f.role==='hunter'?7:Math.min(4.8,2.8+Math.max(0,(target.scale||1)-1)*.6)):f.role==='hunter'?5:1.6):intent.kind==='camp-attack'?SHELTER_RADIUS*.76:intent.kind==='eat'?2:1.1;
-      if(d>stop){const dx=(waypoint.x-f.x)/Math.max(d,.01),dz=(waypoint.z-f.z)/Math.max(d,.01);let sx=0,sz=0;for(const other of this.nearbyFrogs(f,1.5)){if(other===f||other.dead)continue;const dd=dist(f,other);if(dd<1.15&&dd>.01){sx+=(f.x-other.x)/dd*(1.15-dd);sz+=(f.z-other.z)/dd*(1.15-dd);}}f.vx=dx*speed+sx*2;f.vz=dz*speed+sz*2;f.yaw=angleLerp(f.yaw,Math.atan2(f.vx,f.vz),dt*10);
-        if(f.grounded&&!f.swimming&&d>3&&((this.elapsed+f.thinkOffset)%1.5)<dt)this.jump(f,6.4);
-      }else{f.vx=THREE.MathUtils.damp(f.vx,0,10,dt);f.vz=THREE.MathUtils.damp(f.vz,0,10,dt);if(d>.1)f.yaw=angleLerp(f.yaw,Math.atan2(target.x-f.x,target.z-f.z),dt*10);
+      if(d>stop+.035){const dx=(waypoint.x-f.x)/Math.max(d,.01),dz=(waypoint.z-f.z)/Math.max(d,.01);let sx=0,sz=0;for(const other of this.nearbyFrogs(f,1.5)){if(other===f||other.dead)continue;const dd=dist(f,other);if(dd<1.15&&dd>.01){sx+=(f.x-other.x)/dd*(1.15-dd);sz+=(f.z-other.z)/dd*(1.15-dd);}}const slow=f.stun>0?.2:1;requestFrogTravel(f,(dx*speed+sx*2)*slow,(dz*speed+sz*2)*slow,{distance:Math.max(0,d-stop)});
+      }else{requestFrogTravel(f,0,0);if(d>.1&&f.grounded)f.yaw=angleLerp(f.yaw,Math.atan2(target.x-f.x,target.z-f.z),dt*10);
         if(!routing&&intent.kind==='attack'&&!target.dead&&f.attackCD<=0&&dist(f,target)<=stop+.3&&fortLineClear(this.camps,f,target)){f.attackCD=1.15+this.random()*.35;f.attackAnim=.4;f.attackDuration=.4;f.attackType=f.role==='hunter'?'tongue':'kick';queueCombatStrike(this,{source:f,target,kind:f.attackType,damage:attackDamage(f.role==='bruiser'?14:10,f.tier,f.level),range:stop+.6,yaw:f.yaw,arc:-.2});if(f.role==='hunter')this.vfx.tongue(f,new V(target.x,target.y+.6,target.z));if(f.specialCD<=0){if(f.role==='caller')this.intimidate(f);else if(d<4)this.special(f);}}
         if(!routing&&intent.kind==='camp-attack'&&f.attackCD<=0&&!target.destroyed){f.attackCD=1.4;f.attackAnim=.4;f.attackDuration=.4;f.attackType='kick';queueCombatStrike(this,{source:f,kind:'kick',damage:attackDamage(10,f.tier,f.level),range:10,yaw:f.yaw,arc:-.2,includeCamps:true});if(f.raidTarget&&target.team==='ally'&&!this.frogs.some(g=>g.team==='ally'&&g.guard&&g.home===target.id&&!g.dead&&dist(g,target)<SHELTER_RADIUS+4)){const food=Math.min(1,this.resources.food);this.resources.food-=food;f.loot=(f.loot||0)+food;}}
         if(!routing&&intent.kind==='eat'&&f.eatCD<=0){const result=feedFromFly(f,target);if(result.consumed){f.attackAnim=.3;f.attackDuration=.3;f.attackType='tongue';f.healingUntil=this.elapsed+1;if(dist(f,p)<30)this.vfx.tongue(f,new V(target.x,1.5,target.z));if(f.team==='ally'){this.resources.food+=result.food;this.creditGathering(result.food,0);if(awardXP(f,3)){f.model.setLevel?.(f.level);this.updateFrogPortrait?.(f,true);}}}}
         if(!routing&&intent.kind==='train')this.updateTraining(f,intent.camp,dt);
       }
-      if(f.stun>0){f.vx*=.2;f.vz*=.2;}this.moveActor(f,dt);
+      this.moveActor(f,dt);
     }
   }
   thinkFrog(f,allies){
@@ -835,6 +878,7 @@ export class FrogGame {
     else this.gangCommand(command,[f.id]);
   }
   toggleHUDControls(){if(!this.started||this.paused||this.ended||this.ui.panel||this.buildPlacement?.active)return false;this.ui.toggleHudDisclosure?.('actions');return true;}
+  toggleObjectives(){if(!this.started||this.paused||this.ended||this.buildPlacement?.active)return false;this.ui.toggleHudDisclosure?.('objectives');return true;}
   toggleConceptPanels(){
     if(!this.started||this.ended||this.buildPlacement?.active)return false;
     this.ui.toggleConceptPanels?.();this.ignoreUnlockUntil=performance.now()+700;this.input.clear?.();this.input.unlock?.();return true;
@@ -845,7 +889,7 @@ export class FrogGame {
     // resources, issue orders or trigger attacks until the player resumes.
     if(this.paused&&!['save','restart','pause','hud-disclosure','guide-open','guide-close','recruit-close'].includes(action))return;
     if(this.handleKingdomAction(action,payload))return;
-    if(action==='hud-disclosure'){if(payload.open){this.ignoreUnlockUntil=performance.now()+700;this.input.clear?.();this.input.unlock?.();}return;}
+    if(action==='hud-disclosure'){if(payload.open&&payload.name!=='objectives'){this.ignoreUnlockUntil=performance.now()+700;this.input.clear?.();this.input.unlock?.();}return;}
     if(action==='begin-placement'){this.beginBuildingPlacement(payload.type,{dragging:!!payload.dragging});return;}
     if(action==='move-placement'){updateBuildingPlacement(this,payload);return;}
     if(action==='drop-placement'){updateBuildingPlacement(this,{...payload,dragging:true});confirmBuildingPlacement(this);if(this.buildPlacement)this.buildPlacement.dragging=false;this.updateUI(dayState(this.elapsed));return;}
@@ -861,7 +905,7 @@ export class FrogGame {
     else if(action==='primary-attack')this.primaryAttack();
     else if(['special-attack','intimidate','dodge'].includes(action)&&this.player.grabbedBy){this.player.grabbedBy.rescueDamage+=13;this.audio.play?.('hit');}
     else if(action==='special-attack')this.special(this.player);else if(action==='intimidate')this.intimidate(this.player);
-    else if(action==='dodge'){const p=this.player;if((p.dodgeCD||0)<=0&&p.stamina>=22){p.stamina-=22;p.dodgeCD=1.5;p.invulnerable=.42;this.discoverGuide('dodge',{pause:false});p.vx=Math.sin(p.yaw)*11;p.vz=Math.cos(p.yaw)*11;this.jump(p,4.5);this.audio.play?.('jump');}}
+    else if(action==='dodge')this.dodge();
     else if(action==='interact'||action==='recruit')this.interact();else if(action==='consume')this.consume();
     else if(action==='save'){this.save();this.ui.toast({icon:'check',progress:1,tone:'success'});}
     else if(action==='restart'){this.ui.hideMenus();this.start('new');}
@@ -928,7 +972,7 @@ export class FrogGame {
       f.poseElapsed=(f.poseElapsed||0)+dt;
       const interval=f===p||detail===0?0:visible.has(f)?(detail===1?1/30:1/12):1/6;
       if(changed||f.poseElapsed>=interval){
-        f.model.update(f.poseElapsed,{time:this.elapsed+f.seed*.31,speed:this.paused?0:f.speed,swimming:f.swimming,jump:f.grounded?0:clamp(.5+f.vy/20,0,1),attack:f.attackAnim>0?{type:f.attackType||'tongue',phase:1-f.attackAnim/(f.attackDuration||.4)}:0,roar:f.roarAnim/1.25,hit:f.hitAnim/.34,dead:f.dead});f.poseElapsed=0;
+        f.model.update(f.poseElapsed,{time:this.elapsed+f.seed*.31,speed:this.paused?0:f.speed,swimming:f.swimming&&f.grounded,hop:frogHopPose(f),jump:f.grounded?0:clamp(.5+f.vy/20,0,1),attack:f.attackAnim>0?{type:f.attackType||'tongue',phase:1-f.attackAnim/(f.attackDuration||.4)}:0,roar:f.roarAnim/1.25,hit:f.hitAnim/.34,dead:f.dead});f.poseElapsed=0;
       }
       if(f.surrendered)f.model.setOutline(COLORS.surrender,true);else f.model.setOutline(this.selectedIds?.has(f.id)?0xe6f9b9:(COLORS[f.team]||COLORS.enemy),true);
     }
@@ -996,7 +1040,7 @@ export class FrogGame {
   }
   checkVictory(){if(this.campaign?.endless)return;if(!this.won&&this.campaign?.phase==='complete'){this.won=true;this.paused=true;this.ended=true;this.input.unlock();this.audio.play?.('victory');this.ui.showEnding(true,{...this.stats,days:dayState(this.elapsed).day});this.save();}}
   readSave(){try{return validateSave(JSON.parse(localStorage.getItem(SAVE_KEY)||'null'));}catch{return null;}}
-  inspect(){return {version:'2.1.1',realm:this.realms?.active,constructionJobs:this.economy?.jobs?.filter(j=>j.kind==='construction').map(j=>({id:j.id,type:j.type,progress:j.progress,duration:j.duration,workers:j.workersPresent,status:j.status})),started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
+  inspect(){return {version:'2.1.2',realm:this.realms?.active,constructionJobs:this.economy?.jobs?.filter(j=>j.kind==='construction').map(j=>({id:j.id,type:j.type,progress:j.progress,duration:j.duration,workers:j.workersPresent,status:j.status})),started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
 }
 
 

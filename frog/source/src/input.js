@@ -1,7 +1,7 @@
 export class GameInput {
   constructor(canvas,onAction){
     this.canvas=canvas;this.onAction=onAction;this.keys=new Set();this.pressed=new Set();this.released=new Set();
-    this.dx=0;this.dy=0;this.left=false;this.right=false;this.pointerLocked=false;
+    this.dx=0;this.dy=0;this.left=false;this.right=false;this.pointerLocked=false;this.cursorMode=false;
     this.mode='third';this.zoomDelta=0;this.pointerInside=false;
     this.mouseX=innerWidth/2;this.mouseY=innerHeight/2;
     this.mouse={x:this.mouseX,y:this.mouseY,ndcX:0,ndcY:0};
@@ -12,8 +12,9 @@ export class GameInput {
       if(['Space','Tab','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
       if(!e.repeat&&!this.keys.has(e.code))this.pressed.add(e.code);this.keys.add(e.code);
       if(!e.repeat&&e.code==='Escape')this.onAction('escape');
+      if(e.code==='AltLeft'||e.code==='AltRight'){e.preventDefault();if(!e.repeat)this.onAction('cursor-on');}
     },{signal});
-    addEventListener('keyup',e=>{this.keys.delete(e.code);this.released.add(e.code);},{signal});
+    addEventListener('keyup',e=>{this.keys.delete(e.code);this.released.add(e.code);if(e.code==='AltLeft'||e.code==='AltRight'){e.preventDefault();if(!this.keys.has('AltLeft')&&!this.keys.has('AltRight'))this.onAction('cursor-off');}},{signal});
     addEventListener('mousemove',e=>{
       const rect=this.canvas.getBoundingClientRect();
       this.mouseX=e.clientX;this.mouseY=e.clientY;
@@ -21,20 +22,20 @@ export class GameInput {
       this.ndc.x=((e.clientX-rect.left)/(rect.width||1))*2-1;
       this.ndc.y=1-((e.clientY-rect.top)/(rect.height||1))*2;
       this.mouse.ndcX=this.ndc.x;this.mouse.ndcY=this.ndc.y;
-      if(this.mode!=='topdown'&&(this.pointerLocked||this.right)){this.dx+=e.movementX||0;this.dy+=e.movementY||0;}
+      if(!this.cursorMode&&this.mode!=='topdown'&&(this.pointerLocked||this.right)){this.dx+=e.movementX||0;this.dy+=e.movementY||0;}
     },{signal});
     canvas.addEventListener('mouseenter',()=>{this.pointerInside=true;},{signal});
     canvas.addEventListener('mouseleave',()=>{this.pointerInside=false;},{signal});
-    canvas.addEventListener('mousedown',e=>{if(e.button===0){this.left=true;this.pressed.add('MouseLeft');}if(e.button===2){this.right=true;this.pressed.add('MouseRight');}},{signal});
+    canvas.addEventListener('mousedown',e=>{if(this.cursorMode&&!this.buildingMode)return;if(e.button===0){this.left=true;this.pressed.add('MouseLeft');}if(e.button===2){this.right=true;this.pressed.add('MouseRight');}},{signal});
     addEventListener('mouseup',e=>{if(e.button===0){this.left=false;this.released.add('MouseLeft');}if(e.button===2){this.right=false;this.released.add('MouseRight');}},{signal});
     canvas.addEventListener('wheel',e=>{e.preventDefault();const scale=e.deltaMode===1?16:e.deltaMode===2?innerHeight:1;this.zoomDelta+=Math.max(-180,Math.min(180,e.deltaY*scale));},{signal,passive:false});
     canvas.addEventListener('contextmenu',e=>e.preventDefault(),{signal});
-    document.addEventListener('pointerlockchange',()=>{const old=this.pointerLocked;this.pointerLocked=document.pointerLockElement===canvas;if(old&&!this.pointerLocked)this.onAction('unlock');},{signal});
+    document.addEventListener('pointerlockchange',()=>{const old=this.pointerLocked;this.pointerLocked=document.pointerLockElement===canvas;if(this.pointerLocked){const active=document.activeElement;if(active?.closest?.('#frog-ui'))active.blur?.();}if(old&&!this.pointerLocked)this.onAction('unlock');},{signal});
     addEventListener('blur',()=>{this.clear();this.onAction('blur');},{signal});
   }
   setMode(mode){this.mode=mode;this.canvas.style.cursor=mode==='topdown'?'crosshair':'default';if(mode==='topdown')this.clearMouseMotion();}
   clearMouseMotion(){this.dx=0;this.dy=0;this.zoomDelta=0;}
-  lock(){if(this.mode==='topdown'||this.buildingMode)return;try{const p=this.canvas.requestPointerLock();if(p?.catch)p.catch(()=>{});}catch{}}
+  lock(){if(this.mode==='topdown'||this.buildingMode||this.cursorMode)return;try{const p=this.canvas.requestPointerLock();if(p?.catch)p.catch(()=>{});}catch{}}
   unlock(){if(document.pointerLockElement===this.canvas)document.exitPointerLock();}
   down(k){return this.keys.has(k);}
   hit(k){return this.pressed.has(k);}

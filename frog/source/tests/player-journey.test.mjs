@@ -126,19 +126,24 @@ test('NPC crown flags are removed both by save validation and direct actor creat
 });
 
 for (const { name, keys, water, speed } of [
-  { name: 'walking', keys: ['KeyW'], water: false, speed: 6.2 },
-  { name: 'sprinting', keys: ['KeyW', 'ShiftLeft'], water: false, speed: 9.6 },
+  { name: 'hopping', keys: ['KeyW'], water: false, speed: 6.2 },
+  { name: 'fast hopping', keys: ['KeyW', 'ShiftLeft'], water: false, speed: 9.6 },
   { name: 'swimming', keys: ['KeyW'], water: true, speed: 6.2 * .82 },
   { name: 'sprinting through water', keys: ['KeyW', 'ShiftLeft'], water: true, speed: 9.6 * .82 },
-  { name: 'diagonal walking', keys: ['KeyW', 'KeyD'], water: false, speed: 6.2 }
+  { name: 'diagonal hopping', keys: ['KeyW', 'KeyD'], water: false, speed: 6.2 }
 ]) {
   test(`the player actually travels at the new ${name} speed without diagonal acceleration`, () => {
     const { game, player } = movementGame(keys, water);
     tick(game, 60);
     const from = { x: player.x, z: player.z };
     tick(game, 120);
-    assert.ok(Math.abs(distance(player, from) - speed * 2) < .015, 'measured displacement matches the intended movement speed');
-    assert.ok(Math.abs(player.speed - speed) < 1e-4);
+    if(water){
+      assert.ok(Math.abs(distance(player, from)-speed*2)<.015,'swimming remains continuous at its existing speed');
+      assert.ok(Math.abs(player.speed-speed)<1e-4);
+    }else{
+      assert.ok(Math.abs(distance(player,from)/(speed*2)-1)<.08,'average hop travel preserves pace across flight and planted stance');
+      assert.ok(player.speed===0||player.speed<=speed*1.27+1e-6,'horizontal travel happens during flight, with bounded take-off velocity');
+    }
     assert.equal(player.swimming, water);
   });
 }
@@ -154,12 +159,12 @@ test('every companion role keeps up with actual faster player movement and sprin
     tick(game, 1, 1 / 60, true);
     squad.forEach((f, i) => { biggestStep = Math.max(biggestStep, distance(f, before[i])); });
   }
-  assert.ok(distance(player, start) > 80, 'the real input handler completed both walking and sustained sprinting');
+  assert.ok(distance(player, start) > 80, 'the real input handler completed both normal and sustained fast hopping');
   for (const f of squad) {
     assert.ok(distance(f, player) < 14, `${f.role} stays with the moving group`);
     assert.equal(f.order, 'follow');
     assert.ok(f.z > -5, `${f.role} physically crossed the route`);
   }
-  assert.ok(biggestStep < .25, 'catch-up is bounded movement each frame, not a teleport');
+  assert.ok(biggestStep < .27, 'catch-up stays below 16m/s in flight, never a teleport');
   assert.equal(game.allies().length, 4);
 });

@@ -33,6 +33,31 @@ test('construction, goals and left gameplay panels occupy disjoint rectangles wi
   assert.ok(layout.left.height>250);
 });
 
+test('the readable objective and predator warning remain separate and clear of the minimap and action bar',()=>{
+  const cases=[
+    {...desktop(),bounds:{...desktop().bounds,objective:r(476,16,328,112),hunt:r(469,138,342,84),construction:r(485,232,310,130)}},
+    {viewport:{width:390,height:844},bounds:{player:r(10,10,177,198),navigation:r(10,216,177,35),minimap:r(195,10,185,340),actionbar:r(17,704,356,124),objective:r(10,261,177,142),hunt:r(10,413,177,100)}}
+  ];
+  for(const data of cases){
+    const layout=computeHUDLayout(data),obstacles=fixed(data,layout);
+    assert.equal(layout.goal.height,data.bounds.objective.height);
+    assert.equal(layout.hunt.height,data.bounds.hunt.height);
+    assert.ok(layout.hunt.top>=layout.goal.bottom+10);
+    clear(layout.goal,obstacles,'objective instruction');clear(layout.hunt,[...obstacles,layout.goal],'predator warning');
+    for(const item of [layout.goal,layout.hunt])inside(item,data.viewport);
+    if(layout.construction)clear(layout.construction,[...obstacles,layout.goal,layout.hunt],'construction');
+  }
+});
+
+test('a short phone keeps the complete predator warning below the minimap when the squad fills the left footer',()=>{
+  const data={viewport:{width:360,height:640},bounds:{player:r(10,10,160,190),navigation:r(10,208,160,32),minimap:r(180,10,170,300),actionbar:r(10,506,340,124),selection:r(10,570,250,50),objective:r(10,250,160,142),hunt:r(10,402,160,100)}};
+  const layout=computeHUDLayout(data);
+  assert.equal(layout.goal.height,142);assert.equal(layout.hunt.height,100,'reserve the actual visible warning, not a clipped placeholder');
+  assert.ok(layout.hunt.left>=data.bounds.minimap.left);assert.ok(layout.hunt.top>=data.bounds.minimap.bottom+10);
+  clear(layout.hunt,[...fixed(data,layout),layout.goal],'complete predator warning');inside(layout.hunt,data.viewport);
+  assert.equal(layout.reservedRects.includes(layout.hunt),true);
+});
+
 test('phone panels use the actual two-row footer, and collapsed main header leaves the remaining slot for U',()=>{
   const data={viewport:{width:390,height:844},bounds:{player:r(10,10,177,198),navigation:r(10,216,177,35),minimap:r(195,10,185,340),actionbar:r(17,704,356,124),objective:r(10,261,177,50),construction:r(10,321,177,200),mainHeader:r(10,460,370,78)},mainPanel:{open:true,expanded:false},conceptOpen:true};
   const layout=computeHUDLayout(data);assert.equal(layout.stackedPanels,true);assert.equal(layout.left.height,78);assert.ok(layout.right.height>100);

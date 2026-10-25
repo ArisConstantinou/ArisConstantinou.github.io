@@ -97,12 +97,12 @@ test('Escape closes a visible bubble before affecting other live gameplay panels
   assert.equal(g.activeRecruitId,null);assert.equal(g.ui.panel,'build');assert.equal(g.paused,false);
 });
 
-test('Escape resumes explicit Pause without discarding its hidden conversation or capturing the cursor',()=>{
+test('Escape resumes explicit Pause and camera capture while retaining the small food badge',()=>{
   const {game:g,frog,anchors}=setup();let locked=0;g.input.lock=()=>locked++;g.interact();
   g.paused=true;g.ui.menu='pause';g.ui.isBlocking=()=>Boolean(g.ui.menu);
   g.ui.hideMenus=()=>{g.ui.menu=null;g.ui.panel=null;};g.updateRecruitmentBubble();
   assert.equal(anchors.at(-1).visible,false);g.escape();
-  assert.equal(g.paused,false);assert.equal(g.activeRecruitId,frog.id);assert.equal(locked,0);
+  assert.equal(g.paused,false);assert.equal(g.activeRecruitId,frog.id);assert.equal(locked,1);
   g.updateRecruitmentBubble();assert.equal(anchors.at(-1).visible,true);
 });
 
@@ -134,15 +134,15 @@ test('projection returns an unpinned raw screen point and hides invalid or behin
   frog.z=30;assert.equal(recruitmentBubbleAnchor(g,frog,1280,800).visible,false);
 });
 
-test('Pause resume and guide close leave the cursor available for the retained conversation or concept drawer',()=>{
+test('the food badge permits camera capture while the interactive concept drawer still keeps the cursor',()=>{
   for(const surface of ['bubble','concept']){
     const {game:g}=setup();let locked=0;g.input.lock=()=>locked++;
     if(surface==='bubble')g.interact();else g.ui.conceptPanelsOpen=true;
     g.ui.hideMenus=()=>{g.ui.panel=null;};
-    g.paused=true;g.resume();assert.equal(g.paused,false);assert.equal(locked,0);
-    g.handleKingdomAction('guide-close',{returnPanel:null,returnMenu:null});assert.equal(locked,0);
-    g.ui.panel='build';g.ui.closePanels=()=>{g.ui.panel=null;};g.openPanel('build');assert.equal(locked,0);
+    g.paused=true;g.resume();assert.equal(g.paused,false);assert.equal(locked,surface==='bubble'?1:0);
+    g.handleKingdomAction('guide-close',{returnPanel:null,returnMenu:null});assert.equal(locked,surface==='bubble'?2:0);
+    g.ui.panel='build';g.ui.closePanels=()=>{g.ui.panel=null;};g.openPanel('build');assert.equal(locked,surface==='bubble'?3:0);
     if(surface==='bubble')g.closeRecruitment();else g.ui.conceptPanelsOpen=false;
-    g.resume();assert.equal(locked,1,'normal gameplay can capture the cursor after all interactive surfaces close');
+    g.resume();assert.equal(locked,surface==='bubble'?4:1,'normal gameplay can capture the cursor after all interactive surfaces close');
   }
 });

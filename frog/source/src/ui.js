@@ -4,6 +4,7 @@ import './garrison-ui.css';
 import './realm-ui.css';
 import './live-panels.css';
 import './recruitment-card.css';
+import './gameplay-hints.css';
 import {describeObjective} from './guidance.js';
 import {pictogram,gangEmblem,frogAvatar,rolePictogram} from './visuals.js';
 import {GUIDE_CATEGORIES,GUIDE_CARDS,GUIDE_ACTIONS,GUIDE_BUILDINGS,guideCard} from './field-guide.js';
@@ -123,7 +124,7 @@ export class GameUI {
     if(button&&['Space','Enter'].includes(event.code)){event.preventDefault();event.stopPropagation();if(!event.repeat)button.click();return;}
     const inCard=event.target.closest?.('.fg-recruitment-bubble'),inPanel=event.target.closest?.('.fg-panel');
     if(event.code==='Tab'&&(inPanel||inCard)){event.stopPropagation();return;}
-    const allowed=['Escape','Tab','KeyV','KeyU','KeyH','KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight'];if(inCard)allowed.push('KeyE');
+    const allowed=['Escape','Tab','KeyV','KeyU','KeyH','KeyO','AltLeft','AltRight','KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight'];if(inCard)allowed.push('KeyE');
     if(event.target.matches?.('input,select,textarea')||((inPanel||inCard)&&!allowed.includes(event.code)&&!this.state.buildPlacement?.active))event.stopPropagation();
   }
   scrollBuildCatalog(direction){
@@ -265,8 +266,10 @@ export class GameUI {
       </section>
       </div>
       <section class="fg-objective" data-ref="objectiveBox" aria-label="Στόχοι εκστρατείας">
-        <button class="fg-objective-toggle" data-action="hud-objectives" data-ref="objectiveToggle" aria-expanded="false" aria-controls="fg-objective-details" title="Στόχοι εκστρατείας" aria-label="Άνοιγμα στόχων εκστρατείας"><span class="fg-objective-lead" data-ref="objectiveArt" hidden>${pictogram('camp')}</span><span class="fg-objective-next" data-ref="objectiveNext">${pictogram('fly')}</span><span class="fg-objective-brief"><strong data-ref="objectiveTitle">Βρες τροφή</strong><span class="fg-objective-count"><b data-ref="objectiveSummary">0 / 30</b><span class="fg-objective-track"><span data-ref="objectiveMeter"></span></span></span></span><span class="fg-disclosure-arrow">${icon('arrow')}</span></button>
-        <div class="fg-objective-details" data-ref="objectiveDetails" id="fg-objective-details" hidden><p class="fg-objective-help" data-ref="objectiveHint"></p><div class="fg-conquest-summary"><span class="fg-conquest-label">Συμμορίες</span><div class="fg-territories" data-ref="territories"></div><b data-ref="objectiveProgress">0 / 5</b></div><div class="fg-campaign-strip" data-ref="campaignObjectives"></div></div>
+        <button class="fg-objective-toggle" data-action="hud-objectives" data-ref="objectiveToggle" aria-expanded="false" aria-controls="fg-objective-details" aria-keyshortcuts="O" aria-label="Στόχοι εκστρατείας · O"><span class="fg-objective-lead" data-ref="objectiveArt" hidden>${pictogram('camp')}</span><span class="fg-objective-next" data-ref="objectiveNext">${pictogram('fly')}</span><span class="fg-objective-brief"><strong data-ref="objectiveTitle">Βρες τροφή</strong><span class="fg-objective-count"><b data-ref="objectiveSummary">0 / 30</b><span class="fg-objective-track"><span data-ref="objectiveMeter"></span></span></span></span></button>
+        <p class="fg-objective-instruction" data-ref="objectiveHint"></p>
+        <div class="fg-objective-shortcuts"><span><kbd>O</kbd> Στόχοι</span><span><kbd>Alt</kbd> Δείκτης</span></div>
+        <div class="fg-objective-details" data-ref="objectiveDetails" id="fg-objective-details" hidden><div class="fg-conquest-summary"><span class="fg-conquest-label">Συμμορίες</span><div class="fg-territories" data-ref="territories"></div><b data-ref="objectiveProgress">0 / 5</b></div><div class="fg-campaign-strip" data-ref="campaignObjectives"></div></div>
       </section>
       <section class="fg-hunt" data-ref="hunt" aria-live="polite" hidden>
         <div class="fg-hunt-portrait"><img data-ref="predatorPortrait" alt="Θηρευτής" hidden><span data-ref="predatorFallback">${pictogram('heron')}</span><span class="fg-hunt-badge">${pictogram('enemy')}</span></div>
@@ -502,13 +505,16 @@ export class GameUI {
     if(!this.recruitmentBubbleOpen||!this.refs.recruitmentBubble)return false;
     const r=recruitment,bubble=this.refs.recruitmentBubble;
     if(!r||String(r.targetId??r.id)!==this.recruitmentTargetId){bubble.hidden=true;return false;}
-    const signature=JSON.stringify([r.targetId??r.id,r.name,r.level,r.requirements,r.cost,r.canRecruit,r.helpAvailable,r.helpAccepted,r.quest?.kind,Boolean(this.state.paused)]);
+    const signature=JSON.stringify([r.targetId??r.id,r.name,r.level,r.requirements,r.cost,r.canRecruit,r.helpAvailable,r.helpAccepted,r.quest?.kind,r.reason,Boolean(this.state.paused)]);
     if(signature!==this.recruitmentSignature){
       const active=typeof document!=='undefined'?document.activeElement:null,restore=bubble.contains?.(active)?active?.dataset?.action:null;
       bubble.innerHTML=recruitmentCardMarkup(r,Boolean(this.state.paused));
+      const pending=(r.requirements||[]).filter(q=>q.id!=='food'&&!q.done&&!q.waived).length;
+      this.recruitmentBadgeWidth=pending>1?218:pending||!r.canRecruit?196:(r.cost?.food||0)>=100?192:176;
+      bubble.style.width=`${this.recruitmentBadgeWidth}px`;
       bubble.setAttribute?.('aria-label',`Απαιτήσεις στρατολόγησης · ${r.name||'Βάτραχος'}`);
       this.recruitmentSignature=signature;
-      if(restore){const button=$(bubble,`[data-action="${restore}"]`);(button&&!button.disabled?button:$(bubble,'[data-action="recruit-close"]'))?.focus?.({preventScroll:true});}
+      if(restore){const button=$(bubble,`[data-action="${restore}"]`),next=button&&!button.disabled?button:$(bubble,'button:not(:disabled)');next?.focus?.({preventScroll:true});}
     }
     if(this.recruitmentAnchor)this.updateRecruitmentAnchor(this.recruitmentAnchor);
     return true;
@@ -519,9 +525,11 @@ export class GameUI {
     this.recruitmentAnchor=anchor;const bubble=this.refs.recruitmentBubble;
     if(!anchor?.visible||this.menu||this.state.paused||this.state.buildPlacement?.active){bubble.hidden=true;return false;}
     const width=anchor.width||globalThis.innerWidth||this.hudLayout?.viewport?.width,height=anchor.height||globalThis.innerHeight||this.hudLayout?.viewport?.height;
-    const placement=placeRecruitmentCard({anchor,viewport:{width,height},size:{width:248,height:Math.max(140,bubble.scrollHeight||224)},occupied:this.hudLayout?.reservedRects||[]});
+    bubble.hidden=false;
+    const badgeWidth=this.recruitmentBadgeWidth||176,badgeHeight=Math.ceil(bubble.getBoundingClientRect?.().height||bubble.scrollHeight||48);
+    const placement=placeRecruitmentCard({anchor,viewport:{width,height},size:{width:badgeWidth,height:badgeHeight},occupied:this.hudLayout?.reservedRects||[]});
     bubble.hidden=!placement.visible;if(!placement.visible)return false;
-    Object.assign(bubble.style,{left:`${placement.left}px`,top:`${placement.top}px`,width:`${placement.width}px`,maxHeight:`${placement.height}px`});
+    Object.assign(bubble.style,{left:`${placement.left}px`,top:`${placement.top}px`,width:`${placement.width}px`,maxHeight:'none'});
     bubble.dataset.side=placement.side;return true;
   }
   setPortraits(portraits){
@@ -566,7 +574,6 @@ export class GameUI {
     this.setText('objectiveSummary',nextGoal?`${Math.min(whole(nextGoal.target),['fly','food','reeds','materials'].includes(nextGoal.icon)?available(nextGoal.current):whole(nextGoal.current))} / ${whole(nextGoal.target)}`:`${whole(current)} / ${whole(total)}`);
     this.meter('objectiveMeter',nextGoal?clamp(nextGoal.progress??nextGoal.current/nextGoal.target):obj.progress??current/total);
     const objectiveGuide=describeObjective(nextGoal);this.setText('objectiveTitle',objectiveGuide.title);this.setText('objectiveHint',objectiveGuide.hint);
-    this.refs.objectiveToggle.title=materialText(nextGoal?.label||'Στόχοι εκστρατείας');
     const goalSignature=JSON.stringify(goals.map(g=>[g.id,g.icon,g.current,g.target,g.progress,g.done]));
     if(goalSignature!==this.goalSignature){
       this.goalSignature=goalSignature;this.refs.campaignObjectives.hidden=!goals.length;this.refs.campaignObjectives.classList.toggle('has-many',goals.length>6);
@@ -597,7 +604,7 @@ export class GameUI {
     const contextCaption=context.actionLabel||({recruit:'Στρατολόγησε',loot:'Λάφυρα','persuade-camp':'Πείσε',persuade:'Πείσε',home:'Κατασκευές',gather:'Μάζεψε',reeds:'Μάζεψε',ally:'Ομάδα',flies:'Μάζεψε'}[contextType]||'Πλησίασε');
     if(contextCaption!==this.contextCaption){this.contextCaption=contextCaption;$(interactTile,'.fg-action-caption').innerHTML=captionMarkup(contextCaption);}
     this.setText('contextKey',contextType==='home'?'V':'E');this.meter('contextBar',context.progress??1);
-    const pred=state.predator,hunting=Boolean(pred&&pred.hp>0);if(hunting&&!this.wasHunting)this.closeHudDisclosure();this.wasHunting=hunting;this.root.classList.toggle('fg-is-hunted',hunting);this.refs.hunt.hidden=!hunting;this.refs.objectiveBox.hidden=hunting;
+    const pred=state.predator,hunting=Boolean(pred&&pred.hp>0);if(hunting&&!this.wasHunting)this.closeHudDisclosure();this.wasHunting=hunting;this.root.classList.toggle('fg-is-hunted',hunting);this.refs.hunt.hidden=!hunting;this.refs.objectiveBox.hidden=false;
     if(hunting){
       this.refs.hunt.title=`${pred.name||predatorNames[pred.type]||'Θηρευτής'} · ${pred.objective||pred.note||predatorNotes[pred.type]||''}`;
       this.setText('predatorHpLabel',`${whole(pred.hp)} / ${whole(pred.maxHp)}`);this.meter('predatorHp',fraction(pred.hp,pred.maxHp));

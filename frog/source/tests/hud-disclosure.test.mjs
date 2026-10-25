@@ -49,6 +49,8 @@ test('default HUD exposes eight essentials including illustrated U guidance and 
   assert.match(html,/data-ref="objectiveToggle" aria-expanded="false" aria-controls="fg-objective-details"/);
   assert.match(html,/data-ref="moreToggle" aria-controls="fg-action-drawer" aria-expanded="false"/);
   assert.match(html,/data-ref="objectiveDetails" id="fg-objective-details" hidden/);
+  assert.ok(html.indexOf('data-ref="objectiveHint"')<html.indexOf('data-ref="objectiveDetails"'),'essential instruction is outside the collapsed details');
+  assert.match(html,/<kbd>O<\/kbd> Στόχοι/);assert.match(html,/<kbd>Alt<\/kbd> Δείκτης/);
   assert.match(html,/data-ref="actionDrawer" id="fg-action-drawer"[^>]* hidden/);
   for(const action of ['intimidate','gang-toggle','gang-forage','cycle-view','open-map','open-roster','open-pause','special-select'])assert.ok(html.includes('data-action="'+action+'"'));
   assert.ok(primary.includes('<kbd>B</kbd>'));
@@ -89,7 +91,7 @@ test('Space and Enter activate disclosure; Escape returns focus without blocking
   const movement=keyEvent('KeyW',button);ui.hudKeydown(movement);assert.equal(movement.stopped,false);
 });
 
-test('compact summary follows the unfinished campaign goal, preserves exact floor resources and yields to hunt/placement',()=>{
+test('compact summary follows the unfinished goal and remains readable during hunt and placement',()=>{
   const {ui}=fixture();
   for(const value of [0,57,999,1000000.9]){
     ui.update(state({food:value,reeds:value}));
@@ -111,7 +113,7 @@ test('compact summary follows the unfinished campaign goal, preserves exact floo
   ui.toggleHudDisclosure('objectives');
   ui.update({...state({food:57,reeds:40}),predator:{type:'heron',hp:340,maxHp:580,phase:'windup',phaseProgress:.4}});
   assert.equal(ui.hudDisclosure,null);assert.equal(ui.refs.objectiveDetails.hidden,true);
-  assert.equal(ui.refs.objectiveBox.hidden,true);assert.equal(ui.refs.hunt.hidden,false);
+  assert.equal(ui.refs.objectiveBox.hidden,false);assert.equal(ui.refs.hunt.hidden,false);
   ui.toggleHudDisclosure('actions');
   ui.update({...state({food:57,reeds:40}),buildPlacement:{active:true,type:'store',valid:true,yaw:0,cost:{food:10,reeds:20}}});
   assert.equal(ui.hudDisclosure,null);assert.equal(ui.refs.actionDrawer.hidden,true);

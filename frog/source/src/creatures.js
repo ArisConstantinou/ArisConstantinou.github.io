@@ -627,30 +627,43 @@ export function createCreature(type = 'frog', options = {}) {
       if (bones.eyeL) bones.eyeL.scale.y = clamp(blink, .08, 1);
       if (bones.eyeR) bones.eyeR.scale.y = clamp(blink, .08, 1);
       if (type === 'frog') {
-        const cycle = time * (swim ? 7.8 : 10.6), hop = Math.max(0, Math.sin(cycle)), step = Math.sin(cycle), spring = Math.sin(jump * Math.PI);
-        pivot.position.y = swim ? -.14 + .023 * Math.sin(time * 3) : hop * .045 * lastMove;
-        pivot.rotation.x = swim ? -.12 : -.05 * step * lastMove;
-        bones.spine.rotation.x = Math.sin(time * 2.6) * .009 + lastMove * step * .045;
+        // Land poses use the actual physics phase. Both hind legs load and
+        // extend together; there is no time-driven walk/crawl or extra bob.
+        const pose=state.hop||(jump>0?{phase:'air',progress:1-jump}:{phase:'idle',progress:0});
+        const progress=clamp(pose.progress||0),air=pose.phase==='air',gather=pose.phase==='gather'?progress:0;
+        const landing=pose.phase==='land'?Math.sin(progress*Math.PI):0;
+        const thrust=air?Math.sin(clamp(progress/.14)*Math.PI/2)*(1-clamp((progress-.16)/.48)):0;
+        const settle=air?clamp((progress-.82)/.18):0,launchRecover=air?1-clamp(progress/.14):0;
+        const fold=air?clamp((progress-.25)/.45)*(1-settle):0,reach=air?clamp((progress-.60)/.35):0;
+        const cycle=time*7.8,swimStroke=Math.sin(cycle)*lastMove;
+        pivot.position.y = swim ? -.14 + .023 * Math.sin(time * 3) : -.085*(gather+launchRecover)-.075*landing;
+        pivot.rotation.x = swim ? -.12 : (gather+launchRecover)*.07-(air?Math.sin(progress*Math.PI)*.12:0)+reach*.08*(1-settle);
+        bones.spine.rotation.x = Math.sin(time * 2.6) * .009;
         bones.spine.scale.y = 1 + Math.sin(time * 2.6) * .018;
-        bones.head.rotation.x = .02 * Math.sin(time * 1.7) - roar * .18 - spring * .06;
+        bones.head.rotation.x = .02 * Math.sin(time * 1.7) - roar * .18 - (air?.04:0);
         bones.jaw.rotation.x = -roar * .13 - (atk.type === 'tongue' ? f * .16 : 0);
         bones.throat.scale.set(1 + roar * .26, 1 + roar * 1.45 + Math.sin(time * 2.5) * .035, 1 + roar * .25);
         for (const side of [-1, 1]) {
-          const phase = swim ? Math.sin(cycle) : Math.sin(cycle + side * .14), stride = lastMove * phase;
-          bones[`hip${side}`].rotation.x = -.32 * stride - spring * .62;
-          bones[`hip${side}`].rotation.z = side * (spring * .10 + swim * .07 * phase);
-          bones[`knee${side}`].rotation.x = .62 * stride + spring * 1.05;
-          bones[`ankle${side}`].rotation.x = -.25 * stride - spring * .3;
-          bones[`foot${side}`].rotation.x = .20 * stride;
-          const crawl = Math.sin(cycle + side * 1.3) * lastMove;
-          bones[`shoulder${side}`].rotation.x = -.23 * crawl + spring * .25;
-          bones[`elbow${side}`].rotation.x = .28 * crawl - spring * .32;
-          bones[`wrist${side}`].rotation.x = -.12 * crawl;
-          if (swim) { bones[`shoulder${side}`].rotation.z = side * (.22 + .25 * phase * lastMove); bones[`elbow${side}`].rotation.y = side * .30; }
-          if (!swim && jump === 0 && !atk.type && !state.dead) {
-            const ids = template.rig.ids, hindPhase = cycle + side * .12, forePhase = cycle + side * 1.3 + Math.PI;
-            plantLimb(bones[`hip${side}`], bones[`knee${side}`], bones[`ankle${side}`], restPositions[ids[`knee${side}`]], restPositions[ids[`ankle${side}`]], Math.max(0, Math.sin(hindPhase)) * .11 * lastMove - pivot.position.y, Math.cos(hindPhase) * .095 * lastMove);
-            plantLimb(bones[`shoulder${side}`], bones[`elbow${side}`], bones[`wrist${side}`], restPositions[ids[`elbow${side}`]], restPositions[ids[`wrist${side}`]], Math.max(0, Math.sin(forePhase)) * .08 * lastMove - pivot.position.y, Math.cos(forePhase) * .07 * lastMove);
+          if (swim) {
+            bones[`hip${side}`].rotation.x=-.32*swimStroke;
+            bones[`hip${side}`].rotation.z=side*.07*swimStroke;
+            bones[`knee${side}`].rotation.x=.62*swimStroke;
+            bones[`ankle${side}`].rotation.x=-.25*swimStroke;
+            bones[`foot${side}`].rotation.x=.20*swimStroke;
+            bones[`shoulder${side}`].rotation.x=-.23*swimStroke;
+            bones[`elbow${side}`].rotation.x=.28*swimStroke;
+            bones[`wrist${side}`].rotation.x=-.12*swimStroke;
+            bones[`shoulder${side}`].rotation.z=side*(.22+.25*swimStroke);
+            bones[`elbow${side}`].rotation.y=side*.30;
+          } else if (!state.dead) {
+            const ids=template.rig.ids;
+            const hindY=air?.085*launchRecover+(-.10*thrust+.045*fold)*(1-launchRecover):-pivot.position.y;
+            const hindZ=air?.035*launchRecover+(-.42*thrust+.11*fold)*(1-launchRecover):.035*gather;
+            const foreY=air?.085*launchRecover+(.085*(1-reach)-.035*reach)*(1-settle)*(1-launchRecover):-pivot.position.y;
+            const foreZ=air?(-.075*(1-reach)+.13*reach)*(1-settle)*(1-launchRecover):0;
+            plantLimb(bones[`hip${side}`],bones[`knee${side}`],bones[`ankle${side}`],restPositions[ids[`knee${side}`]],restPositions[ids[`ankle${side}`]],hindY,hindZ);
+            plantLimb(bones[`shoulder${side}`],bones[`elbow${side}`],bones[`wrist${side}`],restPositions[ids[`elbow${side}`]],restPositions[ids[`wrist${side}`]],foreY,foreZ);
+            bones[`foot${side}`].rotation.x=-thrust*.14;
           }
 
         }

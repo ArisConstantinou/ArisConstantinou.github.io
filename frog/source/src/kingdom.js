@@ -90,7 +90,9 @@ export const kingdomMethods={
     if(!f||this.paused||!recruitmentBubbleTarget(this,f.id))return false;
     this.activeRecruitId=f.id;this.interactionFocus={entity:f,until:this.elapsed+3};
     this.updateUI(dayState(this.elapsed));this.ui.showRecruitmentBubble?.(this.recruitmentSnapshot(f));
-    this.ignoreUnlockUntil=performance.now()+700;this.input.left=false;this.input.right=false;this.input.clearMouseMotion?.();this.input.unlock?.();
+    // This is an in-world cost badge. Inspecting it must keep camera capture
+    // and held movement keys; E accepts the offer without using the cursor.
+    this.input.left=false;this.input.right=false;
     this.updateRecruitmentBubble();return true;
   },
   recruitmentSnapshot(f){

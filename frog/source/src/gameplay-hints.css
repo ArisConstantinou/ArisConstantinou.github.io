@@ -1,0 +1,15 @@
+/* Essential instructions stay on screen while the camera is captured. */
+#frog-ui .fg-compact-hud .fg-objective {width:328px;overflow:visible;border:1px solid #c5d8a744;border-radius:10px;background:linear-gradient(125deg,#173629f0,#0d241ce8);box-shadow:0 6px 20px #00180b30;text-shadow:none;}
+#frog-ui .fg-compact-hud .fg-objective-toggle {min-height:53px;padding:8px 10px 5px;border:0;background:transparent;box-shadow:none;}
+#frog-ui .fg-compact-hud .fg-objective-instruction {margin:0;padding:0 10px 6px;color:#dce6c9;text-align:left;font-size:11px;line-height:1.4;white-space:normal;overflow-wrap:break-word;}
+#frog-ui .fg-compact-hud .fg-objective-instruction:empty {display:none;}
+#frog-ui .fg-compact-hud .fg-objective-shortcuts {display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:5px 12px;padding:0 10px 7px;color:#afc79e;font-size:9px;line-height:1.2;}
+#frog-ui .fg-compact-hud .fg-objective-shortcuts>span {display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+#frog-ui .fg-compact-hud .fg-objective-shortcuts kbd {position:static;display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 3px;border:1px solid #b5cb9560;border-radius:3px;background:#183e2e;color:#e0edc7;font-family:inherit;font-size:9px;line-height:1;}
+#frog-ui.fg-layout-ready .fg-compact-hud .fg-objective {left:var(--hud-goal-x);top:var(--hud-goal-y);width:var(--hud-goal-width,328px);}
+#frog-ui.fg-layout-ready .fg-compact-hud .fg-hunt {left:var(--hud-hunt-x,var(--hud-goal-x));top:var(--hud-hunt-y,var(--hud-goal-y));width:var(--hud-hunt-width,342px);}
+@media(max-width:540px) {
+  #frog-ui .fg-compact-hud .fg-objective-toggle {padding:6px 7px 4px;}
+  #frog-ui .fg-compact-hud .fg-objective-instruction {padding:0 7px 5px;font-size:10px;line-height:1.35;}
+  #frog-ui .fg-compact-hud .fg-objective-shortcuts {justify-content:flex-start;padding:0 7px 6px;gap:5px 8px;font-size:8px;}
+}

@@ -78,16 +78,17 @@ test('the recruitment bubble is an independent live region and preserves every a
   }
 });
 
-test('the local contract escapes its name, explains each requirement and keeps unavailable enlistment disabled',t=>{
+test('the frog badge shows its food image and cost, with pending conditions visible and actions bound to that frog',t=>{
   const {ui}=fixture(t);ui.showRecruitmentBubble(offer());
   const html=ui.refs.recruitmentBubble.innerHTML;
   assert.match(html,/&lt;Σπίθα&gt;/);assert.doesNotMatch(html,/<Σπίθα>/);
-  assert.match(html,/Τροφή/);assert.match(html,/Μάζεψε τροφή/);assert.match(html,/Ασφαλές κάστρο/);
+  assert.match(html,/class="fg-recruit-food"[^>]*Κόστος ένταξης: 12 τροφή/);assert.match(html,/<b>×12<\/b>/);
+  assert.match(html,/Νέα τροφή/);assert.match(html,/Ασφαλές οχυρό/);
   assert.match(html,/Συμφωνία &lt;σπάνια&gt;/);assert.doesNotMatch(html,/<σπάνια>/);
-  assert.match(html,/20\s*\/\s*12/);assert.match(html,/2\s*\/\s*6/);
+  assert.doesNotMatch(html,/20\s*\/\s*12/);assert.match(html,/2\s*\/\s*6/);
   const help=buttonMarkup(html,'recruit-help');assert.ok(help);assert.match(help,/data-id="neutral-7"/);assert.doesNotMatch(help,/\bdisabled\b/);
   assert.equal(buttonMarkup(html,'recruit-target'),undefined,'only the next available action is offered');
-  assert.ok(buttonMarkup(html,'recruit-close'));
+  assert.doesNotMatch(html,/<header\b|<ul\b|<li\b|data-action="recruit-close"|Εκκρεμούν απαιτήσεις/);
   ui.renderRecruitmentBubble(offer({helpAccepted:true,helpAvailable:false}));
   const enlist=buttonMarkup(ui.refs.recruitmentBubble.innerHTML,'recruit-target');
   assert.ok(enlist);assert.match(enlist,/data-id="neutral-7"/);assert.match(enlist,/\bdisabled\b/);
@@ -101,7 +102,8 @@ test('live requirement updates change progress and enlistment readiness without 
     {id:'base',label:'Ασφαλής βάση',done:true}
   ]});
   ui.state.recruitment=ready;ui.renderRecruitmentBubble();
-  assert.match(ui.refs.recruitmentBubble.innerHTML,/6\s*\/\s*6/);
+  assert.doesNotMatch(ui.refs.recruitmentBubble.innerHTML,/fg-recruit-conditions|fg-recruit-next/,'fulfilled conditions leave only the food cost and E action');
+  assert.match(ui.refs.recruitmentBubble.innerHTML,/<b>×12<\/b>/);
   assert.doesNotMatch(buttonMarkup(ui.refs.recruitmentBubble.innerHTML,'recruit-target'),/\bdisabled\b/);
   assert.equal(ui.recruitmentTargetId,ready.targetId);assert.equal(ui.panel,'build');assert.equal(ui.menu,null);
   ui.state.recruitment=offer({helpAccepted:true,helpAvailable:false});ui.renderRecruitmentBubble();
@@ -125,9 +127,9 @@ test('temporary anchor hiding preserves the conversation while explicit close ca
 
 test('switching the inspected frog replaces old requirements and action target ids',t=>{
   const {ui}=fixture(t);ui.showRecruitmentBubble(offer());
-  ui.showRecruitmentBubble(offer({targetId:'neutral-8',name:'Νεφέλη',helpAvailable:false,requirements:[{id:'food',label:'18 τροφή',done:false,current:4,target:18}]}));
+  ui.showRecruitmentBubble(offer({targetId:'neutral-8',name:'Νεφέλη',helpAvailable:false,cost:{food:18},requirements:[{id:'food',label:'18 τροφή',done:false,current:4,target:18}]}));
   const html=ui.refs.recruitmentBubble.innerHTML;
-  assert.equal(ui.recruitmentTargetId,'neutral-8');assert.match(html,/Νεφέλη/);assert.match(html,/Τροφή/);assert.match(html,/4\s*\/\s*18/);
+  assert.equal(ui.recruitmentTargetId,'neutral-8');assert.match(html,/Νεφέλη/);assert.match(html,/<b>×18<\/b>/);assert.match(html,/Μάζεψε ακόμη 14 τροφή/);
   assert.doesNotMatch(html,/neutral-7|Σπίθα|Μάζεψε 6 μύγες/);
   assert.match(buttonMarkup(html,'recruit-target'),/data-id="neutral-8"/);
 });
@@ -150,7 +152,7 @@ test('bubble keyboard focus keeps Tab in the browser and passes E, U and movemen
   };
   const event=(code,repeat=false)=>({code,target,repeat,prevented:false,stopped:false,preventDefault(){this.prevented=true;},stopPropagation(){this.stopped=true;}});
   const tab=event('Tab');ui.hudKeydown(tab);assert.equal(tab.stopped,true);assert.equal(tab.prevented,false);
-  for(const code of ['KeyE','KeyU','KeyW','KeyA','KeyS','KeyD','Escape']){
+  for(const code of ['KeyE','KeyU','KeyO','AltLeft','AltRight','KeyW','KeyA','KeyS','KeyD','Escape']){
     const key=event(code);ui.hudKeydown(key);assert.equal(key.stopped,false,code);assert.equal(key.prevented,false,code);
   }
   for(const code of ['Enter','Space']){
@@ -159,15 +161,25 @@ test('bubble keyboard focus keeps Tab in the browser and passes E, U and movemen
   }
 });
 
-test('live requirement refresh restores a focused action and falls back to close when that action disappears',t=>{
+test('live requirement refresh restores focus to the next available action when help becomes enlistment',t=>{
   const {ui}=fixture(t);ui.showRecruitmentBubble(offer());
-  const original={dataset:{action:'recruit-help'}},refreshed=node(),close=node();
+  const original={dataset:{action:'recruit-help'}},refreshed=node(),enlist=node();
   globalThis.document.activeElement=original;
   ui.refs.recruitmentBubble.contains=element=>element===original;
-  ui.refs.recruitmentBubble.querySelector=selector=>selector==='[data-action="recruit-help"]'?refreshed:selector==='[data-action="recruit-close"]'?close:null;
+  ui.refs.recruitmentBubble.querySelector=selector=>selector==='[data-action="recruit-help"]'?refreshed:selector==='button:not(:disabled)'?enlist:null;
   ui.renderRecruitmentBubble(offer({requirements:[{id:'help',label:'Μάζεψε 6 μύγες',done:false,current:3,target:6}]}));
-  assert.equal(refreshed.focused,true);assert.notEqual(close.focused,true);
-  ui.refs.recruitmentBubble.querySelector=selector=>selector==='[data-action="recruit-close"]'?close:null;
+  assert.equal(refreshed.focused,true);assert.notEqual(enlist.focused,true);
+  ui.refs.recruitmentBubble.querySelector=selector=>selector==='button:not(:disabled)'?enlist:null;
   ui.renderRecruitmentBubble(offer({helpAvailable:false,helpAccepted:true,canRecruit:true}));
-  assert.equal(close.focused,true);
+  assert.equal(enlist.focused,true);
+});
+
+test('an eligible first frog needs only the food pictogram, ×8 and the E enlist action',t=>{
+  const {ui}=fixture(t);
+  ui.showRecruitmentBubble(offer({cost:{food:8},canRecruit:true,helpAvailable:false,helpAccepted:true,requirements:[{id:'food',done:true,current:22,target:8}]}));
+  const html=ui.refs.recruitmentBubble.innerHTML;
+  assert.match(html,/<svg\b/);assert.match(html,/<b>×8<\/b>/);assert.match(html,/<kbd>E<\/kbd>/);
+  assert.doesNotMatch(html,/22\s*\/\s*8|<header\b|<ul\b|fg-recruit-conditions|fg-recruit-next|recruit-close/);
+  assert.equal(ui.recruitmentBadgeWidth,176);
+  assert.doesNotMatch(buttonMarkup(html,'recruit-target'),/\bdisabled\b/);
 });
