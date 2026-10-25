@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { WORLD_MOVE_LIMIT } from './world-config.js';
 import { PREDATORS, clamp } from './rules.js';
 
 const distance = (a,b) => Math.hypot(a.x-b.x,a.z-b.z);
@@ -96,7 +97,7 @@ function walk(game,p,x,z,speed,dt) {
     if(!best){p.speed=0;return;}
     nx=best.x;nz=best.z;dx=nx-p.x;dz=nz-p.z;
   }
-  nx=clamp(nx,-106,106);nz=clamp(nz,-106,106);
+  nx=clamp(nx,-WORLD_MOVE_LIMIT,WORLD_MOVE_LIMIT);nz=clamp(nz,-WORLD_MOVE_LIMIT,WORLD_MOVE_LIMIT);
   p.yaw=angleLerp(p.yaw,Math.atan2(dx,dz),dt*(p.type==='heron'?4:7));
   p.speed=Math.hypot(nx-p.x,nz-p.z)/Math.max(.001,dt);p.x=nx;p.z=nz;
   p.movePulse+=dt*p.speed;
@@ -129,8 +130,8 @@ function beginWindup(game,p,continuation=false) {
   p.windup=Math.max(.8,p.baseWindup*(p.enraged?.78:1));
   enter(p,'windup');
   // A committed landing point is readable and dodgable; it never tracks the cursor/player.
-  p.strike={x:clamp(f.x+(f.vx||0)*.12,-106,106),z:clamp(f.z+(f.vz||0)*.12,-106,106)};
-  if(p.boss&&p.type==='snake'){const yaw=Math.atan2(f.x-p.x,f.z-p.z),side=p.burstIndex%2?1:-1;p.strike.x=clamp(p.strike.x+Math.cos(yaw)*side*.75,-106,106);p.strike.z=clamp(p.strike.z-Math.sin(yaw)*side*.75,-106,106);}
+  p.strike={x:clamp(f.x+(f.vx||0)*.12,-WORLD_MOVE_LIMIT,WORLD_MOVE_LIMIT),z:clamp(f.z+(f.vz||0)*.12,-WORLD_MOVE_LIMIT,WORLD_MOVE_LIMIT)};
+  if(p.boss&&p.type==='snake'){const yaw=Math.atan2(f.x-p.x,f.z-p.z),side=p.burstIndex%2?1:-1;p.strike.x=clamp(p.strike.x+Math.cos(yaw)*side*.75,-WORLD_MOVE_LIMIT,WORLD_MOVE_LIMIT);p.strike.z=clamp(p.strike.z-Math.sin(yaw)*side*.75,-WORLD_MOVE_LIMIT,WORLD_MOVE_LIMIT);}
   p.attackType='lunge';p.attackDuration=p.windup+p.lungeTime;p.attackAnim=p.attackDuration;
   const s=surface(game,p.strike.x,p.strike.z),position=new THREE.Vector3(p.strike.x,Math.max(.05,s.height),p.strike.z);
   // The rig's crouch/neck coil and the HUD phase bar telegraph the attack.
@@ -181,7 +182,7 @@ export function releaseGrab(game,p) {
   p.grabbed=null;p.rescueDamage=0;f.grabbedBy=null;
   if(!f.dead) {
     const a=p.yaw+(p.type==='snake'?1.5:1.1),r=(p.type==='heron'?2.6:2.1)*(p.boss?1.5:1);
-    f.x=clamp(p.x+Math.sin(a)*r,-106,106);f.z=clamp(p.z+Math.cos(a)*r,-106,106);
+    f.x=clamp(p.x+Math.sin(a)*r,-WORLD_MOVE_LIMIT,WORLD_MOVE_LIMIT);f.z=clamp(p.z+Math.cos(a)*r,-WORLD_MOVE_LIMIT,WORLD_MOVE_LIMIT);
     f.y=Math.max(game.world.sampleHeight(f.x,f.z)+.45,p.type==='heron'?p.y+.9:.35);
     f.vx=Math.sin(a)*3;f.vz=Math.cos(a)*3;f.vy=3.7;f.grounded=false;f.jumpTime=.7;
     f.invulnerable=Math.max(f.invulnerable||0,1.4);f.stun=Math.max(f.stun||0,.18);
@@ -206,7 +207,7 @@ function eatVictim(game,p) {
 function startFlee(game,p) {
   releaseGrab(game,p);enter(p,'flee');p.fleeTime=0;p.target=null;p.targetId=null;p.attackAnim=0;
   const threat=p.lastAttacker||game.player||{x:0,z:0},dx=p.x-threat.x,dz=p.z-threat.z,len=Math.hypot(dx,dz)||1;
-  p.fleeDestination={x:clamp(p.x+dx/len*9,-104,104),z:clamp(p.z+dz/len*9,-104,104)};
+  p.fleeDestination={x:clamp(p.x+dx/len*9,-WORLD_MOVE_LIMIT+2,WORLD_MOVE_LIMIT-2),z:clamp(p.z+dz/len*9,-WORLD_MOVE_LIMIT+2,WORLD_MOVE_LIMIT-2)};
   if(p.engagedPlayer){p.huntUntil=game.elapsed+7;game.ui?.toast?.({icon:'intimidate',portrait:game.portraits?.[p.type],progress:1,tone:'success',detail:`${p.name}: ο εκφοβισμός πέτυχε.`});}
 }
 function finishRepel(game,p) {

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import {BUILDINGS,canAfford} from './rules.js';
+import {BUILDINGS,canAfford,buildingCost} from './rules.js';
+import {WORLD_EXTENT} from './world-config.js';
 import {defaultPlacement,validateBuildingPlacement} from './placement-rules.js';
 
 export const PLACEABLE_BUILDINGS=new Set(['shelter','store','nursery','watchtower','training','palisade']);
@@ -15,10 +16,12 @@ function worldPoint(camp,point){
 }
 function validateStage(game,p){
   if(game.player.dead)return {valid:false,reason:'unavailable'};
-  if(!canAfford(game.resources,BUILDINGS[p.type].cost))return {valid:false,reason:'resources'};
+  const currentCamp=campFor(game,p),reason=game.buildBlockReason?.(p.type,currentCamp);if(reason)return {valid:false,reason};
+  p.cost=game.buildCost?.(p.type,currentCamp)||buildingCost(p.type,game.camps,currentCamp);
+  if(!canAfford(game.resources,p.cost))return {valid:false,reason:'resources'};
   if(!Number.isFinite(p.x)||!Number.isFinite(p.z)||!p.hasPoint)return {valid:false,reason:'invalid-position'};
   if(p.type==='shelter'){
-    if(Math.abs(p.x)>96||Math.abs(p.z)>96)return {valid:false,reason:'outside-world'};
+    if(Math.abs(p.x)>WORLD_EXTENT-14||Math.abs(p.z)>WORLD_EXTENT-14)return {valid:false,reason:'outside-world'};
     const ruin=game.camps.find(c=>c.destroyed&&distance(c,p)<5);
     if(ruin){p.x=ruin.x;p.z=ruin.z;}
     if(game.camps.some(c=>!c.destroyed&&distance(c,p)<26))return {valid:false,reason:'overlap-building'};
@@ -43,9 +46,10 @@ export function beginBuildingPlacement(game,type,{dragging=false}={}){
   const camp=type==='shelter'?null:game.nearestHome(18);
   if(type!=='shelter'&&(!camp||camp.destroyed||camp.team!=='ally')){game.ui.toast({icon:'camp',progress:0,tone:'warning'});return false;}
   if(camp?.buildings?.[type])return false;
+  const reason=game.buildBlockReason?.(type,camp);if(reason){game.ui.toast(reason,'warning');return false;}
   cancelBuildingPlacement(game,{quiet:true});
   const local=type==='shelter'?{x:0,z:0,yaw:0}:type==='training'?{x:0,z:6,yaw:0}:type==='store'?{x:-6.5,z:6,yaw:0}:defaultPlacement(type),initial=camp?worldPoint(camp,local):{x:game.player.x,z:game.player.z};
-  const p=game.buildPlacement={active:true,type,campId:camp?.id||null,x:initial.x,z:initial.z,yaw:local.yaw||0,hasPoint:true,cost:{...BUILDINGS[type].cost},dragging,ghost:game.world.createBuildingPreview?.(type)||null};
+  const p=game.buildPlacement={active:true,type,campId:camp?.id||null,x:initial.x,z:initial.z,yaw:local.yaw||0,hasPoint:true,cost:game.buildCost?.(type,camp)||buildingCost(type,game.camps,camp),dragging,ghost:game.world.createBuildingPreview?.(type)||null};
   game.ignoreUnlockUntil=performance.now()+700;if(game.input){game.input.buildingMode=true;game.input.clear?.();game.input.unlock?.();}
   game.paused=false;if(!dragging)game.ui.closePanels?.();
   game.world.showBuildArea?.(camp||null);paint(game,p);game.updateUI?.(game.buildDayState?.()||{timeLabel:'',day:1,night:false});return true;

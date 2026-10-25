@@ -5,6 +5,7 @@ import {
   canPromote, promote, promoteCost, nextLevelXP, awardXP,
   isVictory, gangCapacity, validateSave, dayState,
 } from '../src/rules.js';
+import {WORLD_MOVE_LIMIT} from '../src/world-config.js';
 
 const frog = (overrides={}) => ({id:'frog-1',team:'ally',x:0,z:0,hp:70,maxHp:100,stomach:40,maxStomach:100,level:1,tier:1,xp:0,...overrides});
 const save = (overrides={}) => ({version:SAVE_VERSION,elapsed:42,resources:{food:30,reeds:50},player:frog(),frogs:[frog({id:'ally-1'})],camps:[{id:'camp-1',x:8,z:8,team:'ally',tier:1,buildings:{}}],...overrides});
@@ -94,8 +95,11 @@ test('an exact XP threshold leaves no remainder and negative awards do not remov
   assert.deepEqual(f,before);
 });
 
-test('victory allows a mixture of destroyed and persuaded enemy bases',()=>{
+test('victory requires living ownership of every original enemy base rather than abandoned ruins',()=>{
   const camps=[{originalEnemy:true,team:'enemy0',destroyed:true},{originalEnemy:true,team:'ally',destroyed:false},{originalEnemy:false,team:'neutral',destroyed:false}];
+  assert.equal(isVictory(camps),false);
+  camps[0].team='ally';assert.equal(isVictory(camps),false);
+  camps[0].destroyed=false;
   assert.equal(isVictory(camps),true);
   assert.equal(isVictory([...camps,{originalEnemy:true,team:'enemy2',destroyed:false}]),false);
 });
@@ -109,8 +113,10 @@ test('an empty campaign or one with no original enemy bases is never a victory',
 test('gang capacity grows only from living allied camps and their nursery',()=>{
   assert.equal(gangCapacity([]),6);
   const allied={team:'ally',tier:2,destroyed:false,buildings:{nursery:true}};
-  assert.equal(gangCapacity([allied]),17);
-  assert.equal(gangCapacity([allied,{team:'enemy0',tier:3,buildings:{nursery:true}},{...allied,destroyed:true}]),17);
+  assert.equal(gangCapacity([{...allied,tier:1,buildings:{}}]),9);
+  assert.equal(gangCapacity([{...allied,buildings:{}}]),12);
+  assert.equal(gangCapacity([allied]),14);
+  assert.equal(gangCapacity([allied,{team:'enemy0',tier:3,buildings:{nursery:true}},{...allied,destroyed:true}]),14);
 });
 
 test('incompatible, missing and nonfinite core save data are rejected',()=>{
@@ -124,7 +130,7 @@ test('save normalization clamps resources, coordinates, health, stomach and time
   const result=validateSave(input);
   assert.ok(result);
   assert.deepEqual(result.resources,{food:0,reeds:1e6});
-  assert.equal(result.elapsed,0);assert.equal(result.player.x,108);assert.equal(result.player.z,-108);
+  assert.equal(result.elapsed,0);assert.equal(result.player.x,WORLD_MOVE_LIMIT);assert.equal(result.player.z,-WORLD_MOVE_LIMIT);
   assert.equal(result.player.hp,1);assert.equal(result.player.stomach,100);
   assert.deepEqual(input,before);
 });

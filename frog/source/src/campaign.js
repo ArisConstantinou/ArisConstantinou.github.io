@@ -63,7 +63,7 @@ function objectiveDefinitions(state, metrics, phase = state.phase) {
 export function campaignObjectives(value, metrics = {}) {
   const state = normalizedState(value);
   return objectiveDefinitions(state, metrics).map(objective => {
-    const done = state.achieved.includes(objective.id) || objective.current >= objective.target;
+    const done = (objective.id!=='territories'&&state.achieved.includes(objective.id)) || objective.current >= objective.target;
     const current = done ? Math.max(objective.current, objective.target) : objective.current;
     return { ...objective, current, done, progress: Math.min(1, Math.max(0, current / objective.target)) };
   });
@@ -137,7 +137,7 @@ export function inferLegacyMetrics(save = {}) {
     buildings,
     allies: frogs.length,
     trained: frogs.filter(f => f.trained || finite(f.level, 1) >= 2).length,
-    territories: camps.filter(c => c.originalEnemy && (c.destroyed || c.team === 'ally')).length
+    territories: camps.filter(c => c.originalEnemy && !c.destroyed && c.team === 'ally').length
   };
 }
 

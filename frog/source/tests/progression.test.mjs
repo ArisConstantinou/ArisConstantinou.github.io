@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {recruitmentOffer,canHuntForRecovery,feedFromFly,settleCampSupplies,creditCampIncome,recoverAtShelter} from '../src/squad-rules.js';
-import {gangCapacity,isVictory} from '../src/rules.js';
+import {gangCapacity,isVictory,RECRUIT_INTERVAL} from '../src/rules.js';
 import {fixture,actor,camp} from './game-fixture.mjs';
 
 test('a full injured frog can heal by consuming one real fly',()=>{
@@ -28,10 +28,11 @@ test('fly healing respects cooldowns, empty swarms and life status',()=>{
   frog.eatCD=0;assert.equal(feedFromFly(frog,{flies:0}).consumed,false);
   frog.dead=true;assert.equal(feedFromFly(frog,swarm).consumed,false);
 });
-test('recruitment offers are free for surrendered survivors and affordable for neutrals',()=>{
-  assert.deepEqual(recruitmentOffer(actor({team:'enemy0',surrendered:true})).cost,{food:0});
+test('surrendered survivors and neutrals need provisions, while active enemies cost more',()=>{
+  assert.deepEqual(recruitmentOffer(actor({team:'enemy0',surrendered:true})).cost,{food:12});
   assert.equal(recruitmentOffer(actor({team:'enemy0'}),camp({destroyed:true})).guaranteed,true);
-  const neutral=recruitmentOffer(actor({team:'neutral'}));assert.equal(neutral.guaranteed,true);assert.equal(neutral.cost.food,4);
+  const neutral=recruitmentOffer(actor({team:'neutral'}));assert.equal(neutral.guaranteed,true);assert.equal(neutral.cost.food,12);
+  const active=recruitmentOffer(actor({team:'enemy0'}));assert.equal(active.guaranteed,false);assert.equal(active.cost.food,20);
   assert.equal(recruitmentOffer(actor()).eligible,false);
 });
 test('legacy camp stocks move to the shared bank only once',()=>{
@@ -48,10 +49,10 @@ test('migration does not steal resources from enemy camps or destroyed ruins',()
 });
 test('safe camp production credits the shared bank and upgrades increase its rates',()=>{
   const resources={food:0,reeds:0},home=camp({team:'ally',stock:{food:0,reeds:0}});
-  creditCampIncome(resources,home,10);assert.equal(resources.food,2.5);assert.equal(resources.reeds,1.2);
+  creditCampIncome(resources,home,10);assert.equal(resources.food,.5);assert.equal(resources.reeds,.4);
   const before={...resources};creditCampIncome(resources,home,10,{safe:false});assert.deepEqual(resources,before);
   home.buildings={store:true,watchtower:true};creditCampIncome(resources,home,10);
-  assert.equal(resources.food,7.5);assert.equal(resources.reeds,3.2);assert.deepEqual(home.stock,{food:0,reeds:0});
+  assert.equal(resources.food,2);assert.ok(Math.abs(resources.reeds-1.3)<1e-9);assert.deepEqual(home.stock,{food:0,reeds:0});
 });
 test('shelter recovery consumes nutrition and stops under threat or at the reserve',()=>{
   const frog=actor({hp:30,stomach:50});
@@ -60,10 +61,11 @@ test('shelter recovery consumes nutrition and stops under threat or at the reser
   frog.stomach=10;assert.equal(recoverAtShelter(frog,10),0);
   frog.stomach=10.18;assert.ok(Math.abs(recoverAtShelter(frog,10)-1)<1e-9);assert.equal(frog.stomach,10);
 });
-test('actual gameplay advances from three to five territories with 34 allies despite housing',()=>{
+test('territory ownership and recruitment stay separate when a full army captures enemy camps',()=>{
   const {game,player}=fixture();game.resources={food:0,reeds:0};
   for(let i=0;i<3;i++)game.camps.push(camp({id:'owned-'+i,team:'ally',x:30+i*30,originalEnemy:true,stock:{food:0,reeds:0}}));
-  for(let i=0;i<24;i++)game.frogs.push(actor({id:'army-'+i,x:0,z:-i*.1}));
+  const initialCapacity=gangCapacity(game.camps);
+  for(let i=0;i<initialCapacity;i++)game.frogs.push(actor({id:'army-'+i,x:0,z:-i*.1}));
   assert.equal(game.allies().length,gangCapacity(game.camps));
   const fallen=camp({id:'fourth',team:'enemy3',hp:5,x:5}),last=camp({id:'fifth',team:'enemy4',hp:60,x:40});
   game.camps.push(fallen,last);
@@ -71,16 +73,23 @@ test('actual gameplay advances from three to five territories with 34 allies des
   assert.equal(game.camps.filter(c=>c.originalEnemy&&(c.destroyed||c.team==='ally')).length,3);
   game.damageCamp(fallen,20,player);
   for(const f of game.frogs.filter(f=>f.home===fallen.id))game.recruit(f);
-  assert.equal(game.allies().length,29);assert.ok(game.allies().length>gangCapacity(game.camps));
+  assert.equal(game.allies().length,initialCapacity);assert.equal(game.resources.food,0);
+  assert.equal(game.campaignMetrics().territories,3,'a destroyed enemy camp is not an owned territory');
   game.captureCamp(last);
-  assert.equal(game.allies().length,34);assert.equal(isVictory(game.camps),true);
-  assert.equal(game.frogs.filter(f=>f.home===last.id&&f.guard).length,1);
+  assert.equal(game.allies().length,initialCapacity);assert.equal(isVictory(game.camps),false);
+  assert.ok(game.frogs.filter(f=>f.home===last.id).every(f=>f.surrendered&&!f.guard&&f.team==='enemy4'));
+  game.captureCamp(fallen);assert.equal(isVictory(game.camps),true);assert.equal(game.campaignMetrics().territories,5);
+  assert.equal(game.allies().length,initialCapacity);assert.ok(gangCapacity(game.camps)>initialCapacity);
+  const survivors=game.frogs.filter(f=>f.home===last.id);game.resources.food=100;
+  assert.equal(game.recruit(survivors[0]),true);assert.equal(game.allies().length,initialCapacity+1);
+  const paid=game.resources.food;assert.equal(game.recruit(survivors[1]),false);assert.equal(game.resources.food,paid);
+  game.elapsed+=RECRUIT_INTERVAL;assert.equal(game.recruit(survivors[1]),true);assert.equal(game.resources.food,paid-12);
 });
-test('actual neutral recruitment charges four food and is guaranteed',()=>{
-  const {game}=fixture();game.resources={food:4,reeds:0};
+test('actual neutral recruitment charges its provisions once and is guaranteed',()=>{
+  const {game}=fixture();game.resources={food:12,reeds:0};
   const neutral=actor({id:'neutral',team:'neutral'});game.frogs.push(neutral);
-  game.recruit(neutral);assert.equal(neutral.team,'ally');assert.equal(game.resources.food,0);
-  game.recruit(neutral);assert.equal(game.resources.food,0);assert.equal(game.stats.recruited,1);
+  assert.equal(game.recruit(neutral),true);assert.equal(neutral.team,'ally');assert.equal(game.resources.food,0);
+  assert.equal(game.recruit(neutral),false);assert.equal(game.resources.food,0);assert.equal(game.stats.recruited,1);
 });
 test('the forage order finds distant flies and heals a full injured ally through actual AI',()=>{
   const {game}=fixture(),frog=actor({id:'forager',hp:40,stomach:100,order:'forage'}),swarm={id:'flies',x:50,z:0,flies:10,maxFlies:10};

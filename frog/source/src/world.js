@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Water } from 'three/addons/objects/Water.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { EXTRA_HUT_FOOTPRINT } from './placement-rules.js';
+import { WORLD_SCALE, WORLD_EXTENT, WORLD_LAYOUT_VERSION } from './world-config.js';
 
 // Everything here is authored geometry. The water is a planar reflection with a
 // moving normal field; leaves, cliffs and vegetation deliberately avoid flat
@@ -141,7 +142,7 @@ export function createWorld(scene, renderer, options={}) {
   const seed=options.seed??731,random=rng(seed),group=new THREE.Group();group.name='The living creek';scene.add(group);
   const platforms=[],hotspots=[],shelters=new Set(),buildingPreviews=new Set(),disposables=[],buckets=new Map(),bucketSize=6;let buildArea=null;
   const skyColor=new THREE.Color('#8aaab0'),fogColor=new THREE.Color('#819e91');
-  if(!scene.fog)scene.fog=new THREE.FogExp2(fogColor,.0042);
+  if(!scene.fog)scene.fog=new THREE.FogExp2(fogColor,.0042/WORLD_SCALE);
   const stoneMap=stoneTexture(seed),mossMap=stoneTexture(seed+9,true),leafMap=leafTexture(seed),normals=waterNormals(seed);
   disposables.push(stoneMap,mossMap,leafMap,normals);
   const materials={
@@ -170,24 +171,27 @@ export function createWorld(scene, renderer, options={}) {
   ];
   // Room for a real communal camp, its walkable courtyard and purchased wings.
   // The soft irregular shore still leaves a water route between neighbouring sites.
-  for(const site of campSites)site.radius=Math.max(15,site.radius*2.1);
+  for(const site of campSites){site.x*=WORLD_SCALE;site.z*=WORLD_SCALE;site.radius=Math.max(15,site.radius*2.1);}
   function bedHeight(x,z) {
-    const channel=Math.sin(z*.032)*15+Math.sin(z*.073)*5,dist=Math.abs(x-channel);
+    // Scale the basin and banks, not the frog, rock or camp geometry. The same
+    // sampler generates the visible mesh and answers every collision query.
+    const basinX=x/WORLD_SCALE,basinZ=z/WORLD_SCALE;
+    const channel=Math.sin(basinZ*.032)*15+Math.sin(basinZ*.073)*5,dist=Math.abs(basinX-channel);
     let h=-2.2+noise(x,z)*.47+smooth(44,71,dist)*6;
-    h+=smooth(105,132,Math.abs(z))*4.8;
+    h+=smooth(105,132,Math.abs(basinZ))*4.8;
     for(const site of campSites){const dx=(x-site.x),dz=(z-site.z),d=Math.hypot(dx,dz);const edge=site.radius*(1+.06*Math.sin(Math.atan2(dz,dx)*5+site.x));
       if(d<edge+3.8){const island=.39+noise(x*1.7,z*1.7)*.07-smooth(edge*.65,edge+3.8,d)*2.8;h=Math.max(h,island);}}
     return h;
   }
-  const terrainGeo=new THREE.PlaneGeometry(270,270,180,180);terrainGeo.rotateX(-Math.PI/2);
+  const terrainGeo=new THREE.PlaneGeometry(270*WORLD_SCALE,270*WORLD_SCALE,240,240);terrainGeo.rotateX(-Math.PI/2);
   const tp=terrainGeo.attributes.position,tcolors=new Float32Array(tp.count*3),earth=color('#8b8a62'),wet=color('#43533b'),deep=color('#52634e');
   for(let i=0;i<tp.count;i++){const x=tp.getX(i),z=tp.getZ(i),h=bedHeight(x,z);tp.setY(i,h);const c=deep.clone().lerp(wet,smooth(-1.7,.05,h)).lerp(earth,smooth(.02,2,h));c.multiplyScalar(.88+noise(x*2,z*2)*.18);c.toArray(tcolors,i*3);}
   terrainGeo.setAttribute('color',new THREE.BufferAttribute(tcolors,3));terrainGeo.computeVertexNormals();
-  mossMap.repeat.set(44,44);const terrain=new THREE.Mesh(terrainGeo,materials.terrain);terrain.receiveShadow=true;group.add(terrain);
+  mossMap.repeat.set(44*WORLD_SCALE,44*WORLD_SCALE);const terrain=new THREE.Mesh(terrainGeo,materials.terrain);terrain.name='Expanded wetland floor';terrain.receiveShadow=true;group.add(terrain);
   // Separate moss texture scale for rock outcrops, so the bed can tile densely.
   const rockMoss=stoneTexture(seed+9,true);disposables.push(rockMoss);materials.mossRock.map=rockMoss;materials.compost.map=rockMoss;materials.darkFruit.map=rockMoss;
 
-  const waterGeo=new THREE.PlaneGeometry(266,266,88,88);
+  const waterGeo=new THREE.PlaneGeometry(266*WORLD_SCALE,266*WORLD_SCALE,88,88);
   const water=new Water(waterGeo,{textureWidth:512,textureHeight:512,waterNormals:normals,sunDirection:new THREE.Vector3(.6,.8,-.3),sunColor:0xffe9bd,waterColor:0x2e625b,distortionScale:2.5,alpha:.91,fog:true});
   water.name='Reflecting creek';water.rotation.x=-Math.PI/2;water.position.y=-.035;water.material.transparent=true;water.material.depthWrite=false;water.renderOrder=-2;
   water.material.uniforms.size.value=4.8;group.add(water);
@@ -197,7 +201,7 @@ export function createWorld(scene, renderer, options={}) {
   // individually curved reed blades, rather than a uniform wall around a box.
   const bankRootGeos=[],rootGroup=new THREE.Group(),treeLeaves=[];rootGroup.name='Willow trunks and tangled roots';group.add(rootGroup);
   for(let side of [-1,1])for(let i=0;i<15;i++){
-    const z=-122+i*17+(random()-.5)*7,x=side*(59+random()*15)+Math.sin(z*.032)*15,y=bedHeight(x,z);
+    const z=(-122+i*17+(random()-.5)*7)*WORLD_SCALE,x=(side*(59+random()*15)+Math.sin(z/WORLD_SCALE*.032)*15)*WORLD_SCALE,y=bedHeight(x,z);
     if(y<.2)continue;
     const trunk=new THREE.Group();trunk.position.set(x,y,z);const height=9+random()*14,lean=(random()-.5)*3;
     const main=tube([[0,-.8,0],[.25,height*.3,0],[lean,height*.72,.6],[lean*.8,height,1]],.68+random()*.65,materials.bark,13,.72);main.castShadow=true;trunk.add(main);bankRootGeos.push(main.geometry);
@@ -217,8 +221,10 @@ export function createWorld(scene, renderer, options={}) {
   addLily(0,0,3.1);addLily(3.7,1,2.3);addRock(-3.9,2.2,2.5,.9);
   function path(a,b){const distance=Math.hypot(b.x-a.x,b.z-a.z),steps=Math.ceil(distance/3.65);for(let i=1;i<steps;i++){const t=i/steps,x=a.x+(b.x-a.x)*t+Math.sin(t*Math.PI*3)*1.25,z=a.z+(b.z-a.z)*t;if(bedHeight(x,z)>-.1)continue;if(random()<.18)addRock(x,z,1.8+random()*.7,.65+random()*.55);else addLily(x,z,1.65+random()*.65);}}
   const origin={x:0,z:0};path(origin,campSites[0]);for(const site of campSites)path(origin,site);for(let i=1;i<campSites.length;i++)path(campSites[i-1],campSites[i]);
-  for(let i=0;i<670;i++){
-    const z=(random()-.5)*218,x=(random()-.5)*108+Math.sin(z*.032)*10;
+  // Guaranteed stepping routes retain their original gap length. Additional
+  // instanced pads fill the enlarged basin without tripling foliage cost.
+  for(let i=0;i<1000;i++){
+    const z=(random()-.5)*218*WORLD_SCALE,x=((random()-.5)*108+Math.sin(z/WORLD_SCALE*.032)*10)*WORLD_SCALE;
     if(bedHeight(x,z)>-.18)continue;
     const neighbours=buckets.get(Math.floor(x/bucketSize)+':'+Math.floor(z/bucketSize))||[];
     if(neighbours.some(p=>Math.hypot(p.x-x,p.z-z)<p.radius+1))continue;
@@ -238,8 +244,8 @@ export function createWorld(scene, renderer, options={}) {
   for(const p of flowerPads)for(let j=0;j<13;j++){object.position.set(p.x+.24,p.y+.045,p.z);object.rotation.set(j>7?.1:0,j/8*TAU,j>7?.1:0);object.scale.setScalar(j>7?.67:1);object.updateMatrix();petals.setMatrixAt(pi++,object.matrix);}group.add(petals);
 
   const vegetation=[];
-  for(let i=0;i<21500;i++){
-    const x=(random()-.5)*254,z=(random()-.5)*254,h=bedHeight(x,z);if(h<-.52||h>3.2)continue;
+  for(let i=0;i<27000;i++){
+    const x=(random()-.5)*254*WORLD_SCALE,z=(random()-.5)*254*WORLD_SCALE,h=bedHeight(x,z);if(h<-.52||h>3.2)continue;
     if(campSites.some(s=>Math.hypot(s.x-x,s.z-z)<s.radius*.68))continue;
     if(Math.hypot(x,z)<8)continue;
     vegetation.push({x,z,y:h,scale:.65+random()*2.2,angle:random()*TAU});
@@ -259,7 +265,7 @@ export function createWorld(scene, renderer, options={}) {
   function sampleHeight(x,z){return surface(x,z).height;}
 
   // Organic fly lures: fallen fruit, leaf litter and waterlogged wood.
-  const spotSpecs=[{x:4.5,z:-4,rich:false},{x:-10,z:12,rich:true},{x:15,z:-20,rich:false},{x:-25,z:-23,rich:true},{x:26,z:-47,rich:true},{x:-17,z:40,rich:true},{x:27,z:69,rich:true},{x:-4,z:-81,rich:true},{x:-34,z:86,rich:true},{x:23,z:26,rich:false},{x:-33,z:7,rich:false},{x:4,z:51,rich:false},{x:9,z:-59,rich:false},{x:-12,z:76,rich:false},{x:39,z:-4,rich:false},{x:-42,z:-59,rich:true}];
+  const spotSpecs=[{x:4.5,z:-4,rich:false},{x:-10,z:12,rich:true},{x:15,z:-20,rich:false},{x:-25,z:-23,rich:true},{x:26,z:-47,rich:true},{x:-17,z:40,rich:true},{x:27,z:69,rich:true},{x:-4,z:-81,rich:true},{x:-34,z:86,rich:true},{x:23,z:26,rich:false},{x:-33,z:7,rich:false},{x:4,z:51,rich:false},{x:9,z:-59,rich:false},{x:-12,z:76,rich:false},{x:39,z:-4,rich:false},{x:-42,z:-59,rich:true}].map(s=>({...s,x:s.x*WORLD_SCALE,z:s.z*WORLD_SCALE}));
   const fruitInstances=[],compostGeos=[],litterGroup=new THREE.Group();group.add(litterGroup);
   for(let i=0;i<spotSpecs.length;i++){
     const s=spotSpecs[i],base=bedHeight(s.x,s.z);if(base<-.15)addRock(s.x,s.z,s.rich?3.2:2.2,.62);
@@ -539,6 +545,6 @@ export function createWorld(scene, renderer, options={}) {
     for(const s of shelters){s.userData.light.visible=closeLights.includes(s);s.userData.light.intensity=.25+(1-dayFactor)*3;s.userData.lamp.material.emissiveIntensity=.3+(1-dayFactor)*1.3;s.userData.banner.userData.flag.rotation.y=Math.sin(time*1.4+s.position.x)*.06;}
   }
   function dispose(){hideBuildArea();for(const preview of [...buildingPreviews])removeBuildingPreview(preview);scene.remove(group);const geos=new Set(),mats=new Set();group.traverse(o=>{if(o.isInstancedMesh)o.dispose();if(o.geometry)geos.add(o.geometry);if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>mats.add(m));else mats.add(o.material);}});for(const g of geos)g.dispose();for(const m of mats)m.dispose();for(const t of disposables)t.dispose();water.material.uniforms.mirrorSampler?.value?.dispose?.();shelters.clear();}
-  return {group,platforms,hotspots,campSites,sampleHeight,getSurface:surface,update,splash,impact,createShelter,updateShelter,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE};
+  return {group,platforms,hotspots,campSites,sampleHeight,getSurface:surface,update,splash,impact,createShelter,updateShelter,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,extent:WORLD_EXTENT,layoutVersion:WORLD_LAYOUT_VERSION,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE};
 }
 

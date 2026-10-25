@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 import {fileURLToPath} from 'node:url';
+import {NURSERY_INTERVAL,NURSERY_COST,RECRUIT_INTERVAL} from '../src/rules.js';
+import {recruitmentOffer} from '../src/squad-rules.js';
 
 // Import the real complete game class, without constructing its WebGL renderer.
 // The bundle also resolves CSS and Three add-ons in Node. Only presentation,
@@ -74,30 +76,39 @@ test('the squad planner invalidates a target that surrendered between AI decisio
 test('recruitment clears an existing attack order before the new ally can be hit',t=>{
   t.mock.method(Math,'random',()=>0);
   const {game}=fixture(),recruit=actor({id:'recruit',team:'enemy0',surrendered:true,hp:15,x:1}),attacker=actor({id:'attacker',intent:{kind:'attack',target:recruit}});
+  const foodCost=recruitmentOffer(recruit).cost.food;
   game.frogs.push(attacker,recruit);game.command='attack';game.targetCommand=recruit;
   game.recruit(recruit);
   assert.equal(recruit.team,'ally');assert.equal(recruit.surrendered,false);assert.equal(game.command,'follow');assert.equal(game.targetCommand,null);assert.equal(attacker.intent,null);
   const hp=recruit.hp;game.updateFrogs(.1);assert.equal(recruit.hp,hp);
-  assert.equal(game.resources.food,100);
+  assert.equal(game.resources.food,100-foodCost);assert.equal(game.nextRecruitAt,game.elapsed+RECRUIT_INTERVAL);
+  assert.equal(game.recruit(recruit),false);assert.equal(game.resources.food,100-foodCost);assert.equal(game.stats.recruited,1);
 });
 
-test('capturing a camp cancels attacks on the camp and all newly converted defenders',()=>{
+test('capturing a camp cancels attacks while survivors surrender and distant faction troops remain hostile',()=>{
   const {game}=fixture(),base=camp({hp:60}),defender=actor({id:'defender',team:'enemy0',home:base.id,x:1}),attacker=actor({id:'attacker',intent:{kind:'camp-attack',target:base}}),second=actor({id:'second',intent:{kind:'attack',target:defender}});
-  game.camps.push(base);game.frogs.push(attacker,second,defender);game.command='attack';game.targetCommand=base;
+  const distant=actor({id:'remote-defender',team:'enemy0',home:'another-outpost',x:80});
+  game.camps.push(base);game.frogs.push(attacker,second,defender,distant);game.command='attack';game.targetCommand=base;
   game.captureCamp(base);
-  assert.equal(base.team,'ally');assert.equal(defender.team,'ally');assert.equal(defender.guard,true);
+  assert.equal(base.team,'ally');assert.equal(defender.team,'enemy0');assert.equal(defender.surrendered,true);assert.equal(defender.guard,false);
+  assert.equal(distant.team,'enemy0');assert.equal(distant.surrendered,false);assert.equal(game.allies().length,2);
+  assert.deepEqual(game.resources,{food:107,reeds:110});assert.deepEqual(base.stock,{food:0,reeds:0});
   assert.equal(attacker.intent,null);assert.equal(second.intent,null);assert.equal(game.targetCommand,null);assert.equal(game.command,'follow');
   const hp=base.hp;game.updateFrogs(.1);assert.equal(base.hp,hp);
   const resources={...game.resources},xp=game.player.xp;game.captureCamp(base);
   assert.deepEqual(game.resources,resources);assert.equal(game.player.xp,xp);assert.equal(game.stats.campsCaptured,1);
 });
 
-test('the camp damage gate stops stale friendly attacks but allows genuine raids',()=>{
+test('the camp damage gate stops friendly attacks while present defenders reduce genuine raid damage',()=>{
   const {game,player}=fixture(),base=camp({team:'ally'}),attacker=actor({id:'ally',intent:{kind:'camp-attack',target:base},brain:20});
   game.camps.push(base);game.frogs.push(attacker);
   game.updateFrogs(.1);assert.equal(base.hp,350);assert.equal(attacker.intent,null);
   game.damageCamp(base,25,player);assert.equal(base.hp,350);
-  game.damageCamp(base,25,actor({team:'enemy0'}));assert.equal(base.hp,325);
+  game.damageCamp(base,25,actor({team:'enemy0'}));assert.equal(base.hp,336.25);
+  attacker.x=80;player.x=80;const defendedHp=base.hp;
+  game.damageCamp(base,25,actor({team:'enemy0'}));assert.equal(base.hp,defendedHp-25,'remote allies do not protect this base');
+  attacker.x=0;player.x=0;base.buildings.watchtower=true;const towerHp=base.hp;
+  game.damageCamp(base,25,actor({team:'enemy0'}));assert.equal(base.hp,towerHp-10);
 });
 
 test('destroying a hostile camp clears attack targets and pays destruction XP once',()=>{
@@ -126,11 +137,17 @@ test('a legal shelter placement charges once and creates a real allied camp',()=
 });
 
 test('a nursery waits for its real cost, then consumes food and reeds atomically',()=>{
-  const {game}=fixture(),base=camp({team:'ally',spawnTimer:84.9,buildings:{nursery:true},stock:{food:0,reeds:0},supplyMigrated:true}),spawned=[];
-  game.camps.push(base);game.resources={food:9,reeds:12};game.spawnFrog=data=>{spawned.push(data);return actor(data);};
-  game.updateEconomy(.2);assert.equal(spawned.length,0);assert.ok(Math.abs(game.resources.food-9.05)<1e-9);assert.ok(Math.abs(game.resources.reeds-12.024)<1e-9);
-  game.resources.food=10;game.updateEconomy(.1);
-  assert.equal(spawned.length,1);assert.ok(Math.abs(game.resources.food-.025)<1e-9);assert.ok(Math.abs(game.resources.reeds-6.036)<1e-9);assert.equal(base.spawnTimer,0);assert.equal(spawned[0].guard,true);assert.equal(spawned[0].home,base.id);
+  const {game}=fixture(),base=camp({team:'ally',spawnTimer:NURSERY_INTERVAL-.1,buildings:{nursery:true},stock:{food:0,reeds:0},supplyMigrated:true}),spawned=[];
+  game.camps.push(base);game.resources={food:NURSERY_COST.food-1,reeds:NURSERY_COST.reeds};game.spawnFrog=data=>{spawned.push(data);return actor(data);};
+  game.updateEconomy(.2);assert.equal(spawned.length,0);
+  assert.ok(Math.abs(game.resources.food-(NURSERY_COST.food-1+.01))<1e-9);assert.ok(Math.abs(game.resources.reeds-(NURSERY_COST.reeds+.008))<1e-9);
+  game.resources={food:NURSERY_COST.food,reeds:NURSERY_COST.reeds-1};game.updateEconomy(.1);
+  assert.equal(spawned.length,0);assert.ok(Math.abs(game.resources.food-(NURSERY_COST.food+.005))<1e-9,'missing reeds cannot partially charge food');
+  game.resources.reeds=NURSERY_COST.reeds;game.updateEconomy(.1);
+  assert.equal(spawned.length,1);assert.ok(Math.abs(game.resources.food-.01)<1e-9);assert.ok(Math.abs(game.resources.reeds-.004)<1e-9);
+  assert.equal(base.spawnTimer,0);assert.equal(spawned[0].guard,true);assert.equal(spawned[0].home,base.id);
+  assert.equal(game.nextRecruitAt,game.elapsed+RECRUIT_INTERVAL);
+  game.updateEconomy(.1);assert.equal(spawned.length,1,'the same completed nursery cycle cannot be charged twice');
 });
 
 test('the actual economy uses the night cycle to slow fly replenishment',()=>{

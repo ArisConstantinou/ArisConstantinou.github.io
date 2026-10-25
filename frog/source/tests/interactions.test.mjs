@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,actor,camp} from './game-fixture.mjs';
+import {RECRUIT_INTERVAL} from '../src/rules.js';
 
 test('shore gathering works with followers, a full stomach and an eating cooldown without assigning guards',()=>{
   const {game,player}=fixture(),followers=[actor({id:'near-a',x:.6}),actor({id:'near-b',x:1.1})];
@@ -26,39 +27,46 @@ test('nearby usable swarms outrank friendly shelters and nearby frogs and collec
 test('aiming at a specific nearby neutral recruits that frog even with another frog and swarm closer',()=>{
   const {game}=fixture(),nearest=actor({id:'nearest',team:'neutral',x:.7}),chosen=actor({id:'chosen',team:'neutral',x:3}),swarm={x:1,z:0,flies:10};
   game.frogs.push(nearest,chosen);game.world.hotspots.push(swarm);game.aimTarget={kind:'actor',entity:chosen};
-  const context=game.context();assert.equal(context.entity,chosen);assert.deepEqual(context.cost,{food:4});
+  const context=game.context();assert.equal(context.entity,chosen);assert.deepEqual(context.cost,{food:12});
   assert.equal(context.available,true);assert.equal(context.chance,1);
   assert.equal(game.interact(),true);assert.equal(chosen.team,'ally');assert.equal(nearest.team,'neutral');
-  assert.equal(chosen.order,'follow');assert.equal(chosen.guard,false);assert.equal(game.resources.food,96);assert.equal(swarm.flies,10);
+  assert.equal(chosen.order,'follow');assert.equal(chosen.guard,false);assert.equal(game.resources.food,88);assert.equal(swarm.flies,10);
 });
 
-test('fallen-base survivors remain reachable and free beyond nursery capacity without a surrender flag',()=>{
+test('fallen-base survivors remain reachable but require housing and provisions even without a surrender flag',()=>{
   const {game}=fixture();game.resources.food=0;
   for(let i=0;i<40;i++)game.frogs.push(actor({id:'army-'+i,x:-1,z:i*.05}));
   const ruin=camp({id:'ruin',destroyed:true,hp:0,x:3,z:0}),survivor=actor({id:'survivor',team:'enemy0',home:'ruin',x:2});
   game.camps.push(ruin);game.frogs.push(survivor);
   const context=game.context();assert.equal(context.type,'recruit');assert.equal(context.entity,survivor);
-  assert.equal(context.available,true);assert.deepEqual(context.cost,{food:0});assert.equal(context.reason,'Δωρεάν ένταξη');
+  assert.equal(context.available,false);assert.deepEqual(context.cost,{food:12});assert.match(context.reason,/Στέγαση/);
+  assert.equal(game.interact(),false);assert.equal(game.allies().length,40);assert.equal(game.resources.food,0);
+  for(let i=0;i<4;i++)game.camps.push(camp({id:`upgraded-${i}`,team:'ally',tier:3,x:40+i*35,z:0,buildings:{nursery:true}}));
+  assert.equal(game.context().available,false);assert.equal(game.context().reason,'Λείπουν 12 τροφή');
+  game.resources.food=12;assert.equal(game.context().available,true);
   assert.equal(game.interact(),true);assert.equal(game.allies().length,41);assert.equal(game.resources.food,0);
 });
 
 test('insufficient recruitment resources are explained and never charged',()=>{
   const {game,messages}=fixture(),neutral=actor({id:'neutral',team:'neutral',x:1});
-  game.resources.food=3.7;game.frogs.push(neutral);game.aimTarget={kind:'actor',entity:neutral};
+  game.resources.food=11.7;game.frogs.push(neutral);game.aimTarget={kind:'actor',entity:neutral};
   const context=game.context();assert.equal(context.available,false);assert.equal(context.reason,'Λείπουν 1 τροφή');
-  assert.equal(game.interact(),false);assert.equal(neutral.team,'neutral');assert.equal(game.resources.food,3.7);
+  assert.equal(game.interact(),false);assert.equal(neutral.team,'neutral');assert.equal(game.resources.food,11.7);
   assert.equal(messages.at(-1)[0].label,'Λείπουν 1 τροφή');
 });
 
-test('an aimed active enemy exposes persuasion chance and a refused offer costs no food',()=>{
+test('a loyal enemy first needs weakening, then exposes a persuasion chance without charging a refused offer',()=>{
   const {game,messages}=fixture(),enemy=actor({id:'enemy',team:'enemy0',x:2});
   game.frogs.push(enemy);game.aimTarget={kind:'actor',entity:enemy};game.random=()=>1;
+  assert.equal(game.context().available,false);assert.match(game.context().reason,/Αποδυνάμωσε/);
+  assert.equal(game.interact(),false);assert.equal(game.resources.food,100);
+  enemy.hp=50;
   const context=game.context();assert.equal(context.type,'recruit');assert.equal(context.actionLabel,'Πείσε');
-  assert.deepEqual(context.cost,{food:6});assert.ok(context.chance>0&&context.chance<1);
+  assert.deepEqual(context.cost,{food:20});assert.equal(context.available,true);assert.ok(context.chance>0&&context.chance<1);
   assert.equal(game.interact(),false);assert.equal(enemy.team,'enemy0');assert.equal(game.resources.food,100);
   assert.equal(messages.at(-1)[0].label,'Η πρόταση απορρίφθηκε');
-  const waiting=game.context();assert.equal(waiting.available,false);assert.equal(waiting.cooldown,8);assert.equal(waiting.progress,0);
-  game.elapsed+=4;assert.equal(game.context().cooldown,4);assert.equal(game.context().progress,.5);
+  const waiting=game.context();assert.equal(waiting.available,false);assert.equal(waiting.cooldown,RECRUIT_INTERVAL);assert.equal(waiting.progress,0);
+  game.elapsed+=RECRUIT_INTERVAL/2;assert.equal(game.context().cooldown,RECRUIT_INTERVAL/2);assert.equal(game.context().progress,.5);
 });
 
 test('gathering has an independent visible cooldown that prevents duplicate stock and recovers with elapsed time',()=>{

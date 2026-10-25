@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,actor,camp} from './game-fixture.mjs';
 import {DEFENSE_RULES,defenseSnapshot,normalizeGuardOrders,updateGarrisonAlerts} from '../src/garrison.js';
+import {NURSERY_INTERVAL} from '../src/rules.js';
 
 function baseGame({tower=false,count=6}={}){
   const fixtureState=fixture(),{game}=fixtureState;
@@ -111,7 +112,7 @@ test('a guard trained in another shelter returns to the original assigned camp',
 });
 
 test('nursery fills guard duty then produces traveling allies instead of an endless garrison',()=>{
-  const {game,home,frogs}=baseGame({count:2});home.buildings.nursery=true;home.spawnTimer=85;
+  const {game,home,frogs}=baseGame({count:2});home.buildings.nursery=true;home.spawnTimer=NURSERY_INTERVAL;
   for(const f of frogs){f.guard=true;f.order='guard';}
   const spawned=[];game.spawnFrog=data=>{spawned.push(data);return actor(data);};
   game.updateEconomy(.1);assert.equal(spawned.length,1);assert.equal(spawned[0].guard,false);assert.equal(spawned[0].order,'follow');

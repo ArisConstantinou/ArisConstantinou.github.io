@@ -14,16 +14,16 @@ const hasBuilding = (camp, name) => Array.isArray(camp?.buildings)
   : !!camp?.buildings?.[name];
 const activeAllyCamp = camp => !!camp && allied(camp) && !camp.destroyed && finite(camp.hp, 1) > 0;
 
-/** Recruitment is never blocked by housing; housing limits nursery births. */
+/** Defeated enemies still need provisions. Capacity is enforced by the game. */
 export function recruitmentOffer(frog, camp = null) {
   const result = (eligible, guaranteed, food, reason) => ({ eligible, guaranteed, cost: { food }, reason });
   if (!alive(frog) || allied(frog) || frog?.isPlayer) return result(false, false, 0, 'unavailable');
   const surrendered = !!frog.surrendered || !!frog.surrender || frog.state === 'surrender' || frog.state === 'surrendered';
   if (surrendered || camp?.destroyed || (camp && finite(camp.hp, 1) <= 0)) {
-    return result(true, true, 0, 'surrender');
+    return result(true, true, 12, 'surrender');
   }
-  if (factionOf(frog) === 'neutral') return result(true, true, 4, 'neutral');
-  return result(true, false, 6, 'persuade');
+  if (factionOf(frog) === 'neutral') return result(true, true, 12, 'neutral');
+  return result(true, false, 20, 'persuade');
 }
 
 export function canHuntForRecovery(frog) {
@@ -72,8 +72,8 @@ export function settleCampSupplies(resources, camp) {
 export function creditCampIncome(resources, camp, dt, { safe = true } = {}) {
   const credited = { food: 0, reeds: 0 };
   if (!resources || !safe || !activeAllyCamp(camp) || !(finite(dt) > 0)) return credited;
-  credited.food = (hasBuilding(camp, 'store') ? 0.5 : 0.25) * finite(dt);
-  credited.reeds = (hasBuilding(camp, 'watchtower') ? 0.2 : 0.12) * finite(dt);
+  credited.food = (hasBuilding(camp, 'store') ? 0.15 : 0.05) * finite(dt);
+  credited.reeds = (hasBuilding(camp, 'store') ? 0.09 : 0.04) * finite(dt);
   resources.food = nonnegative(resources.food) + credited.food;
   resources.reeds = nonnegative(resources.reeds) + credited.reeds;
   return credited;

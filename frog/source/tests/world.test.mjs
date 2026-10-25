@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {createWorld,SHELTER_SCALE,SHELTER_RADIUS} from '../src/world.js';
 import {BUILDING_FOOTPRINTS,EXTRA_HUT_FOOTPRINT,defaultPlacement} from '../src/placement-rules.js';
+import {WORLD_EXTENT,WORLD_LAYOUT_VERSION,WORLD_PREDATOR_ANCHORS} from '../src/world-config.js';
 
 // Texture painting is a browser boundary. Geometry, actual world construction,
 // shelter mutations, effect simulation and disposal all run unchanged in Node.
@@ -121,11 +122,39 @@ test('the training yard is a purchased, supported construction that survives rui
 });
 
 test('larger camp islands leave the fish hunter and boss anchor in a usable water corridor',()=>{
+  const anchor=WORLD_PREDATOR_ANCHORS.fish;
   const wet=s=>s.type==='water'||s.type==='lily'||s.height<.13;
-  assert.ok(wet(world.getSurface(12,48)),'the fish must not spawn stranded on an expanded island');
+  assert.ok(wet(world.getSurface(anchor.x,anchor.z)),'the fish must not spawn stranded on an expanded island');
   let wetSamples=0;
-  for(let dx=-6;dx<=6;dx+=3)for(let dz=-6;dz<=6;dz+=3)if(wet(world.getSurface(12+dx,48+dz)))wetSamples++;
+  for(let dx=-6;dx<=6;dx+=3)for(let dz=-6;dz<=6;dz+=3)if(wet(world.getSurface(anchor.x+dx,anchor.z+dz)))wetSamples++;
   assert.ok(wetSamples>=20,'the larger fish boss needs a broad reachable breach area');
+});
+
+test('expanded lake contains real distant territories, forage and support surfaces',()=>{
+  assert.equal(world.extent,WORLD_EXTENT);assert.equal(world.layoutVersion,WORLD_LAYOUT_VERSION);
+  assert.ok(world.water.geometry.parameters.width>=440,'the water must cover the full expanded basin');
+  const terrain=world.group.getObjectByName('Expanded wetland floor');assert.ok(terrain.geometry.parameters.width>world.extent*2);
+  const distantCamps=world.campSites.filter(c=>Math.abs(c.x)>110||Math.abs(c.z)>110);
+  assert.ok(distantCamps.length>=3,'territories must be spread beyond the old movement boundary');
+  assert.ok(world.hotspots.filter(s=>Math.abs(s.x)>110||Math.abs(s.z)>110).length>=3,'distant regions must have actual food locations');
+  for(const camp of world.campSites){
+    assert.ok(Math.max(Math.abs(camp.x),Math.abs(camp.z))+camp.radius<WORLD_EXTENT,'the complete camp must fit inside the playable area');
+    assert.equal(world.getSurface(camp.x,camp.z).type,'land','terrain sampling must recognize the relocated island');
+    assert.ok(camp.radius<18,'camp structures and islands retain their physical scale');
+  }
+  for(const spot of world.hotspots)assert.notEqual(world.getSurface(spot.x,spot.z).type,'water','forage lures retain a physical support platform');
+});
+
+test('stepping routes connect the starting pad to every distant island without larger jump gaps',()=>{
+  const nodes=world.platforms.filter(p=>['lily','rock','land'].includes(p.type));
+  const start=nodes.find(p=>p.type==='lily'&&p.x===0&&p.z===0);assert.ok(start);
+  const visited=new Set([start]),pending=[start];
+  // Three metres of open water between support edges remains a short hop.
+  while(pending.length){const current=pending.shift();for(const candidate of nodes){
+    if(visited.has(candidate)||Math.hypot(current.x-candidate.x,current.z-candidate.z)>current.radius+candidate.radius+3)continue;
+    visited.add(candidate);pending.push(candidate);
+  }}
+  for(const camp of world.campSites){const island=nodes.find(p=>p.id==='island-'+camp.id);assert.ok(visited.has(island),`${camp.name}: connected stepping route`);}
 });
 
 test('placeable geometry uses centered footprints matching the collision rules and legacy locations',()=>{

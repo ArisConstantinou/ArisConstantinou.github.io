@@ -433,3 +433,91 @@
  #frog-ui .fg-compact-hud .fg-primary-actions .fg-action-caption{white-space:nowrap;overflow-wrap:normal;word-break:normal;font-size:9.5px}
 }
 
+/* The tactical map is part of the HUD throughout play. Its click target only expands it. */
+#frog-ui .fg-compact-hud .fg-location{width:220px;gap:6px;flex:none}
+#frog-ui .fg-compact-hud .fg-location .fg-live-minimap{position:relative;display:block;width:100%;height:auto;min-height:0;min-width:0;aspect-ratio:1;padding:0;border:1px solid #b6d39b80;border-radius:12px;overflow:hidden;background:#102825;box-shadow:0 6px 24px #00140f70;text-align:left;cursor:zoom-in}
+#frog-ui .fg-compact-hud .fg-live-minimap canvas{display:block;width:100%;height:100%;max-width:none;max-height:none;aspect-ratio:1;border:0;border-radius:0;pointer-events:none}
+#frog-ui .fg-compact-hud .fg-live-minimap:hover{border-color:#deedb7}
+#frog-ui .fg-compact-hud .fg-live-minimap:focus-visible{outline:2px solid #e5f2bf;outline-offset:3px}
+#frog-ui .fg-compact-hud .fg-minimap-north{position:absolute;top:7px;left:9px;display:grid;place-items:center;width:20px;height:20px;border:1px solid #b2c8964d;border-radius:50%;background:#0e261ee8;color:#e4edc7;font-size:10px;font-weight:700;pointer-events:none}
+#frog-ui .fg-compact-hud .fg-minimap-expand{position:absolute;right:6px;bottom:6px;display:flex;align-items:center;gap:4px;max-width:calc(100% - 12px);padding:4px 6px;border:1px solid #afcc9559;border-radius:6px;background:#10291fee;font-size:10px;color:#e4edc7;pointer-events:none}
+#frog-ui .fg-compact-hud .fg-minimap-expand>.fg-icon{width:12px;height:12px}
+#frog-ui .fg-compact-hud .fg-minimap-expand>kbd{position:static;min-width:17px;width:auto;height:16px;margin:0;padding:0 3px;font-size:9px;line-height:14px;background:#28462d}
+#frog-ui .fg-compact-hud .fg-location-tools{min-height:25px;height:auto;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px}
+#frog-ui .fg-compact-hud .fg-location .fg-clock{min-height:25px;padding:3px 6px;gap:5px}
+#frog-ui .fg-compact-hud .fg-clock b{font-size:12px}
+#frog-ui .fg-compact-hud .fg-map-bosses{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-left:auto;min-width:0}
+#frog-ui .fg-compact-hud .fg-map-bosses>span{display:flex;align-items:center;gap:2px;padding:1px 4px;border:1px solid #dba25a66;border-radius:5px;background:#4a3128ed;color:#ffdaad;min-height:25px}
+#frog-ui .fg-compact-hud .fg-map-bosses .fg-icon{width:12px;height:12px;color:#f3ce81}
+#frog-ui .fg-compact-hud .fg-map-bosses .fg-pictogram{width:21px;height:21px}
+#frog-ui .fg-compact-hud .fg-map-bosses b{font-size:9px;font-weight:550;line-height:1.1;max-width:62px}
+#frog-ui .fg-map-boss-legend>.fg-icon{width:17px;height:17px;color:#ffce7e}
+#frog-ui .fg-compact-hud .fg-location .fg-resource-bank{gap:6px}
+#frog-ui .fg-compact-hud .fg-location .fg-resource-bank>span{min-height:45px;padding:4px;grid-template-columns:28px minmax(0,1fr);grid-template-rows:13px 22px;column-gap:5px}
+#frog-ui .fg-compact-hud .fg-location .fg-resource-bank .fg-pictogram{width:28px;height:30px}
+#frog-ui .fg-compact-hud .fg-location .fg-resource-bank b{font-size:19px}
+#frog-ui .fg-compact-hud .fg-location .fg-resource-bank .is-large-value b{font-size:13px}
+#frog-ui .fg-compact-hud .fg-location .fg-resource-bank .is-large-value{grid-template-rows:15px 21px}
+#frog-ui .fg-compact-hud .fg-hunt{width:clamp(236px,29vw,342px)}
+#frog-ui .fg-toasts{top:calc(var(--hud-top) + 320px)}
+
+/* Tradeoffs are readable on cards before purchase; the catalog remains one row. */
+#frog-ui .fg-building-panel .fg-picture-building{display:flex;flex-direction:column;align-items:stretch}
+#frog-ui .fg-building-panel .fg-building-description{display:block;min-height:43px;margin:0 0 9px;color:#c6d5b6;font-size:11px;line-height:1.4;text-align:left;white-space:normal;overflow-wrap:break-word}
+#frog-ui .fg-building-panel .fg-building-reason{display:block;margin:0 0 9px;padding:5px 6px;border-radius:5px;background:#61482950;color:#efd09a;font-size:10px;line-height:1.35;text-align:left;white-space:normal}
+#frog-ui .fg-building-panel .fg-picture-building .fg-cost-label{margin-top:auto}
+#frog-ui .fg-building-panel .fg-base-badges{flex-wrap:wrap;gap:6px 10px}
+#frog-ui .fg-building-panel .fg-building-slots small{font-size:10px;color:#bdcfa9;margin-left:2px}
+#frog-ui .fg-building-panel .fg-building-slots.is-full b{color:#f0c78b}
+@media(max-width:1100px){
+ #frog-ui .fg-compact-hud .fg-location{width:200px}
+ #frog-ui .fg-toasts{top:calc(var(--hud-top) + 300px)}
+}
+@media(max-width:767px){
+ #frog-ui .fg-compact-hud .fg-hud-top{grid-template-columns:minmax(0,1fr) 150px;gap:10px}
+ #frog-ui .fg-compact-hud .fg-player{max-width:220px}
+ #frog-ui .fg-compact-hud .fg-location{width:150px;gap:4px}
+ #frog-ui .fg-compact-hud .fg-location .fg-live-minimap{border-radius:9px}
+ #frog-ui .fg-compact-hud .fg-location .fg-resource-bank{gap:4px}
+ #frog-ui .fg-compact-hud .fg-location .fg-resource-bank>span{grid-template-columns:20px minmax(0,1fr);column-gap:2px;grid-template-rows:12px 20px;min-height:41px;padding:3px}
+ #frog-ui .fg-compact-hud .fg-location .fg-resource-bank .fg-pictogram{width:20px;height:24px}
+ #frog-ui .fg-compact-hud .fg-location .fg-resource-bank b{font-size:16px}
+ #frog-ui .fg-compact-hud .fg-location .fg-resource-bank small{font-size:8px}
+ #frog-ui .fg-compact-hud .fg-location .fg-resource-bank .is-large-value b{font-size:12px}
+ #frog-ui .fg-compact-hud .fg-map-bosses b{display:none}
+ #frog-ui .fg-compact-hud .fg-clock b{font-size:11px}
+ #frog-ui .fg-compact-hud .fg-minimap-expand{bottom:4px;right:4px;padding:2px 4px;font-size:9px}
+ #frog-ui .fg-compact-hud .fg-objective{top:calc(var(--hud-top) + 90px);left:var(--hud-left);transform:none;width:calc(100% - var(--hud-left) - var(--hud-right) - 160px);max-width:220px;min-width:0}
+ #frog-ui .fg-compact-hud .fg-objective-toggle{padding:6px;gap:5px}
+ #frog-ui .fg-compact-hud .fg-hunt{top:calc(var(--hud-top) + 90px);left:var(--hud-left);transform:none;width:calc(100% - var(--hud-left) - var(--hud-right) - 160px);min-width:0;min-height:92px;padding:6px;gap:5px}
+ #frog-ui .fg-compact-hud .fg-hunt-portrait{width:35px;height:45px}
+ #frog-ui .fg-compact-hud .fg-hunt-portrait>span:not(.fg-hunt-badge){width:34px;height:37px}
+ #frog-ui .fg-compact-hud .fg-hunt-badge,#frog-ui .fg-compact-hud .is-boss .fg-hunt-badge{width:20px;height:20px}
+ #frog-ui .fg-compact-hud .fg-hunt-heading{height:auto;min-height:22px;gap:3px;flex-wrap:wrap}
+ #frog-ui .fg-compact-hud .fg-hunt-heading [data-ref="predatorPhaseIcon"]{width:20px;height:20px}
+ #frog-ui .fg-compact-hud .fg-hunt-heading>span:last-child{font-size:10px;white-space:nowrap}
+ #frog-ui .fg-compact-hud .fg-hunt-response{position:static;height:auto;min-height:20px;gap:3px;flex-wrap:wrap;margin-top:3px}
+ #frog-ui .fg-compact-hud .fg-hunt-response>.fg-pictogram{width:20px;height:20px}
+ #frog-ui .fg-toasts{top:auto}
+}
+@media(max-width:359px){
+ #frog-ui .fg-compact-hud .fg-hud-top{grid-template-columns:minmax(0,1fr) 132px;gap:8px}
+ #frog-ui .fg-compact-hud .fg-location{width:132px}
+ #frog-ui .fg-compact-hud .fg-objective,#frog-ui .fg-compact-hud .fg-hunt{width:calc(100% - var(--hud-left) - var(--hud-right) - 140px)}
+}
+@media(max-height:500px) and (min-width:540px){
+ #frog-ui .fg-compact-hud .fg-location{width:142px;gap:3px}
+ #frog-ui .fg-compact-hud .fg-hud-top{display:flex}
+ #frog-ui .fg-compact-hud .fg-player{max-width:164px}
+ #frog-ui .fg-compact-hud .fg-location .fg-resource-bank>span{grid-template-columns:21px minmax(0,1fr);grid-template-rows:12px 19px;column-gap:2px;padding:3px;min-height:38px}
+ #frog-ui .fg-compact-hud .fg-location .fg-resource-bank .fg-pictogram{width:20px;height:24px}
+ #frog-ui .fg-compact-hud .fg-location .fg-resource-bank b{font-size:16px}
+ #frog-ui .fg-compact-hud .fg-location .fg-resource-bank small{font-size:8px}
+ #frog-ui .fg-compact-hud .fg-map-bosses b{display:none}
+ #frog-ui .fg-compact-hud .fg-objective{top:var(--hud-top);left:50%;transform:translateX(-50%);width:calc(100% - 366px);max-width:226px;min-width:0}
+ #frog-ui .fg-compact-hud .fg-hunt{top:var(--hud-top);left:50%;transform:translateX(-50%);width:calc(100% - 366px);max-width:270px;min-width:0;min-height:68px}
+ #frog-ui .fg-compact-hud .fg-hunt-portrait{width:36px;height:43px}
+ #frog-ui .fg-compact-hud .fg-hunt-response{position:static}
+ #frog-ui .fg-toasts{top:auto}
+}
+
