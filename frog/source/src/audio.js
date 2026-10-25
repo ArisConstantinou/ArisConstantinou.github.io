@@ -1,20 +1,20 @@
 /** Original synthesized creek soundscape. No audio downloads or autoplay. */
 export class GameAudio {
   constructor({volume=.65}={}) {
-    this.volume=Math.max(0,Math.min(1,volume)); this._muted=false;
+    this.volume=Math.max(0,Math.min(1,volume)); this._muted=false;this._paused=false;
     this.context=null;this.master=null;this.started=false;this.elapsed=0;
     this.nextCroak=7;this.nextBird=4;this.nextNote=12;
-    this.lastPlayed=new Map();this.ambient=[];this.activeVoices=0;
+    this.lastPlayed=new Map();this.ambient=[];this.activeVoices=0;this.oneShots=new Set();
     this.seed=78103;this.night=false;this.hunt=false;this.water=false;
   }
   random(){this.seed=(Math.imul(this.seed,1664525)+1013904223)>>>0;return this.seed/4294967296;}
   async init(){
-    if(this.context){if(this.context.state==='suspended')await this.context.resume().catch(()=>{});return;}
+    if(this.context){if(!this._paused&&this.context.state==='suspended')await this.context.resume().catch(()=>{});return;}
     const Context=window.AudioContext||window.webkitAudioContext;if(!Context)return;
     try{
       this.context=new Context();
       const c=this.context;
-      this.master=c.createGain();this.master.gain.value=this._muted?0:this.volume*.58;
+      this.master=c.createGain();this.master.gain.value=this._muted||this._paused?0:this.volume*.58;
       this.compressor=c.createDynamicsCompressor();
       this.compressor.threshold.value=-18;this.compressor.knee.value=18;this.compressor.ratio.value=3;
       this.compressor.attack.value=.012;this.compressor.release.value=.2;
@@ -30,18 +30,47 @@ export class GameAudio {
       const white=this.white.getChannelData(0);
       for(let i=0;i<white.length;i++)white[i]=this.random()*2-1;
       this.startAmbience();
-      if(c.state==='suspended')await c.resume().catch(()=>{});
+      if(!this._paused&&c.state==='suspended')await c.resume().catch(()=>{});
+      if(this._paused&&c.state==='running')await c.suspend().catch(()=>{});
     }catch{this.context=null;}
   }
-  async start(){await this.init();this.started=Boolean(this.context);}
+  async start(){await this.init();this.started=Boolean(this.context);this.syncPauseState();}
   get muted(){return this._muted;}
   set muted(value){this._muted=Boolean(value);this.setVolume(this.volume);}
   setVolume(value){
     this.volume=Math.max(0,Math.min(1,Number(value)||0));
-    if(this.master)this.master.gain.setTargetAtTime(this._muted?0:this.volume*.58,this.context.currentTime,.08);
+    this.applyVolume();
+  }
+  applyVolume(immediate=false){
+    if(!this.master||!this.context)return;
+    const gain=this.master.gain,t=this.context.currentTime,target=this._muted||this._paused?0:this.volume*.58;
+    gain.cancelScheduledValues?.(t);
+    if(immediate||this._paused)gain.setValueAtTime(target,t);
+    else gain.setTargetAtTime(target,t,.04);
+  }
+  get paused(){return this._paused;}
+  setPaused(value){
+    const paused=Boolean(value);if(this._paused===paused)return;
+    this._paused=paused;this.applyVolume(true);
+    if(paused){
+      // Silence both currently playing and delayed effects, without changing volume preferences.
+      for(const voice of this.oneShots){try{voice.stop();voice.disconnect();}catch{}}
+      this.oneShots.clear();
+    }
+    this.syncPauseState();
+  }
+  syncPauseState(){
+    if(!this.context)return;
+    // Serialize browser suspend/resume promises so rapid Pause/Resume obeys the latest choice.
+    this.contextSync=(this.contextSync||Promise.resolve()).catch(()=>{}).then(async()=>{
+      const c=this.context;if(!c||c.state==='closed')return;
+      if(this._paused&&c.state==='running')await c.suspend().catch(()=>{});
+      else if(!this._paused&&this.started&&c.state==='suspended')await c.resume().catch(()=>{});
+      this.applyVolume(this._paused);
+    });
   }
   setMuted(value){this.muted=value;}
-  async resume(){if(this.context?.state==='suspended')await this.context.resume().catch(()=>{});}
+  async resume(){if(!this._paused&&this.context?.state==='suspended')await this.context.resume().catch(()=>{});}
   async suspend(){if(this.context?.state==='running')await this.context.suspend().catch(()=>{});}
   startAmbience(){
     const c=this.context;
@@ -60,6 +89,7 @@ export class GameAudio {
     this.lowTone.connect(this.lowGain);this.lowGain.connect(this.ambience);this.lowTone.start();this.ambient.push(this.lowTone);
   }
   update(dt,{night=false,water=false,hunt=false,paused=false}={}){
+    this.setPaused(paused);
     if(!this.context||!this.started||this.context.state!=='running'||paused)return;
     this.elapsed+=Math.min(dt,.1);this.night=night;this.water=water;this.hunt=hunt;
     const t=this.context.currentTime;
@@ -90,24 +120,24 @@ export class GameAudio {
     return bus||this.sfx;
   }
   tone(start,end,duration,gain=.1,wave='sine',attack=.005,pan=0,bus,delay=0){
-    if(!this.context)return;
+    if(!this.context||this._paused||this._muted)return;
     const c=this.context,t=c.currentTime+delay;
     const osc=c.createOscillator();osc.type=wave;osc.frequency.setValueAtTime(Math.max(20,start),t);
     osc.frequency.exponentialRampToValueAtTime(Math.max(20,end),t+duration);
     const env=c.createGain();env.gain.setValueAtTime(0,t);
     env.gain.linearRampToValueAtTime(gain,t+Math.min(attack,duration*.4));
     env.gain.exponentialRampToValueAtTime(.0001,t+duration);
-    const out=this.output(pan,bus);osc.connect(env);env.connect(out);osc.start(t);osc.stop(t+duration+.03);
-    osc.onended=()=>{osc.disconnect();env.disconnect();if(out!==this.sfx&&out!==this.ambience)out.disconnect();};
+    const out=this.output(pan,bus);osc.connect(env);env.connect(out);this.oneShots.add(osc);osc.start(t);osc.stop(t+duration+.03);
+    osc.onended=()=>{this.oneShots.delete(osc);osc.disconnect();env.disconnect();if(out!==this.sfx&&out!==this.ambience)out.disconnect();};
   }
   noiseBurst(duration,gain=.1,frequency=1000,q=.4,type='bandpass',pan=0,delay=0){
-    if(!this.context)return;
+    if(!this.context||this._paused||this._muted)return;
     const c=this.context,t=c.currentTime+delay;
     const source=c.createBufferSource();source.buffer=this.white;
     const filter=c.createBiquadFilter();filter.type=type;filter.frequency.value=frequency;filter.Q.value=q;
     const env=c.createGain();env.gain.setValueAtTime(0,t);env.gain.linearRampToValueAtTime(gain,t+.006);env.gain.exponentialRampToValueAtTime(.0001,t+duration);
-    const out=this.output(pan);source.connect(filter);filter.connect(env);env.connect(out);source.start(t,this.random()*.7);source.stop(t+duration+.02);
-    source.onended=()=>{source.disconnect();filter.disconnect();env.disconnect();if(out!==this.sfx)out.disconnect();};
+    const out=this.output(pan);source.connect(filter);filter.connect(env);env.connect(out);this.oneShots.add(source);source.start(t,this.random()*.7);source.stop(t+duration+.02);
+    source.onended=()=>{this.oneShots.delete(source);source.disconnect();filter.disconnect();env.disconnect();if(out!==this.sfx)out.disconnect();};
   }
   croak(volume=.35,pitch=210,pan=0){
     this.tone(pitch*1.2,pitch*.72,.17,volume*.12,'sawtooth',.018,pan);
@@ -122,7 +152,7 @@ export class GameAudio {
     this.tone(p,p*1.18,.07,volume*.2,'sine',.006,pan,undefined,.3);
   }
   play(name,options={}){
-    if(!this.context||this.context.state!=='running'||this._muted)return;
+    if(!this.context||this.context.state!=='running'||this._muted||this._paused)return;
     if(typeof options==='number')options={intensity:options};
     const now=this.context.currentTime;
     const cooldown={splash:.11,hit:.065,tongue:.09,footstep:.14,water:.15,ui:.04,'impact-flesh':.07,'impact-heavy':.1,'impact-block':.08,'attack-swing':.075,'attack-miss':.09}[name]||.045;
@@ -222,6 +252,8 @@ export class GameAudio {
     }
   }
   async destroy(){
+    for(const source of this.oneShots){try{source.stop();source.disconnect();}catch{}}
+    this.oneShots.clear();
     for(const source of this.ambient){try{source.stop();source.disconnect();}catch{}}
     this.ambient=[];
     if(this.context)await this.context.close().catch(()=>{});

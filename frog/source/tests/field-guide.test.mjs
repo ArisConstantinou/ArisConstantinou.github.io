@@ -54,7 +54,7 @@ test('practical onboarding advances only from actual gameplay metrics and does n
   assert.ok(tutorialProgress({distance:NaN,crafted:-1}).every(t=>!t.done));
 });
 
-test('first encounter opens the exact card, pauses through one controller notification and restores its previous panel on close',t=>{
+test('an explicitly opened encounter card preserves the previous panel and notifies its controller',t=>{
   const {ui,events}=fixture(t);ui.panel='build';ui.panelData={campId:'home'};
   assert.equal(ui.showGuideCard('craft',{firstEncounter:true}),true);
   assert.equal(ui.panel,'guide');assert.match(ui.refs.panel.innerHTML,/ΠΡΩΤΗ ΣΥΝΑΝΤΗΣΗ/);
@@ -65,7 +65,7 @@ test('first encounter opens the exact card, pauses through one controller notifi
   const previous=events.length;assert.equal(ui.showGuideCard('unknown'),false);assert.equal(events.length,previous);
 });
 
-test('book → card → book never resumes the simulation until the book itself closes',t=>{
+test('book → card → book keeps its navigation context until the book itself closes',t=>{
   const {ui,events}=fixture(t);ui.openGuideLibrary();
   assert.equal(ui.panel,'help');assert.equal((ui.refs.panel.innerHTML.match(/class="fg-guide-entry"/g)||[]).length,42);
   ui.showGuideCard('flies');assert.equal(ui.guideBackToBook,true);
@@ -75,9 +75,10 @@ test('book → card → book never resumes the simulation until the book itself 
 
 test('nonblocking side guidance neither changes the active panel nor issues a pause action',t=>{
   const {ui,events}=fixture(t);ui.panel=null;ui.menu=null;
-  assert.equal(ui.showGuideHint('heron'),true);assert.equal(ui.refs.guideHint.hidden,false);
-  assert.match(ui.refs.guideHint.innerHTML,/guide\/heron.webp/);assert.equal(ui.panel,null);assert.equal(ui.menu,null);assert.equal(events.length,0);
-  click(ui,'guide-hint-close');assert.equal(ui.refs.guideHint.hidden,true);assert.equal(events.length,0);
+  assert.equal(ui.showGuideHint('heron'),true);assert.equal(ui.refs.guideHint.hidden,true);
+  ui.toggleConceptPanels(true);assert.equal(ui.refs.guideHint.hidden,false);
+  assert.match(ui.refs.guideHint.innerHTML,/guide\/heron.webp/);assert.equal(ui.panel,null);assert.equal(ui.menu,null);assert.deepEqual(events,[{action:'hud-disclosure',data:{name:'concepts',open:true}}]);
+  click(ui,'guide-hint-close');assert.equal(ui.refs.guideHint.hidden,true);assert.deepEqual(events.at(-1),{action:'hud-disclosure',data:{name:'concepts',open:false}});
 });
 
 test('contextual special help follows the current ability while an explicit book entry always opens its own ability',t=>{
@@ -131,9 +132,9 @@ test('construction estimates use the actual workforce and distinguish the player
   const {ui}=fixture(t);ui.state.world={player:{x:0,z:0}};
   const job={kind:'construction',label:'Αποθήκη',progress:15,duration:60,remaining:45,status:'working',workersAssigned:3,workersPresent:3,playerBuilding:true,workRate:1.5,workPoint:{x:3,z:4}};
   let html=ui.jobMarkup(job);
-  assert.match(html,/≈ 30″/);assert.match(html,/Σύμμαχοι <b>2 \/ 3<\/b>/);assert.match(html,/Εσύ χτίζεις/);assert.match(html,/Ρυθμός 1.50×/);
+  assert.match(html,/≈ 0:30/);assert.match(html,/Σύμμαχοι <b>2 \/ 3<\/b>/);assert.match(html,/Εσύ χτίζεις/);assert.match(html,/Ρυθμός 1.50×/);
   html=ui.jobMarkup({...job,status:'paused',reason:'Απαιτείται οικοδόμος',workersPresent:0,playerBuilding:false,workRate:0});
-  assert.match(html,/45″ εργασίας/);assert.doesNotMatch(html,/≈/);assert.match(html,/πάγκο με τη σημαία · 5 μ. από εδώ/);
+  assert.match(html,/Σε αναμονή/);assert.doesNotMatch(html,/≈/);assert.match(html,/πάγκο με τη σημαία · 5 μ. από εδώ/);
   assert.match(guideCard('build').steps[2],/Χωρίς παρόντα οικοδόμο/);
 });
 

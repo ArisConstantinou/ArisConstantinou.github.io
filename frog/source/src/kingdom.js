@@ -33,7 +33,7 @@ export const kingdomMethods={
     initRealmEconomy(this,save);this.tacticalGroups=createTacticalGroups(save?.tacticalGroups);
     const source=save?.guide||{};
     this.guide={version:1,seen:[...new Set((source.seen||[]).filter(id=>guideCard(id)))],hinted:[...new Set((source.hinted||[]).filter(id=>guideCard(id)))],pending:[],distance:Math.max(0,Number(source.distance)||0),groupsSaved:Math.max(0,Number(source.groupsSaved)||0),tutorialDismissed:!!source.tutorialDismissed,nextPauseAt:this.elapsed+5};
-    this.guideLastPosition={x:this.player.x,z:this.player.z};this.activeRecruitId=null;this._guidePause=null;
+    this.guideLastPosition={x:this.player.x,z:this.player.z};this.activeRecruitId=null;this._guidePause=null;this.nextGuideCheck=0;
     this.pendingRespawn=!!save?.pendingRespawn;this.won=false;
     if(save?.predators?.length)restoreRealmPredators(this,save.predators);
     updateConstructionSites(this,0);
@@ -72,15 +72,13 @@ export const kingdomMethods={
     if(this.pendingRespawn){this.pendingRespawn=false;this.respawn();}
     if(this.elapsed<(this.nextGuideCheck||0))return;this.nextGuideCheck=this.elapsed+.7;
     this.discoverNearbyGuides();
-    if(this.guide?.pending.length&&!this.paused&&!this.ui.panel&&!this.buildPlacement?.active&&!this.player.dead&&this.elapsed>=this.guide.nextPauseAt&&this.isGuideSafe()){
-      const id=this.guide.pending.shift();if(!this.guide.seen.includes(id))this.ui.showGuideCard?.(id,{firstEncounter:true});
-    }
+    // Discoveries update the optional concept drawer; they never interrupt play.
+    if(this.guide?.pending.length)this.guide.pending.length=0;
   },
   isGuideSafe(){return !this.player.grabbedBy&&!this.predators.some(p=>!p.dead&&distance(p,this.player)<30)&&!this.frogs.some(f=>!f.dead&&!f.surrendered&&f.team.startsWith('enemy')&&distance(f,this.player)<25);},
-  discoverGuide(id,{pause=true}={}){
+  discoverGuide(id){
     if(!this.guide||!guideCard(id)||this.guide.seen.includes(id)||this.guide.hinted.includes(id))return;
     this.guide.hinted.push(id);this.ui.showGuideHint?.(id);
-    if(pause)this.guide.pending.push(id);
   },
   discoverNearbyGuides(){
     if(!this.started||this.ui.panel)return;
@@ -146,14 +144,14 @@ export const kingdomMethods={
   },
   handleKingdomAction(action,payload={}){
     if(action==='guide-open'){
-      if(!this._guidePause)this._guidePause={paused:this.paused};
       if(payload.id&&this.guide&&!this.guide.seen.includes(payload.id))this.guide.seen.push(payload.id);
-      this.paused=true;this.ignoreUnlockUntil=performance.now()+700;this.input.clear?.();this.input.unlock?.();return true;
+      this.ignoreUnlockUntil=performance.now()+700;this.input.clear?.();this.input.unlock?.();return true;
     }
     if(action==='guide-close'){
-      const was=this._guidePause?.paused||false;this._guidePause=null;this.paused=payload.returnMenu==='pause'||!!payload.returnPanel?true:was;
+      // Live guides do not own pause state; only an explicit Pause/Resume does.
+      this._guidePause=null;if(payload.returnMenu==='pause')this.paused=true;
       if(this.guide)this.guide.nextPauseAt=this.elapsed+35;
-      if(this.started&&!this.paused){this.ui.hideMenus();this.input.lock?.();}this.save();return true;
+      if(this.started&&!this.paused&&!payload.returnPanel)this.input.lock?.();this.audio?.setPaused?.(this.paused);this.save();return true;
     }
     if(action==='tutorial-dismiss'){if(this.guide)this.guide.tutorialDismissed=true;this.save();return true;}
     if(action==='craft-target-player'){this.selectedIds.clear();this.updateUI(dayState(this.elapsed));this.ui.renderPanel?.(true);return true;}

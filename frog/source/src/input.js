@@ -10,7 +10,7 @@ export class GameInput {
     addEventListener('keydown',e=>{
       if(e.target instanceof HTMLElement&&e.target.closest('input,textarea,select,[contenteditable="true"]'))return;
       if(['Space','Tab','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
-      if(!this.keys.has(e.code))this.pressed.add(e.code);this.keys.add(e.code);
+      if(!e.repeat&&!this.keys.has(e.code))this.pressed.add(e.code);this.keys.add(e.code);
       if(!e.repeat&&e.code==='Escape')this.onAction('escape');
     },{signal});
     addEventListener('keyup',e=>{this.keys.delete(e.code);this.released.add(e.code);},{signal});

@@ -1,0 +1,249 @@
+/* Live, edge-docked controls. Only explicit Pause stops the simulation. */
+#frog-ui .fg-live-panel-layer,
+#frog-ui .fg-pause-dock,
+#frog-ui .fg-ending-dock {
+  position:absolute; inset:auto; z-index:35;
+  left:var(--hud-left); top:calc(var(--hud-top) + 150px);
+  width:min(560px,calc(100vw - 340px)); height:auto;
+  padding:0; background:none; backdrop-filter:none;
+  pointer-events:none;
+}
+#frog-ui .fg-live-panel-layer.is-guide {
+  left:auto; right:var(--hud-right); top:calc(var(--hud-top) + 305px);
+  width:min(430px,calc(100vw - 36px));
+}
+#frog-ui .fg-live-panel-layer .fg-game-panel,
+#frog-ui .fg-live-panel-layer .fg-game-panel.fg-guide-panel {
+  width:100%; max-width:100%; padding:0; margin:0; overflow:hidden;
+  max-height:calc(100dvh - var(--hud-top) - 260px);
+  border:1px solid #a8c18e66; border-radius:12px;
+  background:linear-gradient(135deg,#152e26f7,#0d211bf5);
+  box-shadow:0 12px 34px #00130970; pointer-events:auto;
+  display:flex; flex-direction:column;
+}
+#frog-ui .fg-live-panel-layer.is-guide .fg-game-panel {
+  max-height:calc(100dvh - var(--hud-top) - 405px);
+}
+#frog-ui .fg-live-panel-layer.is-collapsed .fg-game-panel {max-height:none;}
+#frog-ui .fg-live-panel-layer .fg-panel-head {
+  display:flex; align-items:center; gap:6px; flex:none;
+  margin:0; padding:12px 12px 11px 16px;
+  border-bottom:1px solid #b8d39926; background:#1c352bea;
+}
+#frog-ui .fg-live-panel-layer .fg-panel-head>div {flex:1;min-width:0;}
+#frog-ui .fg-live-panel-layer .fg-panel-head h2 {
+  margin:3px 0 0; font-weight:600;
+  font-family:inherit; font-size:19px; line-height:1.25;
+  letter-spacing:0; color:#f1efd8;
+}
+#frog-ui .fg-live-panel-layer .fg-panel-head .fg-eyebrow {font-size:8px;letter-spacing:.06em;line-height:1.4;}
+#frog-ui .fg-panel-live-label {display:block;margin-top:4px;color:#b3c99f;font-size:9px;line-height:1.4;}
+#frog-ui .fg-live-panel-layer .fg-icon-button,
+#frog-ui .fg-pause-heading .fg-icon-button {width:34px;height:34px;min-width:34px;min-height:34px;flex:0 0 34px;padding:8px;border-radius:7px;background:#0c231b80;}
+#frog-ui .fg-panel-expander>.fg-icon {transform:rotate(-90deg);transition:transform .16s ease;}
+#frog-ui .is-collapsed>.fg-panel-head .fg-panel-expander>.fg-icon,
+#frog-ui .is-collapsed>.fg-pause-heading .fg-panel-expander>.fg-icon {transform:rotate(90deg);}
+#frog-ui .fg-live-panel-body {min-height:0;overflow:auto;overscroll-behavior:contain;padding:13px 14px 16px;scrollbar-width:thin;scrollbar-color:#657c55 #10261d;}
+#frog-ui .fg-live-panel-body .fg-build-views {margin:0 0 12px;gap:5px;}
+#frog-ui .fg-live-panel-body .fg-build-views>button {padding:5px 6px;min-height:40px;font-size:11px;}
+#frog-ui .fg-live-panel-body .fg-build-views .fg-pictogram {width:25px;height:28px;}
+#frog-ui .fg-live-panel-body .fg-build-overview {position:static;padding:9px;gap:9px;margin-bottom:12px;}
+#frog-ui .fg-live-panel-body .fg-build-hq {width:48px;height:48px;}
+#frog-ui .fg-live-panel-body .fg-build-bank {padding-left:9px;gap:8px;}
+#frog-ui .fg-live-panel-body .fg-build-bank b {font-size:21px;}
+#frog-ui .fg-live-panel-body .fg-build-bank .fg-pictogram {width:32px;height:32px;}
+#frog-ui .fg-live-panel-body .fg-build-bank small {font-size:9px;}
+#frog-ui .fg-live-panel-body .fg-illustrated-build {display:flex;flex-wrap:nowrap;gap:9px;padding-bottom:10px;}
+#frog-ui .fg-live-panel-body .fg-picture-building {flex:0 0 190px;width:190px;min-width:190px;}
+#frog-ui .fg-live-panel-body .fg-building-art {height:104px;}
+#frog-ui .fg-live-panel-body .fg-building-art>.fg-pictogram {width:105px;height:100px;}
+#frog-ui .fg-live-panel-body .fg-building-art>img {height:100%;object-fit:cover;}
+#frog-ui .fg-live-panel-body .fg-building-art>span {font-size:11px;}
+#frog-ui .fg-live-panel-body .fg-build-footer {flex-wrap:wrap;gap:6px;padding-top:10px;}
+#frog-ui .fg-live-panel-body .fg-command-summary {position:static;flex-wrap:wrap;padding:9px;gap:8px;}
+#frog-ui .fg-live-panel-body .fg-command-metric {min-width:60px;}
+#frog-ui .fg-live-panel-body .fg-frog-grid {grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;}
+#frog-ui .fg-live-panel-body .fg-selected-orders {grid-template-columns:repeat(6,minmax(0,1fr));}
+#frog-ui .fg-live-panel-body .fg-selected-orders button {min-width:0;}
+#frog-ui .fg-live-panel-body .fg-defense-layout,
+#frog-ui .fg-live-panel-body .fg-recruit-contract {grid-template-columns:minmax(0,1fr);gap:14px;}
+#frog-ui .fg-live-panel-body .fg-contract-portrait {max-width:170px;max-height:170px;margin:auto;}
+#frog-ui .fg-live-panel-body .fg-contract-portrait img {max-height:160px;object-fit:cover;}
+#frog-ui .fg-live-panel-body .fg-specialization-options {grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+#frog-ui .fg-live-panel-body .fg-specialization-options>button {padding:8px 6px;}
+#frog-ui .fg-live-panel-body .fg-specialization-options>button p {font-size:10px;}
+#frog-ui .fg-live-panel-body .fg-craft-grid,
+#frog-ui .fg-live-panel-body .fg-realm-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+#frog-ui .fg-live-panel-body .fg-large-map canvas {display:block;width:100%;max-height:44dvh;}
+#frog-ui .fg-live-panel-body .fg-map-legend {gap:9px;font-size:10px;flex-wrap:wrap;}
+#frog-ui .fg-live-panel-body .fg-tabs {gap:5px;margin-bottom:12px;flex-wrap:wrap;}
+#frog-ui .fg-live-panel-body .fg-tabs button {padding:8px;font-size:10px;}
+#frog-ui .fg-live-panel-body .fg-guide-intro {grid-template-columns:1fr;gap:9px;}
+#frog-ui .fg-live-panel-body .fg-guide-intro p {font-size:11px;}
+#frog-ui .fg-live-panel-body .fg-guide-library {grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+#frog-ui .fg-live-panel-body .fg-guide-entry h3 {font-size:12px;}
+#frog-ui .fg-live-panel-body .fg-guide-entry p {font-size:10px;}
+#frog-ui .fg-live-panel-body .fg-guide-entry>div {height:105px;}
+#frog-ui .fg-live-panel-body .fg-guide-categories {gap:4px;margin:10px 0;}
+#frog-ui .fg-live-panel-body .fg-guide-categories button {font-size:10px;padding:6px 8px;}
+#frog-ui .fg-live-panel-body .fg-field-card {display:flex;flex-direction:column;gap:13px;}
+#frog-ui .fg-live-panel-body .fg-field-art {max-height:220px;min-height:0;aspect-ratio:16/10;}
+#frog-ui .fg-live-panel-body .fg-field-art img {height:100%;min-height:0;object-fit:cover;}
+#frog-ui .fg-live-panel-body .fg-field-art-caption strong {font-size:21px;}
+#frog-ui .fg-live-panel-body .fg-field-intro {font-size:12px;}
+#frog-ui .fg-live-panel-body .fg-field-steps {gap:9px;}
+#frog-ui .fg-live-panel-body .fg-field-steps p,#frog-ui .fg-live-panel-body .fg-field-outcome dd,#frog-ui .fg-live-panel-body .fg-field-tip p {font-size:11px;line-height:1.6;}
+#frog-ui .fg-live-panel-body .fg-field-footer {display:block;margin-top:13px;padding-top:12px;}
+#frog-ui .fg-live-panel-body .fg-field-footer-actions {margin-top:12px;gap:7px;}
+#frog-ui .fg-live-panel-body .fg-field-footer-actions .fg-button {font-size:11px;padding:8px 10px;}
+#frog-ui.fg-game-panel-open .fg-practical-tutorial,
+#frog-ui.fg-has-construction .fg-practical-tutorial {display:none;}
+
+/* A deliberate pause remains a small expandable panel; the scene stays visible. */
+#frog-ui .fg-pause-dock {width:min(390px,calc(100vw - 32px));top:calc(var(--hud-top) + 146px);z-index:45;}
+#frog-ui .fg-pause-dock .fg-pause-panel {width:100%;padding:0;max-height:calc(100dvh - var(--hud-top) - 170px);overflow:hidden;display:flex;flex-direction:column;pointer-events:auto;border:1px solid #afc59766;border-top:3px solid #c9d6a5;background:#112820f7;box-shadow:0 12px 40px #00100788;}
+#frog-ui .fg-pause-heading {display:flex;align-items:center;gap:8px;padding:15px 13px 14px;border-bottom:1px solid #c0d1a32b;flex:none;}
+#frog-ui .fg-pause-heading>div {min-width:0;flex:1;}
+#frog-ui .fg-pause-heading .fg-eyebrow {font-size:8px;letter-spacing:.07em;}
+#frog-ui .fg-pause-heading h2 {font-family:inherit;font-size:22px;line-height:1.2;letter-spacing:-.02em;margin:3px 0 4px;color:#f4f1dd;}
+#frog-ui .fg-pause-heading small {display:block;font-size:9px;line-height:1.45;color:#b9c9ab;}
+#frog-ui .fg-pause-symbol {display:grid;place-items:center;width:38px;height:42px;flex:none;border:1px solid #bdd5a04a;border-radius:9px;background:#264337;color:#d4e1bc;font-size:23px;font-weight:700;}
+#frog-ui .fg-pause-body {padding:0 16px 15px;overflow:auto;min-height:0;scrollbar-width:thin;}
+#frog-ui .fg-pause-summary {display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px;padding:14px 0;border-bottom:1px solid #c4d2a924;margin-bottom:14px;}
+#frog-ui .fg-pause-summary>span {display:flex;flex-direction:column;gap:4px;}
+#frog-ui .fg-pause-summary small {font-size:9px;color:#9fb698;}
+#frog-ui .fg-pause-summary b {font-size:14px;color:#e7ebcf;font-weight:600;}
+#frog-ui .fg-pause-resume {display:flex;align-items:center;gap:10px;width:100%;padding:12px 13px;font-size:13px;}
+#frog-ui .fg-pause-resume>span {flex:1;text-align:left;}
+#frog-ui .fg-pause-resume kbd {font-size:9px;color:inherit;background:#13352625;border:1px solid #274f3640;}
+#frog-ui .fg-pause-quick-actions {display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+#frog-ui .fg-pause-quick-actions .fg-button {font-size:11px;min-height:37px;padding:8px;display:flex;justify-content:center;align-items:center;gap:7px;}
+#frog-ui .fg-pause-quick-actions .fg-icon {width:15px;height:15px;}
+#frog-ui .fg-pause-settings {margin-top:17px;border-top:1px solid #becba329;border-bottom:1px solid #becba329;}
+#frog-ui .fg-pause-settings>summary {list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:12px 0;color:#cbdaba;font-size:11px;}
+#frog-ui .fg-pause-settings>summary::-webkit-details-marker {display:none;}
+#frog-ui .fg-pause-settings>summary .fg-icon {width:14px;height:14px;transform:rotate(90deg);}
+#frog-ui .fg-pause-settings[open]>summary .fg-icon {transform:rotate(-90deg);}
+#frog-ui .fg-pause-panel .fg-settings {display:flex;flex-direction:column;gap:12px;margin:0 0 14px;padding:0;border:0;}
+#frog-ui .fg-pause-panel .fg-settings label {font-size:11px;line-height:1.5;}
+#frog-ui .fg-pause-panel .fg-settings select {margin-top:5px;width:100%;height:33px;padding:4px 8px;border-radius:6px;}
+#frog-ui .fg-pause-panel .fg-settings input {margin-top:5px;}
+#frog-ui .fg-pause-panel .fg-performance {display:block;margin-top:4px;font-size:9px;color:#8ea58b;}
+#frog-ui .fg-pause-footer {display:flex;flex-direction:column;gap:4px;padding-top:13px;}
+#frog-ui .fg-pause-footer .fg-text-button {align-self:flex-start;font-size:10px;color:#cebb9f;padding:3px 0;}
+#frog-ui .fg-pause-footer>span {color:#8ca18b;font-size:8px;line-height:1.5;}
+#frog-ui .fg-ending-dock {width:min(440px,calc(100vw - 32px));z-index:42;}
+
+/* U expands the most recent contextual illustration, independently of gameplay. */
+#frog-ui .fg-concept-toggle {position:absolute;right:var(--hud-right);bottom:calc(var(--hud-bottom) + 86px);display:flex;align-items:center;gap:10px;min-height:34px;padding:6px 9px;border:1px solid #b8d0994f;border-radius:8px;background:#112b22f2;pointer-events:auto;z-index:8;color:#d6e2bb;font-size:10px;}
+#frog-ui .fg-concept-toggle>span {display:flex;align-items:center;gap:6px;}
+#frog-ui .fg-concept-toggle .fg-icon {width:15px;height:15px;}
+#frog-ui .fg-concept-toggle kbd {height:20px;min-width:20px;font-size:10px;}
+#frog-ui .fg-concept-toggle[aria-expanded="true"] {border-color:#cee0a7;background:#304b35;}
+#frog-ui .fg-guide-hint.fg-concept-panel {right:var(--hud-right);bottom:calc(var(--hud-bottom) + 126px);top:auto;width:300px;max-width:calc(100vw - 24px);max-height:calc(100dvh - var(--hud-top) - 440px);overflow:auto;z-index:12;scrollbar-width:thin;background:#102820f7;}
+#frog-ui .fg-concept-heading {display:flex;align-items:center;justify-content:space-between;padding:8px 9px 7px 12px;border-bottom:1px solid #bdcea32b;}
+#frog-ui .fg-concept-heading>span {font-size:8px;letter-spacing:.08em;color:#b7ca9c;}
+#frog-ui .fg-concept-heading>button {background:none;border:0;display:flex;align-items:center;gap:6px;padding:3px;color:#bed0ad;}
+#frog-ui .fg-concept-heading .fg-icon {width:13px;height:13px;}
+#frog-ui .fg-concept-heading kbd {height:18px;font-size:9px;min-width:18px;}
+#frog-ui .fg-concept-panel .fg-guide-hint-content {display:block;padding:10px;width:100%;}
+#frog-ui .fg-concept-panel .fg-guide-hint-content>img {width:100%;height:auto;max-height:164px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;}
+#frog-ui .fg-concept-panel .fg-guide-hint-content>span {padding:9px 3px 2px;gap:5px;}
+#frog-ui .fg-concept-panel .fg-guide-hint-content strong {font-size:15px;}
+#frog-ui .fg-concept-panel .fg-guide-hint-content em {display:block;font-size:11px;line-height:1.5;}
+#frog-ui .fg-concept-keys {display:flex;gap:5px;margin:3px 0;flex-wrap:wrap;}
+#frog-ui .fg-concept-keys kbd {font-size:9px;min-height:20px;}
+#frog-ui .fg-concept-tip {margin:0;padding:0 13px 12px;font-size:10px;line-height:1.6;color:#adbea6;}
+
+/* Actual construction work produces the progress and the ETA shown here. */
+#frog-ui .fg-construction-hud {position:absolute;left:50%;transform:translateX(-50%);top:calc(var(--hud-top) + 75px);width:310px;max-width:calc(100vw - 28px);border:1px solid #c0d49f61;border-radius:10px;background:#10291ff2;box-shadow:0 6px 20px #00150d44;pointer-events:auto;z-index:7;overflow:hidden;}
+#frog-ui.fg-is-hunted .fg-construction-hud {top:calc(var(--hud-top) + 110px);}
+#frog-ui .fg-construction-heading {display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;border:0;background:#213b2dcc;color:#dfebc7;font-size:10px;text-align:left;}
+#frog-ui .fg-construction-heading>span:first-child {display:flex;align-items:center;gap:5px;flex:1;}
+#frog-ui .fg-construction-heading .fg-icon {width:15px;height:15px;flex:none;}
+#frog-ui .fg-construction-heading>.fg-icon {width:12px;height:12px;transform:rotate(90deg);}
+#frog-ui .fg-construction-hud.is-expanded .fg-construction-heading>.fg-icon {transform:rotate(-90deg);}
+#frog-ui .fg-construction-heading-progress {font-variant-numeric:tabular-nums;font-size:10px;white-space:nowrap;color:#d8e4bc;}
+#frog-ui .fg-construction-hud.is-expanded .fg-construction-heading-progress {display:none;}
+#frog-ui [data-ref="constructionBody"] {max-height:min(320px,40dvh);overflow:auto;scrollbar-width:thin;}
+#frog-ui .fg-construction-live-job {padding:10px 12px 11px;border-top:1px solid #bfd59a26;}
+#frog-ui .fg-construction-title {display:flex;align-items:center;justify-content:space-between;gap:8px;}
+#frog-ui .fg-construction-title>span {display:flex;flex-direction:column;gap:2px;}
+#frog-ui .fg-construction-title strong {font-size:12px;line-height:1.3;color:#ebefd7;}
+#frog-ui .fg-construction-title small {font-size:9px;color:#a8be99;}
+#frog-ui .fg-construction-title>b {font-size:18px;color:#ddebba;font-variant-numeric:tabular-nums;font-weight:600;}
+#frog-ui .fg-construction-live-job>progress {display:block;width:100%;height:7px;margin:8px 0 7px;accent-color:#bedf93;border:0;}
+#frog-ui .fg-construction-live-job>progress::-webkit-progress-bar {background:#061b12;border-radius:4px;}
+#frog-ui .fg-construction-live-job>progress::-webkit-progress-value {background:linear-gradient(90deg,#759d58,#d0e7a6);border-radius:4px;}
+#frog-ui .fg-construction-timing {display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#b6c8a5;}
+#frog-ui .fg-construction-timing strong {font-variant-numeric:tabular-nums;color:#e3eccb;font-size:13px;font-weight:600;}
+#frog-ui .fg-construction-live-job.is-waiting .fg-construction-timing strong {color:#dfc48f;font-size:11px;}
+#frog-ui .fg-construction-timeline {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:0;margin:10px 0 5px;list-style:none;}
+#frog-ui .fg-construction-timeline>li {position:relative;text-align:center;font-size:8px;line-height:1.4;color:#849a7e;padding-top:14px;}
+#frog-ui .fg-construction-timeline>li:before {content:'';position:absolute;top:4px;left:0;width:100%;height:2px;background:#40573c;}
+#frog-ui .fg-construction-timeline>li:first-child:before {left:50%;width:50%;}
+#frog-ui .fg-construction-timeline>li:last-child:before {width:50%;}
+#frog-ui .fg-construction-timeline i {position:absolute;left:50%;top:0;transform:translateX(-50%);width:10px;height:10px;border:2px solid #56734a;border-radius:50%;background:#142b20;z-index:1;}
+#frog-ui .fg-construction-timeline .is-complete {color:#b6d39b;}
+#frog-ui .fg-construction-timeline .is-complete i {background:#a2c77f;border-color:#a2c77f;}
+#frog-ui .fg-construction-timeline .is-complete:before {background:#93b672;}
+#frog-ui .fg-construction-timeline .is-current {color:#e0edc0;font-weight:600;}
+#frog-ui .fg-construction-timeline .is-current i {border-color:#dfecb5;box-shadow:0 0 0 2px #c5e49c22;}
+#frog-ui .fg-construction-live-detail {margin-top:9px;padding-top:7px;border-top:1px solid #c1d69e1e;color:#a4bc97;font-size:9px;line-height:1.5;}
+#frog-ui .fg-construction-live-detail p {margin:0 0 3px;color:#b8caa8;}
+#frog-ui .fg-construction-live-detail small {display:block;font-size:8px;margin-top:3px;color:#a0af8e;}
+#frog-ui .fg-job-percent {float:right;font-size:12px;font-variant-numeric:tabular-nums;color:#d8e7b7;}
+#frog-ui .fg-job>.fg-construction-timeline {margin:9px 0 10px;}
+
+@media(max-width:1100px) {
+  #frog-ui .fg-live-panel-layer {width:min(530px,calc(100vw - 280px));}
+  #frog-ui .fg-live-panel-layer.is-guide {width:350px;top:calc(var(--hud-top) + 285px);}
+  #frog-ui .fg-live-panel-layer.is-guide .fg-game-panel {max-height:calc(100dvh - var(--hud-top) - 385px);}
+  #frog-ui .fg-construction-hud {width:280px;}
+  #frog-ui .fg-guide-hint.fg-concept-panel {width:270px;max-height:calc(100dvh - var(--hud-top) - 410px);}
+}
+@media(max-width:767px) {
+  #frog-ui .fg-live-panel-layer {left:var(--hud-left);top:auto;bottom:calc(var(--hud-bottom) + var(--hud-bar-height) + 10px);width:calc(100vw - var(--hud-left) - var(--hud-right));}
+  #frog-ui .fg-live-panel-layer .fg-game-panel {max-height:56dvh;}
+  #frog-ui .fg-live-panel-layer.is-guide {left:auto;right:var(--hud-right);top:auto;width:min(390px,calc(100vw - 24px));}
+  #frog-ui .fg-live-panel-layer.is-guide .fg-game-panel {max-height:53dvh;}
+  #frog-ui .fg-live-panel-layer .fg-panel-head {padding:10px 10px 9px 12px;}
+  #frog-ui .fg-live-panel-layer .fg-panel-head h2 {font-size:16px;}
+  #frog-ui .fg-live-panel-body {padding:10px;}
+  #frog-ui .fg-live-panel-body .fg-picture-building {flex-basis:166px;min-width:166px;width:166px;}
+  #frog-ui .fg-live-panel-body .fg-building-art {height:88px;}
+  #frog-ui .fg-live-panel-body .fg-building-art>.fg-pictogram {height:86px;width:92px;}
+  #frog-ui .fg-construction-hud {left:var(--hud-left);transform:none;top:calc(var(--hud-top) + 164px);width:240px;}
+  #frog-ui.fg-is-hunted .fg-construction-hud {top:calc(var(--hud-top) + 210px);}
+  #frog-ui .fg-construction-hud .fg-construction-title strong {font-size:11px;}
+  #frog-ui .fg-construction-hud .fg-construction-live-detail {font-size:8px;}
+  #frog-ui .fg-construction-hud .fg-construction-timeline>li {font-size:7px;}
+  #frog-ui .fg-construction-hud [data-ref="constructionBody"] {max-height:30dvh;}
+  #frog-ui .fg-pause-dock {left:var(--hud-left);top:calc(var(--hud-top) + 100px);width:min(380px,calc(100vw - 24px));}
+  #frog-ui .fg-pause-dock .fg-pause-panel {max-height:calc(100dvh - var(--hud-top) - 120px);}
+  #frog-ui .fg-concept-toggle {bottom:calc(var(--hud-bottom) + var(--hud-bar-height) + 9px);}
+  #frog-ui .fg-guide-hint.fg-concept-panel {bottom:calc(var(--hud-bottom) + var(--hud-bar-height) + 49px);width:245px;max-height:43dvh;}
+  #frog-ui .fg-concept-panel .fg-guide-hint-content>img {max-height:125px;}
+  #frog-ui .fg-concept-panel .fg-guide-hint-content em {font-size:10px;}
+  #frog-ui .fg-concept-tip {font-size:9px;}
+}
+@media(max-height:650px) and (min-width:768px) {
+  #frog-ui .fg-live-panel-layer {top:calc(var(--hud-top) + 105px);}
+  #frog-ui .fg-live-panel-layer .fg-game-panel {max-height:calc(100dvh - var(--hud-top) - 205px);}
+  #frog-ui .fg-live-panel-layer.is-guide {top:calc(var(--hud-top) + 215px);}
+  #frog-ui .fg-live-panel-layer.is-guide .fg-game-panel {max-height:calc(100dvh - var(--hud-top) - 310px);}
+  #frog-ui .fg-pause-dock {top:calc(var(--hud-top) + 70px);}
+  #frog-ui .fg-pause-dock .fg-pause-panel {max-height:calc(100dvh - var(--hud-top) - 95px);}
+  #frog-ui .fg-guide-hint.fg-concept-panel {max-height:37dvh;}
+  #frog-ui .fg-concept-panel .fg-guide-hint-content>img {max-height:100px;}
+  #frog-ui .fg-construction-live-detail {display:none;}
+}
+@media(prefers-reduced-motion:reduce) {#frog-ui .fg-panel-expander>.fg-icon {transition:none;}}
+
+/* The measured minimap bottom includes boss/stronghold rows as they appear. */
+#frog-ui .fg-live-panel-layer.is-guide {top:var(--hud-map-bottom,calc(var(--hud-top) + 360px));bottom:auto;}
+#frog-ui .fg-live-panel-layer.is-guide .fg-game-panel {max-height:calc(100dvh - var(--hud-map-bottom,380px) - var(--hud-bar-height) - var(--hud-bottom) - 12px);}
+#frog-ui .fg-guide-hint.fg-concept-panel {max-height:calc(100dvh - var(--hud-map-bottom,380px) - var(--hud-bottom) - 126px);}
+@media(max-width:767px){
+  #frog-ui .fg-guide-hint.fg-concept-panel {max-height:calc(100dvh - var(--hud-map-bottom,275px) - var(--hud-bottom) - var(--hud-bar-height) - 49px);}
+}
