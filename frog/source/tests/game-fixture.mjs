@@ -3,6 +3,9 @@ import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import * as THREE from 'three';
 import {createCampaign} from '../src/campaign.js';
+import {updateCombatFeedback} from '../src/combat-feedback.js';
+export {updateCombatFeedback};
+export function advanceCombat(game,seconds=.36){game.elapsed+=seconds;updateCombatFeedback(game,seconds);}
 
 const root=path.dirname(fileURLToPath(new URL('../package.json',import.meta.url)));
 const noop=()=>{};

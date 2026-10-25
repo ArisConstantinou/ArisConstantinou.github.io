@@ -14,12 +14,12 @@ const school = (overrides = {}) => ({id:'school',team:'ally',x:0,z:0,hp:350,maxH
 function killHunters(state) { for (const type of HUNTER_TYPES) state = recordCampaignKill(state,type); return state; }
 function readyBosses() { const hunters=createCampaign(null,starter()); return advanceCampaign(killHunters(hunters),advanced()).state; }
 
-test('a new campaign begins with eight mandatory settlement goals',()=>{
+test('legacy campaign rules retain the eight settlement goals alongside the new frontier phase',()=>{
   const state=createCampaign();
   assert.equal(state.phase,'settlement');assert.equal(state.legacy,false);
   assert.equal(campaignObjectives(state).length,8);
   assert.equal(nextBossType(state),null);
-  assert.deepEqual(CAMPAIGN_PHASES,['settlement','hunters','preparation','bosses','complete']);
+  assert.deepEqual(CAMPAIGN_PHASES,['settlement','hunters','preparation','bosses','complete','frontier']);
 });
 
 test('every starter requirement independently blocks the hunters chapter',()=>{

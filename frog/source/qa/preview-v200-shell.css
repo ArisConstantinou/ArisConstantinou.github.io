@@ -1,0 +1,16 @@
+:root{--qa-toolbar-height:104px}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0f201b}
+#qa-toolbar{position:fixed;inset:0 0 auto;z-index:1000;padding:10px 14px 8px;background:#14251f;border-bottom:1px solid #86a67f66;color:#e4ebd7;font:12px/1.4 system-ui,sans-serif;box-sizing:border-box}
+#qa-toolbar .qa-caption{display:flex;align-items:baseline;flex-wrap:wrap;gap:5px 12px;margin-bottom:8px}
+#qa-toolbar .qa-caption strong{color:#eed49f;font-size:13px;letter-spacing:.04em}
+#qa-toolbar .qa-caption span{color:#c1ceba;font-size:11px}
+#qa-toolbar nav{display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+#qa-toolbar button,#qa-toolbar select{appearance:auto;border:1px solid #80977470;border-radius:4px;padding:5px 8px;background:#213a2c;color:#e4ecd7;font:inherit;cursor:pointer}
+#qa-toolbar button[aria-pressed="true"]{background:#d1dfa7;border-color:#e3ecbd;color:#14251d}
+#qa-toolbar button:focus-visible,#qa-toolbar select:focus-visible{outline:2px solid #edc878;outline-offset:2px}
+#qa-toolbar label{display:flex;align-items:center;gap:5px;margin-left:auto;font-size:11px}
+#qa-status{display:block;min-height:16px;margin-top:6px;color:#9fb394;font-size:10px}
+#qa-status.is-error{color:#ffb6a7}
+body #frog-ui{top:var(--qa-toolbar-height);height:calc(100dvh - var(--qa-toolbar-height));max-height:calc(100dvh - var(--qa-toolbar-height));contain:layout paint}
+body #frog-ui .fg-panel{max-height:calc(100dvh - var(--qa-toolbar-height) - 64px)}
+@media(max-width:650px){#qa-toolbar{padding:7px 8px}#qa-toolbar .qa-caption{margin-bottom:5px}#qa-toolbar .qa-caption span{font-size:10px}#qa-toolbar button,#qa-toolbar select{padding:4px 6px;font-size:10px}#qa-toolbar label{margin-left:0}body #frog-ui .fg-panel{max-height:calc(100dvh - var(--qa-toolbar-height) - 30px)}}

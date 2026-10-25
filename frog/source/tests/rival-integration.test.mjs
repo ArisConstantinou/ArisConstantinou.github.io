@@ -238,7 +238,7 @@ test('an incomplete old save restores one unclaimed stronghold with a matching r
   assert.ok(home.stock.food >= 80 && home.stock.reeds >= 40);
   assert.deepEqual(game.allies().map(f => f.id), alliedIds);
   assert.equal(game.ownedCamps().length, 4);
-  assert.deepEqual(game.resources, input.resources);
+  assert.deepEqual(game.resources, {pearls:0,...input.resources});
   assert.equal(game.balanceRevision, 1);
   assert.equal(game.pendingRivalRecoveryCampId, null);
   assert.ok(messages.some(args => args[0]?.label === 'Αντίπαλο οχυρό ανασυγκροτήθηκε'));

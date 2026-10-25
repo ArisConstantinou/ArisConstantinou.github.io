@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {WORLD_BOUNDARY,SHELTER_RADIUS,SHELTER_LAYOUT_SCALE} from './world-config.js';
 import {BUILDINGS,canAfford} from './rules.js';
 import {defaultPlacement,validateBuildingPlacement} from './placement-rules.js';
+import {constructionCamp,constructionOffer} from './realm-economy.js';
 
 export const PLACEABLE_BUILDINGS=new Set(['shelter','store','nursery','watchtower','training']);
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
@@ -30,7 +31,10 @@ function validateStage(game,p){
   }
   const camp=campFor(game,p);if(!camp)return {valid:false,reason:'inactive-camp'};
   p.local=localPoint(camp,p,p.yaw);
-  return validateBuildingPlacement(camp,p.type,p.local);
+  const result=validateBuildingPlacement(game.campaign?.endless?constructionCamp(game,camp):camp,p.type,p.local);
+  if(!result.valid)return result;
+  if(game.campaign?.endless){const offer=constructionOffer(game,p.type,{x:p.x,z:p.z,yaw:p.yaw,campId:camp.id,local:p.local});if(!offer.enabled)return {valid:false,reason:offer.reason};}
+  return result;
 }
 function paint(game,p){
   const camp=campFor(game,p),result=validateStage(game,p);p.valid=result.valid;p.reason=result.reason;

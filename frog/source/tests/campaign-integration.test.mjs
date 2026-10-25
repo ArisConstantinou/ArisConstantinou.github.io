@@ -40,29 +40,20 @@ test('actual fresh world reset keeps all predators locked during settlement',()=
   game.syncCampaignPredators();game.updateCampaign(true);
   assert.equal(game.predators.length,0);
 });
-test('finishing every starter quest spawns exactly three unique tracked hunters',()=>{
+test('finishing the practical foundation opens an endless frontier without forcing a boss chain',()=>{
   const {game}=starterGame();
-  assert.equal(game.campaign.phase,'hunters');
-  assert.deepEqual(game.predators.filter(p=>!p.dead).map(p=>p.type).sort(),[...HUNTER_TYPES].sort());
-  assert.ok(game.predators.every(p=>p.campaignTracked&&!p.boss));
-  game.syncCampaignPredators();game.updateCampaign(true);
-  assert.equal(game.predators.length,3);
+  assert.equal(game.campaign.phase,'frontier');assert.equal(game.campaign.endless,true);
+  assert.equal(game.predators.length,0);
+  game.syncCampaignPredators();game.updateCampaign(true);game.checkVictory();
+  assert.equal(game.ended,false);assert.equal(game.won,false);
 });
-test('actual hunter deaths unlock preparation and bosses then spawn one at a time',()=>{
-  const {game}=starterGame();
-  for(const p of [...game.predators])kill(game,p);
-  assert.equal(game.campaign.phase,'preparation');
-  assert.equal(game.predators.filter(p=>!p.dead).length,0);
-  advancedArmy(game);assert.equal(game.campaign.phase,'bosses');
-  for(const type of HUNTER_TYPES){
-    const living=game.predators.filter(p=>!p.dead);
-    assert.equal(living.length,1);assert.equal(living[0].type,type);assert.equal(living[0].boss,true);
-    const victim=living[0];kill(game,victim);
-    game.onPredatorDefeated(victim);game.syncCampaignPredators();
-    assert.equal(game.campaign.bossDefeated.filter(t=>t===type).length,1);
-  }
-  assert.equal(game.predators.filter(p=>!p.dead).length,0);
-  assert.equal(game.campaign.phase,'bosses');
+test('optional guardian bosses reward a real kill once without ending the campaign',()=>{
+  const {game}=starterGame();game.player.level=7;game.realms.events.nextGuardianAt=0;game.realmEventCheckAt=0;
+  game.syncCampaignPredators();
+  const boss=game.predators.find(p=>p.boss);assert.ok(boss);assert.equal(boss.eventRole,'guardian');
+  const pearls=game.resources.pearls;kill(game,boss);game.onPredatorDefeated(boss);game.checkVictory();
+  assert.equal(game.resources.pearls,pearls+5);assert.equal(game.realms.events.bossKills,1);
+  assert.equal(game.campaign.phase,'frontier');assert.equal(game.ended,false);assert.equal(game.won,false);
 });
 test('five captured camps alone cannot win and complete campaign triggers victory once',()=>{
   const {game}=fixture();let endings=0;game.ui.showEnding=win=>{if(win)endings++;};
@@ -104,7 +95,7 @@ test('actual save/load keeps a paid half-finished course and restores a guards d
   const {game,home,frog,storage}=trainingGame({guard:true,order:'guard'});
   installStorage(t,storage);
   game.trainSquad([frog]);game.updateTraining(frog,home,9);
-  const bank={...game.resources};
+  const bank={pearls:0,...game.resources};
   assert.equal(FrogGame.prototype.save.call(game),true);
   const saved=validateSave(JSON.parse(storage.get(SAVE_KEY)));
   assert.equal(saved.frogs[0].trainingPaid,true);assert.equal(saved.frogs[0].trainingProgress,9);assert.equal(saved.frogs[0].returnOrder,'guard');
@@ -114,19 +105,21 @@ test('actual save/load keeps a paid half-finished course and restores a guards d
   loaded.updateTraining(student,school,9);
   assert.equal(student.trained,true);assert.equal(student.guard,true);assert.equal(student.order,'guard');assert.deepEqual(loaded.resources,bank);
 });
-test('a killed hunter species stays dead after actual save and reset',t=>{
+test('a killed event guardian stays dead with its reward recorded after actual save and reset',t=>{
   const {game,storage}=starterGame();installStorage(t,storage);
-  kill(game,game.predators.find(p=>p.type==='heron'));
-  assert.equal(FrogGame.prototype.save.call(game),true);
+  game.player.level=2;game.realms.events.nextGuardianAt=0;game.realmEventCheckAt=0;game.syncCampaignPredators();
+  const guardian=game.predators.find(p=>p.eventRole==='guardian');kill(game,guardian);
+  const pearls=game.resources.pearls;assert.equal(FrogGame.prototype.save.call(game),true);
   const saved=validateSave(JSON.parse(storage.get(SAVE_KEY))),{game:loaded}=fixture();loaded.resetWorld(saved);
-  assert.equal(loaded.campaign.phase,'hunters');assert.ok(loaded.campaign.defeated.includes('heron'));
-  assert.deepEqual(loaded.predators.filter(p=>!p.dead).map(p=>p.type).sort(),['fish','snake']);
+  const restored=loaded.predators.find(p=>p.id===guardian.id);
+  assert.equal(loaded.campaign.phase,'frontier');assert.ok(restored.dead);assert.equal(restored.hp,0);assert.equal(restored.rewardGranted,true);
+  loaded.onPredatorDefeated(restored);assert.equal(loaded.resources.pearls,pearls);
 });
 test('legacy three-of-five saves preserve territories and veterans while retaining new quests',()=>{
   const legacy={version:SAVE_VERSION,elapsed:600,resources:{food:20,reeds:30},player:actor({id:'player',team:'player'}),frogs:[actor({id:'veteran',level:2}),actor({id:'newcomer',level:1})],camps:Array.from({length:5},(_,i)=>camp({id:'old-'+i,team:i<3?'ally':'enemy'+i,originalEnemy:true,x:i*30-60,buildings:i<3?{store:true,nursery:true}:{},stock:{food:0,reeds:0}})),stats:{recruited:2},idCounter:10};
   const saved=validateSave(legacy),{game}=fixture();assert.equal(saved.campaign,null);game.resetWorld(saved);
   assert.equal(game.camps.filter(c=>c.originalEnemy&&(c.team==='ally'||c.destroyed)).length,3);
   assert.equal(game.allies().length,2);assert.equal(game.allies().find(f=>f.id==='veteran').trained,true);assert.equal(game.allies().find(f=>f.id==='newcomer').trained,false);
-  assert.equal(game.campaign.phase,'settlement');assert.equal(game.campaign.legacy,true);assert.deepEqual(game.campaign.defeated,[]);assert.equal(game.predators.length,0);
+  assert.equal(game.campaign.phase,'frontier');assert.equal(game.campaign.endless,true);assert.equal(game.campaign.legacy,true);assert.deepEqual(game.campaign.defeated,[]);assert.equal(game.predators.length,0);
 });
 

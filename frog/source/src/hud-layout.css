@@ -454,6 +454,7 @@
 #frog-ui .fg-compact-hud .fg-population-total>b{margin-left:auto;font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
 #frog-ui .fg-compact-hud .fg-population-duties{display:flex;justify-content:space-between;flex-wrap:wrap;gap:3px 8px;font-size:10px;color:#b9caaa;line-height:1.2}
 #frog-ui .fg-compact-hud .fg-population-duties b{font-weight:650;color:#eef1d3;font-variant-numeric:tabular-nums}
+#frog-ui .fg-compact-hud .fg-population-regions{padding-top:3px;border-top:1px solid #bdd29e19;color:#9fb491}
 #frog-ui .fg-compact-hud .fg-minimap-shell{padding:6px;border:1px solid #c8dca44d;border-radius:11px;background:linear-gradient(140deg,#193a2bec,#0b241de8);box-shadow:0 5px 22px #00180d44;min-width:0}
 #frog-ui .fg-compact-hud .fg-location-tools{display:flex;align-items:center;justify-content:space-between;gap:6px;height:auto;padding:0 2px 5px}
 #frog-ui .fg-compact-hud .fg-location-tools>strong{font-size:10px;font-weight:600;letter-spacing:.04em;color:#bdcda9}
@@ -529,6 +530,7 @@
 /* Explain each purchase without requiring a hover, retaining the single row. */
 #frog-ui .fg-building-panel .fg-illustrated-build .fg-picture-building{display:flex;flex-direction:column;align-items:stretch}
 #frog-ui .fg-building-panel .fg-building-description{display:block;min-height:43px;margin:0 0 9px;color:#c6d5b6;font-size:11px;line-height:1.4;text-align:left;white-space:normal;overflow-wrap:break-word}
+#frog-ui .fg-building-panel .fg-building-time{display:block;margin:0 0 9px;color:#d9cb9a;font-size:10px;line-height:1.45;text-align:left;white-space:normal}
 #frog-ui .fg-building-panel .fg-building-reason{display:block;margin:0 0 9px;padding:5px 6px;border-radius:5px;background:#61482950;color:#efd09a;font-size:10px;line-height:1.35;text-align:left;white-space:normal}
 #frog-ui .fg-building-panel .fg-picture-building .fg-cost-label{margin-top:auto}
 /* Keep the hunt card inside the gap between player information and the map. */

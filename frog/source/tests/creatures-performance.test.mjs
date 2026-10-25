@@ -23,7 +23,7 @@ function pose(model) {
 }
 
 test('a 130-frog army keeps every model while reducing visible and shadow triangle work', () => {
-  const army = Array.from({ length: 130 }, (_, seed) => frog({ tier: 3, seed, team: seed < 60 ? 'ally' : 'enemy' }));
+  const army = Array.from({ length: 130 }, (_, seed) => frog({ tier: 3, equipment: { armor: 'reed', crest: true }, seed, team: seed < 60 ? 'ally' : 'enemy' }));
   const original = renderBudget(army[0]);
   let triangles = 0, shadowTriangles = 0, draws = 0, shadowDraws = 0;
   army.forEach((model, index) => {
@@ -32,7 +32,7 @@ test('a 130-frog army keeps every model while reducing visible and shadow triang
     triangles += budget.triangles; shadowTriangles += budget.shadowTriangles;
     draws += budget.draws; shadowDraws += budget.shadowDraws;
     assert.ok(model.group.visible && model.mesh.visible, `frog ${index} remains rendered`);
-    assert.ok(model.group.getObjectByName('armor').visible && model.group.getObjectByName('crest').visible, 'tier remains readable');
+    assert.ok(model.group.getObjectByName('armor').visible && model.group.getObjectByName('crest').visible, 'crafted equipment remains readable');
   });
   assert.ok(triangles < original.triangles * army.length * .15, 'army uses less than 15% of the previous visible triangles');
   assert.ok(shadowTriangles < original.shadowTriangles * army.length * .07, 'only nearby frogs enter the shadow pass');
@@ -40,7 +40,7 @@ test('a 130-frog army keeps every model while reducing visible and shadow triang
 });
 
 test('detail changes preserve exact pose, mouth attachment, faction tint and tier appearance', () => {
-  const model = frog({ tier: 3, role: 'guardian', color: 0xa94d3b, seed: 5 });
+  const model = frog({ tier: 3, equipment: { armor: 'reed', crest: true }, role: 'guardian', color: 0xa94d3b, seed: 5 });
   model.group.position.set(23, 4, -17); model.group.rotation.y = 1.2; model.group.scale.setScalar(1.6);
   model.update(.05, { time: 2.3, speed: 4, attack: { type: 'kick', phase: .5 } });
   const originalGeometry = model.mesh.geometry, originalSkeleton = model.skeleton, originalPose = pose(model);
@@ -59,7 +59,7 @@ test('detail changes preserve exact pose, mouth attachment, faction tint and tie
   assert.equal(outline.material.color.getHex(), 0xf47d62);
   model.setOutline(undefined, false); model.setRenderLOD(2); model.setRenderLOD(0);
   assert.equal(outline.visible, false, 'caller outline preference survives round trip');
-  model.setRenderLOD(2); model.setTier(1); model.setRenderLOD(0);
+  model.setRenderLOD(2); model.setTier(1); model.setEquipment({}); model.setRenderLOD(0);
   assert.equal(model.group.getObjectByName('armor').visible, false);
   assert.equal(model.group.getObjectByName('crest').visible, false);
 });

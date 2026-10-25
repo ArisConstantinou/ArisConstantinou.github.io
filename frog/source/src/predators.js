@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { PREDATORS, clamp } from './rules.js';
 import {WORLD_BOUNDARY} from './world-config.js';
-import {insideFort,canPassGate,resolveFortMovement} from './fortification.js';
+import {insideFort,canPassGate,resolveFortMovement,gatePoint} from './fortification.js';
+import {applyCombatImpulse} from './combat-feedback.js';
 
 const distance = (a,b) => Math.hypot(a.x-b.x,a.z-b.z);
 const friendly = f => f && (f.team==='player'||f.team==='ally');
@@ -24,10 +25,10 @@ function initialize(p) {
   p.strikeRadius=Number.isFinite(p.strikeRadius)&&p.strikeRadius>0?p.strikeRadius:radius[p.type]*(p.boss?(p.type==='fish'?1.8:1.45):1);
   p.lungeTime=Number.isFinite(p.lungeTime)&&p.lungeTime>0?p.lungeTime:lungeDuration[p.type];
   p.burstCount=Number.isFinite(p.burstCount)?clamp(Math.round(p.burstCount),1,5):p.boss?(p.type==='heron'?2:p.type==='snake'?3:1):1;
-  p.burstRemaining=0;p.burstIndex=0;p.enraged=!!p.boss&&p.hp<=p.maxHp*.5;p.defeatNotified=false;
+  p.burstRemaining=0;p.burstIndex=0;p.enraged=!!p.boss&&p.hp<=p.maxHp*.5;p.defeatNotified=!!p.defeatNotified;
   p.grabCooldown=0;p.thinkTime=0;p.chaseTime=0;p.lostTime=0;p.huntUntil=0;
-  p.playerDamage=0;p.lastCombatAt=-100;p.engagedPlayer=false;p.hitAnim=0;
-  p.repelAwarded=false;p.killAwarded=false;p.provokedUntil=0;p.hunting=false;p.fearPressure=0;
+  p.playerDamage=Math.max(0,Number(p.playerDamage)||0);p.lastCombatAt=Number.isFinite(p.lastCombatAt)?p.lastCombatAt:-100;p.engagedPlayer=false;p.hitAnim=0;
+  p.repelAwarded=!!p.repelAwarded;p.killAwarded=!!p.killAwarded;p.provokedUntil=Number(p.provokedUntil)||0;p.hunting=false;p.fearPressure=0;
   p.attackDuration=1;p.attackType='lunge';p.movePulse=0;p.grace=p.grace||0;
 }
 function surface(game,x,z) {return game.world.getSurface(x,z);}
@@ -37,6 +38,7 @@ function protectedByGrace(game,p,f) {
 }
 function canReach(game,p,f) {
   if(!alive(f)||f.grabbedBy&&f.grabbedBy!==p||protectedByGrace(game,p,f))return false;
+  if(p.eventRole==='guardian'&&game.elapsed>=(p.provokedUntil||0)&&distance(f,p.anchor)>(p.territoryRadius||26))return false;
   if(p.type!=='heron'&&(game.camps||[]).some(c=>!c.destroyed&&insideFort(c,f)&&!insideFort(c,p)&&!canPassGate(c,p)))return false;
   if(p.type==='fish')return wet(game,f.x,f.z)&&f.y<1.15;
   if(p.type==='snake')return f.y-surface(game,f.x,f.z).height<2.2;
@@ -121,6 +123,37 @@ function setHeight(game,p) {
     const h=game.world.sampleHeight(p.x,p.z);
     p.y=p.type==='snake'?Math.max(-.10,h):Math.max(-.20,h);
   }
+}
+
+/** Recoil uses the same enclosure solver as ordinary units. Fish may slide
+ * along a wet bank but never cross onto dry ground; steep ledges stop the push. */
+export function applyPredatorCombatImpulse(game,p,dt){
+  if(!p.combatImpulse)return false;
+  if(p.dead||p.phase==='dead'||p.phase==='dormant'){p.combatImpulse=null;return false;}
+  const push=applyCombatImpulse(p,dt);if(!push.dx&&!push.dz)return false;
+  const origin={x:p.x,z:p.z},floor=game.world.sampleHeight(p.x,p.z);
+  const intended={x:clamp(p.x+push.dx,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2),z:clamp(p.z+push.dz,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2)};
+  const traversable=to=>{
+    const steps=Math.max(1,Math.ceil(distance(origin,to)/.10));
+    for(let i=1;i<=steps;i++){
+      const x=origin.x+(to.x-origin.x)*i/steps,z=origin.z+(to.z-origin.z)*i/steps,h=game.world.sampleHeight(x,z);
+      if(!Number.isFinite(h)||Math.abs(h-floor)>.65||p.type==='fish'&&!wet(game,x,z))return false;
+    }
+    return true;
+  };
+  let resolved=origin;
+  for(const candidate of [intended,{x:intended.x,z:origin.z},{x:origin.x,z:intended.z}]){
+    const point=resolveFortMovement(game.camps||[],p,candidate);
+    if(traversable(point)){resolved=point;break;}
+  }
+  const dx=resolved.x-origin.x,dz=resolved.z-origin.z;
+  p.x=resolved.x;p.z=resolved.z;
+  // A committed lunge uses absolute endpoints; move its body trajectory by the
+  // actual legal displacement so the next frame cannot snap away the recoil.
+  if(p.phase==='lunge')for(const key of ['lungeStart','lungeEnd'])if(p[key]){
+    p[key].x=clamp(p[key].x+dx,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);p[key].z=clamp(p[key].z+dz,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);
+  }
+  setHeight(game,p);return !!(dx||dz);
 }
 function forget(game,p) {
   p.target=null;p.targetId=null;p.chaseTime=0;p.lostTime=0;
@@ -210,7 +243,7 @@ function eatVictim(game,p) {
 function startFlee(game,p) {
   releaseGrab(game,p);enter(p,'flee');p.fleeTime=0;p.target=null;p.targetId=null;p.attackAnim=0;
   const threat=p.lastAttacker||game.player||{x:0,z:0},dx=p.x-threat.x,dz=p.z-threat.z,len=Math.hypot(dx,dz)||1;
-  p.fleeDestination={x:clamp(p.x+dx/len*9,-104,104),z:clamp(p.z+dz/len*9,-104,104)};
+  p.fleeDestination={x:clamp(p.x+dx/len*9,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2),z:clamp(p.z+dz/len*9,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2)};
   if(p.engagedPlayer){p.huntUntil=game.elapsed+7;game.ui?.toast?.({icon:'intimidate',portrait:game.portraits?.[p.type],progress:1,tone:'success',detail:`${p.name}: ο εκφοβισμός πέτυχε.`});}
 }
 function finishRepel(game,p) {
@@ -230,7 +263,7 @@ function respawn(game,p) {
   enter(p,'patrol');setHeight(game,p);
 }
 function kill(game,p,source) {
-  releaseGrab(game,p);p.dead=true;p.hp=0;p.health=0;p.respawnAt=p.campaignTracked?Infinity:game.elapsed+220;
+  releaseGrab(game,p);p.dead=true;p.hp=0;p.health=0;p.respawnAt=p.campaignTracked||p.realmEvent||game.campaign?.endless?Infinity:game.elapsed+220;
   enter(p,'dead');p.attackAnim=0;p.target=null;p.targetId=null;p.hunting=false;p.huntUntil=0;
   if((friendly(source)||p.playerDamage>0)&&!p.killAwarded) {
     const xp=p.boss?250:100;p.killAwarded=true;game.stats.predatorsKilled=(game.stats.predatorsKilled||0)+1;game.gainXP?.(xp);
@@ -242,7 +275,7 @@ function kill(game,p,source) {
 }
 
 /** Returns true when a living predator actually took damage. No global stun-lock. */
-export function damagePredator(game,p,amount,source=null) {
+export function damagePredator(game,p,amount,source=null,options={}) {
   initialize(p);amount=Number(amount);
   if(!Number.isFinite(amount)||amount<=0||p.dead||p.phase==='dormant')return false;
   const damage=Math.min(p.hp,Math.max(1,amount));p.hp=Math.max(0,p.hp-damage);p.health=p.hp;
@@ -252,7 +285,7 @@ export function damagePredator(game,p,amount,source=null) {
     p.playerDamage+=damage;p.provokedUntil=game.elapsed+120;p.grace=0;
     if(visibleToPlayer(game,p,45)||source===game.player)activateHunt(game,p);
   }
-  if(visibleToPlayer(game,p,35)) {
+  if(options.feedback!==false&&visibleToPlayer(game,p,35)) {
     game.world.impact(point(p,p.type==='heron'?1.5:.45),'#ebd9ab',clamp(damage/30,.5,1.8));sound(game,p,'hit',.75);
   }
   if(p.grabbed)p.rescueDamage+=damage;
@@ -287,6 +320,7 @@ export function predatorObjective(p) {
   if(p.phase==='windup')return p.type==='fish'?'ΕΦΟΔΟΣ ΑΠΟ ΚΑΤΩ — Πήδηξε σε βράχο ή άλλαξε κατεύθυνση!':'ΕΤΟΙΜΑΖΕΙ ΕΠΙΘΕΣΗ — Απέφυγε την έφοδο και αντεπιτέσου.';
   if(p.phase==='flee')return 'ΥΠΟΧΩΡΕΙ — Απώθησέ τον ή καταδίωξέ τον για να τον νικήσεις.';
   if(p.phase==='recover')return 'ΠΑΡΑΘΥΡΟ ΑΝΤΕΠΙΘΕΣΗΣ — Συντόνισε τα χτυπήματα της ομάδας.';
+  if(p.phase==='raid')return 'ΕΠΙΔΡΟΜΗ ΣΤΟ ΚΑΣΤΡΟ — Φέρε φρουρά και χτύπα τον θηρευτή από τα πλάγια.';
   return {heron:'Χτύπα τα πόδια και απόφυγε το ράμφος. Η ομάδα μπορεί να διακόψει ένα άρπαγμα.',snake:'Άνοιξε την ομάδα και χτύπα από τα πλάγια. Πρόσεχε την έφοδο από τις καλαμιές.',fish:'Χρησιμοποίησε βράχους και ρηχά. Χτύπα όταν βγει στην επιφάνεια.'}[p.type]||'Πολέμησε για να απωθήσεις ή να σκοτώσεις τον θηρευτή.';
 }
 
@@ -294,14 +328,15 @@ export function updatePredators(game,dt) {
   dt=clamp(dt,0,.1);
   for(const p of game.predators) {
     initialize(p);p.phaseTime+=dt;p.cooldown=Math.max(0,p.cooldown-dt);p.grabCooldown=Math.max(0,p.grabCooldown-dt);
+    p.stun=Math.max(0,(p.stun||0)-dt);
     p.thinkTime-=dt;p.speed=0;p.fearPressure=Math.max(0,p.fearPressure-dt*2);
     if(p.dead||p.phase==='dead') {
       if(p.phaseTime>=4)p.model.group.visible=false;
-      if(!p.campaignTracked&&game.elapsed>=p.respawnAt&&distance(game.player,p.anchor)>34&&!game.allies().some(f=>distance(f,p.anchor)<15))respawn(game,p);
+      if(!p.campaignTracked&&!p.realmEvent&&!game.campaign?.endless&&game.elapsed>=p.respawnAt&&distance(game.player,p.anchor)>34&&!game.allies().some(f=>distance(f,p.anchor)<15))respawn(game,p);
       continue;
     }
     if(p.phase==='dormant') {
-      if(!p.campaignTracked&&game.elapsed>=p.respawnAt&&distance(game.player,p.anchor)>34&&!game.allies().some(f=>distance(f,p.anchor)<15))respawn(game,p);
+      if(!p.campaignTracked&&!p.realmEvent&&!game.campaign?.endless&&game.elapsed>=p.respawnAt&&distance(game.player,p.anchor)>34&&!game.allies().some(f=>distance(f,p.anchor)<15))respawn(game,p);
       continue;
     }
     if(p.phase==='flee') {
@@ -360,13 +395,33 @@ export function updatePredators(game,dt) {
       }
       setHeight(game,p);continue;
     }
+    // A raid travels to a real gate, fights available defenders, then damages the
+    // actual castle. Empty castles do not make the event inert.
+    if(p.eventRole==='raid'&&p.raidCampId) {
+      const camp=(game.camps||[]).find(c=>c.id===p.raidCampId&&!c.destroyed&&c.hp>0);
+      if(camp) {
+        if(p.thinkTime<=0&&game.elapsed>=p.grace){p.thinkTime=.38;if(acquire(game,p)){setHeight(game,p);continue;}}
+        p.phase='raid';
+        const target=p.type==='heron'||insideFort(camp,p)||!(camp.gateHp>0)?{x:camp.x,z:camp.z}:gatePoint(camp,2.8);
+        const range=p.type==='heron'?5:4;
+        if(distance(p,target)>range){p.castleWindupAt=0;walk(game,p,target.x,target.z,p.baseSpeed*.7,dt);}
+        else if(p.cooldown<=0){
+          if(!p.castleWindupAt){p.castleWindupAt=game.elapsed+1.35;p.attackType='lunge';p.attackDuration=1.65;p.attackAnim=1.65;sound(game,p,p.type,.8);}
+          else if(game.elapsed>=p.castleWindupAt){game.damageCamp?.(camp,p.damage*(p.boss?1.8:1.35),p);p.castleWindupAt=0;p.cooldown=2.6;}
+        }
+        if(visibleToPlayer(game,p,42))activateHunt(game,p);
+        setHeight(game,p);continue;
+      }
+      p.raidCampId=null;p.raidDestination=null;enter(p,'patrol');
+    }
     // Territorial patrols are deterministic, and both friendly and rival gangs are prey.
     const patrolPhase=game.elapsed*(p.type==='heron'?.07:.11)+(p.type==='snake'?2.1:p.type==='fish'?4.3:0);
-    const tx=p.anchor.x+Math.sin(patrolPhase)*(p.type==='fish'?10:6),tz=p.anchor.z+Math.cos(patrolPhase*.83)*(p.type==='fish'?8:5);
+    const roaming=p.eventRole==='roam',tx=p.anchor.x+Math.sin(patrolPhase)*(roaming?28:p.type==='fish'?10:6),tz=p.anchor.z+Math.cos(patrolPhase*.83)*(roaming?24:p.type==='fish'?8:5);
     walk(game,p,tx,tz,p.baseSpeed*.36,dt);
     if(p.thinkTime<=0&&game.elapsed>=p.grace){p.thinkTime=.38;acquire(game,p);}
     setHeight(game,p);
   }
+  for(const p of game.predators)applyPredatorCombatImpulse(game,p,dt);
   // A single focused HUD threat survives brief retargets, and clears on a real disengage.
   const contenders=game.predators.filter(p=>!p.dead&&p.phase!=='dormant'&&(p.huntUntil>game.elapsed||friendly(p.target)&&distance(p,game.player)<42));
   for(const p of game.predators)p.hunting=contenders.includes(p);

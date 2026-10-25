@@ -1,3 +1,4 @@
+import {updateCombatFeedback} from '../src/combat-feedback.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {actor,camp,fixture} from './game-fixture.mjs';
@@ -12,7 +13,7 @@ test('a bruiser physically catches up with a walking then sprinting player',()=>
   let largestStep=0;
   for(let tick=0;tick<500;tick++){
     const before={x:follower.x,z:follower.z},speed=tick<300?MOVEMENT.walk:MOVEMENT.sprint;
-    player.x+=speed*.05;game.elapsed+=.05;game.updateFrogs(.05);
+    player.x+=speed*.05;game.elapsed+=.05;game.updateFrogs(.05);updateCombatFeedback(game,.05);
     largestStep=Math.max(largestStep,distance(before,follower));
   }
   assert.ok(distance(follower,player)<13,'the slow role stays within the travelling group after a sprint');
@@ -34,7 +35,7 @@ test('a distant injured forager joins the active boss battle and reaches attack 
   game.frogs.push(frog);game.predators.push(boss);game.hunt=boss;game.world.hotspots.push({id:'tempting-food',x:-75,z:1,flies:20,maxFlies:20});
   const intent=game.thinkFrog(frog,[frog]);assert.equal(intent.kind,'attack');assert.equal(intent.target,boss);
   const hits=[];game.damage=(target,amount,source)=>{hits.push({target,source});target.hp-=amount;};
-  for(let tick=0;tick<260&&!hits.length;tick++){game.elapsed+=.05;game.updateFrogs(.05);}
+  for(let tick=0;tick<260&&!hits.length;tick++){game.elapsed+=.05;game.updateFrogs(.05);updateCombatFeedback(game,.05);}
   assert.ok(hits.some(hit=>hit.target===boss&&hit.source===frog),'the distant ally actually fights the boss');
   assert.equal(game.world.hotspots[0].flies,20,'emergency support takes priority over the food detour');
 });
@@ -66,7 +67,7 @@ test('followers leave stale remote skirmishes to rejoin the player',()=>{
 
 test('a satiated forager returns despite the tiny hunger decay each frame',()=>{
   const {game}=fixture(),frog=actor({id:'fed',x:20,order:'forage',returnOrder:'follow',brain:0}),swarm={id:'swarm',x:20,z:0,flies:12,maxFlies:12};
-  game.frogs.push(frog);game.world.hotspots.push(swarm);game.updateFrogs(.05);
+  game.frogs.push(frog);game.world.hotspots.push(swarm);game.updateFrogs(.05);updateCombatFeedback(game,.05);
   assert.equal(frog.order,'follow');assert.equal(frog.intent.formation,true);assert.equal(swarm.flies,12);assert.equal(game.resources.food,100);
 });
 

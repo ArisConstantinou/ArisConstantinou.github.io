@@ -125,7 +125,7 @@ test('save normalization clamps resources, coordinates, health, stomach and time
   const input=save({elapsed:-50,resources:{food:-10,reeds:5e9},player:frog({x:999,z:-999,hp:-10,maxHp:120,stomach:500})}),before=structuredClone(input);
   const result=validateSave(input);
   assert.ok(result);
-  assert.deepEqual(result.resources,{food:0,reeds:1e6});
+  assert.deepEqual(result.resources,{food:0,reeds:1e6,pearls:0});
   assert.equal(result.elapsed,0);assert.equal(result.player.x,WORLD_BOUNDARY);assert.equal(result.player.z,-WORLD_BOUNDARY);
   assert.equal(result.player.hp,1);assert.equal(result.player.stomach,100);
   assert.deepEqual(input,before);

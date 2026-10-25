@@ -1,3 +1,4 @@
+import {advanceCombat} from './game-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {passiveRecruitTarget,RECRUIT_RANGE,RECRUIT_PREVIEW_RANGE} from '../src/squad-rules.js';
@@ -66,7 +67,7 @@ test('a passive frog click explains E recruitment, keeps neutrality and spends n
   for(const state of [{team:'neutral'},{team:'enemy0',surrendered:true,hp:15}]){
     const {game,player,messages}=fixture(),frog=actor({id:'passive',z:5,...state});
     game.frogs.push(frog);game.aimTarget={kind:'actor',entity:frog};const hp=frog.hp,bank={...game.resources},stamina=player.stamina;
-    game.primaryAttack();
+    game.primaryAttack();advanceCombat(game);
     assert.equal(frog.hp,hp);assert.equal(frog.team,state.team);assert.deepEqual(game.resources,bank);assert.equal(player.stamina,stamina);
     assert.ok(messages.some(m=>/E/.test(JSON.stringify(m))&&/στρατολόγ/i.test(JSON.stringify(m))),'clicking explains the actual social action');
     assert.equal(game.context().type,'recruit');assert.equal(game.context().entity,frog);
@@ -77,14 +78,14 @@ test('the same click still damages an active enemy rather than treating it as a 
   for(const destroyed of [false,true]){
     const {game}=fixture(),enemy=actor({id:'active-enemy',team:'enemy0',home:'enemy-home',z:5});
     game.camps.push(camp({id:'enemy-home',x:60,z:0,destroyed,hp:destroyed?0:350}));
-    game.frogs.push(enemy);game.aimTarget={kind:'actor',entity:enemy};game.primaryAttack();
+    game.frogs.push(enemy);game.aimTarget={kind:'actor',entity:enemy};game.primaryAttack();advanceCombat(game);
     assert.ok(enemy.hp<enemy.maxHp,'a ruined home may offer free recruitment but does not protect an active attacker');assert.equal(enemy.team,'enemy0');assert.equal(enemy.surrendered,false);assert.equal(game.resources.food,100);
   }
 });
 
 test('a clicked passive frog stays focused behind an ally, while deliberate fly gathering can override it',()=>{
   const {game}=fixture(),frog=actor({id:'chosen',team:'enemy0',surrendered:true,z:5}),ally=actor({id:'foreground',z:2}),swarm={id:'chosen-flies',x:1,z:2,flies:20};
-  game.frogs.push(frog,ally);game.world.hotspots.push(swarm);game.aimTarget={kind:'actor',entity:frog};game.primaryAttack();
+  game.frogs.push(frog,ally);game.world.hotspots.push(swarm);game.aimTarget={kind:'actor',entity:frog};game.primaryAttack();advanceCombat(game);
   game.aimYaw=Math.PI/2;game.aimTarget={kind:'actor',entity:ally};
   assert.equal(game.context().entity,frog,'the short click focus survives a follower crossing the ray');
   game.aimTarget={kind:'flies',entity:swarm};assert.equal(game.context().entity,swarm);assert.equal(game.context().type,'gather');

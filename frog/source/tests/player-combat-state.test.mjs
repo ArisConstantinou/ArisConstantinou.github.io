@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {actor,camp,fixture} from './game-fixture.mjs';
+import {actor,camp,fixture,advanceCombat} from './game-fixture.mjs';
 import {SAVE_VERSION,validateSave} from '../src/rules.js';
 import {WORLD_REVISION} from '../src/world-config.js';
 import {gatePoint,initializeFort} from '../src/fortification.js';
@@ -12,8 +12,8 @@ test('enemy intimidation cannot surrender a wounded player or disable combat in 
   assert.equal(player.surrendered,false,'the main player never enters the NPC surrender state');
   assert.equal(game.hostile(player,caller),true);assert.equal(game.hostile(caller,player),true);
   const intent=game.thinkFrog(caller,game.allies());assert.equal(intent.kind,'attack');assert.equal(intent.target,player);
-  const playerHp=player.hp;game.updateFrogs(.05);assert.ok(player.hp<playerHp,'the hostile caller still damages the player');
-  game.aimTarget={kind:'actor',entity:caller};const enemyHp=caller.hp;game.primaryAttack();
+  const playerHp=player.hp;game.updateFrogs(.05);assert.equal(player.hp,playerHp,'wind-up does not deal instant damage');advanceCombat(game);assert.ok(player.hp<playerHp,'the hostile caller still damages the player');
+  game.aimTarget={kind:'actor',entity:caller};const enemyHp=caller.hp;game.primaryAttack();advanceCombat(game);
   assert.ok(caller.hp<enemyHp,'the player can still injure the enemy after the roar');
 });
 
@@ -36,7 +36,7 @@ test('loading an affected save repairs only the player surrender flag',()=>{
   const clean=validateSave(source);
   assert.ok(clean);assert.equal(clean.player.surrendered,false);assert.equal(clean.player.hp,24);assert.equal(clean.player.morale,0);
   assert.equal(clean.frogs[0].surrendered,true,'a genuine surrendered enemy stays recruitable');
-  assert.deepEqual(clean.resources,{food:123,reeds:87});assert.equal(source.player.surrendered,true,'validation never mutates the source save');
+  assert.deepEqual(clean.resources,{food:123,reeds:87,pearls:0});assert.equal(source.player.surrendered,true,'validation never mutates the source save');
 });
 
 test('direct player spawn also rejects stale surrender without erasing NPC surrender',()=>{
@@ -58,8 +58,8 @@ test('actual AI and both damage directions remain active with a stale live playe
   player.surrendered=true;game.frogs.push(enemy);enemy.intent={kind:'attack',target:player};
   assert.ok(game.power()>0,'the living player still contributes combat strength');
   assert.equal(game.thinkFrog(enemy,[]).target,player,'existing combat targets remain valid');
-  const playerHp=player.hp;game.updateFrogs(.05);assert.ok(player.hp<playerHp,'the queued NPC attack is not invalidated by the stale flag');
-  game.aimTarget={kind:'actor',entity:enemy};const enemyHp=enemy.hp;game.primaryAttack();assert.ok(enemy.hp<enemyHp);
+  const playerHp=player.hp;game.updateFrogs(.05);assert.equal(player.hp,playerHp,'wind-up does not deal instant damage');advanceCombat(game);assert.ok(player.hp<playerHp,'the queued NPC attack is not invalidated by the stale flag');
+  game.aimTarget={kind:'actor',entity:enemy};const enemyHp=enemy.hp;game.primaryAttack();advanceCombat(game);assert.ok(enemy.hp<enemyHp);
 });
 
 test('the next player update clears an already-corrupt runtime state without resetting progress',()=>{

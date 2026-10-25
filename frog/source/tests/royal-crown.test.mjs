@@ -17,7 +17,7 @@ test('a noble and promoted NPCs never receive a crown from their level or equipm
     assert.equal(crownOf(model), undefined, 'no crown meshes or materials are allocated before coronation');
     model.setCrowned(false); model.setTier(5); model.setRenderLOD(2); model.setRenderLOD(0);
     assert.equal(crownOf(model), undefined);
-    assert.equal(model.group.getObjectByName('crest').visible, true);
+    assert.equal(model.group.getObjectByName('crest').visible, false, 'even promoted nobles need to craft their crest');
   }
   const fish = create({}, 'fish');
   assert.equal(fish.setCrowned(true), false, 'a predator cannot accidentally gain frog regalia');
@@ -73,7 +73,7 @@ test('royal headwear follows the head during running, swimming, roaring, jumping
 });
 
 test('coronation survives detail and tier changes, without conflicting leaf crests or repeated meshes', () => {
-  const model = create({ tier: 3 });
+  const model = create({ tier: 3, equipment: { armor: 'reed', crest: true } });
   const body = model.mesh.geometry;
   model.setCrowned(true);
   const crown = crownOf(model), gold = crown.getObjectByName('royal-crown-gold');
@@ -84,7 +84,7 @@ test('coronation survives detail and tier changes, without conflicting leaf cres
     assert.ok(crown.visible && model.crowned);
     assert.equal(model.group.getObjectByName('crest').visible, false);
     assert.equal(gold.castShadow, lod === 0, 'far crowns do not bring back a distant shadow pass');
-    assert.equal(model.group.getObjectByName('armor').visible, tier >= 2);
+    assert.equal(model.group.getObjectByName('armor').visible, true, 'crafted armor is independent of tier');
   }
   assert.equal(model.mesh.geometry, body, 'full-detail skin is retained after a round trip');
   model.setCrowned(false);

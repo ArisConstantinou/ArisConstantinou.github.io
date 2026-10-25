@@ -50,7 +50,7 @@ test('loading a previous journey preserves its recruited army instead of applyin
   assert.deepEqual(loaded.allies().map(f => [f.id, f.name, f.hp, f.level, f.role]), army.map(f => [f.id, f.name, f.hp, f.level, f.role]));
   assert.equal(loaded.allies().filter(f => f.guard).length, 4);
   assert.equal(loaded.frogs.filter(f => f.team === 'neutral').length, 1, 'loading does not inject the four new-game recruits');
-  assert.deepEqual(loaded.resources, { food: 321, reeds: 123 });
+  assert.deepEqual(loaded.resources, { food: 321, reeds: 123, pearls: 0 });
   assert.equal(loaded.player.crowned, false, 'an old save without earned territories remains noble');
 });
 

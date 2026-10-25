@@ -1,3 +1,4 @@
+import {updateCombatFeedback} from '../src/combat-feedback.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fixture, actor, camp } from './game-fixture.mjs';
@@ -183,7 +184,7 @@ test('reaching an intermediate gate waypoint does not grant a remote attack', ()
   const target = actor({ id: 'far-target', team: 'enemy0', x: -FORT_RADIUS - 12, z: 0 });
   const hunter = actor({ id: 'hunter', team: 'ally', role: 'hunter', ...gatePoint(home, -2.1), brain: 10, attackCD: 0, intent: { kind: 'attack', target } });
   game.frogs.push(hunter, target);
-  game.updateFrogs(.05);
+  game.updateFrogs(.05);updateCombatFeedback(game,.05);
   assert.equal(target.hp, 100, 'waypoint proximity cannot substitute for real attack range');
 });
 
@@ -228,7 +229,7 @@ test('an actual raider exits its own castle, breaches the target gate and takes 
   let elapsed = 0;
   for (; elapsed < 100 && destination.team === 'ally'; elapsed += .05) {
     game.elapsed += .05;
-    game.updateFrogs(.05);
+    game.updateFrogs(.05);updateCombatFeedback(game,.05);
   }
   assert.equal(destination.team, 'enemy0', `raider stuck after ${elapsed.toFixed(1)}s at ${raider.x.toFixed(2)},${raider.z.toFixed(2)}`);
   assert.ok(insideFort(destination, raider), 'the keep must be taken from within the courtyard');
@@ -242,7 +243,7 @@ test('a raider attacks the gate when its nearby player target waits inside the c
   game.frogs.push(raider);
   for (let elapsed = 0; elapsed < 5; elapsed += .05) {
     game.elapsed += .05;
-    game.updateFrogs(.05);
+    game.updateFrogs(.05);updateCombatFeedback(game,.05);
   }
   assert.ok(home.gateHp < 60, 'seeing a target behind the gate must trigger a real siege, not endless replanning');
 });

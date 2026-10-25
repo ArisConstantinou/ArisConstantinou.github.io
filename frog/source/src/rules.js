@@ -3,6 +3,8 @@ import {createCampaign, TRAINING} from './campaign.js';
 import {normalizeBuildingPlacements} from './placement-rules.js';
 import {WORLD_BOUNDARY,WORLD_REVISION} from './world-config.js';
 import {migrateWorldSave} from './save-migration.js';
+import {normalizeEquipment,normalizeRealmEconomySave} from './realm-economy.js';
+import {normalizeRecruitment} from './recruitment.js';
 export const SAVE_VERSION = 1;
 export const SAVE_KEY = 'frog-creek-dominion-v1';
 export const COLORS = {player:0xe4f58c,ally:0x72edbb,enemy:0xff7865,neutral:0xeed585,predator:0xffa54f,surrender:0xffe59b};
@@ -13,14 +15,14 @@ export const PREDATORS = {
   fish:{name:'Ο Κυνηγός του Βυθού',hp:540,speed:5.7,damage:35,reach:3.6,windup:1.5,recover:2,grab:3.5,scale:1.2}
 };
 export const BUILDINGS = {
-  shelter:{name:'Νέο οχυρό',description:'Κάστρο με κλειστό περίβολο, πύλη, πύργους και αυλή για κτίρια. Οι εχθροί πρέπει να σπάσουν την πύλη.',cost:{food:12,reeds:30}},
-  store:{name:'Αποθήκη',description:'Περισσότερη ασφαλής τροφή και καλύτερη συλλογή πόρων.',cost:{food:10,reeds:20}},
-  nursery:{name:'Φωλιά στρατολόγησης',description:'Νέος βάτραχος κάθε 85″ με 10 τροφή / 6 υλικά, χωρίς όριο πληθυσμού. Οι αναβαθμίσεις μειώνουν τον χρόνο σε 70″ / 55″. Χρειάζεται ασφαλή βάση.',cost:{food:22,reeds:28}},
-  training:{name:'Χώρος εκπαίδευσης',description:'Εκπαιδεύει κάθε σύμμαχο μία φορά: 8 τροφή / 4 υλικά και 18″ για επίπεδο και βαθμίδα II.',cost:{food:18,reeds:24}},
-  watchtower:{name:'Σκοπιά',description:'Ανάθεσε φρουρούς από την Άμυνα. Προτεινόμενη φρουρά 4 βατράχων, εντοπισμός στα 36μ και 18% λιγότερη ζημιά στους φρουρούς μέσα στην περιοχή.',cost:{food:12,reeds:24}},
-  palisade:{name:'Οχυρά τείχη',description:'Ενισχύει ολόκληρο τον περίβολο του κάστρου: +180 αντοχή βάσης, +140 αντοχή πύλης και λιγότερη ζημιά από πολιορκία.',cost:{food:8,reeds:30}},
-  upgrade:{name:'Αναβάθμιση βάσης',description:'Επόμενη βαθμίδα, +150 αντοχή και ταχύτερες ενισχύσεις από τη φωλιά. Οι βάσεις χρειάζονται φρουρούς για να κρατήσουν τις περιοχές τους.',cost:{food:30,reeds:40}},
-  repair:{name:'Επισκευή',description:'Επισκευάζει 150 αντοχή του κάστρου και 120 αντοχή της πύλης.',cost:{food:3,reeds:12}}
+  shelter:{name:'Νέο οχυρό',description:'40″ εργασίας από έναν παρόντα βάτραχο. Ευάλωτο εργοτάξιο που γίνεται κλειστό κάστρο με πύλη, πύργους και 3 θέσεις κτιρίων. Φέρε βοηθούς και φύλαξέ το.',cost:{food:12,reeds:30}},
+  store:{name:'Αποθήκη',description:'24″ εργασίας και μία θέση. Αυξάνει την αυτόματη παραγωγή τροφής για τη συντήρηση του στρατού, όσο το κάστρο είναι ασφαλές.',cost:{food:10,reeds:20}},
+  nursery:{name:'Φωλιά στρατολόγησης',description:'36″ εργασίας και μία θέση. Νέος βάτραχος κάθε 85″ με 10 τροφή / 6 υλικά, χωρίς όριο πληθυσμού. Βαθμίδες II / III: 70″ / 55″. Χρειάζεται ασφαλή βάση και συνεχή τροφοδοσία.',cost:{food:22,reeds:28}},
+  training:{name:'Χώρος εκπαίδευσης',description:'32″ εργασίας και μία θέση. Μία εκπαίδευση ανά σύμμαχο: 8 τροφή / 4 υλικά και 18″ για επίπεδο και βαθμίδα II. Ο ορατός εξοπλισμός κατασκευάζεται χωριστά εδώ με πόρους και χρόνο.',cost:{food:18,reeds:24}},
+  watchtower:{name:'Σκοπιά',description:'28″ εργασίας και μία θέση. Ανάθεσε φρουρούς από την Άμυνα: προτεινόμενη φρουρά 4 βατράχων, εντοπισμός στα 36μ και 18% λιγότερη ζημιά στους φρουρούς μέσα στην περιοχή.',cost:{food:12,reeds:24}},
+  palisade:{name:'Οχυρά τείχη',description:'30″ εργασίας και μία θέση. Ενισχύει όλο τον περίβολο: +180 αντοχή κάστρου, +140 αντοχή πύλης και λιγότερη ζημιά πολιορκίας.',cost:{food:8,reeds:30}},
+  upgrade:{name:'Αναβάθμιση βάσης',description:'48″ εργασίας: επόμενη βαθμίδα, +150 αντοχή και ταχύτερες ενισχύσεις. Η βαθμίδα II ανοίγει την τέταρτη θέση. Κάθε κάστρο επιλέγει ειδίκευση Άμυνας, Παραγωγής ή Εκπαίδευσης.',cost:{food:30,reeds:40}},
+  repair:{name:'Επισκευή',description:'12″ προστατευμένης εργασίας για 150 αντοχή κάστρου και 120 αντοχή πύλης. Δεν δίνει εμπειρία· σταματά όσο η βάση απειλείται.',cost:{food:3,reeds:12}}
 };
 export function clamp(v,a,b){return Math.min(b,Math.max(a,Number.isFinite(v)?v:a));}
 export function canAfford(resources,cost){return Object.entries(cost).every(([k,v])=>(resources[k]||0)>=v);}
@@ -59,27 +61,123 @@ export function dayState(elapsed){
   const hours=Math.floor(phase*24),minutes=Math.floor((phase*24-hours)*60);
   return {phase,daylight,night:daylight<.2,day:Math.floor((elapsed+225)/600)+1,timeLabel:`${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`};
 }
-export function validateSave(data){
-  if(!data||data.version!==SAVE_VERSION||!data.player||typeof data.player!=='object'||!Array.isArray(data.frogs)||!Array.isArray(data.camps))return null;
-  if(!Number.isFinite(data.player.x)||!Number.isFinite(data.player.z)||!Number.isFinite(data.player.hp))return null;
-  const copy=migrateWorldSave(JSON.parse(JSON.stringify(data)));copy.elapsed=clamp(copy.elapsed||0,0,1e8);copy.worldRevision=WORLD_REVISION;
-  copy.resources={food:clamp(copy.resources?.food||0,0,1e6),reeds:clamp(copy.resources?.reeds||0,0,1e6)};
-  const validTeam=t=>typeof t==='string'&&/^(player|ally|neutral|enemy\d*)$/.test(t);
-  const orders=['follow','attack','guard','forage','regroup','training'];
-  const actor=f=>({...f,name:typeof f.name==='string'?f.name.slice(0,60):'Βάτραχος',role:Object.hasOwn(ROLE_NAMES,f.role)?f.role:'hunter',x:clamp(f.x,-WORLD_BOUNDARY,WORLD_BOUNDARY),z:clamp(f.z,-WORLD_BOUNDARY,WORLD_BOUNDARY),yaw:Number.isFinite(f.yaw)?f.yaw:0,maxHp:clamp(f.maxHp||100,25,10000),hp:clamp(f.hp,1,clamp(f.maxHp||100,25,10000)),stomach:clamp(f.stomach||0,0,100),maxStomach:100,level:Math.floor(clamp(f.level||1,1,99)),tier:Math.floor(clamp(f.tier||1,1,3)),xp:clamp(f.xp||0,0,1e6),morale:clamp(f.morale??100,0,100),home:typeof f.home==='string'?f.home:null,guard:!!f.guard,leader:!!f.leader,surrendered:isSurrendered(f),crowned:f.team==='player'&&f.crowned===true,order:orders.includes(f.order)?f.order:(f.guard?'guard':'follow'),trained:!!f.trained,trainingPaid:!!f.trainingPaid&&!f.trained,trainingProgress:clamp(f.trainingProgress||0,0,TRAINING.duration),trainingCamp:typeof f.trainingCamp==='string'?f.trainingCamp:null,returnOrder:f.returnOrder==='guard'?'guard':'follow',raidTarget:typeof f.raidTarget==='string'?f.raidTarget:null,loot:clamp(f.loot||0,0,1000),surrenderTimer:clamp(f.surrenderTimer??90,0,1000),persuadeCD:clamp(f.persuadeCD||0,0,copy.elapsed+60)});
-  copy.player=actor({...copy.player,team:'player',id:'player'});
-  copy.frogs=copy.frogs.filter(f=>f&&typeof f==='object'&&typeof f.id==='string'&&Number.isFinite(f.x)&&Number.isFinite(f.z)&&f.hp>0&&validTeam(f.team)&&f.team!=='player').map(actor);
-  copy.camps=copy.camps.filter(c=>c&&typeof c==='object'&&typeof c.id==='string'&&Number.isFinite(c.x)&&Number.isFinite(c.z)&&validTeam(c.team)).map(c=>({...c,name:typeof c.name==='string'?c.name.slice(0,80):'Καταφύγιο',x:clamp(c.x,-WORLD_BOUNDARY,WORLD_BOUNDARY),z:clamp(c.z,-WORLD_BOUNDARY,WORLD_BOUNDARY),yaw:Number.isFinite(c.yaw)?Math.atan2(Math.sin(c.yaw),Math.cos(c.yaw)):0,tier:Math.floor(clamp(c.tier||1,1,3)),maxHp:clamp(c.maxHp||350,100,10000),gateHp:Number.isFinite(c.gateHp)?clamp(c.gateHp,0,10000):undefined,hp:clamp(c.hp??350,0,clamp(c.maxHp||350,100,10000)),stock:{food:clamp(c.stock?.food||0,0,1e6),reeds:clamp(c.stock?.reeds||0,0,1e6)},buildings:Object.fromEntries(['store','nursery','training','watchtower','palisade'].map(k=>[k,!!c.buildings?.[k]])),morale:clamp(c.morale??100,0,100),destroyed:!!c.destroyed,originalEnemy:!!c.originalEnemy,originalTeam:typeof c.originalTeam==='string'&&/^enemy\d+$/.test(c.originalTeam)?c.originalTeam:null,rivalIndex:Math.floor(clamp(c.rivalIndex??Number((c.team.match(/enemy(\d+)/)||[])[1])??0,0,4)),capturedOnce:!!c.capturedOnce,destroyRewarded:!!c.destroyRewarded,rebuildTimer:clamp(c.rebuildTimer||0,0,300),persuadeCD:clamp(c.persuadeCD||0,0,copy.elapsed+60),supplyMigrated:!!c.supplyMigrated,spawnTimer:clamp(c.spawnTimer||0,0,10000),mealCount:clamp(c.mealCount||0,0,2),mealDay:clamp(c.mealDay||0,0,1e6)}));
-  for(const camp of copy.camps){
-    camp.buildingPlacements=normalizeBuildingPlacements(camp);
-    if(camp.team==='ally'&&!camp.buildings.nursery)camp.spawnTimer=0;
-  }
-  copy.campaign=copy.campaign&&typeof copy.campaign==='object'?createCampaign(copy.campaign):null;
-  copy.stats={...(copy.stats&&typeof copy.stats==='object'?copy.stats:{})};
-  for(const key of ['trained','gatheredFood','gatheredReeds'])copy.stats[key]=clamp(copy.stats[key]||0,0,1e8);
-  copy.nextRaid=clamp(copy.nextRaid??(copy.elapsed+90),copy.elapsed,copy.elapsed+300);copy.graceUntil=clamp(copy.graceUntil??copy.elapsed,0,copy.elapsed+90);
-  copy.idCounter=Math.floor(clamp(copy.idCounter||0,0,1e8));copy.won=!!copy.won;
+const record=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
+const stringId=value=>typeof value==='string'&&value.length?value:null;
+const finitePoint=value=>record(value)&&Number.isFinite(value.x)&&Number.isFinite(value.z);
+const savedPoint=value=>({x:clamp(value.x,-WORLD_BOUNDARY,WORLD_BOUNDARY),z:clamp(value.z,-WORLD_BOUNDARY,WORLD_BOUNDARY)});
+const savedYaw=value=>Number.isFinite(value)?Math.atan2(Math.sin(value),Math.cos(value)):0;
+const savedCounter=value=>Math.floor(clamp(value??0,0,Number.MAX_SAFE_INTEGER));
+const savedStrings=value=>[...new Set((Array.isArray(value)?value:[]).filter(v=>stringId(v)))];
+const validTeam=t=>typeof t==='string'&&/^(player|ally|neutral|enemy\d*)$/.test(t);
+const savedOrders=['follow','attack','guard','forage','regroup','training','flank'];
+
+/** JSON data can contain accidental cycles in IndexedDB. Strip nested realm
+ * ledgers before cloning, so a region never recursively contains the kingdom. */
+function cloneSaveData(data){
+  const ancestors=[];
+  try{return JSON.parse(JSON.stringify(data,function(key,value){
+    if(['__proto__','prototype','constructor'].includes(key)||(key==='realms'&&this!==data)||typeof value==='bigint')return undefined;
+    if(value&&typeof value==='object'){
+      while(ancestors.length&&ancestors.at(-1)!==this)ancestors.pop();
+      if(ancestors.includes(value))return undefined;
+      ancestors.push(value);
+    }
+    return value;
+  }));}catch{return null;}
+}
+
+function savedActor(f,elapsed){
+  const actor={...f,name:typeof f.name==='string'?f.name.slice(0,60):'Βάτραχος',role:Object.hasOwn(ROLE_NAMES,f.role)?f.role:'hunter',...savedPoint(f),yaw:savedYaw(f.yaw),maxHp:clamp(f.maxHp||100,25,10000),hp:clamp(f.hp,1,clamp(f.maxHp||100,25,10000)),stomach:clamp(f.stomach||0,0,100),maxStomach:100,level:Math.floor(clamp(f.level||1,1,99)),tier:Math.floor(clamp(f.tier||1,1,3)),xp:clamp(f.xp||0,0,1e6),morale:clamp(f.morale??100,0,100),home:stringId(f.home),guard:!!f.guard,leader:!!f.leader,surrendered:f.team!=='player'&&f.surrendered===true,crowned:f.team==='player'&&f.crowned===true,order:savedOrders.includes(f.order)?f.order:(f.guard?'guard':'follow'),trained:!!f.trained,trainingPaid:!!f.trainingPaid&&!f.trained,trainingProgress:clamp(f.trainingProgress||0,0,TRAINING.duration),trainingCamp:stringId(f.trainingCamp),returnOrder:f.returnOrder==='guard'?'guard':'follow',raidTarget:stringId(f.raidTarget),loot:clamp(f.loot||0,0,1000),surrenderTimer:clamp(f.surrenderTimer??90,0,1000),persuadeCD:clamp(f.persuadeCD||0,0,elapsed+60),firstRecruit:f.firstRecruit===true,recruitXpAwarded:f.recruitXpAwarded===true,tacticalPath:(Array.isArray(f.tacticalPath)?f.tacticalPath:[]).filter(finitePoint).map(savedPoint),tacticalTargetId:stringId(f.tacticalTargetId)};
+  // Missing gear is a legacy marker. Only the one-time economy migration may
+  // turn old tier visuals into owned equipment; validation never invents gear.
+  if(f.equipment===undefined)delete actor.equipment;else actor.equipment=normalizeEquipment(record(f.equipment)?f.equipment:{});
+  const contract=record(f.recruitment)?f.recruitment:null,quest=record(contract?.quest)?contract.quest:{};
+  const terms=contract?normalizeRecruitment({...contract,requirements:Array.isArray(contract.requirements)?contract.requirements.filter(id=>typeof id==='string'):[],quest:{...quest,accepted:quest.accepted===true}}):null;
+  actor.recruitment=terms?.requirements.length?terms:null;
+  if(actor.order==='flank'&&!actor.tacticalTargetId){actor.order='follow';actor.tacticalPath=[];}
+  for(const key of ['dead','grabbedBy','combatImpulse','orderTarget','combatTarget','intent','model'])delete actor[key];
+  return actor;
+}
+
+function savedCamp(c,elapsed){
+  const camp={...c,name:typeof c.name==='string'?c.name.slice(0,80):'Καταφύγιο',...savedPoint(c),yaw:savedYaw(c.yaw),tier:Math.floor(clamp(c.tier||1,1,3)),maxHp:clamp(c.maxHp||350,100,10000),gateHp:Number.isFinite(c.gateHp)?clamp(c.gateHp,0,10000):undefined,hp:clamp(c.hp??350,0,clamp(c.maxHp||350,100,10000)),stock:{food:clamp(c.stock?.food||0,0,1e6),reeds:clamp(c.stock?.reeds||0,0,1e6)},buildings:Object.fromEntries(['store','nursery','training','watchtower','palisade'].map(k=>[k,!!c.buildings?.[k]])),morale:clamp(c.morale??100,0,100),destroyed:!!c.destroyed,originalEnemy:!!c.originalEnemy,originalTeam:typeof c.originalTeam==='string'&&/^enemy\d+$/.test(c.originalTeam)?c.originalTeam:null,rivalIndex:Math.floor(clamp(c.rivalIndex??Number((c.team.match(/enemy(\d+)/)||[])[1])??0,0,4)),capturedOnce:!!c.capturedOnce,destroyRewarded:!!c.destroyRewarded,lootTaken:!!c.lootTaken,rebuildTimer:clamp(c.rebuildTimer||0,0,300),persuadeCD:clamp(c.persuadeCD||0,0,elapsed+60),supplyMigrated:!!c.supplyMigrated,spawnTimer:clamp(c.spawnTimer||0,0,10000),mealCount:clamp(c.mealCount||0,0,2),mealDay:clamp(c.mealDay||0,0,1e6),specialization:['production','defense','training'].includes(c.specialization)?c.specialization:null,legacySlots:Math.floor(clamp(c.legacySlots??0,0,5)),underConstruction:c.underConstruction===true,constructionProgress:clamp(c.constructionProgress??(c.underConstruction?0:1),0,1)};
+  camp.buildingPlacements=normalizeBuildingPlacements(camp);
+  if(camp.team==='ally'&&(!camp.buildings.nursery||camp.underConstruction))camp.spawnTimer=0;
+  delete camp.mesh;delete camp.safe;
+  return camp;
+}
+
+function savedPredators(rows){
+  if(!Array.isArray(rows))return [];
+  const phases=['patrol','stalk','windup','lunge','grab','recover','flee','dormant','dead','raid'];
+  return rows.filter(p=>record(p)&&Object.hasOwn(PREDATORS,p.type)&&finitePoint(p)).map((p,index)=>{
+    const defaults=PREDATORS[p.type],maximum=clamp(p.maxHp??defaults.hp,1,1e7),hp=clamp(p.hp??maximum,0,maximum),dead=p.dead===true||hp===0||p.phase==='dead';
+    const predator={...p,id:stringId(p.id)||`saved-${p.type}-${index}`,type:p.type,team:'predator',name:typeof p.name==='string'?p.name.slice(0,80):defaults.name,...savedPoint(p),yaw:savedYaw(p.yaw),hp:dead?0:hp,maxHp:maximum,dead,phase:dead?'dead':phases.includes(p.phase)?p.phase:'patrol',anchor:finitePoint(p.anchor)?savedPoint(p.anchor):savedPoint(p),scale:clamp(p.scale??defaults.scale,.2,12),damage:clamp(p.damage??defaults.damage,0,10000),reach:clamp(p.reach??defaults.reach,.1,60),baseSpeed:clamp(p.baseSpeed??p.speed??defaults.speed,0,80),speed:clamp(p.speed??0,0,80),windup:clamp(p.windup??defaults.windup,.05,30),recover:clamp(p.recover??defaults.recover,.05,30),baseWindup:clamp(p.baseWindup??p.windup??defaults.windup,.05,30),baseRecover:clamp(p.baseRecover??p.recover??defaults.recover,.05,30),eventRole:['guardian','roam','raid'].includes(p.eventRole)?p.eventRole:null,eventSequence:savedCounter(p.eventSequence),realmIndex:savedCounter(p.realmIndex),raidCampId:stringId(p.raidCampId),territoryRadius:clamp(p.territoryRadius??26,1,WORLD_BOUNDARY*2),burstCount:Math.floor(clamp(p.burstCount??1,1,5))};
+    for(const key of ['boss','realmEvent','campaignTracked','killAwarded','repelAwarded','defeatNotified','rewardGranted','campaignKillRecorded','guardianReward'])predator[key]=p[key]===true;
+    for(const key of ['cooldown','grace','phaseTime','playerDamage','provokedUntil','eventDefeatedAt'])predator[key]=clamp(p[key]??0,0,Number.MAX_SAFE_INTEGER);
+    predator.lastCombatAt=clamp(p.lastCombatAt??-100,-100,Number.MAX_SAFE_INTEGER);
+    if(Number.isFinite(p.strikeRadius))predator.strikeRadius=clamp(p.strikeRadius,.1,60);else delete predator.strikeRadius;
+    predator.respawnAt=Number.isFinite(p.respawnAt)?clamp(p.respawnAt,0,Number.MAX_SAFE_INTEGER):null;
+    for(const key of ['model','grabbed','target','targetId','_aiReady','combatImpulse'])delete predator[key];
+    return predator;
+  });
+}
+
+function savedRealmEvents(value,elapsed){
+  const source=record(value)?value:{};
+  return {sequence:savedCounter(source.sequence),nextGuardianAt:clamp(source.nextGuardianAt??elapsed+150,0,Number.MAX_SAFE_INTEGER),nextRoamAt:clamp(source.nextRoamAt??elapsed+300,0,Number.MAX_SAFE_INTEGER),nextRaidAt:clamp(source.nextRaidAt??elapsed+720,0,Number.MAX_SAFE_INTEGER),recentDefeats:savedStrings(source.recentDefeats),kills:savedCounter(source.kills),bossKills:savedCounter(source.bossKills)};
+}
+
+/** Shared local validation, with no unit/camp/job count ceiling. */
+function normalizeLocalSave(copy,{player=false}={}){
+  migrateWorldSave(copy);copy.elapsed=clamp(copy.elapsed||0,0,1e8);copy.worldRevision=WORLD_REVISION;
+  if(player)copy.player=savedActor({...copy.player,team:'player',id:'player'},copy.elapsed);
+  copy.frogs=copy.frogs.filter(f=>record(f)&&stringId(f.id)&&finitePoint(f)&&Number.isFinite(f.hp)&&f.hp>0&&f.dead!==true&&validTeam(f.team)&&f.team!=='player').map(f=>savedActor(f,copy.elapsed));
+  copy.camps=copy.camps.filter(c=>record(c)&&stringId(c.id)&&finitePoint(c)&&validTeam(c.team)).map(c=>savedCamp(c,copy.elapsed));
+  if(copy.predators!==undefined)copy.predators=savedPredators(copy.predators);
+  const economy=record(copy.economy)?copy.economy:record(copy.realmEconomy)?copy.realmEconomy:null;
+  if(economy)copy.economy=normalizeRealmEconomySave(economy);else delete copy.economy;
+  delete copy.realmEconomy;
+  copy.hotspots=(Array.isArray(copy.hotspots)?copy.hotspots:[]).filter(h=>record(h)&&stringId(h.id)).map(h=>({id:h.id,flies:clamp(h.flies??0,0,1e6)}));
+  if(copy.realmEvents!==undefined)copy.realmEvents=savedRealmEvents(copy.realmEvents,copy.elapsed);
+  copy.nextRaid=clamp(copy.nextRaid??copy.elapsed+90,copy.elapsed,copy.elapsed+300);copy.graceUntil=clamp(copy.graceUntil??copy.elapsed,0,copy.elapsed+90);
+  copy.idCounter=savedCounter(copy.idCounter);copy.pendingRivalRecoveryCampId=stringId(copy.pendingRivalRecoveryCampId);
   return copy;
+}
+
+function savedRealmState(value,worldRevision,elapsed){
+  if(!record(value))return null;
+  const regions={},active=savedCounter(value.active);
+  for(const [key,row] of Object.entries(record(value.regions)?value.regions:{})){
+    const index=Number(key);if(!/^\d+$/.test(key)||!Number.isSafeInteger(index)||!record(row))continue;
+    let snapshot=null;
+    if(record(row.snapshot)&&Array.isArray(row.snapshot.frogs)&&Array.isArray(row.snapshot.camps)){
+      snapshot=row.snapshot;
+      for(const global of ['player','resources','realms','stats','won','settings','pendingRespawn'])delete snapshot[global];
+      snapshot.worldRevision??=worldRevision;snapshot.elapsed??=row.lastActiveAt??elapsed;
+      snapshot=normalizeLocalSave(snapshot);
+    }
+    regions[index]={index,name:typeof row.name==='string'?row.name.slice(0,120):'',seed:savedCounter(row.seed),level:Math.max(1,savedCounter(row.level)),biome:['creek','mist','autumn','roots'].includes(row.biome)?row.biome:'creek',visitedAt:clamp(row.visitedAt??0,0,Number.MAX_SAFE_INTEGER),lastActiveAt:clamp(row.lastActiveAt??0,0,Number.MAX_SAFE_INTEGER),snapshot};
+  }
+  const unlocked=[...new Set([0,active,...Object.keys(regions).map(Number),...(Array.isArray(value.unlocked)?value.unlocked.filter(v=>Number.isSafeInteger(v)&&v>=0):[])])].sort((a,b)=>a-b);
+  return {version:1,active,unlocked,regions,events:savedRealmEvents(value.events,elapsed),backgroundAccumulator:clamp(value.backgroundAccumulator??0,0,.999)};
+}
+
+export function validateSave(data){
+  if(!record(data)||data.version!==SAVE_VERSION||!record(data.player)||!Array.isArray(data.frogs)||!Array.isArray(data.camps))return null;
+  if(!Number.isFinite(data.player.x)||!Number.isFinite(data.player.z)||!Number.isFinite(data.player.hp))return null;
+  const copy=cloneSaveData(data);if(!copy)return null;
+  const originalRevision=copy.worldRevision??1,pendingRespawn=copy.pendingRespawn===true||copy.player.dead===true||copy.player.hp<=0;
+  normalizeLocalSave(copy,{player:true});
+  copy.resources={food:clamp(copy.resources?.food||0,0,1e6),reeds:clamp(copy.resources?.reeds||0,0,1e6),pearls:clamp(copy.resources?.pearls||0,0,1e6)};
+  copy.pendingRespawn=pendingRespawn;copy.savedAt=savedCounter(copy.savedAt);
+  copy.campaign=record(copy.campaign)?createCampaign(copy.campaign):null;
+  copy.stats={...(record(copy.stats)?copy.stats:{})};
+  for(const key of ['trained','gatheredFood','gatheredReeds','kills','losses','recruited','campsBuilt','campsCaptured','flies','raidsDefended','predatorsKilled','predatorsRepelled','pearlsFound','crafted','constructionCompleted'])copy.stats[key]=clamp(copy.stats[key]||0,0,Number.MAX_SAFE_INTEGER);
+  if(copy.realms!==undefined)copy.realms=savedRealmState(copy.realms,originalRevision,copy.elapsed);
+  if(copy.guide!==undefined){const guide=record(copy.guide)?copy.guide:{};copy.guide={version:1,seen:savedStrings(guide.seen),hinted:savedStrings(guide.hinted),distance:clamp(guide.distance??0,0,Number.MAX_SAFE_INTEGER),groupsSaved:savedCounter(guide.groupsSaved),tutorialDismissed:guide.tutorialDismissed===true};}
+  if(copy.tacticalGroups!==undefined)copy.tacticalGroups=(Array.isArray(copy.tacticalGroups)?copy.tacticalGroups:[]).filter(g=>record(g)&&['1','2','3'].includes(String(g.id))).map(g=>({id:String(g.id),ids:savedStrings(g.ids)}));
+  copy.won=!!copy.won;return copy;
 }
 export function mulberry32(seed){return()=>{let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
 

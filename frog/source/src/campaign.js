@@ -1,6 +1,6 @@
 /** Mandatory campaign and training rules; independent of rendering and input. */
-export const CAMPAIGN_VERSION = 1;
-export const CAMPAIGN_PHASES = ['settlement', 'hunters', 'preparation', 'bosses', 'complete'];
+export const CAMPAIGN_VERSION = 2;
+export const CAMPAIGN_PHASES = ['settlement', 'hunters', 'preparation', 'bosses', 'complete', 'frontier'];
 export const HUNTER_TYPES = ['heron', 'snake', 'fish'];
 export const TRAINING = Object.freeze({ cost: Object.freeze({ food: 8, reeds: 4 }), duration: 18 });
 
@@ -13,9 +13,14 @@ const allyCamp = camp => !!camp && camp.team === 'ally' && !camp.destroyed && fi
 
 function normalizedState(value = {}) {
   const source = value && typeof value === 'object' ? value : {};
+  const endless = source.endless === true;
+  const sourcePhase = CAMPAIGN_PHASES.includes(source.phase) ? source.phase : 'settlement';
   return {
     version: CAMPAIGN_VERSION,
-    phase: CAMPAIGN_PHASES.includes(source.phase) ? source.phase : 'settlement',
+    endless,
+    phase: endless && sourcePhase !== 'settlement' ? 'frontier' : sourcePhase,
+    round: Math.max(0, Math.floor(count(source.round))),
+    baseline: { campsBuilt: count(source.baseline?.campsBuilt), recruited: count(source.baseline?.recruited), crafted: count(source.baseline?.crafted) },
     defeated: uniqueTypes(source.defeated),
     bossDefeated: uniqueTypes(source.bossDefeated),
     resourceTotals: { food: count(source.resourceTotals?.food), reeds: count(source.resourceTotals?.reeds) },
@@ -30,13 +35,30 @@ function metricValues(metrics = {}) {
     gatheredFood: count(metrics.gatheredFood), gatheredReeds: count(metrics.gatheredReeds),
     shelters: count(metrics.shelters), buildings,
     buildingCount: Object.values(buildings).reduce((sum, n) => sum + n, 0),
-    allies: count(metrics.allies), trained: count(metrics.trained), territories: count(metrics.territories)
+    allies: count(metrics.allies), trained: count(metrics.trained), territories: count(metrics.territories),
+    realmsVisited: Math.max(1, count(metrics.realmsVisited)), campsBuilt: count(metrics.campsBuilt),
+    recruited: count(metrics.recruited), crafted: count(metrics.crafted), guards: count(metrics.guards)
   };
 }
 
 function objectiveDefinitions(state, metrics, phase = state.phase) {
   const m = metricValues(metrics), food = Math.max(state.resourceTotals.food, m.gatheredFood), reeds = Math.max(state.resourceTotals.reeds, m.gatheredReeds);
   const goal = (id, icon, current, target, label, extra = {}) => ({ id, icon, current, target, label, phase, ...extra });
+  if (state.endless && phase === 'settlement') return [
+    goal('gather-food', 'food', food, 12, 'Μάζεψε 12 τροφή από μύγες'),
+    goal('gather-reeds', 'reeds', reeds, 20, 'Μάζεψε 20 υλικά από τις όχθες'),
+    goal('build-shelter', 'shelter', m.shelters, 1, 'Ολοκλήρωσε το πρώτο ασφαλές κάστρο'),
+    goal('recruit-allies', 'recruit', m.allies, 2, 'Κέρδισε την εμπιστοσύνη δύο συμμάχων')
+  ];
+  if (state.endless && phase === 'frontier') {
+    const round=state.round, prefix=`frontier-${round}-`;
+    return [
+      goal(prefix+'explore','map',m.realmsVisited,round+2,'Άνοιξε την επόμενη λίμνη'),
+      goal(prefix+'build','shelter',Math.max(0,m.campsBuilt-state.baseline.campsBuilt),1,'Ολοκλήρωσε ένα νέο κάστρο'),
+      goal(prefix+'recruit','recruit',Math.max(0,m.recruited-state.baseline.recruited),Math.min(30,6+round*2),'Στρατολόγησε νέους συντρόφους'),
+      goal(prefix+'craft','training',Math.max(0,m.crafted-state.baseline.crafted),Math.min(8,2+round),'Κατασκεύασε εξοπλισμό για το βασίλειο')
+    ];
+  }
   if (phase === 'settlement') return [
     goal('gather-food', 'food', food, 30, 'Συγκέντρωσε 30 τροφή'),
     goal('gather-reeds', 'reeds', reeds, 45, 'Συγκέντρωσε 45 υλικά'),
@@ -79,15 +101,31 @@ export function advanceCampaign(value, metrics = {}) {
     const objectives = campaignObjectives(state, m);
     state.achieved=state.achieved.filter(id=>id!=='territories');
     for (const objective of objectives) if (objective.id!=='territories'&&objective.done&&!state.achieved.includes(objective.id)) state.achieved.push(objective.id);
-    if (state.phase === 'complete' || !objectives.length || !objectives.every(objective => objective.done)) break;
+    if (!objectives.length || !objectives.every(objective => objective.done)) break;
+    if (state.endless) {
+      const from=state.phase;
+      if (from==='settlement') {
+        state.phase='frontier';
+        state.baseline={campsBuilt:m.campsBuilt,recruited:m.recruited,crafted:m.crafted};
+        transitions.push({from,to:'frontier',round:0});
+      } else {
+        state.round++;
+        state.baseline={campsBuilt:m.campsBuilt,recruited:m.recruited,crafted:m.crafted};
+        // Retain introductory achievements, not an unbounded list of repeated contracts.
+        state.achieved=state.achieved.filter(id=>!id.startsWith('frontier-'));
+        transitions.push({from:'frontier',to:'frontier',round:state.round});
+      }
+      break;
+    }
+    if (state.phase === 'complete') break;
     const from = state.phase, to = CAMPAIGN_PHASES[CAMPAIGN_PHASES.indexOf(from) + 1];
     state.phase = to; transitions.push({ from, to });
   }
   return { state, transitions };
 }
 
-export function createCampaign(savedCampaign = null, metrics = {}, { legacy = false } = {}) {
-  const state = normalizedState(savedCampaign);
+export function createCampaign(savedCampaign = null, metrics = {}, { legacy = false, endless = savedCampaign?.endless === true } = {}) {
+  const state = normalizedState({...savedCampaign,endless});
   state.legacy = state.legacy || legacy;
   return advanceCampaign(state, metrics).state;
 }
@@ -102,6 +140,7 @@ export function recordGathering(value, food = 0, reeds = 0) {
 
 export function nextBossType(value) {
   const state = normalizedState(value);
+  if (state.endless) return null;
   return state.phase === 'bosses' ? HUNTER_TYPES.find(type => !state.bossDefeated.includes(type)) ?? null : null;
 }
 
@@ -109,6 +148,11 @@ export function nextBossType(value) {
 export function recordCampaignKill(value, type, { boss = false } = {}) {
   const state = normalizedState(value);
   if (!HUNTER_TYPES.includes(type)) return state;
+  if (state.endless) {
+    const key=boss?'bossDefeated':'defeated';
+    if(!state[key].includes(type))state[key].push(type);
+    return state;
+  }
   if (boss) {
     if (state.phase !== 'bosses' || nextBossType(state) !== type) return state;
     if (!state.bossDefeated.includes(type)) state.bossDefeated.push(type);

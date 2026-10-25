@@ -1,0 +1,134 @@
+{
+  "kind": "CPU microbenchmark, not FPS",
+  "node": "v24.22.1",
+  "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+  "platform": "linux",
+  "architecture": "x64",
+  "dt": 0.016666666666666666,
+  "included": "contact rules, 5 real fort LOS checks, recoil and fixed VFX pools; queue mode measures all strike submissions",
+  "excluded": "renderer/WebGL, model posing, AI, audio synthesis, save preparation",
+  "results": [
+    {
+      "combatants": 200,
+      "mode": "idle",
+      "samples": 160,
+      "medianMs": 0.009,
+      "p95Ms": 0.014,
+      "meanMs": 0.018,
+      "sceneMeshes": 4,
+      "particleCounts": {
+        "leaf": 0,
+        "mud": 0,
+        "drop": 0,
+        "flash": 0
+      }
+    },
+    {
+      "combatants": 200,
+      "mode": "pending",
+      "samples": 160,
+      "medianMs": 0.0115,
+      "p95Ms": 0.1166,
+      "meanMs": 0.028,
+      "sceneMeshes": 4,
+      "particleCounts": {
+        "leaf": 0,
+        "mud": 0,
+        "drop": 0,
+        "flash": 0
+      }
+    },
+    {
+      "combatants": 200,
+      "mode": "contact",
+      "samples": 160,
+      "medianMs": 0.4677,
+      "p95Ms": 0.9601,
+      "meanMs": 0.5416,
+      "confirmedHits": 200,
+      "sceneMeshes": 4,
+      "particleCounts": {
+        "leaf": 21,
+        "mud": 0,
+        "drop": 52,
+        "flash": 2
+      }
+    },
+    {
+      "combatants": 200,
+      "mode": "queue",
+      "samples": 160,
+      "medianMs": 0.1792,
+      "p95Ms": 0.351,
+      "meanMs": 0.1636,
+      "sceneMeshes": 4,
+      "particleCounts": {
+        "leaf": 0,
+        "mud": 0,
+        "drop": 0,
+        "flash": 0
+      }
+    },
+    {
+      "combatants": 1000,
+      "mode": "idle",
+      "samples": 160,
+      "medianMs": 0.0189,
+      "p95Ms": 0.0673,
+      "meanMs": 0.0317,
+      "sceneMeshes": 4,
+      "particleCounts": {
+        "leaf": 0,
+        "mud": 0,
+        "drop": 0,
+        "flash": 0
+      }
+    },
+    {
+      "combatants": 1000,
+      "mode": "pending",
+      "samples": 160,
+      "medianMs": 0.0375,
+      "p95Ms": 0.1647,
+      "meanMs": 0.0615,
+      "sceneMeshes": 4,
+      "particleCounts": {
+        "leaf": 0,
+        "mud": 0,
+        "drop": 0,
+        "flash": 0
+      }
+    },
+    {
+      "combatants": 1000,
+      "mode": "contact",
+      "samples": 160,
+      "medianMs": 1.9341,
+      "p95Ms": 3.0321,
+      "meanMs": 2.123,
+      "confirmedHits": 1000,
+      "sceneMeshes": 4,
+      "particleCounts": {
+        "leaf": 20,
+        "mud": 0,
+        "drop": 52,
+        "flash": 2
+      }
+    },
+    {
+      "combatants": 1000,
+      "mode": "queue",
+      "samples": 160,
+      "medianMs": 1.1129,
+      "p95Ms": 1.7507,
+      "meanMs": 1.1964,
+      "sceneMeshes": 4,
+      "particleCounts": {
+        "leaf": 0,
+        "mud": 0,
+        "drop": 0,
+        "flash": 0
+      }
+    }
+  ]
+}

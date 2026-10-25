@@ -125,12 +125,29 @@ export class GameAudio {
     if(!this.context||this.context.state!=='running'||this._muted)return;
     if(typeof options==='number')options={intensity:options};
     const now=this.context.currentTime;
-    const cooldown={splash:.11,hit:.065,tongue:.09,footstep:.14,water:.15,ui:.04}[name]||.045;
-    if(now-(this.lastPlayed.get(name)??-100)<cooldown)return;
+    const cooldown={splash:.11,hit:.065,tongue:.09,footstep:.14,water:.15,ui:.04,'impact-flesh':.07,'impact-heavy':.1,'impact-block':.08,'attack-swing':.075,'attack-miss':.09}[name]||.045;
+    if(!options.priority&&now-(this.lastPlayed.get(name)??-100)<cooldown)return;
     this.lastPlayed.set(name,now);
     const v=Math.max(.03,Math.min(2,options.volume??options.intensity??1));
     const pan=options.pan||0;
     switch(name){
+      case 'attack-swing':
+        this.noiseBurst(options.kind==='slam'?.20:.12,.037*v,options.kind==='tongue'?2200:1300,.5,'bandpass',pan);
+        if(options.kind==='tongue')this.tone(480,140,.13,.035*v,'sine',.003,pan);break;
+      case 'attack-miss':
+        this.noiseBurst(.095,.028*v,2400,.35,'highpass',pan);break;
+      case 'impact-flesh':
+        this.tone(145,48,.13,.14*v,'sine',.001,pan);
+        this.noiseBurst(.065,.11*v,1150,.65,'bandpass',pan);
+        this.noiseBurst(.026,.045*v,3100,.5,'bandpass',pan,.008);break;
+      case 'impact-heavy':
+        this.tone(102,31,.22,.19*v,'sine',.002,pan);
+        this.noiseBurst(.13,.14*v,760,.55,'lowpass',pan);
+        this.noiseBurst(.045,.07*v,2200,.7,'bandpass',pan,.008);break;
+      case 'impact-block':
+        this.tone(510,180,.075,.085*v,'triangle',.001,pan);
+        this.noiseBurst(.052,.085*v,2700,1.1,'bandpass',pan);
+        this.tone(120,65,.08,.04*v,'sine',.002,pan);break;
       case 'tongue':case 'catch':
         this.tone(650,125,.13,.085*v,'sine',.002,pan);
         this.tone(190,420,.065,.06*v,'triangle',.001,pan);

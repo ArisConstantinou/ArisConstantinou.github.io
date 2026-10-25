@@ -1,8 +1,10 @@
 import './style.css';
 import './hud-layout.css';
 import './garrison-ui.css';
+import './realm-ui.css';
 import {describeObjective} from './guidance.js';
 import {pictogram,gangEmblem,frogAvatar,rolePictogram} from './visuals.js';
+import {GUIDE_CATEGORIES,GUIDE_CARDS,GUIDE_ACTIONS,GUIDE_BUILDINGS,guideCard} from './field-guide.js';
 
 const $ = (root, selector) => root.querySelector(selector);
 const $$ = (root, selector) => Array.from(root.querySelectorAll(selector));
@@ -59,6 +61,7 @@ export class GameUI {
     this.abort=new AbortController(); this.state={}; this.portraits={};
     this.panel=null; this.menu=null; this.lastDraw=0; this.lastPanel=0;
     this.hudDisclosure=null;this.rosterFilter='all';this.buildView='catalog';this.defenseCampId=null;this.toastKeys=new Map();this.portraitCache=new Map();
+    this.guideCategory='all';this.guideQuery='';this.guideId=null;this.guideReturn=null;this.guideBackToBook=false;this.guideFirstEncounter=false;
     this.settings={quality:'high',volume:0.65,sensitivity:1};
     this.root=document.createElement('div'); this.root.id='frog-ui';
     this.root.innerHTML=this.markup(); document.body.append(this.root);
@@ -170,7 +173,8 @@ export class GameUI {
     this.refs.placementMaterials.parentElement.classList.toggle('is-short',r.reeds<(cost.reeds||0));
   }
   actionTile(action,art,k,label,cooldown=''){
-    return `<button class="fg-action-tile" data-action="${action}" data-cooldown="${cooldown}" aria-label="${esc(label)}" title="${esc(label)}"><span class="fg-action-art">${art==='more'?icon('more'):pictogram(art)}</span><span class="fg-action-caption">${captionMarkup(actionCaptions[action]||label)}</span>${action==='interact'?'<span class="fg-interaction-cost" data-ref="interactionCost" hidden></span>':''}<span class="fg-cooldown-cover"></span><span class="fg-cooldown-time"></span>${k?key(k):''}<span class="fg-ready-line"></span></button>`;
+    const guide=GUIDE_ACTIONS[action];
+    return `<div class="fg-action-slot"><button class="fg-action-tile" data-action="${action}" data-cooldown="${cooldown}" aria-label="${esc(label)}" title="${esc(label)}"><span class="fg-action-art">${art==='more'?icon('more'):pictogram(art)}</span><span class="fg-action-caption">${captionMarkup(actionCaptions[action]||label)}</span>${action==='interact'?'<span class="fg-interaction-cost" data-ref="interactionCost" hidden></span>':''}<span class="fg-cooldown-cover"></span><span class="fg-cooldown-time"></span>${k?key(k):''}<span class="fg-ready-line"></span></button>${guide?`<button class="fg-action-help" data-guide-open="${guide}" aria-label="Οδηγία: ${esc(label)}" title="Πώς λειτουργεί;">?</button>`:''}</div>`;
   }
   commandButton(command,action='selection-command',id=''){
     const names={follow:'Ακολουθήστε',attack:'Επίθεση',forage:'Βρείτε μύγες · τροφή και θεραπεία',guard:'Υπεράσπιση οχυρού',regroup:action==='gang-command'?'Όλοι μαζί · Shift+X · ανακαλεί και τις φρουρές':'Συγκέντρωση επιλεγμένων',train:'Εκπαίδευση',promote:'Προαγωγή'};
@@ -223,9 +227,13 @@ export class GameUI {
         <div class="fg-vital fg-hunger" title="Στομάχι">${pictogram('stomach')}<div class="fg-meter"><span data-ref="stomachBar"></span></div><small data-ref="stomachLabel">70%</small></div>
         <div class="fg-xp" title="Εμπειρία"><span data-ref="xpBar"></span></div>
         <div class="fg-player-rank" data-ref="playerRank" title="Κράτησε τρία αντίπαλα οχυρά για να στεφθείς βασιλιάς."><span data-ref="rankIcon">${icon('shield')}</span><strong data-ref="rankTitle">Ευγενής</strong><small data-ref="rankProgress">Στέψη 0/3</small></div>
-        <button class="fg-population" data-action="open-roster" data-ref="populationButton" title="Ολόκληρη η συμμορία σου · χωρίς όριο πληθυσμού" aria-label="Πληθυσμός συμμορίας"><span class="fg-population-total">${pictogram('group')}<span>Πληθυσμός</span><b data-ref="populationTotal">1</b></span><span class="fg-population-duties"><span>Συνοδοί <b data-ref="populationTravelers">0</b></span><span>Φρουροί <b data-ref="populationGuards">0</b></span></span></button>
+        <button class="fg-population" data-action="open-roster" data-ref="populationButton" title="Όλο το βασίλειο · χωρίς όριο πληθυσμού" aria-label="Πληθυσμός βασιλείου"><span class="fg-population-total">${pictogram('group')}<span>Πληθυσμός</span><b data-ref="populationTotal">1</b></span><span class="fg-population-duties"><span>Συνοδοί <b data-ref="populationTravelers">0</b></span><span>Φρουροί <b data-ref="populationGuards">0</b></span></span><span class="fg-population-duties fg-population-regions" data-ref="populationRegions" hidden><span>Εδώ <b data-ref="populationLocal">1</b></span><span>Άλλες λίμνες <b data-ref="populationAway">0</b></span></span></button>
+        <div class="fg-player-guidance">
+        <div class="fg-knowledge-tools"><button data-action="open-guide" aria-label="Εικονογραφημένο βιβλίο οδηγιών">${icon('leaf')}<span>Οδηγός</span></button><button data-action="open-realm" aria-label="Περιοχές και μεθόριος">${icon('pin')}<span>Περιοχές</span></button></div>
+        <section class="fg-practical-tutorial" data-ref="practicalTutorial" aria-label="Πρακτική εκπαίδευση" hidden></section>
+        </div>
       </section>
-      <section class="fg-location" aria-label="Πόροι και χάρτης λίμνης"><div class="fg-resource-row fg-resource-bank" aria-label="Κοινά αποθέματα"><span title="Κοινό απόθεμα τροφής" aria-label="Τροφή">${pictogram('fly')}<b data-ref="food">0</b><small>Τροφή</small></span><span title="Υλικά κατασκευής (ξύλο, φύλλα, καλάμια)" aria-label="Υλικά κατασκευής">${pictogram('reeds')}<b data-ref="reeds">0</b><small>Υλικά</small></span></div>
+      <section class="fg-location" aria-label="Πόροι και χάρτης λίμνης"><div class="fg-resource-row fg-resource-bank" aria-label="Κοινά αποθέματα"><span title="Κοινό απόθεμα τροφής" aria-label="Τροφή">${pictogram('fly')}<b data-ref="food">0</b><small>Τροφή</small><button class="fg-resource-guide" data-guide-open="food" aria-label="Οδηγία για τροφή και συντήρηση">?</button></span><span title="Υλικά κατασκευής (ξύλο, φύλλα, καλάμια)" aria-label="Υλικά κατασκευής">${pictogram('reeds')}<b data-ref="reeds">0</b><small>Υλικά</small><button class="fg-resource-guide" data-guide-open="materials" aria-label="Οδηγία για τα υλικά">?</button></span><span title="Σπάνια μαργαριτάρια" aria-label="Μαργαριτάρια"><i class="fg-pearl" aria-hidden="true"></i><b data-ref="pearls">0</b><small>Πέρλες</small><button class="fg-resource-guide" data-guide-open="pearls" aria-label="Οδηγία για τα μαργαριτάρια">?</button></span></div><button class="fg-supply-summary" data-ref="supplySummary" data-guide-open="food" hidden></button>
         <div class="fg-minimap-shell"><div class="fg-location-tools"><strong>Λίμνη</strong><div class="fg-clock"><span data-ref="dayIcon">${icon('sun')}</span><b data-ref="clock">09:00</b><span data-ref="day">1</span></div></div>
           <button class="fg-map-button fg-minimap" data-action="open-map" data-ref="minimapButton" aria-label="Χάρτης λίμνης · κλικ για μεγέθυνση" title="Κλικ για μεγάλο χάρτη"><canvas data-ref="minimap" width="440" height="440" aria-label="Θέσεις συμμάχων, αντιπάλων, οχυρών και αρχηγών"></canvas><span class="fg-map-north" aria-hidden="true">N</span></button>
           <div class="fg-minimap-legend" aria-label="Υπόμνημα χάρτη"><span><i class="is-ally"></i>Εσύ / ομάδα</span><span><i class="is-enemy"></i>Αντίπαλοι</span><span>${pictogram('crown')}Αρχηγοί</span></div>
@@ -244,7 +252,9 @@ export class GameUI {
       </section>
       <div class="fg-crosshair" data-ref="crosshair"><i></i><i></i><i></i><i></i><span></span></div>
       <div class="fg-context" data-ref="context" hidden><span data-ref="contextArt"></span><kbd data-ref="contextKey">E</kbd><div class="fg-context-track"><span data-ref="contextBar"></span></div></div>
-      <div class="fg-recruit-prompt" data-ref="recruitPrompt" role="status" hidden><strong data-ref="recruitName"></strong><span data-ref="recruitReason"></span></div>
+      <div class="fg-recruit-prompt" data-ref="recruitPrompt" role="status" hidden><strong data-ref="recruitName"></strong><span data-ref="recruitReason"></span><button class="fg-recruit-details" data-action="recruit-inspect">Δες τις απαιτήσεις</button><button class="fg-context-help" data-guide-open="recruit" aria-label="Πώς στρατολογώ;">?</button></div>
+      <div class="fg-tactics-dock" data-ref="tacticsDock" aria-label="Αποθηκευμένες ομάδες" hidden></div>
+      <aside class="fg-guide-hint" data-ref="guideHint" aria-label="Νέα οδηγία" hidden></aside>
       <section class="fg-selection-dock" data-ref="selectionDock" aria-label="Επιλεγμένη ομάδα"><button class="fg-squad-entry" data-action="open-roster" aria-label="Διοίκηση συμμορίας" title="Διοίκηση συμμορίας · TAB"><span data-ref="squadMode">${pictogram('follow')}</span><span class="fg-squad-caption"><small data-ref="selectionLabel">Ομάδα</small><b data-ref="selectionCount">0</b></span>${gangEmblem('ally')}</button><div class="fg-dock-portraits" data-ref="selectionPortraits"></div></section>
       <div class="fg-actionbar fg-image-actionbar fg-primary-actions" aria-label="Βασικές ενέργειες">
         ${this.actionTile('primary-attack','tongue','LMB','Επίθεση με τη γλώσσα','attack')}
@@ -281,15 +291,31 @@ export class GameUI {
     <section class="fg-modal-layer" data-ref="ending" hidden><div class="fg-panel fg-ending-panel"><span class="fg-ending-mark" data-ref="endingMark">${icon('crown')}</span><span class="fg-eyebrow" data-ref="endingEyebrow">Ο ΠΟΤΑΜΟΣ ΕΝΩΘΗΚΕ</span><h2 data-ref="endingTitle">Κυρίαρχος του ποταμού</h2><p data-ref="endingText"></p><div class="fg-ending-stats" data-ref="endingStats"></div><div class="fg-pause-actions"><button class="fg-button fg-primary" data-action="continue-after-end" data-ref="endingContinue">Συνέχισε την εξερεύνηση</button><button class="fg-button" data-action="restart">Νέο ταξίδι</button></div></div></section>`;}
 
   click(event){
+    const guideTarget=event.target.closest('[data-guide-open]');if(guideTarget?.dataset?.guideOpen){event.stopPropagation();const id=guideTarget.dataset.guideOpen==='kick'&&guideTarget.classList?.contains('fg-action-help')?['kick','slam','sweep'][this.specialIndex||0]:guideTarget.dataset.guideOpen;this.showGuideCard(id);return;}
     const target=event.target.closest('[data-action]'); if(!target || target.disabled) return;
     const action=target.dataset.action;
     event.stopPropagation();
+    if(action==='guide-close'){this.closeGuideCard();return;}
+    if(action==='open-guide'){this.openGuideLibrary();return;}
+    if(action==='guide-category'){this.guideCategory=target.dataset.category||'all';this.renderPanel(true);return;}
+    if(action==='guide-library'){this.guideBackToBook=false;this.showPanel('help');return;}
+    if(action==='guide-hint-close'){if(this.refs.guideHint)this.refs.guideHint.hidden=true;return;}
+    if(action==='tutorial-dismiss'){this.callbacks.onAction('tutorial-dismiss',{});return;}
+    if(action==='open-realm'){this.callbacks.onAction('panel-open',{name:'realm'});return;}
+    if(action==='realm-travel'){this.callbacks.onAction('realm-travel',{targetIndex:Number(target.dataset.region)});return;}
+    if(action==='recruit-inspect'){this.callbacks.onAction('panel-open',{name:'recruitment'});return;}
+    if(action==='recruit-target'||action==='recruit-help'){this.callbacks.onAction(action,{id:target.dataset.id});return;}
+    if(action==='camp-specialization'){this.callbacks.onAction(action,{campId:target.dataset.camp,specialization:target.dataset.specialization});return;}
+    if(action==='craft-equipment'){this.callbacks.onAction(action,{campId:target.dataset.camp,recipeId:target.dataset.recipe,targetIds:this.state.realmEconomy?.craftTargetIds||[]});return;}
+    if(action==='cancel-job'){this.callbacks.onAction(action,{jobId:target.dataset.job});return;}
+    if(action==='save-group'||action==='select-group'){this.callbacks.onAction(action,{groupId:target.dataset.group});return;}
+    if(action==='group-command'){this.callbacks.onAction(action,{groupId:target.dataset.group,command:target.dataset.command});return;}
     if(action==='build-scroll'){this.scrollBuildCatalog(Number(target.dataset.direction)||1);return;}
     if(action==='hud-objectives'){this.toggleHudDisclosure('objectives');return;}
     if(action==='hud-more'){this.toggleHudDisclosure('actions');return;}
     if(action==='hud-close'){this.closeHudDisclosure(true);return;}
     this.closeHudDisclosure();
-    if(action==='build-view'){this.buildView=target.dataset.view==='defense'?'defense':'catalog';this.renderPanel(true);return;}
+    if(action==='build-view'){const view=['defense','organization','workshop'].includes(target.dataset.view)?target.dataset.view:'catalog';if(view!==this.buildView)this.refs.panel.scrollTop=0;this.buildView=view;this.renderPanel(true);return;}
     if(action==='defense-open'){this.openDefenses(target.dataset.camp);return;}
     if(action==='garrison-command'){this.callbacks.onAction('garrison-command',{campId:target.dataset.camp,command:target.dataset.command});this.renderPanel(true);return;}
     if(action==='defense-frog'){this.callbacks.onAction('select-frog',{id:target.dataset.id,additive:false});this.showPanel('roster');return;}
@@ -315,9 +341,10 @@ export class GameUI {
     if(action==='selection-command'){this.callbacks.onAction('selection-command',{command:target.dataset.command,ids:Array.from(this.chosen())});return;}
     if(action==='gang-forage'){this.callbacks.onAction('gang-command',{command:'forage'});return;}
     if(action==='title-help'||action==='pause-help'){
-      this.returnMenu=action==='title-help'?'title':'pause'; this.showPanel('help');return;
+      this.returnMenu=action==='title-help'?'title':'pause';this.openGuideLibrary();return;
     }
     if(action==='help-back'){
+      if(this.guideReturn){this.closeGuideCard();return;}
       this.closePanels(); if(this.returnMenu==='title')this.showTitle(this.hasSave);else this.showPause(true);return;
     }
     if(action==='tab-roster'||action==='tab-map'){this.showPanel(action==='tab-map'?'map':'roster');return;}
@@ -338,6 +365,7 @@ export class GameUI {
     this.callbacks.onAction(action,{});
   }
   setting(event){
+    const guideSearch=event.target.closest('[data-guide-search]');if(guideSearch?.dataset?.guideSearch!==undefined){this.guideQuery=guideSearch.value;const position=guideSearch.selectionStart;this.renderPanel(true);const replacement=$(this.refs.panel,'[data-guide-search]');replacement?.focus({preventScroll:true});replacement?.setSelectionRange?.(position,position);return;}
     const campSelect=event.target.closest('[data-defense-camp]');
     if(campSelect){this.defenseCampId=campSelect.value;this.renderPanel(true);return;}
     const input=event.target.closest('[data-setting]');if(!input)return;
@@ -376,7 +404,7 @@ export class GameUI {
   hideMenus(){
     this.closeHudDisclosure();
     for(const name of ['title','pause','ending','panelLayer','loading'])this.refs[name].hidden=true;
-    this.panel=null;this.menu=null;
+    this.panel=null;this.menu=null;this.guideReturn=null;this.guideBackToBook=false;
   }
   isBlocking(){return Boolean(this.menu||(this.panel&&!this.state.buildPlacement?.active));}
   closePanels(){this.panel=null;this.refs.panelLayer.hidden=true;}
@@ -384,10 +412,12 @@ export class GameUI {
   showPanel(name,data){
     this.closeHudDisclosure();
     this.panel=name;this.panelData=data||{};
-    if(name==='build'){this.buildView=data?.view==='defense'?'defense':'catalog';this.defenseCampId=data?.campId||this.state.currentCampId||this.defenseCampId;}
+    if(name==='build'){this.buildView=['defense','organization','workshop'].includes(data?.view)?data.view:'catalog';this.defenseCampId=data?.campId||this.state.currentCampId||this.defenseCampId;}
     this.refs.pause.hidden=true;
     this.refs.panelLayer.hidden=false;
+    this.refs.panel.setAttribute?.('role','dialog');this.refs.panel.setAttribute?.('aria-modal','true');
     document.exitPointerLock?.();
+    this.refs.panel.scrollTop=0;
     this.renderPanel(true);
   }
   setPortraits(portraits){
@@ -407,10 +437,7 @@ export class GameUI {
     this.setText('rankTitle',rank.title);this.setText('rankProgress',rank.crowned?'Στέφθηκες':`Στέψη ${Math.min(rank.territories,rank.target)}/${rank.target}`);
     if(this.refs.playerRank){this.refs.playerRank.title=rank.detail||'Κράτησε τρία αντίπαλα οχυρά για το στέμμα.';this.refs.playerRank.classList.toggle('is-crowned',rank.crowned);}
     if(this.lastCrowned!==rank.crowned&&this.refs.rankIcon){this.refs.rankIcon.innerHTML=icon(rank.crowned?'crown':'shield');this.lastCrowned=rank.crowned;}
-    const livingAllies=allies.filter(f=>!f.dead&&!(Number.isFinite(f.hp)&&f.hp<=0));
-    const population=Number.isFinite(state.gangCount)?whole(state.gangCount):livingAllies.length+(!p.dead&&!(Number.isFinite(p.hp)&&p.hp<=0)?1:0),guards=Math.min(livingAllies.length,whole(state.defenses?.guardCount??livingAllies.filter(f=>f.guard||f.order==='guard').length));
-    this.setText('gangCount',population);this.setText('populationTotal',population);this.setText('populationTravelers',livingAllies.length-guards);this.setText('populationGuards',guards);
-    this.refs.populationButton?.setAttribute('aria-label',`Πληθυσμός ${population} · Συνοδοί ${livingAllies.length-guards} · Φρουροί ${guards} · Χωρίς όριο πληθυσμού`);
+    this.updatePopulation(state);
     this.updateMapLegend(state.world||{});
     this.root.classList.toggle('fg-low-health',fraction(p.hp,p.maxHp)<.25);
     this.root.classList.toggle('fg-low-hunger',fraction(p.stomach,p.maxStomach)<.15);
@@ -493,18 +520,30 @@ export class GameUI {
     const mode=state.squadMode||'follow';if(mode!==this.squadMode){this.squadMode=mode;this.refs.squadMode.innerHTML=pictogram({guard:'shield',train:'training',training:'training'}[mode]||mode);}
     this.setText('selectionCount',selected.size?`${selected.size} / ${allies.length}`:allies.length);this.refs.selectionDock.hidden=!allies.length;this.setText('selectionLabel',selected.size?'Επιλογή':'Ομάδα');
     this.updateSelectionDock(allies,selected);
+    this.updateRealmHUD(state);
     if(state.savedAt&&state.savedAt!==this.savedAt){this.savedAt=state.savedAt;this.refs.saveStatus.hidden=false;clearTimeout(this.saveTimer);this.saveTimer=setTimeout(()=>this.refs.saveStatus.hidden=true,2500);}
     const now=performance.now();if(now-this.lastDraw>100){this.drawMap(this.refs.minimap,state.world||{},false);this.lastDraw=now;if(this.panel==='map'){const canvas=$(this.refs.panel,'canvas');if(canvas)this.drawMap(canvas,state.world||{},true);}}
-    if(this.panel&&now-this.lastPanel>700&&!['help','map'].includes(this.panel)){this.renderPanel(false);this.lastPanel=now;}
+    if(this.panel&&now-this.lastPanel>700&&!['help','map','guide'].includes(this.panel)){this.renderPanel(false);this.lastPanel=now;}
   }
   resources(resource){
-    if(typeof resource==='number')return {food:resource,reeds:resource};
-    return {food:resource?.food??resource?.flies??0,reeds:resource?.reeds??resource?.wood??resource?.materials??0};
+    if(typeof resource==='number')return {food:resource,reeds:resource,pearls:0};
+    return {food:resource?.food??resource?.flies??0,reeds:resource?.reeds??resource?.wood??resource?.materials??0,pearls:resource?.pearls??0};
+  }
+  updatePopulation(state){
+    const p=state.player||{},living=(state.allies||[]).filter(f=>!f.dead&&!(Number.isFinite(f.hp)&&f.hp<=0));
+    const local=Number.isFinite(state.gangCount)?whole(state.gangCount):living.length+(!p.dead&&!(Number.isFinite(p.hp)&&p.hp<=0)?1:0);
+    const total=Number.isFinite(state.kingdomPopulation)?whole(state.kingdomPopulation):local;
+    const localGuards=Math.min(living.length,whole(state.defenses?.guardCount??living.filter(f=>f.guard||f.order==='guard').length));
+    const guards=Number.isFinite(state.kingdomGuards)?whole(state.kingdomGuards):localGuards,travelers=living.length-localGuards,away=Math.max(0,total-local);
+    this.setText('gangCount',local);this.setText('populationTotal',total);this.setText('populationTravelers',travelers);this.setText('populationGuards',guards);
+    this.setText('populationLocal',local);this.setText('populationAway',away);if(this.refs.populationRegions)this.refs.populationRegions.hidden=!away;
+    const description=`Πληθυσμός βασιλείου ${total} · Εδώ ${local} · Άλλες λίμνες ${away} · Συνοδοί εδώ ${travelers} · Φρουροί σε όλες τις λίμνες ${guards} · Χωρίς όριο πληθυσμού`;
+    this.refs.populationButton?.setAttribute('aria-label',description);if(this.refs.populationButton)this.refs.populationButton.title=description;
   }
   setText(ref,value){const el=this.refs[ref];if(el&&el.textContent!==String(value))el.textContent=String(value);}
   meter(ref,value){const el=this.refs[ref];if(el)el.style.transform=`scaleX(${clamp(value)})`;}
   panelHeader(eyebrow,title,extra=''){
-    return `<div class="fg-panel-head"><div><span class="fg-eyebrow">${eyebrow}</span><h2>${title}</h2></div><button class="fg-icon-button" data-action="${this.panel==='help'?'help-back':'close-panel'}" aria-label="Κλείσιμο">${icon('close')}</button></div>${extra}`;
+    return `<div class="fg-panel-head"><div><span class="fg-eyebrow">${eyebrow}</span><h2>${title}</h2></div><button class="fg-icon-button" data-action="${this.panel==='guide'?'guide-close':this.panel==='help'?'help-back':'close-panel'}" aria-label="Κλείσιμο">${icon('close')}</button></div>${extra}`;
   }
   renderPanel(force=false){
     const container=this.refs.panel;if(!this.panel||this.draggingBuild)return;
@@ -512,11 +551,15 @@ export class GameUI {
     const scrollTop=container.scrollTop,gridScroll=$(container,'.fg-frog-grid')?.scrollTop||0,active=document.activeElement;
     if(!force&&container.contains(active)&&['INPUT','SELECT'].includes(active.tagName))return;
     container.classList.toggle('fg-command-panel',this.panel==='roster');container.classList.toggle('fg-building-panel',this.panel==='build');
+    container.classList.toggle('fg-guide-panel',['help','guide'].includes(this.panel));container.classList.toggle('fg-field-open',this.panel==='guide');
     const s=this.state;
     const defenseSignature=(s.defenses?.camps||[]).map(c=>[c.id,c.name,c.watchtower,c.assigned,c.stationed,c.status,c.threats,s.camps?.find(fort=>fort.id===c.id)?.gateHp,s.camps?.find(fort=>fort.id===c.id)?.gateMaxHp,c.guards?.map(f=>[f.id,f.hp,f.status,f.order])]);
-    const signature=this.panel==='roster'?JSON.stringify([this.panel,this.rosterFilter,Array.from(this.chosen()),s.allies?.map(f=>[f.id,f.name,f.hp,f.stomach,f.level,f.tier,f.order,f.guard,f.canPromote,f.trained,f.trainingProgress,Boolean(f.portrait)]),s.resources,s.capacity,s.recruitmentUnlimited,s.training,s.camps?.map(c=>[c.id,c.team,c.destroyed,Boolean(c.buildings?.training)]),s.currentCamp?.buildings,s.defenses?.traveling,s.defenses?.guardCount]):this.panel==='build'?JSON.stringify([this.panel,this.buildView,this.defenseCampId,Array.from(this.chosen()),s.resources,s.buildOptions,s.currentCamp?.id,s.currentCamp?.hp,s.currentCamp?.gateHp,s.currentCamp?.gateMaxHp,s.currentCamp?.buildings,s.placement,s.capacity,defenseSignature]):this.panel;
+    const signature=this.panel==='roster'?JSON.stringify([this.panel,this.rosterFilter,Array.from(this.chosen()),s.tacticalGroups,s.allies?.map(f=>[f.id,f.name,f.hp,f.stomach,f.level,f.tier,f.order,f.guard,f.canPromote,f.trained,f.trainingProgress,Boolean(f.portrait)]),s.resources,s.capacity,s.recruitmentUnlimited,s.training,s.camps?.map(c=>[c.id,c.team,c.destroyed,Boolean(c.buildings?.training)]),s.currentCamp?.buildings,s.defenses?.traveling,s.defenses?.guardCount]):this.panel==='build'?JSON.stringify([this.panel,this.buildView,this.defenseCampId,Array.from(this.chosen()),s.resources,s.buildOptions,s.currentCamp?.id,s.currentCamp?.hp,s.currentCamp?.gateHp,s.currentCamp?.gateMaxHp,s.currentCamp?.buildings,s.placement,s.capacity,defenseSignature,s.realmEconomy]):JSON.stringify([this.panel,this.panel==='realm'?s.realm:this.panel==='recruitment'?s.recruitment:this.panel==='guide'?this.guideId:this.panel==='help'?[this.guideCategory,this.guideQuery,s.guide?.seen]:null]);
     if(!force&&this.panelSignature===signature)return;this.panelSignature=signature;
     if(this.panel==='help')container.innerHTML=this.helpMarkup();
+    else if(this.panel==='guide')container.innerHTML=this.guideCardMarkup();
+    else if(this.panel==='realm')container.innerHTML=this.realmMarkup();
+    else if(this.panel==='recruitment')container.innerHTML=this.recruitmentMarkup();
     else if(this.panel==='build')container.innerHTML=this.buildMarkup();
     else if(this.panel==='roster')container.innerHTML=this.rosterMarkup();
     else if(this.panel==='map'){
@@ -525,10 +568,10 @@ export class GameUI {
     }
     container.scrollTop=scrollTop;const catalog=$(container,'.fg-illustrated-build');if(catalog){catalog.scrollLeft=catalogScroll;this.syncBuildCatalog();}const grid=$(container,'.fg-frog-grid');if(grid)grid.scrollTop=gridScroll;
   }
-  tabs(which){return `<div class="fg-tabs"><button class="${which==='roster'?'active':''}" data-action="tab-roster">${icon('group')} Συμμορία</button><button class="${which==='map'?'active':''}" data-action="tab-map">${icon('pin')} Χάρτης</button></div>`;}
+  tabs(which){return `<div class="fg-tabs"><button class="${which==='roster'?'active':''}" data-action="tab-roster">${icon('group')} Συμμορία</button><button class="${which==='map'?'active':''}" data-action="tab-map">${icon('pin')} Χάρτης</button><button class="${which==='realm'?'active':''}" data-action="open-realm">${icon('camp')} Περιοχές</button><button data-action="open-guide">${icon('leaf')} Οδηγός</button></div>`;}
   buildViews(){
-    const defense=this.buildView==='defense';
-    return `<div class="fg-build-views" aria-label="Προβολή οχυρών"><button data-action="build-view" data-view="catalog" class="${defense?'':'is-active'}" aria-pressed="${!defense}">${pictogram('camp')}<span>Κτίρια</span></button><button data-action="build-view" data-view="defense" class="${defense?'is-active':''}" aria-pressed="${defense}">${pictogram('shield')}<span>Άμυνα</span></button></div>`;
+    const view=this.buildView||'catalog';
+    return `<div class="fg-build-views" aria-label="Προβολή οχυρών">${[['catalog','camp','Κτίρια'],['defense','shield','Άμυνα'],['organization','store','Οργάνωση'],['workshop','training','Εργαστήριο']].map(([id,art,label])=>`<button data-action="build-view" data-view="${id}" class="${view===id?'is-active':''}" aria-pressed="${view===id}">${pictogram(art)}<span>${label}</span></button>`).join('')}</div>`;
   }
   defenseCamps(){
     if(Array.isArray(this.state.defenses?.camps))return this.state.defenses.camps;
@@ -545,6 +588,7 @@ export class GameUI {
   openDefenses(campId){
     this.defenseCampId=campId||this.state.currentCampId||this.defenseCampId;
     if(this.panel!=='build'){this.showPanel('build',{view:'defense',campId:this.defenseCampId});return;}
+    if(this.buildView!=='defense')this.refs.panel.scrollTop=0;
     this.buildView='defense';this.renderPanel(true);
   }
   gateMarkup(camp){
@@ -586,6 +630,8 @@ export class GameUI {
   }
   buildMarkup(){
     if(this.buildView==='defense')return this.defenseMarkup();
+    if(this.buildView==='organization')return this.organizationMarkup();
+    if(this.buildView==='workshop')return this.workshopMarkup();
     const s=this.state,r=this.resources(s.resources),camp=s.currentCamp||this.panelData?.camp;
     const defaults=[
       {type:'shelter',name:'Νέο οχυρό',cost:{food:30,reeds:45}},
@@ -602,9 +648,9 @@ export class GameUI {
     const valid=s.placement?.valid!==false;
     const artFor=type=>({shelter:'camp',upgrade:'crown',promote:'crown','promote-player':'crown',repair:'repair'}[type]||type);
     const effectFor=type=>({shelter:'group',store:'fly',nursery:'recruit',watchtower:'shield',palisade:'shield',upgrade:'group',repair:'heart',promote:'attack','promote-player':'attack',training:'training'}[type]||'check');
-    return this.panelHeader('ΚΑΤΑΣΚΕΥΗ & ΑΜΥΝΑ','Τα κάστρα σου',this.buildViews())+`
+    return this.panelHeader('ΚΑΤΑΣΚΕΥΗ & ΑΜΥΝΑ','Τα κάστρα σου',this.buildViews())+this.economyMarkup()+`
       <div class="fg-build-overview"><div class="fg-camp-illustration">${pictogram('camp')}${gangEmblem('ally')}</div><div class="fg-base-health"><h3>${esc(camp?.name||s.campName||'Νέο οχυρό')}</h3><div class="fg-base-healthbar"><span style="width:${camp?fraction(camp.hp,camp.maxHp)*100:100}%"></span></div><div class="fg-base-badges"><span title="Αντοχή οχυρού">${pictogram('heart')}<b>${camp?`${whole(camp.hp)} / ${whole(camp.maxHp)}`:'—'}</b></span>${this.gateMarkup(camp)}<span title="Συμμαχικά οχυρά">${pictogram('camp')}<b>${owned.length}</b></span><span title="Ενεργές φωλιές · χωρίς όριο πληθυσμού">${pictogram('nursery')}<b>${owned.filter(c=>c.buildings?.nursery).length}</b></span></div></div><div class="fg-build-bank" aria-label="Διαθέσιμα κοινά αποθέματα"><span class="fg-bank-label">Διαθέσιμα</span><div title="Κοινό απόθεμα τροφής">${pictogram('fly')}<b>${available(r.food)}</b><small>Τροφή</small></div><div title="Υλικά κατασκευής (ξύλο, φύλλα, καλάμια)">${pictogram('reeds')}<b>${available(r.reeds)}</b><small>Υλικά</small></div></div></div>
-      <div class="fg-build-catalog-toolbar"><span>Κτίρια · σύρε ή επίλεξε</span><div><button class="fg-build-nav" data-action="build-scroll" data-direction="-1" title="Προηγούμενα κτίρια" aria-label="Προηγούμενα κτίρια">${icon('arrow')}</button><button class="fg-build-nav" data-action="build-scroll" data-direction="1" title="Επόμενα κτίρια" aria-label="Επόμενα κτίρια">${icon('arrow')}</button></div></div>
+      <div class="fg-build-catalog-toolbar"><span>Κτίρια · σύρε ή επίλεξε</span>${this.guideButton('build','Πώς χτίζω;')}<div><button class="fg-build-nav" data-action="build-scroll" data-direction="-1" title="Προηγούμενα κτίρια" aria-label="Προηγούμενα κτίρια">${icon('arrow')}</button><button class="fg-build-nav" data-action="build-scroll" data-direction="1" title="Επόμενα κτίρια" aria-label="Επόμενα κτίρια">${icon('arrow')}</button></div></div>
       <div class="fg-build-grid fg-illustrated-build" role="region" aria-label="Κατάλογος κτιρίων" tabindex="0">${options.map((o,i)=>{
         const cost=typeof o.cost==='number'?{food:o.cost,reeds:0}:(o.cost||{}),affordable=r.food>=(cost.food||0)&&r.reeds>=(cost.reeds||0);
         const built=Boolean(o.built||camp?.buildings?.[o.type]),siteOK=o.type==='shelter'?valid:Boolean(camp)||['promote','promote-player'].includes(o.type);
@@ -614,9 +660,9 @@ export class GameUI {
         const explanation=managed?'Διαχείριση φρουράς · ανάθεση και ανάκληση βατράχων':materialText(o.reason||(!siteOK?'Απαιτείται κατάλληλη θέση ή συμμαχικό οχυρό':!affordable?'Δεν αρκούν τα κοινά αποθέματα':built?'Έχει ήδη κατασκευαστεί':o.description||''));
         const dragHelp=enabled&&placementTypes.has(o.type)?' · Σύρε στον χώρο ή κάνε κλικ και τοποθέτησε · Q/R περιστροφή · Esc ακύρωση':'';
         const statusArt={operational:'shield',built:'check',site:'warning',resources:'store',ready:'repair',locked:'warning'}[status];
-        return `<button class="fg-build-card fg-picture-building is-${status}" data-action="${managed?'defense-open':'build'}" data-type="${esc(o.type)}" draggable="${enabled&&placementTypes.has(o.type)?'true':'false'}" data-camp="${esc(camp?.id||s.currentCampId||'')}" title="${esc((o.name||o.type)+' · '+explanation+dragHelp)}" aria-label="${esc((o.name||o.type)+' · '+explanation+dragHelp)}" ${enabled||managed?'':'disabled'}><div class="fg-building-art">${pictogram(artFor(o.type))}${enabled&&placementTypes.has(o.type)?`<span class="fg-building-drag" title="Σύρε και τοποθέτησε">${pictogram('place')}</span>`:''}<span class="fg-building-benefit" title="${esc(o.description||'')}">${pictogram(effectFor(o.type))}</span><span class="fg-building-state">${pictogram(statusArt)}</span></div><h3>${esc(o.name||o.type)}${o.type==='palisade'?'<small class="fg-building-scope">Όλη η περίμετρος + πύλη</small>':''}</h3><p class="fg-building-description">${esc(materialText(o.description||''))}</p>${!enabled&&!managed&&!built?`<p class="fg-building-reason">${esc(explanation)}</p>`:''}${managed?`<span class="fg-cost-label">Φρουρά οχυρού</span><div class="fg-building-operation">${pictogram('group')}<b>${whole(defense?.assigned)} / ${whole(defense?.slots||4)}</b><span>${defense?.stationed?'Επανδρωμένη':'Ανάθεσε φρουρούς'}</span></div>`:`<span class="fg-cost-label">Κόστος</span><div class="fg-material-requirements">${[['food','fly','Τροφή'],['reeds','reeds','Υλικά κατασκευής']].map(([resource,art,label])=>`<div class="fg-material ${r[resource]>=(cost[resource]||0)?'is-enough':'is-short'}" title="${label}: ${available(r[resource])} / ${whole(cost[resource]||0)}">${pictogram(art)}<div><b>${whole(cost[resource]||0)}</b><span><i style="width:${cost[resource]?clamp(r[resource]/cost[resource])*100:100}%"></i></span></div></div>`).join('')}</div>`}<div class="fg-build-purchase">${managed?'<strong>Άνοιγμα φρουράς</strong>':o.type==='palisade'?`<strong>${built?'Οχυρωμένη περίμετρος':'Ενίσχυσε τείχη'}</strong>`:key(i+1)}<span>${pictogram(managed?'shield':built?'check':enabled?(placementTypes.has(o.type)?'place':'repair'):'warning')}</span></div></button>`;
+        return `<button class="fg-build-card fg-picture-building is-${status}" data-action="${managed?'defense-open':'build'}" data-type="${esc(o.type)}" draggable="${enabled&&placementTypes.has(o.type)?'true':'false'}" data-camp="${esc(camp?.id||s.currentCampId||'')}" title="${esc((o.name||o.type)+' · '+explanation+dragHelp)}" aria-label="${esc((o.name||o.type)+' · '+explanation+dragHelp)}" ${enabled||managed?'':'disabled'}><div class="fg-building-art">${pictogram(artFor(o.type))}${enabled&&placementTypes.has(o.type)?`<span class="fg-building-drag" title="Σύρε και τοποθέτησε">${pictogram('place')}</span>`:''}<span class="fg-building-benefit" title="${esc(o.description||'')}">${pictogram(effectFor(o.type))}</span><span class="fg-building-state">${pictogram(statusArt)}</span></div><h3>${esc(o.name||o.type)}${o.type==='palisade'?'<small class="fg-building-scope">Όλη η περίμετρος + πύλη</small>':''}</h3><p class="fg-building-description">${esc(materialText(o.description||''))}</p>${Number(o.duration)>0&&!built?`<p class="fg-building-time" title="Βασικός χρόνος εργασίας με έναν παρόντα οικοδόμο. Πρόσθετοι οικοδόμοι αυξάνουν τον ρυθμό.">${whole(o.duration)}″ εργασίας · χρειάζεται οικοδόμο</p>`:''}${!enabled&&!managed&&!built?`<p class="fg-building-reason">${esc(explanation)}</p>`:''}${managed?`<span class="fg-cost-label">Φρουρά οχυρού</span><div class="fg-building-operation">${pictogram('group')}<b>${whole(defense?.assigned)} / ${whole(defense?.slots||4)}</b><span>${defense?.stationed?'Επανδρωμένη':'Ανάθεσε φρουρούς'}</span></div>`:`<span class="fg-cost-label">Κόστος</span><div class="fg-material-requirements">${[['food','fly','Τροφή'],['reeds','reeds','Υλικά κατασκευής']].map(([resource,art,label])=>`<div class="fg-material ${r[resource]>=(cost[resource]||0)?'is-enough':'is-short'}" title="${label}: ${available(r[resource])} / ${whole(cost[resource]||0)}">${pictogram(art)}<div><b>${whole(cost[resource]||0)}</b><span><i style="width:${cost[resource]?clamp(r[resource]/cost[resource])*100:100}%"></i></span></div></div>`).join('')}</div>`}<div class="fg-build-purchase">${managed?'<strong>Άνοιγμα φρουράς</strong>':o.type==='palisade'?`<strong>${built?'Οχυρωμένη περίμετρος':'Ενίσχυσε τείχη'}</strong>`:key(i+1)}<span>${pictogram(managed?'shield':built?'check':enabled?(placementTypes.has(o.type)?'place':'repair'):'warning')}</span></div></button>`;
       }).join('')}</div>
-      <div class="fg-build-footer"><div class="fg-placement-status${valid?'':' is-invalid'}" title="${esc(materialText(s.placement?.reason||(valid?'Κατάλληλη θέση κατασκευής':'Ακατάλληλη θέση κατασκευής')))}">${pictogram('camp')}${pictogram(valid?'check':'warning')}</div><button class="fg-image-meal" data-action="consume" title="Τροφή από κοινά αποθέματα" aria-label="Τροφή από κοινά αποθέματα" ${s.inCamp||camp?'':'disabled'}>${pictogram('fly')}${pictogram('heal')}${key('G')}</button><button class="fg-image-meal" data-action="gang-forage" title="Η ομάδα βρίσκει μύγες και θεραπεύεται" aria-label="Αναζήτηση τροφής">${pictogram('forage')}${key('T')}</button><div class="fg-build-exit">${key('V')}${key('ESC')}</div></div>`;
+      ${this.jobsMarkup()}<div class="fg-build-footer"><div class="fg-placement-status${valid?'':' is-invalid'}" title="${esc(materialText(s.placement?.reason||(valid?'Κατάλληλη θέση κατασκευής':'Ακατάλληλη θέση κατασκευής')))}">${pictogram('camp')}${pictogram(valid?'check':'warning')}</div><button class="fg-image-meal" data-action="consume" title="Τροφή από κοινά αποθέματα" aria-label="Τροφή από κοινά αποθέματα" ${s.inCamp||camp?'':'disabled'}>${pictogram('fly')}${pictogram('heal')}${key('G')}</button><button class="fg-image-meal" data-action="gang-forage" title="Η ομάδα βρίσκει μύγες και θεραπεύεται" aria-label="Αναζήτηση τροφής">${pictogram('forage')}${key('T')}</button><div class="fg-build-exit">${key('V')}${key('ESC')}</div></div>`;
   }
   rosterMarkup(){
     const s=this.state,allies=s.allies||[],chosen=this.chosen(),r=this.resources(s.resources);
@@ -630,19 +676,152 @@ export class GameUI {
     const cardMeter=(art,percent,text,kind)=>`<div class="fg-card-meter ${kind}">${pictogram(art)}<span><b style="width:${clamp(percent)*100}%"></b></span><small>${text}</small></div>`;
     return this.panelHeader('ΤΑΚΤΙΚΗ ΔΙΟΙΚΗΣΗ','Πράσινο Ρεύμα',this.tabs('roster'))+`
       <div class="fg-command-summary"><span class="fg-hq-crest">${gangEmblem('ally')}</span><span class="fg-command-metric" title="Η συμμορία σου · απεριόριστη στρατολόγηση">${pictogram('group')}<b>${s.gangCount??allies.length+1}</b><small>Πληθυσμός</small></span><span class="fg-command-metric fg-duty-metric" title="Συνοδοί που ταξιδεύουν μαζί σου">${pictogram('follow')}<span><b>${whole(s.defenses?.traveling??allies.length-filters.guards.length)}</b><small>Συνοδοί</small></span></span><button class="fg-command-metric fg-duty-metric fg-duty-button" data-action="defense-open" title="Διαχείριση φρουρών οχυρών" aria-label="Διαχείριση φρουρών">${pictogram('shield')}<span><b>${whole(s.defenses?.guardCount??filters.guards.length)}</b><small>Φρουροί</small></span></button><span class="fg-command-metric fg-hq-food" title="Κοινό απόθεμα τροφής">${pictogram('fly')}<b>${available(r.food)}</b></span><span class="fg-command-metric fg-hq-reeds" title="Υλικά κατασκευής (ξύλο, φύλλα, καλάμια)">${pictogram('reeds')}<b>${available(r.reeds)}</b></span><div class="fg-global-command">${this.commandButton('regroup','gang-command')}${this.commandButton('forage','gang-command')}${this.trainingButton('gang')}</div></div>
-      <div class="fg-command-layout"><div class="fg-army-main"><div class="fg-roster-toolbar"><div class="fg-roster-filters">${[['all','group','Όλοι'],['injured','heal','Τραυματισμένοι'],['guards','shield','Φρουροί'],['forage','forage','Σε αναζήτηση τροφής']].map(([filter,art,label])=>`<button data-action="roster-filter" data-filter="${filter}" class="${this.rosterFilter===filter?'is-active':''}" title="${label}" aria-label="${label}">${pictogram(art)}<b>${filters[filter].length}</b></button>`).join('')}</div><button class="fg-select-filter" data-action="select-all" data-filter="${this.rosterFilter}" title="Επιλογή όλων στο φίλτρο" aria-label="Επιλογή όλων στο φίλτρο">${pictogram('check')}${key('ALL')}</button></div><div class="fg-frog-grid">${shown.length?shown.map((f,i)=>`
+      ${this.tacticalGroupsMarkup()}<div class="fg-command-layout"><div class="fg-army-main"><div class="fg-roster-toolbar"><div class="fg-roster-filters">${[['all','group','Όλοι'],['injured','heal','Τραυματισμένοι'],['guards','shield','Φρουροί'],['forage','forage','Σε αναζήτηση τροφής']].map(([filter,art,label])=>`<button data-action="roster-filter" data-filter="${filter}" class="${this.rosterFilter===filter?'is-active':''}" title="${label}" aria-label="${label}">${pictogram(art)}<b>${filters[filter].length}</b></button>`).join('')}</div><button class="fg-select-filter" data-action="select-all" data-filter="${this.rosterFilter}" title="Επιλογή όλων στο φίλτρο" aria-label="Επιλογή όλων στο φίλτρο">${pictogram('check')}${key('ALL')}</button></div><div class="fg-frog-grid">${shown.length?shown.map((f,i)=>`
         <button class="fg-frog-card${chosen.has(String(f.id))?' is-selected':''}${isInjured(f)?' is-wounded':''}" data-action="select-frog" data-id="${esc(f.id)}" aria-label="${esc(f.name||`Βάτραχος ${i+1}`)}" title="${esc((f.name||'Βάτραχος')+' · '+(roleNames[f.role]||f.role||'Κυνηγός'))}"><div class="fg-frog-picture"><img src="${esc(this.portrait(f))}" alt="${esc(f.name||'Βάτραχος')}" loading="lazy"><span class="fg-frog-crest">${gangEmblem('ally')}</span><span class="fg-frog-role">${pictogram(rolePictogram(f.role))}</span><span class="fg-frog-tier">${'◆'.repeat(Math.min(5,Math.max(1,f.tier||1)))}</span><b class="fg-frog-level">${whole(f.level||1)}</b>${chosen.has(String(f.id))?`<span class="fg-frog-chosen">${pictogram('check')}</span>`:''}${f.trainingProgress>0?`<div class="fg-training-card-progress"><span style="width:${clamp(f.trainingProgress)*100}%"></span>${pictogram('training')}</div>`:''}${f.trained?`<span class="fg-trained-badge" title="Εκπαιδευμένος">${pictogram('training')}</span>`:''}</div><div class="fg-frog-card-caption"><strong>${esc(f.name||`Βάτραχος ${i+1}`)}</strong><span>${pictogram(orderArt(f))}</span></div>${cardMeter('heart',fraction(f.hp,f.maxHp),whole(f.hp),'health')}${cardMeter('stomach',fraction(f.stomach,f.maxStomach),`${whole(fraction(f.stomach,f.maxStomach)*100)}%`,'hunger')}</button>`).join(''):`<div class="fg-roster-empty">${pictogram('recruit')}${key('E')}</div>`}</div></div>
       <aside class="fg-command-detail"><div class="fg-selection-title"><span>${pictogram('group')}</span><h3>${single?esc(single.name):selected.length?`${selected.length} βάτραχοι`:'Επιλογή ομάδας'}</h3></div><div class="fg-selected-hero">${selected.length?`<img src="${esc(this.portrait(selected[0]))}" alt="${esc(selected[0].name||'Επιλεγμένος βάτραχος')}"><span>${pictogram(single?rolePictogram(single.role):'group')}</span><b>${single?whole(single.level||1):selected.length}</b>`:pictogram('regroup')}</div>${cardMeter('heart',health,`${whole(health*100)}%`,'health')}${cardMeter('stomach',hunger,`${whole(hunger*100)}%`,'hunger')}<div class="fg-selected-orders">${['follow','attack','forage','guard','regroup'].map(command=>this.commandButton(command)).join('')}</div>${this.trainingButton('selection')}${single?`<button class="fg-promote-picture" data-action="frog-command" data-id="${esc(single.id)}" data-command="promote" aria-label="Προαγωγή" title="Προαγωγή · ${whole(promotionCost.food)} τροφή + ${whole(promotionCost.reeds)} υλικά κατασκευής" ${single.canPromote===false?'disabled':''}>${pictogram('crown')}<span>${'◆'.repeat(Math.min(5,(single.tier||1)+1))}</span>${pictogram('fly')}<b>${whole(promotionCost.food)}</b>${pictogram('reeds')}<b>${whole(promotionCost.reeds)}</b></button>`:''}<div class="fg-detail-selection-count">${pictogram('group')}<b>${selected.length} / ${allies.length}</b>${key('SHIFT')}</div></aside></div>`;
   }
+  guideButton(id,label='Πώς λειτουργεί;'){
+    return `<button class="fg-guide-link" data-guide-open="${esc(id)}">?<span>${esc(label)}</span></button>`;
+  }
+  rememberGuideReturn(){
+    if(!this.guideReturn)this.guideReturn={panel:this.panel,menu:this.menu,returnMenu:this.returnMenu||null,panelData:this.panelData,focusElement:typeof document!=='undefined'?document.activeElement:null};
+  }
+  openGuideLibrary(){
+    this.rememberGuideReturn();this.guideBackToBook=false;this.guideFirstEncounter=false;
+    this.showPanel('help');this.callbacks.onAction('guide-open',{id:null,library:true});
+    return true;
+  }
+  showGuideCard(id,{firstEncounter=false}={}){
+    if(!guideCard(id))return false;
+    this.rememberGuideReturn();this.guideBackToBook=this.panel==='help'||this.guideBackToBook;
+    this.guideId=id;this.guideFirstEncounter=Boolean(firstEncounter);
+    this.showPanel('guide');if(this.refs.guideHint)this.refs.guideHint.hidden=true;
+    this.callbacks.onAction('guide-open',{id,firstEncounter:Boolean(firstEncounter)});
+    return true;
+  }
+  closeGuideCard(){
+    if(this.panel==='guide'&&this.guideBackToBook){this.guideBackToBook=false;this.guideFirstEncounter=false;this.showPanel('help');return true;}
+    const previous=this.guideReturn||{panel:null,menu:null},id=this.guideId;
+    this.guideReturn=null;this.guideBackToBook=false;this.guideFirstEncounter=false;this.closePanels();
+    if(previous.menu==='title')this.showTitle(this.hasSave);
+    else if(previous.menu==='pause')this.showPause(true);
+    else if(previous.panel&&!['guide','help'].includes(previous.panel))this.showPanel(previous.panel,previous.panelData);
+    else this.menu=null;
+    if(previous.focusElement?.isConnected)previous.focusElement.focus?.({preventScroll:true});
+    this.callbacks.onAction('guide-close',{id,returnPanel:previous.panel,returnMenu:previous.menu});
+    return true;
+  }
+  showGuideHint(id){
+    const entry=guideCard(id);if(!entry||!this.refs.guideHint)return false;
+    this.refs.guideHint.innerHTML=`<button class="fg-guide-hint-dismiss" data-action="guide-hint-close" aria-label="Κλείσιμο μικρής οδηγίας">${icon('close')}</button><button class="fg-guide-hint-content" data-guide-open="${entry.id}"><img src="${entry.image}" alt="${esc(entry.title)}" loading="lazy"><span><small>ΝΕΟ ΣΤΟΝ ΟΔΗΓΟ</small><strong>${esc(entry.title)}</strong><em>${esc(entry.subtitle)}</em><b>Δες πώς λειτουργεί ${icon('arrow')}</b></span></button>`;
+    this.refs.guideHint.hidden=false;return true;
+  }
+  guideCardMarkup(){
+    const entry=guideCard(this.guideId)||GUIDE_CARDS[0],category=GUIDE_CATEGORIES.find(c=>c.id===entry.category)?.label||'Οδηγός';
+    return this.panelHeader(this.guideFirstEncounter?'ΠΡΩΤΗ ΣΥΝΑΝΤΗΣΗ · ΣΥΝΤΟΜΗ ΠΑΥΣΗ':esc(category),esc(entry.title))+`
+      <article class="fg-field-card" data-guide-card="${entry.id}">
+        <div class="fg-field-art"><img src="${entry.image}" alt="${esc(entry.subtitle)}"><div class="fg-field-art-caption"><span>FROG · ΟΔΗΓΟΣ ΠΕΔΙΟΥ</span><strong>${esc(entry.title)}</strong></div></div>
+        <div class="fg-field-copy"><p class="fg-field-intro">${esc(entry.subtitle)}</p><div class="fg-field-keys" aria-label="Χειρισμός">${entry.keys.map(key).join('')}</div>
+          <ol class="fg-field-steps">${entry.steps.map((step,i)=>`<li><span>${i+1}</span><p>${esc(step)}</p></li>`).join('')}</ol>
+          <dl class="fg-field-outcome"><div><dt>Τι απαιτεί</dt><dd>${esc(entry.cost)}</dd></div><div><dt>Τι πετυχαίνεις</dt><dd>${esc(entry.result)}</dd></div></dl>
+          <aside class="fg-field-tip">${icon('leaf')}<p>${esc(entry.tip)}</p></aside>
+        </div>
+      </article>
+      <div class="fg-field-footer"><div class="fg-field-related"><span>Σχετικές οδηγίες</span>${entry.related.map(id=>guideCard(id)).filter(Boolean).map(c=>`<button data-guide-open="${c.id}">${esc(c.title)}</button>`).join('')}</div><div class="fg-field-footer-actions"><button class="fg-button" data-action="guide-library">Όλο το βιβλίο</button><button class="fg-button fg-primary" data-action="guide-close">${this.guideBackToBook?'Πίσω στο βιβλίο':'Το κατάλαβα'} ${icon('arrow')}</button></div></div>`;
+  }
   helpMarkup(){
-    const rows=[['W A S D','Κίνηση σε σχέση με την κάμερα · σταθερή κατεύθυνση στην κάτοψη'],['Ποντίκι','Κάμερα και στόχευση · ελεύθερος δείκτης στην κάτοψη'],['C','Τρίτο πρόσωπο → πρώτο πρόσωπο → κάτοψη'],['Ροδέλα','Απόσταση κάμερας / μεγέθυνση κάτοψης'],['SPACE','Άλμα σε φύλλα και βράχους'],['SHIFT','Γρήγορη κίνηση · καταναλώνει αντοχή'],['Z','Γρήγορη αποφυγή επίθεσης'],['LMB','Γλώσσα για μύγες και επιθέσεις · κλικ σε σύμμαχο για επιλογή'],['SHIFT + κλικ','Προσθήκη ή αφαίρεση βατράχου από την επιλογή'],['RMB','Στόχευση / αμυντική στάση'],['Q','Επιλεγμένη ειδική επίθεση'],['1 / 2 / 3','Επιλογή ειδικής κίνησης'],['E','Στρατολόγηση ουδέτερου μπροστά σου έως 7μ · συλλογή σε σμήνος ή όχθη'],['R','Εκφοβισμός των αντιπάλων'],['F','Επίθεση / ακολουθήστε'],['T','Ομάδα: αναζήτηση μυγών για τροφή και θεραπεία'],['X','Επάνδρωση κοντινού οχυρού · κρατά έναν συνοδό μαζί σου'],['SHIFT + X','Όλοι μαζί · ανακαλεί και τις φρουρές όλων των βάσεων'],['B','Πρόσθετες ενέργειες'],['V','Κατασκευές · σύρε κάρτα στον χώρο ή κάνε κλικ και τοποθέτησε'],['Q / R','Κατά την τοποθέτηση: περιστροφή αριστερά / δεξιά'],['LMB / ESC','Κατά την τοποθέτηση: επιβεβαίωση / ακύρωση χωρίς χρέωση'],['G','Τροφή από τα κοινά αποθέματα κοντά στη βάση'],['TAB','Διοίκηση συμμορίας'],['Χάρτης πάνω δεξιά','Πάντα ανοιχτός · κλικ για μεγέθυνση · χρυσό στεφάνι στα ενεργά bosses'],['ESC','Παύση / απελευθέρωση ποντικιού']];
-    const chapters=[
-      ['01','camp','Θεμελίωσε τη συμμορία','Ξεκινάς μόνος ως Ευγενής. Πλησίασε τους κίτρινους ουδέτερους βατράχους και πάτησε E για στρατολόγηση με 4 τροφή. Συγκέντρωσε 30 τροφή και 45 υλικά κατασκευής. Χτίσε οχυρό, αποθήκη, φωλιά και χώρο εκπαίδευσης. Στρατολόγησε 6 συμμάχους και εκπαίδευσε 3.',['fly','reeds','camp','store','nursery','training','group']],
-      ['02','heron','Αντιμετώπισε τους κυνηγούς','Οι πρώτες αποστολές ξεκλειδώνουν ερωδιό, νερόφιδο και αρπακτικό ψάρι. Διάβασε την εικόνα της επίθεσης, απέφυγε και αντεπιτέσου με την ομάδα.',['heron','snake','fish','dodge','attack']],
-      ['03','training','Ετοίμασε τον στρατό','Επέκτεινε σε 2 οχυρά, 6 κτίρια και 6 εκπαιδευμένους συμμάχους. Κράτα φρουρούς στις βάσεις και δώσε εντολή αναζήτησης τροφής στους τραυματισμένους.',['camp','watchtower','training','shield','forage']],
-      ['04','boss','Κυριάρχησε στον ποταμό','Νίκησε τους 3 μεγάλους θηρευτές και ένωσε και τις 5 αντίπαλες συμμορίες με κατάκτηση ή πειθώ. Μόλις κρατήσεις 3 αντίπαλα οχυρά, στέφεσαι Βασιλιάς και φοράς στέμμα. Οι μεγάλοι θηρευτές επιτίθενται σε διαδοχικές ορμές.',['boss','crown','persuade','attack']]
-    ];
-    return this.panelHeader('ΚΡΑΤΗΣΕ ΤΑ ΔΑΧΤΥΛΑ ΚΟΝΤΑ ΣΤΟ WASD','Χειρισμός & επιβίωση')+`<div class="fg-help-grid"><div><h3>Χειρισμός</h3><dl class="fg-controls">${rows.map(([k,t])=>`<div><dt>${key(k)}</dt><dd>${t}</dd></div>`).join('')}</dl><div class="fg-help-training"><span class="fg-help-training-art">${pictogram('training')}</span><div><h3>Εκπαίδευση ανά βάτραχο</h3><div class="fg-help-costs"><span>${pictogram('fly')}<b>8</b></span><span>${pictogram('reeds')}<b>4</b></span><span>${pictogram('recover')}<b>18″</b></span></div><p>Επίλεξε συμμάχους στη διοίκηση και πάτησε την εικόνα εκπαίδευσης. Το κόστος εμφανίζεται πριν δώσεις εντολή. Οι βάτραχοι πηγαίνουν σε συμμαχικό χώρο εκπαίδευσης· ο χρόνος αρχίζει όταν φτάσουν. Οι φρουροί επιστρέφουν στο καθήκον τους μετά το μάθημα.</p></div></div></div><div class="fg-guide fg-campaign-guide"><h3>Τα 4 κεφάλαια της εκστρατείας</h3>${chapters.map(([n,art,title,description,arts])=>`<article class="fg-help-chapter"><span class="fg-help-chapter-art">${pictogram(art)}</span><div><b>${n} / ${title}</b><p>${description}</p><div class="fg-help-chapter-images">${arts.map(a=>pictogram(a)).join('')}</div></div></article>`).join('')}<div class="fg-help-forage"><span>${pictogram('forage')}${key('T')}</span><div><b>Οι μύγες θεραπεύουν την ομάδα</b><p>Η εντολή αναζήτησης οδηγεί τους συμμάχους στα σμήνη για τροφή, θεραπεία και προμήθειες. Οι φρουροί κρατούν τη βάση τους. Στο V → Άμυνα αναθέτεις ή ανακαλείς τη φρουρά κάθε βάσης. Με Shift+X ή «Όλοι μαζί» επιστρέφουν όλοι οι φρουροί στην ομάδα. Ο πληθυσμός δεν έχει ανώτατο όριο. Οι φωλιές συνεχίζουν να γεννούν όσο υπάρχουν οι απαιτούμενοι πόροι. Ο μετρητής πάνω αριστερά δείχνει όλη τη συμμορία, τους συνοδούς και τους φρουρούς.</p></div></div><div class="fg-help-fort"><span>${pictogram('fort')}</span><div><b>Κάστρα, τείχη και πύλες</b><p>Κάθε οχυρό έχει περιμετρικά τείχη και πύλη. Στο V, το «Οχυρά τείχη» ενισχύει ολόκληρη την περίμετρο και την πύλη με μία αγορά. Στην πολιορκία παρακολούθησε την αντοχή της πύλης από την Κατασκευή ή την Άμυνα. Η Επισκευή αποκαθιστά το οχυρό και την πύλη του. Κράτα φρουρούς για να υπερασπίζονται την αυλή.</p></div></div><div class="fg-help-emblems"><span title="Σύμμαχοι">${gangEmblem('ally')}</span><span title="Αντίπαλες συμμορίες">${gangEmblem('enemy0')}</span><span title="Μεγάλος θηρευτής">${pictogram('boss')}</span></div></div></div>`;
+    const searchable=value=>String(value||'').normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase('el');
+    const category=this.guideCategory||'all',query=searchable(this.guideQuery).trim(),seen=new Set(this.state.guide?.seen||[]);
+    const cards=GUIDE_CARDS.filter(c=>(category==='all'||category===c.category)&&(!query||searchable([c.title,c.subtitle,...c.keys,...c.steps].join(' ')).includes(query)));
+    return this.panelHeader('ΓΝΩΡΙΣΕ ΤΟΝ ΚΟΣΜΟ · ΔΙΑΛΕΞΕ ΜΙΑ ΕΙΚΟΝΑ','Το βιβλίο της όχθης')+`
+      <div class="fg-guide-intro"><p>Κάθε ενέργεια έχει τη δική της εικόνα, χειρισμό, απαίτηση και αποτέλεσμα. Όλες οι οδηγίες είναι διαθέσιμες από την αρχή.</p><label class="fg-guide-search"><span>Αναζήτηση</span><input type="search" data-guide-search value="${esc(this.guideQuery||'')}" placeholder="π.χ. μύγες, στρατολόγηση, Q" aria-label="Αναζήτηση στον εικονογραφημένο οδηγό"></label></div>
+      <nav class="fg-guide-categories" aria-label="Κατηγορίες οδηγού">${GUIDE_CATEGORIES.map(c=>`<button data-action="guide-category" data-category="${c.id}" aria-pressed="${category===c.id}">${esc(c.label)}</button>`).join('')}</nav>
+      <div class="fg-guide-result-count">${cards.length} εικονογραφημένες οδηγίες</div>
+      <div class="fg-guide-library">${cards.length?cards.map(c=>`<button class="fg-guide-entry" data-guide-open="${c.id}" aria-label="${esc(c.title+' · '+c.subtitle)}"><div><img src="${c.image}" alt="" loading="lazy">${seen.has(c.id)?'<span class="fg-guide-read">Διαβάστηκε</span>':''}</div><section><h3>${esc(c.title)}</h3><p>${esc(c.subtitle)}</p><span class="fg-guide-entry-keys">${c.keys.slice(0,3).map(key).join('')}</span></section></button>`).join(''):'<p class="fg-realm-empty">Δεν βρέθηκε οδηγία. Δοκίμασε άλλη λέξη ή κατηγορία.</p>'}</div>`;
+  }
+  updateRealmHUD(state){
+    const economy=this.economyTotals(state);
+    this.setText('pearls',available(state.resources?.pearls));
+    if(this.refs.supplySummary){
+      this.refs.supplySummary.hidden=!economy;
+      if(economy){const net=Number(economy.netFoodPerMinute)||0;this.refs.supplySummary.classList.toggle('is-short',Boolean(economy.shortage)||net<0);this.refs.supplySummary.textContent=`Τροφή ${net>=0?'+':''}${net.toFixed(1)}/λεπτό`;this.refs.supplySummary.title=`Σύνολο βασιλείου · Παραγωγή ${(Number(economy.foodIncomePerMinute)||0).toFixed(1)} · Συντήρηση ${(Number(economy.foodPerMinute)||0).toFixed(1)} ανά λεπτό`;}
+    }
+    const tutorial=state.guide?.tutorial||state.tutorial||[],active=tutorial.find(t=>!t.done),blocked=this.isBlocking()||state.buildPlacement?.active||state.predator?.hp>0;
+    if(this.refs.practicalTutorial){
+      this.refs.practicalTutorial.hidden=!active||Boolean(state.guide?.tutorialDismissed)||blocked;
+      const signature=JSON.stringify(active&&[active.id,active.current,active.target,tutorial.filter(t=>t.done).length]);
+      if(active&&signature!==this.tutorialSignature){this.tutorialSignature=signature;this.refs.practicalTutorial.innerHTML=`<div><span>ΠΡΩΤΑ ΒΗΜΑΤΑ · ${tutorial.filter(t=>t.done).length}/${tutorial.length}</span><button data-action="tutorial-dismiss" aria-label="Απόκρυψη πρακτικής εκπαίδευσης">${icon('close')}</button></div><strong>${esc(active.label)}</strong><p>${esc(active.detail)}</p><button data-guide-open="${esc(active.guideId||'movement')}">Δείξε μου πώς ${icon('arrow')}</button><progress value="${Math.min(Number(active.current)||0,Number(active.target)||1)}" max="${Number(active.target)||1}" aria-label="Πρόοδος πρακτικού βήματος"></progress>`;}
+    }
+    const groups=state.tacticalGroups||[];
+    if(this.refs.tacticsDock){
+      this.refs.tacticsDock.hidden=!groups.some(g=>(g.count??g.ids?.length??0)>0)||blocked;
+      const signature=JSON.stringify(groups.map(g=>[g.id,g.name,g.count??g.ids?.length,g.selected]));
+      if(signature!==this.tacticsSignature){this.tacticsSignature=signature;this.refs.tacticsDock.innerHTML=groups.map((g,i)=>`<button data-action="select-group" data-group="${esc(g.id)}" aria-pressed="${!!g.selected}" title="${esc(g.name||`Ομάδα ${i+1}`)} · ${whole(g.count??g.ids?.length)} βάτραχοι">${key(i+4)}<span>${esc(g.name||`Ομάδα ${i+1}`)}</span><b>${whole(g.count??g.ids?.length)}</b></button>`).join('');}
+    }
+    if(this.refs.guideHint)this.refs.guideHint.classList.toggle('is-obscured',Boolean(blocked));
+  }
+  recruitmentMarkup(){
+    const r=this.state.recruitment;
+    if(!r)return this.panelHeader('ΣΥΜΦΩΝΙΑ','Στρατολόγηση')+`<div class="fg-realm-empty">Πλησίασε και κοίτα έναν ουδέτερο ή παραδομένο βάτραχο για να δεις την προσωπική του πρόταση.${this.guideButton('recruit','Πώς κερδίζω έναν σύμμαχο;')}</div>`;
+    const requirements=r.requirements||[],ready=Boolean(r.canRecruit),targetId=r.targetId||r.id||'';
+    return this.panelHeader('Η ΕΝΤΑΞΗ ΕΙΝΑΙ ΜΙΑ ΣΥΜΦΩΝΙΑ',esc(r.name||'Νέος σύμμαχος'))+`
+      <div class="fg-recruit-contract"><div class="fg-contract-portrait"><img src="${esc(r.portrait||'./guide/neutral.webp')}" alt="${esc(r.name||'Ουδέτερος βάτραχος')}"><span>${esc(roleNames[r.role]||'Υποψήφιος σύμμαχος')}</span>${r.level?`<b>Επίπεδο ${whole(r.level)}</b>`:''}</div><section><p class="fg-contract-intro">${esc(r.description||r.reason||'Οι απαιτήσεις αφορούν αυτόν τον βάτραχο. Το κύρος σου μπορεί να τις μειώσει.')}</p><ul class="fg-contract-requirements">${requirements.map(req=>{const met=Boolean(req.done??req.met);return `<li class="${met?'is-met':''}"><span>${icon(met?'check':'leaf')}</span><div><strong>${esc(req.label||req.id)}</strong>${req.detail?`<p>${esc(req.detail)}</p>`:''}${req.target!=null?`<small>${whole(req.current)} / ${whole(req.target)}</small>`:''}</div></li>`;}).join('')||'<li class="is-met">Δεν απομένει προϋπόθεση. Ο βάτραχος αναγνωρίζει το κύρος σου.</li>'}</ul><div class="fg-contract-price"><span>Κόστος ένταξης</span>${this.costMarkup(r.cost||{food:0})}</div>${r.helpAvailable||requirements.some(q=>q.id==='help'&&!q.done)?`<button class="fg-button" data-action="recruit-help" data-id="${esc(targetId)}">${r.helpAccepted?'Δες τη βοήθεια που χρειάζεται':'Ανάλαβε να τον βοηθήσεις'}</button>`:''}<button class="fg-button fg-primary" data-action="recruit-target" data-id="${esc(targetId)}" ${ready?'':'disabled'}>${ready?'Ένταξη στην ομάδα':'Ολοκλήρωσε τις απαιτήσεις'} ${icon('arrow')}</button><p class="fg-contract-note">${esc(r.instant?'Το κύρος σου αρκεί για άμεση ένταξη.':r.blockReason||(!ready?'Οι πόροι χρεώνονται μόνο όταν η ένταξη ολοκληρωθεί.':'Ο νέος σύμμαχος θα ακολουθεί την ομάδα σου.'))}</p>${this.guideButton('recruit','Πώς λειτουργεί η συμφωνία;')}</section></div>`;
+  }
+  costMarkup(cost={}){
+    const parts=[['food','Τροφή','fly'],['reeds','Υλικά','reeds'],['pearls','Μαργαριτάρια','pearl']].filter(([id])=>(Number(cost[id])||0)>0);
+    return `<span class="fg-exact-cost">${parts.length?parts.map(([id,label,art])=>`<span title="${label}">${id==='pearls'?'<i class="fg-pearl" aria-hidden="true"></i>':pictogram(art)}<b>${whole(cost[id])}</b><small>${label}</small></span>`).join(''):'<span><b>0</b><small>Χωρίς χρέωση</small></span>'}</span>`;
+  }
+  economyTotals(state=this.state){
+    const e=state.realmEconomy;if(!e)return null;
+    const background=e.background||state.realm?.background||{};
+    const total=key=>(Number(e[key])||0)+(Number(background[key])||0);
+    const net=total('netFoodPerMinute'),food=typeof state.resources==='number'?state.resources:state.resources?.food;
+    return {...e,armyCount:total('armyCount'),foodIncomePerMinute:total('foodIncomePerMinute'),foodPerMinute:total('foodPerMinute'),netFoodPerMinute:net,minutesOfFood:net>=0?Infinity:Number.isFinite(food)?Math.max(0,food)/-net:e.minutesOfFood};
+  }
+  economyMarkup(){
+    const e=this.economyTotals();if(!e)return '';
+    const net=Number(e.netFoodPerMinute)||0;
+    return `<div class="fg-economy-summary"><span><small>Παραγωγή βασιλείου</small><b>+${(Number(e.foodIncomePerMinute)||0).toFixed(1)}<em>/λεπτό</em></b></span><span><small>Συντήρηση στρατού</small><b>−${(Number(e.foodPerMinute)||0).toFixed(1)}<em>/λεπτό</em></b></span><span class="${net<0?'is-short':'is-positive'}"><small>Ισοζύγιο</small><b>${net>=0?'+':''}${net.toFixed(1)}<em>/λεπτό</em></b></span><span><small>Απόθεμα για</small><b>${Number.isFinite(e.minutesOfFood)?`${Math.max(0,e.minutesOfFood).toFixed(1)} λεπτά`:'Σταθερή τροφοδοσία'}</b></span></div>${e.shortage?'<p class="fg-realm-warning">Η τροφοδοσία δεν επαρκεί. Ενίσχυσε την παραγωγή ή στείλε συλλέκτες σε ασφαλή σμήνη.</p>':''}`;
+  }
+  jobMarkup(job){
+    const construction=job.kind==='construction',remaining=Math.max(0,Number(job.remaining)||0),rate=Number(job.workRate)||0;
+    const running=job.status==='working',eta=construction&&running&&rate>0?Math.ceil(remaining/rate):null;
+    const time=remaining<=0?'Έτοιμο':eta!==null?`≈ ${eta}″`:`${Math.ceil(remaining)}″${construction?' εργασίας':''}`;
+    const status=job.reason||({working:'Σε εξέλιξη',queued:'Στην ουρά',paused:'Σε αναμονή',blocked:'Η εργασία σταμάτησε',delivery:'Περιμένει τον παραλήπτη'}[job.status])||job.status||'Σε εξέλιξη';
+    const player=Boolean(job.playerBuilding),assigned=whole(job.workersAssigned),helpers=Math.max(0,whole(job.workersPresent)-(player?1:0));
+    const site=job.workPoint,p=this.state.world?.player||this.state.player,siteDistance=site&&p&&Number.isFinite(site.x)&&Number.isFinite(site.z)&&Number.isFinite(p.x)&&Number.isFinite(p.z)?Math.ceil(Math.hypot(site.x-p.x,site.z-p.z)):null;
+    const workforce=construction?`<div class="fg-job-workforce"><span>${pictogram('group')}Σύμμαχοι <b>${helpers} / ${assigned}</b><small>παρόντες / ανατεθειμένοι</small></span><span class="${player?'is-working':''}">${player?'Εσύ χτίζεις':'Εσύ εκτός πάγκου'}${rate>0?`<small>Ρυθμός ${rate.toFixed(2)}×</small>`:''}</span></div><p class="fg-job-help">${player?'Μείνε ακίνητος στον πάγκο για να συνεχίσεις την εργασία.':`Πήγαινε στον πάγκο με τη σημαία${siteDistance!==null?` · ${siteDistance} μ. από εδώ`:''}. Στάσου ακίνητος ή φέρε ελεύθερους συνοδούς.`} Η βάση πρέπει να παραμένει ασφαλής.</p>`:'';
+    return `<article class="fg-job"><div><strong>${esc(job.label||job.type||'Εργασία')}</strong><span>${esc(job.campName||'Οχυρό')}${job.targetName?' · '+esc(job.targetName):''}</span></div><progress value="${Number(job.progress)||0}" max="${Number(job.duration)||1}" aria-label="Πρόοδος ${esc(job.label||'εργασίας')}"></progress><p><span>${esc(status)}</span><b title="${eta!==null?'Εκτίμηση με τον τρέχοντα αριθμό οικοδόμων':construction?'Υπόλοιπο βασικής εργασίας· χωρίς οικοδόμο ο χρόνος δεν μειώνεται':'Χρόνος εργαστηρίου'}">${time}</b></p>${workforce}${job.canCancel?`<button class="fg-text-button" data-action="cancel-job" data-job="${esc(job.id)}" title="Ακύρωση σε ασφαλή βάση · επιστρέφεται το μισό κόστος">Ακύρωση · επιστροφή 50%</button>`:''}</article>`;
+  }
+  jobsMarkup(kind=null){
+    const jobs=(this.state.realmEconomy?.jobs||[]).filter(job=>!kind||job.kind===kind);
+    return `<section class="fg-job-section"><h3>${kind==='craft'?'Στον πάγκο των τεχνιτών':'Εργασίες σε εξέλιξη'}</h3>${jobs.length?`<div class="fg-job-list">${jobs.map(job=>this.jobMarkup(job)).join('')}</div>`:'<p class="fg-realm-empty">Δεν υπάρχουν ενεργές εργασίες.</p>'}</section>`;
+  }
+  organizationMarkup(){
+    const camps=this.state.realmEconomy?.camps||[];
+    return this.panelHeader('ΧΩΡΟΣ · ΤΡΟΦΟΔΟΣΙΑ · ΕΙΔΙΚΕΥΣΗ','Οργάνωση οχυρών',this.buildViews())+this.economyMarkup()+`
+      <div class="fg-realm-section-heading"><p>Οι θέσεις περιορίζουν τα κτίρια μέσα στην αυλή. Ο πληθυσμός παραμένει απεριόριστος.</p>${this.guideButton('specialization')}</div>
+      <div class="fg-specialization-camps">${camps.length?camps.map(c=>`<article class="fg-camp-organization"><header><span>${pictogram('fort')}</span><div><h3>${esc(c.name)}</h3><p>${esc(c.specializationLabel||'Χωρίς ειδίκευση')} · ${c.underConstruction?'Υπό κατασκευή':c.safe?'Ασφαλές':'Υπό απειλή'}</p></div><strong>${whole(c.slotsUsed)}${c.slotsReserved?` + ${whole(c.slotsReserved)}`:''} / ${whole(c.slotsTotal)}<small>χτισμένα + δεσμευμένα</small></strong></header><div class="fg-specialization-options">${(c.availableSpecializations||[]).map(spec=>`<button data-action="camp-specialization" data-camp="${esc(c.id)}" data-specialization="${esc(spec.id)}" class="${c.specialization===spec.id?'is-selected':''}" ${spec.enabled===false?'disabled':''}><span>${pictogram({production:'store',defense:'shield',training:'training'}[spec.id]||'camp')}</span><strong>${esc(spec.label)}</strong><p>${esc(spec.description)}</p>${spec.reason?`<small>${esc(spec.reason)}</small>`:''}</button>`).join('')}</div></article>`).join(''):'<p class="fg-realm-empty">Ολοκλήρωσε το πρώτο οχυρό για να οργανώσεις την παραγωγή και τις θέσεις του.</p>'}</div>`+this.jobsMarkup();
+  }
+  workshopMarkup(){
+    const e=this.state.realmEconomy||{},r=this.resources(this.state.resources),recipes=e.recipes||[];
+    return this.panelHeader('ΑΠΟ ΤΟ ΥΛΙΚΟ ΣΤΟΝ ΕΞΟΠΛΙΣΜΟ','Εργαστήριο',this.buildViews())+`
+      <div class="fg-workshop-intro"><img src="./guide/craft.webp" alt="Τεχνίτης κατασκευάζει εξοπλισμό από πραγματικά υλικά"><div><h3>Ο εξοπλισμός πρέπει να κατασκευαστεί.</h3><p>Χρειάζεσαι ασφαλή χώρο εκπαίδευσης κοντά σου. Το κόστος αφορά όλους τους επιλεγμένους παραλήπτες.</p><strong>Παραλήπτης: ${esc(e.craftTargetsLabel||'Ο παίκτης')}</strong><button class="fg-text-button" data-action="craft-target-player">Επιλογή του παίκτη</button>${this.guideButton('craft','Δες τη διαδικασία')}</div></div>
+      <div class="fg-workshop-bank">Διαθέσιμα ${this.costMarkup({food:r.food,reeds:r.reeds,pearls:r.pearls})}</div>
+      <div class="fg-recipes">${recipes.length?recipes.map(recipe=>`<article class="fg-recipe"><span class="fg-recipe-icon">${pictogram(recipe.id?.includes('crest')?'crown':recipe.id?.includes('bracers')?'attack':'shield')}</span><h3>${esc(recipe.name)}</h3><p>${esc(recipe.description)}</p><div class="fg-recipe-facts"><span>Επίπεδο ${whole(recipe.requiredLevel||1)}</span><span>${whole(recipe.duration)}″ ανά τεμάχιο</span><span>${whole(recipe.targetCount)} παραλήπτες</span></div>${this.costMarkup(recipe.totalCost||recipe.cost)}<button class="fg-button fg-primary" data-action="craft-equipment" data-camp="${esc(e.currentCampId||'')}" data-recipe="${esc(recipe.id)}" ${recipe.enabled?'':'disabled'}>Κατασκευή ${icon('arrow')}</button>${recipe.reason?`<small class="fg-recipe-reason">${esc(recipe.reason)}</small>`:''}</article>`).join(''):'<p class="fg-realm-empty">Οι συνταγές θα εμφανιστούν όταν ανοίξει το εργαστήριο.</p>'}</div>`+this.jobsMarkup('craft');
+  }
+  tacticalGroupsMarkup(){
+    const groups=this.state.tacticalGroups||[];if(!groups.length)return '';
+    const selected=groups.find(g=>g.selected),commands=[['attack','Επίθεση'],['flank-left','Αριστερή πλευρά'],['flank-right','Δεξιά πλευρά'],['guard','Φρουρά'],['follow','Ακολουθήστε']];
+    return `<section class="fg-tactical-groups"><div class="fg-realm-section-heading"><h3>Σταθερές ομάδες</h3>${this.guideButton('groups','Ομάδες και πλαγιοκόπηση')}</div><div class="fg-tactical-cards">${groups.map((g,i)=>`<article class="${g.selected?'is-selected':''}"><button class="fg-group-select" data-action="select-group" data-group="${esc(g.id)}" aria-pressed="${!!g.selected}">${key(i+4)}<strong>${esc(g.name||`Ομάδα ${i+1}`)}</strong><b>${whole(g.count??g.ids?.length)}<small>βάτραχοι</small></b></button><button class="fg-group-save" data-action="save-group" data-group="${esc(g.id)}" ${this.chosen().size?'':'disabled'}>Ανάθεση επιλογής ${key('Shift+'+(i+4))}</button></article>`).join('')}</div><div class="fg-group-orders"><span>${selected?esc(selected.name):'Επίλεξε μια αποθηκευμένη ομάδα'}</span>${commands.map(([command,label])=>`<button data-action="group-command" data-group="${esc(selected?.id||'')}" data-command="${command}" ${selected&&(selected.count??selected.ids?.length)>0?'':'disabled'}>${esc(label)}</button>`).join('')}</div></section>`;
+  }
+  realmMarkup(){
+    const realm=this.state.realm||{},regions=realm.regions||[],milestones=realm.milestones||[];
+    return this.panelHeader('ΕΝΑΣ ΚΟΣΜΟΣ ΠΟΥ ΣΥΝΕΧΙΖΕΤΑΙ','Οι περιοχές του βασιλείου',this.tabs('realm'))+`
+      <div class="fg-frontier-intro"><img src="./guide/frontier.webp" alt="Εκστρατεία βατράχων προς νέες λίμνες"><div><span class="fg-eyebrow">ΤΡΕΧΟΥΣΑ ΠΕΡΙΟΧΗ</span><h3>${esc(realm.name||'Η πρώτη λίμνη')}</h3><p>Οι κατακτήσεις και οι φρουρές αποθηκεύονται σε κάθε περιοχή. Οι συνοδοί ταξιδεύουν μαζί σου.</p>${realm.nextEvent?`<strong>${esc(realm.nextEvent.label)} · ${Math.ceil(Number(realm.nextEvent.seconds)||0)}″</strong>`:''}${this.guideButton('frontier','Πώς επεκτείνω το βασίλειο;')}</div></div>
+      ${realm.background?.regions?`<p class="fg-realm-background">Στις ${whole(realm.background.regions)} άλλες περιοχές σου παραμένουν ${whole(realm.background.guards)} φρουροί. Οι ασφαλείς βάσεις παράγουν και τροφοδοτούν τους κατοίκους τους. Οι εργασίες και οι μάχες συνεχίζονται όταν επιστρέψεις στην αντίστοιχη λίμνη.</p>`:''}
+      ${milestones.length?`<section class="fg-realm-milestones"><h3>Επόμενα ορόσημα</h3>${milestones.map(m=>`<div class="${m.done?'is-done':''}"><span>${pictogram(m.done?'check':m.icon||'camp')}</span><strong>${esc(m.label)}</strong><b>${whole(m.current)} / ${whole(m.target)}</b><progress value="${Math.min(Number(m.current)||0,Number(m.target)||1)}" max="${Number(m.target)||1}"></progress></div>`).join('')}</section>`:''}
+      <div class="fg-region-list">${regions.map(region=>{const travel=region.travel||{},active=Boolean(region.active);return `<article class="fg-region ${active?'is-current':''}"><div class="fg-region-number">${String((Number(region.index)||0)+1).padStart(2,'0')}</div><div class="fg-region-copy"><small>${active?'ΒΡΙΣΚΕΣΑΙ ΕΔΩ':region.visited?'ΓΝΩΣΤΗ ΠΕΡΙΟΧΗ':'ΝΕΑ ΜΕΘΟΡΙΟΣ'}</small><h3>${esc(region.name)}</h3><div class="fg-region-metrics"><span>${whole(region.owned)} κάστρα</span><span>${whole(region.garrison)} φρουροί</span><span>${whole(region.enemies)} αντίπαλοι</span></div>${!active?`<ul class="fg-travel-requirements">${(travel.requirements||[]).map(req=>`<li class="${req.met?'is-met':''}">${icon(req.met?'check':'leaf')}${esc(req.label)}</li>`).join('')}</ul>`:''}</div><div class="fg-region-action">${active?'<span>Ενεργή περιοχή</span>':`${this.costMarkup(travel.cost)}<button class="fg-button ${travel.allowed?'fg-primary':''}" data-action="realm-travel" data-region="${Number(travel.targetIndex??region.index)}" ${travel.allowed?'':'disabled'}>${region.visited?'Επιστροφή':'Νέα αποστολή'} ${icon('arrow')}</button>${travel.reason?`<p>${esc(travel.reason)}</p>`:''}`}</div></article>`;}).join('')||'<p class="fg-realm-empty">Σταθεροποίησε την πρώτη σου βάση για να εξερευνήσεις τη μεθόριο.</p>'}</div>`;
   }
   emblemImage(team){
     if(!this.mapEmblems)this.mapEmblems=new Map();if(this.mapEmblems.has(team))return this.mapEmblems.get(team);

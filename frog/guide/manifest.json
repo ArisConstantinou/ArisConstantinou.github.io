@@ -1,0 +1,258 @@
+{
+  "version": 2,
+  "style": "Stylized high-quality miniature 3D creek-fantasy educational concept art. Green frogs, natural reed, leaf, moss and stone castles. Clear readable actions. No UI, text, labels, numbers, watermark or lettering. Landscape framing. Use the real mechanic described by scene.",
+  "cards": [
+    {
+      "id": "movement",
+      "title": "Κίνηση στην όχθη",
+      "scene": "A small green noble frog walking along a curving dry mossy bank between reeds and a shallow creek, a clear sequence of three subtle footprints, no crown or armor.",
+      "file": "movement.webp"
+    },
+    {
+      "id": "sprint",
+      "title": "Γρήγορο τρέξιμο",
+      "scene": "A green frog sprinting low across a mossy creek bank with subtle motion trails; at the side a calmer walking frog silhouette communicates conserving stamina.",
+      "file": "sprint.webp"
+    },
+    {
+      "id": "jump",
+      "title": "Άλμα",
+      "scene": "A green frog mid-jump from a mossy rock to a broad lily pad over blue creek water, a subtle curved motion arc, both launch and landing surfaces visible.",
+      "file": "jump.webp"
+    },
+    {
+      "id": "tongue",
+      "title": "Επίθεση με τη γλώσσα",
+      "scene": "A green frog striking a hostile rust-colored frog with its extended pink tongue on an open creek bank; clear gap and direction, no blood, readable small battle vignette.",
+      "file": "tongue.webp"
+    },
+    {
+      "id": "block",
+      "title": "Αμυντική στάση",
+      "scene": "A small green frog bracing defensively against an incoming orange frog strike, front limbs held firm and body low, a restrained translucent curved shield cue, no manufactured armor.",
+      "file": "block.webp"
+    },
+    {
+      "id": "kick",
+      "title": "Εναέρια κλωτσιά",
+      "scene": "A green frog delivering a clear airborne hind-leg kick toward a rust-colored rival, pond rocks and reeds in the background, lively action pose, no weapons.",
+      "file": "kick.webp"
+    },
+    {
+      "id": "slam",
+      "title": "Βαριά προσγείωση",
+      "scene": "A powerful green frog landing heavily at the center of a small ring of hostile frogs, dust and ripples spreading across mossy ground, overhead three-quarter camera, no gore.",
+      "file": "slam.webp"
+    },
+    {
+      "id": "sweep",
+      "title": "Σάρωση με τη γλώσσα",
+      "scene": "A green frog sweeping its long pink tongue in a clear curved arc across three approaching orange rival frogs, shallow mossy arena, dynamic but readable.",
+      "file": "sweep.webp"
+    },
+    {
+      "id": "dodge",
+      "title": "Αποφυγή",
+      "scene": "A green frog dodging sideways as a heron beak strikes the ground where it stood, clear ghosted previous position and safe side position, water reeds background.",
+      "file": "dodge.webp"
+    },
+    {
+      "id": "intimidate",
+      "title": "Εκφοβισμός",
+      "scene": "A green leader frog croaking powerfully with expanding golden sound rings, several tired orange frogs recoil while one lowers its stance in surrender, no crown on the leader.",
+      "file": "intimidate.webp"
+    },
+    {
+      "id": "interact",
+      "title": "Αλληλεπίδραση",
+      "scene": "A green frog facing three clear nearby possibilities along a creek bank: a buzzing fly swarm, a yellow neutral frog, and a bundle of reeds; visual focus ring around the nearest swarm, no text.",
+      "file": "interact.webp"
+    },
+    {
+      "id": "recruit",
+      "title": "Συμφωνία στρατολόγησης",
+      "scene": "A green noble frog negotiating with a yellow neutral frog at a small reed camp, between them a leaf bowl of flies, a safe little castle in background, a rescued friend nearby, friendly purposeful scene.",
+      "file": "recruit.webp"
+    },
+    {
+      "id": "forage",
+      "title": "Αναζήτηση τροφής",
+      "scene": "Three allied green frogs spreading around a rich fly swarm over ripe pond fruit, one eating and two gathering flies into leaf baskets, safe mossy shoreline.",
+      "file": "forage.webp"
+    },
+    {
+      "id": "groups",
+      "title": "Μόνιμες ομάδες",
+      "scene": "Three separate groups of allied green frogs with distinct blue, gold and pale green pennants, one assault group, one defense group and one reserve group arranged on a creek battlefield.",
+      "file": "groups.webp"
+    },
+    {
+      "id": "flank",
+      "title": "Πλαγιοκόπηση",
+      "scene": "Tactical elevated view of green frogs confronting orange frogs, one green squad curves around the left through reeds while a central squad holds position, subtle clear movement arcs.",
+      "file": "flank.webp"
+    },
+    {
+      "id": "guard",
+      "title": "Φρουρά κάστρου",
+      "scene": "A complete tiny frog castle with closed walls and open gate, allied frogs posted at the gate and four towers while an enemy group approaches outside, visible defended courtyard.",
+      "file": "guard.webp"
+    },
+    {
+      "id": "regroup",
+      "title": "Συγκέντρωση και ανάκληση",
+      "scene": "Scattered allied frogs returning toward their green leader from a reed patch and a distant castle, converging paths and a clear regrouping circle, no teleportation effects.",
+      "file": "regroup.webp"
+    },
+    {
+      "id": "build",
+      "title": "Τοποθέτηση και εργοτάξιο",
+      "scene": "A frog castle under construction with reed scaffolding, stacked stones, leaf plans and small green frog workers, one allied guard watching a red-orange raider beyond the site.",
+      "file": "build.webp"
+    },
+    {
+      "id": "store",
+      "title": "Αποθήκη και παραγωγή",
+      "scene": "A reed-roofed storehouse within a small frog castle courtyard, neatly stocked leaf baskets of flies and bundles of reeds, frog workers delivering supplies.",
+      "file": "store.webp"
+    },
+    {
+      "id": "nursery",
+      "title": "Φωλιά στρατολόγησης",
+      "scene": "A sheltered lily-leaf nursery inside a frog castle courtyard, small new green frogs emerging near a safe pool, leaf food baskets and a watching allied guard.",
+      "file": "nursery.webp"
+    },
+    {
+      "id": "training",
+      "title": "Εκπαίδευση συμμάχων",
+      "scene": "Green frog trainees practicing kicks and tongue strikes against reed dummies inside a dedicated castle training yard, a veteran frog instructor, no armor magically appearing.",
+      "file": "training.webp"
+    },
+    {
+      "id": "watchtower",
+      "title": "Σκοπιά",
+      "scene": "A tall reed-and-stone watchtower rising inside a frog castle, green sentry looking toward approaching orange rivals on a winding bank, visible early warning line of sight.",
+      "file": "watchtower.webp"
+    },
+    {
+      "id": "walls",
+      "title": "Τείχη και πύλη",
+      "scene": "Cutaway three-quarter view of a circular stone-and-reed frog castle with four towers, continuous walls and one sturdy wooden gate, enemy frogs striking the gate while defenders shelter behind it.",
+      "file": "walls.webp"
+    },
+    {
+      "id": "upgrade",
+      "title": "Αναβάθμιση κάστρου",
+      "scene": "A modest frog keep transforming through visible construction into a taller reinforced castle, old lower wall in foreground and stronger finished towers behind, workers and materials visible.",
+      "file": "upgrade.webp"
+    },
+    {
+      "id": "repair",
+      "title": "Επισκευή",
+      "scene": "Green frog builders repairing a damaged wooden castle gate with reed bindings and stone blocks, broken section and restored section visibly contrasted, safe courtyard.",
+      "file": "repair.webp"
+    },
+    {
+      "id": "specialization",
+      "title": "Ειδίκευση κάστρου",
+      "scene": "Three small frog castles shown as distinct neighboring roles: food baskets and gardens, reinforced guard towers, and a training workshop; consistent natural creek materials and separate clear silhouettes.",
+      "file": "specialization.webp"
+    },
+    {
+      "id": "craft",
+      "title": "Κατασκευή εξοπλισμού",
+      "scene": "A frog artisan physically weaving reed armor and fitting shell plates at a small workbench, raw reeds and pearls on one side and a finished wearable frog cuirass on the other.",
+      "file": "craft.webp"
+    },
+    {
+      "id": "food",
+      "title": "Τροφή και συντήρηση",
+      "scene": "A leaf-lined food store with baskets of flies feeding a line of allied frogs, small supply paths from a protected castle to a marching squad, clear resource-to-army relationship.",
+      "file": "food.webp"
+    },
+    {
+      "id": "flies",
+      "title": "Πραγματικές μύγες",
+      "scene": "Close view of a vivid fly swarm over pond fruit and reeds; a green frog catches one fly with its tongue while a leaf basket holds gathered flies, realistic readable insects.",
+      "file": "flies.webp"
+    },
+    {
+      "id": "materials",
+      "title": "Υλικά κατασκευής",
+      "scene": "A detailed organized bundle of cut reeds, broad leaves, twigs and small stones beside a green frog carrying material toward a castle construction site, no coins.",
+      "file": "materials.webp"
+    },
+    {
+      "id": "pearls",
+      "title": "Σπάνια μαργαριτάρια",
+      "scene": "Luminous natural freshwater pearls resting in an opened shell on a mossy rock, a distant defeated giant fish shadow and an allied frog collecting the treasure, tasteful fantasy light.",
+      "file": "pearls.webp"
+    },
+    {
+      "id": "neutral",
+      "title": "Ουδέτεροι βάτραχοι",
+      "scene": "A single yellow-olive neutral frog waiting beside a sheltered pond with a small leaf pack, looking cautiously at an approaching unarmored green noble frog, peaceful clear distinction.",
+      "file": "neutral.webp"
+    },
+    {
+      "id": "enemies",
+      "title": "Αντίπαλα βασίλεια",
+      "scene": "Four distinct rival frog roles in rusty orange and muted purple: lean scout, long-tongue hunter, broad bruiser and inflated-throat caller, assembled before a fortified enemy castle.",
+      "file": "enemies.webp"
+    },
+    {
+      "id": "surrender",
+      "title": "Παράδοση αντιπάλου",
+      "scene": "A tired orange frog lowering its head and raising empty forelimbs before a calm green leader, battle has stopped, a small pale surrender cloth by the frog, no injury detail.",
+      "file": "surrender.webp"
+    },
+    {
+      "id": "heron",
+      "title": "Ερωδιός",
+      "scene": "A towering blue-grey heron crouching with its neck coiled before a beak strike, tiny green frog squads split safely to the sides on a mossy bank, clear readable attack preparation.",
+      "file": "heron.webp"
+    },
+    {
+      "id": "snake",
+      "title": "Νερόφιδο",
+      "scene": "An olive water snake coiled in an S curve at the edge of reeds, its head preparing a lunge while green frogs flank from both sides, non-graphic miniature fantasy scene.",
+      "file": "snake.webp"
+    },
+    {
+      "id": "fish",
+      "title": "Αρπακτικό ψάρι",
+      "scene": "A large dark predatory fish rising beneath a translucent blue creek surface, a tiny green frog leaping onto a dry rock as the fish shadow approaches, visible water boundary.",
+      "file": "fish.webp"
+    },
+    {
+      "id": "bosses",
+      "title": "Μεγάλοι θηρευτές",
+      "scene": "Epic but readable trio of gigantic creek predators: iron-grey heron, thick water snake and deep-water fish, tiny fortified frog castle and organized squads establish scale, golden natural accents.",
+      "file": "bosses.webp"
+    },
+    {
+      "id": "map",
+      "title": "Χάρτης και πληροφορίες",
+      "scene": "A hand-crafted leaf parchment map of a winding creek with stone castle tokens, green frog squad tokens and heron snake fish boss markers, a green frog studying it, no text or lettering.",
+      "file": "map.webp"
+    },
+    {
+      "id": "frontier",
+      "title": "Νέες περιοχές",
+      "scene": "A green frog expedition leaving a secure castle along a reed raft route toward several distant misty lakes and new islands, previous fortified homeland clearly visible behind.",
+      "file": "frontier.webp"
+    },
+    {
+      "id": "progress",
+      "title": "Εμπειρία, κύρος και εμφάνιση",
+      "scene": "A progression lineup of three related green frogs from small unarmored noble to larger seasoned frog and a visibly crafted shell-armored leader, workbench and materials establish that equipment is made, restrained gold crown at final earned stage.",
+      "file": "progress.webp"
+    },
+    {
+      "id": "respawn",
+      "title": "Ήττα και επιστροφή",
+      "scene": "A weary green frog leader recovering beside a safe sheltered lily pool at dawn, a distant battle-scarred castle and fewer surviving companions visible, hopeful persistent-world mood.",
+      "file": "respawn.webp"
+    }
+  ]
+}

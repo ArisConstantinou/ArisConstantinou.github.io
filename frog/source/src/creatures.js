@@ -140,7 +140,7 @@ function frogLimbPaint(p, t=0, a=0) {
   return paintResult([lerp(shade,.70,underside),lerp(shade,.66,underside),lerp(shade,.43,underside)],1-underside*.92);
 }
 function frogTemplate(detail = 1) {
-  const rig = buildRig(), S = new Surface(detail), E = new Surface(detail), A = new Surface(detail), C = new Surface(detail);
+  const rig = buildRig(), S = new Surface(detail), E = new Surface(detail), A = new Surface(detail), C = new Surface(detail), Q = new Surface(detail), B = new Surface(detail);
   const pelvis = rig.bone('pelvis', [0, .36, -.35]);
   const spine = rig.bone('spine', [0, .43, -.07], pelvis);
   const head = rig.bone('head', [0, .47, .29], spine);
@@ -209,12 +209,21 @@ function frogTemplate(detail = 1) {
     A.leaf([[side * .12, .695, -.08], [side * .31, .69, -.19], [side * .48, .52, -.38]], [.012, .14, .03], { bone: spine, color: [.26, .40, .12], ridge: .025, segments: 15 });
     A.leaf([[side * .04, .715, .05], [side * .20, .73, -.03], [side * .36, .59, -.2]], [.008, .13, .015], { bone: spine, color: [.34, .48, .18], ridge: .035, segments: 15 });
     C.leaf([[side * .17, .76, .40], [side * .21, .89, .32], [side * .24, .91, .18]], [.025, .055, .002], { bone: head, color: [.69, .53, .19], ridge: .015, segments: 12 });
+    // Crafted shells are distinct rigid plates, weighted to the spine. They
+    // are authored once per shared LOD and are never granted by a level/tier.
+    for (const [x, y, z, rx, rz] of [[side * .16, .745, -.005, .18, .21], [side * .29, .67, -.25, .17, .19]]) {
+      Q.ellipsoid([x, y, z], [rx, .055, rz], { bone: spine, rings: 8, radial: 18, paint: (p, u) => paintResult([.84 + .08 * Math.cos(u * TAU * 9), .79, .59]), sculpt(p) { const ridge = 1 + .035 * Math.cos(Math.atan2(p.x, p.z) * 9); p.x *= ridge; p.z *= ridge; } });
+    }
+    for (let band = 0; band < 3; band++) {
+      const cy = .19 + band * .028, cz = .455 - band * .017;
+      B.tube(Array.from({ length: 13 }, (_, k) => [side * .478 + Math.cos(k / 12 * TAU) * .081, cy + Math.sin(k / 12 * TAU) * .027, cz + Math.sin(k / 12 * TAU) * .079]), .016, .014, { segments: 14, radial: 6, bones: [elbow], paint: () => paintResult([.72, .47, .16]) });
+    }
   }
   const lipPoints = Array.from({ length: 13 }, (_, i) => { const x = (i / 12 - .5) * .74; return [x, .414 - .025 * Math.abs(x) / .37, .748 - .20 * Math.pow(x / .37, 2)]; });
   S.tube(lipPoints, .009, .009, { segments: 34, radial: 8, bones: [head], paint: () => paintResult([.045, .065, .016]) });
   S.tube(lipPoints.map(p => [p[0], p[1] - .019, p[2] + .001]), .009, .014, { segments: 34, radial: 8, bones: [jaw], paint: () => paintResult([.65, .61, .35]) });
   S.ellipsoid([0, .284, .385], [.25, .125, .265], { bone: throat, rings: 18, radial: 28, paint: () => paintResult([.75, .72, .48]), sculpt(p) { p.y += .01 * Math.sin(p.x * 80) * Math.cos(p.z * 60); } });
-  return { type: 'frog', rig, skin: S.geometry(), eyes: E.geometry(), armor: A.geometry(), crest: C.geometry(), mouth, length: 1.7, height: .8, scale: 1 };
+  return { type: 'frog', rig, skin: S.geometry(), eyes: E.geometry(), armor: A.geometry(), shell: Q.geometry(), bracers: B.geometry(), crest: C.geometry(), mouth, length: 1.7, height: .8, scale: 1 };
 }
 
 function feather(surface, start, end, width, bone, shade, curvature = .05) {
@@ -455,7 +464,7 @@ function getTemplate(type, lod = 0) {
   const key = type === 'frog' && lod ? `${type}:${lod}` : type;
   if (!templateCache.has(key)) {
     const t = type === 'frog' ? frogTemplate([1, .36, .18][lod]) : ({ heron: heronTemplate, snake: snakeTemplate, fish: fishTemplate }[type] || frogTemplate)();
-    for (const key of ['skin','eyes','armor','crest','tongue']) if (t[key]?.boundingSphere) t[key].boundingSphere.radius *= 1.9;
+    for (const key of ['skin','eyes','armor','shell','bracers','crest','tongue']) if (t[key]?.boundingSphere) t[key].boundingSphere.radius *= 1.9;
     templateCache.set(key, t);
   }
   return templateCache.get(key);
@@ -492,6 +501,8 @@ function getAttack(attack, elapsed) {
  * speed is world-units/sec; jump is airborne progress 0..1 (boolean accepted).
  * setRenderLOD(0|1|2) selects full/medium/distant frog detail without resetting pose.
  * setCrowned(true) equips a head-mounted royal crown; tier never grants a crown.
+ * setEquipment({armor:'reed'|'shell'|null,weapon:'reed'|null,crest:boolean})
+ * equips only gear that the caller actually owns. Level/tier only grow the body.
  * All instances face local +Z. Frog floor contacts are y≈0.
  */
 export function createCreature(type = 'frog', options = {}) {
@@ -500,6 +511,7 @@ export function createCreature(type = 'frog', options = {}) {
   group.name = `creature-${type}`; pivot.name = 'anatomical-animation-pivot'; group.add(pivot);
   const defaultColor = type === 'frog' ? 0x70982d : type === 'snake' ? 0x667746 : type === 'fish' ? 0x839b64 : 0xffffff;
   const skin = skinMaterial(type, options.color ?? defaultColor);
+  skin.emissive.set(0xffffff); skin.emissiveIntensity = 0;
   const eyeMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, vertexColors: true, roughness: .13, clearcoat: 1, clearcoatRoughness: .05, metalness: .05 });
   const { bones: boneList, skeleton, root } = makeSkeleton(template.rig.defs);
   const body = new THREE.SkinnedMesh(template.skin, skin); body.name = `${type}-weighted-surface`; body.add(root); pivot.add(body);
@@ -509,7 +521,7 @@ export function createCreature(type = 'frog', options = {}) {
   const outline = new THREE.SkinnedMesh(template.skin, outlineMaterial(options.outlineColor ?? (options.team === 'enemy' ? 0xff7350 : options.team === 'player' ? 0xa8ffe2 : type === 'frog' ? 0x81e9a4 : 0xffaa4b), type === 'frog' ? .018 : .027));
   outline.name = 'animated-color-silhouette'; outline.bind(skeleton, body.bindMatrix); outline.frustumCulled = true; outline.renderOrder = -1; pivot.add(outline);
   const extras = [];
-  for (const name of ['armor', 'crest', 'tongue']) if (template[name]) {
+  for (const name of ['armor', 'shell', 'bracers', 'crest', 'tongue']) if (template[name]) {
     const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: name === 'tongue' ? .35 : .79, side: THREE.DoubleSide });
     const mesh = new THREE.SkinnedMesh(template[name], mat); mesh.name = name; mesh.bind(skeleton, body.bindMatrix); mesh.frustumCulled = true; mesh.castShadow = name !== 'tongue'; mesh.visible = name === 'tongue'; pivot.add(mesh); extras.push(mesh);
   }
@@ -517,14 +529,31 @@ export function createCreature(type = 'frog', options = {}) {
   const restPositions = boneList.map(b => b.position.clone());
   const mouthMarker = new THREE.Object3D(); mouthMarker.name = 'mouth-attachment'; boneList[template.mouth].add(mouthMarker);
   let time = (options.seed || 0) * .731, attackTime = 0, previousAttack = '', tier = 1, deadProgress = 0, lastMove = 0;
-  let renderLOD = 0, outlineRequested = true, crowned = false, royalCrown = null;
+  let renderLOD = 0, outlineRequested = true, crowned = false, royalCrown = null, level = 1;
+  let working = false, workBlend = 0, impact = { x: 0, z: 1, strength: 0, life: 0, duration: .26, heavy: false };
+  let equipment = { armor: null, weapon: null, crest: false };
   const role = options.role || 'scout';
   const roleScale = type === 'frog' ? (['guardian', 'brute', 'tank'].includes(role) ? [1.15, 1.12, 1.05] : ['scout', 'hunter', 'agile'].includes(role) ? [.96, .98, 1.04] : [1.03, 1.02, 1.02]) : [1, 1, 1];
   pivot.scale.set(...roleScale);
+  const growBody = () => {
+    const grow = 1 + (tier - 1) * .04 + Math.min(24, Math.max(0, level - 1)) * .004;
+    pivot.scale.set(roleScale[0] * grow, roleScale[1] * grow, roleScale[2] * grow);
+  };
+  const showEquipment = () => {
+    for (const mesh of extras) {
+      if (mesh.name === 'armor') mesh.visible = type === 'frog' && equipment.armor === 'reed';
+      if (mesh.name === 'shell') mesh.visible = type === 'frog' && equipment.armor === 'shell';
+      if (mesh.name === 'bracers') mesh.visible = type === 'frog' && equipment.weapon === 'reed';
+      if (mesh.name === 'crest') mesh.visible = type === 'frog' && equipment.crest && !crowned;
+    }
+  };
   const reset = () => { for (let i = 0; i < boneList.length; i++) { boneList[i].rotation.set(0, 0, 0); boneList[i].scale.set(1, 1, 1); boneList[i].position.copy(restPositions[i]); } };
   const api = {
     group, bones, skeleton, mesh: body,
     get crowned() { return crowned; },
+    get equipment() { return { ...equipment }; },
+    get level() { return level; },
+    get working() { return working; },
     stats: { type, vertices: template.skin.attributes.position.count + template.eyes.attributes.position.count, triangles: (template.skin.index.count + template.eyes.index.count) / 3, boneCount: boneList.length, length: template.length, height: template.height, rigged: true, renderLOD: 0 },
     setOutline(color, visible = true) { if (color !== undefined && color !== null) outline.material.color.set(color); outlineRequested = visible; outline.visible = visible && renderLOD === 0; },
     // The full anatomical model is retained nearby. Distant armies share simpler
@@ -550,8 +579,21 @@ export function createCreature(type = 'frog', options = {}) {
     },
     setTier(value) {
       tier = clamp(Math.round(value || 1), 1, 5);
-      for (const mesh of extras) if (mesh.name === 'armor') mesh.visible = tier >= 2; else if (mesh.name === 'crest') mesh.visible = tier >= 3 && !crowned;
-      const grow = 1 + (tier - 1) * .028; pivot.scale.set(roleScale[0] * grow, roleScale[1] * grow, roleScale[2] * grow);
+      growBody();
+    },
+    setLevel(value) {
+      level = clamp(Math.floor(Number(value) || 1), 1, 999); growBody();
+    },
+    setEquipment(value = {}) {
+      equipment = type === 'frog' ? { armor: ['reed', 'shell'].includes(value?.armor) ? value.armor : null, weapon: value?.weapon === 'reed' ? 'reed' : null, crest: value?.crest === true } : { armor: null, weapon: null, crest: false };
+      showEquipment(); return { ...equipment };
+    },
+    setWorking(value = false) { working = type === 'frog' && Boolean(value); },
+    setImpact(value = {}) {
+      const strength = clamp(Number(value.strength) || 0, 0, 1.5), x = Number(value.x) || 0, z = Number(value.z) || 0, length = Math.hypot(x, z) || 1;
+      const duration = clamp(Number(value.duration) || .26, .08, .5);
+      impact = { x: x / length, z: z / length, strength, life: strength ? duration : 0, duration, heavy: Boolean(value.heavy) };
+      skin.emissiveIntensity = strength ? Math.min(.82, .34 + strength * .35) : 0;
     },
     setCrowned(value = false) {
       crowned = type === 'frog' && Boolean(value);
@@ -560,8 +602,7 @@ export function createCreature(type = 'frog', options = {}) {
         royalCrown.visible = crowned;
         royalCrown.getObjectByName('royal-crown-gold').castShadow = renderLOD === 0;
       }
-      const crest = extras.find(mesh => mesh.name === 'crest');
-      if (crest) crest.visible = tier >= 3 && !crowned;
+      showEquipment();
       return crowned;
     },
     mouthWorld(target = new THREE.Vector3()) { group.updateWorldMatrix(true, true); return mouthMarker.getWorldPosition(target); },
@@ -576,6 +617,10 @@ export function createCreature(type = 'frog', options = {}) {
       const atk = getAttack(state.attack, attackTime), f = atk.force;
       const roar = typeof state.roar === 'number' ? clamp(state.roar) : state.roar ? 1 : 0;
       const hit = typeof state.hit === 'number' ? clamp(state.hit) : state.hit ? 1 : 0;
+      impact.life = Math.max(0, impact.life - dt);
+      skin.emissiveIntensity = impact.life > 0 ? Math.max(0, 1 - (impact.duration - impact.life) / .07) * Math.min(.82, .34 + impact.strength * .35) : 0;
+      if (state.building !== undefined) working = type === 'frog' && Boolean(state.building);
+      workBlend = lerp(workBlend, working && !state.dead && !atk.type && speed < 1 ? 1 : 0, 1 - Math.exp(-dt * 12));
       deadProgress = lerp(deadProgress, state.dead ? 1 : 0, 1 - Math.exp(-dt * 5));
       pivot.position.set(0, 0, 0); pivot.rotation.set(0, 0, 0);
       const blinkPhase = (time + (options.seed || 0) * .4) % 5.7, blink = blinkPhase > 5.50 ? .08 + .92 * Math.abs((blinkPhase - 5.60) * 10) : 1;
@@ -619,7 +664,36 @@ export function createCreature(type = 'frog', options = {}) {
           const lift = Math.sin(atk.phase * Math.PI); pivot.rotation.x = -lift * .28; pivot.position.y += lift * .22;
           for (const side of [-1, 1]) { bones[`hip${side}`].rotation.x -= lift * .70; bones[`shoulder${side}`].rotation.z = side * lift * .45; }
         } else if (atk.type === 'tongue') { bones.head.rotation.x -= f * .10; bones.spine.rotation.x -= f * .07; }
-        pivot.rotation.z += hit * .21 * Math.sin(time * 44);
+        if (workBlend > .001) {
+          const cycle = time * 8.2, strike = .5 + .5 * Math.sin(cycle), brace = .5 + .5 * Math.sin(cycle + Math.PI);
+          bones.spine.rotation.x += .10 * workBlend;
+          bones.head.rotation.x += (.12 + .06 * strike) * workBlend;
+          bones.shoulder1.rotation.x -= (.25 + strike * .85) * workBlend;
+          bones.elbow1.rotation.x += (.20 + strike * .55) * workBlend;
+          bones.wrist1.rotation.x -= strike * .30 * workBlend;
+          bones['shoulder-1'].rotation.x -= (.13 + brace * .35) * workBlend;
+          bones['elbow-1'].rotation.x += (.15 + brace * .20) * workBlend;
+          pivot.position.y += .025 * Math.cos(cycle) * workBlend;
+        }
+        if (impact.life > 0) {
+          const progress = 1 - impact.life / impact.duration;
+          const compression = Math.sin(Math.min(1, progress / .22) * Math.PI / 2) * Math.pow(1 - progress, 1.8) * impact.strength;
+          const recoil = compression * (impact.heavy ? 1.2 : 1);
+          pivot.rotation.x += impact.z * .17 * recoil;
+          pivot.rotation.z -= impact.x * .21 * recoil;
+          pivot.position.x += impact.x * .045 * recoil;
+          pivot.position.z += impact.z * .055 * recoil;
+          bones.spine.scale.z *= 1 - .075 * compression;
+          bones.head.rotation.x -= .15 * recoil;
+          bones.head.rotation.z -= impact.x * .08 * recoil;
+          bones.jaw.rotation.x -= .12 * recoil;
+          bones['shoulder-1'].rotation.z -= .10 * recoil; bones.shoulder1.rotation.z += .10 * recoil;
+          bones.eyeL.scale.y *= 1 - .55 * compression; bones.eyeR.scale.y *= 1 - .55 * compression;
+        } else if (hit > 0) {
+          // Legacy callers still receive a restrained body response until their
+          // confirmed contact supplies the proper directional impact.
+          pivot.rotation.x += hit * .065;
+        }
         pivot.position.y -= deadProgress * .22; pivot.rotation.z += deadProgress * 1.35;
         bones.spine.scale.y *= 1 - deadProgress * .15;
       } else if (type === 'heron') {
@@ -641,7 +715,7 @@ export function createCreature(type = 'frog', options = {}) {
           bones[`wingElbow${side}`].rotation.y = side * .12;
           bones[`wingWrist${side}`].rotation.z = side * f * .18;
         }
-        pivot.rotation.z += hit * .08 * Math.sin(time * 32) + deadProgress * 1.45;
+        pivot.rotation.z += (impact.life > 0 ? 0 : hit * .08 * Math.sin(time * 32)) + deadProgress * 1.45;
         pivot.position.y -= deadProgress * 1.8;
       } else if (type === 'snake') {
         const phase = time * (3 + lastMove * 5), amp = .055 + lastMove * .105;
@@ -653,7 +727,7 @@ export function createCreature(type = 'frog', options = {}) {
         bones.jaw.rotation.x = -f * .62;
         pivot.position.y = f * .28;
         const tongue = extras.find(m => m.name === 'tongue'); if (tongue) tongue.visible = !state.dead && (Math.sin(time * 3.7) > .77 || f > .2);
-        pivot.rotation.z = deadProgress * .65 + hit * .10 * Math.sin(time * 32);
+        pivot.rotation.z = deadProgress * .65 + (impact.life > 0 ? 0 : hit * .10 * Math.sin(time * 32));
       } else if (type === 'fish') {
         const cycle = time * (4 + lastMove * 10), swimAmplitude = .09 + lastMove * .22;
         bones.spine.rotation.y = Math.sin(cycle) * swimAmplitude * .2;
@@ -664,12 +738,17 @@ export function createCreature(type = 'frog', options = {}) {
         bones.jaw.rotation.x = -f * .62 - .035 * Math.sin(time * 2.5);
         for (const side of [-1, 1]) { bones[`fin${side}`].rotation.z = side * (.13 + .16 * Math.sin(time * 6)); bones[`fin${side}`].rotation.y = side * .15 * Math.sin(time * 5); }
         pivot.rotation.x = -f * .35; pivot.position.y = .035 * Math.sin(time * 2);
-        pivot.rotation.z = deadProgress * Math.PI + hit * .14 * Math.sin(time * 35);
+        pivot.rotation.z = deadProgress * Math.PI + (impact.life > 0 ? 0 : hit * .14 * Math.sin(time * 35));
+      }
+      if(type!=='frog'&&impact.life>0){
+        const progress=1-impact.life/impact.duration,recoil=Math.sin(Math.min(1,progress/.22)*Math.PI/2)*Math.pow(1-progress,1.8)*impact.strength*(impact.heavy?1.2:1);
+        pivot.rotation.x+=impact.z*.055*recoil;pivot.rotation.z-=impact.x*.08*recoil;
+        bones.head.rotation.x-=.075*recoil;bones.head.rotation.z-=impact.x*.05*recoil;
       }
     },
     dispose() { skin.dispose(); eyeMat.dispose(); outline.material.dispose(); for (const e of extras) e.material.dispose(); if (royalCrown) royalCrown.traverse(mesh => { if (mesh.isMesh) mesh.material.dispose(); }); skeleton.dispose(); group.removeFromParent(); }
   };
-  api.setTier(options.tier || 1); api.setCrowned(options.crowned); api.update(0, {});
+  api.setTier(options.tier || 1); api.setLevel(options.level || 1); api.setEquipment(options.equipment); api.setCrowned(options.crowned); api.update(0, {});
   group.userData.creature = api;
   return api;
 }

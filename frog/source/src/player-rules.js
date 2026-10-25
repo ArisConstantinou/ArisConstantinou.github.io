@@ -8,7 +8,7 @@ export const MOVEMENT = Object.freeze({
 export const CORONATION_TERRITORIES = 3;
 
 export function royalProgress(player, camps = []) {
-  const territories = new Set(camps.filter(c => c.originalEnemy && c.team === 'ally' && !c.destroyed && (c.hp ?? 1) > 0).map(c => c.id)).size;
+  const territories = new Set(camps.filter(c => c.originalEnemy && c.team === 'ally' && !c.destroyed && !c.underConstruction && (c.hp ?? 1) > 0).map(c => c.id)).size;
   const crowned = player?.crowned === true || territories >= CORONATION_TERRITORIES;
   return {
     crowned, territories, target:CORONATION_TERRITORIES,
