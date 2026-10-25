@@ -128,3 +128,53 @@ test('construction shelf arrows scroll one card, expose boundary state and never
   assert.equal(html.includes('<b>87<small>'),false);
 });
 
+
+test('the default HUD has a permanent minimap and an explicit uncapped population counter',()=>{
+  const {html}=fixture();
+  const map=html.match(/<canvas data-ref="minimap"[^>]*>/)?.[0];
+  assert.ok(map,'minimap is present in the primary HUD');
+  assert.doesNotMatch(map,/hidden/);assert.match(map,/width="440"/);
+  assert.match(html,/class="fg-map-button fg-minimap" data-action="open-map"/);
+  assert.match(html,/class="fg-population" data-action="open-roster"/);
+  assert.match(html,/Πληθυσμός<\/span><b data-ref="populationTotal">/);
+  assert.match(html,/Συνοδοί <b data-ref="populationTravelers">/);
+  assert.match(html,/Φρουροί <b data-ref="populationGuards">/);
+  const population=html.match(/<button class="fg-population"[\s\S]*?<\/button>/)[0];
+  assert.doesNotMatch(population.replace(/<[^>]*>/g,''),/\/\s*(?:∞|\d)/);
+});
+
+test('population updates on recruitment, death and guard assignment without imposing a ceiling',()=>{
+  const {ui}=fixture();
+  const allies=Array.from({length:250},(_,i)=>({id:`frog-${i}`,hp:100,maxHp:100,stomach:70,maxStomach:100,order:i<30?'guard':'follow',guard:i<30}));
+  ui.update({...state({food:60,reeds:40}),allies,defenses:{guardCount:30}});
+  assert.equal(ui.refs.populationTotal.textContent,'251');
+  assert.equal(ui.refs.populationTravelers.textContent,'220');assert.equal(ui.refs.populationGuards.textContent,'30');
+  assert.match(ui.refs.populationButton.attributes['aria-label'],/Χωρίς όριο πληθυσμού/);
+  allies[249].hp=0;allies[248].dead=true;allies.push({id:'newborn',hp:80,maxHp:100,stomach:70,maxStomach:100,guard:false,order:'follow'});
+  ui.update({...state({food:60,reeds:40}),allies,defenses:{guardCount:30}});
+  assert.equal(ui.refs.populationTotal.textContent,'250');assert.equal(ui.refs.populationTravelers.textContent,'219');
+  allies[0].guard=false;allies[0].order='follow';ui.update({...ui.state,defenses:{guardCount:29}});
+  assert.equal(ui.refs.populationTotal.textContent,'250');assert.equal(ui.refs.populationGuards.textContent,'29');assert.equal(ui.refs.populationTravelers.textContent,'220');
+});
+
+test('boss markers and legend follow spawn/death state and use the actual expanded map radius',()=>{
+  const {ui}=fixture(),drawn=[];
+  const ctx={clearRect(){drawn.length=0;},fillRect(){},beginPath(){},moveTo(){},lineTo(){},stroke(){},fill(){},arc(){},save(){},restore(){},translate(){},rotate(){},closePath(){},fillText(){},drawImage(image,x,y,width,height){drawn.push({name:image.name,x,y,width,height});}};
+  const canvas={width:440,height:440,getContext:()=>ctx};
+  ui.mapSymbolImage=name=>({name,complete:true,naturalWidth:24});
+  const snake={id:'snake-boss',type:'snake',name:'Άρχοντας των καλαμιών',x:100,z:70,hp:900,boss:true};
+  const world={radius:198,player:{x:0,z:0},predators:[snake,{type:'fish',x:4,z:4,hp:900,boss:true,phase:'dormant'},{type:'heron',x:2,z:2,hp:0,boss:true},{type:'fish',x:30,z:30,hp:100,boss:false}]};
+  ui.updateMapLegend(world);GameUI.prototype.drawMap.call(ui,canvas,world);
+  assert.equal(ui.refs.mapBosses.hidden,false);assert.match(ui.refs.mapBosses.innerHTML,/Νερόφιδο/);assert.doesNotMatch(ui.refs.mapBosses.innerHTML,/Αρπακτικό ψάρι|Ερωδιός/);
+  assert.deepEqual(drawn.map(x=>x.name),['snake','crown']);
+  const marker=drawn[0],centerX=marker.x+marker.width/2;
+  assert.ok(Math.abs(centerX-(220+100*440/(198*2.12)))<.01,'live boss location uses expanded world coordinates');
+  snake.hp=0;ui.updateMapLegend(world);GameUI.prototype.drawMap.call(ui,canvas,world);
+  assert.equal(ui.refs.mapBosses.hidden,true);assert.equal(drawn.length,0,'dead bosses disappear from both minimap and legend');
+  world.stronghold={id:'enemy-main',name:'Το εχθρικό οχυρό',x:100,z:70,population:51,target:75};world.camps=[{...world.stronghold,team:'enemy4',isStronghold:true}];
+  ui.updateMapLegend(world);GameUI.prototype.drawMap.call(ui,canvas,world);
+  assert.equal(ui.refs.mapStronghold.hidden,false);assert.equal(ui.refs.strongholdPopulation.textContent,'51','stronghold shows real frogs, not its reinforcement target');
+  assert.match(ui.refs.mapStronghold.title,/Ενισχύεται προς 75/);assert.deepEqual(drawn.map(x=>x.name),['fort']);
+  world.stronghold.population=58;ui.updateMapLegend(world);assert.equal(ui.refs.strongholdPopulation.textContent,'58','stronghold count updates even with unchanged boss legend');
+  world.stronghold=null;ui.updateMapLegend(world);assert.equal(ui.refs.mapStronghold.hidden,true);
+});

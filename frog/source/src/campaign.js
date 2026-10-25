@@ -55,7 +55,7 @@ function objectiveDefinitions(state, metrics, phase = state.phase) {
   ];
   if (phase === 'bosses' || phase === 'complete') return [
     ...HUNTER_TYPES.map(type => goal('boss-' + type, type, state.bossDefeated.includes(type) ? 1 : 0, 1, 'Νίκησε τον αρχηγό: ' + type, { type, boss: true })),
-    goal('territories', 'crown', m.territories, 5, 'Ένωσε και τις πέντε αντίπαλες περιοχές')
+    goal('territories', 'crown', m.territories, 5, 'Κράτησε και τις πέντε αντίπαλες περιοχές με ενεργά καταφύγια')
   ];
   return [];
 }
@@ -63,7 +63,8 @@ function objectiveDefinitions(state, metrics, phase = state.phase) {
 export function campaignObjectives(value, metrics = {}) {
   const state = normalizedState(value);
   return objectiveDefinitions(state, metrics).map(objective => {
-    const done = state.achieved.includes(objective.id) || objective.current >= objective.target;
+    // Territory is current control: losing a camp must matter before victory.
+    const done = (objective.id !== 'territories' && state.achieved.includes(objective.id)) || objective.current >= objective.target;
     const current = done ? Math.max(objective.current, objective.target) : objective.current;
     return { ...objective, current, done, progress: Math.min(1, Math.max(0, current / objective.target)) };
   });
@@ -76,7 +77,8 @@ export function advanceCampaign(value, metrics = {}) {
   state.resourceTotals.reeds = Math.max(state.resourceTotals.reeds, m.gatheredReeds);
   for (let step = 0; step < CAMPAIGN_PHASES.length; step++) {
     const objectives = campaignObjectives(state, m);
-    for (const objective of objectives) if (objective.done && !state.achieved.includes(objective.id)) state.achieved.push(objective.id);
+    state.achieved=state.achieved.filter(id=>id!=='territories');
+    for (const objective of objectives) if (objective.id!=='territories'&&objective.done&&!state.achieved.includes(objective.id)) state.achieved.push(objective.id);
     if (state.phase === 'complete' || !objectives.length || !objectives.every(objective => objective.done)) break;
     const from = state.phase, to = CAMPAIGN_PHASES[CAMPAIGN_PHASES.indexOf(from) + 1];
     state.phase = to; transitions.push({ from, to });
@@ -137,7 +139,7 @@ export function inferLegacyMetrics(save = {}) {
     buildings,
     allies: frogs.length,
     trained: frogs.filter(f => f.trained || finite(f.level, 1) >= 2).length,
-    territories: camps.filter(c => c.originalEnemy && (c.destroyed || c.team === 'ally')).length
+    territories: camps.filter(c => c.originalEnemy && !c.destroyed && c.team === 'ally').length
   };
 }
 

@@ -6,7 +6,7 @@ const active=c=>!!c&&!c.destroyed&&(c.hp??1)>0;
 const defender=f=>f.guard||f.order==='guard'||(f.trainingPaid&&f.returnOrder==='guard');
 const activePredator=p=>living(p)&&!['patrol','flee','dormant','dead'].includes(p.phase);
 
-export const DEFENSE_RULES=Object.freeze({baseSlots:2,towerSlots:4,baseRange:14,towerRange:26,baseLeash:18,towerLeash:29,damageReduction:18,stationRadius:15});
+export const DEFENSE_RULES=Object.freeze({baseSlots:2,towerSlots:4,baseRange:22,towerRange:36,baseLeash:28,towerLeash:40,damageReduction:18,stationRadius:24});
 const threatRange=(camp,staffed)=>camp.defenseThreatened?(camp.buildings?.watchtower?DEFENSE_RULES.towerLeash:DEFENSE_RULES.baseLeash):camp.buildings?.watchtower&&staffed?DEFENSE_RULES.towerRange:DEFENSE_RULES.baseRange;
 
 export function campGuards(game,camp){

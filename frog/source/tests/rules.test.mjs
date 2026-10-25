@@ -1,3 +1,4 @@
+import {WORLD_BOUNDARY} from '../src/world-config.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -94,9 +95,10 @@ test('an exact XP threshold leaves no remainder and negative awards do not remov
   assert.deepEqual(f,before);
 });
 
-test('victory allows a mixture of destroyed and persuaded enemy bases',()=>{
+test('victory requires currently owned active bases instead of abandoned ruins',()=>{
   const camps=[{originalEnemy:true,team:'enemy0',destroyed:true},{originalEnemy:true,team:'ally',destroyed:false},{originalEnemy:false,team:'neutral',destroyed:false}];
-  assert.equal(isVictory(camps),true);
+  assert.equal(isVictory(camps),false);
+  camps[0].team='ally';camps[0].destroyed=false;assert.equal(isVictory(camps),true);
   assert.equal(isVictory([...camps,{originalEnemy:true,team:'enemy2',destroyed:false}]),false);
 });
 
@@ -124,7 +126,7 @@ test('save normalization clamps resources, coordinates, health, stomach and time
   const result=validateSave(input);
   assert.ok(result);
   assert.deepEqual(result.resources,{food:0,reeds:1e6});
-  assert.equal(result.elapsed,0);assert.equal(result.player.x,108);assert.equal(result.player.z,-108);
+  assert.equal(result.elapsed,0);assert.equal(result.player.x,WORLD_BOUNDARY);assert.equal(result.player.z,-WORLD_BOUNDARY);
   assert.equal(result.player.hp,1);assert.equal(result.player.stomach,100);
   assert.deepEqual(input,before);
 });

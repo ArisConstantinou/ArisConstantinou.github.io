@@ -14,7 +14,7 @@ const hasBuilding = (camp, name) => Array.isArray(camp?.buildings)
   : !!camp?.buildings?.[name];
 const activeAllyCamp = camp => !!camp && allied(camp) && !camp.destroyed && finite(camp.hp, 1) > 0;
 
-/** Recruitment is never blocked by housing; housing limits nursery births. */
+/** Recruitment and nursery births have no population or housing ceiling. */
 export function recruitmentOffer(frog, camp = null) {
   const result = (eligible, guaranteed, food, reason) => ({ eligible, guaranteed, cost: { food }, reason });
   if (!alive(frog) || allied(frog) || frog?.isPlayer) return result(false, false, 0, 'unavailable');

@@ -99,16 +99,18 @@ test('final victory requires both all bosses and all five enemy territories',()=
   assert.equal(advanceCampaign(state,advanced({territories:5})).state.phase,'complete');
 });
 
-test('completion and territory achievements persist after later losses and loading',()=>{
+test('territory losses before final victory matter while a completed campaign stays completed',()=>{
   let state=readyBosses();
   state=advanceCampaign(state,advanced({territories:5})).state;
   for(const type of HUNTER_TYPES) state=recordCampaignKill(state,type,{boss:true});
-  state=advanceCampaign(state,{}).state;
+  state=advanceCampaign(state,{territories:4}).state;
+  assert.equal(state.phase,'bosses');
+  state=advanceCampaign(state,{territories:5}).state;
   assert.equal(state.phase,'complete');
   assert.equal(createCampaign(JSON.parse(JSON.stringify(state)),{}).phase,'complete');
 });
 
-test('legacy migration retains three territories and veterans without inventing kills',()=>{
+test('legacy migration retains owned territories and veterans but ruins need rebuilding',()=>{
   const legacy={resources:{food:5,reeds:9},frogs:[frog({level:2}),frog({id:'second',level:1})],camps:[
     school({id:'one',originalEnemy:true,buildings:{store:true,nursery:true}}),
     school({id:'two',originalEnemy:true,buildings:{}}),
@@ -117,7 +119,7 @@ test('legacy migration retains three territories and veterans without inventing 
     school({id:'five',team:'enemy4',originalEnemy:true})
   ]};
   const metrics=inferLegacyMetrics(legacy),state=createCampaign(null,metrics,{legacy:true});
-  assert.equal(metrics.territories,3);assert.equal(metrics.trained,1);assert.equal(metrics.allies,2);
+  assert.equal(metrics.territories,2);assert.equal(metrics.trained,1);assert.equal(metrics.allies,2);
   assert.ok(metrics.gatheredFood>=30&&metrics.gatheredReeds>=45);
   assert.equal(state.phase,'settlement');assert.equal(state.legacy,true);
   assert.deepEqual(state.defeated,[]);assert.deepEqual(state.bossDefeated,[]);

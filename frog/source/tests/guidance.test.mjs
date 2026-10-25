@@ -24,7 +24,7 @@ test('every real campaign objective has readable Greek guidance without internal
 test('building a training ground is distinct from ordering frogs to train',()=>{
   const building=describeObjective({id:'build-training'}),frogs=describeObjective({id:'train-starters'});
   assert.match(building.title,/^Χτίσε χώρο εκπαίδευσης$/);
-  assert.match(building.hint,/δικό σου καταφύγιο/);
+  assert.match(building.hint,/δικό σου οχυρό/);
   assert.match(building.hint,/V → Χώρος εκπαίδευσης/);
   assert.match(building.hint,/αυλή/);
   assert.match(frogs.title,/^Εκπαίδευσε/);

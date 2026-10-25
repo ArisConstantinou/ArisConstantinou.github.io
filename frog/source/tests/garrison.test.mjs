@@ -20,7 +20,7 @@ test('one-click garrison fills recommended posts, leaves a traveling companion, 
   assert.deepEqual(game.resources,bank);
   const snapshot=defenseSnapshot(game).camps[0];
   assert.equal(snapshot.slots,4);assert.equal(snapshot.assigned,3);assert.equal(snapshot.stationed,3);
-  assert.equal(snapshot.range,26);assert.equal(snapshot.damageReduction,18);
+  assert.equal(snapshot.range,DEFENSE_RULES.towerRange);assert.equal(snapshot.damageReduction,18);
 });
 
 test('explicit selected assignment supports extra defenders and recall affects only that camp',()=>{
@@ -61,7 +61,7 @@ test('guard positions follow the actual placed and rotated watchtower',()=>{
   const moved=game.guardAssignment(frogs[0]);
   assert.ok(Math.abs(moved.point.x-first.point.x)<1e-10);
   assert.ok(Math.abs((moved.point.z-first.point.z)+3)<1e-10);
-  assert.equal(moved.range,DEFENSE_RULES.towerRange);assert.equal(moved.leash,29);
+  assert.equal(moved.range,DEFENSE_RULES.towerRange);assert.equal(moved.leash,DEFENSE_RULES.towerLeash);
 });
 
 test('tower warning requires a present sentry and provides greater detection distance',()=>{
@@ -78,7 +78,7 @@ test('tower defense applies locally and never grants distant guards global resis
   const {game,home,frogs}=baseGame({tower:true,count:1}),guard=frogs[0],enemy=actor({team:'enemy0',x:3});
   guard.guard=true;guard.order='guard';
   game.damage(guard,20,enemy);assert.ok(Math.abs(guard.hp-83.6)<1e-9);
-  guard.hp=100;guard.invulnerable=0;guard.x=home.x+40;
+  guard.hp=100;guard.invulnerable=0;guard.x=home.x+DEFENSE_RULES.towerLeash+10;enemy.x=guard.x+2;
   game.damage(guard,20,enemy);assert.equal(guard.hp,80);
 });
 

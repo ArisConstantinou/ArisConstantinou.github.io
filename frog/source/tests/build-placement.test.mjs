@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {fixture,camp} from './game-fixture.mjs';
 import {BUILDINGS} from '../src/rules.js';
+import {SHELTER_LAYOUT_SCALE} from '../src/world-config.js';
 
 function setup(yaw=0){
   const {game,player}=fixture(),base=camp({team:'ally',x:0,z:0,yaw,mesh:new THREE.Group()});
@@ -13,7 +14,7 @@ function setup(yaw=0){
   game.world.showBuildArea=base=>events.push(['area',base]);game.world.hideBuildArea=()=>events.push(['hide']);
   return {game,player,base,events};
 }
-function position(game,x,z,yaw=0){Object.assign(game.buildPlacement,{x,z,yaw,hasPoint:true});game.updateBuildingPlacement();}
+function position(game,x,z,yaw=0){Object.assign(game.buildPlacement,{x:x*SHELTER_LAYOUT_SCALE,z:z*SHELTER_LAYOUT_SCALE,yaw,hasPoint:true});game.updateBuildingPlacement();}
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-9,`${a} differs from ${b}`);
 function cameraFor(game,mode,target){
   game.cameraMode=mode;game.camera=new THREE.PerspectiveCamera(55,1.5,.1,300);
@@ -40,7 +41,7 @@ test('invalid core overlap paints red and cannot spend or create a building',()=
   assert.equal(game.confirmBuildingPlacement(),false);assert.deepEqual(game.resources,before);assert.deepEqual(base.buildings,{});
 });
 test('rotation rechecks the complete footprint before a purchase',()=>{
-  const {game,events}=setup();game.build('palisade');position(game,0,10.8);
+  const {game,events}=setup();game.build('store');position(game,0,9.8);
   assert.equal(game.buildPlacement.valid,true);
   for(let i=0;i<6;i++)game.rotateBuildingPlacement(1);
   near(game.buildPlacement.yaw,Math.PI/2);assert.equal(game.buildPlacement.valid,false);
@@ -51,7 +52,7 @@ test('rotation rechecks the complete footprint before a purchase',()=>{
 test('valid confirmation charges the exact displayed cost once and persists the chosen coordinates',()=>{
   const {game,base}=setup(),before={...game.resources};game.build('store');position(game,-6.5,6);
   assert.equal(game.confirmBuildingPlacement(),true);assert.equal(base.buildings.store,true);
-  assert.deepEqual(base.buildingPlacements.store,{x:-6.5,z:6,yaw:0});
+  assert.deepEqual(base.buildingPlacements.store,{x:-6.5*SHELTER_LAYOUT_SCALE,z:6*SHELTER_LAYOUT_SCALE,yaw:0});
   assert.deepEqual(game.resources,{food:before.food-BUILDINGS.store.cost.food,reeds:before.reeds-BUILDINGS.store.cost.reeds});
   const paid={...game.resources};assert.equal(game.confirmBuildingPlacement(),false);assert.deepEqual(game.resources,paid);
   assert.equal(game.buildPlacement,null);assert.equal(game.input.buildingMode,false);
@@ -65,7 +66,7 @@ test('confirmation rechecks resources and ownership after the preview was valid'
 });
 test('native drop uses the cursor ray in all three views and preserves camp-local placement and yaw',()=>{
   for(const mode of ['first','third','topdown']){
-    const yaw=Math.PI/3,{game,base}=setup(yaw),local={x:0,z:6},target={x:Math.sin(yaw)*6,z:Math.cos(yaw)*6};
+    const yaw=Math.PI/3,{game,base}=setup(yaw),local={x:0,z:6*SHELTER_LAYOUT_SCALE},target={x:Math.sin(yaw)*local.z,z:Math.cos(yaw)*local.z};
     const pointer=cameraFor(game,mode,target);game.onAction('begin-placement',{type:'training',dragging:true});
     game.onAction('move-placement',{...pointer,dragging:true});assert.equal(game.buildPlacement.valid,true,mode);
     game.onAction('drop-placement',pointer);assert.equal(game.buildPlacement,null,mode);assert.equal(base.buildings.training,true);

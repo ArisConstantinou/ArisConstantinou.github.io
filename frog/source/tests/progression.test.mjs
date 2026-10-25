@@ -60,7 +60,7 @@ test('shelter recovery consumes nutrition and stops under threat or at the reser
   frog.stomach=10;assert.equal(recoverAtShelter(frog,10),0);
   frog.stomach=10.18;assert.ok(Math.abs(recoverAtShelter(frog,10)-1)<1e-9);assert.equal(frog.stomach,10);
 });
-test('actual gameplay advances from three to five territories with 34 allies despite housing',()=>{
+test('an unlimited army captures survivors but must rebuild ruins for territorial control',()=>{
   const {game,player}=fixture();game.resources={food:0,reeds:0};
   for(let i=0;i<3;i++)game.camps.push(camp({id:'owned-'+i,team:'ally',x:30+i*30,originalEnemy:true,stock:{food:0,reeds:0}}));
   for(let i=0;i<24;i++)game.frogs.push(actor({id:'army-'+i,x:0,z:-i*.1}));
@@ -73,7 +73,8 @@ test('actual gameplay advances from three to five territories with 34 allies des
   for(const f of game.frogs.filter(f=>f.home===fallen.id))game.recruit(f);
   assert.equal(game.allies().length,29);assert.ok(game.allies().length>gangCapacity(game.camps));
   game.captureCamp(last);
-  assert.equal(game.allies().length,34);assert.equal(isVictory(game.camps),true);
+  assert.equal(game.allies().length,34);assert.equal(isVictory(game.camps),false);
+  game.commitBuild('shelter',{x:fallen.x,z:fallen.z,yaw:0,ruin:fallen});assert.equal(isVictory(game.camps),true);
   assert.equal(game.frogs.filter(f=>f.home===last.id&&f.guard).length,1);
 });
 test('actual neutral recruitment charges four food and is guaranteed',()=>{

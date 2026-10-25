@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {updateGameCamera,cycleGameView} from '../src/camera.js';
+import {FORT_RADIUS,GATE_WIDTH,WALL_HEIGHT,WALL_THICKNESS} from '../src/fortification.js';
 
 function makeGame(overrides={}){
   const calls={lock:0,unlock:0,modes:[],messages:[]};
@@ -103,5 +104,40 @@ test('a terrain obstruction shortens the boom and keeps transforms finite during
     const values=[...game.camera.position.toArray(),...game.camera.quaternion.toArray(),...game.camera.matrixWorld.elements,...game.aimPoint.toArray(),game.aimYaw];
     assert.ok(values.every(Number.isFinite),`camera and aim must remain finite at frame ${frame}`);
   }
+});
+
+test('real castle wall geometry stops both the requested boom and the interpolated shoulder camera',()=>{
+  const geometry=new THREE.BoxGeometry(1,1,1),material=new THREE.MeshBasicMaterial(),wall=new THREE.InstancedMesh(geometry,material,1),mesh=new THREE.Group(),transform=new THREE.Object3D();
+  transform.position.set(FORT_RADIUS,.11+WALL_HEIGHT/2,0);transform.scale.set(WALL_THICKNESS,WALL_HEIGHT,8);transform.updateMatrix();wall.setMatrixAt(0,transform.matrix);mesh.add(wall);mesh.userData.fortWalls=wall;
+  const {game}=makeGame({cameraYaw:-Math.PI/2,cameraDistance:12.2,camps:[{x:0,z:0,hp:350,mesh}]});
+  game.player.x=FORT_RADIUS-1.5;game.player.y=.11;game.world.sampleHeight=()=>.11;
+  updateGameCamera(game,0,true);
+  const insideFace=FORT_RADIUS-WALL_THICKNESS/2;
+  assert.ok(game.camera.position.x<insideFace-.15,'camera must stay on the player side of the stone wall');
+  game.camera.position.set(FORT_RADIUS+8,2,0);
+  updateGameCamera(game,.001,false);
+  assert.ok(game.camera.position.x<insideFace-.15,'smoothing must not leave the camera outside a blocked wall');
+  const ray=new THREE.Raycaster(game.cameraFocus.clone(),game.camera.position.clone().sub(game.cameraFocus).normalize(),0,game.camera.position.distanceTo(game.cameraFocus));
+  assert.equal(ray.intersectObject(wall).length,0,'final view to the player must be unobstructed');
+  geometry.dispose();material.dispose();wall.dispose();
+});
+
+test('the shoulder camera uses rendered gate leaves and passes through open, breached or hidden entrances',()=>{
+  const mesh=new THREE.Group(),fort=new THREE.Group(),gate=new THREE.Group(),leaves=[],geometry=new THREE.BoxGeometry(GATE_WIDTH/2,WALL_HEIGHT,.36),material=new THREE.MeshBasicMaterial();
+  mesh.add(fort);fort.add(gate);gate.position.set(0,.11,FORT_RADIUS);
+  for(const side of [-1,1]){const hinge=new THREE.Group(),door=new THREE.Mesh(geometry,material);hinge.position.x=side*GATE_WIDTH/2;door.position.set(-side*GATE_WIDTH/4,WALL_HEIGHT/2,0);hinge.add(door);gate.add(hinge);leaves.push(hinge);}
+  mesh.userData.gateLeaves=leaves;
+  const {game}=makeGame({cameraYaw:Math.PI,cameraPitch:.15,camps:[{x:0,z:0,hp:350,team:'ally',mesh}]});
+  game.player.z=FORT_RADIUS-2.4;game.player.y=.11;game.world.sampleHeight=()=>.11;
+  updateGameCamera(game,0,true);const closed=game.camera.position.distanceTo(game.cameraFocus);
+  assert.ok(game.camera.position.z<FORT_RADIUS-.2,'a visually closed allied gate still obstructs the camera');
+  leaves[0].rotation.y=-Math.PI*.52;leaves[1].rotation.y=Math.PI*.52;
+  updateGameCamera(game,0,true);const open=game.camera.position.distanceTo(game.cameraFocus);
+  assert.ok(open>closed*2,'an open gate must not behave like an invisible wall');
+  for(const leaf of leaves){leaf.rotation.y=0;leaf.visible=false;}
+  updateGameCamera(game,0,true);assert.ok(Math.abs(game.camera.position.distanceTo(game.cameraFocus)-open)<1e-8,'breached gate leaves must not obstruct the view');
+  for(const leaf of leaves)leaf.visible=true;fort.visible=false;
+  updateGameCamera(game,0,true);assert.ok(Math.abs(game.camera.position.distanceTo(game.cameraFocus)-open)<1e-8,'an invisible ancestor must disable its gate geometry');
+  geometry.dispose();material.dispose();
 });
 

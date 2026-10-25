@@ -4,6 +4,7 @@ import {build} from 'esbuild';
 import {fileURLToPath} from 'node:url';
 import {fixture,camp} from './game-fixture.mjs';
 import {BUILDINGS} from '../src/rules.js';
+import {SHELTER_LAYOUT_SCALE} from '../src/world-config.js';
 
 // Exercise real UI event methods against the real game action/transaction path.
 // Only DOM nodes, animation scheduling and the world raycast boundary are stubbed.
@@ -45,7 +46,7 @@ function startDrag(ui,type='store'){
 }
 function safePoint(game){
   // Represents the raycast returning a point inside the empty right courtyard.
-  Object.assign(game.buildPlacement,{x:6,z:0,yaw:0,hasPoint:true});
+  Object.assign(game.buildPlacement,{x:6*SHELTER_LAYOUT_SCALE,z:0,yaw:0,hasPoint:true});
   game.updateBuildingPlacement();
 }
 function afterCost(before,type){
@@ -62,7 +63,7 @@ test('clicking a building stages it without spending; confirming commits once',t
   assert.equal(ui.panel,null);
   safePoint(game);click(ui,'confirm-placement');
   assert.equal(home.buildings.store,true);
-  assert.deepEqual(home.buildingPlacements.store,{x:6,z:0,yaw:0});
+  assert.deepEqual(home.buildingPlacements.store,{x:6*SHELTER_LAYOUT_SCALE,z:0,yaw:0});
   assert.deepEqual(game.resources,afterCost(before,'store'));
   assert.equal(game.buildPlacement,null);
   click(ui,'confirm-placement');

@@ -16,13 +16,16 @@ import {pictogram,gangEmblem} from './visuals.js';
 import {PLACEABLE_BUILDINGS,beginBuildingPlacement,updateBuildingPlacement,rotateBuildingPlacement,confirmBuildingPlacement,cancelBuildingPlacement} from './build-placement.js';
 import {validateBuildingPlacement} from './placement-rules.js';
 import {DEFENSE_RULES,campGuards,guardAssignment,defenseSnapshot,normalizeGuardOrders,commandGarrison,updateGarrisonAlerts} from './garrison.js';
+import {WORLD_BOUNDARY,WORLD_RADIUS,WORLD_REVISION,WORLD_SCALE,SHELTER_RADIUS} from './world-config.js';
+import {RIVAL_RECRUIT_COST,rivalPlan,chooseRaiders,campSurrenderOffer} from './rival-rules.js';
+import {FORT_RADIUS,GATE_WIDTH,gateMaxHealth,initializeFort,gatePoint,insideFort,canPassGate,resolveFortMovement,fortWaypoint,fortLineClear,campLocal,campWorld,clearFortPosition} from './fortification.js';
 
 const V=THREE.Vector3,TAU=Math.PI*2;
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const angleLerp=(a,b,t)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*Math.min(1,t);
 const names=['Σπίθα','Βρύο','Κρόκος','Σκιά','Νούφαρο','Σάλτος','Ρίζα','Σμάραγδος','Βότσαλο','Κάλαμος','Ρόζος','Σβούρα','Αστραπή','Λωτός','Νέφος','Σφύριγμα'];
 const roles=['scout','hunter','bruiser','caller'];
-const serialFields=['id','name','team','role','tier','level','hp','maxHp','stomach','maxStomach','xp','x','z','yaw','morale','home','guard','leader','surrendered','order','skinColor','trained','trainingProgress','trainingCamp','trainingPaid','returnOrder'];
+const serialFields=['id','name','team','role','tier','level','hp','maxHp','stomach','maxStomach','xp','x','z','yaw','morale','home','guard','leader','surrendered','order','skinColor','trained','trainingProgress','trainingCamp','trainingPaid','returnOrder','raidTarget','loot','surrenderTimer','persuadeCD'];
 
 export class FrogGame {
   constructor(){
@@ -33,7 +36,7 @@ export class FrogGame {
     this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));this.renderer.setSize(innerWidth,innerHeight);this.renderer.outputColorSpace=THREE.SRGBColorSpace;
     this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.12;this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     this.renderer.domElement.id='world-canvas';this.renderer.domElement.setAttribute('aria-label','Τρισδιάστατος κόσμος Frog — Creek Dominion');document.body.prepend(this.renderer.domElement);
-    this.camera=new THREE.PerspectiveCamera(59,innerWidth/innerHeight,.07,370);this.cameraYaw=.28;this.cameraPitch=.38;this.cameraDistance=12.2;this.cameraFocus=new V();this.cameraWanted=new V();
+    this.camera=new THREE.PerspectiveCamera(59,innerWidth/innerHeight,.07,620);this.cameraYaw=.28;this.cameraPitch=.38;this.cameraDistance=12.2;this.cameraFocus=new V();this.cameraWanted=new V();
     this.sun=new THREE.DirectionalLight(0xffe7bb,3);this.sun.position.set(25,48,17);this.sun.castShadow=true;this.sun.shadow.mapSize.set(2048,2048);
     Object.assign(this.sun.shadow.camera,{left:-35,right:35,top:35,bottom:-35,near:1,far:140});this.sun.shadow.bias=-.00025;this.sun.shadow.normalBias=.035;this.scene.add(this.sun,this.sun.target);
     this.hemi=new THREE.HemisphereLight(0xc8e4ef,0x405337,2);this.scene.add(this.hemi);this.moon=new THREE.DirectionalLight(0x91b6e8,.15);this.moon.position.set(-30,35,-20);this.scene.add(this.moon);
@@ -50,26 +53,27 @@ export class FrogGame {
     addEventListener('resize',()=>this.resize());addEventListener('beforeunload',()=>this.save());document.addEventListener('visibilitychange',()=>{if(document.hidden&&this.started){this.save();this.pause();}});
     this.renderer.domElement.addEventListener('click',()=>{if(this.started&&!this.paused&&!this.buildPlacement?.active&&!this.ui.panel&&!this.input.pointerLocked)this.input.lock();});
     this.last=performance.now();this.fps=60;this.renderer.setAnimationLoop(now=>this.frame(now));
-    window.__FROG__={version:'1.1.0',inspect:()=>this.inspect(),save:()=>this.save()};
+    window.__FROG__={version:'1.3.0',inspect:()=>this.inspect(),save:()=>this.save()};
     document.getElementById('boot')?.remove();
   }
   emptyStats(){return {flies:0,recruited:0,kills:0,predatorsKilled:0,predatorsRepelled:0,campsBuilt:0,campsCaptured:0,raidsDefended:0,losses:0,gatheredFood:0,gatheredReeds:0,trained:0};}
   resetWorld(save=null){
     if(this.buildPlacement)cancelBuildingPlacement(this,{quiet:true});
     for(const f of [...this.frogs,...this.predators]){this.scene.remove(f.model.group);f.model.dispose?.();}for(const c of this.camps)this.world.removeShelter(c.mesh);
-    this.selectedIds=new Set();this.portraitQueue=[];this.frogs=[];this.predators=[];this.camps=[];this.vfx.clear();this.player=null;this.elapsed=save?.elapsed||0;this.resources=save?.resources||{food:22,reeds:40};this.stats={...this.emptyStats(),...(save?.stats||{})};this.idCounter=save?.idCounter||0;this.command='follow';this.targetCommand=null;this.hunt=null;this.won=save?.won||false;this.ended=false;this.nextRaid=this.elapsed+110;this.graceUntil=this.elapsed+45;this.deathTimer=0;
+    this.selectedIds=new Set();this.portraitQueue=[];this.frogs=[];this.predators=[];this.camps=[];this.vfx.clear();this.player=null;this.elapsed=save?.elapsed||0;this.resources=save?.resources||{food:22,reeds:40};this.stats={...this.emptyStats(),...(save?.stats||{})};this.idCounter=save?.idCounter||0;this.command='follow';this.targetCommand=null;this.hunt=null;this.won=save?.won||false;this.ended=false;this.nextRaid=save?.nextRaid??this.elapsed+100;this.graceUntil=save?.graceUntil??this.elapsed+55;this.deathTimer=0;
     for(const h of this.world.hotspots)h.flies=h.maxFlies;
     if(save){
       this.player=this.spawnFrog({...save.player,team:'player'});for(const f of save.frogs)this.spawnFrog({...f,trained:!!f.trained||(!save.campaign&&f.team==='ally'&&f.level>=2)});
       for(const c of save.camps)this.addCamp(c);
+      for(const f of this.frogs){for(const c of this.camps){if(c.destroyed)continue;const local=campLocal(c,f),d=Math.hypot(local.x,local.z);if(Math.abs(d-FORT_RADIUS)<1.3&&!(local.z>0&&Math.abs(local.x)<GATE_WIDTH/2-1)){const safe=campWorld(c,{x:local.x/d*(d<FORT_RADIUS?FORT_RADIUS-1.4:FORT_RADIUS+1.4),z:local.z/d*(d<FORT_RADIUS?FORT_RADIUS-1.4:FORT_RADIUS+1.4)});f.x=safe.x;f.z=safe.z;}}for(const c of this.camps)Object.assign(f,clearFortPosition(c,f));f.y=this.world.sampleHeight(f.x,f.z);}
       for(const h of this.world.hotspots){const s=save.hotspots?.find(x=>x.id===h.id);if(s)h.flies=clamp(s.flies,0,h.maxFlies);}
     }else{
       this.player=this.spawnFrog({id:'player',name:'Άρης',x:0,z:0,yaw:-.55,team:'player',role:'hunter',hp:120,maxHp:120,stomach:55});
       this.spawnFrog({name:'Σπίθα',x:-2,z:-2,team:'ally',role:'scout',stomach:62});this.spawnFrog({name:'Βρύο',x:1.8,z:-2.4,team:'ally',role:'bruiser',stomach:65});this.spawnFrog({name:'Κρόκος',x:3,z:-1,team:'ally',role:'caller',stomach:59});
       let enemies=this.world.campSites.filter(s=>s.team==='enemy').slice(0,5);if(enemies.length<5)enemies=this.world.campSites.filter(s=>dist(s,{x:0,z:0})>25).slice(0,5);
-      enemies.forEach((site,i)=>{const c=this.addCamp({id:site.id||`enemy-camp-${i}`,x:site.x,z:site.z,name:['Οι Χάλκινοι','Οι Ριζοφύλακες','Τα Κόκκινα Καλάμια','Οι Νυχτοβάτες','Οι Βασιλιάδες του Βάλτου'][i],team:`enemy${i}`,originalEnemy:true,tier:i>2?2:1,hp:350+i*45,maxHp:350+i*45,stock:{food:30+i*12,reeds:38+i*8},buildings:{store:true,watchtower:i>1,nursery:i>2,palisade:i>2},morale:100});
-        for(let j=0;j<4+(i>2?1:0);j++){const a=j/5*TAU;this.spawnFrog({x:c.x+Math.sin(a)*4,z:c.z+Math.cos(a)*4,team:c.team,home:c.id,leader:j===0,name:j===0?`Αρχηγός · ${c.name}`:names[(i*4+j)%names.length],role:roles[(i+j)%4],tier:i>2?2:1,level:1+i,guard:j<2});}});
-      const spots=[{x:12,z:-7},{x:-14,z:8},{x:20,z:18},{x:-24,z:-15}];for(let i=0;i<spots.length;i++)this.spawnFrog({...spots[i],team:'neutral',role:roles[i],name:names[4+i]});
+      enemies.forEach((site,i)=>{const c=this.addCamp({id:site.id||`enemy-camp-${i}`,x:site.x,z:site.z,name:['Οι Χάλκινοι','Οι Ριζοφύλακες','Τα Κόκκινα Καλάμια','Οι Νυχτοβάτες','Οι Βασιλιάδες του Βάλτου'][i],team:`enemy${i}`,originalEnemy:true,originalTeam:`enemy${i}`,rivalIndex:i,tier:i>2?2:1,hp:600+i*120,maxHp:600+i*120,stock:{food:80+i*18,reeds:60+i*12},buildings:{store:true,watchtower:i>1,nursery:i>2,palisade:i>2},morale:100});
+        const count=rivalPlan(c,{alliedCount:3,isStronghold:i===enemies.length-1}).initial;for(let j=0;j<count;j++)this.spawnRival(c,{leader:j===0,guard:j<Math.ceil(count*.6)});});
+      const spots=[{x:12,z:-7},{x:-14,z:8},{x:20,z:18},{x:-24,z:-15}];for(let i=0;i<spots.length;i++)this.spawnFrog({x:spots[i].x*WORLD_SCALE,z:spots[i].z*WORLD_SCALE,team:'neutral',role:roles[i],name:names[4+i]});
     }
     normalizeGuardOrders(this);
     this.campaign=createCampaign(save?.campaign,save&&!save.campaign?inferLegacyMetrics(save):this.campaignMetrics(),{legacy:!!save&&!save.campaign});
@@ -79,7 +83,7 @@ export class FrogGame {
   spawnFrog(data){
     const role=data.role||roles[Math.floor(this.random()*roles.length)],tier=data.tier||1;
     const f={id:data.id||`frog-${++this.idCounter}`,name:data.name||names[this.idCounter%names.length],team:data.team||'neutral',role,tier,level:data.level||1,xp:data.xp||0,hp:data.hp??(role==='bruiser'?120:95),maxHp:data.maxHp||(role==='bruiser'?120:95),stomach:data.stomach??65,maxStomach:100,x:data.x||0,z:data.z||0,y:0,yaw:data.yaw||0,vx:0,vz:0,vy:0,grounded:true,jump:0,jumpTime:0,speed:0,morale:data.morale??100,home:data.home||null,guard:!!data.guard,leader:!!data.leader,surrendered:!!data.surrendered,dead:false,attackAnim:0,attackType:'',roarAnim:0,hitAnim:0,attackCD:0,specialCD:0,invulnerable:0,stun:0,aiTime:0,brain:0,eatCD:0,intent:null,seed:this.idCounter,grabbedBy:null,thinkOffset:this.random()*5};
-    const identity=[...f.id].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0,17);f.seed=identity%997;f.order=data.order||(f.guard?'guard':'follow');f.trained=!!data.trained;f.trainingProgress=data.trainingProgress||0;f.trainingPaid=!!data.trainingPaid;f.trainingCamp=data.trainingCamp||null;f.returnOrder=data.returnOrder==='guard'?'guard':'follow';
+    const identity=[...f.id].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0,17);f.seed=identity%997;f.order=data.order||(f.guard?'guard':'follow');f.trained=!!data.trained;f.trainingProgress=data.trainingProgress||0;f.trainingPaid=!!data.trainingPaid;f.trainingCamp=data.trainingCamp||null;f.returnOrder=data.returnOrder==='guard'?'guard':'follow';f.raidTarget=data.raidTarget||null;f.loot=data.loot||0;f.surrenderTimer=data.surrenderTimer??90;f.persuadeCD=data.persuadeCD||0;
     const palette=f.team==='player'?[0x5c8f35]:f.team==='ally'?[0x57966b,0x718749,0x3f8d79,0x8d985b]:f.team==='neutral'?[0xb4a44d]:[0xa85a32,0x80576a,0x987343];
     const color=data.skinColor??palette[identity%palette.length];f.skinColor=color;
     f.model=createCreature('frog',{color,team:f.team,role,tier,seed:f.seed});f.model.setOutline(COLORS[f.team]||COLORS.enemy,true);f.y=this.world.sampleHeight(f.x,f.z);f.model.group.position.set(f.x,f.y,f.z);f.model.group.rotation.y=f.yaw;f.model.group.userData.actor=f;this.scene.add(f.model.group);this.frogs.push(f);
@@ -94,7 +98,7 @@ export class FrogGame {
     if(boss)p.model.group.traverse(o=>{if(o.isMesh&&o.material?.color&&o.name!=='animated-color-silhouette'){if(data.type==='heron')o.material.color.set(0x909da8);else o.material.color.multiplyScalar(.76);}});
     p.y=data.type==='fish'?-.7:this.world.sampleHeight(p.x,p.z);p.model.group.position.set(p.x,p.y,p.z);this.scene.add(p.model.group);this.predators.push(p);return p;
   }
-  addCamp(data){const c={tier:1,hp:350,maxHp:350,stock:data.team==='ally'?{food:0,reeds:0}:{food:14,reeds:20},buildings:{},morale:100,destroyed:false,spawnTimer:0,mealCount:0,mealDay:0,...data};settleCampSupplies(this.resources,c);c.mesh=this.world.createShelter({...c,storage:this.campStorage(c)});this.camps.push(c);return c;}
+  addCamp(data){const rank=data.rivalIndex??Number((String(data.originalTeam||data.team).match(/enemy(\d+)/)||[])[1]??this.camps.filter(c=>c.originalEnemy).length);const c={rivalIndex:rank,originalTeam:data.originalEnemy?`enemy${rank}`:null,tier:1,hp:350,maxHp:350,stock:data.team==='ally'?{food:0,reeds:0}:{food:14,reeds:20},buildings:{},morale:100,destroyed:false,spawnTimer:0,mealCount:0,mealDay:0,...data};if(c.originalEnemy&&!c.originalTeam)c.originalTeam=`enemy${rank}`;initializeFort(c);settleCampSupplies(this.resources,c);c.mesh=this.world.createShelter({...c,storage:this.campStorage(c)});this.camps.push(c);return c;}
   campStorage(c){if(c.team!=='ally')return c.stock;const n=Math.max(1,this.ownedCamps().length);return {food:this.resources.food/n,reeds:this.resources.reeds/n};}
   allies(){return this.frogs.filter(f=>f.team==='ally'&&!f.dead);}
   ownedCamps(){return this.camps.filter(c=>c.team==='ally'&&!c.destroyed);}
@@ -167,7 +171,7 @@ export class FrogGame {
   }
   jump(f,strength=7){if(!f.grounded&&!f.swimming)return;f.vy=strength;f.grounded=false;f.jumpTime=.8;this.world.splash(new V(f.x,Math.max(0,f.y),f.z),.4);if(f===this.player)this.audio.play?.('jump');}
   moveActor(f,dt){
-    let nx=clamp(f.x+f.vx*dt,-107,107),nz=clamp(f.z+f.vz*dt,-107,107),surface=this.world.getSurface(nx,nz),height=surface.height;
+    const intended={x:clamp(f.x+f.vx*dt,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1),z:clamp(f.z+f.vz*dt,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1)},resolved=resolveFortMovement(this.camps,f,intended);let nx=resolved.x,nz=resolved.z,surface=this.world.getSurface(nx,nz),height=surface.height;
     if(height>f.y+.65&&f.grounded){nx=f.x;nz=f.z;surface=this.world.getSurface(nx,nz);height=surface.height;if(f!==this.player)this.jump(f,7.5);}
     f.x=nx;f.z=nz;f.speed=Math.hypot(f.vx,f.vz);f.swimming=surface.type==='water';
     if(!f.grounded){f.vy-=20*dt;f.y+=f.vy*dt;if(f.y<=height&&f.vy<=0){const force=Math.abs(f.vy);f.y=height;f.vy=0;f.grounded=true;f.jumpTime=0;if(f.swimming||surface.type==='lily')this.world.splash(new V(f.x,0,f.z),Math.min(1.2,force*.12));if(f===this.player&&force>5)this.audio.play?.('land');}}
@@ -215,7 +219,9 @@ export class FrogGame {
   gainXP(amount){const levelled=awardXP(this.player,amount);if(levelled){this.ui.toast(`Επίπεδο ${this.player.level} — περισσότερη ζωή!`,'success');this.audio.play?.('levelup');}for(const f of this.allies())if(dist(f,this.player)<24)awardXP(f,amount*.45);}
   power(team='ally'){return this.frogs.filter(f=>!f.dead&&!f.surrendered&&(team==='ally'?['ally','player'].includes(f.team):f.team===team)).reduce((n,f)=>n+(f.tier+.15*f.level)*(.35+.65*f.hp/f.maxHp),0);}
   damage(target,amount,source,options={}){
-    if(!target||target.dead)return;if(target.team==='predator'){damagePredator(this,target,amount,source);return;}
+    if(!target||target.dead)return;
+    if(!options.bypass&&source&&source.team!=='predator'&&!fortLineClear(this.camps,source,target))return;
+    if(target.team==='predator'){damagePredator(this,target,amount,source);return;}
     // An order can outlive a surrender or a change of allegiance. Validate the
     // current factions at the actual hit, not just when the order was issued.
     if(!options.bypass&&source&&source!==target&&source.team!=='predator'&&!this.hostile(source,target))return;
@@ -250,7 +256,7 @@ export class FrogGame {
     }else{
       const enemy=this.frogs.find(f=>this.hostile(p,f)&&dist(f,p)<3.2&&Math.cos(Math.atan2(f.x-p.x,f.z-p.z)-aim)>.3);
       if(enemy){end.set(enemy.x,enemy.y+.6,enemy.z);this.damage(enemy,attackDamage(14,p.tier,p.level),p);}
-      else{const c=this.camps.find(c=>c.team.startsWith('enemy')&&!c.destroyed&&dist(c,p)<13&&Math.cos(Math.atan2(c.x-p.x,c.z-p.z)-aim)>.3);if(c){end.set(c.x,this.world.sampleHeight(c.x,c.z)+1,c.z);this.damageCamp(c,16,p);p.stamina=Math.max(0,p.stamina-3);}}
+      else{const c=this.camps.find(c=>c.team.startsWith('enemy')&&!c.destroyed&&dist(c,p)<SHELTER_RADIUS+9&&Math.cos(Math.atan2(c.x-p.x,c.z-p.z)-aim)>.3);if(c){end.set(c.x,this.world.sampleHeight(c.x,c.z)+1,c.z);this.damageCamp(c,16,p);p.stamina=Math.max(0,p.stamina-3);}}
     }
     this.vfx.tongue(p,end);
   }
@@ -262,7 +268,7 @@ export class FrogGame {
     if(type==='kick'){this.jump(f,5.3);f.vx=Math.sin(aim)*8;f.vz=Math.cos(aim)*8;}
     this.audio.play?.(type==='slam'?'slam':'hit');this.vfx.strike?.(type,new V(f.x,f.y+.35,f.z),aim,type==='slam'?1.4:1);if(f.swimming||this.world.getSurface(f.x,f.z).type==='lily')this.world.splash(new V(f.x,0,f.z),type==='slam'?1.6:.6);
     for(const target of [...this.frogs,...this.predators]){if(target===f||target.dead||(!this.hostile(f,target)&&target.team!=='predator')||dist(f,target)>radius)continue;const facing=Math.cos(Math.atan2(target.x-f.x,target.z-f.z)-aim);if(type!=='slam'&&facing<-.1)continue;this.damage(target,attackDamage(type==='kick'?43:type==='slam'?33:29,f.tier,f.level),f);}
-    for(const c of this.camps)if(!c.destroyed&&c.team!==f.team&&c.team!=='ally'&&dist(f,c)<radius+7)this.damageCamp(c,type==='slam'?38:26,f);
+    for(const c of this.camps)if(!c.destroyed&&c.team!==f.team&&c.team!=='ally'&&dist(f,c)<radius+SHELTER_RADIUS)this.damageCamp(c,type==='slam'?38:26,f);
     if(f===this.player){this.shake=.4;this.hitPause=.065;}
   }
   intimidate(f){
@@ -294,17 +300,17 @@ export class FrogGame {
     const aimedSwarm=aimed?.kind==='flies'&&swarms.includes(aimed.entity)&&aimed.entity.flies>=1?aimed.entity:null;
     const swarm=aimedSwarm||swarms.find(h=>h.flies>=1);if(swarm)return gather('gather',swarm);
     const recruit=near.find(f=>offerFor(f).eligible&&offerFor(f).guaranteed);if(recruit)return recruitment(recruit);
-    const camps=this.camps.filter(c=>dist(c,p)<13).sort((a,b)=>dist(a,p)-dist(b,p));
+    const camps=this.camps.filter(c=>dist(c,p)<SHELTER_RADIUS+7).sort((a,b)=>dist(a,p)-dist(b,p));
     const loot=camps.find(c=>c.destroyed&&!c.lootTaken);if(loot)return {type:'loot',entity:loot,available:true,actionLabel:'Λάφυρα',actionIcon:'store',hint:'E · Λεηλασία αποθεμάτων'};
     const enemy=camps.find(c=>!c.destroyed&&c.team.startsWith('enemy'));
     // Looking at an enemy base keeps diplomacy accessible. Looking away lets
     // the same shoreline supply materials; friendly bases use V for building.
-    if(enemy&&Math.cos(Math.atan2(enemy.x-p.x,enemy.z-p.z)-(this.aimYaw??this.cameraYaw??p.yaw))>.65)return {type:'persuade-camp',entity:enemy,available:true,cost:{food:12},actionLabel:'Πείσε',actionIcon:'persuade',hint:'E · Πείσε τη συμμορία · LMB / Q · Επίθεση στη βάση'};
+    if(enemy&&Math.cos(Math.atan2(enemy.x-p.x,enemy.z-p.z)-(this.aimYaw??this.cameraYaw??p.yaw))>.65)return {type:'persuade-camp',entity:enemy,available:this.campDiplomacy(enemy).allowed,cost:this.campDiplomacy(enemy).cost,reason:this.campDiplomacy(enemy).reason,actionLabel:'Διαπραγμάτευση',actionIcon:'persuade',hint:'Νίκησε τη φρουρά και σπάσε την άμυνα πριν από συμφωνία.'};
     if(this.world.getSurface(p.x,p.z).type==='land')return gather('reeds');
     if(aimedFrog?.team==='ally')return {type:'ally',entity:aimedFrog,available:true,actionLabel:'Ομάδα',actionIcon:'group',hint:`E · Διοίκηση του ${aimedFrog.name} · Tab · Συμμορία`};
     const home=camps.find(c=>c.team==='ally'&&!c.destroyed);if(home)return {type:'home',entity:home,available:true,actionLabel:'Κατασκευές',actionIcon:'camp',hint:'V · Κτίρια / επισκευή · G · Φαγητό · X · Φρουρά'};
     if(swarms.length)return gather('gather',swarms[0]);
-    if(enemy)return {type:'persuade-camp',entity:enemy,available:true,cost:{food:12},actionLabel:'Πείσε',actionIcon:'persuade',hint:'E · Πείσε τη συμμορία'};
+    if(enemy)return {type:'persuade-camp',entity:enemy,available:this.campDiplomacy(enemy).allowed,cost:this.campDiplomacy(enemy).cost,reason:this.campDiplomacy(enemy).reason,actionLabel:'Διαπραγμάτευση',actionIcon:'persuade',hint:'Νίκησε τη φρουρά και σπάσε την άμυνα πριν από συμφωνία.'};
     return {type:'none',available:false,reason:'Πλησίασε σμήνος ή όχθη',hint:'E κοντά σε σμήνος ή όχθη για αποθέματα · Σημάδεψε βάτραχο για στρατολόγηση'};
   }
   interact(){
@@ -332,58 +338,104 @@ export class FrogGame {
     spend(this.resources,offer.cost);f.team='ally';f.surrendered=false;f.morale=100;f.fear=0;f.guard=false;f.order='follow';f.home=this.ownedCamps()[0]?.id||null;f.hp=Math.max(f.hp,f.maxHp*.5);f.intent=null;f.brain=0;f.raidTarget=null;f.combatTarget=null;f.orderTarget=null;f.model.setOutline(COLORS.ally,true);this.stats.recruited++;this.gainXP(20);this.audio.play?.('recruit');this.updateFrogPortrait?.(f,true);this.ui.toast({icon:'recruit',portrait:this.portraits?.[f.id],value:1,label:'Στρατολογήθηκε',detail:`Ο ${f.name} μπήκε στην ομάδα και σε ακολουθεί.`,tone:'success'});
     if(this.targetCommand===f){this.targetCommand=null;if(this.command==='attack')this.command='follow';}
     for(const actor of this.frogs){if(actor.intent?.target===f){actor.intent=null;actor.brain=0;}if(actor.combatTarget===f){actor.combatTarget=null;actor.combatUntil=0;}if(actor.orderTarget===f){actor.orderTarget=null;if(actor.order==='attack')actor.order='follow';}}
-    if(f.leader&&camp&&!camp.destroyed&&camp.hp/camp.maxHp<.5)this.captureCamp(camp);return true;
+    return true;
+  }
+  campDiplomacy(c){
+    const defenders=this.frogs.filter(f=>f.home===c.id&&f.team===c.team&&!f.dead&&!f.surrendered&&dist(f,c)<SHELTER_RADIUS+8);
+    return campSurrenderOffer({...c,isStronghold:c===this.stronghold()},{defenders:defenders.length,leaderAlive:defenders.some(f=>f.leader),alliedPower:this.power(),enemyPower:this.power(c.team)});
   }
   persuadeCamp(c){
-    if((c.persuadeCD||0)>this.elapsed){this.ui.toast('Η συμμορία δεν θέλει ακόμη να διαπραγματευτεί.');return;}
-    const ratio=this.power()/Math.max(.5,this.power(c.team)),weakness=1-c.hp/c.maxHp;
-    if(ratio<1.35&&weakness<.5){this.ui.toast('Η αντίπαλη συμμορία αντιστέκεται. Χτύπησε τη βάση ή αύξησε τη δύναμή σου.','warning');return;}
-    if(!canAfford(this.resources,{food:12})){this.ui.toast('Χρειάζεσαι 12 τροφή για προσφορά συμμαχίας.','warning');return;}
-    c.persuadeCD=this.elapsed+15;const chance=clamp(.15+ratio*.2+weakness*.5+(100-c.morale)*.002,.1,.97);
-    if(Math.random()<chance){spend(this.resources,{food:12});this.captureCamp(c);}else{this.ui.toast('Η συμμαχία απορρίφθηκε. Η φθορά της βάσης αυξάνει τις πιθανότητες.','warning');c.morale=Math.max(0,c.morale-12);}
+    if(!c||c.destroyed||!c.team.startsWith('enemy'))return false;
+    const offer=this.campDiplomacy(c);
+    if(!offer.allowed){this.ui.toast({icon:'shield',tone:'warning',label:'Η φρουρά αντιστέκεται',detail:offer.reason});return false;}
+    if((c.persuadeCD||0)>this.elapsed){this.ui.toast('Η συμμορία δεν θέλει ακόμη να διαπραγματευτεί.');return false;}
+    if(!canAfford(this.resources,offer.cost)){this.ui.toast(`Χρειάζεσαι ${offer.cost.food} τροφή για τη συμφωνία.`,'warning');return false;}
+    c.persuadeCD=this.elapsed+20;
+    if(this.random()<offer.chance){spend(this.resources,offer.cost);this.captureCamp(c);return true;}
+    this.ui.toast('Η φρουρά απέρριψε τη συμφωνία. Δεν ξοδεύτηκε τροφή.','warning');return false;
   }
   captureCamp(c){
     if(!c||c.team==='ally')return;const old=c.team;
-    c.team='ally';c.destroyed=false;c.hp=Math.max(c.hp,c.maxHp*.5);c.morale=100;this.stats.campsCaptured++;c.supplyMigrated=false;settleCampSupplies(this.resources,c);
+    const firstCapture=!c.capturedOnce;c.capturedOnce=true;c.team='ally';c.destroyed=false;c.hp=Math.max(c.hp,c.maxHp*.5);c.gateHp=Math.max(c.gateHp||0,gateMaxHealth(c)*.5);c.morale=100;c.spawnTimer=0;c.underRaid=false;c.rebuildTimer=0;this.stats.campsCaptured++;c.supplyMigrated=false;settleCampSupplies(this.resources,c);
     let guarded=false;
-    for(const f of this.frogs)if(f.team===old&&!f.dead){f.team='ally';f.surrendered=false;f.morale=100;f.home=c.id;f.guard=!guarded;guarded=true;f.order=f.guard?'guard':'follow';f.raidTarget=null;f.combatTarget=null;f.intent=null;f.brain=0;f.model.setOutline(COLORS.ally,true);this.updateFrogPortrait?.(f,true);this.stats.recruited++;}
+    for(const f of this.frogs)if(f.team===old&&f.home===c.id&&!f.dead&&dist(f,c)<SHELTER_RADIUS+8){f.team='ally';f.surrendered=false;f.morale=100;f.home=c.id;f.guard=!guarded;guarded=true;f.order=f.guard?'guard':'follow';f.raidTarget=null;f.combatTarget=null;f.intent=null;f.brain=0;f.model.setOutline(COLORS.ally,true);this.updateFrogPortrait?.(f,true);this.stats.recruited++;}
     if(this.targetCommand===c||(this.targetCommand?.model&&this.targetCommand.team==='ally')){this.targetCommand=null;if(this.command==='attack')this.command='follow';}
     for(const f of this.frogs)if(f.intent?.target===c||(f.intent?.kind==='attack'&&f.intent.target?.team!=='predator'&&!this.hostile(f,f.intent.target))){f.intent=null;f.brain=0;}
-    this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});this.gainXP(100);this.audio.play?.('recruit');this.ui.toast({icon:'camp',value:1,progress:1,tone:'success'});this.save();
+    this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});if(firstCapture)this.gainXP(100);this.audio.play?.('recruit');this.ui.toast({icon:'camp',value:1,progress:1,tone:'success'});this.save();
+  }
+  rivalTakeover(c,sourceTeam){
+    if(!c||!/^enemy\d+$/.test(sourceTeam)||c.team===sourceTeam&&!c.destroyed)return false;
+    c.team=sourceTeam;c.destroyed=false;c.hp=Math.max(200,c.maxHp*.55);c.gateHp=gateMaxHealth(c)*.35;c.morale=75;c.spawnTimer=0;c.rebuildTimer=0;c.underRaid=false;c.stock={food:18,reeds:12};c.supplyMigrated=false;c.lootTaken=false;
+    if(!c.originalEnemy)c.rivalIndex=Number(sourceTeam.slice(5));
+    for(const f of this.frogs){
+      if(f.raidTarget===c.id&&f.team===sourceTeam&&!f.dead){f.home=c.id;f.guard=true;f.raidTarget=null;f.loot=0;f.intent=null;f.brain=0;}
+      if(f.team==='ally'&&f.home===c.id&&f.guard){f.guard=false;f.order='follow';f.intent=null;f.brain=0;}
+    }
+    this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});
+    this.ui.toast({icon:'camp',tone:'danger',label:'Χάθηκε περιοχή',detail:`Το ${c.name} καταλήφθηκε. Αντεπίθεση για να το ανακτήσεις.`});
+    this.save();return true;
   }
   damageCamp(c,amount,source){
     if(!c||c.destroyed)return;
     if(source&&(source.dead||source.surrendered||(source.team==='player'?'ally':source.team)===(c.team==='player'?'ally':c.team)))return;
-    c.hp=Math.max(0,c.hp-amount);c.morale=Math.max(0,c.morale-amount*.14);this.vfx.strike?.('debris',new V(c.x,this.world.sampleHeight(c.x,c.z)+1,c.z),source?.yaw||0,.6);
-    if(this.elapsed-(c.visualUpdate||0)>.4||c.hp===0){c.visualUpdate=this.elapsed;this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});}
-    if(c.hp<=0){c.destroyed=true;this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});this.audio.play?.('slam');if(c.team.startsWith('enemy')){if(source?.team==='player'||source?.team==='ally')this.gainXP(120);this.ui.toast(`Καταστράφηκε το ${c.name}. E για λάφυρα — οι υπερασπιστές μπορούν να στρατολογηθούν.`,'success');for(const f of this.frogs)if(f.home===c.id&&!f.dead){f.morale=0;f.guard=false;f.surrendered=true;f.intent=null;f.brain=0;f.model.setOutline(COLORS.surrender,true);}}else{this.ui.toast(`Το καταφύγιο ${c.name} έπεσε! Ξαναχτίζεται με V.`,'danger');}
-      if(this.targetCommand===c||(this.targetCommand?.model&&this.targetCommand.surrendered)){this.targetCommand=null;if(this.command==='attack')this.command='follow';}
-      for(const f of this.frogs)if(f.intent?.target===c||(f.intent?.kind==='attack'&&f.intent.target?.surrendered)){f.intent=null;f.brain=0;}
-      this.save();
+    initializeFort(c);
+    if(source&&!insideFort(c,source)&&(c.gateHp||0)<=0)return;
+    if(source&&!insideFort(c,source)&&(c.gateHp||0)>0){
+      const gate=gatePoint(c),atGate=dist(source,gate)<10;
+      if(!atGate){if(source===this.player&&this.elapsed>(c.wallHintAt||0)){c.wallHintAt=this.elapsed+6;this.ui.toast({icon:'shield',tone:'warning',label:'Χτύπα την πύλη',detail:'Ο περίβολος εμποδίζει την είσοδο. Πλησίασε την πύλη ή δώσε ομαδική επίθεση.'});}return;}
+      c.gateHp=Math.max(0,c.gateHp-amount*(c.buildings.palisade?.8:1));
+      this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});this.vfx.strike?.('debris',new V(gate.x,this.world.sampleHeight(c.x,c.z)+1.5,gate.z),source.yaw||0,.7);
+      if(c.gateHp===0){this.ui.toast({icon:'gate',tone:c.team==='ally'?'danger':'success',label:'Η πύλη έσπασε',detail:`Το ${c.name} είναι ανοιχτό για επίθεση.`});this.audio.play?.('slam');this.save();}return;
     }
+    const defenders=this.frogs.filter(f=>!f.dead&&!f.surrendered&&f.team===c.team&&f.home===c.id&&dist(f,c)<SHELTER_RADIUS+8);
+    const protection=defenders.length>=3?.28:defenders.length?.6:1;
+    const damage=amount*protection*(c.buildings.palisade?.72:1);
+    c.hp=Math.max(0,c.hp-damage);c.morale=Math.max(0,c.morale-damage*.14);
+    this.vfx.strike?.('debris',new V(c.x,this.world.sampleHeight(c.x,c.z)+1,c.z),source?.yaw||0,.6);
+    if(this.elapsed-(c.visualUpdate||0)>.4||c.hp===0){c.visualUpdate=this.elapsed;this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});}
+    if(c.hp>0)return;
+    if(source?.team?.startsWith('enemy')){this.rivalTakeover(c,source.team);return;}
+    c.destroyed=true;c.rebuildTimer=0;this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});this.audio.play?.('slam');
+    if(c.team.startsWith('enemy')){
+      if(!c.destroyRewarded&&(source?.team==='player'||source?.team==='ally')){this.gainXP(120);c.destroyRewarded=true;}
+      this.ui.toast(`Έπεσε το ${c.name}. E για λάφυρα · Χτίσε καταφύγιο στα ερείπια για να κρατήσεις την περιοχή.`,'success');
+      for(const f of this.frogs)if(f.home===c.id&&f.team===c.team&&!f.dead&&dist(f,c)<SHELTER_RADIUS+8){f.morale=0;f.guard=false;f.surrendered=true;f.surrenderTimer=90;f.intent=null;f.brain=0;f.model.setOutline(COLORS.surrender,true);}
+    }else this.ui.toast(`Το καταφύγιο ${c.name} έπεσε! Ξαναχτίζεται με V.`,'danger');
+    if(this.targetCommand===c||(this.targetCommand?.model&&this.targetCommand.surrendered)){this.targetCommand=null;if(this.command==='attack')this.command='follow';}
+    for(const f of this.frogs)if(f.intent?.target===c||(f.intent?.kind==='attack'&&f.intent.target?.surrendered)){f.intent=null;f.brain=0;}
+    this.save();
+  }
+  rebuildActorGrid(){
+    this.actorGrid=new Map();
+    for(const f of this.frogs){if(f.dead)continue;const key=`${Math.floor(f.x/3)},${Math.floor(f.z/3)}`;let bucket=this.actorGrid.get(key);if(!bucket)this.actorGrid.set(key,bucket=[]);bucket.push(f);}
+  }
+  nearbyFrogs(f,radius){
+    if(!this.actorGrid)return this.frogs;
+    const nearby=[];for(let x=Math.floor((f.x-radius)/3);x<=Math.floor((f.x+radius)/3);x++)for(let z=Math.floor((f.z-radius)/3);z<=Math.floor((f.z+radius)/3);z++){const bucket=this.actorGrid.get(`${x},${z}`);if(bucket)nearby.push(...bucket);}return nearby;
   }
   updateFrogs(dt){
-    const p=this.player,allies=this.allies();
+    const p=this.player,allies=this.allies();this.rebuildActorGrid();this.fieldFormation=new Map(allies.filter(f=>!f.guard&&f.order!=='training').map((f,i)=>[f.id,i]));
     for(const f of this.frogs){if(f===p)continue;if(f.dead){f.deadTime=(f.deadTime||0)+dt;continue;}for(const key of ['attackCD','specialCD','roarCD','invulnerable','stun','eatCD','fear'])f[key]=Math.max(0,(f[key]||0)-dt);f.stomach=clamp(f.stomach-dt*.055,0,100);if(f.trainingPaid&&!this.camps.some(c=>c.id===f.trainingCamp&&c.team==='ally'&&!c.destroyed&&c.buildings.training))this.cancelTraining(f);if(f.grabbedBy)continue;
-      if(f.surrendered){f.vx=THREE.MathUtils.damp(f.vx,0,8,dt);f.vz=THREE.MathUtils.damp(f.vz,0,8,dt);this.moveActor(f,dt);continue;}
+      if(f.surrendered){f.surrenderTimer=Math.max(0,(f.surrenderTimer??90)-dt);const home=this.camps.find(c=>c.id===f.home&&c.team===f.team);if(!f.surrenderTimer&&home&&dist(f,this.player)>32&&!this.frogs.some(a=>['ally','player'].includes(a.team)&&!a.dead&&dist(a,home)<SHELTER_RADIUS+15)){f.surrendered=false;f.hp=Math.max(f.hp,f.maxHp*.5);f.morale=65;f.guard=true;f.intent=null;f.brain=0;}f.vx=THREE.MathUtils.damp(f.vx,0,8,dt);f.vz=THREE.MathUtils.damp(f.vz,0,8,dt);this.moveActor(f,dt);continue;}
       f.brain-=dt;if(f.brain<=0){f.brain=f.team==='ally'?.18:dist(f,p)>65?.65:.2;f.intent=this.thinkFrog(f,allies);}
-      const intent=f.intent;if(!intent){f.vx=0;f.vz=0;this.moveActor(f,dt);continue;}
+      let intent=f.intent;if(!intent){f.vx=0;f.vz=0;this.moveActor(f,dt);continue;}
+      if(intent.kind==='attack'&&intent.target){const barrier=this.camps.find(c=>!c.destroyed&&(c.gateHp??gateMaxHealth(c))>0&&!canPassGate(c,f)&&!insideFort(c,f)&&insideFort(c,intent.target));if(barrier){f.intent=intent={kind:'camp-attack',target:barrier};f.brain=Math.max(f.brain,.2);}}
       const attackInvalid=intent.kind==='attack'&&(!intent.target||intent.target.dead||intent.target.surrendered||intent.target.phase==='dormant'||(intent.target.team!=='predator'&&!this.hostile(f,intent.target)));
       const campInvalid=intent.kind==='camp-attack'&&(!intent.target||intent.target.destroyed||intent.target.team==='neutral'||(f.team==='player'?'ally':f.team)===(intent.target.team==='player'?'ally':intent.target.team));
       if(attackInvalid||campInvalid){f.intent=null;f.brain=0;f.vx=0;f.vz=0;this.moveActor(f,dt);continue;}
-      const target=intent.target,d=dist(f,target),travelling=f.team==='ally'&&!f.guard&&f.order!=='training';
+      const target=intent.target,siegeGate=intent.kind==='camp-attack'&&(target.gateHp??gateMaxHealth(target))>0&&!insideFort(target,f),goal=siegeGate?gatePoint(target,2.2):target,waypoint=fortWaypoint(this.camps,f,goal),routing=dist(waypoint,goal)>.1,d=dist(f,waypoint),travelling=f.team==='ally'&&!f.guard&&f.order!=='training';
       let speed=(f.team==='ally'?(f.role==='scout'?5.1:4.7):(f.role==='scout'?4.6:3.7))*(f.stomach<10?.8:1);
       // A walking or sprinting player must not permanently outrun the squad.
       // Catch-up remains physical movement, and ends as allies reach formation/combat range.
       if(travelling&&(intent.formation||intent.support)&&d>4.5)speed=Math.max(speed,dist(f,p)>22?7.8:6.9);
-      const stop=intent.kind==='attack'?(target.team==='predator'?(f.role==='hunter'?7:Math.min(4.8,2.8+Math.max(0,(target.scale||1)-1)*.6)):f.role==='hunter'?5:1.6):intent.kind==='camp-attack'?10.5:intent.kind==='eat'?2:1.1;
-      if(d>stop){const dx=(target.x-f.x)/Math.max(d,.01),dz=(target.z-f.z)/Math.max(d,.01);let sx=0,sz=0;for(const other of this.frogs){if(other===f||other.dead)continue;const dd=dist(f,other);if(dd<1.15&&dd>.01){sx+=(f.x-other.x)/dd*(1.15-dd);sz+=(f.z-other.z)/dd*(1.15-dd);}}f.vx=dx*speed+sx*2;f.vz=dz*speed+sz*2;f.yaw=angleLerp(f.yaw,Math.atan2(f.vx,f.vz),dt*10);
+      const stop=routing?.25:siegeGate?2.8:intent.kind==='attack'?(target.team==='predator'?(f.role==='hunter'?7:Math.min(4.8,2.8+Math.max(0,(target.scale||1)-1)*.6)):f.role==='hunter'?5:1.6):intent.kind==='camp-attack'?SHELTER_RADIUS*.76:intent.kind==='eat'?2:1.1;
+      if(d>stop){const dx=(waypoint.x-f.x)/Math.max(d,.01),dz=(waypoint.z-f.z)/Math.max(d,.01);let sx=0,sz=0;for(const other of this.nearbyFrogs(f,1.5)){if(other===f||other.dead)continue;const dd=dist(f,other);if(dd<1.15&&dd>.01){sx+=(f.x-other.x)/dd*(1.15-dd);sz+=(f.z-other.z)/dd*(1.15-dd);}}f.vx=dx*speed+sx*2;f.vz=dz*speed+sz*2;f.yaw=angleLerp(f.yaw,Math.atan2(f.vx,f.vz),dt*10);
         if(f.grounded&&!f.swimming&&d>3&&((this.elapsed+f.thinkOffset)%1.5)<dt)this.jump(f,6.4);
       }else{f.vx=THREE.MathUtils.damp(f.vx,0,10,dt);f.vz=THREE.MathUtils.damp(f.vz,0,10,dt);if(d>.1)f.yaw=angleLerp(f.yaw,Math.atan2(target.x-f.x,target.z-f.z),dt*10);
-        if(intent.kind==='attack'&&!target.dead&&f.attackCD<=0){f.attackCD=1.15+this.random()*.35;f.attackAnim=.4;f.attackDuration=.4;f.attackType=f.role==='hunter'?'tongue':'kick';this.damage(target,attackDamage(f.role==='bruiser'?14:10,f.tier,f.level),f);if(f.role==='hunter')this.vfx.tongue(f,new V(target.x,target.y+.6,target.z));if(f.specialCD<=0){if(f.role==='caller')this.intimidate(f);else if(d<4)this.special(f);}}
-        if(intent.kind==='camp-attack'&&f.attackCD<=0&&!target.destroyed){f.attackCD=1.4;f.attackAnim=.4;f.attackDuration=.4;f.attackType='kick';this.damageCamp(target,attackDamage(10,f.tier,f.level),f);if(f.raidTarget&&target.team==='ally'&&!this.frogs.some(g=>g.team==='ally'&&g.guard&&g.home===target.id&&!g.dead&&dist(g,target)<14)){const food=Math.min(3,this.resources.food);this.resources.food-=food;f.loot=(f.loot||0)+food;if(f.loot>=9){f.raidTarget=null;f.intent=null;this.ui.toast('Επιδρομείς έκλεψαν τρόφιμα από αφύλακτη βάση!','danger');}}}
-        if(intent.kind==='eat'&&f.eatCD<=0){const result=feedFromFly(f,target);if(result.consumed){f.attackAnim=.3;f.attackDuration=.3;f.attackType='tongue';f.healingUntil=this.elapsed+1;if(dist(f,p)<30)this.vfx.tongue(f,new V(target.x,1.5,target.z));if(f.team==='ally'){this.resources.food+=result.food;this.creditGathering(result.food,0);awardXP(f,3);}}}
-        if(intent.kind==='train')this.updateTraining(f,intent.camp,dt);
+        if(!routing&&intent.kind==='attack'&&!target.dead&&f.attackCD<=0&&dist(f,target)<=stop+.3&&fortLineClear(this.camps,f,target)){f.attackCD=1.15+this.random()*.35;f.attackAnim=.4;f.attackDuration=.4;f.attackType=f.role==='hunter'?'tongue':'kick';this.damage(target,attackDamage(f.role==='bruiser'?14:10,f.tier,f.level),f);if(f.role==='hunter')this.vfx.tongue(f,new V(target.x,target.y+.6,target.z));if(f.specialCD<=0){if(f.role==='caller')this.intimidate(f);else if(d<4)this.special(f);}}
+        if(!routing&&intent.kind==='camp-attack'&&f.attackCD<=0&&!target.destroyed){f.attackCD=1.4;f.attackAnim=.4;f.attackDuration=.4;f.attackType='kick';this.damageCamp(target,attackDamage(10,f.tier,f.level),f);if(f.raidTarget&&target.team==='ally'&&!this.frogs.some(g=>g.team==='ally'&&g.guard&&g.home===target.id&&!g.dead&&dist(g,target)<SHELTER_RADIUS+4)){const food=Math.min(1,this.resources.food);this.resources.food-=food;f.loot=(f.loot||0)+food;}}
+        if(!routing&&intent.kind==='eat'&&f.eatCD<=0){const result=feedFromFly(f,target);if(result.consumed){f.attackAnim=.3;f.attackDuration=.3;f.attackType='tongue';f.healingUntil=this.elapsed+1;if(dist(f,p)<30)this.vfx.tongue(f,new V(target.x,1.5,target.z));if(f.team==='ally'){this.resources.food+=result.food;this.creditGathering(result.food,0);awardXP(f,3);}}}
+        if(!routing&&intent.kind==='train')this.updateTraining(f,intent.camp,dt);
       }
       if(f.stun>0){f.vx*=.2;f.vz*=.2;}this.moveActor(f,dt);
     }
@@ -399,9 +451,9 @@ export class FrogGame {
     const formation=()=>{
       // Only field troops occupy follow slots; a large garrison must not push
       // the last follower dozens of metres behind the player.
-      const field=allies.filter(a=>!a.guard&&a.order!=='training'),i=Math.max(0,field.indexOf(f));
+      const i=this.fieldFormation?.get(f.id)??Math.max(0,allies.filter(a=>!a.guard&&a.order!=='training').indexOf(f));
       const radius=Math.min(10.5,2.8+Math.sqrt(i)*1.15),a=this.player.yaw+Math.PI+i*2.399963;
-      return {kind:'move',formation:true,target:{x:clamp(this.player.x+Math.sin(a)*radius,-105,105),z:clamp(this.player.z+Math.cos(a)*radius,-105,105)}};
+      return {kind:'move',formation:true,target:{x:clamp(this.player.x+Math.sin(a)*radius,-WORLD_BOUNDARY+3,WORLD_BOUNDARY-3),z:clamp(this.player.z+Math.cos(a)*radius,-WORLD_BOUNDARY+3,WORLD_BOUNDARY-3)}};
     };
     const post=own&&f.guard&&home?(this.guardAssignment?.(f)||{camp:home,point:{x:home.x,z:home.z},range:home.buildings?.watchtower?26:14,leash:home.buildings?.watchtower?29:18}):null;
     if(post){
@@ -419,6 +471,11 @@ export class FrogGame {
       }
       return {kind:'move',target:post.point};
     }
+    if(!own&&home&&f.guard&&!f.raidTarget){
+      const intruders=this.frogs.filter(e=>this.hostile(f,e)&&dist(e,home)<SHELTER_RADIUS+16);
+      if(intruders.length){const enemy=intruders.sort((a,b)=>dist(a,f)-dist(b,f))[0];return {kind:'attack',target:enemy};}
+      if(dist(f,home)>SHELTER_RADIUS+15){f.combatTarget=null;return {kind:'move',target:home};}
+    }
     const travelling=own&&order!=='training';
     if(travelling){
       const rescue=this.predators.find(pr=>activePred(pr)&&(pr.grabbed===this.player||pr.grabbed?.team==='ally'&&!pr.grabbed.guard&&dist(pr,this.player)<45));
@@ -427,7 +484,7 @@ export class FrogGame {
       if(order==='attack'||!f.order&&this.command==='attack'){
         const target=f.orderTarget||this.targetCommand;
         if(hunt&&target?.team!=='predator')return {kind:'attack',target:hunt,support:true};
-        if(validTarget(target))return {kind:target.model?'attack':'camp-attack',target,support:true};
+        if(validTarget(target)){if(!target.model){const defender=this.frogs.filter(e=>this.hostile(f,e)&&dist(e,f)<18&&dist(e,target)<SHELTER_RADIUS+12).sort((a,b)=>dist(a,f)-dist(b,f))[0];if(defender)return {kind:'attack',target:defender,support:true};}return {kind:target.model?'attack':'camp-attack',target,support:true};}
         f.orderTarget=null;f.order=order='follow';
         if(this.targetCommand===target){this.targetCommand=null;this.command='follow';}
       }
@@ -444,18 +501,18 @@ export class FrogGame {
     const opponents=this.frogs.filter(e=>this.hostile(f,e)&&dist(e,f)<(f.guard?15:12)&&(!travelling||dist(e,this.player)<24)).sort((a,b)=>dist(a,f)-dist(b,f));
     if(opponents[0]&&(own||this.elapsed>this.graceUntil||opponents[0].team.startsWith('enemy')))return {kind:'attack',target:opponents[0]};
     if(own&&order==='training'){const camp=this.camps.find(c=>c.id===f.trainingCamp&&c.team==='ally'&&!c.destroyed&&c.buildings?.training);if(!camp)this.cancelTraining(f);else return {kind:'train',target:camp.mesh?.userData?.trainingPoint||{x:camp.x+5,z:camp.z+3},camp};}
-    if(f.raidTarget){const camp=this.camps.find(c=>c.id===f.raidTarget&&!c.destroyed);if(camp)return {kind:'camp-attack',target:camp};f.raidTarget=null;}
+    if(f.raidTarget){const camp=this.camps.find(c=>c.id===f.raidTarget&&!c.destroyed&&c.team!==f.team);if(camp)return {kind:'camp-attack',target:camp};f.raidTarget=null;f.guard=true;}
     const forage=own&&order==='forage',needsMeal=forage?f.hp<f.maxHp-.1||f.stomach<98:f.hp<f.maxHp*.9||f.stomach<65;
     if(canHuntForRecovery(f)&&needsMeal){
-      const radius=forage?210:own?8:24;
+      const radius=forage?WORLD_RADIUS*2:own?8:24;
       const h=this.world.hotspots.filter(h=>h.flies>=1&&dist(h,f)<radius&&(!own||forage||dist(f,this.player)<10&&dist(h,this.player)<10)).sort((a,b)=>dist(a,f)-dist(b,f)-(a.rich?3:0)+(b.rich?3:0))[0];
       if(h)return {kind:'eat',target:h};
     }else if(forage){f.order=f.returnOrder==='guard'&&home?.team==='ally'?'guard':'follow';f.guard=f.order==='guard';if(f.guard)return {kind:'move',target:this.guardAssignment?.(f)?.point||home};}
     if(own&&!f.guard)return formation();
-    if(home){const a=this.elapsed*.08+f.seed*2.3;return {kind:'move',target:{x:home.x+Math.sin(a)*(f.guard?7:10),z:home.z+Math.cos(a)*(f.guard?7:10)}};}return null;
+    if(home){const a=this.elapsed*.08+f.seed*2.3;return {kind:'move',target:{x:home.x+Math.sin(a)*(f.guard?SHELTER_RADIUS*.65:SHELTER_RADIUS+3),z:home.z+Math.cos(a)*(f.guard?SHELTER_RADIUS*.65:SHELTER_RADIUS+3)}};}return null;
   }
   campaignMetrics(){
-    const homes=this.ownedCamps(),allies=this.allies();return {gatheredFood:this.stats.gatheredFood||0,gatheredReeds:this.stats.gatheredReeds||0,shelters:homes.length,buildings:Object.fromEntries(['store','nursery','training','watchtower','palisade'].map(type=>[type,homes.filter(c=>c.buildings?.[type]).length])),allies:allies.length,trained:Math.max(this.stats.trained||0,allies.filter(f=>f.trained).length),territories:this.camps.filter(c=>c.originalEnemy&&(c.destroyed||c.team==='ally')).length};
+    const homes=this.ownedCamps(),allies=this.allies();return {gatheredFood:this.stats.gatheredFood||0,gatheredReeds:this.stats.gatheredReeds||0,shelters:homes.length,buildings:Object.fromEntries(['store','nursery','training','watchtower','palisade'].map(type=>[type,homes.filter(c=>c.buildings?.[type]).length])),allies:allies.length,trained:Math.max(this.stats.trained||0,allies.filter(f=>f.trained).length),territories:this.camps.filter(c=>c.originalEnemy&&!c.destroyed&&c.team==='ally').length};
   }
   creditGathering(food=0,reeds=0){this.stats.gatheredFood=(this.stats.gatheredFood||0)+Math.max(0,food);this.stats.gatheredReeds=(this.stats.gatheredReeds||0)+Math.max(0,reeds);if(this.campaign)this.campaign=recordGathering(this.campaign,food,reeds);}
   updateCampaign(force=false){
@@ -465,9 +522,9 @@ export class FrogGame {
     this.syncCampaignPredators();
   }
   syncCampaignPredators(){
-    if(!this.campaign)return;const anchors={heron:{x:34,z:14},snake:{x:-38,z:-22},fish:{x:12,z:48}};
+    if(!this.campaign)return;const anchors=this.world.predatorAnchors||{heron:{x:34*WORLD_SCALE,z:14*WORLD_SCALE},snake:{x:-38*WORLD_SCALE,z:-22*WORLD_SCALE},fish:{x:12*WORLD_SCALE,z:48*WORLD_SCALE}};
     if(this.campaign.phase==='hunters')for(const type of ['heron','snake','fish']){if(!this.campaign.defeated.includes(type)&&!this.predators.some(p=>p.type===type&&!p.boss&&!p.dead))this.spawnPredator({type,...anchors[type],campaignTracked:true});}
-    if(this.campaign.phase==='bosses'){const type=nextBossType(this.campaign);if(type&&!this.predators.some(p=>p.type===type&&p.boss&&!p.dead))this.spawnPredator({type,...anchors[type],boss:true,campaignTracked:true});}
+    if(this.campaign.phase==='bosses'){const type=nextBossType(this.campaign);if(type&&!this.predators.some(p=>p.type===type&&p.boss&&!p.dead))this.spawnPredator({type,...(this.world.bossAnchors?.[type]||anchors[type]),boss:true,campaignTracked:true});}
   }
   onPredatorDefeated(p){if(!p?.campaignTracked||p.campaignKillRecorded||!this.campaign)return;p.campaignKillRecorded=true;this.campaign=recordCampaignKill(this.campaign,p.type,{boss:!!p.boss});this.updateCampaign(true);this.save();}
   trainSquad(squad){
@@ -487,44 +544,98 @@ export class FrogGame {
     if(f.trainingProgress>=TRAINING.duration&&applyTraining(f)){f.trainingPaid=false;f.trainingProgress=0;f.trainingCamp=null;f.model.setTier(f.tier);f.order=f.returnOrder==='guard'?'guard':'follow';f.guard=f.order==='guard';const originalHome=f.guard&&this.camps.find(c=>c.id===f.home&&c.team==='ally'&&!c.destroyed);f.home=originalHome?.id||camp.id;f.intent=null;f.brain=0;this.stats.trained=(this.stats.trained||0)+1;this.updateFrogPortrait(f,true);this.ui.toast({icon:'training',portrait:this.portraits?.[f.id],progress:1,value:f.tier,tone:'success'});this.updateCampaign(true);this.save();}
   }
   updatePredators(dt){updatePredators(this,dt);}
+  stronghold(){
+    return this.camps.filter(c=>c.team?.startsWith('enemy')&&!c.destroyed).sort((a,b)=>(b.rivalIndex||0)-(a.rivalIndex||0)||(b.tier||1)-(a.tier||1))[0]||null;
+  }
+  rivalPlanFor(c){return rivalPlan(c,{alliedCount:this.allies().length,elapsed:this.elapsed,ownedCount:this.ownedCamps().length,isStronghold:c===this.stronghold()});}
+  spawnRival(c,{leader=false,guard=true}={}){
+    const n=this.frogs.filter(f=>f.home===c.id&&f.team===c.team&&!f.dead&&!f.surrendered).length;
+    const a=n*2.399963+this.random()*.6,r=10.8+Math.sqrt(n)*.9;
+    const f=this.spawnFrog({x:clamp(c.x+Math.sin(a)*Math.min(FORT_RADIUS-2,r),-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2),z:clamp(c.z+Math.cos(a)*Math.min(FORT_RADIUS-2,r),-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2),team:c.team,home:c.id,leader,guard,order:'guard',tier:c.tier,level:Math.max(1,1+(c.rivalIndex||0)),role:roles[n%roles.length],name:leader?`Αρχηγός · ${c.name}`:names[(n+(c.rivalIndex||0)*3)%names.length],stomach:90});
+    return f;
+  }
+  reinforceCamp(c,plan=this.rivalPlanFor(c)){
+    if(!c||c.destroyed||!c.team?.startsWith('enemy'))return 0;
+    const defenders=this.frogs.filter(f=>f.home===c.id&&f.team===c.team&&!f.dead&&!f.surrendered&&!f.raidTarget);
+    const count=Math.min(plan.batch,Math.max(0,plan.garrison-defenders.length),Math.floor(c.stock.food/RIVAL_RECRUIT_COST.food),Math.floor(c.stock.reeds/RIVAL_RECRUIT_COST.reeds));
+    for(let i=0;i<count;i++){spend(c.stock,RIVAL_RECRUIT_COST);this.spawnRival(c,{guard:true});}
+    if(count&&dist(c,this.player)<48)this.ui.toast({id:`reinforce-${c.id}`,icon:'shield',value:count,tone:'warning',label:'Εχθρικές ενισχύσεις',detail:`${c.name}: ${count} νέοι υπερασπιστές.`});
+    return count;
+  }
   updateEconomy(dt){
     const day=dayState(this.elapsed);
     normalizeGuardOrders(this);updateGarrisonAlerts(this);
     for(const h of this.world.hotspots)h.flies=Math.min(h.maxFlies,h.flies+dt*(h.rich?.55:.16)*(day.night?.65:1));
-    for(const c of this.camps){if(c.destroyed)continue;c.spawnTimer=(c.spawnTimer||0)+dt;
+    const stronghold=this.stronghold(),alliedCount=this.allies().length,ownedCount=this.ownedCamps().length;
+    for(const c of this.camps){
+      if(c.destroyed){
+        // An abandoned ruin is rebuildable only by real surviving troops.
+        const survivors=this.frogs.filter(f=>f.home===c.id&&f.team===c.team&&!f.dead&&!f.surrendered&&dist(f,c)<SHELTER_RADIUS+15);
+        if(c.team.startsWith('enemy')&&survivors.length>=2&&!this.frogs.some(f=>['ally','player'].includes(f.team)&&!f.dead&&dist(f,c)<SHELTER_RADIUS+15)){
+          c.rebuildTimer=(c.rebuildTimer||0)+dt;
+          if(c.rebuildTimer>=75){c.destroyed=false;c.hp=c.maxHp*.55;c.gateHp=gateMaxHealth(c)*.5;c.rebuildTimer=0;c.spawnTimer=0;c.stock.food=Math.max(c.stock.food,18);c.stock.reeds=Math.max(c.stock.reeds,12);this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});this.ui.toast({icon:'camp',tone:'warning',label:'Εχθρική ανοικοδόμηση',detail:`Επιζώντες ξανάχτισαν το ${c.name}.`});}
+        }else c.rebuildTimer=0;
+        continue;
+      }
+      c.spawnTimer=(c.spawnTimer||0)+dt;
+      const gate=gatePoint(c),gateOpen=this.frogs.some(f=>!f.dead&&!f.surrendered&&(f.team==='player'?'ally':f.team)===c.team&&dist(f,gate)<5);if(c.gateOpen!==gateOpen){c.gateOpen=gateOpen;this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});}
       if(c.team==='ally'){
         settleCampSupplies(this.resources,c);const safe=this.campSafe(c);creditCampIncome(this.resources,c,dt,{safe});
-        const nearby=this.frogs.filter(f=>!f.dead&&['player','ally'].includes(f.team)&&dist(f,c)<14&&!f.grabbedBy);
+        const nearby=this.frogs.filter(f=>!f.dead&&['player','ally'].includes(f.team)&&dist(f,c)<SHELTER_RADIUS+3&&!f.grabbedBy);
         for(const f of nearby){const healed=recoverAtShelter(f,dt,{safe,store:!!c.buildings.store});if(healed)f.healingUntil=this.elapsed+1;if(safe)f.morale=Math.min(100,f.morale+dt*2);}
-        if(c.buildings.nursery&&safe&&c.spawnTimer>=85&&this.allies().length<gangCapacity(this.camps)&&canAfford(this.resources,{food:10,reeds:6})){
-          spend(this.resources,{food:10,reeds:6});c.spawnTimer=0;const guard=campGuards(this,c).length<(c.buildings.watchtower?DEFENSE_RULES.towerSlots:DEFENSE_RULES.baseSlots);const f=this.spawnFrog({x:c.x+2,z:c.z,team:'ally',home:c.id,guard,order:guard?'guard':'follow',stomach:80});this.ui.toast({icon:guard?'shield':'recruit',portrait:this.portraits?.[f.id],value:1,tone:'success',label:guard?'Νέος φρουρός':'Νέος συνοδός'});this.audio.play?.('recruit');
+        if(c.buildings.nursery&&safe&&c.spawnTimer>=85-15*((c.tier||1)-1)&&canAfford(this.resources,{food:10,reeds:6})){
+          spend(this.resources,{food:10,reeds:6});c.spawnTimer=0;const guard=campGuards(this,c).length<(c.buildings.watchtower?DEFENSE_RULES.towerSlots:DEFENSE_RULES.baseSlots);
+          const birth=campWorld(c,{x:2,z:8.5}),f=this.spawnFrog({x:birth.x,z:birth.z,team:'ally',home:c.id,guard,order:guard?'guard':'follow',stomach:80});this.ui.toast({icon:guard?'shield':'recruit',portrait:this.portraits?.[f.id],value:1,tone:'success',label:guard?'Νέος φρουρός':'Νέος συνοδός'});this.audio.play?.('recruit');
         }
-      }else if(c.team.startsWith('enemy')){c.stock.food=Math.min(150,c.stock.food+dt*.03);c.stock.reeds=Math.min(180,c.stock.reeds+dt*.02);if(c.spawnTimer>110){c.spawnTimer=0;const living=this.frogs.filter(f=>f.home===c.id&&f.team===c.team&&!f.dead&&!f.surrendered);if(living.length<4&&c.stock.food>=12&&this.frogs.filter(f=>!f.dead).length<100){c.stock.food-=12;this.spawnFrog({x:c.x+3,z:c.z,team:c.team,home:c.id,guard:true,tier:c.tier,level:c.tier+1});}}}
+      }else if(c.team.startsWith('enemy')){
+        const plan=rivalPlan(c,{alliedCount,elapsed:this.elapsed,ownedCount,isStronghold:c===stronghold});
+        c.isStronghold=c===stronghold;c.stock.food=Math.min(600+plan.garrison*6,c.stock.food+dt*plan.foodRate);c.stock.reeds=Math.min(500+plan.garrison*2,c.stock.reeds+dt*plan.materialRate);
+        const defenders=this.frogs.filter(f=>f.home===c.id&&f.team===c.team&&!f.dead&&!f.surrendered&&!f.raidTarget);
+        const deficit=plan.garrison-defenders.length,interval=c===stronghold&&deficit>plan.batch*2?Math.min(12,plan.interval):plan.interval;
+        if(c.spawnTimer>=interval){c.spawnTimer=0;this.reinforceCamp(c,plan);}
+        const threatened=this.frogs.some(f=>['ally','player'].includes(f.team)&&!f.dead&&dist(f,c)<SHELTER_RADIUS+14);
+        if(!threatened){c.morale=Math.min(100,c.morale+dt*.5);for(const f of defenders)if(dist(f,c)<SHELTER_RADIUS+4){f.hp=Math.min(f.maxHp,f.hp+dt*.55);f.stomach=Math.min(100,f.stomach+dt*.16);}}
+      }
     }
-    if(this.elapsed>=this.nextRaid){this.nextRaid=this.elapsed+(day.night?85:140);this.launchRaid();}
+    if(this.elapsed>=this.nextRaid){this.nextRaid=this.elapsed+(day.night?58:82);this.launchRaid();}
     if(this.player.hp<25&&!this.lowHealthWarn){this.lowHealthWarn=true;this.ui.toast({icon:'heal',progress:this.player.hp/this.player.maxHp,tone:'danger'});}if(this.player.hp>45)this.lowHealthWarn=false;
+    // Release obsolete corpses while retaining every living frog, without a population ceiling.
+    const corpses=this.frogs.filter(f=>f!==this.player&&f.dead&&(f.deadTime||0)>10);
+    if(corpses.length){for(const f of corpses){this.scene?.remove(f.model.group);f.model.dispose?.();this.selectedIds?.delete(f.id);if(this.portraits)delete this.portraits[f.id];}this.frogs=this.frogs.filter(f=>!corpses.includes(f));}
   }
-  campSafe(c){return !this.frogs.some(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered&&dist(f,c)<18)&&!this.predators.some(p=>!p.dead&&dist(p,c)<18&&!['patrol','dormant','dead'].includes(p.phase));}
+  campSafe(c){return !this.frogs.some(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered&&dist(f,c)<SHELTER_RADIUS+9)&&!this.predators.some(p=>!p.dead&&dist(p,c)<SHELTER_RADIUS+9&&!['patrol','dormant','dead'].includes(p.phase));}
   launchRaid(){
-    const bases=this.ownedCamps();if(!bases.length)return;const enemy=this.camps.filter(c=>c.team.startsWith('enemy')&&!c.destroyed);if(!enemy.length)return;
-    const destination=bases[Math.floor(this.random()*bases.length)],source=enemy.sort((a,b)=>dist(a,destination)-dist(b,destination))[0];
-    const raiders=this.frogs.filter(f=>f.home===source.id&&f.team===source.team&&!f.dead&&!f.surrendered&&!f.grabbedBy).slice(-3);
-    for(const f of raiders){f.raidTarget=destination.id;f.guard=false;f.intent=null;f.brain=0;f.loot=0;}
-    if(raiders.length)destination.underRaid=true;
+    const bases=this.ownedCamps();if(!bases.length)return [];
+    const enemies=this.camps.filter(c=>c.team.startsWith('enemy')&&!c.destroyed);if(!enemies.length)return [];
+    const raids=[],waveCount=this.allies().length>=35&&bases.length>1?2:1;
+    const targets=bases.map(c=>({camp:c,guards:campGuards(this,c).length})).sort((a,b)=>a.guards-b.guards||(b.camp.originalEnemy?1:0)-(a.camp.originalEnemy?1:0));
+    for(const {camp:destination} of targets){
+      if(raids.length>=waveCount)break;
+      if(this.frogs.some(f=>f.raidTarget===destination.id&&!f.dead&&!f.surrendered))continue;
+      const candidates=enemies.filter(c=>!raids.some(r=>r.source===c)).sort((a,b)=>dist(a,destination)-dist(b,destination));
+      for(const source of candidates){
+        const plan=this.rivalPlanFor(source),raiders=chooseRaiders(this.frogs,source,plan);if(!raiders.length)continue;
+        for(const f of raiders){f.raidTarget=destination.id;f.guard=false;f.intent=null;f.brain=0;f.loot=0;}
+        destination.underRaid=true;raids.push({source,destination,raiders});
+        this.ui.toast({id:`raid-${destination.id}`,icon:'shield',tone:'danger',value:raiders.length,label:'Έρχεται επιδρομή',detail:`${source.name}: ${raiders.length} βάτραχοι κατευθύνονται στο ${destination.name}. Ανάθεσε φρουρούς με V → Άμυνα.`});break;
+      }
+    }
+    return raids;
   }
-  nearestHome(radius=14){return this.ownedCamps().filter(c=>dist(c,this.player)<radius).sort((a,b)=>dist(a,this.player)-dist(b,this.player))[0]||null;}
+  nearestHome(radius=SHELTER_RADIUS+5){return this.ownedCamps().filter(c=>dist(c,this.player)<radius).sort((a,b)=>dist(a,this.player)-dist(b,this.player))[0]||null;}
   placement(){
-    const p=this.player,ruin=this.camps.find(c=>c.destroyed&&dist(c,p)<13);if(ruin)return {x:ruin.x,z:ruin.z,ruin};
-    const near=this.camps.some(c=>!c.destroyed&&dist(c,p)<26);if(near)return null;
-    const site=this.world.campSites.find(s=>dist(s,p)<7&&!this.camps.some(c=>dist(c,s)<26&&!c.destroyed));if(site)return {x:site.x,z:site.z};
+    const p=this.player,ruin=this.camps.find(c=>c.destroyed&&dist(c,p)<SHELTER_RADIUS+7);if(ruin)return {x:ruin.x,z:ruin.z,ruin};
+    const near=this.camps.some(c=>!c.destroyed&&dist(c,p)<SHELTER_RADIUS*2+8);if(near)return null;
+    const site=this.world.campSites.find(s=>dist(s,p)<7&&!this.camps.some(c=>dist(c,s)<SHELTER_RADIUS*2+8&&!c.destroyed));if(site)return {x:site.x,z:site.z};
     const s=this.world.getSurface(p.x,p.z);if(s.type==='land'||(s.type==='rock'&&s.platform?.radius>3.5))return {x:p.x,z:p.z};return null;
   }
   buildOptions(){
-    const c=this.nearestHome(),place=this.placement();return [...Object.entries(BUILDINGS).map(([type,b])=>{
+    const c=this.nearestHome(),place=this.placement();if(c)c.safe=this.campSafe(c);return [...Object.entries(BUILDINGS).map(([type,b])=>{
       let reason='';if(type==='shelter'){if(!place)reason='Πλησίασε ελεύθερη νησίδα, όχθη ή ερείπιο, μακριά από άλλη βάση.';}
       else if(!c)reason='Πλησίασε ενεργό φιλικό καταφύγιο.';
+      else if(!['repair'].includes(type)&&!c.safe)reason='Η βάση δέχεται επίθεση. Ασφάλισε την περιοχή πριν από νέα κατασκευή.';
       else if(type==='upgrade'&&c.tier>=3)reason='Η βάση βρίσκεται ήδη στην ανώτερη βαθμίδα.';
-      else if(type==='repair'&&c.hp>=c.maxHp)reason='Το καταφύγιο δεν έχει ζημιές.';
+      else if(type==='repair'&&c.hp>=c.maxHp&&(c.gateHp??gateMaxHealth(c))>=gateMaxHealth(c))reason='Το καταφύγιο δεν έχει ζημιές.';
       else if(!['upgrade','repair'].includes(type)&&c.buildings[type])reason='Το κτίριο υπάρχει ήδη.';
       return {type,...b,enabled:!reason,reason};
     }),{type:'promote-player',name:'Προαγωγή αρχηγού',description:`Βαθμίδα ${this.player.tier+1}: περισσότερη ζωή, ισχυρότερα χτυπήματα και εξοπλισμός από φύλλα. Απαιτεί επίπεδο ${this.player.tier*2}.`,cost:promoteCost(this.player),enabled:canPromote(this.player,this.resources),reason:this.player.tier>=3?'Ανώτερη βαθμίδα.':`Απαιτεί επίπεδο ${this.player.tier*2} και τους απαραίτητους πόρους.`}];
@@ -542,19 +653,19 @@ export class FrogGame {
     const def=BUILDINGS[type],option=placementRecord?{enabled:true}:this.buildOptions().find(o=>o.type===type);if(!def||!option?.enabled){this.ui.toast(option?.reason||'Δεν μπορείς να χτίσεις εδώ.','warning');return;}
     if(!canAfford(this.resources,def.cost)){this.ui.toast('Δεν αρκούν οι πόροι. Κυνήγησε ή λεηλάτησε εχθρικές αποθήκες.','warning');return;}
     if(type==='shelter'){
-      const spot=placementRecord||this.placement();if(!spot)return;spend(this.resources,def.cost);let c;if(spot.ruin){c=spot.ruin;c.team='ally';c.destroyed=false;c.hp=c.maxHp;c.stock={food:0,reeds:0};c.supplyMigrated=true;c.buildings={};c.buildingPlacements={};c.yaw=spot.yaw||0;this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});}
+      const spot=placementRecord||this.placement();if(!spot)return;spend(this.resources,def.cost);let c;if(spot.ruin){c=spot.ruin;c.team='ally';c.destroyed=false;c.hp=c.maxHp;c.gateHp=gateMaxHealth(c);c.stock={food:0,reeds:0};c.supplyMigrated=true;c.capturedOnce=true;c.spawnTimer=0;c.rebuildTimer=0;c.buildings={};c.buildingPlacements={};c.yaw=spot.yaw||0;this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});}
       else c=this.addCamp({id:`camp-${++this.idCounter}`,x:spot.x,z:spot.z,yaw:spot.yaw||0,name:`Φωλιά ${this.ownedCamps().length+1}`,team:'ally',hp:350,maxHp:350,tier:1,originalEnemy:false,buildings:{}});
-      this.stats.campsBuilt++;this.gainXP(35);for(const f of this.allies())if(!f.home)f.home=c.id;this.ui.toast(`Χτίστηκε το ${c.name}. X για φρουρά, V για νέα κτίρια.`,'success');
-    }else{const c=placementRecord?this.camps.find(c=>c.id===placementRecord.campId):this.nearestHome();if(!c)return;
+      for(const f of this.frogs)if(!f.dead)Object.assign(f,clearFortPosition(c,f));this.stats.campsBuilt++;this.gainXP(35);for(const f of this.allies())if(!f.home)f.home=c.id;this.ui.toast(`Χτίστηκε το ${c.name}. X για φρουρά, V για νέα κτίρια.`,'success');
+    }else{const c=placementRecord?this.camps.find(c=>c.id===placementRecord.campId):this.nearestHome();if(!c)return;if(type!=='repair'&&!this.campSafe(c)){this.ui.toast('Η βάση δέχεται επίθεση. Πρώτα υπερασπίσου την περιοχή.','warning');return;}
       if(PLACEABLE_BUILDINGS.has(type)&&(!placementRecord?.local||!validateBuildingPlacement(c,type,placementRecord.local).valid))return;
-      spend(this.resources,def.cost);if(type==='upgrade'){c.tier++;c.maxHp+=150;c.hp=Math.min(c.maxHp,c.hp+180);}else if(type==='repair')c.hp=Math.min(c.maxHp,c.hp+150);else{c.buildings[type]=true;if(placementRecord?.local){c.buildingPlacements??={};c.buildingPlacements[type]={...placementRecord.local};}if(type==='palisade'){c.maxHp+=180;c.hp+=180;}}this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});this.ui.toast(`${def.name}: ολοκληρώθηκε στο ${c.name}.`,'success');}
+      spend(this.resources,def.cost);if(type==='upgrade'){const oldGate=gateMaxHealth(c);c.tier++;c.maxHp+=150;c.hp=Math.min(c.maxHp,c.hp+180);c.gateMaxHp=gateMaxHealth(c);c.gateHp=Math.min(c.gateMaxHp,(c.gateHp||0)+c.gateMaxHp-oldGate);}else if(type==='repair'){c.hp=Math.min(c.maxHp,c.hp+150);c.gateMaxHp=gateMaxHealth(c);c.gateHp=Math.min(c.gateMaxHp,(c.gateHp||0)+120);}else{c.buildings[type]=true;if(placementRecord?.local){c.buildingPlacements??={};c.buildingPlacements[type]={...placementRecord.local};}if(type==='palisade'){c.maxHp+=180;c.hp+=180;c.gateMaxHp=gateMaxHealth(c);c.gateHp=Math.min(c.gateMaxHp,(c.gateHp||0)+140);delete c.buildingPlacements?.palisade;}}this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});this.ui.toast(`${def.name}: ολοκληρώθηκε στο ${c.name}.`,'success');}
     this.lastBuildCommitted=true;this.audio.play?.('build');this.vfx.strike?.('debris',new V(this.player.x,this.player.y+.5,this.player.z),this.player.yaw,1);this.updateUI(dayState(this.elapsed));this.ui.renderPanel?.(true);this.save();return true;
   }
   consume(){const c=this.nearestHome();if(!c){this.ui.toast('Πρέπει να βρίσκεσαι σε φιλικό καταφύγιο.','warning');return;}const day=dayState(this.elapsed).day;if(c.mealDay!==day){c.mealDay=day;c.mealCount=0;}if(c.mealCount>=2){this.ui.toast('Οι δύο εφεδρικές μερίδες της ημέρας εξαντλήθηκαν. Βγες για κυνήγι.','warning');return;}if(this.player.stomach>85){this.ui.toast('Δεν χρειάζεσαι ακόμη εφεδρικό γεύμα.');return;}if(!spend(this.resources,{food:10})){this.ui.toast('Χρειάζονται 10 τροφή για μια εφεδρική μερίδα.','warning');return;}eat(this.player,25);c.mealCount++;this.audio.play?.('eat');this.ui.toast('+25 στομάχι. Η εφεδρική τροφή είναι περιορισμένη.','food');}
   gangCommand(command,selection=null){
     const ids=selection?new Set(selection):null;
     if(command==='guard'){
-      const camp=this.nearestHome(18);if(!camp){this.ui.toast({icon:'camp',tone:'warning',label:'Επίλεξε καταφύγιο',detail:'Πλησίασε δικό σου καταφύγιο ή άνοιξε V → Άμυνα για να επιλέξεις βάση.'});return false;}
+      const camp=this.nearestHome(SHELTER_RADIUS+6);if(!camp){this.ui.toast({icon:'camp',tone:'warning',label:'Επίλεξε καταφύγιο',detail:'Πλησίασε δικό σου καταφύγιο ή άνοιξε V → Άμυνα για να επιλέξεις βάση.'});return false;}
       return this.garrisonCommand({campId:camp.id,command:ids?'assign-selected':'assign',ids:selection});
     }
     let squad=this.allies().filter(f=>ids?ids.has(f.id):command==='regroup'||command==='train'||(!f.guard&&!(f.trainingPaid&&f.returnOrder==='guard')));
@@ -603,12 +714,12 @@ export class FrogGame {
     if(this.hunt&&!this.hunt.dead)return predatorObjective(this.hunt);
     if(!this.ownedCamps().length){if(this.player.stomach<85)return 'Κυνήγησε μύγες, τάισε τη συμμορία και βρες μια ασφαλή νησίδα.';return 'Το στομάχι σου γέμισε. Πήγαινε στη νησίδα κοντά στην αρχή και πάτησε V για καταφύγιο.';}
     const attacked=this.ownedCamps().find(c=>this.frogs.some(f=>f.raidTarget===c.id&&!f.dead&&!f.surrendered));if(attacked)return `Υπερασπίσου το ${attacked.name} από την επιδρομή.`;
-    const left=this.camps.filter(c=>c.originalEnemy&&!c.destroyed&&c.team!=='ally').length;
+    const left=this.camps.filter(c=>c.originalEnemy&&(c.destroyed||c.team!=='ally')).length;
     if(!left)return 'Ο ποταμός είναι δικός σου. Εξερεύνησε, επέκτεινε και κράτησε τη συμμορία ασφαλή.';
-    return `Ένωσε τον ποταμό: κατάστρεψε ή πείσε τις ${left} αντίπαλες συμμορίες.`;
+    return `Κράτησε τον ποταμό: απόκτησε και υπερασπίσου τις ${left} περιοχές που απομένουν.`;
   }
   updateUI(day){
-    const p=this.player,c=this.nearestHome(),allies=this.allies(),original=this.camps.filter(c=>c.originalEnemy),won=original.filter(c=>c.destroyed||c.team==='ally').length;
+    const p=this.player,c=this.nearestHome(),allies=this.allies(),original=this.camps.filter(c=>c.originalEnemy),won=original.filter(c=>!c.destroyed&&c.team==='ally').length;
     const selectedIds=[...(this.selectedIds||[])].filter(id=>allies.some(f=>f.id===id));
     const hunt=this.hunt&&!this.hunt.dead?{...this.hunt,portrait:this.portraits?.[this.hunt.boss?'boss-'+this.hunt.type:this.hunt.type],objective:predatorObjective(this.hunt)}:null;
     const roster=allies.map(f=>({id:f.id,name:f.name,hp:f.hp,maxHp:f.maxHp,stomach:f.stomach,maxStomach:100,level:f.level,tier:f.tier,role:f.role,guard:f.guard,order:f.order||(f.guard?'guard':'follow'),selected:selectedIds.includes(f.id),portrait:this.portraits?.[f.id],home:f.home,healing:(f.healingUntil||0)>this.elapsed,trained:f.trained,trainingProgress:f.trainingPaid?(f.trainingProgress||0)/TRAINING.duration:0,canTrain:canTrain(f,c,this.resources),canPromote:canPromote(f,this.resources),promoteCost:promoteCost(f),team:'ally',skinColor:f.skinColor}));
@@ -617,12 +728,17 @@ export class FrogGame {
     const placement=this.placement();
     this.ui.update({
       player:{hp:p.hp,maxHp:p.maxHp,stamina:p.stamina,maxStamina:100,stomach:p.stomach,maxStomach:100,level:p.level,xp:p.xp,nextXp:nextLevelXP(p.level),tier:p.tier,portrait:this.portraits?.[p.id],specialIndex:this.specialIndex,specialCD:p.specialCD,specialDuration:p.specialDuration||5.2,attackCD:p.attackCD,roarCD:p.roarCD,dodgeCD:p.dodgeCD},
-      resources:this.resources,buildPlacement:this.buildPlacement?{active:true,type:this.buildPlacement.type,valid:this.buildPlacement.valid,reason:this.buildPlacement.reason,yaw:this.buildPlacement.yaw,cost:this.buildPlacement.cost,dragging:this.buildPlacement.dragging}:null,allies:roster,selectedIds,defenses:defenseSnapshot(this),capacity:gangCapacity(this.camps),recruitmentUnlimited:true,camps:this.camps,predator:hunt,context:contextState,campaign:{...this.campaign,objectives:campaignObjectives(this.campaign,this.campaignMetrics())},training:TRAINING,placement:{valid:!!placement,x:placement?.x,z:placement?.z},
-      objectiveVisual:{type:'conquer',current:won,total:original.length,progress:won/Math.max(1,original.length),targets:original.map(c=>({id:c.id,team:c.team==='ally'?'ally':c.team,done:c.destroyed||c.team==='ally'}))},
+      resources:this.resources,buildPlacement:this.buildPlacement?{active:true,type:this.buildPlacement.type,valid:this.buildPlacement.valid,reason:this.buildPlacement.reason,yaw:this.buildPlacement.yaw,cost:this.buildPlacement.cost,dragging:this.buildPlacement.dragging}:null,allies:roster,selectedIds,defenses:defenseSnapshot(this),capacity:null,recruitmentUnlimited:true,camps:this.camps,predator:hunt,context:contextState,campaign:{...this.campaign,objectives:campaignObjectives(this.campaign,this.campaignMetrics())},training:TRAINING,placement:{valid:!!placement,x:placement?.x,z:placement?.z},
+      objectiveVisual:{type:'conquer',current:won,total:original.length,progress:won/Math.max(1,original.length),targets:original.map(c=>({id:c.id,team:c.team==='ally'?'ally':c.team,done:!c.destroyed&&c.team==='ally'}))},
       objective:this.objective(),objectiveProgress:won+' / '+original.length,hint:ctx.hint,timeLabel:day.timeLabel,day:day.day,night:day.night,
-      world:{radius:110,player:{x:p.x,z:p.z,yaw:p.yaw},platforms:this.world.platforms,hotspots:this.world.hotspots,camps:[...this.camps,...this.world.campSites.filter(s=>!this.camps.some(c=>dist(c,s)<8)).map(s=>({...s,team:'neutral'}))],enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead),allies,predators:this.predators.filter(pr=>!pr.dead&&pr.phase!=='dormant').map(pr=>({type:pr.type,x:pr.x,z:pr.z,hp:pr.hp,boss:pr.boss,hunting:pr===this.hunt}))},
-      stats:this.stats,fps:Math.round(this.fps),paused:this.paused,inCamp:!!c,currentCamp:c,currentCampId:c?.id,campName:c?.name,buildOptions:this.buildOptions(),squadMode:this.command,gangCount:allies.length+1,savedAt:this.savedAt,aiming:!!this.aimTarget,viewMode:this.viewMode,mouse:this.input.mouse,locationName:c?.name||'Ο Μεγάλος Ποταμός'
+      world:{radius:this.world.radius||WORLD_RADIUS,mapRegions:this.world.mapRegions||[],routes:this.world.routes||[],stronghold:this.strongholdSnapshot(),player:{x:p.x,z:p.z,yaw:p.yaw},platforms:this.world.platforms,hotspots:this.world.hotspots,camps:[...this.camps,...this.world.campSites.filter(s=>!this.camps.some(c=>dist(c,s)<8)).map(s=>({...s,team:'neutral'}))],enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead),allies,predators:this.predators.filter(pr=>!pr.dead&&pr.phase!=='dormant').map(pr=>({id:pr.id,name:pr.name,type:pr.type,x:pr.x,z:pr.z,hp:pr.hp,boss:pr.boss,hunting:pr===this.hunt}))},
+      stats:this.stats,fps:Math.round(this.fps),paused:this.paused,inCamp:!!c,currentCamp:c,currentCampId:c?.id,campName:c?.name,buildOptions:this.buildOptions(),squadMode:this.command,gangCount:allies.length+(p.dead?0:1),savedAt:this.savedAt,aiming:!!this.aimTarget,viewMode:this.viewMode,mouse:this.input.mouse,locationName:c?.name||'Ο Μεγάλος Ποταμός'
     });
+  }
+  strongholdSnapshot(){
+    const c=this.stronghold();if(!c)return null;
+    const plan=this.rivalPlanFor(c),population=this.frogs.filter(f=>f.home===c.id&&f.team===c.team&&!f.dead&&!f.surrendered&&!f.raidTarget&&dist(f,c)<SHELTER_RADIUS+15).length;
+    return {id:c.id,name:c.name,x:c.x,z:c.z,population,target:plan.garrison};
   }
   updateModels(dt){
     for(const f of this.frogs){f.attackAnim=Math.max(0,(f.attackAnim||0)-dt);f.roarAnim=Math.max(0,(f.roarAnim||0)-dt);f.hitAnim=Math.max(0,(f.hitAnim||0)-dt);f.model.group.position.set(f.x,f.y,f.z);f.model.group.rotation.y=f.yaw;const near=dist(f,this.player)<80;f.model.group.visible=near&&!(f===this.player&&this.hidePlayer)&&(!f.dead||(f.deadTime||0)<5);if(!near)continue;
@@ -677,15 +793,15 @@ export class FrogGame {
   checkVictory(){if(!this.won&&this.campaign?.phase==='complete'){this.won=true;this.paused=true;this.ended=true;this.input.unlock();this.audio.play?.('victory');this.ui.showEnding(true,{...this.stats,days:dayState(this.elapsed).day});this.save();}}
   respawn(){
     const base=this.ownedCamps()[0];if(!base){this.ended=true;this.paused=true;this.ui.showEnding(false,{...this.stats,days:dayState(this.elapsed).day});this.input.unlock();return;}
-    const p=this.player;if(p.grabbedBy)releaseGrab(this,p.grabbedBy);p.dead=false;p.hp=p.maxHp*.65;p.stomach=Math.max(p.stomach,35);p.stamina=100;p.x=base.x+3;p.z=base.z;p.y=this.world.sampleHeight(p.x,p.z);p.grounded=true;p.vy=0;p.invulnerable=6;this.graceUntil=this.elapsed+20;this.resources.food=Math.floor(this.resources.food*.8);this.resources.reeds=Math.floor(this.resources.reeds*.85);this.hunt=null;this.deathTimer=0;p.model.setOutline(COLORS.player,true);this.ui.toast('Επέστρεψες στο καταφύγιο, με απώλεια μέρους των πόρων.','warning');this.save();
+    const p=this.player;if(p.grabbedBy)releaseGrab(this,p.grabbedBy);p.dead=false;p.hp=p.maxHp*.65;p.stomach=Math.max(p.stomach,35);p.stamina=100;Object.assign(p,gatePoint(base,-5.5));p.y=this.world.sampleHeight(p.x,p.z);p.grounded=true;p.vy=0;p.invulnerable=6;this.graceUntil=this.elapsed+20;this.resources.food=Math.floor(this.resources.food*.8);this.resources.reeds=Math.floor(this.resources.reeds*.85);this.hunt=null;this.deathTimer=0;p.model.setOutline(COLORS.player,true);this.ui.toast('Επέστρεψες στο καταφύγιο, με απώλεια μέρους των πόρων.','warning');this.save();
   }
   readSave(){try{return validateSave(JSON.parse(localStorage.getItem(SAVE_KEY)||'null'));}catch{return null;}}
   save(){
     if(!this.started||this.player.dead)return false;
     const clean=f=>Object.fromEntries(serialFields.map(k=>[k,f[k]]));
-    const data={version:SAVE_VERSION,elapsed:this.elapsed,resources:{...this.resources},stats:{...this.stats},campaign:this.campaign,player:clean(this.player),frogs:this.frogs.filter(f=>f!==this.player&&!f.dead).map(clean),camps:this.camps.map(c=>({id:c.id,x:c.x,z:c.z,name:c.name,team:c.team,yaw:c.yaw||0,buildingPlacements:c.buildingPlacements||{},tier:c.tier,hp:c.hp,maxHp:c.maxHp,stock:c.stock,buildings:c.buildings,originalEnemy:c.originalEnemy,destroyed:c.destroyed,lootTaken:c.lootTaken,supplyMigrated:c.supplyMigrated,morale:c.morale,spawnTimer:c.spawnTimer,mealCount:c.mealCount,mealDay:c.mealDay})),hotspots:this.world.hotspots.map(h=>({id:h.id,flies:h.flies})),idCounter:this.idCounter,won:this.won};
+    const data={version:SAVE_VERSION,worldRevision:WORLD_REVISION,nextRaid:this.nextRaid,graceUntil:this.graceUntil,elapsed:this.elapsed,resources:{...this.resources},stats:{...this.stats},campaign:this.campaign,player:clean(this.player),frogs:this.frogs.filter(f=>f!==this.player&&!f.dead).map(clean),camps:this.camps.map(c=>({id:c.id,x:c.x,z:c.z,name:c.name,team:c.team,yaw:c.yaw||0,buildingPlacements:c.buildingPlacements||{},tier:c.tier,hp:c.hp,maxHp:c.maxHp,gateHp:c.gateHp,stock:c.stock,buildings:c.buildings,originalEnemy:c.originalEnemy,originalTeam:c.originalTeam,rivalIndex:c.rivalIndex,capturedOnce:c.capturedOnce,destroyRewarded:c.destroyRewarded,rebuildTimer:c.rebuildTimer,persuadeCD:c.persuadeCD,destroyed:c.destroyed,lootTaken:c.lootTaken,supplyMigrated:c.supplyMigrated,morale:c.morale,spawnTimer:c.spawnTimer,mealCount:c.mealCount,mealDay:c.mealDay})),hotspots:this.world.hotspots.map(h=>({id:h.id,flies:h.flies})),idCounter:this.idCounter,won:this.won};
     try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));this.savedAt=Date.now();return true;}catch{if(!this.saveWarn){this.ui.toast('Η αποθήκευση του browser είναι γεμάτη ή απενεργοποιημένη.','warning');this.saveWarn=true;}return false;}
   }
-  inspect(){return {version:'1.1.0',started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
+  inspect(){return {version:'1.3.0',started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
 }
 

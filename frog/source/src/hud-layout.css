@@ -433,3 +433,113 @@
  #frog-ui .fg-compact-hud .fg-primary-actions .fg-action-caption{white-space:nowrap;overflow-wrap:normal;word-break:normal;font-size:9.5px}
 }
 
+
+/* Always-visible population and tactical lake map. */
+#frog-ui .fg-compact-hud .fg-population{grid-column:1/-1;grid-row:5;display:flex;flex-direction:column;align-items:stretch;gap:4px;margin:9px -3px -3px;padding:7px 5px 3px;border:0;border-top:1px solid #c5dba333;border-radius:0;background:transparent;pointer-events:auto;text-align:left;color:#e3ebc9;min-width:0}
+#frog-ui .fg-compact-hud .fg-population-total{display:flex;align-items:center;gap:6px;min-width:0;line-height:1.1}
+#frog-ui .fg-compact-hud .fg-population-total>.fg-pictogram{width:23px;height:23px}
+#frog-ui .fg-compact-hud .fg-population-total>span{font-size:12px;font-weight:600}
+#frog-ui .fg-compact-hud .fg-population-total>b{margin-left:auto;font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
+#frog-ui .fg-compact-hud .fg-population-duties{display:flex;justify-content:space-between;flex-wrap:wrap;gap:3px 8px;font-size:10px;color:#b9caaa;line-height:1.2}
+#frog-ui .fg-compact-hud .fg-population-duties b{font-weight:650;color:#eef1d3;font-variant-numeric:tabular-nums}
+#frog-ui .fg-compact-hud .fg-minimap-shell{padding:6px;border:1px solid #c8dca44d;border-radius:11px;background:linear-gradient(140deg,#193a2bec,#0b241de8);box-shadow:0 5px 22px #00180d44;min-width:0}
+#frog-ui .fg-compact-hud .fg-location-tools{display:flex;align-items:center;justify-content:space-between;gap:6px;height:auto;padding:0 2px 5px}
+#frog-ui .fg-compact-hud .fg-location-tools>strong{font-size:10px;font-weight:600;letter-spacing:.04em;color:#bdcda9}
+#frog-ui .fg-compact-hud .fg-location .fg-clock{min-height:20px;padding:0;background:none;gap:4px}
+#frog-ui .fg-compact-hud .fg-clock b{font-size:11px}
+#frog-ui .fg-compact-hud .fg-location .fg-map-button.fg-minimap{display:block;width:100%;height:auto;aspect-ratio:1;min-width:0;padding:0;border:1px solid #bfd49b35;border-radius:7px;background:#102825;overflow:hidden;position:relative}
+#frog-ui .fg-compact-hud .fg-map-button.fg-minimap canvas{display:block;width:100%;height:100%;opacity:1}
+#frog-ui .fg-compact-hud .fg-minimap .fg-map-north{top:3px;font-size:10px;text-shadow:0 1px 3px #000;pointer-events:none}
+#frog-ui .fg-compact-hud .fg-minimap-legend{display:flex;align-items:center;justify-content:space-between;gap:4px;min-height:22px;padding-top:4px;font-size:8px;line-height:1.15;color:#c5d1b4}
+#frog-ui .fg-compact-hud .fg-minimap-legend>span{display:flex;align-items:center;gap:3px;white-space:nowrap}
+#frog-ui .fg-compact-hud .fg-minimap-legend i{width:5px;height:5px;display:block;border-radius:50%;flex:none}
+#frog-ui .fg-compact-hud .fg-minimap-legend .is-ally{background:#a8e1a3}
+#frog-ui .fg-compact-hud .fg-minimap-legend .is-enemy{background:#ed9877}
+#frog-ui .fg-compact-hud .fg-minimap-legend .fg-pictogram{width:14px;height:14px}
+#frog-ui .fg-compact-hud .fg-map-bosses{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;padding-top:5px;border-top:1px solid #dcc37940}
+#frog-ui .fg-compact-hud .fg-map-boss{display:flex;align-items:center;gap:4px;font-size:9px;line-height:1.1;color:#f1d89b}
+#frog-ui .fg-compact-hud .fg-map-boss>i{position:relative;display:block;width:25px;height:25px;flex:none}
+#frog-ui .fg-compact-hud .fg-map-boss>i>.fg-pictogram:first-child{width:25px;height:25px}
+#frog-ui .fg-compact-hud .fg-map-boss>i>.fg-pictogram:last-child{position:absolute;width:13px;height:13px;top:-5px;right:-3px}
+#frog-ui .fg-compact-hud .fg-map-boss>b{font-weight:550}
+#frog-ui .fg-map-legend>span>.fg-pictogram{width:21px;height:21px}
+@media(min-width:768px) and (min-height:501px){
+  #frog-ui .fg-toasts{top:calc(var(--hud-top) + 405px);max-height:calc(100dvh - 520px);overflow:hidden}
+}
+@media(max-width:767px){
+  #frog-ui .fg-compact-hud .fg-location{width:100%;max-width:206px;justify-self:end}
+  #frog-ui .fg-compact-hud .fg-population{margin-top:7px;padding:7px 0 1px;gap:5px}
+  #frog-ui .fg-compact-hud .fg-population-total{gap:4px}
+  #frog-ui .fg-compact-hud .fg-population-total>.fg-pictogram{width:19px;height:21px}
+  #frog-ui .fg-compact-hud .fg-population-total>span{font-size:10px}
+  #frog-ui .fg-compact-hud .fg-population-total>b{font-size:19px}
+  #frog-ui .fg-compact-hud .fg-population-duties{gap:3px;font-size:9px}
+  #frog-ui .fg-compact-hud .fg-minimap-shell{padding:4px;border-radius:8px}
+  #frog-ui .fg-compact-hud .fg-location-tools{padding:0 1px 4px;gap:3px}
+  #frog-ui .fg-compact-hud .fg-location-tools>strong{font-size:9px}
+  #frog-ui .fg-compact-hud .fg-minimap-legend{font-size:7px;gap:3px;flex-wrap:wrap;justify-content:flex-start;column-gap:8px;min-height:20px}
+  #frog-ui .fg-compact-hud .fg-minimap-legend>span{gap:2px}
+  #frog-ui .fg-compact-hud .fg-objective{top:calc(var(--hud-top) + 149px)}
+  #frog-ui .fg-compact-hud .fg-hunt{top:calc(var(--hud-top) + 149px);width:calc((100% - var(--hud-left) - var(--hud-right) - 8px)/2);min-height:98px;flex-direction:column;gap:3px;align-items:stretch}
+  #frog-ui .fg-compact-hud .fg-hunt-portrait{position:absolute;width:30px;height:32px;top:6px;left:6px}
+  #frog-ui .fg-compact-hud .fg-hunt-portrait>span:not(.fg-hunt-badge){width:28px;height:28px}
+  #frog-ui .fg-compact-hud .fg-hunt-badge,#frog-ui .fg-compact-hud .is-boss .fg-hunt-badge{width:18px;height:18px}
+  #frog-ui .fg-compact-hud .fg-hunt-heading{padding-left:34px;min-height:34px;height:auto;gap:3px}
+  #frog-ui .fg-compact-hud .fg-hunt-heading [data-ref="predatorPhaseIcon"]{width:18px;height:22px}
+  #frog-ui .fg-compact-hud .fg-hunt-heading>span:last-child{font-size:10px}
+  #frog-ui .fg-compact-hud .fg-hunt-response{position:static;justify-content:center;margin-top:4px}
+  #frog-ui .fg-compact-hud .fg-map-boss{font-size:8px}
+}
+@media(max-height:500px) and (min-width:540px){
+  #frog-ui .fg-compact-hud .fg-location{width:160px}
+  #frog-ui .fg-compact-hud .fg-minimap-shell{padding:4px}
+  #frog-ui .fg-compact-hud .fg-location-tools{height:auto;padding:0 1px 3px}
+  #frog-ui .fg-compact-hud .fg-location .fg-clock{min-height:19px}
+  #frog-ui .fg-compact-hud .fg-population{margin-top:5px;padding:5px 0 1px}
+  #frog-ui .fg-compact-hud .fg-population-total{gap:4px}
+  #frog-ui .fg-compact-hud .fg-population-total>.fg-pictogram{width:19px;height:20px}
+  #frog-ui .fg-compact-hud .fg-population-total>span{font-size:10px}
+  #frog-ui .fg-compact-hud .fg-population-total>b{font-size:18px}
+  #frog-ui .fg-compact-hud .fg-population-duties{font-size:8px}
+  #frog-ui .fg-compact-hud .fg-minimap-legend{font-size:7px;flex-wrap:wrap;justify-content:flex-start;column-gap:7px}
+  #frog-ui .fg-compact-hud .fg-map-boss>i,#frog-ui .fg-compact-hud .fg-map-boss>i>.fg-pictogram:first-child{width:20px;height:20px}
+  #frog-ui .fg-compact-hud .fg-map-boss{font-size:8px}
+  #frog-ui .fg-compact-hud .fg-objective{top:var(--hud-top)}
+  #frog-ui .fg-compact-hud .fg-hunt{top:var(--hud-top);left:50%;transform:translateX(-50%);width:260px;min-height:68px;flex-direction:row;gap:7px;align-items:center}
+  #frog-ui .fg-compact-hud .fg-hunt-portrait{position:relative;width:47px;height:51px;top:auto;left:auto}
+  #frog-ui .fg-compact-hud .fg-hunt-portrait>span:not(.fg-hunt-badge){width:44px;height:46px}
+  #frog-ui .fg-compact-hud .fg-hunt-heading{padding-left:0;min-height:0;height:22px}
+  #frog-ui .fg-compact-hud .fg-hunt-heading [data-ref="predatorPhaseIcon"]{width:23px;height:23px}
+  #frog-ui .fg-compact-hud .fg-hunt-heading>span:last-child{font-size:12px}
+  #frog-ui .fg-compact-hud .fg-hunt-response{justify-content:flex-start}
+}
+#frog-ui .fg-compact-hud .fg-map-stronghold{display:flex;align-items:center;gap:4px;min-height:23px;margin-top:3px;padding-top:4px;border-top:1px solid #d4a97433;font-size:9px;line-height:1.15;color:#ecc39b;white-space:nowrap}
+#frog-ui .fg-compact-hud .fg-map-stronghold>.fg-pictogram{width:20px;height:20px;flex:none}
+#frog-ui .fg-compact-hud .fg-map-stronghold b{font-variant-numeric:tabular-nums;color:#ffdfb0}
+#frog-ui .fg-compact-hud .fg-map-bosses{flex-wrap:nowrap}
+#frog-ui .fg-compact-hud .fg-map-boss{min-width:0;flex:1}
+#frog-ui .fg-compact-hud .fg-map-boss>b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:767px),(max-height:500px) and (min-width:540px){
+  #frog-ui .fg-compact-hud .fg-map-stronghold{font-size:8px;gap:3px}
+  #frog-ui .fg-compact-hud .fg-map-stronghold>.fg-pictogram{width:17px;height:18px}
+}
+
+/* Fortifications expose the gate condition only in the construction/defense panels. */
+#frog-ui .fg-base-badges{flex-wrap:wrap;gap:7px 12px}
+#frog-ui .fg-gate-condition{display:flex;align-items:center;justify-content:center;gap:6px;color:#d8dfba}
+#frog-ui .fg-gate-condition>.fg-pictogram{width:28px;height:29px;flex:none}
+#frog-ui .fg-gate-condition>span{display:flex;flex-direction:column;gap:1px}
+#frog-ui .fg-gate-condition small{font-size:9px;line-height:1.2;color:#b8caa9}
+#frog-ui .fg-gate-condition b{font-size:12px;line-height:1.2;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+#frog-ui .fg-gate-condition.is-breached small,#frog-ui .fg-gate-condition.is-breached b{color:#f2af8b}
+#frog-ui .fg-defense-overview>.fg-gate-condition{margin:9px 0;padding:6px 10px;border:1px solid #c5d4a43d;border-radius:7px;background:#11271e66}
+#frog-ui .fg-building-scope{display:block;margin-top:4px;font-size:10px;line-height:1.2;font-weight:450;color:#bdd0ab}
+#frog-ui .fg-help-fort{display:flex;gap:12px;margin-top:15px;padding:12px;border:1px solid #c5d4a43d;border-radius:8px;background:#213c2b66}
+#frog-ui .fg-help-fort>span{width:55px;height:57px;flex:none}
+#frog-ui .fg-help-fort b{font-size:12px;font-weight:600}
+#frog-ui .fg-help-fort p{font-size:11px;line-height:1.7;margin:5px 0 0;color:#c1cfb3}
+@media(max-width:650px){
+  #frog-ui .fg-defense-overview>.fg-gate-condition{grid-column:1/-1;justify-content:flex-start;margin:5px 0}
+  #frog-ui .fg-base-badges{gap:6px 9px}
+  #frog-ui .fg-base-badges .fg-gate-condition>.fg-pictogram{width:24px;height:26px}
+}

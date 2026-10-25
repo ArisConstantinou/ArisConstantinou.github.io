@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { PREDATORS, clamp } from './rules.js';
+import {WORLD_BOUNDARY} from './world-config.js';
+import {insideFort,canPassGate,resolveFortMovement} from './fortification.js';
 
 const distance = (a,b) => Math.hypot(a.x-b.x,a.z-b.z);
 const friendly = f => f && (f.team==='player'||f.team==='ally');
@@ -35,9 +37,10 @@ function protectedByGrace(game,p,f) {
 }
 function canReach(game,p,f) {
   if(!alive(f)||f.grabbedBy&&f.grabbedBy!==p||protectedByGrace(game,p,f))return false;
+  if(p.type!=='heron'&&(game.camps||[]).some(c=>!c.destroyed&&insideFort(c,f)&&!insideFort(c,p)&&!canPassGate(c,p)))return false;
   if(p.type==='fish')return wet(game,f.x,f.z)&&f.y<1.15;
-  if(p.type==='snake')return f.y<2.2;
-  return f.y<4.1;
+  if(p.type==='snake')return f.y-surface(game,f.x,f.z).height<2.2;
+  return f.y-surface(game,f.x,f.z).height<4.1;
 }
 function neighbors(game,f,r=5) {
   const team=f.team==='player'?'ally':f.team;
@@ -96,7 +99,8 @@ function walk(game,p,x,z,speed,dt) {
     if(!best){p.speed=0;return;}
     nx=best.x;nz=best.z;dx=nx-p.x;dz=nz-p.z;
   }
-  nx=clamp(nx,-106,106);nz=clamp(nz,-106,106);
+  nx=clamp(nx,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);nz=clamp(nz,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);
+  if(p.type!=='heron'){const resolved=resolveFortMovement(game.camps||[],p,{x:nx,z:nz});nx=resolved.x;nz=resolved.z;}
   p.yaw=angleLerp(p.yaw,Math.atan2(dx,dz),dt*(p.type==='heron'?4:7));
   p.speed=Math.hypot(nx-p.x,nz-p.z)/Math.max(.001,dt);p.x=nx;p.z=nz;
   p.movePulse+=dt*p.speed;
@@ -129,8 +133,8 @@ function beginWindup(game,p,continuation=false) {
   p.windup=Math.max(.8,p.baseWindup*(p.enraged?.78:1));
   enter(p,'windup');
   // A committed landing point is readable and dodgable; it never tracks the cursor/player.
-  p.strike={x:clamp(f.x+(f.vx||0)*.12,-106,106),z:clamp(f.z+(f.vz||0)*.12,-106,106)};
-  if(p.boss&&p.type==='snake'){const yaw=Math.atan2(f.x-p.x,f.z-p.z),side=p.burstIndex%2?1:-1;p.strike.x=clamp(p.strike.x+Math.cos(yaw)*side*.75,-106,106);p.strike.z=clamp(p.strike.z-Math.sin(yaw)*side*.75,-106,106);}
+  p.strike={x:clamp(f.x+(f.vx||0)*.12,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2),z:clamp(f.z+(f.vz||0)*.12,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2)};
+  if(p.boss&&p.type==='snake'){const yaw=Math.atan2(f.x-p.x,f.z-p.z),side=p.burstIndex%2?1:-1;p.strike.x=clamp(p.strike.x+Math.cos(yaw)*side*.75,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);p.strike.z=clamp(p.strike.z-Math.sin(yaw)*side*.75,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);}
   p.attackType='lunge';p.attackDuration=p.windup+p.lungeTime;p.attackAnim=p.attackDuration;
   const s=surface(game,p.strike.x,p.strike.z),position=new THREE.Vector3(p.strike.x,Math.max(.05,s.height),p.strike.z);
   // The rig's crouch/neck coil and the HUD phase bar telegraph the attack.
@@ -181,7 +185,7 @@ export function releaseGrab(game,p) {
   p.grabbed=null;p.rescueDamage=0;f.grabbedBy=null;
   if(!f.dead) {
     const a=p.yaw+(p.type==='snake'?1.5:1.1),r=(p.type==='heron'?2.6:2.1)*(p.boss?1.5:1);
-    f.x=clamp(p.x+Math.sin(a)*r,-106,106);f.z=clamp(p.z+Math.cos(a)*r,-106,106);
+    f.x=clamp(p.x+Math.sin(a)*r,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);f.z=clamp(p.z+Math.cos(a)*r,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);
     f.y=Math.max(game.world.sampleHeight(f.x,f.z)+.45,p.type==='heron'?p.y+.9:.35);
     f.vx=Math.sin(a)*3;f.vz=Math.cos(a)*3;f.vy=3.7;f.grounded=false;f.jumpTime=.7;
     f.invulnerable=Math.max(f.invulnerable||0,1.4);f.stun=Math.max(f.stun||0,.18);

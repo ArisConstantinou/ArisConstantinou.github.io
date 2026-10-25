@@ -111,3 +111,22 @@ test('collection notices show both resource amounts and short refusal labels wit
   ui.toast({icon:'fly',value:4,label:'Λείπουν 4 τροφή',detail:'Χρειάζεσαι 4 τροφή για στρατολόγηση',tone:'warning'});
   assert.match(ui.refs.toasts.children[1].innerHTML,/fg-notice-label">Λείπουν 4 τροφή/);
 });
+
+test('fort panels expose gate strength and purchase a whole perimeter instead of dragging one wall',()=>{
+  const {ui,events,home}=fixture();
+  Object.assign(home,{gateHp:73,gateMaxHp:420});
+  ui.state.resources={food:100,reeds:100};
+  ui.state.buildOptions=[{type:'palisade',name:'Οχυρά τείχη',cost:{food:8,reeds:30},description:'Ενίσχυση όλης της περιμέτρου και πύλης',enabled:true}];
+  const catalog=ui.buildMarkup();
+  assert.match(catalog,/<small>Πύλη<\/small><b>73 \/ 420<\/b>/);
+  const wall=[...catalog.matchAll(/<button\b[\s\S]*?<\/button>/g)].map(m=>m[0]).find(button=>button.includes('data-type="palisade"'));
+  assert.ok(wall);assert.match(wall,/draggable="false"/);assert.match(wall,/Όλη η περίμετρος \+ πύλη/);assert.match(wall,/Ενίσχυσε τείχη/);
+  assert.doesNotMatch(wall,/fg-building-drag|Σύρε στον χώρο/);
+  const drag={target:{closest:()=>({disabled:false,dataset:{type:'palisade'}})},preventDefault(){this.prevented=true;}};
+  ui.beginBuildDrag(drag);assert.equal(drag.prevented,true);assert.equal(events.length,0);
+  click(ui,'build',{type:'palisade',camp:'home'});
+  assert.deepEqual(events,[{action:'build',data:{type:'palisade',campId:'home'}}]);
+  ui.buildView='defense';ui.defenseCampId=home.id;
+  assert.match(ui.buildMarkup(),/<small>Πύλη<\/small><b>73 \/ 420<\/b>/);
+  home.gateHp=0;assert.match(ui.buildMarkup(),/Παραβιασμένη πύλη<\/small><b>0 \/ 420<\/b>/);
+});

@@ -7,7 +7,7 @@ const labels={third:'Τρίτο πρόσωπο',first:'Πρώτο πρόσωπο
 function dataFor(game){
   let data=internals.get(game);
   if(!data){
-    data={focus:new THREE.Vector3(),wanted:new THREE.Vector3(),target:new THREE.Vector3(),look:new THREE.Vector3(),forward:new THREE.Vector3(),right:new THREE.Vector3(),sample:new THREE.Vector3(),raycaster:new THREE.Raycaster(),ndc:new THREE.Vector2(),plane:new THREE.Plane(new THREE.Vector3(0,1,0),0),hit:new THREE.Vector3(),lastMode:null,time:0};
+    data={focus:new THREE.Vector3(),wanted:new THREE.Vector3(),target:new THREE.Vector3(),look:new THREE.Vector3(),forward:new THREE.Vector3(),right:new THREE.Vector3(),sample:new THREE.Vector3(),raycaster:new THREE.Raycaster(),boomRay:new THREE.Raycaster(),boomDirection:new THREE.Vector3(),structureMeshes:[],structureHits:[],structureCache:new WeakMap(),ndc:new THREE.Vector2(),plane:new THREE.Plane(new THREE.Vector3(0,1,0),0),hit:new THREE.Vector3(),lastMode:null,time:0};
     internals.set(game,data);
   }
   return data;
@@ -30,6 +30,35 @@ function preventTerrainClipping(game,from,to,data){
     }
   }
   to.y=Math.max(to.y,surfaceHeight(game,to.x,to.z)+.3);
+}
+function visiblyAttached(object){
+  for(let node=object;node;node=node.parent)if(node.visible===false)return false;
+  return true;
+}
+function preventStructureClipping(game,from,to,data){
+  const length=data.boomDirection.subVectors(to,from).length();
+  if(length<.001||!game.camps?.length)return;
+  const meshes=data.structureMeshes;meshes.length=0;
+  for(const camp of game.camps){
+    const mesh=camp.mesh;if(camp.destroyed||camp.hp<=0||!mesh?.isObject3D||!visiblyAttached(mesh))continue;
+    const radius=mesh.userData.radius||20;
+    if(Math.hypot((camp.x??mesh.position.x)-from.x,(camp.z??mesh.position.z)-from.z)>radius+length+8)continue;
+    // Only nearby castle geometry participates. Cached mesh lists avoid a full
+    // scene traversal; current visibility still follows opening and broken gates.
+    mesh.updateWorldMatrix(true,true);
+    const refs=mesh.userData,roots=[refs.fortWalls,refs.fortTowers,refs.core,refs.palisade,...(refs.gateLeaves||[])];
+    for(const root of roots){
+      if(!root?.isObject3D||!visiblyAttached(root))continue;
+      let parts=data.structureCache.get(root);
+      if(!parts){parts=[];root.traverse(part=>{if(part.isMesh)parts.push(part);});data.structureCache.set(root,parts);}
+      for(const part of parts)if(visiblyAttached(part))meshes.push(part);
+    }
+  }
+  if(!meshes.length)return;
+  const ray=data.boomRay,hits=data.structureHits;hits.length=0;
+  ray.near=0;ray.far=length;ray.set(from,data.boomDirection.multiplyScalar(1/length));
+  ray.intersectObjects(meshes,false,hits);
+  if(hits.length)to.copy(from).addScaledVector(data.boomDirection,Math.max(0,hits[0].distance-.28));
 }
 function updateAim(game,data,mode){
   const input=game.input;
@@ -114,6 +143,7 @@ export function updateGameCamera(game,dt,snap=false){
     wanted.copy(focus).addScaledVector(data.forward,-Math.cos(pitch)*distance).addScaledVector(data.right,.62);
     wanted.y+=Math.sin(pitch)*distance+.35;
     preventTerrainClipping(game,focus,wanted,data);
+    preventStructureClipping(game,focus,wanted,data);
     if(snap)camera.position.copy(wanted);else camera.position.lerp(wanted,1-Math.exp(-dt*15));
     data.look.copy(focus).addScaledVector(data.forward,1.65).addScaledVector(data.right,.14);
   }
@@ -123,6 +153,12 @@ export function updateGameCamera(game,dt,snap=false){
     camera.position.x+=Math.sin(data.time*111.3)*amount;
     camera.position.y+=Math.sin(data.time*137.1+1)*amount*.7;
     camera.position.z+=Math.sin(data.time*91.8+2)*amount*.5;
+  }
+  // A valid destination alone is insufficient: interpolation while orbiting or
+  // changing sides of a doorway can leave the current camera behind a wall.
+  if(mode==='third'){
+    preventTerrainClipping(game,focus,camera.position,data);
+    preventStructureClipping(game,focus,camera.position,data);
   }
   camera.lookAt(data.look);
   if(Math.abs(camera.fov-fov)>.01){camera.fov=fov;camera.updateProjectionMatrix();}

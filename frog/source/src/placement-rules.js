@@ -2,24 +2,27 @@
  * Building placement uses camp-local X/Z in world units and Three.js Y yaw.
  * The bounds are centered on the rendered building pivots, not the shelter mesh.
  */
-export const COURTYARD_RADIUS = 12.1;
-export const PLACEMENT_CLEARANCE = 0.1;
+import {SHELTER_LAYOUT_SCALE} from './world-config.js';
+const scale=SHELTER_LAYOUT_SCALE;
+const footprint=f=>Object.freeze(Object.fromEntries(Object.entries(f).map(([k,v])=>[k,k==='yaw'?v:v*scale])));
+export const COURTYARD_RADIUS = 12.1 * scale;
+export const PLACEMENT_CLEARANCE = 0.1 * scale;
 export const BUILDING_FOOTPRINTS = Object.freeze({
-  store: Object.freeze({width:4.4,depth:3.6}),
-  nursery: Object.freeze({width:5.8,depth:5.9}),
-  watchtower: Object.freeze({width:4.8,depth:4}),
-  training: Object.freeze({width:5.7,depth:4.8}),
-  palisade: Object.freeze({width:7,depth:1})
+  store: footprint({width:4.4,depth:3.6}),
+  nursery: footprint({width:5.8,depth:5.9}),
+  watchtower: footprint({width:4.8,depth:4}),
+  training: footprint({width:5.7,depth:4.8}),
+  palisade: footprint({width:7,depth:1})
 });
-export const CORE_FOOTPRINT = Object.freeze({x:-1.1825,z:-1.0664,yaw:0,width:7.68,depth:8.25});
-export const EXTRA_HUT_FOOTPRINT = Object.freeze({x:-6.45,z:0.43,yaw:-0.5,width:4.8,depth:5.2});
+export const CORE_FOOTPRINT = footprint({x:-1.1825,z:-1.0664,yaw:0,width:7.68,depth:8.25});
+export const EXTRA_HUT_FOOTPRINT = footprint({x:-6.45,z:0.43,yaw:-0.5,width:4.8,depth:5.2});
 
 const DEFAULTS = Object.freeze({
-  store: Object.freeze({x:-6.0962,z:4.9054,yaw:0}),
-  nursery: Object.freeze({x:6.5601,z:-3.869,yaw:0}),
-  watchtower: Object.freeze({x:6.6295,z:5.3482,yaw:0}),
-  training: Object.freeze({x:-6.2831,z:-6.0974,yaw:0}),
-  palisade: Object.freeze({x:0,z:9.8,yaw:0})
+  store: footprint({x:-6.0962,z:4.9054,yaw:0}),
+  nursery: footprint({x:6.5601,z:-3.869,yaw:0}),
+  watchtower: footprint({x:6.6295,z:5.3482,yaw:0}),
+  training: footprint({x:-6.2831,z:-6.0974,yaw:0}),
+  palisade: footprint({x:0,z:9.8,yaw:0})
 });
 const types=Object.keys(BUILDING_FOOTPRINTS);
 const finitePosition=p=>!!p&&typeof p==='object'&&Number.isFinite(p.x)&&Number.isFinite(p.z)&&Number.isFinite(p.yaw);

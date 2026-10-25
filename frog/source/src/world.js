@@ -2,13 +2,14 @@ import * as THREE from 'three';
 import { Water } from 'three/addons/objects/Water.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { EXTRA_HUT_FOOTPRINT } from './placement-rules.js';
+import { WORLD_SCALE, WORLD_RADIUS, WORLD_BOUNDARY, WORLD_REVISION, SHELTER_SCALE, SHELTER_LAYOUT_SCALE, SHELTER_RADIUS } from './world-config.js';
+import { FORT_RADIUS, GATE_WIDTH, WALL_HEIGHT, WALL_THICKNESS } from './fortification.js';
+export { SHELTER_SCALE, SHELTER_RADIUS } from './world-config.js';
 
 // Everything here is authored geometry. The water is a planar reflection with a
 // moving normal field; leaves, cliffs and vegetation deliberately avoid flat
 // discs, unmodified spheres, and stock low-poly terrain.
 const TAU = Math.PI * 2;
-export const SHELTER_SCALE = 2.15;
-export const SHELTER_RADIUS = 12.3;
 const clamp = THREE.MathUtils.clamp;
 const smooth = (a,b,t) => { t=clamp((t-a)/(b-a),0,1); return t*t*(3-2*t); };
 function rng(seed) { return () => { seed|=0; seed=(seed+0x6D2B79F5)|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
@@ -164,30 +165,59 @@ export function createWorld(scene, renderer, options={}) {
     {id:'mossjaw',x:-24,z:49,radius:7.1,team:'enemy',name:'Mossjaw Hollow'},
     {id:'blackpool',x:34,z:79,radius:8,team:'enemy',name:'Blackwater Nest'},
     {id:'thornback',x:-8,z:-91,radius:8,team:'enemy',name:'Thornback Root'},
-    {id:'oldwillow',x:-38,z:96,radius:7.5,team:'enemy',name:'Old Willow Court'},
+    {id:'oldwillow',x:-38,z:96,radius:7.5,team:'neutral',name:'Αυλή της Γέρικης Ιτιάς'},
     {id:'quietbend',x:29,z:32,radius:6.8,team:'neutral',name:'Quiet Bend'},
-    {id:'foxglove',x:-39,z:2,radius:6.8,team:'neutral',name:'Foxglove Island'}
+    {id:'foxglove',x:-39,z:2,radius:6.8,team:'neutral',name:'Foxglove Island'},
+    {id:'reedcrossing',x:3,z:-45,radius:6.8,team:'neutral',name:'Πέρασμα των Καλαμιών'},
+    {id:'longreed',x:-4,z:67,radius:6.8,team:'neutral',name:'Νησίδα των Ανέμων'},
+    {id:'eastshallows',x:58,z:35,radius:6.8,team:'neutral',name:'Ανατολικές Αβαθείς'}
   ];
   // Room for a real communal camp, its walkable courtyard and purchased wings.
   // The soft irregular shore still leaves a water route between neighbouring sites.
-  for(const site of campSites)site.radius=Math.max(15,site.radius*2.1);
+  const islandLevels={home:.65,mudfang:2.7,redreed:4.1,mossjaw:1.8,blackpool:5.2,thornback:7.1,oldwillow:2.9,quietbend:1.2,foxglove:2.1,reedcrossing:1.7,longreed:2.5,eastshallows:3.4};
+  for(const site of campSites){site.x*=WORLD_SCALE;site.z*=WORLD_SCALE;site.radius=Math.max(28,site.radius*(site.id==='thornback'?5.1:4.1));site.elevation=islandLevels[site.id];}
+  campSites.find(s=>s.id==='thornback').stronghold=true;
+  const mapRegions=[
+    {id:'haven',name:'Απάνεμη Όχθη',x:0,z:12,radius:30,tint:'#77965d'},
+    {id:'reedways',name:'Περάσματα των Καλαμιών',x:2,z:-50,radius:45,tint:'#a99d64'},
+    {id:'westernroots',name:'Δυτικές Ρίζες',x:-34,z:22,radius:37,tint:'#657f67'},
+    {id:'blackwater',name:'Βαθύ Νερό',x:10,z:75,radius:34,tint:'#496f79'}
+  ].map(r=>({...r,x:r.x*WORLD_SCALE,z:r.z*WORLD_SCALE,radius:r.radius*WORLD_SCALE}));
+  const predatorAnchors={
+    heron:{x:34*WORLD_SCALE,z:14*WORLD_SCALE},
+    snake:{x:-38*WORLD_SCALE,z:-22*WORLD_SCALE},
+    fish:{x:12*WORLD_SCALE,z:48*WORLD_SCALE}
+  };
+  const bossAnchors={
+    heron:{x:43*WORLD_SCALE,z:-73*WORLD_SCALE},
+    snake:{x:-39*WORLD_SCALE,z:70*WORLD_SCALE},
+    fish:{x:11*WORLD_SCALE,z:94*WORLD_SCALE}
+  };
   function bedHeight(x,z) {
-    const channel=Math.sin(z*.032)*15+Math.sin(z*.073)*5,dist=Math.abs(x-channel);
+    const nx=x/WORLD_SCALE,nz=z/WORLD_SCALE;
+    const channel=Math.sin(nz*.032)*15+Math.sin(nz*.073)*5,dist=Math.abs(nx-channel);
     let h=-2.2+noise(x,z)*.47+smooth(44,71,dist)*6;
-    h+=smooth(105,132,Math.abs(z))*4.8;
-    for(const site of campSites){const dx=(x-site.x),dz=(z-site.z),d=Math.hypot(dx,dz);const edge=site.radius*(1+.06*Math.sin(Math.atan2(dz,dx)*5+site.x));
-      if(d<edge+3.8){const island=.39+noise(x*1.7,z*1.7)*.07-smooth(edge*.65,edge+3.8,d)*2.8;h=Math.max(h,island);}}
+    // Rolling bank ridges and island terraces create visible elevation. Their
+    // slopes stay continuous, so the same sampled surface drives walking.
+    h+=smooth(47,72,dist)*(1.5+3.3*Math.sin(nz*.036+.7)**2);
+    h+=smooth(105,132,Math.abs(nz))*4.8;
+    let clearing=null,clearingWeight=0;
+    for(const site of campSites){const dx=(x-site.x),dz=(z-site.z),d=Math.hypot(dx,dz);const edge=site.radius*(1+.05*Math.sin(Math.atan2(dz,dx)*5+site.x));
+      if(d<edge+7){const terrace=SHELTER_RADIUS+1.7,island=site.elevation-smooth(terrace,edge+7,d)*(site.elevation+2.8);h=Math.max(h,island);const weight=1-smooth(terrace,terrace+8,d);if(weight>clearingWeight){clearing=site;clearingWeight=weight;}}}
+    // Cut a buildable terrace into a neighbouring ridge, then blend it back
+    // over a broad ramp. A bank must never protrude through a shelter floor.
+    if(clearing)h=h*(1-clearingWeight)+clearing.elevation*clearingWeight;
     return h;
   }
-  const terrainGeo=new THREE.PlaneGeometry(270,270,180,180);terrainGeo.rotateX(-Math.PI/2);
+  const terrainGeo=new THREE.PlaneGeometry(270*WORLD_SCALE,270*WORLD_SCALE,216,216);terrainGeo.rotateX(-Math.PI/2);
   const tp=terrainGeo.attributes.position,tcolors=new Float32Array(tp.count*3),earth=color('#8b8a62'),wet=color('#43533b'),deep=color('#52634e');
   for(let i=0;i<tp.count;i++){const x=tp.getX(i),z=tp.getZ(i),h=bedHeight(x,z);tp.setY(i,h);const c=deep.clone().lerp(wet,smooth(-1.7,.05,h)).lerp(earth,smooth(.02,2,h));c.multiplyScalar(.88+noise(x*2,z*2)*.18);c.toArray(tcolors,i*3);}
   terrainGeo.setAttribute('color',new THREE.BufferAttribute(tcolors,3));terrainGeo.computeVertexNormals();
-  mossMap.repeat.set(44,44);const terrain=new THREE.Mesh(terrainGeo,materials.terrain);terrain.receiveShadow=true;group.add(terrain);
+  mossMap.repeat.set(44*WORLD_SCALE,44*WORLD_SCALE);const terrain=new THREE.Mesh(terrainGeo,materials.terrain);terrain.receiveShadow=true;terrain.name='Creek bed and island banks';group.add(terrain);
   // Separate moss texture scale for rock outcrops, so the bed can tile densely.
   const rockMoss=stoneTexture(seed+9,true);disposables.push(rockMoss);materials.mossRock.map=rockMoss;materials.compost.map=rockMoss;materials.darkFruit.map=rockMoss;
 
-  const waterGeo=new THREE.PlaneGeometry(266,266,88,88);
+  const waterGeo=new THREE.PlaneGeometry(266*WORLD_SCALE,266*WORLD_SCALE,88,88);
   const water=new Water(waterGeo,{textureWidth:512,textureHeight:512,waterNormals:normals,sunDirection:new THREE.Vector3(.6,.8,-.3),sunColor:0xffe9bd,waterColor:0x2e625b,distortionScale:2.5,alpha:.91,fog:true});
   water.name='Reflecting creek';water.rotation.x=-Math.PI/2;water.position.y=-.035;water.material.transparent=true;water.material.depthWrite=false;water.renderOrder=-2;
   water.material.uniforms.size.value=4.8;group.add(water);
@@ -197,7 +227,7 @@ export function createWorld(scene, renderer, options={}) {
   // individually curved reed blades, rather than a uniform wall around a box.
   const bankRootGeos=[],rootGroup=new THREE.Group(),treeLeaves=[];rootGroup.name='Willow trunks and tangled roots';group.add(rootGroup);
   for(let side of [-1,1])for(let i=0;i<15;i++){
-    const z=-122+i*17+(random()-.5)*7,x=side*(59+random()*15)+Math.sin(z*.032)*15,y=bedHeight(x,z);
+    const z=(-122+i*17+(random()-.5)*7)*WORLD_SCALE,x=(side*(59+random()*15)+Math.sin(z/WORLD_SCALE*.032)*15)*WORLD_SCALE,y=bedHeight(x,z);
     if(y<.2)continue;
     const trunk=new THREE.Group();trunk.position.set(x,y,z);const height=9+random()*14,lean=(random()-.5)*3;
     const main=tube([[0,-.8,0],[.25,height*.3,0],[lean,height*.72,.6],[lean*.8,height,1]],.68+random()*.65,materials.bark,13,.72);main.castShadow=true;trunk.add(main);bankRootGeos.push(main.geometry);
@@ -216,15 +246,20 @@ export function createWorld(scene, renderer, options={}) {
   function addRock(x,z,radius=1.3+random()*1.3,height=.65+random()*.65){const variant=Math.floor(random()*3),p=insertPlatform({id:'p'+platforms.length,type:'rock',x,z,y:height*.76-.05,radius:radius*.72,visualRadius:radius,scaleY:height,angle:random()*TAU,variant});rockData[variant].push(p);return p;}
   addLily(0,0,3.1);addLily(3.7,1,2.3);addRock(-3.9,2.2,2.5,.9);
   function path(a,b){const distance=Math.hypot(b.x-a.x,b.z-a.z),steps=Math.ceil(distance/3.65);for(let i=1;i<steps;i++){const t=i/steps,x=a.x+(b.x-a.x)*t+Math.sin(t*Math.PI*3)*1.25,z=a.z+(b.z-a.z)*t;if(bedHeight(x,z)>-.1)continue;if(random()<.18)addRock(x,z,1.8+random()*.7,.65+random()*.55);else addLily(x,z,1.65+random()*.65);}}
-  const origin={x:0,z:0};path(origin,campSites[0]);for(const site of campSites)path(origin,site);for(let i=1;i<campSites.length;i++)path(campSites[i-1],campSites[i]);
-  for(let i=0;i<670;i++){
-    const z=(random()-.5)*218,x=(random()-.5)*108+Math.sin(z*.032)*10;
+  // Two crossing routes join the factions, with neutral staging islands between
+  // them. Distances grow, but jump spacing and individual leaves stay frog-sized.
+  const origin={id:'origin',x:0,z:0},siteById=new Map(campSites.map(s=>[s.id,s]));siteById.set('origin',origin);
+  const routePairs=[['origin','home'],['origin','foxglove'],['home','mudfang'],['home','quietbend'],['mudfang','reedcrossing'],['reedcrossing','redreed'],['reedcrossing','thornback'],['foxglove','mossjaw'],['quietbend','mossjaw'],['quietbend','eastshallows'],['mossjaw','longreed'],['longreed','blackpool'],['longreed','oldwillow'],['eastshallows','blackpool'],['redreed','thornback']];
+  const routes=routePairs.map(([a,b])=>({from:a,to:b,start:siteById.get(a),end:siteById.get(b)}));
+  for(const route of routes)path(route.start,route.end);
+  for(let i=0;i<1180;i++){
+    const z=(random()-.5)*218*WORLD_SCALE,x=((random()-.5)*108+Math.sin(z/WORLD_SCALE*.032)*10)*WORLD_SCALE;
     if(bedHeight(x,z)>-.18)continue;
     const neighbours=buckets.get(Math.floor(x/bucketSize)+':'+Math.floor(z/bucketSize))||[];
     if(neighbours.some(p=>Math.hypot(p.x-x,p.z-z)<p.radius+1))continue;
     if(random()<.15)addRock(x,z,1.1+random()*2.3,.55+random()*1.2);else addLily(x,z,1.1+random()*1.1);
   }
-  for(const site of campSites)insertPlatform({id:'island-'+site.id,type:'land',x:site.x,z:site.z,y:.39,radius:site.radius*.8});
+  for(const site of campSites)insertPlatform({id:'island-'+site.id,type:'land',x:site.x,z:site.z,y:site.elevation,radius:site.radius*.8});
   const lilyMesh=new THREE.InstancedMesh(lilyGeo,materials.leaf,lilyData.length);lilyMesh.name='Veined water lily leaves';lilyMesh.castShadow=true;lilyMesh.receiveShadow=true;lilyMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   lilyData.forEach((p,i)=>{object.position.set(p.x,p.y,p.z);object.rotation.set((random()-.5)*.04,p.angle,(random()-.5)*.035);object.scale.set(p.visualRadius,1,p.visualRadius*(.89+random()*.18));object.updateMatrix();lilyMesh.setMatrixAt(i,object.matrix);lilyMesh.setColorAt(i,color(['#b6cf8a','#88ac67','#749d59','#c0cc7e','#729958'][Math.floor(random()*5)]));});group.add(lilyMesh);
   rockData.forEach((data,j)=>{const mesh=new THREE.InstancedMesh(rockGeos[j],j===1?materials.mossRock:materials.rock,data.length);mesh.name='Weathered waterline outcrops';mesh.castShadow=true;mesh.receiveShadow=true;data.forEach((p,i)=>{object.position.set(p.x,-.05,p.z);object.rotation.set(0,p.angle,0);object.scale.set(p.visualRadius,p.scaleY,p.visualRadius);object.updateMatrix();mesh.setMatrixAt(i,object.matrix);mesh.setColorAt(i,color('#ffffff').multiplyScalar(.7+random()*.4));});group.add(mesh);});
@@ -238,8 +273,8 @@ export function createWorld(scene, renderer, options={}) {
   for(const p of flowerPads)for(let j=0;j<13;j++){object.position.set(p.x+.24,p.y+.045,p.z);object.rotation.set(j>7?.1:0,j/8*TAU,j>7?.1:0);object.scale.setScalar(j>7?.67:1);object.updateMatrix();petals.setMatrixAt(pi++,object.matrix);}group.add(petals);
 
   const vegetation=[];
-  for(let i=0;i<21500;i++){
-    const x=(random()-.5)*254,z=(random()-.5)*254,h=bedHeight(x,z);if(h<-.52||h>3.2)continue;
+  for(let i=0;i<26000;i++){
+    const x=(random()-.5)*254*WORLD_SCALE,z=(random()-.5)*254*WORLD_SCALE,h=bedHeight(x,z);if(h<-.52||h>3.2)continue;
     if(campSites.some(s=>Math.hypot(s.x-x,s.z-z)<s.radius*.68))continue;
     if(Math.hypot(x,z)<8)continue;
     vegetation.push({x,z,y:h,scale:.65+random()*2.2,angle:random()*TAU});
@@ -259,7 +294,9 @@ export function createWorld(scene, renderer, options={}) {
   function sampleHeight(x,z){return surface(x,z).height;}
 
   // Organic fly lures: fallen fruit, leaf litter and waterlogged wood.
-  const spotSpecs=[{x:4.5,z:-4,rich:false},{x:-10,z:12,rich:true},{x:15,z:-20,rich:false},{x:-25,z:-23,rich:true},{x:26,z:-47,rich:true},{x:-17,z:40,rich:true},{x:27,z:69,rich:true},{x:-4,z:-81,rich:true},{x:-34,z:86,rich:true},{x:23,z:26,rich:false},{x:-33,z:7,rich:false},{x:4,z:51,rich:false},{x:9,z:-59,rich:false},{x:-12,z:76,rich:false},{x:39,z:-4,rich:false},{x:-42,z:-59,rich:true}];
+  // Original hotspot ids remain stable for saves. New contested lures are
+  // appended, and the starter lure stays within a few hops of the spawn pad.
+  const spotSpecs=[{x:4.5/WORLD_SCALE,z:-4/WORLD_SCALE,rich:false},{x:-10,z:12,rich:true},{x:15,z:-20,rich:false},{x:-25,z:-23,rich:true},{x:26,z:-47,rich:true},{x:-17,z:40,rich:true},{x:27,z:69,rich:true},{x:-4,z:-81,rich:true},{x:-34,z:86,rich:true},{x:23,z:26,rich:false},{x:-33,z:7,rich:false},{x:4,z:51,rich:false},{x:9,z:-59,rich:false},{x:-12,z:76,rich:false},{x:39,z:-4,rich:false},{x:-42,z:-59,rich:true},{x:7,z:-39,rich:true},{x:0,z:63,rich:true},{x:53,z:33,rich:true},{x:-24,z:17,rich:false},{x:17,z:-70,rich:false},{x:18,z:90,rich:true}].map(s=>({...s,x:s.x*WORLD_SCALE,z:s.z*WORLD_SCALE}));
   const fruitInstances=[],compostGeos=[],litterGroup=new THREE.Group();group.add(litterGroup);
   for(let i=0;i<spotSpecs.length;i++){
     const s=spotSpecs[i],base=bedHeight(s.x,s.z);if(base<-.15)addRock(s.x,s.z,s.rich?3.2:2.2,.62);
@@ -350,12 +387,93 @@ export function createWorld(scene, renderer, options={}) {
   }
   function makeBanner(team,owned){const g=new THREE.Group(),pole=tube([[0,0,0],[.04,1.6,0],[-.03,3.1,.02]],.047,materials.bark,7);owned.push(pole.geometry);g.add(pole);
     const geo=new THREE.BufferGeometry(),p=[0,2.93,0,.9,2.8,.09,1.13,2.12,.02,.6,2.25,-.03,0,2.18,0],uv=[0,1,1,1,1,0,.5,.1,0,0];geo.setAttribute('position',new THREE.Float32BufferAttribute(p,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex([0,1,3,1,2,3,0,3,4]);geo.computeVertexNormals();const mat=new THREE.MeshStandardMaterial({color:teamColor(team),roughness:.8,side:THREE.DoubleSide,map:bannerTexture(team)});const flag=new THREE.Mesh(geo,mat);flag.castShadow=true;g.add(flag);g.userData.flag=flag;g.userData.emblemTeam=team;owned.push(geo,mat);return g;}
+
+  // Every settlement is an enclosed castle from its first construction. The
+  // purchased palisade reinforces the entire perimeter, never one wall panel.
+  function buildFortifications(s,data,owned){
+    const radius=FORT_RADIUS,gateWidth=GATE_WIDTH,wallHeight=WALL_HEIGHT,floor=.11;
+    const fort=new THREE.Group();fort.name='Enclosed creek castle';s.add(fort);
+    const upgrade=new THREE.Group();upgrade.name='Reinforced castle perimeter';s.add(upgrade);
+    const arcStart=Math.asin((gateWidth/2+.25)/radius),segments=44,step=(TAU-arcStart*2)/segments,baseBoxes=[],armorBoxes=[];
+    const ringWidth=2*(radius+.65)*Math.tan(step/2)+.08;
+    for(let i=0;i<segments;i++){
+      const a=arcStart+step*(i+.5),x=Math.sin(a)*radius,z=Math.cos(a)*radius;
+      baseBoxes.push({x,z,y:floor+wallHeight/2,w:ringWidth,h:wallHeight,d:WALL_THICKNESS,ry:a});
+      for(const offset of [-.29,.29]){
+        const b=a+step*offset;baseBoxes.push({x:Math.sin(b)*radius,z:Math.cos(b)*radius,y:floor+wallHeight+.37,w:.76,h:.74,d:1.2,ry:b});
+      }
+      armorBoxes.push({x:Math.sin(a)*(radius+.64),z:Math.cos(a)*(radius+.64),y:floor+1.65,w:ringWidth*.7,h:3.1,d:.5,ry:a});
+      armorBoxes.push({x:Math.sin(a)*(radius+.4),z:Math.cos(a)*(radius+.4),y:floor+3.5,w:ringWidth*1.01,h:.28,d:.9,ry:a});
+    }
+    const towerAngles=[Math.PI/4,Math.PI*3/4,Math.PI*5/4,Math.PI*7/4],towerData=[];
+    for(const a of towerAngles){
+      const tx=Math.sin(a)*(radius+.15),tz=Math.cos(a)*(radius+.15);towerData.push({x:tx,z:tz});
+      for(let j=0;j<10;j++){
+        const b=j/10*TAU;baseBoxes.push({x:tx+Math.sin(b)*1.42,z:tz+Math.cos(b)*1.42,y:floor+6.15,w:.6,h:.85,d:.66,ry:b});
+      }
+    }
+    // Gate posts sit entirely outside the 6.8 m clear opening. A low lintel
+    // leaves room for frogs; the two doors hinge outward when the gate opens.
+    for(const side of [-1,1]){
+      baseBoxes.push({x:side*(gateWidth/2+.62),z:radius,y:floor+2.8,w:1.24,h:5.6,d:2.0});
+      baseBoxes.push({x:side*(gateWidth/2+.62),z:radius,y:floor+5.95,w:1.6,h:.7,d:2.35});
+      armorBoxes.push({x:side*(gateWidth/2+.62),z:radius+1.05,y:floor+2.4,w:1.32,h:4.8,d:.25});
+    }
+    baseBoxes.push({x:0,z:radius,y:floor+4.85,w:gateWidth+1.2,h:.78,d:1.75});
+    const boxes=(parent,name,specs,material)=>{
+      const geo=new THREE.BoxGeometry(1,1,1),mesh=new THREE.InstancedMesh(geo,material,specs.length);owned.push(geo);mesh.name=name;mesh.castShadow=true;mesh.receiveShadow=true;
+      specs.forEach((p,i)=>{object.position.set((p.x||0)/SHELTER_SCALE,(p.y||0)/SHELTER_SCALE,(p.z||0)/SHELTER_SCALE);object.rotation.set(p.rx||0,p.ry||0,p.rz||0);object.scale.set(p.w/SHELTER_SCALE,p.h/SHELTER_SCALE,p.d/SHELTER_SCALE);object.updateMatrix();mesh.setMatrixAt(i,object.matrix);});parent.add(mesh);return mesh;
+    };
+    const walls=boxes(fort,'Continuous moss-stone walls and crenellations',baseBoxes,materials.mossRock);
+    boxes(upgrade,'Whole-ring stone buttresses and gate reinforcement',armorBoxes,materials.rock);
+    const towerGeo=new THREE.CylinderGeometry(1,1.12,1,12,1),towers=new THREE.InstancedMesh(towerGeo,materials.mossRock,4);owned.push(towerGeo);towers.name='Four castle defence towers';towers.castShadow=true;towers.receiveShadow=true;
+    towerData.forEach((p,i)=>{object.position.set(p.x/SHELTER_SCALE,(floor+2.9)/SHELTER_SCALE,p.z/SHELTER_SCALE);object.rotation.set(0,towerAngles[i],0);object.scale.set(1.65/SHELTER_SCALE,5.8/SHELTER_SCALE,1.65/SHELTER_SCALE);object.updateMatrix();towers.setMatrixAt(i,object.matrix);});fort.add(towers);
+    const towerLeafGeo=leafGeometry(1,1,.28),towerLeaves=new THREE.InstancedMesh(towerLeafGeo,materials.leaf,4);owned.push(towerLeafGeo);towerLeaves.name='Folded leaf tower roofs';towerLeaves.castShadow=true;
+    towerData.forEach((p,i)=>{object.position.set(p.x/SHELTER_SCALE,(floor+6.68)/SHELTER_SCALE,p.z/SHELTER_SCALE);object.rotation.set(0,towerAngles[i],0);object.scale.set(2.0/SHELTER_SCALE,2.4/SHELTER_SCALE,2.0/SHELTER_SCALE);object.updateMatrix();towerLeaves.setMatrixAt(i,object.matrix);});fort.add(towerLeaves);
+    const gate=new THREE.Group();gate.name='Working south castle gate';gate.position.set(0,floor/SHELTER_SCALE,radius/SHELTER_SCALE);fort.add(gate);
+    const leaves=[];
+    for(const side of [-1,1]){
+      const hinge=new THREE.Group();hinge.position.x=side*gateWidth/(2*SHELTER_SCALE);hinge.name=side<0?'Left hinged gate':'Right hinged gate';gate.add(hinge);
+      const leafBoxes=[],braceBoxes=[],half=gateWidth/2;
+      for(let i=0;i<7;i++)leafBoxes.push({x:-side*((i+.5)*half/7),y:wallHeight/2,z:0,w:half/7+.025,h:wallHeight-.08,d:.36});
+      for(const y of [.65,1.9,3.2])braceBoxes.push({x:-side*half/2,y,z:.23,w:half-.1,h:.22,d:.2});
+      boxes(hinge,'Bound timber gate leaf',leafBoxes,materials.bark);boxes(hinge,'Gate cross braces',braceBoxes,materials.reed);leaves.push(hinge);
+    }
+    const fallen=new THREE.Group();fallen.name='Breached gate fallen slabs';gate.add(fallen);
+    boxes(fallen,'Broken gate timber',[
+      {x:-1.45,y:.18,z:1.5,w:2.8,h:.3,d:3.5,ry:.18},
+      {x:1.6,y:.23,z:.9,w:2.7,h:.35,d:3.2,ry:-.24}
+    ],materials.bark);
+    const crestGeo=new THREE.PlaneGeometry(1.7/SHELTER_SCALE,1.9/SHELTER_SCALE),crestMat=new THREE.MeshStandardMaterial({map:bannerTexture(data.team),color:teamColor(data.team),side:THREE.DoubleSide,roughness:.85});owned.push(crestGeo,crestMat);
+    const crest=new THREE.Mesh(crestGeo,crestMat);crest.name='Castle gate clan crest';crest.position.set(0,(floor+5.2)/SHELTER_SCALE,(radius+1.02)/SHELTER_SCALE);fort.add(crest);
+    s.userData.fortification=fort;s.userData.palisade=upgrade;s.userData.gate=gate;s.userData.gateLeaves=leaves;s.userData.fallenGate=fallen;s.userData.gateCrest=crest;s.userData.fortWalls=walls;s.userData.fortTowers=towers;
+    s.userData.fortificationGeometry={radius,gateWidth,wallHeight,gateDirection:{x:0,z:1},towerCount:4};
+    return fort;
+  }
+
+  function buildKeep(owned){
+    const keep=buildHut(1,teamColors.ally,owned);keep.name='Stone keep beneath woven leaf roof';
+    keep.userData.groundWalls=[];
+    const body=new THREE.Group();body.name='Enclosed central keep';
+    const block=(x,y,z,w,h,d,mat=materials.mossRock)=>{const geo=new THREE.BoxGeometry(w,h,d),mesh=new THREE.Mesh(geo,mat);owned.push(geo);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;body.add(mesh);if(y-h/2<.03)keep.userData.groundWalls.push({minX:x-w/2,maxX:x+w/2,minZ:z-d/2,maxZ:z+d/2,height:y+h/2});};
+    block(-1.6,.68,0,.26,1.36,3.45);block(1.6,.68,0,.26,1.36,3.45);block(0,.68,-1.65,3.05,1.36,.25);
+    for(const side of [-1,1])block(side*1.14,.68,1.64,.9,1.36,.26);
+    block(0,1.22,1.64,1.45,.28,.27);
+    // Short corner turrets sit inside the existing reserved main-keep footprint.
+    for(const x of [-1.23,1.23])for(const z of [-1.34,1.34]){
+      block(x,1.36,z,.58,2.72,.58);
+      for(const dx of [-.2,.2])for(const dz of [-.2,.2])block(x+dx,2.83,z+dz,.19,.3,.19,materials.rock);
+    }
+    mergeStaticParts(body,owned);keep.add(body);return keep;
+  }
   function createShelter(data,buildOptions={}){
     const preview=!!buildOptions.preview;
     const s=new THREE.Group();s.name='Shelter '+(data.id??'');s.position.set(data.x,preview?0:sampleHeight(data.x,data.z),data.z);s.scale.setScalar(SHELTER_SCALE);s.userData.id=data.id;s.userData.radius=SHELTER_RADIUS;s.userData.owned=[];const owned=s.userData.owned;
     buildFoundation(s,owned,Number.isFinite(data.yaw)?data.yaw:0);
     if(!preview)s.userData.support=insertPlatform({id:'shelter-'+data.id,type:'shelter',x:data.x,z:data.z,y:s.position.y+.11,radius:SHELTER_RADIUS-.2});
-    const core=buildHut(1,teamColors[data.team],owned);core.position.set(-.55,.04,-.5);s.add(core);s.userData.core=core;
+    buildFortifications(s,data,owned);
+    const core=buildKeep(owned);core.position.set(-.55,.04,-.5);s.add(core);s.userData.core=core;
+    s.userData.keepCollision={rects:core.userData.groundWalls.map(r=>({minX:(r.minX+core.position.x)*SHELTER_SCALE,maxX:(r.maxX+core.position.x)*SHELTER_SCALE,minZ:(r.minZ+core.position.z)*SHELTER_SCALE,maxZ:(r.maxZ+core.position.z)*SHELTER_SCALE,height:(r.height+core.position.y)*SHELTER_SCALE})),door:{x:core.position.x*SHELTER_SCALE,z:(core.position.z+1.64)*SHELTER_SCALE}};
     const banner=makeBanner(data.team,owned);banner.position.set(1.8,0,1.1);s.add(banner);s.userData.banner=banner;
     const extra=new THREE.Group();extra.name='Additional sleeping leaves';const hut2=buildHut(.62,teamColors[data.team],owned);hut2.position.set(-3,.01,.2);hut2.rotation.y=-.5;extra.add(hut2);s.add(extra);s.userData.extra=extra;
     const nursery=new THREE.Group();nursery.name='Hatchery';const nestHut=buildHut(.52,teamColors[data.team],owned);nestHut.position.set(3.05,0,-1.8);nestHut.rotation.y=.7;nursery.add(nestHut);
@@ -384,20 +502,6 @@ export function createWorld(scene, renderer, options={}) {
     for(let k=0;k<8;k++){const z=-.6+k*.17,beam=tube([[-.7,2.35,z],[0,2.32,z],[.7,2.36,z]],.06,materials.reed,4);owned.push(beam.geometry);watch.add(beam);}
     const canopy=new THREE.Mesh(leafGeometry(1.1,.9,.08),materials.leaf);canopy.position.y=3.15;canopy.rotation.x=.17;owned.push(canopy.geometry);watch.add(canopy);
     for(let k=0;k<6;k++){const rung=tube([[-.25,k*.34,.63],[.25,k*.34,.63]],.035,materials.reed,2);owned.push(rung.geometry);watch.add(rung);}mergeStaticParts(watch,owned);s.add(watch);s.userData.watchtower=watch;
-    const palisade=new THREE.Group();palisade.name='Root-and-reed defences';const fenceGeos=[];
-    for(let i=0;i<54;i++){const a=i/54*TAU;if(Math.abs(Math.sin(a))<.19)continue;const x=Math.cos(a)*5.2,z=Math.sin(a)*4.5,h=.65+(i%5)*.12;const stake=tube([[x,-.07,z],[x*1.008,h*.6,z*1.008],[x*1.025,h,z*1.025]],.055,materials.bark,3);fenceGeos.push(stake.geometry);}
-    const merged=mergeGeometries(fenceGeos,false);for(const g of fenceGeos)g.dispose();const fence=new THREE.Mesh(merged,materials.bark);fence.castShadow=true;owned.push(merged);palisade.add(fence);s.add(palisade);s.userData.palisade=palisade;
-    // New placements use a proper, movable defensive section. Existing saves
-    // without a position keep the original purchased perimeter intact.
-    const fenceSection=new THREE.Group();fenceSection.name='Placeable woven timber palisade';fenceSection.position.z=9.8/SHELTER_SCALE;
-    for(let i=0;i<13;i++){
-      const x=-1.5+i*.25,z=.025*Math.sin(i*1.7),h=.82+(i%4)*.095;
-      const stake=tube([[x,-.05,z],[x+.018,.55,z+.02],[x-.015,h,z-.025]],.055,materials.bark,5);owned.push(stake.geometry);fenceSection.add(stake);
-      for(const y of [.34,.66]){const tie=tube([[x-.055,y,z-.065],[x-.065,y+.045,z+.08],[x+.055,y+.07,z+.07],[x+.06,y+.015,z-.06],[x-.055,y,z-.065]],.016,materials.reed,10);owned.push(tie.geometry);fenceSection.add(tie);}
-    }
-    for(const y of [.37,.69]){const rail=tube([[-1.55,y,.08],[0,y-.035,.095],[1.55,y,.075]],.035,materials.reed,14);owned.push(rail.geometry);fenceSection.add(rail);}
-    for(const side of [-1,1]){const brace=tube([[side*1.38,.12,-.09],[side*.78,.44,-.10],[side*.15,.79,-.085]],.041,materials.bark,7);owned.push(brace.geometry);fenceSection.add(brace);}
-    mergeStaticParts(fenceSection,owned);s.add(fenceSection);s.userData.palisadeSection=fenceSection;
     const stones=new THREE.InstancedMesh(rockGeos[1],materials.mossRock,25);for(let i=0;i<25;i++){const a=i/25*TAU;object.position.set(Math.cos(a)*2.15,-.12,Math.sin(a)*2.35-.5);object.rotation.set(0,a,0);object.scale.set(.25,.25,.25);object.updateMatrix();stones.setMatrixAt(i,object.matrix);}s.add(stones);
     // Ruins are a separate low silhouette: torn roofing, snapped ribs and the
     // fallen banner. The original meshes stay intact for an exact rebuild.
@@ -420,7 +524,7 @@ export function createWorld(scene, renderer, options={}) {
     // Every placeable pivot is the real rendered XZ centre. Offsetting the old
     // subgroup underneath it preserves the exact geometry of legacy layouts.
     s.updateMatrixWorld(true);s.userData.buildingGroups={};s.userData.defaultPlacements={};
-    for(const [type,key] of Object.entries({store:'storage',nursery:'nursery',watchtower:'watchtower',training:'training',palisade:'palisadeSection'})){
+    for(const [type,key] of Object.entries({store:'storage',nursery:'nursery',watchtower:'watchtower',training:'training'})){
       const body=s.userData[key],bounds=new THREE.Box3().setFromObject(body),centre=s.worldToLocal(bounds.getCenter(new THREE.Vector3())),pivot=new THREE.Group();
       pivot.name=body.name+' placement';pivot.position.set(centre.x,body.position.y,centre.z);s.add(pivot);body.position.sub(pivot.position);pivot.add(body);s.userData[key]=pivot;
       s.userData.buildingGroups[type]=pivot;s.userData.defaultPlacements[type]={x:centre.x*SHELTER_SCALE,z:centre.z*SHELTER_SCALE,yaw:0};
@@ -434,20 +538,25 @@ export function createWorld(scene, renderer, options={}) {
     const team=state.team??previous.team??'neutral';
     // Retain only render data, never the gameplay mesh reference or a cycle.
     const placements={};for(const [type,p] of Object.entries(state.buildingPlacements||{}))if(s.userData.buildingGroups[type]&&p&&Number.isFinite(p.x)&&Number.isFinite(p.z)&&Number.isFinite(p.yaw??0))placements[type]={x:p.x,z:p.z,yaw:p.yaw??0};
-    s.userData.visualState={team,tier,hp:state.hp,maxHp:state.maxHp,buildings:{...b},buildingPlacements:placements,yaw:Number.isFinite(state.yaw)?state.yaw:0,storage:state.storage,resources:state.resources,lootTaken:!!state.lootTaken,destroyed};
+    s.userData.visualState={team,tier,hp:state.hp,maxHp:state.maxHp,buildings:{...b},buildingPlacements:placements,yaw:Number.isFinite(state.yaw)?state.yaw:0,storage:state.storage,resources:state.resources,lootTaken:!!state.lootTaken,gateHp:state.gateHp,gateOpen:!!state.gateOpen,destroyed};
     s.rotation.y=s.userData.visualState.yaw;
     for(const [type,node] of Object.entries(s.userData.buildingGroups)){const p=placements[type]||s.userData.defaultPlacements[type];node.position.x=p.x/SHELTER_SCALE;node.position.z=p.z/SHELTER_SCALE;node.rotation.y=p.yaw;}
     const training=s.userData.buildingGroups.training;s.updateMatrixWorld(true);s.userData.trainingPoint.copy(training.getWorldPosition(new THREE.Vector3()));s.userData.trainingPoint.y=s.position.y+.12;
     s.userData.team=team;s.userData.tier=tier;s.userData.health=health;s.userData.destroyed=destroyed;
     s.userData.banner.userData.flag.material.color.set(teamColor(team));
     if(s.userData.banner.userData.emblemTeam!==team){s.userData.banner.userData.flag.material.map=bannerTexture(team);s.userData.banner.userData.flag.material.needsUpdate=true;s.userData.banner.userData.emblemTeam=team;}
+    s.userData.gateCrest.material.color.set(teamColor(team));s.userData.gateCrest.material.map=bannerTexture(team);
     const hasStore=!!(b.storage??b.store??false);
     s.userData.core.visible=!destroyed;s.userData.extra.visible=!destroyed&&tier>=2;s.userData.ruin.visible=destroyed;
     s.userData.nursery.visible=!destroyed&&!!(b.nursery||b.hatchery||b.spawn||b.breeding);
     s.userData.training.visible=!destroyed&&!!(b.training||b.trainingGround||b.drill);
     s.userData.watchtower.visible=!destroyed&&!!(b.watchtower||b.tower||b.guards);
     const hasPalisade=!destroyed&&!!(b.palisade||b.walls||b.wall||b.defense);
-    s.userData.palisade.visible=hasPalisade&&!placements.palisade;s.userData.palisadeSection.visible=hasPalisade&&!!placements.palisade;
+    s.userData.fortification.visible=!destroyed;s.userData.palisade.visible=hasPalisade;
+    const breached=Number.isFinite(state.gateHp)&&state.gateHp<=0;
+    s.userData.gate.userData.breached=breached;s.userData.gate.userData.open=!!state.gateOpen;
+    s.userData.fallenGate.visible=breached;
+    for(let i=0;i<2;i++){const leaf=s.userData.gateLeaves[i];leaf.visible=!breached;leaf.rotation.y=state.gateOpen?(i===0?-1:1)*Math.PI*.52:0;}
     s.userData.core.rotation.z=destroyed?0:(1-health)*.09;s.userData.core.userData.roof.scale.y=destroyed?1:.78+.22*health;
     let amount=typeof state.storage==='number'?state.storage:(state.storage?.food??state.resources??0);if(!Number.isFinite(amount))amount=0;amount=Math.max(0,amount);
     const hasLoot=amount>0&&!state.lootTaken;
@@ -462,7 +571,7 @@ export function createWorld(scene, renderer, options={}) {
 
   /** Real construction geometry, built once per placement session, with no support/collision registration. */
   function createBuildingPreview(type){
-    if(!['shelter','store','nursery','watchtower','training','palisade'].includes(type))return null;
+    if(!['shelter','store','nursery','watchtower','training'].includes(type))return null;
     const preview=createShelter({id:'construction-preview',x:0,z:0,team:'ally',tier:1,hp:350,maxHp:350,buildings:{},storage:{food:80}},{preview:true});
     preview.name='Construction preview: '+type;preview.userData.previewType=type;preview.userData.previewMaterials=[];
     if(type!=='shelter'){
@@ -513,7 +622,7 @@ export function createWorld(scene, renderer, options={}) {
       line([point(-hw,-hd),point(hw,-hd),point(hw,hd),point(-hw,hd)],'#ec8a72',.8,true).name=name+' outline';
       const hatch=[];for(let n=-hw-hd;n<=hw+hd;n+=.42){const ends=[];for(const x of [-hw,hw]){const z=n-x;if(z>=-hd&&z<=hd)ends.push(point(x,z));}for(const z of [-hd,hd]){const x=n-z;if(x>-hw&&x<hw)ends.push(point(x,z));}if(ends.length===2)hatch.push(...ends);}line(hatch,'#d9806c',.35).name=name+' hatch';
     };
-    footprint(s.userData.coreFootprint||{x:-1.1825,z:-1.0664,width:7.68,depth:8.25},'Main hut exclusion');
+    footprint(s.userData.coreFootprint||{x:-1.1825*SHELTER_LAYOUT_SCALE,z:-1.0664*SHELTER_LAYOUT_SCALE,width:7.68*SHELTER_LAYOUT_SCALE,depth:8.25*SHELTER_LAYOUT_SCALE},'Main hut exclusion');
     // Reserve the future sleeping wing from the first placement, so new
     // construction cannot permanently block a later shelter upgrade.
     footprint(EXTRA_HUT_FOOTPRINT,'Sleeping hut reservation');
@@ -539,6 +648,6 @@ export function createWorld(scene, renderer, options={}) {
     for(const s of shelters){s.userData.light.visible=closeLights.includes(s);s.userData.light.intensity=.25+(1-dayFactor)*3;s.userData.lamp.material.emissiveIntensity=.3+(1-dayFactor)*1.3;s.userData.banner.userData.flag.rotation.y=Math.sin(time*1.4+s.position.x)*.06;}
   }
   function dispose(){hideBuildArea();for(const preview of [...buildingPreviews])removeBuildingPreview(preview);scene.remove(group);const geos=new Set(),mats=new Set();group.traverse(o=>{if(o.isInstancedMesh)o.dispose();if(o.geometry)geos.add(o.geometry);if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>mats.add(m));else mats.add(o.material);}});for(const g of geos)g.dispose();for(const m of mats)m.dispose();for(const t of disposables)t.dispose();water.material.uniforms.mirrorSampler?.value?.dispose?.();shelters.clear();}
-  return {group,platforms,hotspots,campSites,sampleHeight,getSurface:surface,update,splash,impact,createShelter,updateShelter,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE};
+  return {group,platforms,hotspots,campSites,mapRegions,routes,predatorAnchors,bossAnchors,radius:WORLD_RADIUS,boundary:WORLD_BOUNDARY,revision:WORLD_REVISION,sampleHeight,getTerrainHeight:bedHeight,getSurface:surface,update,splash,impact,createShelter,updateShelter,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE};
 }
 

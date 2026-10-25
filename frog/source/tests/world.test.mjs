@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {createWorld,SHELTER_SCALE,SHELTER_RADIUS} from '../src/world.js';
 import {BUILDING_FOOTPRINTS,EXTRA_HUT_FOOTPRINT,defaultPlacement} from '../src/placement-rules.js';
+import {WORLD_SCALE,WORLD_RADIUS,WORLD_BOUNDARY} from '../src/world-config.js';
 
 // Texture painting is a browser boundary. Geometry, actual world construction,
 // shelter mutations, effect simulation and disposal all run unchanged in Node.
@@ -15,9 +16,38 @@ const data=(overrides={})=>({id:`test-camp-${++ids}`,x:8,z:8,team:'ally',tier:1,
 const fullBuildings={store:true,watchtower:true,nursery:true,palisade:true,training:true};
 after(()=>{world.dispose();if(previousDocument===undefined)delete globalThis.document;else globalThis.document=previousDocument;});
 
+test('the creek offers over three times the old map area with connected staging islands',()=>{
+  assert.equal(world.radius,WORLD_RADIUS);assert.equal(world.boundary,WORLD_BOUNDARY);
+  assert.ok((world.radius/110)**2>3,'usable world area should grow substantially');
+  assert.equal(world.water.geometry.parameters.width,266*WORLD_SCALE);
+  assert.equal(world.campSites.filter(s=>s.team==='enemy').length,5,'five campaign factions retain stable ids');
+  assert.ok(world.campSites.filter(s=>s.team==='neutral').length>=6,'long routes need buildable staging islands');
+  const reached=new Set(['origin']);let changed=true;
+  while(changed){changed=false;for(const route of world.routes)if(reached.has(route.from)||reached.has(route.to))for(const id of [route.from,route.to])if(!reached.has(id)){reached.add(id);changed=true;}}
+  for(const site of world.campSites){assert.ok(reached.has(site.id),site.id+' has no route');assert.ok(Math.abs(site.x)+SHELTER_RADIUS<world.boundary&&Math.abs(site.z)+SHELTER_RADIUS<world.boundary,site.id+' needs room inside the playable boundary');}
+  assert.ok(Math.hypot(world.hotspots[0].x,world.hotspots[0].z)<7,'starter supplies stay immediately reachable');
+});
+
+test('island heights, smooth slopes and an elevated stronghold replace the flat floodplain',()=>{
+  const stronghold=world.campSites.find(s=>s.stronghold),home=world.campSites.find(s=>s.id==='home');
+  assert.ok(world.getTerrainHeight(stronghold.x,stronghold.z)-world.getTerrainHeight(home.x,home.z)>6);
+  assert.ok(stronghold.radius>home.radius,'the fortified plateau must read larger than an ordinary island');
+  assert.ok(SHELTER_RADIUS>17&&SHELTER_SCALE>=3,'settlements grow with the wetland');
+  for(const site of world.campSites){
+    const floor=world.getTerrainHeight(site.x,site.z);
+    for(const angle of [0,Math.PI/2,Math.PI,Math.PI*1.5]){
+      assert.ok(Math.abs(world.getTerrainHeight(site.x+Math.cos(angle)*SHELTER_RADIUS,site.z+Math.sin(angle)*SHELTER_RADIUS)-floor)<.15,site.id+' courtyard needs a level foundation');
+      let previous=floor;
+      for(let d=.5;d<site.radius+8;d+=.5){const height=world.getTerrainHeight(site.x+Math.cos(angle)*d,site.z+Math.sin(angle)*d);assert.ok(Math.abs(height-previous)<.65,site.id+' has an impassable half-metre step');previous=height;}
+    }
+  }
+  assert.ok(world.platforms.filter(p=>p.type==='lily'||p.type==='rock').length<1800,'longer routes should remain instanced rather than tripling scene cost');
+});
+
 test('an empty building inventory shows the main hut without unpurchased upgrades',()=>{
   const shelter=world.createShelter(data());
   assert.equal(shelter.userData.core.visible,true);
+  assert.equal(shelter.userData.fortification.visible,true,'the basic castle is enclosed before any upgrade');
   for(const name of ['storage','watchtower','nursery','palisade','training','extra','ruin','looseLoot'])assert.equal(shelter.userData[name].visible,false,`${name} must be hidden`);
   assert.equal(shelter.userData.team,'ally');assert.equal(shelter.userData.destroyed,false);
   world.removeShelter(shelter);
@@ -120,12 +150,14 @@ test('the training yard is a purchased, supported construction that survives rui
   world.removeShelter(shelter);
 });
 
-test('larger camp islands leave the fish hunter and boss anchor in a usable water corridor',()=>{
+test('raised islands leave both fish anchors inside broad reachable water corridors',()=>{
   const wet=s=>s.type==='water'||s.type==='lily'||s.height<.13;
-  assert.ok(wet(world.getSurface(12,48)),'the fish must not spawn stranded on an expanded island');
-  let wetSamples=0;
-  for(let dx=-6;dx<=6;dx+=3)for(let dz=-6;dz<=6;dz+=3)if(wet(world.getSurface(12+dx,48+dz)))wetSamples++;
-  assert.ok(wetSamples>=20,'the larger fish boss needs a broad reachable breach area');
+  for(const anchor of [world.predatorAnchors.fish,world.bossAnchors.fish]){
+    assert.ok(wet(world.getSurface(anchor.x,anchor.z)),'fish must not spawn stranded on a raised island');
+    let wetSamples=0;
+    for(let dx=-6;dx<=6;dx+=3)for(let dz=-6;dz<=6;dz+=3)if(wet(world.getSurface(anchor.x+dx,anchor.z+dz)))wetSamples++;
+    assert.ok(wetSamples>=20,'the fish boss needs a broad reachable breach area');
+  }
 });
 
 test('placeable geometry uses centered footprints matching the collision rules and legacy locations',()=>{
@@ -149,17 +181,51 @@ test('camp yaw and placed building yaw compose correctly and training follows it
   assert.equal(model.getWorldPosition(new THREE.Vector3()).distanceTo(worldPoint),0);world.removeShelter(shelter);
 });
 
-test('placed palisades use a movable timber section while legacy camps retain their complete perimeter',()=>{
-  const shelter=world.createShelter(data({buildings:{palisade:true}}));assert.equal(shelter.userData.palisade.visible,true);assert.equal(shelter.userData.palisadeSection.visible,false);
-  const position={x:0,z:9.8,yaw:0};world.updateShelter(shelter,{buildingPlacements:{palisade:position}});shelter.updateMatrixWorld(true);
-  assert.equal(shelter.userData.palisade.visible,false);assert.equal(shelter.userData.palisadeSection.visible,true);
-  const size=new THREE.Box3().setFromObject(shelter.userData.palisadeSection).getSize(new THREE.Vector3());assert.ok(size.x<=7&&size.z<=1);
-  world.updateShelter(shelter,{buildingPlacements:{}});assert.equal(shelter.userData.palisade.visible,true);assert.equal(shelter.userData.palisadeSection.visible,false);world.removeShelter(shelter);
+test('castle walls enclose all sides except one clear south gate and include four defence towers',()=>{
+  const shelter=world.createShelter(data({gateHp:180,gateOpen:false}));shelter.updateMatrixWorld(true);
+  const spec=shelter.userData.fortificationGeometry;
+  assert.ok(spec.wallHeight>=3.5);assert.equal(spec.gateWidth,6.8);assert.equal(spec.radius,SHELTER_RADIUS-.15);
+  assert.equal(shelter.userData.fortTowers.count,4);
+  const ray=new THREE.Raycaster();
+  for(const a of [Math.PI/2,Math.PI,Math.PI*1.5]){
+    ray.set(new THREE.Vector3(shelter.position.x+Math.sin(a)*(spec.radius+6),shelter.position.y+1.6,shelter.position.z+Math.cos(a)*(spec.radius+6)),new THREE.Vector3(-Math.sin(a),0,-Math.cos(a)));
+    assert.ok(ray.intersectObject(shelter.userData.fortWalls).length>0,'a castle side must not be an open arch');
+  }
+  ray.set(new THREE.Vector3(shelter.position.x,shelter.position.y+1.6,shelter.position.z+spec.radius+3),new THREE.Vector3(0,0,-1));ray.far=5;
+  assert.equal(ray.intersectObject(shelter.userData.fortWalls).length,0,'the main gate opening must stay clear of permanent masonry');
+  assert.ok(ray.intersectObjects(shelter.userData.gateLeaves,true).length>0,'the closed doors visibly block the entrance');
+  world.removeShelter(shelter);
+});
+
+test('gates follow camp yaw, open with state and retain a visible breach until repaired',()=>{
+  const yaw=Math.PI/3,shelter=world.createShelter(data({yaw,gateHp:180,gateOpen:false}));shelter.updateMatrixWorld(true);
+  const r=shelter.userData.fortificationGeometry.radius,point=shelter.userData.gate.getWorldPosition(new THREE.Vector3());
+  assert.ok(Math.abs(point.x-(shelter.position.x+Math.sin(yaw)*r))<1e-6);
+  assert.ok(Math.abs(point.z-(shelter.position.z+Math.cos(yaw)*r))<1e-6);
+  world.updateShelter(shelter,{gateOpen:true});
+  assert.ok(shelter.userData.gateLeaves[0].rotation.y<-Math.PI/2);assert.ok(shelter.userData.gateLeaves[1].rotation.y>Math.PI/2);
+  world.updateShelter(shelter,{gateHp:0,gateOpen:false});
+  assert.equal(shelter.userData.fallenGate.visible,true);assert.ok(shelter.userData.gateLeaves.every(leaf=>!leaf.visible));
+  world.updateShelter(shelter,{storage:{food:5}});assert.equal(shelter.userData.fallenGate.visible,true,'ordinary visual refresh must not heal a broken gate');
+  world.updateShelter(shelter,{gateHp:180,gateOpen:false});assert.equal(shelter.userData.fallenGate.visible,false);assert.ok(shelter.userData.gateLeaves.every(leaf=>leaf.visible&&leaf.rotation.y===0));
+  world.updateShelter(shelter,{destroyed:true,hp:0});assert.equal(shelter.userData.fortification.visible,false);assert.equal(shelter.userData.palisade.visible,false);
+  world.removeShelter(shelter);
+});
+
+test('palisade purchase reinforces the entire castle even when a legacy save contains one wall position',()=>{
+  const shelter=world.createShelter(data());assert.equal(shelter.userData.palisade.visible,false);
+  world.updateShelter(shelter,{buildings:{palisade:true},buildingPlacements:{palisade:{x:0,z:12,yaw:1}}});shelter.updateMatrixWorld(true);
+  assert.equal(shelter.userData.fortification.visible,true);assert.equal(shelter.userData.palisade.visible,true);
+  assert.equal(shelter.userData.buildingGroups.palisade,undefined,'a whole perimeter cannot be dragged into the courtyard');
+  assert.equal(shelter.userData.visualState.buildingPlacements.palisade,undefined);
+  const size=new THREE.Box3().setFromObject(shelter.userData.palisade).getSize(new THREE.Vector3());assert.ok(size.x>32&&size.z>32,'the upgrade must span the whole settlement');
+  assert.equal(world.createBuildingPreview('palisade'),null,'fortification is a whole-castle upgrade');
+  world.removeShelter(shelter);
 });
 
 test('all construction previews use real geometry, reuse materials when moving, and leave no physical surfaces behind',()=>{
   const originalPlatforms=world.platforms.length;
-  for(const type of ['shelter','store','nursery','watchtower','training','palisade']){
+  for(const type of ['shelter','store','nursery','watchtower','training']){
     const preview=world.createBuildingPreview(type);assert.ok(preview?.isGroup);assert.equal(world.platforms.length,originalPlatforms);assert.equal(preview.userData.support,undefined);
     world.setBuildingPreview(preview,{x:20,y:.4,z:30,yaw:.6,valid:true});const materials=[...preview.userData.previewMaterials];let vertices=0;preview.traverseVisible(o=>{if(o.geometry)vertices+=o.geometry.attributes.position?.count||0;});assert.ok(vertices>200,`${type}: authored geometry`);
     assert.ok(materials.every(m=>m.transparent&&m.opacity<1&&m.color.getHexString()==='69ed89'));

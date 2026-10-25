@@ -2,25 +2,27 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {BUILDING_FOOTPRINTS,COURTYARD_RADIUS,defaultPlacement,validateBuildingPlacement,normalizeBuildingPlacements} from '../src/placement-rules.js';
 import {SAVE_VERSION,validateSave} from '../src/rules.js';
+import {SHELTER_LAYOUT_SCALE,WORLD_REVISION} from '../src/world-config.js';
+const scaled=(x,z,yaw=0)=>({x:x*SHELTER_LAYOUT_SCALE,z:z*SHELTER_LAYOUT_SCALE,yaw});
 
 const base=overrides=>({id:'camp',team:'ally',x:0,z:0,hp:350,maxHp:350,buildings:{},buildingPlacements:{},...overrides});
 const slots={
-  store:{x:-6.5,z:6,yaw:0},
+  store:scaled(-6.5,6),
   nursery:defaultPlacement('nursery'),
   watchtower:defaultPlacement('watchtower'),
-  training:{x:0,z:6,yaw:0},
-  palisade:{x:0,z:10,yaw:0}
+  training:scaled(0,6),
+  palisade:scaled(0,10)
 };
-const save=camp=>({version:SAVE_VERSION,player:{id:'player',team:'player',x:0,z:0,hp:120,maxHp:120},frogs:[],camps:[camp],resources:{food:60,reeds:80}});
+const save=camp=>({version:SAVE_VERSION,worldRevision:WORLD_REVISION,player:{id:'player',team:'player',x:0,z:0,hp:120,maxHp:120},frogs:[],camps:[camp],resources:{food:60,reeds:80}});
 function fullCamp(overrides={}){
   return base({buildings:Object.fromEntries(Object.keys(slots).map(type=>[type,true])),buildingPlacements:structuredClone(slots),...overrides});
 }
 
 test('placement defaults use immutable centered world-unit footprints and fresh positions',()=>{
-  assert.equal(COURTYARD_RADIUS,12.1);
+  assert.ok(COURTYARD_RADIUS>16.8,'the enlarged settlement must preserve usable building space');
   assert.deepEqual(Object.keys(BUILDING_FOOTPRINTS).sort(),['nursery','palisade','store','training','watchtower']);
   const a=defaultPlacement('store'),b=defaultPlacement('store');a.x=900;assert.notEqual(a.x,b.x);
-  assert.equal(defaultPlacement('repair'),null);assert.deepEqual(BUILDING_FOOTPRINTS.palisade,{width:7,depth:1});
+  assert.equal(defaultPlacement('repair'),null);assert.deepEqual(BUILDING_FOOTPRINTS.palisade,{width:7*SHELTER_LAYOUT_SCALE,depth:SHELTER_LAYOUT_SCALE});
 });
 test('all five building types fit a real courtyard layout without spending or mutation',()=>{
   const camp=base(),resources={food:100,reeds:100};
@@ -47,23 +49,23 @@ test('nonfinite, missing and string coordinates or yaw are rejected',()=>{
 });
 test('rotated building rectangles cannot overlap the permanent central hut',()=>{
   for(const yaw of [0,Math.PI/4,Math.PI/2]) assert.equal(validateBuildingPlacement(base(),'store',{x:0,z:0,yaw}).reason,'overlap-core');
-  assert.equal(validateBuildingPlacement(base(),'store',{x:5,z:0,yaw:0}).valid,true);
-  assert.equal(validateBuildingPlacement(base(),'store',{x:4.8,z:0,yaw:0}).reason,'overlap-core');
+  assert.equal(validateBuildingPlacement(base(),'store',scaled(5,0)).valid,true);
+  assert.equal(validateBuildingPlacement(base(),'store',scaled(4.8,0)).reason,'overlap-core');
 });
 test('the complete rotated footprint must stay inside the circular courtyard',()=>{
-  const tangent={x:0,z:10.8,yaw:0},radial={...tangent,yaw:Math.PI/2};
+  const tangent=scaled(0,10.8),radial={...tangent,yaw:Math.PI/2};
   assert.equal(validateBuildingPlacement(base(),'palisade',tangent).valid,true);
   assert.equal(validateBuildingPlacement(base(),'palisade',radial).reason,'outside-courtyard');
-  assert.equal(validateBuildingPlacement(base(),'store',{x:11,z:0,yaw:0}).reason,'outside-courtyard');
+  assert.equal(validateBuildingPlacement(base(),'store',scaled(11,0)).reason,'outside-courtyard');
 });
 test('SAT detects an overlap against a rotated existing building',()=>{
-  const camp=base({buildings:{training:true},buildingPlacements:{training:{x:6,z:0,yaw:Math.PI/4}}});
-  assert.equal(validateBuildingPlacement(camp,'palisade',{x:7,z:3,yaw:Math.PI/4}).reason,'overlap-building');
+  const camp=base({buildings:{training:true},buildingPlacements:{training:scaled(6,0,Math.PI/4)}});
+  assert.equal(validateBuildingPlacement(camp,'palisade',scaled(7,3,Math.PI/4)).reason,'overlap-building');
 });
 test('separated rotated footprints remain valid even when their axis-aligned boxes overlap',()=>{
-  const camp=base({buildings:{training:true},buildingPlacements:{training:{x:6,z:0,yaw:Math.PI/4}}});
+  const camp=base({buildings:{training:true},buildingPlacements:{training:scaled(6,0,Math.PI/4)}});
   // Both AABBs cover x=5..9 and z=3.2..3.7, but the oblique rectangles do not meet.
-  assert.equal(validateBuildingPlacement(camp,'palisade',{x:7,z:6,yaw:Math.PI/4}).valid,true);
+  assert.equal(validateBuildingPlacement(camp,'palisade',scaled(7,6,Math.PI/4)).valid,true);
 });
 test('legacy building defaults still reserve their actual occupied positions',()=>{
   const camp=base({buildings:{watchtower:true}}),p=defaultPlacement('watchtower');
@@ -98,14 +100,14 @@ test('old saves keep missing placement maps empty and retain their purchased bui
   assert.equal(out.camps[0].buildings.training,true);assert.equal(out.camps[0].buildings.store,true);assert.equal(out.camps[0].yaw,0);
 });
 test('future sleeping space stays reserved at every tier so early purchases cannot block upgrades',()=>{
-  const position={x:-8,z:-2.8,yaw:Math.PI/2};
+  const position=scaled(-8,-2.8,Math.PI/2);
   for(const tier of [1,2,3]){
     assert.equal(validateBuildingPlacement(base({tier}),'training',position).reason,'overlap-core');
     assert.equal(validateBuildingPlacement(base({tier}),'training',slots.training).valid,true);
   }
 });
 test('an advanced shelter still fits all five buildings around both built-in huts',()=>{
-  const layout={...structuredClone(slots),store:{x:-6.5,z:6,yaw:0},training:{x:0,z:6.8,yaw:0}},camp=base({tier:2});
+  const layout={...structuredClone(slots),store:scaled(-6.5,6),training:scaled(0,6.8)},camp=base({tier:2});
   for(const [type,position] of Object.entries(layout)){
     assert.equal(validateBuildingPlacement(camp,type,position).valid,true,type);
     camp.buildings[type]=true;camp.buildingPlacements[type]=position;
