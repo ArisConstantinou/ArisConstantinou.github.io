@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <base href="../">
+  <title>FROG v2 · UI-only preview · Συνθετικά δεδομένα</title>
+  <link rel="stylesheet" href="./qa/preview-v200.css">
+</head>
+<body>
+  <header id="qa-toolbar">
+    <div class="qa-caption"><strong>FROG v2 · UI-only</strong><span>Συνθετικά δεδομένα · μόνο έλεγχος διεπαφής · χωρίς 3D παιχνίδι ή αποθήκευση</span></div>
+    <nav aria-label="Προβολές ελέγχου">
+      <button type="button" data-preview-panel="hud">HUD</button>
+      <button type="button" data-preview-panel="recruitment">Στρατολόγηση</button>
+      <button type="button" data-preview-panel="build">Κτίρια</button>
+      <button type="button" data-preview-panel="defense">Άμυνα</button>
+      <button type="button" data-preview-panel="organization">Οργάνωση</button>
+      <button type="button" data-preview-panel="workshop">Εργαστήριο</button>
+      <button type="button" data-preview-panel="roster">Ομάδες</button>
+      <button type="button" data-preview-panel="realm">Περιοχές</button>
+      <button type="button" data-preview-panel="guide">Οδηγός</button>
+      <button type="button" data-preview-panel="card">Κάρτα</button>
+      <button type="button" data-preview-panel="encounter">Πρώτη συνάντηση</button>
+      <button type="button" data-preview-panel="boss">Αρχηγός</button>
+      <label>Σενάριο <select id="qa-scenario"><option value="army">Στρατός &amp; πολλές λίμνες</option><option value="solo">Μόνος οικοδόμος</option></select></label>
+    </nav>
+    <output id="qa-status" aria-live="polite">Φόρτωση πραγματικών UI components…</output>
+  </header>
+  <script type="module" src="./qa/preview-v200.js"></script>
+</body>
+</html>
