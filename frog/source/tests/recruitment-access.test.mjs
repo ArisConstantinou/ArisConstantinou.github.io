@@ -34,6 +34,7 @@ test('facing a passive frog allows recruitment through a crowd despite an incide
   game.frogs.push(...Array.from({length:12},(_,i)=>actor({id:`crowd-${i}`,x:(i%3-1)*.35,z:1+i*.1})),neutral);
   game.world.hotspots.push(swarm);game.aimYaw=0;game.aimTarget={kind:'actor',entity:game.frogs[1]};
   assert.equal(game.context().entity,neutral);assert.equal(game.context().type,'recruit');
+  assert.equal(game.interact(),true);assert.equal(neutral.team,'neutral');assert.equal(game.activeRecruitId,neutral.id);assert.equal(game.resources.food,100);
   assert.equal(game.interact(),true);assert.equal(neutral.team,'ally');assert.equal(neutral.order,'follow');assert.equal(neutral.guard,false);
   assert.equal(game.resources.food,96);assert.equal(swarm.flies,20);
 });

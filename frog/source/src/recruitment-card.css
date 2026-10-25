@@ -1,0 +1,27 @@
+#frog-ui .fg-recruitment-bubble {
+  position:absolute;left:0;top:0;z-index:25;width:248px;max-height:270px;
+  display:flex;flex-direction:column;overflow:hidden;pointer-events:auto;
+  border:1px solid #b9cf976e;border-radius:10px;background:#102a21f5;
+  box-shadow:0 8px 25px #00140f50;color:#e8edd1;font-family:inherit;
+}
+#frog-ui .fg-recruitment-bubble[hidden] {display:none!important;}
+#frog-ui.fg-recruitment-open .fg-recruit-prompt {display:none;}
+#frog-ui .fg-recruit-mini-heading {display:flex;align-items:center;gap:8px;padding:9px 10px;border-bottom:1px solid #bed69a24;flex:none;}
+#frog-ui .fg-recruit-mini-heading>div {flex:1;min-width:0;}
+#frog-ui .fg-recruit-mini-heading strong {display:block;font-size:13px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#frog-ui .fg-recruit-mini-heading small {display:block;margin-top:2px;font-size:9px;color:#afc49c;line-height:1.3;}
+#frog-ui .fg-recruit-mini-heading button {display:grid;place-items:center;width:27px;height:27px;flex:none;border:1px solid #b6ce9c30;border-radius:6px;background:#254333;color:#d6e4be;font-size:19px;line-height:1;cursor:pointer;}
+#frog-ui .fg-recruit-mini-requirements {list-style:none;padding:3px 10px;margin:0;overflow:auto;overscroll-behavior:contain;min-height:0;scrollbar-width:thin;}
+#frog-ui .fg-recruit-mini-requirements li {display:flex;align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid #c3d89f16;font-size:11px;line-height:1.3;}
+#frog-ui .fg-recruit-mini-requirements li:last-child {border-bottom:none;}
+#frog-ui .fg-recruit-mini-check {width:13px;flex:none;color:#d3bd89;font-size:13px;}
+#frog-ui .fg-recruit-mini-requirements li>span:nth-child(2) {flex:1;min-width:0;}
+#frog-ui .fg-recruit-mini-requirements strong {font-size:10px;font-weight:500;}
+#frog-ui .fg-recruit-mini-requirements small {display:block;margin-top:2px;font-size:8px;color:#b7c5a4;line-height:1.3;}
+#frog-ui .fg-recruit-mini-requirements b {font-size:10px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;color:#e4d2a1;}
+#frog-ui .fg-recruit-mini-requirements .is-met b,#frog-ui .fg-recruit-mini-requirements .is-met .fg-recruit-mini-check {color:#bddd97;}
+#frog-ui .fg-recruit-mini-footer {padding:7px 10px 9px;flex:none;border-top:1px solid #bed69a24;}
+#frog-ui .fg-recruit-mini-footer button {display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:31px;padding:6px 9px;border:1px solid #c6dc9b55;border-radius:6px;background:#bdd598;color:#203728;font-size:10px;font-weight:650;cursor:pointer;}
+#frog-ui .fg-recruit-mini-footer button:disabled {background:#2a4330;color:#a4b796;border-color:#b4ca9229;cursor:default;}
+#frog-ui .fg-recruit-mini-footer kbd {height:17px;min-width:18px;display:grid;place-items:center;font:9px inherit;color:inherit;border:1px solid #35523d55;border-radius:4px;background:#def0bf70;}
+#frog-ui .fg-recruitment-bubble button:focus-visible {outline:2px solid #e4edc0;outline-offset:2px;}

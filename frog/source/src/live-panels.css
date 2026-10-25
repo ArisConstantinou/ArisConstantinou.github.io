@@ -247,3 +247,115 @@
 @media(max-width:767px){
   #frog-ui .fg-guide-hint.fg-concept-panel {max-height:calc(100dvh - var(--hud-map-bottom,275px) - var(--hud-bottom) - var(--hud-bar-height) - 49px);}
 }
+
+/* Measured safe lanes replace every previous viewport-offset placement rule. */
+#frog-ui .fg-live-panel-layer,
+#frog-ui .fg-pause-dock,
+#frog-ui .fg-ending-dock {
+  left:var(--hud-left-panel-x,var(--hud-left));
+  top:var(--hud-left-panel-y,var(--hud-top));
+  right:auto; bottom:auto;
+  width:var(--hud-left-panel-width,calc(100vw - var(--hud-left) - var(--hud-right)));
+  max-height:var(--hud-left-panel-height,100dvh);
+  min-width:0;min-height:0;overflow:hidden;
+}
+#frog-ui .fg-live-panel-layer.is-guide {
+  left:var(--hud-right-panel-x,var(--hud-left));
+  top:var(--hud-right-panel-y,var(--hud-top));
+  right:auto; bottom:auto;
+  width:var(--hud-right-panel-width,calc(100vw - var(--hud-left) - var(--hud-right)));
+  max-height:var(--hud-right-panel-height,100dvh);
+}
+#frog-ui .fg-live-panel-layer .fg-game-panel,
+#frog-ui .fg-live-panel-layer.is-collapsed .fg-game-panel,
+#frog-ui .fg-pause-dock .fg-pause-panel,
+#frog-ui .fg-ending-dock .fg-ending-panel {
+  max-height:var(--hud-left-panel-height,100dvh);
+  min-width:0;min-height:0;box-sizing:border-box;
+}
+#frog-ui .fg-live-panel-layer.is-guide .fg-game-panel,
+#frog-ui .fg-live-panel-layer.is-guide.is-collapsed .fg-game-panel {
+  max-height:var(--hud-right-panel-height,100dvh);
+}
+#frog-ui .fg-compact-hud .fg-objective,
+#frog-ui .fg-compact-hud .fg-hunt {
+  left:var(--hud-goal-x,50%);top:var(--hud-goal-y,var(--hud-top));
+  width:var(--hud-goal-width,234px);min-width:0;transform:none;
+}
+#frog-ui .fg-compact-hud .fg-objective-details {
+  position:fixed;left:var(--hud-goal-details-x,var(--hud-left));
+  top:var(--hud-goal-details-y,var(--hud-top));
+  width:var(--hud-goal-details-width,376px);
+  max-height:var(--hud-goal-details-height,45dvh);
+  transform:none;
+}
+#frog-ui .fg-construction-hud,
+#frog-ui.fg-is-hunted .fg-construction-hud {
+  left:var(--hud-construction-x,50%);top:var(--hud-construction-y,var(--hud-top));
+  width:var(--hud-construction-width,310px);max-height:var(--hud-construction-height,350px);
+  transform:none;display:flex;flex-direction:column;min-width:0;min-height:0;
+}
+#frog-ui .fg-construction-hud .fg-construction-heading {flex:none;}
+#frog-ui .fg-construction-hud [data-ref="constructionBody"] {
+  min-height:0;flex:1;max-height:none;overflow:auto;
+}
+#frog-ui.fg-layout-construction-compact .fg-construction-hud.is-expanded .fg-construction-heading-progress {display:block;}
+#frog-ui.fg-layout-construction-compact .fg-construction-heading>span:first-child {font-size:9px;}
+#frog-ui.fg-layout-construction-compact .fg-construction-live-detail {display:none;}
+#frog-ui .fg-guide-hint.fg-concept-panel {
+  left:var(--hud-concept-x,var(--hud-left));top:var(--hud-concept-y,var(--hud-top));
+  right:auto;bottom:auto;width:var(--hud-concept-width,300px);
+  max-height:var(--hud-concept-height,45dvh);
+}
+#frog-ui.fg-full-guide-open .fg-guide-hint.fg-concept-panel {display:none!important;}
+#frog-ui .fg-live-panel-layer,
+#frog-ui .fg-pause-dock,
+#frog-ui .fg-ending-dock {visibility:hidden;}
+#frog-ui.fg-layout-ready .fg-live-panel-layer,
+#frog-ui.fg-layout-ready .fg-pause-dock,
+#frog-ui.fg-layout-ready .fg-ending-dock {visibility:visible;}
+#frog-ui.fg-hud-drawer-open .fg-live-panel-layer,
+#frog-ui.fg-hud-drawer-open .fg-pause-dock,
+#frog-ui.fg-hud-drawer-open .fg-ending-dock {visibility:hidden;pointer-events:none;}
+#frog-ui .fg-compact-hud .fg-action-drawer {
+  left:var(--hud-action-drawer-x,var(--hud-left));
+  top:var(--hud-action-drawer-y,var(--hud-top));right:auto;bottom:auto;
+  width:var(--hud-action-drawer-width,380px);
+  max-height:var(--hud-action-drawer-height,100dvh);
+  min-width:0;min-height:0;transform:none;overflow:auto;overscroll-behavior:contain;
+}
+
+/* Populated squad and tactics docks stack only when they would cover the action row. */
+#frog-ui.fg-layout-ready .fg-compact-hud .fg-selection-dock {
+  left:var(--hud-selection-x,var(--hud-left));top:var(--hud-selection-y);bottom:auto;
+}
+#frog-ui.fg-layout-ready .fg-compact-hud .fg-tactics-dock {
+  left:var(--hud-tactics-x,var(--hud-left));top:var(--hud-tactics-y);bottom:auto;
+}
+
+/* U belongs to the illustrated action row. Eight actions fit as 4 + 4 on phones. */
+#frog-ui .fg-compact-hud .fg-image-actionbar.fg-primary-actions {
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  width:min(536px,calc(100% - var(--hud-left) - var(--hud-right)));
+  max-width:calc(100% - var(--hud-left) - var(--hud-right));
+}
+#frog-ui .fg-compact-hud .fg-primary-actions .fg-action-slot {min-width:0;width:100%;}
+#frog-ui .fg-compact-hud .fg-primary-actions .fg-action-tile,
+#frog-ui .fg-compact-hud .fg-primary-actions .fg-action-tile[data-action="interact"],
+#frog-ui .fg-compact-hud .fg-primary-actions .fg-action-tile[data-cooldown="special"] {width:100%;min-width:0;}
+#frog-ui .fg-concept-nav-art {overflow:hidden;border-radius:6px;}
+#frog-ui .fg-concept-nav-art img {display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit;border:1px solid #d1dfad50;}
+#frog-ui .fg-concept-nav[aria-expanded="true"] {border-color:#d7e5ac;background:#3d583d;}
+@media(min-width:768px) and (min-height:501px) {
+  #frog-ui .fg-compact-hud .fg-image-actionbar.fg-primary-actions {
+    grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,1.3fr) repeat(3,minmax(0,1fr));
+    width:min(680px,calc(100% - var(--hud-left) - var(--hud-right)));
+    gap:7px;padding:7px;
+  }
+}
+@media(max-width:480px) {
+  #frog-ui .fg-compact-hud .fg-image-actionbar.fg-primary-actions {grid-template-columns:repeat(4,minmax(0,1fr));width:min(356px,calc(100% - var(--hud-left) - var(--hud-right)));gap:5px;padding:6px;}
+  #frog-ui .fg-compact-hud .fg-primary-actions .fg-action-tile,
+  #frog-ui .fg-compact-hud .fg-primary-actions .fg-action-tile[data-cooldown="special"] {height:54px;min-height:54px;}
+  #frog-ui .fg-compact-hud .fg-primary-actions .fg-action-art {width:33px;height:33px;}
+}

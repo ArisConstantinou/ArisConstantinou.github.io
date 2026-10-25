@@ -21,20 +21,21 @@ function bareSave(g){return validateSave(JSON.parse(JSON.stringify(g.createSaveD
 test('E opens a real neutral contract; payment and XP happen only after its accepted help quest',()=>{
   const {game:g,player:p}=kingdom(),neutral=g.spawnFrog({id:'first-neutral',team:'neutral',x:0,z:2,firstRecruit:true});
   g.aimTarget={kind:'actor',entity:neutral};const bank={...g.resources},xp=p.xp;
-  assert.equal(g.interact(),true);assert.equal(g.ui.panel,'recruitment');assert.equal(neutral.team,'neutral');assert.deepEqual(g.resources,bank);
+  assert.equal(g.interact(),true);assert.notEqual(g.ui.panel,'recruitment');assert.equal(g.activeRecruitId,neutral.id);assert.equal(neutral.team,'neutral');assert.deepEqual(g.resources,bank);
   assert.equal(g.recruit(neutral),false);assert.equal(p.xp,xp);
   g.handleKingdomAction('recruit-help',{id:neutral.id});
   assert.equal(neutral.recruitment.quest.accepted,true);g.creditGathering(5,0);assert.equal(g.recruit(neutral),false);
   g.creditGathering(1,0);g.handleKingdomAction('recruit-target',{id:neutral.id});
   assert.equal(neutral.team,'ally');assert.equal(neutral.order,'follow');assert.equal(g.resources.food,bank.food-8);
-  assert.equal(g.stats.recruited,1);assert.equal(p.xp,xp+20);assert.equal(g.ui.panel,null);
+  assert.equal(g.stats.recruited,1);assert.equal(p.xp,xp+20);assert.equal(g.activeRecruitId,null);
   assert.equal(g.recruit(neutral),false);assert.equal(g.resources.food,bank.food-8);assert.equal(p.xp,xp+20);
 });
 
-test('a sufficiently renowned leader can enlist a common neutral immediately at zero cost',()=>{
+test('a sufficiently renowned leader inspects a common neutral first and confirms zero-cost enlistment with E',()=>{
   const {game:g,player:p}=kingdom();p.level=12;
   const neutral=g.spawnFrog({id:'common-neutral',team:'neutral',x:0,z:2,level:1});g.aimTarget={kind:'actor',entity:neutral};
   const bank={...g.resources};assert.equal(g.recruitmentContext(neutral).offer.instant,true);
+  assert.equal(g.interact(),true);assert.equal(neutral.team,'neutral');assert.equal(g.activeRecruitId,neutral.id);assert.deepEqual(g.resources,bank);
   assert.equal(g.interact(),true);assert.equal(neutral.team,'ally');assert.deepEqual(g.resources,bank);
 });
 

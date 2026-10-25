@@ -3,9 +3,12 @@ import './hud-layout.css';
 import './garrison-ui.css';
 import './realm-ui.css';
 import './live-panels.css';
+import './recruitment-card.css';
 import {describeObjective} from './guidance.js';
 import {pictogram,gangEmblem,frogAvatar,rolePictogram} from './visuals.js';
 import {GUIDE_CATEGORIES,GUIDE_CARDS,GUIDE_ACTIONS,GUIDE_BUILDINGS,guideCard} from './field-guide.js';
+import {refreshHUDLayout} from './hud-layout.js';
+import {recruitmentCardMarkup,placeRecruitmentCard} from './recruitment-card.js';
 
 const $ = (root, selector) => root.querySelector(selector);
 const $$ = (root, selector) => Array.from(root.querySelectorAll(selector));
@@ -17,7 +20,7 @@ const whole = n => Math.max(0, Math.round(Number(n) || 0));
 const fraction = (n, d) => clamp((Number(n) || 0) / (Number(d) || 100));
 const placementTypes=new Set(['shelter','store','nursery','training','watchtower']);
 const actionCaptions={'primary-attack':'Γλώσσα','special-attack':'Κλωτσιά',dodge:'Αποφυγή',interact:'Πλησίασε','open-build':'Χτίσε','hud-more':'Άλλα',intimidate:'Εκφόβισε','gang-toggle':'Επίθεση ομάδας','gang-forage':'Βρείτε τροφή','gang-regroup':'Όλοι μαζί','cycle-view':'Κάμερα','open-roster':'Ομάδα','open-map':'Χάρτης','open-pause':'Παύση'};
-const compactCaptions={'Στρατολόγησε':'Ένταξη','Κατασκευές':'Χτίσε','Ακολούθησε':'Έλα','Φρούρησε':'Φρουρά','Αποφυγή':'Ελιγμός'};
+const compactCaptions={'Απαιτήσεις':'Όροι','Στρατολόγησε':'Ένταξη','Κατασκευές':'Χτίσε','Ακολούθησε':'Έλα','Φρούρησε':'Φρουρά','Αποφυγή':'Ελιγμός'};
 const captionMarkup=label=>`<span class="fg-caption-wide">${esc(label)}</span><span class="fg-caption-compact">${esc(compactCaptions[label]||label)}</span>`;
 const goalCaption=g=>({'gather-food':'Τροφή',food:'Τροφή','gather-reeds':'Υλικά',reeds:'Υλικά','build-shelter':'Οχυρό',shelter:'Οχυρό','build-store':'Αποθήκη',store:'Αποθήκη','build-nursery':'Φωλιά',nursery:'Φωλιά','build-training':'Εκπαιδευτήριο',training:'Εκπαιδευτήριο','recruit-allies':'Σύμμαχοι',allies:'Σύμμαχοι','train-starters':'Εκπαιδευμένοι',trained:'Εκπαιδευμένοι','train-army':'Εκπαιδευμένοι','expand-shelters':'Οχυρά','expand-buildings':'Κτίρια',territories:'Περιοχές'}[g.id]||({heron:'Ερωδιός',snake:'Νερόφιδο',fish:'Ψάρι'}[g.type||g.icon]?(g.boss?'Αρχηγός ':'')+({heron:'Ερωδιός',snake:'Νερόφιδο',fish:'Ψάρι'}[g.type||g.icon]):describeObjective(g).title));
 const roleNames = { scout:'Ανιχνευτής', hunter:'Κυνηγός', bruiser:'Μαχητής', brute:'Βαρύς μαχητής', guardian:'Φύλακας', guard:'Φρουρός', leader:'Αρχηγός', agile:'Ακροβάτης', warrior:'Πολεμιστής', striker:'Μαχητής', intimidator:'Εκφοβιστής', caller:'Κράχτης' };
@@ -70,6 +73,7 @@ export class GameUI {
     this.abort=new AbortController(); this.state={}; this.portraits={};
     this.panel=null; this.menu=null; this.lastDraw=0; this.lastPanel=0;
     this.panelExpanded=true;this.pauseExpanded=true;this.constructionExpanded=true;this.conceptPanelsOpen=false;this.lastGuideHintId='movement';
+    this.recruitmentBubbleOpen=false;this.recruitmentTargetId=null;this.recruitmentAnchor=null;
     this.hudDisclosure=null;this.rosterFilter='all';this.buildView='catalog';this.defenseCampId=null;this.toastKeys=new Map();this.portraitCache=new Map();
     this.guideCategory='all';this.guideQuery='';this.guideId=null;this.guideReturn=null;this.guideBackToBook=false;this.guideFirstEncounter=false;
     this.settings={quality:'high',volume:0.65,sensitivity:1};
@@ -91,6 +95,10 @@ export class GameUI {
     document.addEventListener('keydown',e=>{if(this.hudDisclosure&&e.code==='Escape'){e.preventDefault();e.stopPropagation();this.closeHudDisclosure(true);}},{capture:true,signal:this.abort.signal});
     document.addEventListener('pointerdown',e=>{if(this.hudDisclosure&&!e.target.closest?.('.fg-objective,.fg-action-drawer,[data-action="hud-more"]'))this.closeHudDisclosure();},{signal:this.abort.signal});
     window.addEventListener('resize',()=>{this.lastDraw=0;this.lastPanelLayout=0;this.layoutDockedPanels();},{signal:this.abort.signal});
+    if(typeof ResizeObserver!=='undefined'){
+      this.layoutObserver=new ResizeObserver(()=>{if(this.layoutFrame)return;this.layoutFrame=requestAnimationFrame(()=>{this.layoutFrame=0;this.layoutDockedPanels();});});
+      for(const element of $$(this.root,'.fg-player,.fg-knowledge-tools,.fg-location,.fg-primary-actions,.fg-objective,.fg-hunt,[data-ref="selectionDock"],[data-ref="tacticsDock"],[data-ref="practicalTutorial"],[data-ref="constructionBody"],[data-ref="panel"],[data-ref="pausePanel"]'))this.layoutObserver.observe(element);
+    }
     this.setLoading('Δημιουργία του ποταμού…');
   }
   toggleHudDisclosure(name){
@@ -106,14 +114,17 @@ export class GameUI {
     this.root.classList.toggle('fg-hud-drawer-open',Boolean(name));
     if(restoreFocus){const button=previous==='objectives'?this.refs.objectiveToggle:this.refs.moreToggle;button?.focus({preventScroll:true});}
     this.callbacks.onAction('hud-disclosure',{name,open:Boolean(name)});
+    this.layoutDockedPanels();
   }
   closeHudDisclosure(restoreFocus=false){if(this.hudDisclosure)this.setHudDisclosure(null,restoreFocus);}
   hudKeydown(event){
     if(this.hudDisclosure&&event.code==='Escape'){event.preventDefault();event.stopPropagation();this.closeHudDisclosure(true);return;}
     const button=event.target.closest?.('button');
     if(button&&['Space','Enter'].includes(event.code)){event.preventDefault();event.stopPropagation();if(!event.repeat)button.click();return;}
-    if(event.code==='Tab'&&event.target.closest?.('.fg-panel')){event.stopPropagation();return;}
-    if(event.target.matches?.('input,select,textarea')||(event.target.closest?.('.fg-panel')&&!['Escape','Tab','KeyV','KeyU','KeyH','KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight'].includes(event.code)&&!this.state.buildPlacement?.active))event.stopPropagation();
+    const inCard=event.target.closest?.('.fg-recruitment-bubble'),inPanel=event.target.closest?.('.fg-panel');
+    if(event.code==='Tab'&&(inPanel||inCard)){event.stopPropagation();return;}
+    const allowed=['Escape','Tab','KeyV','KeyU','KeyH','KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight'];if(inCard)allowed.push('KeyE');
+    if(event.target.matches?.('input,select,textarea')||((inPanel||inCard)&&!allowed.includes(event.code)&&!this.state.buildPlacement?.active))event.stopPropagation();
   }
   scrollBuildCatalog(direction){
     const catalog=$(this.refs.panel,'.fg-illustrated-build');if(!catalog)return;
@@ -264,8 +275,8 @@ export class GameUI {
       <div class="fg-crosshair" data-ref="crosshair"><i></i><i></i><i></i><i></i><span></span></div>
       <div class="fg-context" data-ref="context" hidden><span data-ref="contextArt"></span><kbd data-ref="contextKey">E</kbd><div class="fg-context-track"><span data-ref="contextBar"></span></div></div>
       <div class="fg-recruit-prompt" data-ref="recruitPrompt" role="status" hidden><strong data-ref="recruitName"></strong><span data-ref="recruitReason"></span><button class="fg-recruit-details" data-action="recruit-inspect">Δες τις απαιτήσεις</button><button class="fg-context-help" data-guide-open="recruit" aria-label="Πώς στρατολογώ;">?</button></div>
+      <section class="fg-recruitment-bubble" data-ref="recruitmentBubble" role="region" aria-label="Απαιτήσεις στρατολόγησης" hidden></section>
       <div class="fg-tactics-dock" data-ref="tacticsDock" aria-label="Αποθηκευμένες ομάδες" hidden></div>
-      <button class="fg-concept-toggle" data-action="concept-toggle" data-ref="conceptToggle" aria-expanded="false" aria-controls="fg-concept-panel" title="Εικόνες και οδηγίες · U"><span>${icon('eye')} Εικόνες</span>${key('U')}</button>
       <aside class="fg-guide-hint fg-concept-panel" id="fg-concept-panel" data-ref="guideHint" aria-label="Εικονογραφημένη οδηγία" hidden></aside>
       <section class="fg-construction-hud" data-ref="constructionHUD" aria-label="Ζωντανή πρόοδος κατασκευών" hidden><button class="fg-construction-heading" data-action="construction-expand" data-ref="constructionToggle" aria-expanded="true" aria-controls="fg-construction-body"><span>${icon('camp')} Κατασκευές <b data-ref="constructionCount"></b></span><span class="fg-construction-heading-progress" data-ref="constructionBrief"></span>${icon('arrow')}</button><div id="fg-construction-body" data-ref="constructionBody"></div></section>
       <section class="fg-selection-dock" data-ref="selectionDock" aria-label="Επιλεγμένη ομάδα"><button class="fg-squad-entry" data-action="open-roster" aria-label="Διοίκηση συμμορίας" title="Διοίκηση συμμορίας · TAB"><span data-ref="squadMode">${pictogram('follow')}</span><span class="fg-squad-caption"><small data-ref="selectionLabel">Ομάδα</small><b data-ref="selectionCount">0</b></span>${gangEmblem('ally')}</button><div class="fg-dock-portraits" data-ref="selectionPortraits"></div></section>
@@ -277,6 +288,7 @@ export class GameUI {
         ${this.actionTile('interact','recruit','E','Αλληλεπίδραση','interact')}
         ${this.actionTile('open-build','camp','V','Κατασκευές')}
         ${this.actionTile('hud-more','more','B','Περισσότερες ενέργειες · B').replace('data-action="hud-more"','data-action="hud-more" data-ref="moreToggle" aria-controls="fg-action-drawer" aria-expanded="false"')}
+        <div class="fg-action-slot"><button class="fg-action-tile fg-concept-nav" data-action="concept-toggle" data-ref="conceptToggle" aria-label="Εικόνες και οδηγίες · U" aria-expanded="false" aria-controls="fg-concept-panel" title="Εικόνες και οδηγίες · U"><span class="fg-action-art fg-concept-nav-art"><img src="./guide/movement.webp" alt="Εικονογραφημένος οδηγός βατράχων" width="40" height="40"></span><span class="fg-action-caption">${captionMarkup('Εικόνες')}</span>${key('U')}<span class="fg-ready-line"></span></button></div>
       </div>
       <section class="fg-action-drawer" data-ref="actionDrawer" id="fg-action-drawer" aria-label="Πρόσθετες ενέργειες" hidden>
         <button class="fg-drawer-close" data-action="hud-close" aria-label="Κλείσιμο πρόσθετων ενεργειών" title="Κλείσιμο">${pictogram('close')}</button>
@@ -311,7 +323,7 @@ export class GameUI {
     if(action==='panel-collapse'){this.setPanelExpanded(!this.panelExpanded);return;}
     if(action==='pause-collapse'){this.setPauseExpanded(!this.pauseExpanded);return;}
     if(action==='concept-toggle'){this.toggleConceptPanels();return;}
-    if(action==='construction-expand'){this.constructionExpanded=!this.constructionExpanded;this.updateConstructionHUD(this.state);return;}
+    if(action==='construction-expand'){this.constructionExpanded=!this.constructionExpanded;this.updateConstructionHUD(this.state);this.layoutDockedPanels();return;}
     if(action==='guide-close'){this.closeGuideCard();return;}
     if(action==='open-guide'){this.openGuideLibrary();return;}
     if(action==='guide-category'){this.guideCategory=target.dataset.category||'all';this.renderPanel(true);return;}
@@ -320,8 +332,8 @@ export class GameUI {
     if(action==='tutorial-dismiss'){this.callbacks.onAction('tutorial-dismiss',{});return;}
     if(action==='open-realm'){this.callbacks.onAction('panel-open',{name:'realm'});return;}
     if(action==='realm-travel'){this.callbacks.onAction('realm-travel',{targetIndex:Number(target.dataset.region)});return;}
-    if(action==='recruit-inspect'){this.callbacks.onAction('panel-open',{name:'recruitment'});return;}
-    if(action==='recruit-target'||action==='recruit-help'){this.callbacks.onAction(action,{id:target.dataset.id});return;}
+    if(action==='recruit-inspect'){this.callbacks.onAction('recruit-inspect',{});return;}
+    if(action==='recruit-target'||action==='recruit-help'||action==='recruit-close'){this.callbacks.onAction(action,{id:target.dataset.id||this.recruitmentTargetId});return;}
     if(action==='camp-specialization'){this.callbacks.onAction(action,{campId:target.dataset.camp,specialization:target.dataset.specialization});return;}
     if(action==='craft-equipment'){this.callbacks.onAction(action,{campId:target.dataset.camp,recipeId:target.dataset.recipe,targetIds:this.state.realmEconomy?.craftTargetIds||[]});return;}
     if(action==='cancel-job'){this.callbacks.onAction(action,{jobId:target.dataset.job});return;}
@@ -411,41 +423,50 @@ export class GameUI {
     this.refs.continueButton.hidden=!hasSave;
     this.refs.newButton.innerHTML=`Νέο παιχνίδι · Μόνος ${icon('arrow')}`;
     this.refs.newButton.classList.toggle('fg-primary',!hasSave);
+    this.closeRecruitmentBubble();this.syncConceptVisibility();
   }
   showPause(paused=true){
     if(paused)this.closeHudDisclosure();
-    if(!paused){this.refs.pause.hidden=true;if(this.menu==='pause')this.menu=null;return;}
+    if(!paused){this.refs.pause.hidden=true;if(this.menu==='pause')this.menu=null;this.layoutDockedPanels();return;}
     this.closePanels();this.guideReturn=null;this.guideBackToBook=false;this.menu='pause';this.refs.pause.hidden=false;this.refs.restartConfirm.hidden=true;
     this.setPauseExpanded(true);
     this.setText('pauseRank',this.state.player?.rank?.title||'Ευγενής');this.setText('pauseAllies',(this.state.allies||[]).length);this.setText('pauseDay',this.state.day||1);
     this.setText('fpsValue',Number.isFinite(this.state.fps)?whole(this.state.fps):'—');
     document.exitPointerLock?.();
+    if(this.refs.recruitmentBubble)this.refs.recruitmentBubble.hidden=true;
+    this.layoutDockedPanels();
   }
   hideMenus(){
     this.closeHudDisclosure();
     for(const name of ['title','pause','ending','panelLayer','loading'])this.refs[name].hidden=true;
     this.panel=null;this.menu=null;this.guideReturn=null;this.guideBackToBook=false;
     this.root.classList.remove('fg-game-panel-open');
+    this.syncConceptVisibility();this.layoutDockedPanels();
   }
   isBlocking(){return Boolean(this.menu);}
-  closePanels(){this.panel=null;this.refs.panelLayer.hidden=true;this.root.classList.remove('fg-game-panel-open');}
+  closePanels(){this.panel=null;this.refs.panelLayer.hidden=true;this.root.classList.remove('fg-game-panel-open');this.syncConceptVisibility();this.layoutDockedPanels();}
   resetPanelScroll(){this.refs.panel.scrollTop=0;const body=$(this.refs.panel,'.fg-live-panel-body');if(body)body.scrollTop=0;}
   setPanelExpanded(expanded){
     this.panelExpanded=Boolean(expanded);this.refs.panel.classList.toggle('is-collapsed',!this.panelExpanded);
     const toggle=$(this.refs.panel,'[data-action="panel-collapse"]');toggle?.setAttribute?.('aria-expanded',String(this.panelExpanded));toggle?.setAttribute?.('aria-label',this.panelExpanded?'Σύμπτυξη πάνελ':'Ανάπτυξη πάνελ');
     const body=$(this.refs.panel,'.fg-live-panel-body');if(body)body.hidden=!this.panelExpanded;
     this.refs.panelLayer.classList.toggle('is-collapsed',!this.panelExpanded);
+    if(this.panelExpanded&&this.narrowPanelViewport()&&this.conceptPanelsOpen&&!['guide','help'].includes(this.panel))this.setConceptPanelsOpen(false);
+    this.layoutDockedPanels();
   }
   setPauseExpanded(expanded){
     this.pauseExpanded=Boolean(expanded);this.refs.pausePanel?.classList.toggle('is-collapsed',!this.pauseExpanded);
     if(this.refs.pauseBody)this.refs.pauseBody.hidden=!this.pauseExpanded;
     this.refs.pauseToggle?.setAttribute?.('aria-expanded',String(this.pauseExpanded));this.refs.pauseToggle?.setAttribute?.('aria-label',this.pauseExpanded?'Σύμπτυξη παύσης':'Ανάπτυξη παύσης');
+    if(this.pauseExpanded&&this.narrowPanelViewport()&&this.conceptPanelsOpen)this.setConceptPanelsOpen(false);
+    this.layoutDockedPanels();
   }
   togglePanel(name,data){if(this.panel===name)this.closePanels();else this.showPanel(name,data);}
   showPanel(name,data){
     this.closeHudDisclosure();
     this.panel=name;this.panelData=data||{};
     this.panelExpanded=true;this.root.classList.add('fg-game-panel-open');
+    if(this.narrowPanelViewport()&&this.conceptPanelsOpen&&!['guide','help'].includes(name))this.setConceptPanelsOpen(false);
     if(name==='build'){this.buildView=['defense','organization','workshop'].includes(data?.view)?data.view:'catalog';this.defenseCampId=data?.campId||this.state.currentCampId||this.defenseCampId;}
     this.refs.pause.hidden=true;
     this.refs.panelLayer.hidden=false;
@@ -457,8 +478,51 @@ export class GameUI {
     this.layoutDockedPanels();
   }
   layoutDockedPanels(){
-    const bounds=$(this.root,'.fg-location')?.getBoundingClientRect?.();
-    if(bounds?.bottom>0)this.root.style.setProperty('--hud-map-bottom',`${Math.ceil(bounds.bottom)+10}px`);
+    this.syncConceptVisibility();
+    this.hudLayout=refreshHUDLayout(this);
+    if(this.recruitmentAnchor)this.updateRecruitmentAnchor(this.recruitmentAnchor);
+  }
+  showRecruitmentBubble(recruitment){
+    const id=recruitment?.targetId??recruitment?.id;if(id==null)return false;
+    this.closeHudDisclosure();
+    if(String(id)!==this.recruitmentTargetId){this.recruitmentSignature=null;this.recruitmentAnchor=null;}
+    this.recruitmentTargetId=String(id);this.recruitmentBubbleOpen=true;
+    this.root.classList.add('fg-recruitment-open');
+    if(this.refs.recruitPrompt)this.refs.recruitPrompt.hidden=true;
+    this.renderRecruitmentBubble(recruitment);
+    if(!this.recruitmentAnchor)this.refs.recruitmentBubble.hidden=true;
+    return true;
+  }
+  closeRecruitmentBubble(){
+    this.recruitmentBubbleOpen=false;this.recruitmentTargetId=null;this.recruitmentAnchor=null;this.recruitmentSignature=null;
+    if(this.refs.recruitmentBubble)this.refs.recruitmentBubble.hidden=true;
+    this.root.classList.remove('fg-recruitment-open');
+  }
+  renderRecruitmentBubble(recruitment=this.state.recruitment){
+    if(!this.recruitmentBubbleOpen||!this.refs.recruitmentBubble)return false;
+    const r=recruitment,bubble=this.refs.recruitmentBubble;
+    if(!r||String(r.targetId??r.id)!==this.recruitmentTargetId){bubble.hidden=true;return false;}
+    const signature=JSON.stringify([r.targetId??r.id,r.name,r.level,r.requirements,r.cost,r.canRecruit,r.helpAvailable,r.helpAccepted,r.quest?.kind,Boolean(this.state.paused)]);
+    if(signature!==this.recruitmentSignature){
+      const active=typeof document!=='undefined'?document.activeElement:null,restore=bubble.contains?.(active)?active?.dataset?.action:null;
+      bubble.innerHTML=recruitmentCardMarkup(r,Boolean(this.state.paused));
+      bubble.setAttribute?.('aria-label',`Απαιτήσεις στρατολόγησης · ${r.name||'Βάτραχος'}`);
+      this.recruitmentSignature=signature;
+      if(restore){const button=$(bubble,`[data-action="${restore}"]`);(button&&!button.disabled?button:$(bubble,'[data-action="recruit-close"]'))?.focus?.({preventScroll:true});}
+    }
+    if(this.recruitmentAnchor)this.updateRecruitmentAnchor(this.recruitmentAnchor);
+    return true;
+  }
+  updateRecruitmentAnchor(anchor){
+    if(!this.recruitmentBubbleOpen||!this.refs.recruitmentBubble)return false;
+    if(anchor?.targetId!=null&&String(anchor.targetId)!==this.recruitmentTargetId)return false;
+    this.recruitmentAnchor=anchor;const bubble=this.refs.recruitmentBubble;
+    if(!anchor?.visible||this.menu||this.state.paused||this.state.buildPlacement?.active){bubble.hidden=true;return false;}
+    const width=anchor.width||globalThis.innerWidth||this.hudLayout?.viewport?.width,height=anchor.height||globalThis.innerHeight||this.hudLayout?.viewport?.height;
+    const placement=placeRecruitmentCard({anchor,viewport:{width,height},size:{width:248,height:Math.max(140,bubble.scrollHeight||224)},occupied:this.hudLayout?.reservedRects||[]});
+    bubble.hidden=!placement.visible;if(!placement.visible)return false;
+    Object.assign(bubble.style,{left:`${placement.left}px`,top:`${placement.top}px`,width:`${placement.width}px`,maxHeight:`${placement.height}px`});
+    bubble.dataset.side=placement.side;return true;
   }
   setPortraits(portraits){
     Object.assign(this.portraits,portraits);
@@ -515,7 +579,7 @@ export class GameUI {
     if(objectiveArt!==this.objectiveArt){this.objectiveArt=objectiveArt;this.refs.objectiveArt.innerHTML=pictogram(objectiveArt);}
     this.refs.objectiveBox.title=typeof state.objective==='string'?state.objective:state.objective?.title||'Στόχοι εκστρατείας';
     const context=state.context||{},contextType=context.type,contextArt=context.actionIcon||{recruit:'recruit',loot:'store','persuade-camp':'persuade',persuade:'persuade',home:'camp',gather:'forage',reeds:'reeds',ally:'group',flies:'tongue'}[contextType]||contextType;
-    if(this.refs.recruitPrompt){this.refs.recruitPrompt.hidden=!['recruit','rally'].includes(contextType)||this.isBlocking()||Boolean(this.hudDisclosure)||Boolean(state.buildPlacement?.active);this.refs.recruitPrompt.classList.toggle('is-unavailable',context.available===false);}
+    if(this.refs.recruitPrompt){this.refs.recruitPrompt.hidden=!['recruit','rally'].includes(contextType)||this.recruitmentBubbleOpen||this.isBlocking()||Boolean(this.hudDisclosure)||Boolean(state.buildPlacement?.active);this.refs.recruitPrompt.classList.toggle('is-unavailable',context.available===false);}
     if(['recruit','rally'].includes(contextType)){this.setText('recruitName',`${context.name||'Βάτραχος'} · E · ${context.actionLabel||'Στρατολόγησε'}`);this.setText('recruitReason',context.reason||'');}
     this.refs.context.hidden=!contextType||contextType==='none'||this.isBlocking();
     this.refs.context.title=materialText(state.hint||context.label||'');this.refs.context.classList.toggle('is-unavailable',context.available===false);
@@ -561,6 +625,7 @@ export class GameUI {
     this.setText('selectionCount',selected.size?`${selected.size} / ${allies.length}`:allies.length);this.refs.selectionDock.hidden=!allies.length;this.setText('selectionLabel',selected.size?'Επιλογή':'Ομάδα');
     this.updateSelectionDock(allies,selected);
     this.updateRealmHUD(state);
+    this.renderRecruitmentBubble(state.recruitment);
     if(state.savedAt&&state.savedAt!==this.savedAt){this.savedAt=state.savedAt;this.refs.saveStatus.hidden=false;clearTimeout(this.saveTimer);this.saveTimer=setTimeout(()=>this.refs.saveStatus.hidden=true,2500);}
     this.updateConstructionHUD(state);
     const now=performance.now();if(now-(this.lastPanelLayout||0)>500){this.layoutDockedPanels();this.lastPanelLayout=now;}if(now-this.lastDraw>100){this.drawMap(this.refs.minimap,state.world||{},false);this.lastDraw=now;if(this.panel==='map'){const canvas=$(this.refs.panel,'canvas');if(canvas)this.drawMap(canvas,state.world||{},true);}}
@@ -733,7 +798,7 @@ export class GameUI {
     return `<button class="fg-guide-link" data-guide-open="${esc(id)}">?<span>${esc(label)}</span></button>`;
   }
   rememberGuideReturn(){
-    if(!this.guideReturn)this.guideReturn={panel:this.panel,menu:this.menu,returnMenu:this.returnMenu||null,panelData:this.panelData,focusElement:typeof document!=='undefined'?document.activeElement:null};
+    if(!this.guideReturn)this.guideReturn={panel:this.panel,menu:this.menu,returnMenu:this.returnMenu||null,panelData:this.panelData,panelExpanded:this.panelExpanded,pauseExpanded:this.pauseExpanded,focusElement:typeof document!=='undefined'?document.activeElement:null};
   }
   openGuideLibrary(){
     this.rememberGuideReturn();this.guideBackToBook=false;this.guideFirstEncounter=false;
@@ -750,12 +815,20 @@ export class GameUI {
   }
   closeGuideCard(){
     if(this.panel==='guide'&&this.guideBackToBook){this.guideBackToBook=false;this.guideFirstEncounter=false;this.showPanel('help');return true;}
-    const previous=this.guideReturn||{panel:null,menu:null},id=this.guideId;
+    const previous=this.guideReturn||{panel:null,menu:null},id=this.guideId,conceptOpen=this.conceptPanelsOpen;
     this.guideReturn=null;this.guideBackToBook=false;this.guideFirstEncounter=false;this.closePanels();
     if(previous.menu==='title')this.showTitle(this.hasSave);
     else if(previous.menu==='pause')this.showPause(true);
     else if(previous.panel&&!['guide','help'].includes(previous.panel))this.showPanel(previous.panel,previous.panelData);
     else this.menu=null;
+    if(this.panel&&previous.panelExpanded!=null)this.setPanelExpanded(previous.panelExpanded);
+    if(this.menu==='pause'&&previous.pauseExpanded!=null)this.setPauseExpanded(previous.pauseExpanded);
+    this.setConceptPanelsOpen(conceptOpen);
+    if(conceptOpen&&this.narrowPanelViewport()){
+      if(this.panel&&!['guide','help'].includes(this.panel))this.setPanelExpanded(false);
+      if(this.menu==='pause')this.setPauseExpanded(false);
+    }
+    this.layoutDockedPanels();
     if(previous.focusElement?.isConnected)previous.focusElement.focus?.({preventScroll:true});
     this.callbacks.onAction('guide-close',{id,returnPanel:previous.panel,returnMenu:previous.menu});
     return true;
@@ -764,17 +837,30 @@ export class GameUI {
     const entry=guideCard(id);if(!entry||!this.refs.guideHint)return false;
     this.lastGuideHintId=id;
     this.refs.guideHint.innerHTML=`<header class="fg-concept-heading"><span>ΕΙΚΟΝΕΣ & ΟΔΗΓΙΕΣ</span><button data-action="guide-hint-close" aria-label="Σύμπτυξη εικονογραφημένων οδηγιών · U">${key('U')}${icon('close')}</button></header><button class="fg-guide-hint-content" data-guide-open="${entry.id}"><img src="${entry.image}" alt="${esc(entry.title)}" loading="lazy"><span><strong>${esc(entry.title)}</strong><em>${esc(entry.subtitle)}</em><span class="fg-concept-keys">${entry.keys.map(key).join('')}</span><b>Βήματα & λεπτομέρειες ${icon('arrow')}</b></span></button><p class="fg-concept-tip">${esc(entry.tip)}</p>`;
-    this.refs.guideHint.hidden=!this.conceptPanelsOpen;
+    this.syncConceptVisibility();
     this.refs.conceptToggle?.setAttribute?.('title',`Εικόνες και οδηγίες · ${entry.title} · U`);
     return true;
   }
   toggleConceptPanels(force){
-    this.conceptPanelsOpen=typeof force==='boolean'?force:!this.conceptPanelsOpen;
-    this.refs.conceptToggle?.setAttribute?.('aria-expanded',String(this.conceptPanelsOpen));
+    const open=typeof force==='boolean'?force:this.hudDisclosure?true:!this.conceptPanelsOpen;
+    if(open)this.closeHudDisclosure();
+    this.setConceptPanelsOpen(open);
+    if(this.conceptPanelsOpen&&this.narrowPanelViewport()){
+      if(this.panel&&!['help','guide'].includes(this.panel))this.setPanelExpanded(false);
+      if(this.menu==='pause')this.setPauseExpanded(false);
+    }
     this.showGuideHint(this.lastGuideHintId||this.guideId||'movement');
     this.layoutDockedPanels();
     this.callbacks.onAction('hud-disclosure',{name:'concepts',open:this.conceptPanelsOpen});
     return this.conceptPanelsOpen;
+  }
+  narrowPanelViewport(){const width=Number(globalThis.innerWidth);return width>0&&width<590;}
+  setConceptPanelsOpen(open){
+    this.conceptPanelsOpen=Boolean(open);this.refs.conceptToggle?.setAttribute?.('aria-expanded',String(this.conceptPanelsOpen));
+    this.syncConceptVisibility();
+  }
+  syncConceptVisibility(){
+    if(this.refs.guideHint)this.refs.guideHint.hidden=!this.conceptPanelsOpen||Boolean(this.hudDisclosure)||['guide','help'].includes(this.panel)||this.menu==='title'||Boolean(this.state.buildPlacement?.active);
   }
   guideCardMarkup(){
     const entry=guideCard(this.guideId)||GUIDE_CARDS[0],category=GUIDE_CATEGORIES.find(c=>c.id===entry.category)?.label||'Οδηγός';
@@ -999,7 +1085,8 @@ export class GameUI {
     this.refs.endingContinue.hidden=!victory;
     const metrics=[['Ημέρες',stats.days||stats.day||1],['Μύγες',stats.fliesCaught||stats.flies||0],['Στρατολογήσεις',stats.recruited||0],['Οχυρά',stats.campsCaptured||stats.camps||0],['Θηρευτές',stats.predatorsKilled||stats.predators||0]];
     this.refs.endingStats.innerHTML=metrics.map(([label,value])=>`<div><b>${whole(value)}</b><span>${label}</span></div>`).join('');
+    this.layoutDockedPanels();
   }
-  destroy(){this.abort.abort();clearTimeout(this.saveTimer);cancelAnimationFrame(this.dragVisibilityFrame);this.root.remove();}
+  destroy(){this.abort.abort();clearTimeout(this.saveTimer);cancelAnimationFrame(this.dragVisibilityFrame);cancelAnimationFrame(this.layoutFrame);this.layoutObserver?.disconnect();this.root.remove();}
 }
 

@@ -64,3 +64,16 @@ test('panel keyboard traversal stays in the browser and held Enter does not repe
   const tab=event('Tab');ui.hudKeydown(tab);assert.equal(tab.stopped,true);assert.equal(tab.prevented,false);
   for(const code of ['KeyU','KeyH','KeyW','KeyA','KeyS','KeyD']){const e=event(code);ui.hudKeydown(e);assert.equal(e.stopped,false,code);}
 });
+
+test('a narrow guide temporarily hides U and restores its current preference and collapsed panel without resuming Pause',t=>{
+  const beforeWidth=globalThis.innerWidth,beforeHeight=globalThis.innerHeight;globalThis.innerWidth=390;globalThis.innerHeight=844;
+  t.after(()=>{if(beforeWidth===undefined)delete globalThis.innerWidth;else globalThis.innerWidth=beforeWidth;if(beforeHeight===undefined)delete globalThis.innerHeight;else globalThis.innerHeight=beforeHeight;});
+  const {ui}=fixture(t);
+  for(const paused of [false,true]){
+    ui.hideMenus();if(paused)ui.showPause(true);else ui.showPanel('build');
+    ui.toggleConceptPanels(true);assert.equal(paused?ui.pauseExpanded:ui.panelExpanded,false);
+    ui.openGuideLibrary();assert.equal(ui.conceptPanelsOpen,true);assert.equal(ui.refs.guideHint.hidden,true);
+    ui.closeGuideCard();assert.equal(ui.conceptPanelsOpen,true);assert.equal(ui.refs.guideHint.hidden,false);assert.equal(paused?ui.pauseExpanded:ui.panelExpanded,false);assert.equal(ui.isBlocking(),paused);
+    ui.openGuideLibrary();ui.toggleConceptPanels(false);ui.closeGuideCard();assert.equal(ui.conceptPanelsOpen,false);assert.equal(ui.refs.guideHint.hidden,true);assert.equal(ui.isBlocking(),paused);
+  }
+});

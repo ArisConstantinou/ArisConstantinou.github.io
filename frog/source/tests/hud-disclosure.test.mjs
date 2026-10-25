@@ -33,11 +33,19 @@ const state=resources=>({
   campaign:{phase:'settlement',objectives:[{id:'food',icon:'fly',current:30,target:30,done:true},{id:'reeds',icon:'reeds',current:7.8,target:45,done:false,label:'Υλικά κατασκευής'}]}
 });
 
-test('default HUD exposes seven essentials including intimidation and keeps detailed goals/actions hidden but reachable',()=>{
+test('default HUD exposes eight essentials including illustrated U guidance and keeps detailed goals/actions hidden but reachable',()=>{
   const {html}=fixture();
   const primary=html.slice(html.indexOf('fg-primary-actions'),html.indexOf('<section class="fg-action-drawer"'));
-  assert.equal([...primary.matchAll(/data-action="/g)].length,7);
-  for(const action of ['primary-attack','special-attack','intimidate','dodge','interact','open-build','hud-more'])assert.ok(primary.includes('data-action="'+action+'"'));
+  assert.equal([...primary.matchAll(/data-action="/g)].length,8);
+  for(const action of ['primary-attack','special-attack','intimidate','dodge','interact','open-build','hud-more','concept-toggle'])assert.ok(primary.includes('data-action="'+action+'"'));
+  const concepts=[...primary.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/g)].map(match=>match[0]).find(button=>button.includes('data-action="concept-toggle"'));
+  assert.ok(concepts,'U guidance belongs to the same bottom action bar');
+  assert.match(concepts,/class="[^"]*\bfg-action-tile\b/);
+  assert.match(concepts,/<kbd>U<\/kbd>/);
+  assert.match(concepts,/<img\b[^>]*src="\.\/guide\/movement\.webp"/);
+  assert.match(concepts,/aria-expanded="false"/);
+  assert.equal([...html.matchAll(/data-action="concept-toggle"/g)].length,1);
+  assert.doesNotMatch(html,/class="[^"]*\bfg-concept-toggle\b/);
   assert.match(html,/data-ref="objectiveToggle" aria-expanded="false" aria-controls="fg-objective-details"/);
   assert.match(html,/data-ref="moreToggle" aria-controls="fg-action-drawer" aria-expanded="false"/);
   assert.match(html,/data-ref="objectiveDetails" id="fg-objective-details" hidden/);

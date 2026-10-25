@@ -28,6 +28,7 @@ test('aiming at a specific nearby neutral recruits that frog even with another f
   game.frogs.push(nearest,chosen);game.world.hotspots.push(swarm);game.aimTarget={kind:'actor',entity:chosen};
   const context=game.context();assert.equal(context.entity,chosen);assert.deepEqual(context.cost,{food:4});
   assert.equal(context.available,true);assert.equal(context.chance,1);
+  assert.equal(game.interact(),true);assert.equal(chosen.team,'neutral');assert.equal(game.activeRecruitId,chosen.id);assert.equal(game.resources.food,100);
   assert.equal(game.interact(),true);assert.equal(chosen.team,'ally');assert.equal(nearest.team,'neutral');
   assert.equal(chosen.order,'follow');assert.equal(chosen.guard,false);assert.equal(game.resources.food,96);assert.equal(swarm.flies,10);
 });
@@ -46,8 +47,9 @@ test('insufficient recruitment resources are explained and never charged',()=>{
   const {game,messages}=fixture(),neutral=actor({id:'neutral',team:'neutral',x:1});
   game.resources.food=3.7;game.frogs.push(neutral);game.aimTarget={kind:'actor',entity:neutral};
   const context=game.context();assert.equal(context.available,false);assert.equal(context.reason,'Λείπουν 1 τροφή');
-  assert.equal(game.interact(),false);assert.equal(neutral.team,'neutral');assert.equal(game.resources.food,3.7);
-  assert.equal(messages.at(-1)[0].label,'Λείπουν 1 τροφή');
+  assert.equal(game.interact(),true);assert.equal(game.activeRecruitId,neutral.id);assert.equal(neutral.team,'neutral');assert.equal(game.resources.food,3.7);
+  assert.equal(game.recruitmentSnapshot(neutral).reason,'Λείπουν 1 τροφή');
+  assert.equal(game.recruitmentSnapshot(neutral).canRecruit,false);
 });
 
 test('an aimed active enemy exposes persuasion chance and a refused offer costs no food',()=>{
