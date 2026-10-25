@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { Water } from 'three/addons/objects/Water.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { EXTRA_HUT_FOOTPRINT } from './placement-rules.js';
-import { WORLD_SCALE, WORLD_RADIUS, WORLD_BOUNDARY, WORLD_REVISION, SHELTER_SCALE, SHELTER_LAYOUT_SCALE, SHELTER_RADIUS } from './world-config.js';
+import { WORLD_SCALE, WORLD_RADIUS, WORLD_BOUNDARY, WORLD_REVISION, SHELTER_SCALE, SHELTER_LAYOUT_SCALE, SHELTER_RADIUS, CASTLE_GROUND_RADIUS, ISLAND_TERRACE_RADIUS, CASTLE_BANK_BLEND } from './world-config.js';
 import { FORT_RADIUS, GATE_WIDTH, WALL_HEIGHT, WALL_THICKNESS } from './fortification.js';
 export { SHELTER_SCALE, SHELTER_RADIUS } from './world-config.js';
 
@@ -158,8 +158,8 @@ function spatialBatch(geometry,material,records,name,{castShadow=false,receiveSh
 
 export function createWorld(scene, renderer, options={}) {
   const seed=options.seed??731,random=rng(seed),group=new THREE.Group();group.name='The living creek';scene.add(group);
-  const platforms=[],hotspots=[],shelters=new Set(),buildingPreviews=new Set(),disposables=[],buckets=new Map(),bucketSize=6;let buildArea=null;
-  const renderStats={reflectionRenders:0,reflectionSkips:0,flyMatricesUpdated:0,spatialChunks:0};
+  const platforms=[],hotspots=[],shelters=new Set(),castleTerraces=new Map(),buildingPreviews=new Set(),disposables=[],buckets=new Map(),bucketSize=6;let buildArea=null;
+  const renderStats={reflectionRenders:0,reflectionSkips:0,flyMatricesUpdated:0,spatialChunks:0,terrainUpdates:0};
   const skyColor=new THREE.Color('#8aaab0'),fogColor=new THREE.Color('#819e91');
   if(!scene.fog)scene.fog=new THREE.FogExp2(fogColor,.0042);
   const stoneMap=stoneTexture(seed),mossMap=stoneTexture(seed+9,true),leafMap=leafTexture(seed),normals=waterNormals(seed);
@@ -194,7 +194,7 @@ export function createWorld(scene, renderer, options={}) {
   // Room for a real communal camp, its walkable courtyard and purchased wings.
   // The soft irregular shore still leaves a water route between neighbouring sites.
   const islandLevels={home:.65,mudfang:2.7,redreed:4.1,mossjaw:1.8,blackpool:5.2,thornback:7.1,oldwillow:2.9,quietbend:1.2,foxglove:2.1,reedcrossing:1.7,longreed:2.5,eastshallows:3.4};
-  for(const site of campSites){site.x*=WORLD_SCALE;site.z*=WORLD_SCALE;site.radius=Math.max(28,site.radius*(site.id==='thornback'?5.1:4.1));site.elevation=islandLevels[site.id];}
+  for(const site of campSites){site.x*=WORLD_SCALE;site.z*=WORLD_SCALE;site.radius=Math.max(36,site.radius*(site.id==='thornback'?5.8:4.9));site.elevation=islandLevels[site.id];}
   campSites.find(s=>s.id==='thornback').stronghold=true;
   const mapRegions=[
     {id:'haven',name:'Απάνεμη Όχθη',x:0,z:12,radius:30,tint:'#77965d'},
@@ -222,10 +222,19 @@ export function createWorld(scene, renderer, options={}) {
     h+=smooth(105,132,Math.abs(nz))*4.8;
     let clearing=null,clearingWeight=0;
     for(const site of campSites){const dx=(x-site.x),dz=(z-site.z),d=Math.hypot(dx,dz);const edge=site.radius*(1+.05*Math.sin(Math.atan2(dz,dx)*5+site.x));
-      if(d<edge+7){const terrace=SHELTER_RADIUS+1.7,island=site.elevation-smooth(terrace,edge+7,d)*(site.elevation+2.8);h=Math.max(h,island);const weight=1-smooth(terrace,terrace+8,d);if(weight>clearingWeight){clearing=site;clearingWeight=weight;}}}
+      if(d<edge+7){const terrace=ISLAND_TERRACE_RADIUS,island=site.elevation-smooth(terrace,edge+7,d)*(site.elevation+2.8);h=Math.max(h,island);const weight=1-smooth(terrace,terrace+8,d);if(weight>clearingWeight){clearing=site;clearingWeight=weight;}}}
     // Cut a buildable terrace into a neighbouring ridge, then blend it back
     // over a broad ramp. A bank must never protrude through a shelter floor.
     if(clearing)h=h*(1-clearingWeight)+clearing.elevation*clearingWeight;
+    // Saved and freely placed castles may not sit on an authored island centre.
+    // Their actual footprint receives the same real earth terrace as the model,
+    // so a valid land centre can never leave the perimeter hanging in the air.
+    let castle=null,castleWeight=0,nearest=Infinity;
+    for(const terrace of castleTerraces.values()){
+      const d=Math.hypot(x-terrace.x,z-terrace.z),weight=1-smooth(CASTLE_GROUND_RADIUS,CASTLE_GROUND_RADIUS+CASTLE_BANK_BLEND,d);
+      if(weight>castleWeight||(weight===castleWeight&&weight>0&&d<nearest)){castle=terrace;castleWeight=weight;nearest=d;}
+    }
+    if(castle){const supported=h*(1-castleWeight)+castle.elevation*castleWeight;h=castleWeight===1?castle.elevation:Math.max(h,supported);}
     return h;
   }
   const terrainGeo=new THREE.PlaneGeometry(270*WORLD_SCALE,270*WORLD_SCALE,216,216);terrainGeo.rotateX(-Math.PI/2);
@@ -233,6 +242,22 @@ export function createWorld(scene, renderer, options={}) {
   for(let i=0;i<tp.count;i++){const x=tp.getX(i),z=tp.getZ(i),h=bedHeight(x,z);tp.setY(i,h);const c=deep.clone().lerp(wet,smooth(-1.7,.05,h)).lerp(earth,smooth(.02,2,h));c.multiplyScalar(.88+noise(x*2,z*2)*.18);c.toArray(tcolors,i*3);}
   terrainGeo.setAttribute('color',new THREE.BufferAttribute(tcolors,3));terrainGeo.computeVertexNormals();
   mossMap.repeat.set(44*WORLD_SCALE,44*WORLD_SCALE);const terrain=new THREE.Mesh(terrainGeo,materials.terrain);terrain.receiveShadow=true;terrain.name='Creek bed and island banks';group.add(terrain);
+  // Walk the actual triangles, including rebuilt banks. Sampling a separate
+  // analytic curve made frogs float or sink where the coarse grid slopes.
+  const terrainHalf=135*WORLD_SCALE,terrainStep=270*WORLD_SCALE/216,terrainStride=217;
+  function terrainHeight(x,z){
+    const gx=THREE.MathUtils.clamp((x+terrainHalf)/terrainStep,0,216),gz=THREE.MathUtils.clamp((z+terrainHalf)/terrainStep,0,216),ix=Math.min(215,Math.floor(gx)),iz=Math.min(215,Math.floor(gz)),u=gx-ix,v=gz-iz,a=iz*terrainStride+ix,b=a+terrainStride;
+    const h00=tp.getY(a),h10=tp.getY(a+1),h01=tp.getY(b),h11=tp.getY(b+1);
+    return u+v<=1?h00+u*(h10-h00)+v*(h01-h00):h11+(1-u)*(h01-h11)+(1-v)*(h10-h11);
+  }
+  function refreshTerrain(terrace){
+    const reach=CASTLE_GROUND_RADIUS+CASTLE_BANK_BLEND+terrainStep*2;
+    for(let i=0;i<tp.count;i++){
+      const x=tp.getX(i),z=tp.getZ(i);if(Math.abs(x-terrace.x)>reach||Math.abs(z-terrace.z)>reach)continue;
+      const h=bedHeight(x,z);tp.setY(i,h);const c=deep.clone().lerp(wet,smooth(-1.7,.05,h)).lerp(earth,smooth(.02,2,h));c.multiplyScalar(.88+noise(x*2,z*2)*.18);c.toArray(tcolors,i*3);
+    }
+    tp.needsUpdate=true;terrainGeo.attributes.color.needsUpdate=true;terrainGeo.computeVertexNormals();terrainGeo.computeBoundingBox();terrainGeo.computeBoundingSphere();renderStats.terrainUpdates++;
+  }
   // Separate moss texture scale for rock outcrops, so the bed can tile densely.
   const rockMoss=stoneTexture(seed+9,true);disposables.push(rockMoss);materials.mossRock.map=rockMoss;materials.compost.map=rockMoss;materials.darkFruit.map=rockMoss;
 
@@ -315,7 +340,7 @@ export function createWorld(scene, renderer, options={}) {
   const windUniform={value:0};materials.plant.onBeforeCompile=shader=>{shader.uniforms.uCreekTime=windUniform;shader.vertexShader='uniform float uCreekTime;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed.x += sin(uCreekTime * 1.1 + position.y * 2.3 + instanceMatrix[3].x * .13 + instanceMatrix[3].z * .17) * pow(max(position.y, 0.0), 1.6) * .035;');};
   materials.plant.customProgramCacheKey=()=> 'creek-wind-1';
 
-  function surface(x,z){let h=bedHeight(x,z),type=h>-.1?'land':'water',chosen=null;if(h<=-.1)h=-.25;const near=buckets.get(Math.floor(x/bucketSize)+':'+Math.floor(z/bucketSize))||[];
+  function surface(x,z){let h=terrainHeight(x,z),type=h>-.1?'land':'water',chosen=null;if(h<=-.1)h=-.25;const near=buckets.get(Math.floor(x/bucketSize)+':'+Math.floor(z/bucketSize))||[];
     for(const p of near){if(p.type==='land')continue;const d=Math.hypot(x-p.x,z-p.z);if(d<=p.radius){let ph=p.y;if(p.type==='rock')ph-=smooth(p.radius*.62,p.radius,d)*.14*p.scaleY;if(ph>h){h=ph;type=p.type==='shelter'?'land':p.type;chosen=p;}}}
     return {height:h,type,platform:chosen};}
   function sampleHeight(x,z){return surface(x,z).height;}
@@ -324,12 +349,12 @@ export function createWorld(scene, renderer, options={}) {
   // Original hotspot ids remain stable for saves. New contested lures are
   // appended, and the starter lure stays within a few hops of the spawn pad.
   const spotSpecs=[{x:4.5/WORLD_SCALE,z:-4/WORLD_SCALE,rich:false},{x:-10,z:12,rich:true},{x:15,z:-20,rich:false},{x:-25,z:-23,rich:true},{x:26,z:-47,rich:true},{x:-17,z:40,rich:true},{x:27,z:69,rich:true},{x:-4,z:-81,rich:true},{x:-34,z:86,rich:true},{x:23,z:26,rich:false},{x:-33,z:7,rich:false},{x:4,z:51,rich:false},{x:9,z:-59,rich:false},{x:-12,z:76,rich:false},{x:39,z:-4,rich:false},{x:-42,z:-59,rich:true},{x:7,z:-39,rich:true},{x:0,z:63,rich:true},{x:53,z:33,rich:true},{x:-24,z:17,rich:false},{x:17,z:-70,rich:false},{x:18,z:90,rich:true}].map(s=>({...s,x:s.x*WORLD_SCALE,z:s.z*WORLD_SCALE}));
-  const fruitInstances=[],compostGeos=[],litterGroup=new THREE.Group();group.add(litterGroup);
+  const fruitInstances=[],spotMounds=[],compostGeos=[],litterGroup=new THREE.Group();group.add(litterGroup);
   for(let i=0;i<spotSpecs.length;i++){
     const s=spotSpecs[i],base=bedHeight(s.x,s.z);if(base<-.15)addRock(s.x,s.z,s.rich?3.2:2.2,.62);
     const h=sampleHeight(s.x,s.z),spot={id:'flies-'+i,x:s.x,z:s.z,y:h+.25,flies:s.rich?240:100,maxFlies:s.rich?240:100,rich:s.rich};hotspots.push(spot);
-    const mound=new THREE.Mesh(rockGeos[i%3],materials.compost);mound.position.set(s.x,h+.05,s.z);mound.scale.set(s.rich?1.7:1.05,.28,s.rich?1.25:.75);mound.rotation.y=random()*TAU;group.add(mound);
-    for(let j=0;j<(s.rich?12:6);j++){const a=random()*TAU,r=random()*(s.rich?1.5:.85);fruitInstances.push({x:s.x+Math.cos(a)*r,y:h+.12+random()*.16,z:s.z+Math.sin(a)*r,scale:.12+random()*.18,rot:random()*TAU});}
+    const mound=new THREE.Mesh(rockGeos[i%3],materials.compost);mound.position.set(s.x,h+.05,s.z);mound.scale.set(s.rich?1.7:1.05,.28,s.rich?1.25:.75);mound.rotation.y=random()*TAU;group.add(mound);spotMounds.push(mound);
+    for(let j=0;j<(s.rich?12:6);j++){const a=random()*TAU,r=random()*(s.rich?1.5:.85),offset=.12+random()*.16;fruitInstances.push({spot:i,groundOffset:offset,x:s.x+Math.cos(a)*r,y:h+offset,z:s.z+Math.sin(a)*r,scale:.12+random()*.18,rot:random()*TAU});}
     for(let j=0;j<3;j++){const a=random()*TAU,len=.7+random()*.8;const branch=tube([[0,0,0],[len*.5,.02,.06],[len,.04,.14]],.035,materials.bark,4);branch.position.set(s.x+(random()-.5)*1.6,h+.1,s.z+(random()-.5)*1.6);branch.rotation.y=a;litterGroup.add(branch);compostGeos.push(branch.geometry);}
   }
   mergeStaticParts(litterGroup,compostGeos);
@@ -408,7 +433,7 @@ export function createWorld(scene, renderer, options={}) {
     }
     for(let i=0;i<16;i++){
       const a=i/16*TAU,x=Math.cos(a)*5.1,z=Math.sin(a)*5.1;
-      const ground=(bedHeight(s.position.x+(x*Math.cos(yaw)+z*Math.sin(yaw))*SHELTER_SCALE,s.position.z+(z*Math.cos(yaw)-x*Math.sin(yaw))*SHELTER_SCALE)-s.position.y)/SHELTER_SCALE;
+      const ground=(terrainHeight(s.position.x+(x*Math.cos(yaw)+z*Math.sin(yaw))*SHELTER_SCALE,s.position.z+(z*Math.cos(yaw)-x*Math.sin(yaw))*SHELTER_SCALE)-s.position.y)/SHELTER_SCALE;
       const post=tube([[x,Math.min(-.18,ground-.15),z],[x+.03,-.35,z-.02],[x,-.08,z]],.095,materials.bark,5);owned.push(post.geometry);foundation.add(post);
     }
     mergeStaticParts(foundation,owned);s.add(foundation);s.userData.foundation=foundation;
@@ -494,11 +519,37 @@ export function createWorld(scene, renderer, options={}) {
     }
     mergeStaticParts(body,owned);keep.add(body);return keep;
   }
+  function refreshGroundDecor(terrace){
+    const reach=CASTLE_GROUND_RADIUS+CASTLE_BANK_BLEND+3,near=p=>Math.hypot(p.x-terrace.x,p.z-terrace.z)<reach;
+    const inCourtyard=p=>[...castleTerraces.values()].some(t=>Math.hypot(p.x-t.x,p.z-t.z)<CASTLE_GROUND_RADIUS-2);
+    vegetation.forEach((p,i)=>{if(!near(p))return;object.position.set(p.x,terrainHeight(p.x,p.z),p.z);object.rotation.set(0,p.angle,0);object.scale.set(.65+p.scale*.25,p.scale,.65+p.scale*.25);if(inCourtyard(p))object.scale.setScalar(0);object.updateMatrix();reedMesh.setMatrixAt(i,object.matrix);});reedMesh.finish();
+    cattails.forEach((p,i)=>{if(!near(p))return;object.position.set(p.x+.12,terrainHeight(p.x,p.z),p.z);object.rotation.set(0,p.angle,0);object.scale.setScalar(inCourtyard(p)?0:.7+p.scale*.4);object.updateMatrix();catMesh.setMatrixAt(i,object.matrix);});catMesh.finish();
+    hotspots.forEach((spot,i)=>{if(!near(spot))return;spot.y=surface(spot.x,spot.z).height+.25;spotMounds[i].position.y=spot.y-.2;spotMounds[i].updateMatrix();});
+    fruitInstances.forEach((p,i)=>{if(!near(p))return;object.position.set(p.x,hotspots[p.spot].y-.25+p.groundOffset,p.z);object.rotation.set(.3,p.rot,.2);object.scale.setScalar(p.scale);object.updateMatrix();fruitMesh.setMatrixAt(i,object.matrix);});fruitMesh.instanceMatrix.needsUpdate=true;fruitMesh.computeBoundingBox();fruitMesh.computeBoundingSphere();
+  }
+  function shelterLandHeight(x,z){
+    for(const terrace of castleTerraces.values())if(Math.hypot(terrace.x-x,terrace.z-z)<.01)return terrace.elevation;
+    const authored=campSites.find(site=>Math.hypot(site.x-x,site.z-z)<.01);
+    let elevation=authored?Math.fround(authored.elevation):Math.max(.35,sampleHeight(x,z));
+    if(!authored){
+      // Place the floor above every triangle in the footprint, including a
+      // neighbouring slope, then fill the bank beneath it. This never relies
+      // on an invisible support disc below otherwise floating walls.
+      const reach=CASTLE_GROUND_RADIUS+terrainStep,minX=Math.max(0,Math.floor((x-reach+terrainHalf)/terrainStep)),maxX=Math.min(216,Math.ceil((x+reach+terrainHalf)/terrainStep)),minZ=Math.max(0,Math.floor((z-reach+terrainHalf)/terrainStep)),maxZ=Math.min(216,Math.ceil((z+reach+terrainHalf)/terrainStep));
+      for(let row=minZ;row<=maxZ;row++)for(let col=minX;col<=maxX;col++){const i=row*terrainStride+col;if(Math.hypot(tp.getX(i)-x,tp.getZ(i)-z)<=reach)elevation=Math.max(elevation,tp.getY(i));}
+    }
+    return elevation;
+  }
+  function addCastleLand(data){
+    const elevation=shelterLandHeight(data.x,data.z);
+    const terrace={id:data.id,x:data.x,z:data.z,elevation};castleTerraces.set(data.id,terrace);refreshTerrain(terrace);refreshGroundDecor(terrace);return terrace;
+  }
   function createShelter(data,buildOptions={}){
     const preview=!!buildOptions.preview;
-    const s=new THREE.Group();s.name='Shelter '+(data.id??'');s.position.set(data.x,preview?0:sampleHeight(data.x,data.z),data.z);s.scale.setScalar(SHELTER_SCALE);s.userData.id=data.id;s.userData.radius=SHELTER_RADIUS;s.userData.owned=[];const owned=s.userData.owned;
+    const terrace=preview?null:addCastleLand(data);
+    const s=new THREE.Group();s.name='Shelter '+(data.id??'');s.position.set(data.x,terrace?.elevation??0,data.z);s.scale.setScalar(SHELTER_SCALE);s.userData.id=data.id;s.userData.radius=SHELTER_RADIUS;s.userData.owned=[];s.userData.terrain=terrace;const owned=s.userData.owned;
     buildFoundation(s,owned,Number.isFinite(data.yaw)?data.yaw:0);
-    if(!preview)s.userData.support=insertPlatform({id:'shelter-'+data.id,type:'shelter',x:data.x,z:data.z,y:s.position.y+.11,radius:SHELTER_RADIUS-.2});
+    if(!preview){s.userData.support=insertPlatform({id:'shelter-'+data.id,type:'shelter',x:data.x,z:data.z,y:s.position.y+.11,radius:SHELTER_RADIUS-.2});s.userData.landmark=insertPlatform({id:'castle-land-'+data.id,type:'land',x:data.x,z:data.z,y:s.position.y,radius:CASTLE_GROUND_RADIUS+CASTLE_BANK_BLEND*.45});}
     buildFortifications(s,data,owned);
     const core=buildKeep(owned);core.position.set(-.55,.04,-.5);s.add(core);s.userData.core=core;
     s.userData.keepCollision={rects:core.userData.groundWalls.map(r=>({minX:(r.minX+core.position.x)*SHELTER_SCALE,maxX:(r.maxX+core.position.x)*SHELTER_SCALE,minZ:(r.minZ+core.position.z)*SHELTER_SCALE,maxZ:(r.maxZ+core.position.z)*SHELTER_SCALE,height:(r.height+core.position.y)*SHELTER_SCALE})),door:{x:core.position.x*SHELTER_SCALE,z:(core.position.z+1.64)*SHELTER_SCALE}};
@@ -599,7 +650,7 @@ export function createWorld(scene, renderer, options={}) {
     s.userData.lamp.visible=!destroyed;if(destroyed)s.userData.light.visible=false;
     s.userData.collisionRevision=(s.userData.collisionRevision||0)+1;
   }
-  function removeShelter(s){if(!s)return;if(buildArea?.userData.camp===s)hideBuildArea();group.remove(s);shelters.delete(s);const support=s.userData.support;if(support){const at=platforms.indexOf(support);if(at>=0)platforms.splice(at,1);for(const list of buckets.values()){const i=list.indexOf(support);if(i>=0)list.splice(i,1);}}s.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const d of s.userData.owned||[])d.dispose?.();}
+  function removeShelter(s){if(!s)return;if(buildArea?.userData.camp===s)hideBuildArea();group.remove(s);shelters.delete(s);for(const support of [s.userData.support,s.userData.landmark])if(support){const at=platforms.indexOf(support);if(at>=0)platforms.splice(at,1);for(const list of buckets.values()){const i=list.indexOf(support);if(i>=0)list.splice(i,1);}}const terrace=s.userData.terrain;if(terrace){castleTerraces.delete(terrace.id);refreshTerrain(terrace);refreshGroundDecor(terrace);}s.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const d of s.userData.owned||[])d.dispose?.();}
 
   /** Real construction geometry, built once per placement session, with no support/collision registration. */
   function createBuildingPreview(type){
@@ -689,6 +740,6 @@ export function createWorld(scene, renderer, options={}) {
   // Authored terrain and vegetation never move as objects. Dynamic motion uses
   // instance buffers/shaders; castles added later retain their movable pivots.
   group.traverse(o=>{o.updateMatrix();o.matrixAutoUpdate=false;});group.updateMatrixWorld(true);
-  return {group,platforms,hotspots,campSites,mapRegions,routes,predatorAnchors,bossAnchors,renderStats,radius:WORLD_RADIUS,boundary:WORLD_BOUNDARY,revision:WORLD_REVISION,sampleHeight,getTerrainHeight:bedHeight,getSurface:surface,update,splash,impact,createShelter,updateShelter,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE};
+  return {group,platforms,hotspots,campSites,mapRegions,routes,predatorAnchors,bossAnchors,renderStats,radius:WORLD_RADIUS,boundary:WORLD_BOUNDARY,revision:WORLD_REVISION,sampleHeight,getTerrainHeight:terrainHeight,getSurface:surface,shelterLandHeight,update,splash,impact,createShelter,updateShelter,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE};
 }
 

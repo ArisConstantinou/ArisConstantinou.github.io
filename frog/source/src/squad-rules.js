@@ -26,6 +26,37 @@ export function recruitmentOffer(frog, camp = null) {
   return result(true, false, 6, 'persuade');
 }
 
+/** Social interaction reaches nearby frogs without requiring a pixel-perfect body hit. */
+export const RECRUIT_RANGE = 7;
+export const RECRUIT_PREVIEW_RANGE = 14;
+
+/**
+ * An unarmed frog in front of the player remains approachable in a crowd.
+ * Exact body/fly aims are handled by the caller before this fallback. Ordinary
+ * enemies are intentionally excluded: looking near one must not replace combat
+ * with diplomacy. The caller supplies the actual fortification line-of-sight.
+ */
+export function passiveRecruitTarget(player, frogs, camps = [], {yaw = player?.yaw || 0, isReachable = () => true} = {}) {
+  if (!player || !Number.isFinite(player.x) || !Number.isFinite(player.z)) return null;
+  const homes = new Map(camps.map(camp => [camp.id, camp]));
+  const forwardX = Math.sin(yaw), forwardZ = Math.cos(yaw);
+  let best = null, bestPriority = Infinity, bestScore = Infinity;
+  for (const frog of frogs) {
+    if (frog === player || !Number.isFinite(frog?.x) || !Number.isFinite(frog?.z)) continue;
+    const camp = homes.get(frog.home), offer = recruitmentOffer(frog, camp);
+    if (!offer.eligible || !offer.guaranteed) continue;
+    const dx = frog.x - player.x, dz = frog.z - player.z, distance = Math.hypot(dx, dz);
+    if (distance > RECRUIT_RANGE) continue;
+    const facing = distance > 0.001 ? (dx * forwardX + dz * forwardZ) / distance : 1;
+    if (distance > 3 && facing < 0.72 || !isReachable(frog, camp)) continue;
+    const priority = facing >= 0.72 ? 0 : 1, score = distance + (1 - facing) * 3;
+    if (priority < bestPriority || priority === bestPriority && score < bestScore) {
+      best = frog; bestPriority = priority; bestScore = score;
+    }
+  }
+  return best;
+}
+
 export function canHuntForRecovery(frog) {
   return alive(frog) && (finite(frog.stomach) < stomachLimit(frog) || finite(frog.hp) < healthLimit(frog));
 }

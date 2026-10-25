@@ -19,9 +19,9 @@ function validateStage(game,p){
   if(!canAfford(game.resources,BUILDINGS[p.type].cost))return {valid:false,reason:'resources'};
   if(!Number.isFinite(p.x)||!Number.isFinite(p.z)||!p.hasPoint)return {valid:false,reason:'invalid-position'};
   if(p.type==='shelter'){
-    if(Math.abs(p.x)>WORLD_BOUNDARY-SHELTER_RADIUS||Math.abs(p.z)>WORLD_BOUNDARY-SHELTER_RADIUS)return {valid:false,reason:'outside-world'};
     const ruin=game.camps.find(c=>c.destroyed&&distance(c,p)<5);
     if(ruin){p.x=ruin.x;p.z=ruin.z;}
+    if(!ruin&&(Math.abs(p.x)>WORLD_BOUNDARY-SHELTER_RADIUS-2.5||Math.abs(p.z)>WORLD_BOUNDARY-SHELTER_RADIUS-2.5))return {valid:false,reason:'outside-world'};
     if(game.camps.some(c=>!c.destroyed&&distance(c,p)<SHELTER_RADIUS*2+8))return {valid:false,reason:'overlap-building'};
     const surface=game.world.getSurface(p.x,p.z);
     if(!ruin&&surface.type!=='land'&&!(surface.type==='rock'&&surface.platform?.radius>6))return {valid:false,reason:'water'};
@@ -34,7 +34,7 @@ function validateStage(game,p){
 }
 function paint(game,p){
   const camp=campFor(game,p),result=validateStage(game,p);p.valid=result.valid;p.reason=result.reason;
-  p.y=camp?.mesh?.position?.y??game.world.sampleHeight(p.x,p.z);
+  p.y=camp?.mesh?.position?.y??(p.type==='shelter'?game.world.shelterLandHeight?.(p.x,p.z):null)??game.world.sampleHeight(p.x,p.z);
   if(p.ghost&&Number.isFinite(p.x)&&Number.isFinite(p.z))game.world.setBuildingPreview?.(p.ghost,{x:p.x,y:p.y,z:p.z,yaw:p.yaw+(camp?.yaw||0),valid:p.valid});
   return p;
 }

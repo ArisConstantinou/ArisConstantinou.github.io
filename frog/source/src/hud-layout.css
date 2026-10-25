@@ -74,6 +74,11 @@
 #frog-ui .fg-compact-hud .fg-hunt-response>.fg-pictogram{height:23px;width:23px}
 #frog-ui .fg-compact-hud .fg-hunt-response kbd{height:17px;min-width:22px;font-size:8px}
 #frog-ui .fg-compact-hud .fg-context{display:none!important}
+#frog-ui .fg-compact-hud .fg-recruit-prompt{position:absolute;left:50%;bottom:calc(var(--hud-bottom) + var(--hud-bar-height) + 9px);transform:translateX(-50%);display:flex;flex-direction:column;gap:3px;width:max-content;max-width:min(370px,calc(100% - var(--hud-left) - var(--hud-right)));padding:8px 12px;border:1px solid #bfd6a955;border-radius:9px;background:#122d24ed;box-shadow:0 4px 18px #00150d40;text-align:center;pointer-events:none;z-index:7;line-height:1.35}
+#frog-ui .fg-compact-hud .fg-recruit-prompt>strong{font-size:12px;font-weight:600;color:#e6edc9}
+#frog-ui .fg-compact-hud .fg-recruit-prompt>span{font-size:11px;color:#c4d3ae}
+#frog-ui .fg-compact-hud .fg-recruit-prompt.is-unavailable{border-color:#d7ac7655}
+#frog-ui .fg-compact-hud .fg-recruit-prompt.is-unavailable>span{color:#e1bd8b}
 #frog-ui .fg-compact-hud .fg-selection-dock{position:absolute;left:var(--hud-left);bottom:var(--hud-bottom);width:auto;max-width:260px;padding:4px 6px;display:flex;align-items:center;gap:5px;border-radius:10px;background:#142e24d9;box-shadow:0 5px 18px #00180b30;pointer-events:auto}
 #frog-ui .fg-compact-hud .fg-squad-entry{display:flex;align-items:center;justify-content:center;gap:4px;min-width:62px;height:44px;padding:0 4px;border:0;border-radius:7px;background:none;color:#e3e9c6}
 #frog-ui .fg-compact-hud .fg-squad-entry>span{display:none;width:25px;height:28px}
@@ -85,7 +90,7 @@
 #frog-ui .fg-compact-hud .fg-dock-frog>i{width:17px;height:17px;right:1px;bottom:4px}
 #frog-ui .fg-compact-hud .fg-dock-more{min-width:44px;height:44px;font-size:12px}
 #frog-ui .fg-compact-hud .fg-dock-rest-short{display:none}
-#frog-ui .fg-compact-hud .fg-image-actionbar{position:absolute;bottom:var(--hud-bottom);left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(6,56px);gap:7px;width:max-content;max-width:calc(100% - var(--hud-left) - var(--hud-right));margin:0;padding:7px;border-radius:12px;align-items:stretch;justify-content:center;flex-wrap:nowrap;background:linear-gradient(0deg,#0c241ce8,#1e3a2cde);box-shadow:0 6px 25px #00140b44;z-index:8}
+#frog-ui .fg-compact-hud .fg-image-actionbar{position:absolute;bottom:var(--hud-bottom);left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(7,56px);gap:7px;width:max-content;max-width:calc(100% - var(--hud-left) - var(--hud-right));margin:0;padding:7px;border-radius:12px;align-items:stretch;justify-content:center;flex-wrap:nowrap;background:linear-gradient(0deg,#0c241ce8,#1e3a2cde);box-shadow:0 6px 25px #00140b44;z-index:8}
 #frog-ui .fg-compact-hud .fg-action-tile,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"]{width:56px;height:62px;min-width:44px;min-height:44px;display:flex;padding:3px 3px 14px;border-radius:8px}
 #frog-ui .fg-compact-hud .fg-action-art,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"] .fg-action-art{width:44px;height:44px}
 #frog-ui .fg-compact-hud .fg-action-art>.fg-icon{width:38px;height:38px;color:#d8e6ad;stroke-width:2.4}
@@ -168,7 +173,7 @@
   #frog-ui .fg-compact-hud .fg-squad-entry>.fg-emblem{display:block;width:22px;height:26px}
   #frog-ui .fg-compact-hud .fg-dock-portraits{gap:3px}
   #frog-ui .fg-compact-hud .fg-dock-frog:nth-of-type(n+3){display:none}
-  #frog-ui .fg-compact-hud .fg-image-actionbar{grid-template-columns:repeat(6,minmax(44px,1fr));gap:4px;padding:5px;width:calc(100% - var(--hud-left) - var(--hud-right));max-width:376px;min-height:59px;bottom:var(--hud-bottom)}
+  #frog-ui .fg-compact-hud .fg-image-actionbar{grid-template-columns:repeat(7,minmax(44px,1fr));gap:4px;padding:5px;width:calc(100% - var(--hud-left) - var(--hud-right));max-width:376px;min-height:59px;bottom:var(--hud-bottom)}
   #frog-ui .fg-compact-hud .fg-action-tile,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"]{width:100%;height:48px;padding:3px}
   #frog-ui .fg-compact-hud .fg-action-art,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"] .fg-action-art{width:37px;height:37px}
   #frog-ui .fg-compact-hud .fg-action-art>.fg-icon{width:34px;height:34px}
@@ -239,7 +244,7 @@
   #frog-ui .fg-compact-hud .fg-squad-entry>.fg-emblem{display:block;width:22px;height:26px}
   #frog-ui .fg-compact-hud .fg-dock-rest-wide{display:none}
   #frog-ui .fg-compact-hud .fg-dock-rest-short{display:inline}
-  #frog-ui .fg-compact-hud .fg-image-actionbar{grid-template-columns:repeat(6,44px);width:max-content;gap:4px;padding:5px;min-height:56px}
+  #frog-ui .fg-compact-hud .fg-image-actionbar{grid-template-columns:repeat(7,44px);width:max-content;gap:4px;padding:5px;min-height:56px}
   #frog-ui .fg-compact-hud .fg-action-tile,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"]{width:44px;height:44px;padding:3px}
   #frog-ui .fg-compact-hud .fg-action-art,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"] .fg-action-art{width:35px;height:35px}
   #frog-ui .fg-compact-hud .fg-action-drawer{width:390px;max-height:calc(100dvh - 130px);padding:6px 52px 8px 10px;bottom:calc(var(--hud-bottom) + 62px)}
@@ -290,7 +295,7 @@
 #frog-ui .fg-compact-hud .fg-squad-caption small{font-size:10px;font-weight:500;line-height:1.1;color:#bacda8}
 #frog-ui .fg-compact-hud .fg-squad-caption b{font-size:13px;font-weight:600;line-height:1.1;white-space:nowrap;font-variant-numeric:tabular-nums}
 #frog-ui{--hud-bar-height:86px}
-#frog-ui .fg-compact-hud .fg-image-actionbar{grid-template-columns:repeat(6,74px);gap:7px}
+#frog-ui .fg-compact-hud .fg-image-actionbar{grid-template-columns:repeat(7,74px);gap:7px}
 #frog-ui .fg-compact-hud .fg-action-tile,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"]{width:74px;height:72px;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding:4px 3px 3px;gap:1px}
 #frog-ui .fg-compact-hud .fg-action-art,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"] .fg-action-art{width:40px;height:40px;flex:none}
 #frog-ui .fg-compact-hud .fg-action-caption{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;min-height:24px;max-width:100%;font-size:10.5px;font-weight:550;line-height:1.12;letter-spacing:0;color:#e5eacb;text-align:center;overflow-wrap:anywhere}
@@ -369,7 +374,7 @@
  #frog-ui .fg-compact-hud .fg-objective-count{gap:5px}
  #frog-ui .fg-compact-hud .fg-objective-count>b{font-size:10px}
  #frog-ui .fg-compact-hud .fg-objective-help{font-size:12px}
- #frog-ui .fg-compact-hud .fg-image-actionbar{width:calc(100% - var(--hud-left) - var(--hud-right));grid-template-columns:repeat(6,minmax(44px,1fr));gap:4px;padding:5px}
+ #frog-ui .fg-compact-hud .fg-image-actionbar{width:calc(100% - var(--hud-left) - var(--hud-right));grid-template-columns:repeat(7,minmax(44px,1fr));gap:4px;padding:5px}
  #frog-ui .fg-compact-hud .fg-action-tile,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"]{width:100%;height:56px;padding:3px 2px;gap:0}
  #frog-ui .fg-compact-hud .fg-action-art,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"] .fg-action-art{width:29px;height:29px}
  #frog-ui .fg-compact-hud .fg-action-art>.fg-icon{width:26px;height:26px}
@@ -402,7 +407,7 @@
  #frog-ui .fg-compact-hud .fg-objective-toggle{min-height:57px;padding:6px;gap:6px}
  #frog-ui .fg-compact-hud .fg-objective-next{width:28px;height:31px}
  #frog-ui .fg-compact-hud .fg-objective-brief>strong{font-size:11px}
- #frog-ui .fg-compact-hud .fg-image-actionbar{grid-template-columns:repeat(6,61px);gap:4px;padding:5px;width:max-content}
+ #frog-ui .fg-compact-hud .fg-image-actionbar{grid-template-columns:repeat(7,61px);gap:4px;padding:5px;width:max-content}
  #frog-ui .fg-compact-hud .fg-action-tile,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"]{width:61px;height:56px;padding:3px 2px;gap:0}
  #frog-ui .fg-compact-hud .fg-action-art,#frog-ui .fg-compact-hud .fg-action-tile[data-cooldown="special"] .fg-action-art{width:29px;height:29px}
  #frog-ui .fg-compact-hud .fg-action-caption{font-size:9.7px;min-height:21px}
@@ -423,7 +428,7 @@
 /* Compact action words stay intact; desktop retains the full captions. */
 #frog-ui .fg-compact-hud .fg-caption-compact{display:none}
 @media(min-width:768px) and (min-height:501px){
- #frog-ui .fg-compact-hud .fg-primary-actions{grid-template-columns:repeat(3,74px) 96px repeat(2,74px)}
+ #frog-ui .fg-compact-hud .fg-primary-actions{grid-template-columns:repeat(4,74px) 96px repeat(2,74px)}
  #frog-ui .fg-compact-hud .fg-primary-actions [data-action="interact"]{width:96px}
  #frog-ui .fg-compact-hud .fg-primary-actions .fg-action-caption{white-space:nowrap;overflow-wrap:normal;word-break:normal}
 }
@@ -435,7 +440,14 @@
 
 
 /* Always-visible population and tactical lake map. */
-#frog-ui .fg-compact-hud .fg-population{grid-column:1/-1;grid-row:5;display:flex;flex-direction:column;align-items:stretch;gap:4px;margin:9px -3px -3px;padding:7px 5px 3px;border:0;border-top:1px solid #c5dba333;border-radius:0;background:transparent;pointer-events:auto;text-align:left;color:#e3ebc9;min-width:0}
+#frog-ui .fg-compact-hud .fg-player-rank{grid-column:1/-1;grid-row:5;display:flex;align-items:center;gap:5px;min-width:0;margin-top:9px;color:#d4dfbf;line-height:1.2}
+#frog-ui .fg-compact-hud .fg-player-rank>span{display:flex;align-items:center;flex:none}
+#frog-ui .fg-compact-hud .fg-player-rank .fg-icon{width:16px;height:16px}
+#frog-ui .fg-compact-hud .fg-player-rank>strong{font-size:11px;font-weight:600;white-space:nowrap}
+#frog-ui .fg-compact-hud .fg-player-rank>small{margin-left:auto;font-size:9px;white-space:nowrap;color:#acbd9e}
+#frog-ui .fg-compact-hud .fg-player-rank.is-crowned{color:#f0d782}
+#frog-ui .fg-compact-hud .fg-player-rank.is-crowned>small{color:#d5c68e}
+#frog-ui .fg-compact-hud .fg-population{grid-column:1/-1;grid-row:6;display:flex;flex-direction:column;align-items:stretch;gap:4px;margin:7px -3px -3px;padding:7px 5px 3px;border:0;border-top:1px solid #c5dba333;border-radius:0;background:transparent;pointer-events:auto;text-align:left;color:#e3ebc9;min-width:0}
 #frog-ui .fg-compact-hud .fg-population-total{display:flex;align-items:center;gap:6px;min-width:0;line-height:1.1}
 #frog-ui .fg-compact-hud .fg-population-total>.fg-pictogram{width:23px;height:23px}
 #frog-ui .fg-compact-hud .fg-population-total>span{font-size:12px;font-weight:600}
@@ -571,3 +583,13 @@
 /* The last gameplay sample remains readable while the simulation is paused. */
 #frog-ui .fg-settings .fg-performance{display:block;margin-top:7px;color:var(--fg-muted);font-size:11px;font-weight:400;letter-spacing:0}
 #frog-ui .fg-settings .fg-performance output{float:none;color:var(--fg-ink);font-variant-numeric:tabular-nums}
+
+/* Keep seven primary actions usable on the narrowest phones. */
+@media(max-width:359px){
+ #frog-ui{--hud-bar-height:129px}
+ #frog-ui .fg-compact-hud .fg-primary-actions{grid-template-columns:repeat(4,minmax(44px,1fr));max-width:260px}
+ #frog-ui .fg-compact-hud .fg-recruit-prompt{bottom:calc(var(--hud-bottom) + var(--hud-bar-height) + 65px)}
+}
+@media(max-width:767px){
+ #frog-ui .fg-compact-hud .fg-recruit-prompt{bottom:calc(var(--hud-bottom) + var(--hud-bar-height) + 65px)}
+}

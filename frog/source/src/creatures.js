@@ -10,6 +10,7 @@ const hash = (x, y = 0, z = 0) => { const n = Math.sin(x * 127.1 + y * 311.7 + z
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const templateCache = new Map();
 const textureCache = new Map();
+let royalCrownGeometry, royalGemGeometry;
 const UP = V(0, 1, 0);
 const tmpV = V();
 
@@ -405,6 +406,51 @@ function makeSkeleton(defs) {
   }
   return { bones, skeleton: new THREE.Skeleton(bones), root: bones[0] };
 }
+function makeRoyalCrown() {
+  // A fitted, open circlet with six unmistakable points. Its lower rim follows
+  // the forehead slope and sits behind the eye ridges, in head-bone coordinates.
+  // Geometry is shared, but no crown meshes/materials exist on ordinary frogs.
+  if (!royalCrownGeometry) {
+    const positions = [], indices = [], segments = 48;
+    for (let i = 0; i <= segments; i++) {
+      const angle = i / segments * TAU, sx = Math.sin(angle), cz = Math.cos(angle);
+      const peak = Math.abs(i % 8 - 4) / 4, bottom = -.018 * cz;
+      const top = bottom + .10 + .205 * peak, flare = 1 + .08 * peak;
+      positions.push(
+        sx * .255, bottom, cz * .175,
+        sx * .270 * flare, top, cz * .188 * flare,
+        sx * .231, bottom, cz * .151,
+        sx * (.270 * flare - .024), top, cz * (.188 * flare - .024)
+      );
+    }
+    for (let i = 0; i < segments; i++) {
+      const a = i * 4, b = a + 4;
+      indices.push(a, b, a + 1, b, b + 1, a + 1); // Outside.
+      indices.push(a + 2, a + 3, b + 2, b + 2, a + 3, b + 3); // Inside.
+      indices.push(a + 1, b + 1, a + 3, b + 1, b + 3, a + 3); // Point edges.
+      indices.push(a, a + 2, b, b, a + 2, b + 2); // Lower rim.
+    }
+    royalCrownGeometry = new THREE.BufferGeometry();
+    royalCrownGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    royalCrownGeometry.setIndex(indices); royalCrownGeometry.computeVertexNormals();
+    royalCrownGeometry.computeBoundingSphere(); royalCrownGeometry.computeBoundingBox();
+    royalGemGeometry = new THREE.OctahedronGeometry(.047, 0);
+    royalGemGeometry.scale(.78, 1.05, .50);
+  }
+  const crown = new THREE.Group(); crown.name = 'royal-crown';
+  crown.position.set(0, .220, -.110);
+  const gold = new THREE.Mesh(royalCrownGeometry, new THREE.MeshStandardMaterial({
+    color: 0xf2c75a, roughness: .29, metalness: .58,
+    emissive: 0x5a3505, emissiveIntensity: .12
+  }));
+  gold.name = 'royal-crown-gold'; gold.castShadow = true; gold.receiveShadow = true; crown.add(gold);
+  const gem = new THREE.Mesh(royalGemGeometry, new THREE.MeshStandardMaterial({
+    color: 0xde344b, roughness: .18, metalness: .20, flatShading: true,
+    emissive: 0x49050c, emissiveIntensity: .12
+  }));
+  gem.name = 'royal-crown-ruby'; gem.position.set(0, .042, .195); crown.add(gem);
+  return crown;
+}
 function getTemplate(type, lod = 0) {
   const key = type === 'frog' && lod ? `${type}:${lod}` : type;
   if (!templateCache.has(key)) {
@@ -445,6 +491,7 @@ function getAttack(attack, elapsed) {
  * attack accepts {type:'kick'|'slam'|'tongue'|'lunge', phase:0..1} or a string.
  * speed is world-units/sec; jump is airborne progress 0..1 (boolean accepted).
  * setRenderLOD(0|1|2) selects full/medium/distant frog detail without resetting pose.
+ * setCrowned(true) equips a head-mounted royal crown; tier never grants a crown.
  * All instances face local +Z. Frog floor contacts are y≈0.
  */
 export function createCreature(type = 'frog', options = {}) {
@@ -470,13 +517,14 @@ export function createCreature(type = 'frog', options = {}) {
   const restPositions = boneList.map(b => b.position.clone());
   const mouthMarker = new THREE.Object3D(); mouthMarker.name = 'mouth-attachment'; boneList[template.mouth].add(mouthMarker);
   let time = (options.seed || 0) * .731, attackTime = 0, previousAttack = '', tier = 1, deadProgress = 0, lastMove = 0;
-  let renderLOD = 0, outlineRequested = true;
+  let renderLOD = 0, outlineRequested = true, crowned = false, royalCrown = null;
   const role = options.role || 'scout';
   const roleScale = type === 'frog' ? (['guardian', 'brute', 'tank'].includes(role) ? [1.15, 1.12, 1.05] : ['scout', 'hunter', 'agile'].includes(role) ? [.96, .98, 1.04] : [1.03, 1.02, 1.02]) : [1, 1, 1];
   pivot.scale.set(...roleScale);
   const reset = () => { for (let i = 0; i < boneList.length; i++) { boneList[i].rotation.set(0, 0, 0); boneList[i].scale.set(1, 1, 1); boneList[i].position.copy(restPositions[i]); } };
   const api = {
     group, bones, skeleton, mesh: body,
+    get crowned() { return crowned; },
     stats: { type, vertices: template.skin.attributes.position.count + template.eyes.attributes.position.count, triangles: (template.skin.index.count + template.eyes.index.count) / 3, boneCount: boneList.length, length: template.length, height: template.height, rigged: true, renderLOD: 0 },
     setOutline(color, visible = true) { if (color !== undefined && color !== null) outline.material.color.set(color); outlineRequested = visible; outline.visible = visible && renderLOD === 0; },
     // The full anatomical model is retained nearby. Distant armies share simpler
@@ -495,14 +543,26 @@ export function createCreature(type = 'frog', options = {}) {
         mesh.castShadow = level === 0 && mesh !== eyes && mesh !== outline && mesh.name !== 'tongue';
       }
       outline.visible = outlineRequested && level === 0;
+      if (royalCrown) royalCrown.getObjectByName('royal-crown-gold').castShadow = level === 0;
       api.stats.vertices = next.skin.attributes.position.count + next.eyes.attributes.position.count;
       api.stats.triangles = (next.skin.index.count + next.eyes.index.count) / 3;
       api.stats.renderLOD = level;
     },
     setTier(value) {
       tier = clamp(Math.round(value || 1), 1, 5);
-      for (const mesh of extras) if (mesh.name === 'armor') mesh.visible = tier >= 2; else if (mesh.name === 'crest') mesh.visible = tier >= 3;
+      for (const mesh of extras) if (mesh.name === 'armor') mesh.visible = tier >= 2; else if (mesh.name === 'crest') mesh.visible = tier >= 3 && !crowned;
       const grow = 1 + (tier - 1) * .028; pivot.scale.set(roleScale[0] * grow, roleScale[1] * grow, roleScale[2] * grow);
+    },
+    setCrowned(value = false) {
+      crowned = type === 'frog' && Boolean(value);
+      if (crowned && !royalCrown) { royalCrown = makeRoyalCrown(); bones.head.add(royalCrown); }
+      if (royalCrown) {
+        royalCrown.visible = crowned;
+        royalCrown.getObjectByName('royal-crown-gold').castShadow = renderLOD === 0;
+      }
+      const crest = extras.find(mesh => mesh.name === 'crest');
+      if (crest) crest.visible = tier >= 3 && !crowned;
+      return crowned;
     },
     mouthWorld(target = new THREE.Vector3()) { group.updateWorldMatrix(true, true); return mouthMarker.getWorldPosition(target); },
     update(dt, state = {}) {
@@ -607,9 +667,9 @@ export function createCreature(type = 'frog', options = {}) {
         pivot.rotation.z = deadProgress * Math.PI + hit * .14 * Math.sin(time * 35);
       }
     },
-    dispose() { skin.dispose(); eyeMat.dispose(); outline.material.dispose(); for (const e of extras) e.material.dispose(); skeleton.dispose(); group.removeFromParent(); }
+    dispose() { skin.dispose(); eyeMat.dispose(); outline.material.dispose(); for (const e of extras) e.material.dispose(); if (royalCrown) royalCrown.traverse(mesh => { if (mesh.isMesh) mesh.material.dispose(); }); skeleton.dispose(); group.removeFromParent(); }
   };
-  api.setTier(options.tier || 1); api.update(0, {});
+  api.setTier(options.tier || 1); api.setCrowned(options.crowned); api.update(0, {});
   group.userData.creature = api;
   return api;
 }

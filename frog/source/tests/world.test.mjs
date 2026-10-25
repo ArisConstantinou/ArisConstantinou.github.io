@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {createWorld,SHELTER_SCALE,SHELTER_RADIUS} from '../src/world.js';
 import {BUILDING_FOOTPRINTS,EXTRA_HUT_FOOTPRINT,defaultPlacement} from '../src/placement-rules.js';
-import {WORLD_SCALE,WORLD_RADIUS,WORLD_BOUNDARY} from '../src/world-config.js';
+import {WORLD_SCALE,WORLD_RADIUS,WORLD_BOUNDARY,CASTLE_GROUND_RADIUS,ISLAND_TERRACE_RADIUS} from '../src/world-config.js';
 
 // Texture painting is a browser boundary. Geometry, actual world construction,
 // shelter mutations, effect simulation and disposal all run unchanged in Node.
@@ -158,6 +158,76 @@ test('raised islands leave both fish anchors inside broad reachable water corrid
     for(let dx=-6;dx<=6;dx+=3)for(let dz=-6;dz<=6;dz+=3)if(wet(world.getSurface(anchor.x+dx,anchor.z+dz)))wetSamples++;
     assert.ok(wetSamples>=20,'the fish boss needs a broad reachable breach area');
   }
+});
+
+function assertCastleGrounded(shelter,label){
+  shelter.updateMatrixWorld(true);const floor=shelter.position.y,instance=new THREE.Matrix4(),transform=new THREE.Matrix4(),point=new THREE.Vector3();let groundedVertices=0;
+  // Inspect the real ground-facing corners of the instanced masonry and towers,
+  // not a hand-picked centre point that would miss an overhanging perimeter.
+  for(const mesh of [shelter.userData.fortWalls,shelter.userData.fortTowers]){
+    const vertices=mesh.geometry.attributes.position;
+    for(let i=0;i<mesh.count;i++){
+      mesh.getMatrixAt(i,instance);transform.multiplyMatrices(mesh.matrixWorld,instance);
+      for(let v=0;v<vertices.count;v++){
+        point.fromBufferAttribute(vertices,v).applyMatrix4(transform);if(Math.abs(point.y-floor-.11)>.002)continue;
+        assert.ok(Math.abs(world.getTerrainHeight(point.x,point.z)-floor)<.001,`${label}: masonry at ${point.x.toFixed(2)}, ${point.z.toFixed(2)} has earth directly below it`);groundedVertices++;
+      }
+    }
+  }
+  assert.ok(groundedVertices>500,`${label}: full walls and every tower were inspected`);
+  const yaw=shelter.rotation.y,r=shelter.userData.fortificationGeometry.radius;
+  for(const d of [r+1,r+3,r+5]){
+    const x=shelter.position.x+Math.sin(yaw)*d,z=shelter.position.z+Math.cos(yaw)*d;
+    assert.equal(world.getSurface(x,z).type,'land',`${label}: dry gate approach`);
+    assert.ok(Math.abs(world.getTerrainHeight(x,z)-floor)<.15,`${label}: no cliff immediately outside the gate`);
+  }
+}
+
+test('every authored castle has expanded land under the complete real footprint and an accessible gate',()=>{
+  const castles=[];
+  try{
+    for(const [i,site] of world.campSites.entries()){
+      assert.ok(site.radius>=36&&ISLAND_TERRACE_RADIUS>SHELTER_RADIUS+7,'the landscape expands to fit the castle');
+      castles.push(world.createShelter(data({id:'land-'+site.id,x:site.x,z:site.z,yaw:i*.39,team:site.team==='enemy'?'enemy0':'ally'})));
+    }
+    for(const [i,castle] of castles.entries())assertCastleGrounded(castle,world.campSites[i].id);
+    for(const anchor of [world.predatorAnchors.fish,world.bossAnchors.fish]){
+      let wet=0;for(let dx=-6;dx<=6;dx+=3)for(let dz=-6;dz<=6;dz+=3)if(world.getTerrainHeight(anchor.x+dx,anchor.z+dz)<-.1)wet++;
+      assert.ok(wet>=20,'expanded castle banks preserve fish routes');
+    }
+  }finally{for(const castle of castles)world.removeShelter(castle);}
+});
+
+test('off-centre saved castles and rotated hillside builds receive real level terrain without moving their position',()=>{
+  const points=[{x:31.4,z:20.4,yaw:.72},{x:119,z:29,yaw:2.1}];
+  for(const [i,position] of points.entries()){
+    const expected=world.shelterLandHeight(position.x,position.z),before=world.getTerrainHeight(position.x,position.z),castle=world.createShelter(data({id:'offset-land-'+i,...position}));
+    try{
+      assert.equal(castle.position.x,position.x);assert.equal(castle.position.z,position.z);assert.equal(castle.rotation.y,position.yaw);assert.equal(castle.position.y,expected,'preview and built foundation agree');
+      assert.equal(world.shelterLandHeight(position.x,position.z),expected,'an existing courtyard does not raise its own rebuild preview');
+      assert.ok(castle.position.y>=before);assertCastleGrounded(castle,'offset '+i);
+      const terrain=world.group.getObjectByName('Creek bed and island banks');world.group.updateMatrixWorld(true);
+      for(const [dx,dz] of [[0,0],[18,0],[-18,0],[0,19],[15,12]]){
+        const x=position.x+dx,z=position.z+dz,ray=new THREE.Raycaster(new THREE.Vector3(x,40,z),new THREE.Vector3(0,-1,0)),hit=ray.intersectObject(terrain)[0];
+        assert.ok(hit,'there is rendered ground below the castle');assert.ok(Math.abs(hit.point.y-world.getTerrainHeight(x,z))<1e-5,'walking height matches the actual rendered triangle');
+      }
+    }finally{world.removeShelter(castle);}
+    assert.ok(Math.abs(world.getTerrainHeight(position.x,position.z)-before)<1e-7,'removal does not leave an invisible terrain patch');
+  }
+});
+
+test('castle landscaping updates only on construction/removal and keeps resource swarms above the new terrain',()=>{
+  const spot=world.hotspots[3],before=world.renderStats.terrainUpdates,castle=world.createShelter(data({id:'resource-land',x:spot.x+5,z:spot.z+3,yaw:.8}));
+  try{
+    const built=world.renderStats.terrainUpdates;assert.equal(built,before+1);
+    assert.ok(spot.y>world.getTerrainHeight(spot.x,spot.z),'food remains visible above the raised bank');
+    assert.ok(castle.userData.landmark.radius>CASTLE_GROUND_RADIUS,'the minimap includes the enlarged land');
+    for(let i=0;i<60;i++)world.update(1/60,60+i/60,.7,new THREE.Vector3(spot.x,10,spot.z));
+    world.updateShelter(castle,{gateOpen:true,gateHp:180});world.updateShelter(castle,{gateOpen:false});
+    const preview=world.createBuildingPreview('shelter');world.removeBuildingPreview(preview);
+    assert.equal(world.renderStats.terrainUpdates,built,'frames, gates and previews never rebuild the terrain');
+  }finally{world.removeShelter(castle);}
+  assert.equal(world.renderStats.terrainUpdates,before+2);
 });
 
 test('placeable geometry uses centered footprints matching the collision rules and legacy locations',()=>{

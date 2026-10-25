@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {actor,camp,fixture} from './game-fixture.mjs';
+import {MOVEMENT} from '../src/player-rules.js';
 
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const predator=(overrides={})=>actor({id:'boss',team:'predator',type:'heron',phase:'stalk',boss:true,scale:2.3,x:8,z:0,hp:1600,maxHp:1600,...overrides});
@@ -10,13 +11,13 @@ test('a bruiser physically catches up with a walking then sprinting player',()=>
   const follower=actor({id:'bruiser',role:'bruiser',x:-70,brain:0});game.frogs.push(follower);
   let largestStep=0;
   for(let tick=0;tick<500;tick++){
-    const before={x:follower.x,z:follower.z},speed=tick<300?4.25:6.6;
+    const before={x:follower.x,z:follower.z},speed=tick<300?MOVEMENT.walk:MOVEMENT.sprint;
     player.x+=speed*.05;game.elapsed+=.05;game.updateFrogs(.05);
     largestStep=Math.max(largestStep,distance(before,follower));
   }
   assert.ok(distance(follower,player)<13,'the slow role stays within the travelling group after a sprint');
-  assert.ok(largestStep<.5,'catch-up never teleports the frog');
-  assert.ok(follower.x>65,'the follower crossed the creek rather than stopping at its original area');
+  assert.ok(largestStep<.7,'catch-up uses continuous movement under 14m/s, never a teleport');
+  assert.ok(follower.x>120,'the follower crossed the creek rather than stopping at its original area');
 });
 
 test('garrison members do not occupy follow slots and very large squads remain nearby',()=>{

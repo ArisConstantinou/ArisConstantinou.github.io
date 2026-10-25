@@ -33,17 +33,20 @@ const state=resources=>({
   campaign:{phase:'settlement',objectives:[{id:'food',icon:'fly',current:30,target:30,done:true},{id:'reeds',icon:'reeds',current:7.8,target:45,done:false,label:'Υλικά κατασκευής'}]}
 });
 
-test('default HUD exposes six essentials and keeps detailed goals/actions hidden but reachable',()=>{
+test('default HUD exposes seven essentials including intimidation and keeps detailed goals/actions hidden but reachable',()=>{
   const {html}=fixture();
   const primary=html.slice(html.indexOf('fg-primary-actions'),html.indexOf('<section class="fg-action-drawer"'));
-  assert.equal([...primary.matchAll(/data-action="/g)].length,6);
-  for(const action of ['primary-attack','special-attack','dodge','interact','open-build','hud-more'])assert.ok(primary.includes('data-action="'+action+'"'));
+  assert.equal([...primary.matchAll(/data-action="/g)].length,7);
+  for(const action of ['primary-attack','special-attack','intimidate','dodge','interact','open-build','hud-more'])assert.ok(primary.includes('data-action="'+action+'"'));
   assert.match(html,/data-ref="objectiveToggle" aria-expanded="false" aria-controls="fg-objective-details"/);
   assert.match(html,/data-ref="moreToggle" aria-controls="fg-action-drawer" aria-expanded="false"/);
   assert.match(html,/data-ref="objectiveDetails" id="fg-objective-details" hidden/);
   assert.match(html,/data-ref="actionDrawer" id="fg-action-drawer"[^>]* hidden/);
   for(const action of ['intimidate','gang-toggle','gang-forage','cycle-view','open-map','open-roster','open-pause','special-select'])assert.ok(html.includes('data-action="'+action+'"'));
   assert.ok(primary.includes('<kbd>B</kbd>'));
+  assert.match(primary,/data-action="intimidate" data-cooldown="roar"[\s\S]*?<kbd>R<\/kbd>/);
+  const drawer=html.slice(html.indexOf('<section class="fg-action-drawer"'),html.indexOf('<section class="fg-placement-hud'));
+  assert.doesNotMatch(drawer,/data-action="intimidate"/);
   assert.ok(!html.includes('fg-dock-orders'));
 });
 

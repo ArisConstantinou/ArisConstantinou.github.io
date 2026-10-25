@@ -84,7 +84,7 @@ test('depleted swarms do not hide another usable swarm or mint resources on wate
 });
 
 test('stale or out-of-range aimed actors cannot steal nearby collection',()=>{
-  for(const override of [{x:12},{x:1,dead:true}]){
+  for(const override of [{x:20},{x:1,dead:true}]){
     const {game}=fixture(),frog=actor({id:'stale',team:'neutral',...override}),swarm={x:2,z:0,flies:10};
     game.frogs.push(frog);game.world.hotspots.push(swarm);game.aimTarget={kind:'actor',entity:frog};
     assert.equal(game.context().type,'gather');assert.equal(game.context().entity,swarm);
