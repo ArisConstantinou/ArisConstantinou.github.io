@@ -7,7 +7,7 @@ const labels={third:'Τρίτο πρόσωπο',first:'Πρώτο πρόσωπο
 function dataFor(game){
   let data=internals.get(game);
   if(!data){
-    data={focus:new THREE.Vector3(),wanted:new THREE.Vector3(),target:new THREE.Vector3(),look:new THREE.Vector3(),forward:new THREE.Vector3(),right:new THREE.Vector3(),sample:new THREE.Vector3(),raycaster:new THREE.Raycaster(),boomRay:new THREE.Raycaster(),boomDirection:new THREE.Vector3(),structureMeshes:[],structureHits:[],structureCache:new WeakMap(),ndc:new THREE.Vector2(),plane:new THREE.Plane(new THREE.Vector3(0,1,0),0),hit:new THREE.Vector3(),lastMode:null,time:0};
+    data={focus:new THREE.Vector3(),wanted:new THREE.Vector3(),target:new THREE.Vector3(),look:new THREE.Vector3(),forward:new THREE.Vector3(),right:new THREE.Vector3(),sample:new THREE.Vector3(),raycaster:new THREE.Raycaster(),boomRay:new THREE.Raycaster(),boomDirection:new THREE.Vector3(),structureMeshes:[],structureHits:[],structureCache:new WeakMap(),structureTransforms:new WeakMap(),frame:0,ndc:new THREE.Vector2(),plane:new THREE.Plane(new THREE.Vector3(0,1,0),0),hit:new THREE.Vector3(),lastMode:null,time:0};
     internals.set(game,data);
   }
   return data;
@@ -45,7 +45,13 @@ function preventStructureClipping(game,from,to,data){
     if(Math.hypot((camp.x??mesh.position.x)-from.x,(camp.z??mesh.position.z)-from.z)>radius+length+8)continue;
     // Only nearby castle geometry participates. Cached mesh lists avoid a full
     // scene traversal; current visibility still follows opening and broken gates.
-    mesh.updateWorldMatrix(true,true);
+    const revision=mesh.userData.collisionRevision,previous=data.structureTransforms.get(mesh);
+    // Castle masonry is static. Refresh on gate/building changes, not twice
+    // every frame for every stone, merlon, roof and decorative beam.
+    if(!previous||(previous.frame!==data.frame&&(revision===undefined||previous.revision!==revision||previous.x!==mesh.position.x||previous.y!==mesh.position.y||previous.z!==mesh.position.z||previous.yaw!==mesh.rotation.y))){
+      mesh.updateWorldMatrix(true,true);
+      data.structureTransforms.set(mesh,{revision,frame:data.frame,x:mesh.position.x,y:mesh.position.y,z:mesh.position.z,yaw:mesh.rotation.y});
+    }
     const refs=mesh.userData,roots=[refs.fortWalls,refs.fortTowers,refs.core,refs.palisade,...(refs.gateLeaves||[])];
     for(const root of roots){
       if(!root?.isObject3D||!visiblyAttached(root))continue;
@@ -95,6 +101,7 @@ function updateAim(game,data,mode){
 export function updateGameCamera(game,dt,snap=false){
   if(!game.camera||!game.player)return;
   const data=dataFor(game),camera=game.camera,player=game.player,input=game.input;
+  data.frame++;
   const mode=game.viewMode||(game.viewMode='third');
   if(data.lastMode!==mode){snap=true;data.lastMode=mode;input?.setMode?.(mode);}
   data.time+=Math.min(Math.max(dt,0),.1);

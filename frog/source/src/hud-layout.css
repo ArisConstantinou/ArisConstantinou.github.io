@@ -567,3 +567,7 @@
   #frog-ui .fg-base-badges{gap:6px 9px}
   #frog-ui .fg-base-badges .fg-gate-condition>.fg-pictogram{width:24px;height:26px}
 }
+
+/* The last gameplay sample remains readable while the simulation is paused. */
+#frog-ui .fg-settings .fg-performance{display:block;margin-top:7px;color:var(--fg-muted);font-size:11px;font-weight:400;letter-spacing:0}
+#frog-ui .fg-settings .fg-performance output{float:none;color:var(--fg-ink);font-variant-numeric:tabular-nums}

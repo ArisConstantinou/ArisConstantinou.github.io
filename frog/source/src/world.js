@@ -138,9 +138,28 @@ function flyGeometry() {
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));g.setIndex(idx);g.computeVertexNormals();return g;
 }
 
+/** Keep every authored instance, but give the renderer local bounds to cull. */
+function spatialBatch(geometry,material,records,name,{castShadow=false,receiveShadow=false,dynamic=false}={}){
+  // Coarse cells avoid turning vegetation culling into hundreds of tiny draws.
+  const group=new THREE.Group();group.name=name;const cells=new Map(),slots=[],meshes=[],dirty=new Set(),span=128;
+  records.forEach((record,index)=>{const key=Math.floor(record.x/span)+':'+Math.floor(record.z/span);if(!cells.has(key))cells.set(key,[]);cells.get(key).push(index);});
+  for(const [key,indices] of cells){
+    const mesh=new THREE.InstancedMesh(geometry,material,indices.length);mesh.name=name+' · '+key;mesh.castShadow=castShadow;mesh.receiveShadow=receiveShadow;
+    mesh.userData.spatialChunk=true;mesh.userData.chunkSpan=span;if(dynamic)mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    indices.forEach((source,index)=>{slots[source]={mesh,index};});group.add(mesh);meshes.push(mesh);
+  }
+  return {group,meshes,count:records.length,
+    setMatrixAt(index,matrix){const slot=slots[index];slot.mesh.setMatrixAt(slot.index,matrix);dirty.add(slot.mesh);},
+    setColorAt(index,tint){const slot=slots[index];slot.mesh.setColorAt(slot.index,tint);},
+    finish(){for(const mesh of meshes){mesh.computeBoundingBox();mesh.computeBoundingSphere();mesh.boundingSphere.radius+=.75;mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;}dirty.clear();},
+    flush(){for(const mesh of dirty)mesh.instanceMatrix.needsUpdate=true;dirty.clear();}
+  };
+}
+
 export function createWorld(scene, renderer, options={}) {
   const seed=options.seed??731,random=rng(seed),group=new THREE.Group();group.name='The living creek';scene.add(group);
   const platforms=[],hotspots=[],shelters=new Set(),buildingPreviews=new Set(),disposables=[],buckets=new Map(),bucketSize=6;let buildArea=null;
+  const renderStats={reflectionRenders:0,reflectionSkips:0,flyMatricesUpdated:0,spatialChunks:0};
   const skyColor=new THREE.Color('#8aaab0'),fogColor=new THREE.Color('#819e91');
   if(!scene.fog)scene.fog=new THREE.FogExp2(fogColor,.0042);
   const stoneMap=stoneTexture(seed),mossMap=stoneTexture(seed+9,true),leafMap=leafTexture(seed),normals=waterNormals(seed);
@@ -221,6 +240,15 @@ export function createWorld(scene, renderer, options={}) {
   const water=new Water(waterGeo,{textureWidth:512,textureHeight:512,waterNormals:normals,sunDirection:new THREE.Vector3(.6,.8,-.3),sunColor:0xffe9bd,waterColor:0x2e625b,distortionScale:2.5,alpha:.91,fog:true});
   water.name='Reflecting creek';water.rotation.x=-Math.PI/2;water.position.y=-.035;water.material.transparent=true;water.material.depthWrite=false;water.renderOrder=-2;
   water.material.uniforms.size.value=4.8;group.add(water);
+  // Water otherwise renders the complete scene a second time on every frame.
+  // Normals, lighting and ripples still animate each frame; the reflection is
+  // refreshed on alternate frames without removing creatures from the mirror.
+  const renderReflection=water.onBeforeRender;let reflectionFrame=0;
+  water.onBeforeRender=function(activeRenderer,activeScene,camera){
+    water.material.uniforms.eye.value.setFromMatrixPosition(camera.matrixWorld);
+    if(reflectionFrame++%2){renderStats.reflectionSkips++;return;}
+    renderStats.reflectionRenders++;renderReflection.call(this,activeRenderer,activeScene,camera);
+  };
   const waterBase=waterGeo.attributes.position.array.slice();
 
   // Distant silhouettes have textured bark, tangled roots and thousands of
@@ -238,7 +266,7 @@ export function createWorld(scene, renderer, options={}) {
   }
   mergeStaticParts(rootGroup,bankRootGeos);
   const willowLeaf=new THREE.BufferGeometry();willowLeaf.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0,-.12,-.32,.035,0,-.38,.06,.12,-.32,.035,-.1,-.64,.02,0,-.76,.04,.1,-.64,.02,0,-1.05,0],3));willowLeaf.setAttribute('uv',new THREE.Float32BufferAttribute([.5,0,0,.3,.5,.35,1,.3,0,.6,.5,.7,1,.6,.5,1],2));willowLeaf.setIndex([0,1,2,0,2,3,1,4,2,2,4,5,2,5,6,2,6,3,4,7,5,5,7,6]);willowLeaf.computeVertexNormals();paintGeometry(willowLeaf,'#69834d',.25,seed);
-  const willowLeaves=new THREE.InstancedMesh(willowLeaf,materials.plant,treeLeaves.length);willowLeaves.name='Hanging willow foliage';treeLeaves.forEach((p,i)=>{object.position.set(p.x,p.y,p.z);object.rotation.set((random()-.5)*.8,p.angle,(random()-.5)*.7);object.scale.setScalar(p.scale);object.updateMatrix();willowLeaves.setMatrixAt(i,object.matrix);});group.add(willowLeaves);
+  const willowLeaves=spatialBatch(willowLeaf,materials.plant,treeLeaves,'Hanging willow foliage');treeLeaves.forEach((p,i)=>{object.position.set(p.x,p.y,p.z);object.rotation.set((random()-.5)*.8,p.angle,(random()-.5)*.7);object.scale.setScalar(p.scale);object.updateMatrix();willowLeaves.setMatrixAt(i,object.matrix);});willowLeaves.finish();group.add(willowLeaves.group);renderStats.spatialChunks+=willowLeaves.meshes.length;
 
   function insertPlatform(p){platforms.push(p);const x0=Math.floor((p.x-p.radius)/bucketSize),x1=Math.floor((p.x+p.radius)/bucketSize),z0=Math.floor((p.z-p.radius)/bucketSize),z1=Math.floor((p.z+p.radius)/bucketSize);for(let x=x0;x<=x1;x++)for(let z=z0;z<=z1;z++){const key=x+':'+z;if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(p);}return p;}
   const lilyData=[],rockData=[[],[],[]];
@@ -260,9 +288,9 @@ export function createWorld(scene, renderer, options={}) {
     if(random()<.15)addRock(x,z,1.1+random()*2.3,.55+random()*1.2);else addLily(x,z,1.1+random()*1.1);
   }
   for(const site of campSites)insertPlatform({id:'island-'+site.id,type:'land',x:site.x,z:site.z,y:site.elevation,radius:site.radius*.8});
-  const lilyMesh=new THREE.InstancedMesh(lilyGeo,materials.leaf,lilyData.length);lilyMesh.name='Veined water lily leaves';lilyMesh.castShadow=true;lilyMesh.receiveShadow=true;lilyMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  lilyData.forEach((p,i)=>{object.position.set(p.x,p.y,p.z);object.rotation.set((random()-.5)*.04,p.angle,(random()-.5)*.035);object.scale.set(p.visualRadius,1,p.visualRadius*(.89+random()*.18));object.updateMatrix();lilyMesh.setMatrixAt(i,object.matrix);lilyMesh.setColorAt(i,color(['#b6cf8a','#88ac67','#749d59','#c0cc7e','#729958'][Math.floor(random()*5)]));});group.add(lilyMesh);
-  rockData.forEach((data,j)=>{const mesh=new THREE.InstancedMesh(rockGeos[j],j===1?materials.mossRock:materials.rock,data.length);mesh.name='Weathered waterline outcrops';mesh.castShadow=true;mesh.receiveShadow=true;data.forEach((p,i)=>{object.position.set(p.x,-.05,p.z);object.rotation.set(0,p.angle,0);object.scale.set(p.visualRadius,p.scaleY,p.visualRadius);object.updateMatrix();mesh.setMatrixAt(i,object.matrix);mesh.setColorAt(i,color('#ffffff').multiplyScalar(.7+random()*.4));});group.add(mesh);});
+  const lilyMesh=spatialBatch(lilyGeo,materials.leaf,lilyData,'Veined water lily leaves',{castShadow:true,receiveShadow:true,dynamic:true});
+  lilyData.forEach((p,i)=>{object.position.set(p.x,p.y,p.z);object.rotation.set((random()-.5)*.04,p.angle,(random()-.5)*.035);object.scale.set(p.visualRadius,1,p.visualRadius*(.89+random()*.18));object.updateMatrix();lilyMesh.setMatrixAt(i,object.matrix);lilyMesh.setColorAt(i,color(['#b6cf8a','#88ac67','#749d59','#c0cc7e','#729958'][Math.floor(random()*5)]));});lilyMesh.finish();group.add(lilyMesh.group);renderStats.spatialChunks+=lilyMesh.meshes.length;
+  rockData.forEach((data,j)=>{const batch=spatialBatch(rockGeos[j],j===1?materials.mossRock:materials.rock,data,'Weathered waterline outcrops',{castShadow:true,receiveShadow:true});data.forEach((p,i)=>{object.position.set(p.x,-.05,p.z);object.rotation.set(0,p.angle,0);object.scale.set(p.visualRadius,p.scaleY,p.visualRadius);object.updateMatrix();batch.setMatrixAt(i,object.matrix);batch.setColorAt(i,color('#ffffff').multiplyScalar(.7+random()*.4));});batch.finish();group.add(batch.group);renderStats.spatialChunks+=batch.meshes.length;});
 
   // Pads with white flowers add scale and landmarks along the waterway.
   const petalGeo=new THREE.BufferGeometry(),petalP=[],petalUV=[],petalI=[];
@@ -279,11 +307,10 @@ export function createWorld(scene, renderer, options={}) {
     if(Math.hypot(x,z)<8)continue;
     vegetation.push({x,z,y:h,scale:.65+random()*2.2,angle:random()*TAU});
   }
-  const reedGeo=bladeGeometry(44),reedMesh=new THREE.InstancedMesh(reedGeo,materials.plant,vegetation.length);
-  reedMesh.name='Curved river reeds';reedMesh.receiveShadow=true;
-  vegetation.forEach((p,i)=>{object.position.set(p.x,p.y,p.z);object.rotation.set(0,p.angle,0);object.scale.set(.65+p.scale*.25,p.scale,.65+p.scale*.25);object.updateMatrix();reedMesh.setMatrixAt(i,object.matrix);reedMesh.setColorAt(i,color('#ffffff').multiplyScalar(.75+random()*.5));});group.add(reedMesh);
-  const cattails=vegetation.filter((p,i)=>p.y<.5&&i%5===0),catGeo=cattailGeometry(),catMesh=new THREE.InstancedMesh(catGeo,materials.plant,cattails.length);
-  cattails.forEach((p,i)=>{object.position.set(p.x+.12,p.y,p.z);object.rotation.set(0,p.angle,0);object.scale.setScalar(.7+p.scale*.4);object.updateMatrix();catMesh.setMatrixAt(i,object.matrix);});group.add(catMesh);
+  const reedGeo=bladeGeometry(44),reedMesh=spatialBatch(reedGeo,materials.plant,vegetation,'Curved river reeds',{receiveShadow:true});
+  vegetation.forEach((p,i)=>{object.position.set(p.x,p.y,p.z);object.rotation.set(0,p.angle,0);object.scale.set(.65+p.scale*.25,p.scale,.65+p.scale*.25);object.updateMatrix();reedMesh.setMatrixAt(i,object.matrix);reedMesh.setColorAt(i,color('#ffffff').multiplyScalar(.75+random()*.5));});reedMesh.finish();group.add(reedMesh.group);renderStats.spatialChunks+=reedMesh.meshes.length;
+  const cattails=vegetation.filter((p,i)=>p.y<.5&&i%5===0),catGeo=cattailGeometry(),catMesh=spatialBatch(catGeo,materials.plant,cattails,'Cattail patches');
+  cattails.forEach((p,i)=>{object.position.set(p.x+.12,p.y,p.z);object.rotation.set(0,p.angle,0);object.scale.setScalar(.7+p.scale*.4);object.updateMatrix();catMesh.setMatrixAt(i,object.matrix);});catMesh.finish();group.add(catMesh.group);renderStats.spatialChunks+=catMesh.meshes.length;
   // Subtle vertex wind keeps the whole wetland alive, without per-blade JS.
   const windUniform={value:0};materials.plant.onBeforeCompile=shader=>{shader.uniforms.uCreekTime=windUniform;shader.vertexShader='uniform float uCreekTime;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed.x += sin(uCreekTime * 1.1 + position.y * 2.3 + instanceMatrix[3].x * .13 + instanceMatrix[3].z * .17) * pow(max(position.y, 0.0), 1.6) * .035;');};
   materials.plant.customProgramCacheKey=()=> 'creek-wind-1';
@@ -313,7 +340,8 @@ export function createWorld(scene, renderer, options={}) {
   for(const s of spotSpecs)if(bedHeight(s.x,s.z)<-.15){const p=rockData.flat().find(p=>Math.abs(p.x-s.x)<.01&&Math.abs(p.z-s.z)<.01);if(p){const m=new THREE.Mesh(rockGeos[p.variant],materials.mossRock);m.position.set(p.x,-.05,p.z);m.rotation.y=p.angle;m.scale.set(p.visualRadius,p.scaleY,p.visualRadius);m.castShadow=true;m.receiveShadow=true;group.add(m);}}
   const fruitMesh=new THREE.InstancedMesh(fruitGeo,materials.fruit,fruitInstances.length);fruitInstances.forEach((p,i)=>{object.position.set(p.x,p.y,p.z);object.rotation.set(.3,p.rot,.2);object.scale.setScalar(p.scale);object.updateMatrix();fruitMesh.setMatrixAt(i,object.matrix);fruitMesh.setColorAt(i,color(['#cb9d59','#6d7341','#aa7044','#c5ad62'][i%4]));});group.add(fruitMesh);
   const flies=[];for(let j=0;j<hotspots.length;j++)for(let i=0;i<(hotspots[j].rich?65:30);i++)flies.push({spot:j,phase:random()*TAU,phase2:random()*TAU,r:.25+random()*(hotspots[j].rich?2.3:1.35),height:.45+random()*1.9,speed:.65+random()*1.7,rank:i});
-  const flyMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.45,side:THREE.DoubleSide}),fliesMesh=new THREE.InstancedMesh(flyGeometry(),flyMat,flies.length);fliesMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);fliesMesh.frustumCulled=false;fliesMesh.name='Fly swarms';group.add(fliesMesh);
+  const fliesBySpot=hotspots.map(()=>[]);for(const fly of flies)fliesBySpot[fly.spot].push(fly);
+  const flyMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.45,side:THREE.DoubleSide}),fliesMesh=new THREE.InstancedMesh(flyGeometry(),flyMat,flies.length);fliesMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);fliesMesh.frustumCulled=false;fliesMesh.name='Fly swarms';fliesMesh.count=0;group.add(fliesMesh);
 
   // A single instanced ripple draw and one point cloud cover every splash.
   const rippleCount=64,rippleBase=new THREE.PlaneGeometry(2,2),rippleGeo=new THREE.InstancedBufferGeometry();rippleBase.rotateX(-Math.PI/2);rippleGeo.index=rippleBase.index;rippleGeo.attributes.position=rippleBase.attributes.position;rippleGeo.attributes.uv=rippleBase.attributes.uv;
@@ -531,7 +559,10 @@ export function createWorld(scene, renderer, options={}) {
     }
     s.updateMatrixWorld(true);const coreBounds=new THREE.Box3().setFromObject(core),coreCentre=s.worldToLocal(coreBounds.getCenter(new THREE.Vector3())),coreSize=coreBounds.getSize(new THREE.Vector3());
     s.userData.coreFootprint={x:coreCentre.x*SHELTER_SCALE,z:coreCentre.z*SHELTER_SCALE,width:coreSize.x,depth:coreSize.z};
-    if(!preview){group.add(s);shelters.add(s);}updateShelter(s,data);return s;
+    if(!preview){group.add(s);shelters.add(s);}updateShelter(s,data);
+    const movingMeshes=new Set([s.userData.core.userData.roof,s.userData.storageCover,s.userData.banner.userData.flag]);
+    s.traverse(o=>{if(o.isMesh&&!movingMeshes.has(o)){o.updateMatrix();o.matrixAutoUpdate=false;}});
+    return s;
   }
   function updateShelter(s,data={}){if(!s)return;
     const previous=s.userData.visualState||{},state={...previous,...data},tier=Math.max(1,state.tier??1),b=state.buildings||{},health=clamp((state.hp??state.maxHp??100)/(state.maxHp??100),0,1),destroyed=!!state.destroyed||health<=0;
@@ -566,6 +597,7 @@ export function createWorld(scene, renderer, options={}) {
     s.userData.looseLoot.visible=destroyed&&hasLoot&&!hasStore;s.userData.looseLoot.count=Math.min(8,Math.ceil(amount/5));
     s.userData.banner.position.y=destroyed?.035:0;s.userData.banner.rotation.set(destroyed?.08:0,destroyed?.35:0,destroyed?1.49:health<.25?.22:0);
     s.userData.lamp.visible=!destroyed;if(destroyed)s.userData.light.visible=false;
+    s.userData.collisionRevision=(s.userData.collisionRevision||0)+1;
   }
   function removeShelter(s){if(!s)return;if(buildArea?.userData.camp===s)hideBuildArea();group.remove(s);shelters.delete(s);const support=s.userData.support;if(support){const at=platforms.indexOf(support);if(at>=0)platforms.splice(at,1);for(const list of buckets.values()){const i=list.indexOf(support);if(i>=0)list.splice(i,1);}}s.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const d of s.userData.owned||[])d.dispose?.();}
 
@@ -639,15 +671,24 @@ export function createWorld(scene, renderer, options={}) {
     let changed=false;for(let i=0;i<dropCount;i++){const d=drops[i];if(d.life<=0)continue;d.life-=dt;d.vy-=9.2*dt;dropPos[i*3]+=d.vx*dt;dropPos[i*3+1]+=d.vy*dt;dropPos[i*3+2]+=d.vz*dt;dropAlpha[i]=Math.max(0,d.life/d.max)*.88;
       if(dropPos[i*3+1]<-.03||d.life<=0){d.life=0;dropAlpha[i]=0;}changed=true;}
     if(changed){dropGeo.attributes.position.needsUpdate=true;dropGeo.attributes.aAlpha.needsUpdate=true;}
-    if(frame%2===0){for(let i=0;i<flies.length;i++){const f=flies[i],s=hotspots[f.spot],available=clamp(s.flies/s.maxFlies,0,1),limit=(s.rich?65:30)*available;
-      if(f.rank>=limit){object.position.set(s.x,-10,s.z);object.scale.setScalar(.001);}else{const a=time*f.speed+f.phase;object.position.set(s.x+Math.sin(a)*f.r+Math.sin(a*2.9)*.13,s.y+f.height+Math.sin(a*1.7+f.phase2)*.26,s.z+Math.cos(a*.83+f.phase2)*f.r);object.scale.setScalar(.55+.3*Math.sin(f.phase2)**2);object.rotation.set(Math.sin(a*3)*.25,-a,Math.sin(a*12)*.25);}object.updateMatrix();fliesMesh.setMatrixAt(i,object.matrix);}fliesMesh.instanceMatrix.needsUpdate=true;}
+    if(frame%2===0){let visible=0;
+      for(let spot=0;spot<hotspots.length;spot++){const s=hotspots[spot];if(playerPos&&(s.x-playerPos.x)**2+(s.z-playerPos.z)**2>90**2)continue;
+        const limit=(s.rich?65:30)*clamp(s.flies/s.maxFlies,0,1);
+        for(const f of fliesBySpot[spot]){if(f.rank>=limit)continue;const a=time*f.speed+f.phase;object.position.set(s.x+Math.sin(a)*f.r+Math.sin(a*2.9)*.13,s.y+f.height+Math.sin(a*1.7+f.phase2)*.26,s.z+Math.cos(a*.83+f.phase2)*f.r);object.scale.setScalar(.55+.3*Math.sin(f.phase2)**2);object.rotation.set(Math.sin(a*3)*.25,-a,Math.sin(a*12)*.25);object.updateMatrix();fliesMesh.setMatrixAt(visible++,object.matrix);}
+      }
+      fliesMesh.count=visible;renderStats.flyMatricesUpdated=visible;
+      if(visible){fliesMesh.instanceMatrix.clearUpdateRanges();fliesMesh.instanceMatrix.addUpdateRange(0,visible*16);fliesMesh.instanceMatrix.needsUpdate=true;}
+    }
     // Nearby leaves flex gently; geometry and physics retain the same support
     // height so a player's footing never drifts under a stationary character.
-    if(frame%5===0&&playerPos){lilyData.forEach((p,i)=>{if(Math.hypot(playerPos.x-p.x,playerPos.z-p.z)>48)return;object.position.set(p.x,p.y+Math.sin(time*.9+p.phase)*.018,p.z);object.rotation.set(Math.sin(time*.61+p.phase)*.015,p.angle,Math.cos(time*.8+p.phase)*.015);object.scale.set(p.visualRadius,1,p.visualRadius);object.updateMatrix();lilyMesh.setMatrixAt(i,object.matrix);});lilyMesh.instanceMatrix.needsUpdate=true;}
+    if(frame%5===0&&playerPos){lilyData.forEach((p,i)=>{if(Math.hypot(playerPos.x-p.x,playerPos.z-p.z)>48)return;object.position.set(p.x,p.y+Math.sin(time*.9+p.phase)*.018,p.z);object.rotation.set(Math.sin(time*.61+p.phase)*.015,p.angle,Math.cos(time*.8+p.phase)*.015);object.scale.set(p.visualRadius,1,p.visualRadius);object.updateMatrix();lilyMesh.setMatrixAt(i,object.matrix);});lilyMesh.flush();}
     const closeLights=[...shelters].filter(s=>!s.userData.destroyed).sort((a,b)=>playerPos?a.position.distanceToSquared(playerPos)-b.position.distanceToSquared(playerPos):0).slice(0,3);
     for(const s of shelters){s.userData.light.visible=closeLights.includes(s);s.userData.light.intensity=.25+(1-dayFactor)*3;s.userData.lamp.material.emissiveIntensity=.3+(1-dayFactor)*1.3;s.userData.banner.userData.flag.rotation.y=Math.sin(time*1.4+s.position.x)*.06;}
   }
   function dispose(){hideBuildArea();for(const preview of [...buildingPreviews])removeBuildingPreview(preview);scene.remove(group);const geos=new Set(),mats=new Set();group.traverse(o=>{if(o.isInstancedMesh)o.dispose();if(o.geometry)geos.add(o.geometry);if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>mats.add(m));else mats.add(o.material);}});for(const g of geos)g.dispose();for(const m of mats)m.dispose();for(const t of disposables)t.dispose();water.material.uniforms.mirrorSampler?.value?.dispose?.();shelters.clear();}
-  return {group,platforms,hotspots,campSites,mapRegions,routes,predatorAnchors,bossAnchors,radius:WORLD_RADIUS,boundary:WORLD_BOUNDARY,revision:WORLD_REVISION,sampleHeight,getTerrainHeight:bedHeight,getSurface:surface,update,splash,impact,createShelter,updateShelter,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE};
+  // Authored terrain and vegetation never move as objects. Dynamic motion uses
+  // instance buffers/shaders; castles added later retain their movable pivots.
+  group.traverse(o=>{o.updateMatrix();o.matrixAutoUpdate=false;});group.updateMatrixWorld(true);
+  return {group,platforms,hotspots,campSites,mapRegions,routes,predatorAnchors,bossAnchors,renderStats,radius:WORLD_RADIUS,boundary:WORLD_BOUNDARY,revision:WORLD_REVISION,sampleHeight,getTerrainHeight:bedHeight,getSurface:surface,update,splash,impact,createShelter,updateShelter,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE};
 }
 

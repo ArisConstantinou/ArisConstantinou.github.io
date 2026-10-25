@@ -30,11 +30,13 @@ const serialFields=['id','name','team','role','tier','level','hp','maxHp','stoma
 export class FrogGame {
   constructor(){
     this.settings={quality:'high',volume:.55,sensitivity:1};
+    this.frameProfile=new URLSearchParams(location.search).has('profile')?{frames:0,seconds:0,simulation:0,world:0,models:0,camera:0,hud:0,render:0}:null;
     try{Object.assign(this.settings,JSON.parse(localStorage.getItem('frog-settings')||'{}'));}catch{}
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color('#aacbd0');this.scene.fog=new THREE.FogExp2('#98b9ba',.0065);
     this.renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:false});
     this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));this.renderer.setSize(innerWidth,innerHeight);this.renderer.outputColorSpace=THREE.SRGBColorSpace;
     this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.12;this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    this.renderer.info.autoReset=false;
     this.renderer.domElement.id='world-canvas';this.renderer.domElement.setAttribute('aria-label','Τρισδιάστατος κόσμος Frog — Creek Dominion');document.body.prepend(this.renderer.domElement);
     this.camera=new THREE.PerspectiveCamera(59,innerWidth/innerHeight,.07,620);this.cameraYaw=.28;this.cameraPitch=.38;this.cameraDistance=12.2;this.cameraFocus=new V();this.cameraWanted=new V();
     this.sun=new THREE.DirectionalLight(0xffe7bb,3);this.sun.position.set(25,48,17);this.sun.castShadow=true;this.sun.shadow.mapSize.set(2048,2048);
@@ -53,7 +55,7 @@ export class FrogGame {
     addEventListener('resize',()=>this.resize());addEventListener('beforeunload',()=>this.save());document.addEventListener('visibilitychange',()=>{if(document.hidden&&this.started){this.save();this.pause();}});
     this.renderer.domElement.addEventListener('click',()=>{if(this.started&&!this.paused&&!this.buildPlacement?.active&&!this.ui.panel&&!this.input.pointerLocked)this.input.lock();});
     this.last=performance.now();this.fps=60;this.renderer.setAnimationLoop(now=>this.frame(now));
-    window.__FROG__={version:'1.3.1',inspect:()=>this.inspect(),save:()=>this.save()};
+    window.__FROG__={version:'1.3.2',inspect:()=>this.inspect(),save:()=>this.save()};
     document.getElementById('boot')?.remove();
   }
   emptyStats(){return {flies:0,recruited:0,kills:0,predatorsKilled:0,predatorsRepelled:0,campsBuilt:0,campsCaptured:0,raidsDefended:0,losses:0,gatheredFood:0,gatheredReeds:0,trained:0};}
@@ -118,7 +120,10 @@ export class FrogGame {
   applySettings(){const q=this.settings.quality;this.renderer.setPixelRatio(Math.min(devicePixelRatio,q==='high'?1.5:q==='medium'?1.15:1));this.renderer.shadowMap.enabled=q!=='low';this.scene.fog.density=q==='low'?.009:.0065;this.audio?.setVolume?.(this.settings.volume);this.resize();}
   resize(){this.camera.aspect=innerWidth/innerHeight;this.camera.updateProjectionMatrix();this.renderer.setSize(innerWidth,innerHeight);if(this.labels){this.labels.width=innerWidth;this.labels.height=innerHeight;}}
   frame(now){
-    let dt=Math.min(.05,Math.max(.001,(now-this.last)/1000));this.last=now;this.frameTime+=dt;this.fps=THREE.MathUtils.lerp(this.fps,1/dt,.03);
+    this.renderer.info?.reset?.();
+    const rawDt=Math.max(.001,(now-this.last)/1000);let dt=Math.min(.05,rawDt);this.last=now;this.frameTime+=dt;this.fps=THREE.MathUtils.lerp(this.fps,1/rawDt,.06);
+    const profile=this.frameProfile;let phaseStart=profile?performance.now():0;
+    const measured=key=>{if(profile){const end=performance.now();profile[key]+=end-phaseStart;phaseStart=end;}};
     if(this.input.hit('KeyC')&&this.started&&!this.ended){cycleGameView(this);this.input.pressed.delete('KeyC');}
     if(this.input.hit('KeyB')){this.toggleHUDControls();this.input.pressed.delete('KeyB');}
     if(this.ui.panel&&this.started&&!this.buildPlacement?.active){
@@ -129,10 +134,14 @@ export class FrogGame {
       if(this.hitPause>0){this.hitPause-=dt;dt*=.17;}
       this.elapsed+=dt;this.updatePlayer(dt);this.updateFrogs(dt);this.updatePredators(dt);this.updateEconomy(dt);this.updateCampaign();this.checkVictory();
     }
+    measured('simulation');
     const day=dayState(this.elapsed);this.updateLighting(day);this.world.update(dt,this.elapsed+this.frameTime*.025,day.daylight,new V(this.player.x,this.player.y,this.player.z));this.vfx.update(dt);
-    this.updateModels(dt);if(this.portraitQueue?.length&&this.renderer){const f=this.portraitQueue.shift();if(!f.dead)this.updateFrogPortrait(f);}this.updateCamera(dt);if(this.buildPlacement?.active)updateBuildingPlacement(this);this.drawLabels();this.timers.ui+=dt;if(this.timers.ui>.1){this.updateUI(day);this.timers.ui=0;}
+    measured('world');this.updateCamera(dt);measured('camera');this.updateModels(dt);this.processPortraitQueue();measured('models');
+    if(this.buildPlacement?.active)updateBuildingPlacement(this);this.drawLabels();this.timers.ui+=dt;if(this.timers.ui>.1){this.updateUI(day);this.timers.ui=0;}
+    measured('hud');
     if(this.started&&!this.paused){this.timers.save+=dt;if(this.timers.save>20){this.save();this.timers.save=0;}}
-    this.audio.update?.(dt,{night:day.night,water:!!this.player.swimming,hunt:!!this.hunt,paused:this.paused||this.ui.isBlocking()});this.renderer.render(this.scene,this.camera);this.input.endFrame();
+    this.audio.update?.(dt,{night:day.night,water:!!this.player.swimming,hunt:!!this.hunt,paused:this.paused||this.ui.isBlocking()});this.renderer.render(this.scene,this.camera);measured('render');this.input.endFrame();
+    if(profile){profile.frames++;profile.seconds+=rawDt;if(profile.seconds>=5){const frames=profile.frames;console.info('FROG_PROFILE '+JSON.stringify({fps:Math.round(frames/profile.seconds),actors:this.frogs.filter(f=>!f.dead).length,drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,cpuMs:Object.fromEntries(['simulation','world','models','camera','hud','render'].map(key=>[key,+(profile[key]/frames).toFixed(2)]))}));for(const key of Object.keys(profile))profile[key]=0;}}
   }
   updateLighting(day){
     const a=day.phase*TAU-Math.PI/2,d=day.daylight;
@@ -781,14 +790,58 @@ export class FrogGame {
     return {id:c.id,name:c.name,x:c.x,z:c.z,population,target:plan.garrison};
   }
   updateModels(dt){
-    for(const f of this.frogs){f.attackAnim=Math.max(0,(f.attackAnim||0)-dt);f.roarAnim=Math.max(0,(f.roarAnim||0)-dt);f.hitAnim=Math.max(0,(f.hitAnim||0)-dt);f.model.group.position.set(f.x,f.y,f.z);f.model.group.rotation.y=f.yaw;const near=dist(f,this.player)<80;f.model.group.visible=near&&!(f===this.player&&this.hidePlayer)&&(!f.dead||(f.deadTime||0)<5);if(!near)continue;
-      f.model.update(dt,{time:this.elapsed+f.seed*.31,speed:this.paused?0:f.speed,swimming:f.swimming,jump:f.grounded?0:clamp(.5+f.vy/20,0,1),attack:f.attackAnim>0?{type:f.attackType||'tongue',phase:1-f.attackAnim/(f.attackDuration||.4)}:0,roar:f.roarAnim/1.25,hit:f.hitAnim/.34,dead:f.dead});
+    const p=this.player,quality=this.settings?.quality||'high';
+    const state=this.renderState||(this.renderState={frustum:new THREE.Frustum(),matrix:new THREE.Matrix4(),sphere:new THREE.Sphere(new V(),2.4),visible:new Set(),full:new Set(),priority:[]});
+    const {frustum,matrix,sphere,visible,full,priority}=state;visible.clear();full.clear();priority.length=0;
+    sphere.radius=2.4;
+    const canCull=!!this.camera?.projectionMatrix;
+    if(canCull)frustum.setFromProjectionMatrix(matrix.multiplyMatrices(this.camera.projectionMatrix,this.camera.matrixWorldInverse));
+    for(const f of this.frogs){
+      const distance2=(f.x-p.x)**2+(f.z-p.z)**2;if(distance2>80*80||f.dead&&(f.deadTime||0)>=5)continue;
+      sphere.center.set(f.x,f.y+.9,f.z);
+      if(f===p||!canCull||frustum.intersectsSphere(sphere))visible.add(f);
+      if(f!==p&&distance2<12*12&&visible.has(f))priority.push({frog:f,score:distance2-(this.selectedIds?.has(f.id)?144:0)});
+    }
+    priority.sort((a,b)=>a.score-b.score);
+    const detailBudget=quality==='low'?2:quality==='medium'?5:7;
+    for(let i=0;i<Math.min(detailBudget,priority.length);i++)full.add(priority[i].frog);
+    for(const f of this.frogs){
+      f.attackAnim=Math.max(0,(f.attackAnim||0)-dt);f.roarAnim=Math.max(0,(f.roarAnim||0)-dt);f.hitAnim=Math.max(0,(f.hitAnim||0)-dt);
+      const distance2=(f.x-p.x)**2+(f.z-p.z)**2,near=distance2<80*80;
+      f.model.group.visible=near&&!(f===p&&this.hidePlayer)&&(!f.dead||(f.deadTime||0)<5);
+      if(!near)continue;
+      f.model.group.position.set(f.x,f.y,f.z);f.model.group.rotation.y=f.yaw;
+      const detail=f===p||full.has(f)?0:distance2<(quality==='low'?24:42)**2?1:2;
+      const changed=f.renderLOD!==detail;f.renderLOD=detail;f.model.setRenderLOD?.(detail);
+      // Position and combat remain live for everyone; only distant bone posing
+      // runs less often. Detailed nearby frogs retain the original animation.
+      f.poseElapsed=(f.poseElapsed||0)+dt;
+      const interval=f===p||detail===0?0:visible.has(f)?(detail===1?1/30:1/12):1/6;
+      if(changed||f.poseElapsed>=interval){
+        f.model.update(f.poseElapsed,{time:this.elapsed+f.seed*.31,speed:this.paused?0:f.speed,swimming:f.swimming,jump:f.grounded?0:clamp(.5+f.vy/20,0,1),attack:f.attackAnim>0?{type:f.attackType||'tongue',phase:1-f.attackAnim/(f.attackDuration||.4)}:0,roar:f.roarAnim/1.25,hit:f.hitAnim/.34,dead:f.dead});f.poseElapsed=0;
+      }
       if(f.surrendered)f.model.setOutline(COLORS.surrender,true);else f.model.setOutline(this.selectedIds?.has(f.id)?0xe6f9b9:(COLORS[f.team]||COLORS.enemy),true);
     }
-    for(const p of this.predators){p.attackAnim=Math.max(0,(p.attackAnim||0)-dt);p.hitAnim=Math.max(0,(p.hitAnim||0)-dt);p.model.group.position.set(p.x,p.y,p.z);p.model.group.rotation.y=p.yaw;p.model.group.visible=p.phase!=='dormant'&&dist(p,this.player)<100&&(!p.dead||p.phaseTime<4);
-      p.model.update(dt,{time:this.elapsed,speed:p.phase==='patrol'?1:p.phase==='stalk'||p.phase==='flee'?p.speed:0,swimming:p.type==='fish',attack:p.attackAnim>0?{type:p.attackType||'lunge',phase:1-p.attackAnim/(p.attackDuration||.65)}:0,hit:p.hitAnim/.35,dead:p.dead});
+    for(const predator of this.predators){
+      predator.attackAnim=Math.max(0,(predator.attackAnim||0)-dt);predator.hitAnim=Math.max(0,(predator.hitAnim||0)-dt);
+      const show=predator.phase!=='dormant'&&dist(predator,p)<100&&(!predator.dead||predator.phaseTime<4);predator.model.group.visible=show;if(!show)continue;
+      predator.model.group.position.set(predator.x,predator.y,predator.z);predator.model.group.rotation.y=predator.yaw;
+      sphere.center.set(predator.x,predator.y+(predator.scale||1),predator.z);sphere.radius=Math.max(2.5,(predator.model.stats?.length||3)*(predator.scale||1)*.65);
+      if(canCull&&!frustum.intersectsSphere(sphere))continue;
+      predator.model.update(dt,{time:this.elapsed,speed:predator.phase==='patrol'?1:predator.phase==='stalk'||predator.phase==='flee'?predator.speed:0,swimming:predator.type==='fish',attack:predator.attackAnim>0?{type:predator.attackType||'lunge',phase:1-predator.attackAnim/(predator.attackDuration||.65)}:0,hit:predator.hitAnim/.35,dead:predator.dead});
     }
     this.shake=Math.max(0,this.shake-dt*1.8);
+  }
+  processPortraitQueue(){
+    if(!this.renderer||!this.portraitQueue?.length||this.frameTime<(this.nextPortraitAt||0))return;
+    const wanted=new Set([this.player.id]),selection=this.selectedIds;
+    if(selection?.size)for(const f of this.frogs)if(!f.dead&&f.team==='ally'&&selection.has(f.id)){wanted.add(f.id);if(wanted.size>=3)break;}
+    if(wanted.size===1)for(const f of this.frogs)if(!f.dead&&f.team==='ally'){wanted.add(f.id);if(wanted.size>=3)break;}
+    const showRoster=this.ui?.panel==='roster'||this.ui?.panel==='build';
+    this.portraitQueue=this.portraitQueue.filter(f=>!f.dead);
+    let index=this.portraitQueue.findIndex(f=>wanted.has(f.id));if(index<0&&showRoster)index=0;
+    if(index<0||!this.portraitQueue.length)return;
+    const [f]=this.portraitQueue.splice(index,1);this.updateFrogPortrait(f);this.nextPortraitAt=this.frameTime+.12;
   }
   drawLabels(){
     const ctx=this.labelCtx,w=this.labels.width,h=this.labels.height;ctx.clearRect(0,0,w,h);if(!this.started||this.ui.isBlocking())return;const v=new V();
@@ -842,6 +895,6 @@ export class FrogGame {
     const data={version:SAVE_VERSION,worldRevision:WORLD_REVISION,balanceRevision:this.balanceRevision??1,pendingRivalRecoveryCampId:this.pendingRivalRecoveryCampId||null,nextRaid:this.nextRaid,graceUntil:this.graceUntil,elapsed:this.elapsed,resources:{...this.resources},stats:{...this.stats},campaign:this.campaign,player:clean(this.player),frogs:this.frogs.filter(f=>f!==this.player&&!f.dead).map(clean),camps:this.camps.map(c=>({id:c.id,x:c.x,z:c.z,name:c.name,team:c.team,yaw:c.yaw||0,buildingPlacements:c.buildingPlacements||{},tier:c.tier,hp:c.hp,maxHp:c.maxHp,gateHp:c.gateHp,stock:c.stock,buildings:c.buildings,originalEnemy:c.originalEnemy,originalTeam:c.originalTeam,rivalIndex:c.rivalIndex,capturedOnce:c.capturedOnce,destroyRewarded:c.destroyRewarded,rebuildTimer:c.rebuildTimer,persuadeCD:c.persuadeCD,destroyed:c.destroyed,lootTaken:c.lootTaken,supplyMigrated:c.supplyMigrated,morale:c.morale,spawnTimer:c.spawnTimer,mealCount:c.mealCount,mealDay:c.mealDay})),hotspots:this.world.hotspots.map(h=>({id:h.id,flies:h.flies})),idCounter:this.idCounter,won:this.won};
     try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));this.savedAt=Date.now();return true;}catch{if(!this.saveWarn){this.ui.toast('Η αποθήκευση του browser είναι γεμάτη ή απενεργοποιημένη.','warning');this.saveWarn=true;}return false;}
   }
-  inspect(){return {version:'1.3.1',started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
+  inspect(){return {version:'1.3.2',started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
 }
 

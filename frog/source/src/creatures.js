@@ -28,7 +28,7 @@ function paintResult(c, mask = 0) { return { color: c, mask }; }
 function colorArray(c) { if (Array.isArray(c)) return c; const a = new THREE.Color(c); return [a.r, a.g, a.b]; }
 
 class Surface {
-  constructor() { this.p = []; this.uv = []; this.c = []; this.mask = []; this.si = []; this.sw = []; this.idx = []; }
+  constructor(detail = 1) { this.detail = detail; this.p = []; this.uv = []; this.c = []; this.mask = []; this.si = []; this.sw = []; this.idx = []; }
   vertex(p, uv = [0, 0], weights = [[0, 1]], paint = { color: [1, 1, 1], mask: 0 }) {
     const id = this.p.length / 3;
     this.p.push(p.x, p.y, p.z); this.uv.push(...uv); this.c.push(...paint.color); this.mask.push(paint.mask || 0);
@@ -39,7 +39,9 @@ class Surface {
   tri(a, b, c) { this.idx.push(a, b, c); }
   quad(a, b, c, d, reverse = false) { if (reverse) { this.tri(a, c, b); this.tri(b, c, d); } else { this.tri(a, b, c); this.tri(b, d, c); } }
   tube(points, rx, ry, options = {}) {
-    const { segments = 28, radial = 16, bones = [0], paint = () => paintResult([.7, .7, .7], 1), distort } = options;
+    const { bones = [0], paint = () => paintResult([.7, .7, .7], 1), distort } = options;
+    const segments = Math.max(2, Math.round((options.segments ?? 28) * this.detail));
+    const radial = Math.max(3, Math.round((options.radial ?? 16) * this.detail));
     const curve = new THREE.CatmullRomCurve3(points.map(p => p.isVector3 ? p : V(...p)), false, 'catmullrom', .5);
     const start = this.p.length / 3;
     for (let i = 0; i <= segments; i++) {
@@ -69,6 +71,7 @@ class Surface {
     return this;
   }
   ellipsoid(center, radius, { bone = 0, rings = 14, radial = 24, paint = () => paintResult([1, 1, 1]), rotationY = 0, sculpt } = {}) {
+    rings = Math.max(3, Math.round(rings * this.detail)); radial = Math.max(4, Math.round(radial * this.detail));
     const start = this.p.length / 3, c = V(...center), cy = Math.cos(rotationY), sy = Math.sin(rotationY);
     for (let i = 0; i <= rings; i++) {
       const v = i / rings, lat = Math.PI * v;
@@ -86,6 +89,7 @@ class Surface {
     return this;
   }
   leaf(points, widths, { bone = 0, bones, segments = 14, across = 6, color = [.35, .45, .22], ridge = .025, mask = 0, vein = true } = {}) {
+    segments = Math.max(2, Math.round(segments * this.detail)); across = Math.max(2, Math.round(across * this.detail));
     const curve = new THREE.CatmullRomCurve3(points.map(p => p.isVector3 ? p : V(...p)), false, 'catmullrom', .5), start = this.p.length / 3;
     for (let i = 0; i <= segments; i++) {
       const t = i / segments, p = curve.getPoint(t), tangent = curve.getTangent(t).normalize();
@@ -134,8 +138,8 @@ function frogLimbPaint(p, t=0, a=0) {
   const shade=.79-.36*spot;
   return paintResult([lerp(shade,.70,underside),lerp(shade,.66,underside),lerp(shade,.43,underside)],1-underside*.92);
 }
-function frogTemplate() {
-  const rig = buildRig(), S = new Surface(), E = new Surface(), A = new Surface(), C = new Surface();
+function frogTemplate(detail = 1) {
+  const rig = buildRig(), S = new Surface(detail), E = new Surface(detail), A = new Surface(detail), C = new Surface(detail);
   const pelvis = rig.bone('pelvis', [0, .36, -.35]);
   const spine = rig.bone('spine', [0, .43, -.07], pelvis);
   const head = rig.bone('head', [0, .47, .29], spine);
@@ -401,13 +405,14 @@ function makeSkeleton(defs) {
   }
   return { bones, skeleton: new THREE.Skeleton(bones), root: bones[0] };
 }
-function getTemplate(type) {
-  if (!templateCache.has(type)) {
-    const t = ({ frog: frogTemplate, heron: heronTemplate, snake: snakeTemplate, fish: fishTemplate }[type] || frogTemplate)();
+function getTemplate(type, lod = 0) {
+  const key = type === 'frog' && lod ? `${type}:${lod}` : type;
+  if (!templateCache.has(key)) {
+    const t = type === 'frog' ? frogTemplate([1, .36, .18][lod]) : ({ heron: heronTemplate, snake: snakeTemplate, fish: fishTemplate }[type] || frogTemplate)();
     for (const key of ['skin','eyes','armor','crest','tongue']) if (t[key]?.boundingSphere) t[key].boundingSphere.radius *= 1.9;
-    templateCache.set(type, t);
+    templateCache.set(key, t);
   }
-  return templateCache.get(type);
+  return templateCache.get(key);
 }
 // Planar two-bone IK plants the anatomical wrist/ankle during the stance phase.
 // Rest vectors keep each species' original bend direction instead of flipping knees.
@@ -439,6 +444,7 @@ function getAttack(attack, elapsed) {
  * Creates an original, skinned animal. World transform belongs to caller.
  * attack accepts {type:'kick'|'slam'|'tongue'|'lunge', phase:0..1} or a string.
  * speed is world-units/sec; jump is airborne progress 0..1 (boolean accepted).
+ * setRenderLOD(0|1|2) selects full/medium/distant frog detail without resetting pose.
  * All instances face local +Z. Frog floor contacts are y≈0.
  */
 export function createCreature(type = 'frog', options = {}) {
@@ -464,14 +470,35 @@ export function createCreature(type = 'frog', options = {}) {
   const restPositions = boneList.map(b => b.position.clone());
   const mouthMarker = new THREE.Object3D(); mouthMarker.name = 'mouth-attachment'; boneList[template.mouth].add(mouthMarker);
   let time = (options.seed || 0) * .731, attackTime = 0, previousAttack = '', tier = 1, deadProgress = 0, lastMove = 0;
+  let renderLOD = 0, outlineRequested = true;
   const role = options.role || 'scout';
   const roleScale = type === 'frog' ? (['guardian', 'brute', 'tank'].includes(role) ? [1.15, 1.12, 1.05] : ['scout', 'hunter', 'agile'].includes(role) ? [.96, .98, 1.04] : [1.03, 1.02, 1.02]) : [1, 1, 1];
   pivot.scale.set(...roleScale);
   const reset = () => { for (let i = 0; i < boneList.length; i++) { boneList[i].rotation.set(0, 0, 0); boneList[i].scale.set(1, 1, 1); boneList[i].position.copy(restPositions[i]); } };
   const api = {
     group, bones, skeleton, mesh: body,
-    stats: { type, vertices: template.skin.attributes.position.count + template.eyes.attributes.position.count, triangles: (template.skin.index.count + template.eyes.index.count) / 3, boneCount: boneList.length, length: template.length, height: template.height, rigged: true },
-    setOutline(color, visible = true) { if (color !== undefined && color !== null) outline.material.color.set(color); outline.visible = visible; },
+    stats: { type, vertices: template.skin.attributes.position.count + template.eyes.attributes.position.count, triangles: (template.skin.index.count + template.eyes.index.count) / 3, boneCount: boneList.length, length: template.length, height: template.height, rigged: true, renderLOD: 0 },
+    setOutline(color, visible = true) { if (color !== undefined && color !== null) outline.material.color.set(color); outlineRequested = visible; outline.visible = visible && renderLOD === 0; },
+    // The full anatomical model is retained nearby. Distant armies share simpler
+    // versions of the same sculpt and rig, without a second outline/shadow pass.
+    // This changes rendering only: callers keep every actor and its simulation.
+    setRenderLOD(value = 0) {
+      const level = type === 'frog' ? clamp(Math.round(Number(value) || 0), 0, 2) : 0;
+      if (level === renderLOD) return;
+      renderLOD = level;
+      const next = getTemplate(type, level);
+      for (const mesh of [body, eyes, outline, ...extras]) {
+        mesh.geometry = next[mesh === body || mesh === outline ? 'skin' : mesh === eyes ? 'eyes' : mesh.name];
+        // SkinnedMesh caches bounds independently of geometry. Clear these when
+        // swapping detail so raycasting and culling use the new surface.
+        mesh.boundingSphere = null; mesh.boundingBox = null;
+        mesh.castShadow = level === 0 && mesh !== eyes && mesh !== outline && mesh.name !== 'tongue';
+      }
+      outline.visible = outlineRequested && level === 0;
+      api.stats.vertices = next.skin.attributes.position.count + next.eyes.attributes.position.count;
+      api.stats.triangles = (next.skin.index.count + next.eyes.index.count) / 3;
+      api.stats.renderLOD = level;
+    },
     setTier(value) {
       tier = clamp(Math.round(value || 1), 1, 5);
       for (const mesh of extras) if (mesh.name === 'armor') mesh.visible = tier >= 2; else if (mesh.name === 'crest') mesh.visible = tier >= 3;

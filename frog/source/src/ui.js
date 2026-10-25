@@ -197,6 +197,22 @@ export class GameUI {
     return this.portraitCache.get(id);
   }
   chosen(){return new Set((this.state.selectedIds||this.state.allies?.filter(f=>f.selected).map(f=>f.id)||[]).map(String));}
+  updateSelectionDock(allies,selected){
+    // Only these two portraits are visible. Never serialize the entire army's
+    // PNG data URLs or rebuild the image nodes when an off-screen frog changes.
+    const shown=[];
+    for(const f of allies){if(selected.size&&!selected.has(String(f.id)))continue;shown.push(f);if(shown.length===2)break;}
+    const cards=shown.map(f=>({id:String(f.id),name:f.name||'Βάτραχος',portrait:this.portrait(f),selected:selected.has(String(f.id)),guard:Boolean(f.guard||f.order==='guard'),health:fraction(f.hp,f.maxHp)}));
+    const count=selected.size||allies.length,previous=this.dockCards;
+    const changed=this.dockCount!==count||!previous||previous.length!==cards.length||cards.some((card,i)=>['id','name','portrait','selected','guard'].some(key=>card[key]!==previous[i][key]));
+    if(changed){
+      this.refs.selectionPortraits.innerHTML=cards.map(f=>`<button class="fg-dock-frog${f.selected?' is-selected':''}" data-action="select-frog" data-id="${esc(f.id)}" aria-label="${esc(f.name)}" title="${esc(f.name)}"><img src="${esc(f.portrait)}" alt="${esc(f.name)}"><span style="width:${f.health*100}%"></span>${f.guard?`<i>${pictogram('shield')}</i>`:''}</button>`).join('')+(count>2?`<button class="fg-dock-more" data-action="open-roster" title="Όλη η ομάδα"><span class="fg-dock-rest-wide">+${count-2}</span><span class="fg-dock-rest-short">+${count-1}</span></button>`:'');
+      this.dockHealthBars=$$(this.refs.selectionPortraits,'.fg-dock-frog>span');
+    }else{
+      for(let i=0;i<cards.length;i++)if(cards[i].health!==previous[i].health&&this.dockHealthBars[i])this.dockHealthBars[i].style.width=`${cards[i].health*100}%`;
+    }
+    this.dockCards=cards;this.dockCount=count;
+  }
   markup(){return `
     <div class="fg-hud fg-visual-hud fg-compact-hud" data-ref="hud" hidden>
       <div class="fg-hud-top">
@@ -257,7 +273,7 @@ export class GameUI {
       <div class="fg-title-body"><div class="fg-eyebrow fg-title-kicker">ΕΝΑΣ ΠΟΤΑΜΟΣ. ΠΟΛΛΕΣ ΣΥΜΜΟΡΙΕΣ.</div><h1>FROG<span>CREEK DOMINION</span></h1><p>Κυνήγησε. Στρατολόγησε. Κυριάρχησε.<br>Κράτησε τη συμμορία σου ζωντανή.</p><div class="fg-title-actions"><button class="fg-button fg-primary" data-action="continue" data-ref="continueButton" hidden>Συνέχεια ${icon('arrow')}</button><button class="fg-button fg-primary" data-action="new-game" data-ref="newButton">Μπες στον ποταμό ${icon('arrow')}</button><button class="fg-button fg-subtle" data-action="title-help">Χειρισμός & οδηγός</button></div><div class="fg-title-note">Ποντίκι για στόχευση · WASD για κίνηση · Αποθήκευση στη συσκευή σου</div></div>
       <div class="fg-title-bottom"><div><b>01</b><span>Βρες τα μεγάλα σμήνη</span></div><div><b>02</b><span>Χτίσε και υπερασπίσου</span></div><div><b>03</b><span>Ένωσε τον ποταμό</span></div></div>
     </section>
-    <section class="fg-modal-layer" data-ref="pause" hidden><div class="fg-panel fg-pause-panel"><div class="fg-panel-head"><div><span class="fg-eyebrow">ΜΙΑ ΑΝΑΣΑ ΣΤΗΝ ΟΧΘΗ</span><h2>Παύση</h2></div><button class="fg-icon-button" data-action="resume" aria-label="Συνέχεια">${icon('close')}</button></div><p class="fg-muted">Ο ποταμός σε περιμένει.</p><div class="fg-pause-actions"><button class="fg-button fg-primary" data-action="resume">Επιστροφή στο παιχνίδι ${icon('arrow')}</button><button class="fg-button" data-action="save">Αποθήκευση προόδου ${icon('check')}</button></div><div class="fg-settings"><label>Ποιότητα γραφικών<select data-setting="quality"><option value="high">Υψηλή</option><option value="medium">Ισορροπημένη</option><option value="low">Απόδοση</option></select></label><label>Ένταση ήχου <output data-ref="volumeOutput">65%</output><input type="range" min="0" max="100" value="65" data-setting="volume"></label><label>Ευαισθησία ποντικιού <output data-ref="sensitivityOutput">1.0×</output><input type="range" min="30" max="200" value="100" data-setting="sensitivity"></label></div><button class="fg-text-button" data-action="pause-help">Πλήρης χειρισμός & οδηγός ${icon('arrow')}</button><button class="fg-text-button fg-danger-text" data-action="restart-confirm">Νέο ταξίδι</button><div data-ref="restartConfirm" class="fg-confirm" hidden><p>Η τρέχουσα αποθηκευμένη πρόοδος θα αντικατασταθεί.</p><button class="fg-button fg-danger" data-action="restart">Έναρξη νέου παιχνιδιού</button><button class="fg-button" data-action="restart-cancel">Ακύρωση</button></div></div></section>
+    <section class="fg-modal-layer" data-ref="pause" hidden><div class="fg-panel fg-pause-panel"><div class="fg-panel-head"><div><span class="fg-eyebrow">ΜΙΑ ΑΝΑΣΑ ΣΤΗΝ ΟΧΘΗ</span><h2>Παύση</h2></div><button class="fg-icon-button" data-action="resume" aria-label="Συνέχεια">${icon('close')}</button></div><p class="fg-muted">Ο ποταμός σε περιμένει.</p><div class="fg-pause-actions"><button class="fg-button fg-primary" data-action="resume">Επιστροφή στο παιχνίδι ${icon('arrow')}</button><button class="fg-button" data-action="save">Αποθήκευση προόδου ${icon('check')}</button></div><div class="fg-settings"><label>Ποιότητα γραφικών<select data-setting="quality"><option value="high">Υψηλή</option><option value="medium">Ισορροπημένη</option><option value="low">Απόδοση</option></select><small class="fg-performance" title="Τελευταία μέτρηση κατά τη διάρκεια του παιχνιδιού">Παιχνίδι: <output data-ref="fpsValue">—</output> FPS</small></label><label>Ένταση ήχου <output data-ref="volumeOutput">65%</output><input type="range" min="0" max="100" value="65" data-setting="volume"></label><label>Ευαισθησία ποντικιού <output data-ref="sensitivityOutput">1.0×</output><input type="range" min="30" max="200" value="100" data-setting="sensitivity"></label></div><button class="fg-text-button" data-action="pause-help">Πλήρης χειρισμός & οδηγός ${icon('arrow')}</button><button class="fg-text-button fg-danger-text" data-action="restart-confirm">Νέο ταξίδι</button><div data-ref="restartConfirm" class="fg-confirm" hidden><p>Η τρέχουσα αποθηκευμένη πρόοδος θα αντικατασταθεί.</p><button class="fg-button fg-danger" data-action="restart">Έναρξη νέου παιχνιδιού</button><button class="fg-button" data-action="restart-cancel">Ακύρωση</button></div></div></section>
     <section class="fg-modal-layer" data-ref="panelLayer" hidden><div class="fg-panel fg-game-panel" data-ref="panel"></div></section>
     <section class="fg-modal-layer" data-ref="ending" hidden><div class="fg-panel fg-ending-panel"><span class="fg-ending-mark" data-ref="endingMark">${icon('crown')}</span><span class="fg-eyebrow" data-ref="endingEyebrow">Ο ΠΟΤΑΜΟΣ ΕΝΩΘΗΚΕ</span><h2 data-ref="endingTitle">Κυρίαρχος του ποταμού</h2><p data-ref="endingText"></p><div class="fg-ending-stats" data-ref="endingStats"></div><div class="fg-pause-actions"><button class="fg-button fg-primary" data-action="continue-after-end" data-ref="endingContinue">Συνέχισε την εξερεύνηση</button><button class="fg-button" data-action="restart">Νέο ταξίδι</button></div></div></section>`;}
 
@@ -351,6 +367,7 @@ export class GameUI {
     if(paused)this.closeHudDisclosure();
     if(!paused){this.refs.pause.hidden=true;if(this.menu==='pause')this.menu=null;return;}
     this.closePanels();this.menu='pause';this.refs.pause.hidden=false;this.refs.restartConfirm.hidden=true;
+    this.setText('fpsValue',Number.isFinite(this.state.fps)?whole(this.state.fps):'—');
     document.exitPointerLock?.();
   }
   hideMenus(){
@@ -429,7 +446,14 @@ export class GameUI {
     if(contextArt!==this.contextArt){this.contextArt=contextArt;this.refs.contextArt.innerHTML=pictogram(contextArt||'recruit');$(this.root,'[data-action="interact"] .fg-action-art').innerHTML=pictogram(contextArt&&contextType!=='none'?contextArt:'recruit');}
     const interactTile=$(this.root,'[data-action="interact"]');interactTile.classList.toggle('has-context',Boolean(contextType&&contextType!=='none'));interactTile.classList.toggle('is-unavailable',context.available===false);interactTile.title=materialText([state.hint,context.reason].filter(Boolean).join(' · ')||'Πλησίασε βάτραχο, σμήνος ή οχυρό');interactTile.disabled=!contextType||contextType==='none';
     const contextFood=context.cost?.food,costBadge=this.refs.interactionCost;
-    if(costBadge){costBadge.hidden=contextFood==null||contextType==='none';costBadge.title=context.reason||'';const costMarkup=contextFood>0?`${pictogram('fly')}<b>${whole(contextFood)}</b>`:`${pictogram('check')}<b>0</b>`;if(costBadge.innerHTML!==costMarkup)costBadge.innerHTML=costMarkup;costBadge.classList.toggle('is-short',context.available===false&&!(context.cooldown>0));}
+    if(costBadge){
+      costBadge.hidden=contextFood==null||contextType==='none';costBadge.title=context.reason||'';
+      const costValue=contextFood>0?whole(contextFood):0;
+      // Browser-normalized SVG innerHTML differs from its source markup. Compare
+      // the displayed value so an unchanged cost never reparses the icon.
+      if(!costBadge.hidden&&costValue!==this.contextCostValue){this.contextCostValue=costValue;costBadge.innerHTML=costValue>0?`${pictogram('fly')}<b>${costValue}</b>`:`${pictogram('check')}<b>0</b>`;}
+      costBadge.classList.toggle('is-short',context.available===false&&!(context.cooldown>0));
+    }
     const contextCaption=context.actionLabel||({recruit:'Στρατολόγησε',loot:'Λάφυρα','persuade-camp':'Πείσε',persuade:'Πείσε',home:'Κατασκευές',gather:'Μάζεψε',reeds:'Μάζεψε',ally:'Ομάδα',flies:'Μάζεψε'}[contextType]||'Πλησίασε');
     if(contextCaption!==this.contextCaption){this.contextCaption=contextCaption;$(interactTile,'.fg-action-caption').innerHTML=captionMarkup(contextCaption);}
     this.setText('contextKey',contextType==='home'?'V':'E');this.meter('contextBar',context.progress??1);
@@ -459,12 +483,7 @@ export class GameUI {
     if(this.viewMode!==state.viewMode){this.viewMode=state.viewMode;$(this.root,'[data-cooldown="view"] .fg-action-art').innerHTML=pictogram({first:'first',topdown:'topdown'}[state.viewMode]||'third');}
     const mode=state.squadMode||'follow';if(mode!==this.squadMode){this.squadMode=mode;this.refs.squadMode.innerHTML=pictogram({guard:'shield',train:'training',training:'training'}[mode]||mode);}
     this.setText('selectionCount',selected.size?`${selected.size} / ${allies.length}`:allies.length);this.refs.selectionDock.hidden=!allies.length;this.setText('selectionLabel',selected.size?'Επιλογή':'Ομάδα');
-    const selectionSignature=JSON.stringify([Array.from(selected),allies.map(f=>[f.id,f.hp,f.order,f.guard,f.portrait])]);
-    if(selectionSignature!==this.selectionSignature){
-      this.selectionSignature=selectionSignature;const shown=(selected.size?allies.filter(f=>selected.has(String(f.id))):allies).slice(0,2);
-      this.refs.selectionPortraits.innerHTML=shown.map(f=>`<button class="fg-dock-frog${selected.has(String(f.id))?' is-selected':''}" data-action="select-frog" data-id="${esc(f.id)}" aria-label="${esc(f.name||'Βάτραχος')}" title="${esc(f.name||'Βάτραχος')}"><img src="${esc(this.portrait(f))}" alt="${esc(f.name||'Βάτραχος')}"><span style="width:${fraction(f.hp,f.maxHp)*100}%"></span>${f.guard||f.order==='guard'?`<i>${pictogram('shield')}</i>`:''}</button>`).join('')+((selected.size||allies.length)>2?`<button class="fg-dock-more" data-action="open-roster" title="Όλη η ομάδα"><span class="fg-dock-rest-wide">+${(selected.size||allies.length)-2}</span><span class="fg-dock-rest-short">+${(selected.size||allies.length)-1}</span></button>`:'');
-      if(this.panel==='roster')this.renderPanel(false);
-    }
+    this.updateSelectionDock(allies,selected);
     if(state.savedAt&&state.savedAt!==this.savedAt){this.savedAt=state.savedAt;this.refs.saveStatus.hidden=false;clearTimeout(this.saveTimer);this.saveTimer=setTimeout(()=>this.refs.saveStatus.hidden=true,2500);}
     const now=performance.now();if(now-this.lastDraw>100){this.drawMap(this.refs.minimap,state.world||{},false);this.lastDraw=now;if(this.panel==='map'){const canvas=$(this.refs.panel,'canvas');if(canvas)this.drawMap(canvas,state.world||{},true);}}
     if(this.panel&&now-this.lastPanel>700&&!['help','map'].includes(this.panel)){this.renderPanel(false);this.lastPanel=now;}
@@ -643,11 +662,13 @@ export class GameUI {
     ctx.clearRect(0,0,w,h);ctx.fillStyle='#102825';ctx.fillRect(0,0,w,h);
     ctx.strokeStyle='#263e37';ctx.lineWidth=1;
     const grid=20*scale;
-    for(let x=cx%grid;x<w;x+=grid){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
-    for(let y=cy%grid;y<h;y+=grid){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+    ctx.beginPath();
+    for(let x=cx%grid;x<w;x+=grid){ctx.moveTo(x,0);ctx.lineTo(x,h);}
+    for(let y=cy%grid;y<h;y+=grid){ctx.moveTo(0,y);ctx.lineTo(w,y);}
+    ctx.stroke();
     for(const region of world.mapRegions||[]){const[x,y]=pos(region);ctx.fillStyle=region.tint||'#355b43';ctx.globalAlpha=.16;ctx.beginPath();ctx.arc(x,y,(region.radius||20)*scale,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
     for(const route of world.routes||[]){const points=route.points||[route.from,route.to];if(points.length<2||!points.every(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.z)))continue;ctx.strokeStyle='#8b9d7b44';ctx.lineWidth=large?2:1;ctx.beginPath();points.forEach((p,i)=>{const[x,y]=pos(p);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();}
-    if(world.platforms){ctx.fillStyle='#42523d';for(const p of world.platforms){const [x,y]=pos(p);ctx.beginPath();ctx.arc(x,y,Math.max(1,(p.radius||1)*scale),0,Math.PI*2);ctx.fill();}}
+    if(world.platforms?.length){ctx.fillStyle='#42523d';ctx.beginPath();for(const p of world.platforms){const [x,y]=pos(p),r=Math.max(1,(p.radius||1)*scale);ctx.moveTo(x+r,y);ctx.arc(x,y,r,0,Math.PI*2);}ctx.fill();}
     for(const spot of world.hotspots||[]){if(spot.flies===0)continue;const [x,y]=pos(spot);ctx.fillStyle=spot.rich?'#d6b96b':'#8c9c6e';ctx.globalAlpha=.65;ctx.beginPath();ctx.arc(x,y,large?5:3,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
     for(const camp of world.camps||this.state.camps||[]){
       const [x,y]=pos(camp);const friendly=['player','ally','friendly',0].includes(camp.team);const neutral=camp.team==='neutral'||camp.team==null;
@@ -657,7 +678,7 @@ export class GameUI {
       if(emblem.complete&&emblem.naturalWidth)ctx.drawImage(emblem,x-s,y-s*1.1,s*2,s*2.2);else{ctx.beginPath();ctx.moveTo(x,y-s);ctx.lineTo(x+s,y-s*.5);ctx.lineTo(x+s*.8,y+s*.5);ctx.lineTo(x,y+s);ctx.lineTo(x-s*.8,y+s*.5);ctx.lineTo(x-s,y-s*.5);ctx.closePath();ctx.fill();ctx.stroke();}
       if(large&&camp.name){ctx.font='13px system-ui';ctx.textAlign='center';ctx.fillStyle=stronghold?'#f1c696':'#c9d0ba';ctx.fillText(camp.name,x,y+s+16);if(stronghold){ctx.font='11px system-ui';ctx.fillText(`Οχυρό · ${whole(world.stronghold?.population??camp.garrisonCount)} βάτραχοι`,x,y+s+31);}}
     }
-    const drawDots=(arr,color,size)=>{ctx.fillStyle=color;for(const p of arr||[]){if(p.dead)continue;const[x,y]=pos(p);ctx.beginPath();ctx.arc(x,y,size,0,Math.PI*2);ctx.fill();}};
+    const drawDots=(arr,color,size)=>{if(!arr?.length)return;ctx.fillStyle=color;ctx.beginPath();for(const p of arr){if(p.dead)continue;const[x,y]=pos(p);ctx.moveTo(x+size,y);ctx.arc(x,y,size,0,Math.PI*2);}ctx.fill();};
     drawDots(world.enemies,'#df936f',large?3:3.2);drawDots(world.allies,'#94ca8c',large?3:3.2);
     for(const predator of visibleMapPredators(world)){
       const [rawX,rawY]=pos(predator),boss=Boolean(predator.boss||predator.isBoss),s=boss?(large?17:17):(large?8:6);

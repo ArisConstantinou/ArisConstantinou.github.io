@@ -197,3 +197,81 @@ test('boss markers and legend follow spawn/death state and use the actual expand
   world.stronghold.population=58;ui.updateMapLegend(world);assert.equal(ui.refs.strongholdPopulation.textContent,'58','stronghold count updates even with unchanged boss legend');
   world.stronghold=null;ui.updateMapLegend(world);assert.equal(ui.refs.mapStronghold.hidden,true);
 });
+
+function trackMarkupWrites(element){
+  let markup=element.innerHTML,writes=0;
+  Object.defineProperty(element,'innerHTML',{get:()=>markup,set:value=>{markup=value;writes++;},configurable:true});
+  return ()=>writes;
+}
+
+test('large armies update only the two visible dock portraits and preserve image nodes during healing',()=>{
+  const {ui}=fixture(),writes=trackMarkupWrites(ui.refs.selectionPortraits),bars=[node(),node()];
+  ui.refs.selectionPortraits.querySelectorAll=()=>bars;
+  let offscreenPortraitReads=0;
+  const allies=Array.from({length:59},(_,i)=>({id:`frog-${i}`,name:`Βάτραχος ${i}`,hp:100,maxHp:100,order:'follow',portrait:`data:image/png;base64,${'A'.repeat(24576)}${i}`}));
+  for(const frog of allies.slice(2))Object.defineProperty(frog,'portrait',{get(){offscreenPortraitReads++;return 'unused-large-portrait';}});
+  const snapshot={...state({food:100,reeds:100}),allies,selectedIds:[]};
+  ui.update(snapshot);
+  for(let i=0;i<20;i++){allies[58].hp-=.1;ui.update(snapshot);}
+  assert.equal(writes(),1,'off-screen health changes must not rebuild visible image nodes');
+  assert.equal(offscreenPortraitReads,0,'the live dock must not read or serialize the rest of the army portraits');
+  assert.equal(ui.refs.populationTotal.textContent,'60','all living frogs still contribute to the population');
+  allies[0].hp=37;ui.update(snapshot);
+  assert.equal(writes(),1,'healing/damage changes the health bar without replacing portrait images');
+  assert.equal(bars[0].style.width,'37%');
+  allies[0].portrait='data:image/png;base64,updated';ui.update(snapshot);
+  assert.equal(writes(),2,'a changed portrait is rendered immediately');
+  assert.match(ui.refs.selectionPortraits.innerHTML,/base64,updated/);
+  ui.update({...snapshot,selectedIds:['frog-1']});
+  assert.equal(writes(),3,'selection remains immediate');
+  assert.match(ui.refs.selectionPortraits.innerHTML,/data-id="frog-1"/);
+  assert.doesNotMatch(ui.refs.selectionPortraits.innerHTML,/data-id="frog-0"/);
+});
+
+test('dock health changes do not bypass the roster refresh interval',()=>{
+  const {ui}=fixture();let renders=0;
+  ui.panel='roster';ui.lastPanel=Infinity;ui.renderPanel=()=>renders++;
+  const snapshot={...state({food:100,reeds:100}),allies:Array.from({length:59},(_,i)=>({id:String(i),hp:100,maxHp:100,portrait:'test.png'}))};
+  for(let i=0;i<10;i++){snapshot.allies[0].hp-=1;ui.update(snapshot);}
+  assert.equal(renders,0,'portrait updates cannot rebuild a 59-frog roster on each HUD tick');
+  ui.lastPanel=-Infinity;ui.update(snapshot);
+  assert.equal(renders,1,'the scheduled roster refresh still runs');
+  ui.update(snapshot);assert.equal(renders,1);
+});
+
+test('unchanged recruitment cost keeps its SVG despite browser markup normalization',()=>{
+  const {ui}=fixture();let writes=0;
+  Object.defineProperty(ui.refs.interactionCost,'innerHTML',{get:()=>'<svg>browser-normalized icon</svg>',set(){writes++;}});
+  const snapshot={...state({food:100,reeds:100}),context:{type:'recruit',cost:{food:12},available:true}};
+  for(let i=0;i<20;i++)ui.update(snapshot);
+  assert.equal(writes,1);
+  ui.update({...snapshot,context:{type:'recruit',cost:{food:13},available:false}});
+  assert.equal(writes,2,'changed prices still update immediately');
+  ui.update({...snapshot,context:{type:'none'}});
+  assert.equal(ui.refs.interactionCost.hidden,true);assert.equal(writes,2);
+});
+
+test('the minimap batches army and geography paints while retaining every living marker',()=>{
+  const {ui}=fixture(),fills=[];let arcs=[];
+  const ctx={clearRect(){},fillRect(){},beginPath(){arcs=[];},moveTo(){},lineTo(){},stroke(){},fill(){fills.push({color:this.fillStyle,arcs:[...arcs]});},arc(x,y,r){arcs.push({x,y,r});},save(){},restore(){},translate(){},rotate(){},closePath(){},fillText(){},drawImage(){}};
+  const actors=count=>Array.from({length:count},(_,i)=>({x:i-100,z:i/2-50}));
+  const world={radius:198,player:{x:0,z:0},platforms:actors(70).map(p=>({...p,radius:3})),enemies:[...actors(200),{x:0,z:0,dead:true}],allies:actors(59)};
+  GameUI.prototype.drawMap.call(ui,{width:440,height:440,getContext:()=>ctx},world);
+  for(const [color,count] of [['#42523d',70],['#df936f',200],['#94ca8c',59]]){
+    const paints=fills.filter(fill=>fill.color===color);
+    assert.equal(paints.length,1,'one paint for each same-color group');
+    assert.equal(paints[0].arcs.length,count,'batching never drops living actors or land');
+  }
+});
+
+test('pause shows the last gameplay FPS including values below twenty without adding HUD clutter',()=>{
+  const {ui,html}=fixture(),previousDocument=globalThis.document;
+  assert.doesNotMatch(html.slice(0,html.indexOf('class="fg-toasts"')),/data-ref="fpsValue"/);
+  assert.match(html.slice(html.indexOf('data-ref="pause"')),/data-ref="fpsValue"/);
+  try{
+    globalThis.document={exitPointerLock(){}};
+    ui.state={fps:14};ui.showPause(true);
+    assert.equal(ui.refs.fpsValue.textContent,'14');
+    ui.state={};ui.showPause(true);assert.equal(ui.refs.fpsValue.textContent,'—');
+  }finally{if(previousDocument===undefined)delete globalThis.document;else globalThis.document=previousDocument;}
+});
