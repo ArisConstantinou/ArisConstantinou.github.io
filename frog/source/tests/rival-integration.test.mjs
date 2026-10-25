@@ -207,3 +207,134 @@ test('an old save migrates once without deleting frogs or changing their allegia
   assert.equal(repeated.player.x, migrated.player.x);
   assert.deepEqual(repeated.frogs.map(f => [f.x, f.z]), migrated.frogs.map(f => [f.x, f.z]));
 });
+
+function legacyRecoverySave({ near = false, balanceRevision, won = false, survivors = 0 } = {}) {
+  const ruins = camp({ id: 'last-ruin', name: 'Παλιό αντίπαλο οχυρό', team: 'enemy4', originalTeam: 'enemy4', rivalIndex: 4, originalEnemy: true, destroyed: true, tier: 1, hp: 0, maxHp: 350, gateHp: 0, x: 140, z: 80, stock: { food: 0, reeds: 0 } });
+  const homes = Array.from({ length: 4 }, (_, i) => camp({ id: `owned-${i}`, team: 'ally', originalEnemy: true, originalTeam: `enemy${i}`, rivalIndex: i, x: -100 + i * 60, z: -70, stock: { food: 0, reeds: 0 }, supplyMigrated: true }));
+  const allies = Array.from({ length: 53 }, (_, i) => actor({ id: `veteran-${i}`, team: 'ally', home: homes[0].id, x: near && i === 0 ? ruins.x + 4 : -140, z: near && i === 0 ? ruins.z + 3 : i * .15 }));
+  const enemies = Array.from({ length: survivors }, (_, i) => actor({ id: `survivor-${i}`, team: ruins.team, home: ruins.id, x: ruins.x + 10, z: ruins.z + i * .5 }));
+  return {
+    version: SAVE_VERSION, worldRevision: WORLD_REVISION,
+    ...(balanceRevision === undefined ? {} : { balanceRevision }),
+    elapsed: 900, nextRaid: 1000, graceUntil: 0, won, idCounter: 200,
+    player: actor({ id: 'player', team: 'player', x: -150, z: 0 }),
+    frogs: [...allies, ...enemies], camps: [...homes, ruins], resources: { food: 88, reeds: 99 },
+    campaign: { phase: 'preparation', defeated: ['heron', 'snake', 'fish'], bossDefeated: [], achieved: [], resourceTotals: { food: 30, reeds: 45 } }
+  };
+}
+
+test('an incomplete old save restores one unclaimed stronghold with a matching real army and modern defenses', () => {
+  const input = legacyRecoverySave({ survivors: 3 }), { game, messages } = fixture();
+  const alliedIds = input.frogs.filter(f => f.team === 'ally').map(f => f.id);
+  game.resetWorld(validateSave(input));
+  const home = game.camps.find(c => c.id === 'last-ruin');
+  const defenders = game.frogs.filter(f => f.home === home.id && f.team === home.team && !f.dead && !f.surrendered);
+  assert.equal(home.destroyed, false);
+  assert.equal(home.team, 'enemy4');
+  assert.equal(defenders.length, Math.ceil(54 * 1.15), 'existing genuine survivors count toward the restored force');
+  assert.ok(defenders.some(f => f.leader));
+  assert.ok(home.maxHp >= 600 + 120 * 4 && home.hp === home.maxHp);
+  assert.ok(home.tier >= 2 && home.gateHp === home.gateMaxHp && home.gateHp > 0);
+  assert.ok(home.stock.food >= 80 && home.stock.reeds >= 40);
+  assert.deepEqual(game.allies().map(f => f.id), alliedIds);
+  assert.equal(game.ownedCamps().length, 4);
+  assert.deepEqual(game.resources, input.resources);
+  assert.equal(game.balanceRevision, 1);
+  assert.equal(game.pendingRivalRecoveryCampId, null);
+  assert.ok(messages.some(args => args[0]?.label === 'Αντίπαλο οχυρό ανασυγκροτήθηκε'));
+});
+
+test('legacy recovery defers while an allied frog occupies the ruin and completes after it leaves', () => {
+  const input = legacyRecoverySave({ near: true }), { game } = fixture();
+  game.resetWorld(validateSave(input));
+  const home = game.camps.find(c => c.id === 'last-ruin');
+  assert.equal(home.destroyed, true);
+  assert.equal(game.frogs.filter(f => f.team.startsWith('enemy')).length, 0);
+  assert.equal(game.balanceRevision, 0);
+  assert.equal(game.pendingRivalRecoveryCampId, home.id);
+  game.updateEconomy(.1);
+  assert.equal(home.destroyed, true, 'waiting must not spawn an enemy force on top of the occupying army');
+  Object.assign(game.allies()[0], { x: -140, z: 0 });
+  game.updateEconomy(.1);
+  assert.equal(home.destroyed, false);
+  assert.equal(game.balanceRevision, 1);
+  assert.ok(game.strongholdSnapshot().population >= Math.ceil(54 * 1.15));
+});
+
+test('a deferred recovery survives actual saving, validation and reloading', t => {
+  const { game, storage } = fixture();
+  installStorage(t, storage);
+  game.resetWorld(validateSave(legacyRecoverySave({ near: true })));
+  assert.equal(FrogGame.prototype.save.call(game), true);
+  const pending = validateSave(JSON.parse(storage.get(SAVE_KEY)));
+  assert.equal(pending.balanceRevision, 0);
+  assert.equal(pending.pendingRivalRecoveryCampId, 'last-ruin');
+  const { game: loaded } = fixture();
+  loaded.resetWorld(pending);
+  assert.equal(loaded.camps.find(c => c.id === 'last-ruin').destroyed, true);
+  assert.equal(loaded.pendingRivalRecoveryCampId, 'last-ruin');
+  Object.assign(loaded.allies()[0], { x: -140, z: 0 });
+  loaded.updateEconomy(.1);
+  assert.equal(loaded.balanceRevision, 1);
+  assert.equal(loaded.camps.find(c => c.id === 'last-ruin').destroyed, false);
+  assert.equal(FrogGame.prototype.save.call(loaded), true);
+  assert.equal(validateSave(JSON.parse(storage.get(SAVE_KEY))).balanceRevision, 1);
+});
+
+test('won, fully owned, neutral and already revised saves never create a new enemy fort', () => {
+  const won = legacyRecoverySave({ won: true });
+  const revised = legacyRecoverySave({ balanceRevision: 1 });
+  const owned = legacyRecoverySave();Object.assign(owned.camps.at(-1), { team: 'ally', destroyed: false, hp: 350 });
+  const neutral = legacyRecoverySave();neutral.camps.at(-1).team = 'neutral';
+  for (const input of [won, revised, owned, neutral]) {
+    const { game } = fixture();
+    game.resetWorld(validateSave(input));
+    const original = input.camps.at(-1), loaded = game.camps.find(c => c.id === original.id);
+    assert.equal(loaded.team, original.team);
+    assert.equal(loaded.destroyed, original.destroyed);
+    assert.equal(game.frogs.filter(f => f.team.startsWith('enemy')).length, 0);
+    assert.equal(game.balanceRevision, 1);
+    assert.equal(game.pendingRivalRecoveryCampId, null);
+  }
+});
+
+test('claiming a pending ruin cancels recovery without changing the new allied ownership', () => {
+  const { game } = fixture();
+  game.resetWorld(validateSave(legacyRecoverySave({ near: true })));
+  const home = game.camps.find(c => c.id === 'last-ruin');
+  Object.assign(home, { team: 'ally', destroyed: false, hp: 350 });
+  Object.assign(game.allies()[0], { x: -140, z: 0 });
+  game.updateEconomy(.1);
+  assert.equal(home.team, 'ally');
+  assert.equal(game.balanceRevision, 1);
+  assert.equal(game.pendingRivalRecoveryCampId, null);
+  assert.equal(game.frogs.filter(f => f.team.startsWith('enemy')).length, 0);
+});
+
+test('the migration chooses the strongest original ruin and never repeats after its later destruction', t => {
+  const input = legacyRecoverySave(), { game, storage } = fixture();
+  installStorage(t, storage);
+  Object.assign(input.camps[3], { team: 'enemy3', destroyed: true, hp: 0 });
+  game.resetWorld(validateSave(input));
+  const restored = game.camps.find(c => c.id === 'last-ruin');
+  assert.equal(restored.destroyed, false);
+  assert.equal(game.camps.find(c => c.id === 'owned-3').destroyed, true);
+  restored.destroyed = true;restored.hp = 0;
+  assert.equal(FrogGame.prototype.save.call(game), true);
+  const { game: loaded } = fixture();
+  loaded.resetWorld(validateSave(JSON.parse(storage.get(SAVE_KEY))));
+  assert.equal(loaded.camps.find(c => c.id === restored.id).destroyed, true);
+  assert.equal(loaded.camps.find(c => c.id === 'owned-3').destroyed, true);
+  assert.equal(loaded.balanceRevision, 1);
+});
+
+test('new games and old saves with an existing live rival are marked without migration', () => {
+  const { game: fresh } = fixture();
+  fresh.resetWorld();
+  assert.equal(fresh.balanceRevision, 1);
+  assert.equal(fresh.pendingRivalRecoveryCampId, null);
+  const input = legacyRecoverySave();Object.assign(input.camps.at(-1), { destroyed: false, hp: 350 });
+  const { game } = fixture();game.resetWorld(validateSave(input));
+  assert.equal(game.balanceRevision, 1);
+  assert.equal(game.frogs.filter(f => f.team.startsWith('enemy')).length, 0, 'normal paid reinforcements handle an existing active rival');
+});

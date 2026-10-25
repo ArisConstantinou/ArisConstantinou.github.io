@@ -78,6 +78,7 @@ export class FrogGame {
     normalizeGuardOrders(this);
     this.campaign=createCampaign(save?.campaign,save&&!save.campaign?inferLegacyMetrics(save):this.campaignMetrics(),{legacy:!!save&&!save.campaign});
     this.campaign=advanceCampaign(this.campaign,this.campaignMetrics()).state;this.won=this.campaign.phase==='complete';this.campaignCheckAt=0;this.syncCampaignPredators();
+    this.prepareLegacyRivalRecovery(save);
     this.cameraYaw=this.player.yaw||.28;this.cameraFocus.set(this.player.x,1.1,this.player.z);this.updateCamera(1,true);
   }
   spawnFrog(data){
@@ -548,6 +549,42 @@ export class FrogGame {
     return this.camps.filter(c=>c.team?.startsWith('enemy')&&!c.destroyed).sort((a,b)=>(b.rivalIndex||0)-(a.rivalIndex||0)||(b.tier||1)-(a.tier||1))[0]||null;
   }
   rivalPlanFor(c){return rivalPlan(c,{alliedCount:this.allies().length,elapsed:this.elapsed,ownedCount:this.ownedCamps().length,isStronghold:c===this.stronghold()});}
+  prepareLegacyRivalRecovery(save){
+    this.balanceRevision=1;this.pendingRivalRecoveryCampId=null;
+    if(!save||Number(save.balanceRevision)>=1||save.won||this.won||this.campaign?.phase==='complete')return;
+    if(this.camps.some(c=>c.team?.startsWith('enemy')&&!c.destroyed&&c.hp>0))return;
+    const eligible=c=>c.originalEnemy&&c.destroyed&&/^enemy\d+$/.test(c.team);
+    const pending=typeof save.pendingRivalRecoveryCampId==='string'?save.pendingRivalRecoveryCampId:null;
+    const target=pending?this.camps.find(c=>c.id===pending&&eligible(c))
+      :this.camps.filter(eligible).sort((a,b)=>(b.rivalIndex||0)-(a.rivalIndex||0)||(b.tier||1)-(a.tier||1))[0];
+    if(!target)return;
+    this.balanceRevision=0;this.pendingRivalRecoveryCampId=target.id;
+    this.finishLegacyRivalRecovery();
+  }
+  finishLegacyRivalRecovery(){
+    if(this.balanceRevision>=1||!this.pendingRivalRecoveryCampId)return false;
+    const c=this.camps.find(c=>c.id===this.pendingRivalRecoveryCampId);
+    const abandon=()=>{this.balanceRevision=1;this.pendingRivalRecoveryCampId=null;return false;};
+    // Never undo a victory or a claim made while the old ruin was occupied.
+    if(this.won||this.campaign?.phase==='complete'||!c||!c.originalEnemy||!c.destroyed||!/^enemy\d+$/.test(c.team))return abandon();
+    if(this.camps.some(base=>base.team?.startsWith('enemy')&&!base.destroyed&&base.hp>0))return abandon();
+    if(this.frogs.some(f=>!f.dead&&f.hp>0&&['player','ally'].includes(f.team)&&dist(f,c)<=SHELTER_RADIUS+15))return false;
+    c.tier=Math.max(2,c.tier||1);
+    const plan=rivalPlan(c,{alliedCount:this.allies().length,elapsed:this.elapsed,ownedCount:this.ownedCamps().length,isStronghold:true});
+    const defenders=this.frogs.filter(f=>f.home===c.id&&f.team===c.team&&!f.dead&&f.hp>0&&!f.surrendered&&!f.grabbedBy&&!f.raidTarget&&dist(f,c)<=SHELTER_RADIUS+15);
+    const desired=Math.max(plan.initial,plan.defenseFloor),needed=Math.max(0,desired-defenders.length);
+    c.destroyed=false;c.maxHp=Math.max(c.maxHp,600+(c.rivalIndex||0)*120);c.hp=c.maxHp;c.morale=100;c.spawnTimer=0;c.rebuildTimer=0;c.underRaid=false;c.isStronghold=true;
+    c.originalTeam??=c.team;c.lootTaken=false;c.supplyMigrated=false;initializeFort(c);c.gateHp=c.gateMaxHp;
+    c.stock={food:Math.max(c.stock?.food||0,needed*RIVAL_RECRUIT_COST.food+80),reeds:Math.max(c.stock?.reeds||0,needed*RIVAL_RECRUIT_COST.reeds+40)};
+    let hasLeader=defenders.some(f=>f.leader);
+    for(const f of defenders){f.guard=true;f.order='guard';f.intent=null;f.brain=0;Object.assign(f,clearFortPosition(c,f));f.y=this.world.sampleHeight(f.x,f.z);}
+    for(let i=0;i<needed;i++){spend(c.stock,RIVAL_RECRUIT_COST);this.spawnRival(c,{leader:!hasLeader,guard:true});hasLeader=true;}
+    if(!hasLeader&&defenders.length)defenders[0].leader=true;
+    this.balanceRevision=1;this.pendingRivalRecoveryCampId=null;
+    this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});
+    this.ui.toast({icon:'shield',tone:'warning',label:'Αντίπαλο οχυρό ανασυγκροτήθηκε',detail:`Στην παλιά σου εκστρατεία, το ακατάκτητο ${c.name} επανήλθε με ${defenders.length+needed} υπερασπιστές.`});
+    this.save();return true;
+  }
   spawnRival(c,{leader=false,guard=true}={}){
     const n=this.frogs.filter(f=>f.home===c.id&&f.team===c.team&&!f.dead&&!f.surrendered).length;
     const a=n*2.399963+this.random()*.6,r=10.8+Math.sqrt(n)*.9;
@@ -564,6 +601,7 @@ export class FrogGame {
   }
   updateEconomy(dt){
     const day=dayState(this.elapsed);
+    this.finishLegacyRivalRecovery();
     normalizeGuardOrders(this);updateGarrisonAlerts(this);
     for(const h of this.world.hotspots)h.flies=Math.min(h.maxFlies,h.flies+dt*(h.rich?.55:.16)*(day.night?.65:1));
     const stronghold=this.stronghold(),alliedCount=this.allies().length,ownedCount=this.ownedCamps().length;
@@ -799,7 +837,7 @@ export class FrogGame {
   save(){
     if(!this.started||this.player.dead)return false;
     const clean=f=>Object.fromEntries(serialFields.map(k=>[k,f[k]]));
-    const data={version:SAVE_VERSION,worldRevision:WORLD_REVISION,nextRaid:this.nextRaid,graceUntil:this.graceUntil,elapsed:this.elapsed,resources:{...this.resources},stats:{...this.stats},campaign:this.campaign,player:clean(this.player),frogs:this.frogs.filter(f=>f!==this.player&&!f.dead).map(clean),camps:this.camps.map(c=>({id:c.id,x:c.x,z:c.z,name:c.name,team:c.team,yaw:c.yaw||0,buildingPlacements:c.buildingPlacements||{},tier:c.tier,hp:c.hp,maxHp:c.maxHp,gateHp:c.gateHp,stock:c.stock,buildings:c.buildings,originalEnemy:c.originalEnemy,originalTeam:c.originalTeam,rivalIndex:c.rivalIndex,capturedOnce:c.capturedOnce,destroyRewarded:c.destroyRewarded,rebuildTimer:c.rebuildTimer,persuadeCD:c.persuadeCD,destroyed:c.destroyed,lootTaken:c.lootTaken,supplyMigrated:c.supplyMigrated,morale:c.morale,spawnTimer:c.spawnTimer,mealCount:c.mealCount,mealDay:c.mealDay})),hotspots:this.world.hotspots.map(h=>({id:h.id,flies:h.flies})),idCounter:this.idCounter,won:this.won};
+    const data={version:SAVE_VERSION,worldRevision:WORLD_REVISION,balanceRevision:this.balanceRevision??1,pendingRivalRecoveryCampId:this.pendingRivalRecoveryCampId||null,nextRaid:this.nextRaid,graceUntil:this.graceUntil,elapsed:this.elapsed,resources:{...this.resources},stats:{...this.stats},campaign:this.campaign,player:clean(this.player),frogs:this.frogs.filter(f=>f!==this.player&&!f.dead).map(clean),camps:this.camps.map(c=>({id:c.id,x:c.x,z:c.z,name:c.name,team:c.team,yaw:c.yaw||0,buildingPlacements:c.buildingPlacements||{},tier:c.tier,hp:c.hp,maxHp:c.maxHp,gateHp:c.gateHp,stock:c.stock,buildings:c.buildings,originalEnemy:c.originalEnemy,originalTeam:c.originalTeam,rivalIndex:c.rivalIndex,capturedOnce:c.capturedOnce,destroyRewarded:c.destroyRewarded,rebuildTimer:c.rebuildTimer,persuadeCD:c.persuadeCD,destroyed:c.destroyed,lootTaken:c.lootTaken,supplyMigrated:c.supplyMigrated,morale:c.morale,spawnTimer:c.spawnTimer,mealCount:c.mealCount,mealDay:c.mealDay})),hotspots:this.world.hotspots.map(h=>({id:h.id,flies:h.flies})),idCounter:this.idCounter,won:this.won};
     try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));this.savedAt=Date.now();return true;}catch{if(!this.saveWarn){this.ui.toast('Η αποθήκευση του browser είναι γεμάτη ή απενεργοποιημένη.','warning');this.saveWarn=true;}return false;}
   }
   inspect(){return {version:'1.3.0',started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
