@@ -68,3 +68,29 @@ test('a delayed Continue request cannot restart a newer explicitly selected solo
   assert.equal(game.resources.food, 17);
   assert.deepEqual(population(game), { players: 1, allies: 0 });
 });
+
+test('contextual Play waits for a persistent-only save and resumes its earned allies', async () => {
+  const game=titleGameWithSave(),saved=game.saved;game.saved=null;
+  let finishLoading;
+  const loading=new Promise(resolve=>{finishLoading=()=>{game.saved=saved;resolve();};});
+  game.saveLoadPromise=loading;game.ui.refs={hud:{hidden:true}};
+  let hidden=0;game.ui.hideMenus=()=>hidden++;
+  game.start('play');assert.equal(game.started,false);assert.equal(hidden,0);
+  finishLoading();await loading;await Promise.resolve();
+  assert.equal(game.started,true);assert.equal(hidden,1);assert.equal(game.ui.refs.hud.hidden,false);
+  assert.deepEqual(population(game),{players:1,allies:2});assert.equal(game.resources.food,159);
+});
+
+test('contextual Play with no stored campaign starts solo after discovery completes', async () => {
+  const game=titleGameWithSave();game.saved=null;game.saveLoadPromise=Promise.resolve();
+  game.start('play');assert.equal(game.started,false);await Promise.resolve();
+  assert.equal(game.started,true);assert.deepEqual(population(game),{players:1,allies:0});assert.equal(game.resources.food,22);
+});
+
+test('an obsolete contextual Play cannot replace a newer confirmed New Game', async () => {
+  const game=titleGameWithSave();let finishLoading;
+  const loading=new Promise(resolve=>{finishLoading=resolve;});game.saveLoadPromise=loading;
+  game.start('play');game.start('new');const soloPlayer=game.player;game.resources.food=18;
+  finishLoading();await loading;await Promise.resolve();
+  assert.equal(game.player,soloPlayer);assert.equal(game.resources.food,18);assert.deepEqual(population(game),{players:1,allies:0});
+});

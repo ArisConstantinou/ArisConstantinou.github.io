@@ -5,6 +5,7 @@ import './realm-ui.css';
 import './live-panels.css';
 import './recruitment-card.css';
 import './gameplay-hints.css';
+import './start-screen.css';
 import {describeObjective} from './guidance.js';
 import {pictogram,gangEmblem,frogAvatar,rolePictogram} from './visuals.js';
 import {GUIDE_CATEGORIES,GUIDE_CARDS,GUIDE_ACTIONS,GUIDE_BUILDINGS,guideCard} from './field-guide.js';
@@ -43,6 +44,8 @@ const icons = {
   camp:'<path d="M3 21V5h3v3h3V5h6v3h3V5h3v16ZM9 21v-7a3 3 0 0 1 6 0v7M3 11h18"/>',
   crown:'<path d="m3 6 4 4 5-7 5 7 4-4-3 14H6ZM7 16h10"/>',
   arrow:'<path d="m5 12 14 0m-6-6 6 6-6 6"/>',
+  play:'<path d="m8 4 12 8-12 8Z" fill="currentColor" stroke-width="1"/>',
+  settings:'<path d="m9 3 1-2h4l1 2 3 2 2 0 2 3-1 2v4l1 2-2 3h-2l-3 2-1 2h-4l-1-2-3-2H4l-2-3 1-2v-4L2 8l2-3h2Z"/><circle cx="12" cy="12" r="3.5"/>',
   close:'<path d="m5 5 14 14M19 5 5 19"/>',
   sound:'<path d="M3 9v6h4l5 5V4L7 9ZM16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
   eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
@@ -119,11 +122,12 @@ export class GameUI {
   }
   closeHudDisclosure(restoreFocus=false){if(this.hudDisclosure)this.setHudDisclosure(null,restoreFocus);}
   hudKeydown(event){
+    if(this.menu==='title'&&event.code==='Escape'&&this.titleSettingsOpen){event.preventDefault();event.stopPropagation();this.closeTitleSettings();return;}
     if(this.hudDisclosure&&event.code==='Escape'){event.preventDefault();event.stopPropagation();this.closeHudDisclosure(true);return;}
     const button=event.target.closest?.('button');
     if(button&&['Space','Enter'].includes(event.code)){event.preventDefault();event.stopPropagation();if(!event.repeat)button.click();return;}
     const inCard=event.target.closest?.('.fg-recruitment-bubble'),inPanel=event.target.closest?.('.fg-panel');
-    if(event.code==='Tab'&&(inPanel||inCard)){event.stopPropagation();return;}
+    if(event.code==='Tab'&&(inPanel||inCard||this.menu==='title')){event.stopPropagation();return;}
     const allowed=['Escape','Tab','KeyV','KeyU','KeyH','KeyO','AltLeft','AltRight','KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight'];if(inCard)allowed.push('KeyE');
     if(event.target.matches?.('input,select,textarea')||((inPanel||inCard)&&!allowed.includes(event.code)&&!this.state.buildPlacement?.active))event.stopPropagation();
   }
@@ -308,11 +312,20 @@ export class GameUI {
       <div class="fg-save-status" data-ref="saveStatus" title="Η πρόοδος αποθηκεύτηκε" hidden>${pictogram('save')}</div>
     </div>
     <div class="fg-toasts" data-ref="toasts" role="status" aria-live="polite"></div>
-    <div class="fg-loading" data-ref="loading"><div class="fg-loading-mark">${icon('leaf')}</div><b>FROG</b><span data-ref="loadingText">Δημιουργία του ποταμού…</span><div class="fg-loading-line"></div></div>
-    <section class="fg-title fg-overlay" data-ref="title" hidden>
-      <div class="fg-title-art"></div><div class="fg-title-shade"></div><div class="fg-title-top"><span>${icon('leaf')} ARIS CONSTANTINOU</span><small>3D SURVIVAL · TERRITORY · GANGS</small></div>
-      <div class="fg-title-body"><div class="fg-eyebrow fg-title-kicker">ΕΝΑΣ ΠΟΤΑΜΟΣ. ΠΟΛΛΕΣ ΣΥΜΜΟΡΙΕΣ.</div><h1>FROG<span>CREEK DOMINION</span></h1><p>Κυνήγησε. Στρατολόγησε. Κυριάρχησε.<br>Κράτησε τη συμμορία σου ζωντανή.</p><div class="fg-title-actions"><button class="fg-button fg-primary" data-action="continue" data-ref="continueButton" hidden>Συνέχεια αποθήκευσης ${icon('arrow')}</button><button class="fg-button fg-primary" data-action="new-game" data-ref="newButton">Νέο παιχνίδι · Μόνος ${icon('arrow')}</button><button class="fg-button fg-subtle" data-action="title-help">Χειρισμός & οδηγός</button></div><div class="fg-title-note"><strong>Νέο παιχνίδι: μόνο ο δικός σου βάτραχος · 0 σύμμαχοι.</strong><br>Η Συνέχεια επαναφέρει την αποθήκευσή σου και την υπάρχουσα ομάδα.<br>Ποντίκι για στόχευση · WASD για κίνηση</div></div>
-      <div class="fg-title-bottom"><div><b>01</b><span>Βρες τα μεγάλα σμήνη</span></div><div><b>02</b><span>Χτίσε και υπερασπίσου</span></div><div><b>03</b><span>Ένωσε τον ποταμό</span></div></div>
+    <div class="fg-loading" data-ref="loading" role="status"><span class="fg-loading-status" data-ref="loadingText">Loading…</span><div class="fg-loading-line" aria-hidden="true"></div></div>
+    <section class="fg-title fg-overlay fg-start-menu" data-ref="title" aria-label="Main menu" hidden>
+      <div class="fg-title-art" aria-hidden="true"></div><div class="fg-title-shade" aria-hidden="true"></div>
+      <div class="fg-title-actions" data-ref="titleActions">
+        <button class="fg-menu-button fg-menu-primary" data-action="continue" data-ref="continueButton" hidden><span class="fg-menu-icon">${icon('play')}</span><span class="fg-menu-label">RESUME</span></button>
+        <button class="fg-menu-button fg-menu-primary" data-action="new-game" data-ref="newButton"><span class="fg-menu-icon">${icon('play')}</span><span class="fg-menu-label">PLAY GAME</span></button>
+        <button class="fg-menu-button fg-menu-settings" data-action="title-settings" data-ref="titleSettingsButton"><span class="fg-menu-icon">${icon('settings')}</span><span class="fg-menu-label">SETTINGS</span></button>
+      </div>
+      <section class="fg-title-settings" data-ref="titleSettings" aria-labelledby="fg-title-settings-heading" hidden>
+        <header class="fg-menu-settings-head"><h2 id="fg-title-settings-heading">SETTINGS</h2><button class="fg-menu-settings-back" data-action="title-settings-back" data-ref="titleSettingsBack" aria-label="Back to main menu">${icon('close')}</button></header>
+        <div class="fg-settings"><label>Graphics<select data-setting="quality" data-ref="titleQuality"><option value="high">High</option><option value="medium">Balanced</option><option value="low">Performance</option></select></label><label>Volume <output data-ref="titleVolumeOutput">65%</output><input type="range" min="0" max="100" value="65" data-setting="volume"></label><label>Mouse sensitivity <output data-ref="titleSensitivityOutput">1.0×</output><input type="range" min="30" max="200" value="100" data-setting="sensitivity"></label></div>
+        <button class="fg-menu-reset" data-action="title-new-confirm" data-ref="titleNewGame" hidden>New game</button>
+        <div class="fg-title-reset-confirm" data-ref="titleRestartConfirm" hidden><p>Start a new game? This replaces your saved game.</p><div><button class="fg-button fg-danger" data-action="title-new-game">Start new game</button><button class="fg-button" data-action="title-new-cancel" data-ref="titleRestartCancel">Cancel</button></div></div>
+      </section>
     </section>
     <section class="fg-pause-dock" data-ref="pause" aria-label="Πάνελ παύσης" hidden><div class="fg-panel fg-pause-panel" data-ref="pausePanel"><header class="fg-pause-heading"><span class="fg-pause-symbol" aria-hidden="true">Ⅱ</span><div><span class="fg-eyebrow">FROG · CREEK DOMINION</span><h2>Σε παύση</h2><small>Ο κόσμος και ο ήχος έχουν σταματήσει</small></div><button class="fg-icon-button fg-panel-expander" data-action="pause-collapse" data-ref="pauseToggle" aria-expanded="true" aria-controls="fg-pause-body" aria-label="Σύμπτυξη παύσης" title="Σύμπτυξη πάνελ">${icon('arrow')}</button><button class="fg-icon-button" data-action="resume" aria-label="Συνέχεια παιχνιδιού" title="Συνέχεια · Esc">${icon('close')}</button></header><div id="fg-pause-body" class="fg-pause-body" data-ref="pauseBody"><div class="fg-pause-summary"><span><small>Αρχηγός</small><b data-ref="pauseRank">Ευγενής</b></span><span><small>Σύμμαχοι</small><b data-ref="pauseAllies">0</b></span><span><small>Ημέρα</small><b data-ref="pauseDay">1</b></span></div><button class="fg-button fg-primary fg-pause-resume" data-action="resume"><span>Συνέχισε το ταξίδι</span>${key('ESC')}${icon('arrow')}</button><div class="fg-pause-quick-actions"><button class="fg-button" data-action="save">${icon('check')} Αποθήκευση</button><button class="fg-button" data-action="pause-help">${icon('leaf')} Οδηγός</button></div><details class="fg-pause-settings" open><summary><span>Ρυθμίσεις παιχνιδιού</span>${icon('arrow')}</summary><div class="fg-settings"><label>Γραφικά<select data-setting="quality"><option value="high">Υψηλή ποιότητα</option><option value="medium">Ισορροπημένα</option><option value="low">Υψηλή απόδοση</option></select><small class="fg-performance" title="Τελευταία μέτρηση κατά τη διάρκεια του παιχνιδιού"><output data-ref="fpsValue">—</output> FPS στο παιχνίδι</small></label><label>Ένταση μετά τη συνέχεια <output data-ref="volumeOutput">65%</output><input type="range" min="0" max="100" value="65" data-setting="volume"></label><label>Ευαισθησία ποντικιού <output data-ref="sensitivityOutput">1.0×</output><input type="range" min="30" max="200" value="100" data-setting="sensitivity"></label></div></details><footer class="fg-pause-footer"><button class="fg-text-button" data-action="restart-confirm">Νέο παιχνίδι · Μόνος</button><span>Η αποθήκευση διατηρεί το ταξίδι σου στη συσκευή</span></footer><div data-ref="restartConfirm" class="fg-confirm" hidden><p>Το νέο παιχνίδι ξεκινά με έναν βάτραχο και αντικαθιστά την τρέχουσα αποθήκευση.</p><button class="fg-button fg-danger" data-action="restart">Ξεκίνα μόνος</button><button class="fg-button" data-action="restart-cancel">Επιστροφή</button></div></div></div></section>
     <section class="fg-live-panel-layer" data-ref="panelLayer" hidden><div class="fg-panel fg-game-panel" data-ref="panel"></div></section>
@@ -354,9 +367,21 @@ export class GameUI {
     if(action==='build'&&performance.now()<(this.dragClickUntil||0))return;
     if(action==='rotate-placement'){target.blur?.();this.callbacks.onAction('rotate-placement',{direction:Number(target.dataset.direction)||1});return;}
     if(action==='confirm-placement'||action==='cancel-placement'){target.blur?.();this.callbacks.onAction(action,{});return;}
+    if(action==='title-settings'){this.showTitleSettings();return;}
+    if(action==='title-settings-back'){this.closeTitleSettings();return;}
+    if(action==='title-new-confirm'){
+      if(this.menu!=='title'||!this.titleSettingsOpen||!this.hasSave)return;
+      this.refs.titleRestartConfirm.hidden=false;this.refs.titleNewGame.hidden=true;this.refs.titleRestartCancel.focus?.({preventScroll:true});return;
+    }
+    if(action==='title-new-cancel'){
+      this.refs.titleRestartConfirm.hidden=true;this.refs.titleNewGame.hidden=!this.hasSave;this.refs.titleNewGame.focus?.({preventScroll:true});return;
+    }
+    if(action==='title-new-game'){
+      if(this.menu!=='title'||!this.titleSettingsOpen||this.refs.titleRestartConfirm.hidden)return;
+      this.startFromTitle('new');return;
+    }
     if(action==='new-game'||action==='continue'){
-      this.hideMenus(); this.menu=null; this.refs.hud.hidden=false;
-      this.callbacks.onStart(action==='continue'?'continue':'new'); return;
+      this.startFromTitle(action==='continue'?'continue':'play');return;
     }
     if(action==='close-panel'&&(this.menu==='pause'||this.state.paused)){this.closePanels();this.showPause(true);return;}
     if(action==='resume'||action==='close-panel'||action==='continue-after-end'){
@@ -404,8 +429,7 @@ export class GameUI {
     const input=event.target.closest('[data-setting]');if(!input)return;
     const field=input.dataset.setting;
     this.settings[field]=field==='quality'?input.value:Number(input.value)/100;
-    this.refs.volumeOutput.textContent=`${whole(this.settings.volume*100)}%`;
-    this.refs.sensitivityOutput.textContent=`${this.settings.sensitivity.toFixed(1)}×`;
+    this.setSettings();
     this.callbacks.onSettings({...this.settings});
   }
   setSettings(settings={}){
@@ -413,20 +437,47 @@ export class GameUI {
     for(const input of $$(this.root,'[data-setting]')){
       const field=input.dataset.setting;input.value=field==='quality'?this.settings[field]:this.settings[field]*100;
     }
-    this.refs.volumeOutput.textContent=`${whole(this.settings.volume*100)}%`;
-    this.refs.sensitivityOutput.textContent=`${this.settings.sensitivity.toFixed(1)}×`;
+    for(const ref of ['volumeOutput','titleVolumeOutput'])if(this.refs[ref])this.refs[ref].textContent=`${whole(this.settings.volume*100)}%`;
+    for(const ref of ['sensitivityOutput','titleSensitivityOutput'])if(this.refs[ref])this.refs[ref].textContent=`${this.settings.sensitivity.toFixed(1)}×`;
   }
   setLoading(text,progress){
     this.refs.loading.hidden=false;this.refs.loadingText.textContent=text;
     if(progress!==undefined)this.refs.loading.style.setProperty('--progress',`${clamp(progress)*100}%`);
   }
   showTitle(hasSave=false){
-    this.hasSave=hasSave;this.hideMenus();this.menu='title';
-    this.refs.loading.hidden=true;this.refs.title.hidden=false;this.refs.hud.hidden=true;
+    const refreshing=this.menu==='title'&&!this.refs.title.hidden;
+    const focused=typeof document!=='undefined'?document.activeElement:null;
+    this.hasSave=Boolean(hasSave);
     this.refs.continueButton.hidden=!hasSave;
-    this.refs.newButton.innerHTML=`Νέο παιχνίδι · Μόνος ${icon('arrow')}`;
-    this.refs.newButton.classList.toggle('fg-primary',!hasSave);
+    this.refs.newButton.hidden=Boolean(hasSave);
+    this.refs.titleNewGame.hidden=!hasSave||!this.refs.titleRestartConfirm.hidden;
+    // Persistent save discovery only refreshes the choices. It must not dismiss
+    // Settings or uncover the menu over a pending start request.
+    if(refreshing){
+      if(!this.titleSettingsOpen&&[this.refs.newButton,this.refs.continueButton].includes(focused))(hasSave?this.refs.continueButton:this.refs.newButton).focus?.({preventScroll:true});
+      return;
+    }
+    if(this.titleStartPending)return;
+    this.hideMenus();this.menu='title';
+    this.refs.loading.hidden=true;this.refs.title.hidden=false;this.refs.hud.hidden=true;
     this.closeRecruitmentBubble();this.syncConceptVisibility();
+    (hasSave?this.refs.continueButton:this.refs.newButton).focus?.({preventScroll:true});
+  }
+  startFromTitle(mode){
+    this.hideMenus();this.titleStartPending=true;this.setLoading('Loading…');
+    this.callbacks.onStart(mode);
+  }
+  showTitleSettings(){
+    if(this.menu!=='title')return;
+    this.titleSettingsOpen=true;this.refs.titleActions.hidden=true;this.refs.titleSettings.hidden=false;
+    this.refs.titleRestartConfirm.hidden=true;this.refs.titleNewGame.hidden=!this.hasSave;
+    this.setSettings();this.refs.titleQuality.focus?.({preventScroll:true});
+  }
+  closeTitleSettings(){
+    if(this.menu!=='title')return;
+    this.titleSettingsOpen=false;this.refs.titleSettings.hidden=true;this.refs.titleActions.hidden=false;
+    this.refs.titleRestartConfirm.hidden=true;this.refs.titleNewGame.hidden=!this.hasSave;
+    this.refs.titleSettingsButton.focus?.({preventScroll:true});
   }
   showPause(paused=true){
     if(paused)this.closeHudDisclosure();
@@ -442,6 +493,10 @@ export class GameUI {
   hideMenus(){
     this.closeHudDisclosure();
     for(const name of ['title','pause','ending','panelLayer','loading'])this.refs[name].hidden=true;
+    this.titleStartPending=false;this.titleSettingsOpen=false;
+    if(this.refs.titleSettings)this.refs.titleSettings.hidden=true;
+    if(this.refs.titleActions)this.refs.titleActions.hidden=false;
+    if(this.refs.titleRestartConfirm)this.refs.titleRestartConfirm.hidden=true;
     this.panel=null;this.menu=null;this.guideReturn=null;this.guideBackToBook=false;
     this.root.classList.remove('fg-game-panel-open');
     this.syncConceptVisibility();this.layoutDockedPanels();

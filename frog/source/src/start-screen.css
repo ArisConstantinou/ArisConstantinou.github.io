@@ -1,0 +1,297 @@
+/* The start screen has one game action and one settings action. */
+.fg-title.fg-start-menu {
+  isolation: isolate;
+  background: #0b211c;
+}
+
+.fg-start-menu .fg-title-art {
+  background-position: center;
+  transform: scale(1.025);
+  animation: fg-creek-arrive 1.2s ease-out both;
+}
+
+.fg-start-menu .fg-title-shade {
+  background: linear-gradient(90deg, #06181108 30%, #051b174a 70%, #04171470),
+    linear-gradient(0deg, #06171066, transparent 40%, #051b1429);
+}
+
+.fg-start-menu .fg-title-actions {
+  position: absolute;
+  left: 73%;
+  top: 54%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: min(440px, 42vw);
+  max-width: none;
+}
+
+.fg-start-menu .fg-menu-button {
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 112px;
+  aspect-ratio: 3.2;
+  margin: 0;
+  padding: 20px 45px;
+  border: 0;
+  border-radius: 30%;
+  background: transparent;
+  color: #fff7cf;
+  cursor: pointer;
+  font-family: 'Trebuchet MS', var(--fg-font), sans-serif;
+  font-weight: 900;
+  font-size: clamp(21px, 2.25vw, 31px);
+  letter-spacing: .075em;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 3px 2px #052012, 0 0 13px #00190f;
+  transition: transform 220ms cubic-bezier(.2, .8, .2, 1), filter 220ms ease;
+  animation: fg-menu-arrive 600ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.fg-start-menu .fg-menu-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('/art/menu-plaque-v1.png') center / 100% 100% no-repeat;
+  filter: drop-shadow(0 12px 12px #00120ec9);
+}
+
+.fg-start-menu .fg-menu-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(110deg, transparent 38%, #f1ffe433 48%, #ffffff54 50%, transparent 62%);
+  background-size: 300% 100%;
+  background-position: 140% 0;
+  mask: url('/art/menu-plaque-v1.png') center / 100% 100% no-repeat;
+  opacity: 0;
+}
+
+.fg-start-menu .fg-menu-primary::after {
+  animation: fg-menu-sheen 7s ease-in-out 900ms infinite;
+}
+
+.fg-start-menu .fg-menu-settings {
+  width: 88%;
+  min-height: 99px;
+  font-size: clamp(18px, 1.8vw, 25px);
+  animation-delay: 90ms;
+}
+
+.fg-start-menu .fg-menu-settings::before {
+  filter: saturate(.65) brightness(.82) drop-shadow(0 12px 12px #00120ebf);
+}
+
+.fg-start-menu .fg-menu-button:hover {
+  transform: translateY(-5px) scale(1.035);
+  filter: brightness(1.13);
+}
+
+.fg-start-menu .fg-menu-button:focus-visible {
+  outline: none;
+  filter: brightness(1.16) drop-shadow(0 0 2px #fff4bd) drop-shadow(0 0 12px #c6ed9eaa);
+}
+
+.fg-start-menu .fg-menu-button:active {
+  transform: translateY(3px) scale(.97);
+  transition-duration: 75ms;
+}
+
+.fg-start-menu .fg-menu-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 31px;
+  height: 31px;
+  filter: drop-shadow(0 2px 1px #00180b);
+  transition: transform 350ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.fg-start-menu .fg-menu-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fg-start-menu .fg-menu-primary:hover .fg-menu-icon {
+  transform: translateX(3px);
+}
+
+.fg-start-menu .fg-menu-settings:hover .fg-menu-icon {
+  transform: rotate(55deg);
+}
+
+.fg-start-menu .fg-menu-label {
+  position: relative;
+}
+
+.fg-title-settings {
+  position: absolute;
+  left: 73%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(410px, calc(100% - 36px));
+  max-height: calc(100% - 40px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 25px;
+  border: 1px solid #cfda9f73;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #213c2af2, #091d17f7);
+  color: #eef1d7;
+  box-shadow: inset 0 1px 0 #e5e8bd26, 0 24px 70px #02100dc4;
+  backdrop-filter: blur(12px);
+}
+
+.fg-menu-settings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.fg-menu-settings-head h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 750;
+  letter-spacing: .06em;
+}
+
+.fg-menu-settings-back {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border: 1px solid #cbdca34a;
+  border-radius: 50%;
+  background: #d4e3b010;
+  color: #eaf0cd;
+  cursor: pointer;
+  transition: background 160ms, transform 160ms;
+}
+
+.fg-menu-settings-back:hover {
+  background: #d4e3b027;
+  transform: rotate(5deg);
+}
+
+.fg-title-settings .fg-settings {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.fg-title-settings .fg-settings label {
+  gap: 12px;
+  margin: 0 0 23px;
+  font-size: 14px;
+  color: #d5dfc4;
+}
+
+.fg-title-settings .fg-settings select {
+  max-width: 100%;
+  padding: 10px;
+  font-size: 13px;
+  border-radius: 8px;
+  background: #132d20;
+}
+
+.fg-title-settings output {
+  margin-left: auto;
+  color: #edf0bc;
+  font-variant-numeric: tabular-nums;
+}
+
+.fg-title-settings input[type='range'] {
+  flex-basis: 100%;
+  width: 100%;
+  min-height: 24px;
+  margin: 0;
+  accent-color: #c8db83;
+  cursor: pointer;
+}
+
+.fg-title-settings :is(button, select, input):focus-visible {
+  outline: 2px solid #efe6a1;
+  outline-offset: 4px;
+}
+
+.fg-menu-reset {
+  display: block;
+  margin: 5px auto 0;
+  padding: 9px 15px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #bfcaad;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+
+.fg-menu-reset:hover { background: #e3edbd0d; color: #f0e6bd; }
+.fg-title-reset-confirm { margin-top: 12px; padding-top: 12px; border-top: 1px solid #d4dbaf29; }
+.fg-title-reset-confirm p { font-size: 13px; line-height: 1.6; color: #ddd3ae; }
+.fg-title-reset-confirm .fg-button { min-height: 42px; margin: 3px 5px 3px 0; }
+
+/* A quiet loading indicator; technical failures retain their visible message. */
+.fg-loading {
+  background: #0a2119;
+  gap: 0;
+}
+
+.fg-loading .fg-loading-line { margin: 0; width: 90px; height: 3px; border-radius: 4px; }
+.fg-loading .fg-loading-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@keyframes fg-creek-arrive { from { opacity: .6; transform: scale(1.055); } to { opacity: 1; transform: scale(1.025); } }
+@keyframes fg-menu-arrive { from { opacity: 0; translate: 0 22px; } to { opacity: 1; translate: 0 0; } }
+@keyframes fg-menu-sheen {
+  0%, 72% { opacity: 0; background-position: 140% 0; }
+  76% { opacity: .72; }
+  94% { opacity: .72; background-position: -40% 0; }
+  100% { opacity: 0; background-position: -40% 0; }
+}
+
+@media (max-width: 900px) {
+  .fg-start-menu .fg-title-actions { left: 70%; width: min(390px, 53vw); }
+  .fg-title-settings { left: 65%; }
+  .fg-start-menu .fg-menu-button { min-height: 104px; padding: 18px 29px; font-size: 24px; gap: 11px; }
+  .fg-start-menu .fg-menu-settings { min-height: 92px; font-size: 21px; }
+}
+
+@media (max-width: 600px) {
+  .fg-start-menu .fg-title-art { background-position: 35% center; }
+  .fg-start-menu .fg-title-shade { background: linear-gradient(0deg, #031a15bb, #031a151a 65%); }
+  .fg-start-menu .fg-title-actions { left: 50%; top: auto; bottom: max(7vh, env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(400px, calc(100% - 26px)); gap: 3px; }
+  .fg-start-menu .fg-menu-button { min-height: 106px; font-size: clamp(22px, 6.4vw, 27px); }
+  .fg-start-menu .fg-menu-settings { min-height: 94px; font-size: clamp(19px, 5.6vw, 24px); }
+  .fg-title-settings { left: 50%; padding: 22px; }
+}
+
+@media (max-height: 520px) and (min-width: 601px) {
+  .fg-start-menu .fg-title-actions { width: min(350px, 45vw); gap: 0; top: 50%; }
+  .fg-start-menu .fg-menu-button { min-height: 93px; font-size: 23px; }
+  .fg-start-menu .fg-menu-settings { min-height: 82px; font-size: 20px; }
+  .fg-title-settings { max-height: calc(100% - 24px); padding: 18px; }
+  .fg-menu-settings-head { margin-bottom: 15px; }
+  .fg-title-settings .fg-settings label { margin-bottom: 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fg-start-menu *, .fg-start-menu *::before, .fg-start-menu *::after { animation: none !important; transition: none !important; }
+  .fg-start-menu .fg-menu-button:hover, .fg-start-menu .fg-menu-button:active, .fg-start-menu .fg-menu-icon { transform: none !important; }
+}

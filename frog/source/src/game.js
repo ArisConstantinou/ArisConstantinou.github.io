@@ -64,7 +64,7 @@ export class FrogGame {
     addEventListener('resize',()=>this.resize());addEventListener('beforeunload',()=>this.save());document.addEventListener('visibilitychange',()=>{if(document.hidden&&this.started){this.save();this.pause();}});
     this.renderer.domElement.addEventListener('click',()=>{if(this.canLockGameplayPointer()&&!this.input.pointerLocked)this.input.lock();});
     this.last=performance.now();this.fps=60;this.renderer.setAnimationLoop(now=>this.frame(now));
-    window.__FROG__={version:'2.1.2',inspect:()=>this.inspect(),save:()=>this.save()};
+    window.__FROG__={version:'2.1.3',inspect:()=>this.inspect(),save:()=>this.save()};
     document.getElementById('boot')?.remove();
   }
   emptyStats(){return {flies:0,recruited:0,kills:0,predatorsKilled:0,predatorsRepelled:0,campsBuilt:0,campsCaptured:0,raidsDefended:0,losses:0,gatheredFood:0,gatheredReeds:0,trained:0,crafted:0};}
@@ -123,10 +123,14 @@ export class FrogGame {
   hostile(a,b){if(a.dead||b.dead||a===b||a.team==='neutral'||b.team==='neutral'||isSurrendered(a)||isSurrendered(b))return false;const ta=a.team==='player'?'ally':a.team,tb=b.team==='player'?'ally':b.team;return ta!==tb;}
   start(mode){
     const request=(this.startRequestId||0)+1;this.startRequestId=request;
-    if(mode==='continue'&&this.saveLoadPromise){const loading=this.saveLoadPromise;this.saveLoadPromise=null;loading.then(()=>{if(this.startRequestId===request)this.start(mode);});return;}
+    if((mode==='continue'||mode==='play')&&this.saveLoadPromise){const loading=this.saveLoadPromise;this.saveLoadPromise=null;loading.then(()=>{if(this.startRequestId===request)this.start(mode);});return;}
+    // The contextual title action waits for IndexedDB before deciding whether
+    // this is a new player, so a save absent from localStorage is never erased.
+    if(mode==='play')mode=this.saved?'continue':'new';
     // An explicit new campaign always rebuilds a solo world, even from the title.
     // A delayed Continue request must not replace a newer New Game selection.
     this.resetWorld(mode==='continue'&&this.saved?this.saved:null);
+    this.ui.hideMenus?.();if(this.ui.refs?.hud)this.ui.refs.hud.hidden=false;
     this.started=true;this.paused=false;this.ended=false;this.ui.closePanels();this.ui.showPause(false);this.audio.init?.();this.audio.start?.();this.audio.setVolume?.(this.settings.volume);this.input.clear();this.input.lock();
     this.audio.setPaused?.(false);
     this.ui.toast(mode==='continue'?'WASD πηδήματα · Shift γρήγορα άλματα · E αλληλεπίδραση · O στόχοι':'Ξεκινάς μόνος ως Ευγενής. Πλησίασε έναν κίτρινο βάτραχο και πάτησε E για να μάθεις τους όρους ένταξης. H: εικονογραφημένος οδηγός.','info');this.discoverGuide('movement');this.save();
@@ -157,7 +161,7 @@ export class FrogGame {
   escape(){
     if(['guide','help'].includes(this.ui.panel)&&this.ui.guideReturn){this.ui.closeGuideCard();return;}
     if(this.buildPlacement?.active){this.cancelBuildingPlacement();return;}
-    if(!this.started){if(this.ui.panel)this.ui.showTitle(!!this.saved);return;}
+    if(!this.started){if(this.ui.titleSettingsOpen)this.ui.closeTitleSettings();else if(this.ui.panel)this.ui.showTitle(!!this.saved);return;}
     if(this.activeRecruitId&&!this.paused&&!this.ui.isBlocking?.()){this.closeRecruitment();if(this.canLockGameplayPointer())this.input.lock?.();return;}
     if(this.ui.panel){
       if(this.paused){this.ui.closePanels();this.ui.showPause(true);return;}
@@ -1040,7 +1044,7 @@ export class FrogGame {
   }
   checkVictory(){if(this.campaign?.endless)return;if(!this.won&&this.campaign?.phase==='complete'){this.won=true;this.paused=true;this.ended=true;this.input.unlock();this.audio.play?.('victory');this.ui.showEnding(true,{...this.stats,days:dayState(this.elapsed).day});this.save();}}
   readSave(){try{return validateSave(JSON.parse(localStorage.getItem(SAVE_KEY)||'null'));}catch{return null;}}
-  inspect(){return {version:'2.1.2',realm:this.realms?.active,constructionJobs:this.economy?.jobs?.filter(j=>j.kind==='construction').map(j=>({id:j.id,type:j.type,progress:j.progress,duration:j.duration,workers:j.workersPresent,status:j.status})),started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
+  inspect(){return {version:'2.1.3',realm:this.realms?.active,constructionJobs:this.economy?.jobs?.filter(j=>j.kind==='construction').map(j=>({id:j.id,type:j.type,progress:j.progress,duration:j.duration,workers:j.workersPresent,status:j.status})),started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
 }
 
 
