@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {BASES,resolveWallMove} from '../src/arcade-bases.js';
+import {BASES,resolveWallMove,createHouseFloors,houseFloorAt} from '../src/arcade-bases.js';
 import {ArcadeBasesView} from '../src/arcade-bases-view.js';
 import {cameraPose} from '../src/arcade-view-math.js';
 
@@ -51,5 +51,23 @@ test('a wall blocking the camera outside an enclosure fades locally and recovers
   assert.equal(view.enclosures.get('base-rival-2').woodMaterial.opacity,1);
   game.camera.position.set(0,5,-3);for(let i=0;i<30;i++)view.update(.05);
   assert.equal(yard.faded,false);assert.ok(yard.woodMaterial.opacity>.99);assert.equal(yard.woodMaterial.depthWrite,true);
+  view.dispose();
+});
+
+test('all three actual roofs cover the full spawn body and decks use the same height as the frog',()=>{
+  const natural=(x,z)=>Math.sin(x*.1)*.3+z*.03,houseFloors=createHouseFloors(natural);
+  const game={scene:new THREE.Scene(),houseFloors,ground:(x,z)=>houseFloorAt(x,z,houseFloors)??natural(x,z),running:true,camera:new THREE.PerspectiveCamera(),state:{actors:[{...BASES[0].spawn}],bases:BASES.map(base=>({...base,destroyed:false,progress:0}))}};
+  const view=new ArcadeBasesView(game);game.scene.updateMatrixWorld(true);
+  for(const base of BASES){
+    const visual=view.bases.get(base.id),floorY=game.ground(base.spawn.x,base.spawn.z),deckBounds=new THREE.Box3().setFromObject(visual.deck);
+    assert.ok(Math.abs(deckBounds.max.y-floorY)<1e-7);
+    for(const dx of [-.78,0,.78])for(const dz of [-.78,0,.78]){
+      const ray=new THREE.Raycaster(new THREE.Vector3(base.spawn.x+dx,floorY+9,base.spawn.z+dz),new THREE.Vector3(0,-1,0));
+      const hits=ray.intersectObject(visual.roof);assert.ok(hits.length,'the whole frog must start beneath the real roof');
+      assert.ok(hits[0].point.y-floorY>2.6,'spawn must have room above the whole loaded frog');
+    }
+    assert.ok(visual.ramp,'a raised house floor needs a real visible entry ramp');
+  }
+  view.update(0);assert.equal(view.bases.get('base-player').roofMaterial.opacity,.08,'whole-house roof reveals interior on the first frame');
   view.dispose();
 });

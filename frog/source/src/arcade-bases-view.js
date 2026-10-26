@@ -91,19 +91,53 @@ export class ArcadeBasesView {
     }
   }
 
+  buildHouse(base,roofMaterial,team){
+    const floor=this.game.houseFloors?.find(item=>item.baseId===base.id);
+    const floorY=floor?.height??this.ground(base.x,base.z),halfWidth=base.halfWidth+.18,halfDepth=base.halfDepth+.18;
+    const house=new THREE.Group();house.name=`${base.id}-actual-roofed-house`;house.position.set(base.x,floorY,base.z);this.group.add(house);
+    const deck=this.mesh(house,this.geometries.box,this.materials.darkWood,0,-.09,0,halfWidth*2,.18,halfDepth*2);deck.name='house-floor-at-actor-height';
+    const planks=[];for(let z=-halfDepth+.2;z<halfDepth;z+=.4)this.boxPart(planks,0,-.012,Math.min(z,halfDepth-.2),halfWidth*2-.06,.025,.355);
+    const plankGeometry=mergeGeometries(planks);for(const part of planks)part.dispose();this.ownedGeometries.push(plankGeometry);this.mesh(house,plankGeometry,this.materials.lightWood);
+    const supports=[];
+    for(const x of [-base.halfWidth,base.halfWidth])for(const z of [-base.halfDepth,base.halfDepth]){
+      const terrain=this.game.world?.getSurface(base.x+x,base.z+z).height??floor?.minimum??floorY-.2;
+      const height=Math.max(.18,floorY-terrain);this.boxPart(supports,x,-height*.5,z,.3,height,.3);
+    }
+    const supportGeometry=mergeGeometries(supports);for(const part of supports)part.dispose();this.ownedGeometries.push(supportGeometry);this.mesh(house,supportGeometry,this.materials.darkWood);
+    // A full rectangular gabled roof covers the same solid house walls and
+    // interior used for spawning. The former little stock canopy was not a home.
+    const sideways=base.side==='east'||base.side==='west',w=(sideways?base.halfDepth:base.halfWidth)+.32,d=(sideways?base.halfWidth:base.halfDepth)+.32,eave=2.62,ridge=4.05;
+    const roofGeometry=new THREE.BufferGeometry();
+    roofGeometry.setAttribute('position',new THREE.Float32BufferAttribute([-w,eave,-d,0,ridge,-d,w,eave,-d,-w,eave,d,0,ridge,d,w,eave,d],3));
+    roofGeometry.setIndex([0,3,4,0,4,1,1,4,5,1,5,2,0,1,2,3,5,4]);roofGeometry.computeVertexNormals();
+    if(sideways)roofGeometry.rotateY(Math.PI/2);this.ownedGeometries.push(roofGeometry);
+    const roof=this.mesh(house,roofGeometry,roofMaterial);roof.name='full-house-leaf-roof';
+    const roofStem=this.mesh(house,this.geometries.cylinder,team,0,ridge+.18,0,.13,.55,.13);roofStem.rotation.z=.2;
+    const roofLeaf=this.mesh(house,this.geometries.leaf,team,.2,ridge+.48,0,.5,.14,.24);roofLeaf.rotation.z=.3;
+    let ramp=null;
+    if(floor?.ramp){
+      const r=floor.ramp,vertices=[],indices=[];
+      for(let row=0;row<=r.rows;row++)for(let col=0;col<=r.cols;col++){
+        const along=row/r.rows*r.length,across=(col/r.cols*2-1)*r.halfWidth;
+        vertices.push(r.x+r.dx*along+r.rightX*across,r.heights[row*(r.cols+1)+col],r.z+r.dz*along+r.rightZ*across);
+      }
+      for(let row=0;row<r.rows;row++)for(let col=0;col<r.cols;col++){const a=row*(r.cols+1)+col,b=a+1,c=a+r.cols+1,e=c+1;indices.push(a,c,b,b,c,e);}
+      const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setIndex(indices);geometry.computeVertexNormals();this.ownedGeometries.push(geometry);
+      const material=this.material({color:'#b18b59',side:THREE.DoubleSide});ramp=new THREE.Mesh(geometry,material);ramp.name=`${base.id}-walkable-door-ramp`;this.group.add(ramp);
+    }
+    house.userData={baseId:base.id,interior:{x:base.x,z:base.z,halfWidth:base.halfWidth-.17,halfDepth:base.halfDepth-.17},floorY,roofEaveY:floorY+eave,roofRidgeY:floorY+ridge};
+    return {house,deck,ramp,roof,roofStem,roofLeaf};
+  }
+
   buildBase(base,index){
     const group=new THREE.Group();group.name=`${base.id}-shelter`;group.position.set(base.stock.x,this.ground(base.stock.x,base.stock.z),base.stock.z);this.group.add(group);
     const backYaw=base.side==='north'?0:base.side==='east'?Math.PI/2:-Math.PI/2;
     const cabin=new THREE.Group();cabin.rotation.y=backYaw;group.add(cabin);
-    const team=this.material({color:COLORS[index]}),roofMaterial=this.material({color:index===0?'#61975b':index===1?'#ba7356':'#9270b0',transparent:true,opacity:1,depthWrite:true});
+    const team=this.material({color:COLORS[index]}),roofMaterial=this.material({color:index===0?'#61975b':index===1?'#ba7356':'#9270b0',transparent:true,opacity:1,depthWrite:true,side:THREE.DoubleSide});
     const rim=this.mesh(cabin,this.geometries.cylinder,this.materials.wood,0,.38,0,1.25,.76,1.25);rim.name='infinite-fly-stock-basket';
     this.mesh(cabin,this.geometries.cylinder,this.materials.darkWood,0,.77,0,1.15,.09,1.15);
     const body=this.mesh(cabin,this.geometries.cylinder,team,0,.42,0,1.31,.14,1.31);body.name='owner-color-on-stock';
-    const posts=[];for(const x of [-1.35,1.35])for(const z of [-.9,.9])this.boxPart(posts,x,1.12,z,.13,2.24,.13);
-    const postGeometry=mergeGeometries(posts);for(const part of posts)part.dispose();this.ownedGeometries.push(postGeometry);this.mesh(cabin,postGeometry,this.materials.lightWood);
-    const roof=this.mesh(cabin,this.geometries.cone,roofMaterial,0,2.65,0,2.18,1.35,1.75);roof.rotation.y=Math.PI/4;roof.name='shelter-leaf-roof';
-    const roofStem=this.mesh(cabin,this.geometries.cylinder,team,0,3.38,0,.11,.5,.11);roofStem.rotation.z=.2;
-    const roofLeaf=this.mesh(cabin,this.geometries.leaf,team,.18,3.67,0,.42,.12,.2);roofLeaf.rotation.z=.3;
+    const {house,deck,ramp,roof,roofStem,roofLeaf}=this.buildHouse(base,roofMaterial,team);
     const supply=new THREE.Group();supply.name='visible-fly-reserve';cabin.add(supply);
     const flyBodies=new THREE.InstancedMesh(this.geometries.sphere,this.materials.fly,8),flyWings=new THREE.InstancedMesh(this.geometries.wing,this.materials.wing,16);
     flyBodies.name='reserve-fly-bodies';flyWings.name='reserve-fly-wings';flyBodies.frustumCulled=flyWings.frustumCulled=false;supply.add(flyBodies,flyWings);
@@ -117,7 +151,7 @@ export class ArcadeBasesView {
       const piece=this.geometries.box.clone();piece.scale(.2,.2,1.1);piece.rotateY(i*.8);piece.translate(Math.sin(i*2.4)*.8,.12+(i%2)*.08,Math.cos(i*2.4)*.7);wreck.push(piece);
     }
     const wreckGeometry=mergeGeometries(wreck);for(const part of wreck)part.dispose();this.ownedGeometries.push(wreckGeometry);this.mesh(ruins,wreckGeometry,this.materials.ruin);
-    return {definition:base,group,cabin,roof,roofStem,roofLeaf,roofMaterial,marker,markerMaterial,bar,fill,supply,flyBodies,flyWings,ruins,index};
+    return {definition:base,group,cabin,house,deck,ramp,roof,roofStem,roofLeaf,roofMaterial,marker,markerMaterial,bar,fill,supply,flyBodies,flyWings,ruins,index};
   }
 
   buildGrove(definition,index){
@@ -151,16 +185,17 @@ export class ArcadeBasesView {
     for(const visual of this.bases.values()){
       const state=states.find(item=>item.id===visual.definition.id||item.owner===visual.definition.owner);
       const destroyed=!!state?.destroyed,progress=clamp((state?.progress||0)/10),active=progress>0&&!destroyed;
-      visual.cabin.visible=!destroyed;visual.supply.visible=!destroyed;visual.ruins.visible=destroyed;
+      visual.cabin.visible=!destroyed;visual.roof.visible=!destroyed;visual.supply.visible=!destroyed;visual.ruins.visible=destroyed;
       visual.markerMaterial.color.set(destroyed?'#5c7067':active?'#ff9b58':COLORS[visual.index]);
       visual.markerMaterial.opacity=destroyed ? .12 : active ? .4+.12*Math.sin(this.clock*8) : .28;
       visual.bar.visible=active;visual.fill.scale.x=2.12*progress;visual.fill.position.x=-1.06+1.06*progress;
       if(this.game.camera)visual.bar.quaternion.copy(this.game.camera.quaternion);
       const playerNearby=player&&Math.hypot(player.x-visual.definition.stock.x,player.z-visual.definition.stock.z)<5.2;
-      const desiredOpacity=(yard?.id===visual.definition.id||playerNearby) ? .35 : 1;
-      visual.roofMaterial.opacity+=(desiredOpacity-visual.roofMaterial.opacity)*(1-Math.exp(-Math.max(dt,.016)*10));
+      const inside=yard?.id===visual.definition.id,obscures=this.enclosures.get(visual.definition.id)?.faded;
+      const desiredOpacity=inside||obscures ? .08 : playerNearby ? .25 : 1;
+      visual.roofMaterial.opacity=desiredOpacity<visual.roofMaterial.opacity?desiredOpacity:visual.roofMaterial.opacity+(desiredOpacity-visual.roofMaterial.opacity)*(1-Math.exp(-Math.max(dt,.016)*10));
       visual.roofMaterial.depthWrite=visual.roofMaterial.opacity>.9;
-      visual.roofStem.visible=visual.roofLeaf.visible=visual.roofMaterial.opacity>.6;
+      visual.roofStem.visible=visual.roofLeaf.visible=!destroyed&&visual.roofMaterial.opacity>.6;
       visual.cabin.position.x=active?Math.sin(this.clock*25)*.025:0;
       for(let i=0;i<8;i++){
         const angle=this.clock*(1.4+(i%3)*.2)+i*TAU/8,r=.3+(i%3)*.13;

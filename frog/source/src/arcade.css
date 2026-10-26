@@ -88,3 +88,7 @@
 
 .ammo-info{min-width:0}#ammo-state{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(min-width:801px) and (min-height:501px){#base-status{top:132px}#callout{font-size:14px;max-width:480px}}
+
+/* Camera turns only during a deliberate drag; the help row fits desktop widths. */
+#arcade-world.camera-dragging{cursor:grabbing}
+#desktop-help{max-width:calc(100vw - 32px);flex-wrap:wrap;justify-content:center;row-gap:6px}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {BASES,CATAPULT_SITES,ENCLOSURES,WALLS,TREES,resolveWallMove,wallContact,hasWallSight,coverAt,terrainSpeed,navigateTo} from '../src/arcade-bases.js';
+import {BASES,CATAPULT_SITES,ENCLOSURES,WALLS,TREES,resolveWallMove,wallContact,hasWallSight,coverAt,terrainSpeed,navigateTo,insideHome,createHouseFloors,houseFloorAt} from '../src/arcade-bases.js';
 
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const insideWall=(p,w,radius=.78)=>Math.abs(p.x-w.x)<w.hw+radius-1e-4&&Math.abs(p.z-w.z)<w.hd+radius-1e-4;
@@ -90,4 +90,30 @@ test('tree cover and slowdown share the exact visible patch footprints',()=>{
     assert.equal(coverAt({x:tree.x+tree.radius+.01,z:tree.z}),null);
   }
   assert.equal(coverAt(BASES[0].stock),null);assert.equal(terrainSpeed(BASES[0].stock),1);
+});
+
+test('every whole spawning frog is inside its actual house, clear of the store and facing its door',()=>{
+  for(const base of BASES){
+    assert.equal(insideHome(base,base.spawn,.78),true);
+    assert.ok(distance(base.spawn,base.stock)>1.7,'body must not intersect the stock basket');
+    assert.ok(distance(base.spawn,base.stock)<3.2,'spawn must still auto-refill');
+    const heading=Math.atan2(base.gate.x-base.spawn.x,base.gate.z-base.spawn.z);
+    assert.ok(Math.abs(Math.atan2(Math.sin(heading-base.spawnHeading),Math.cos(heading-base.spawnHeading)))<1e-8);
+  }
+});
+
+test('shared house floors level natural slopes and their entrance ramps have no height seams',()=>{
+  const natural=(x,z)=>.08*x+.05*z,floors=createHouseFloors(natural);
+  for(const [index,floor] of floors.entries()){
+    const base=BASES[index];assert.equal(houseFloorAt(base.spawn.x,base.spawn.z,floors),floor.height);
+    assert.equal(houseFloorAt(base.stock.x,base.stock.z,floors),floor.height);
+    for(const signX of [-1,1])for(const signZ of [-1,1])assert.ok(floor.height>natural(base.x+signX*floor.halfWidth,base.z+signZ*floor.halfDepth));
+    const r=floor.ramp;
+    assert.ok(Math.abs(houseFloorAt(r.x,r.z,floors)-floor.height)<1e-9);
+    for(let row=0;row<=r.rows;row++)for(let col=0;col<=r.cols;col++){
+      const along=row/r.rows*r.length,across=(col/r.cols*2-1)*r.halfWidth,x=r.x+r.dx*along+r.rightX*across,z=r.z+r.dz*along+r.rightZ*across;
+      const y=houseFloorAt(x,z,floors);assert.ok(y!==null&&Math.abs(y-r.heights[row*(r.cols+1)+col])<1e-7,'visible ramp and actor surface must match');
+    }
+  }
+  assert.equal(houseFloorAt(0,0,floors),null);
 });

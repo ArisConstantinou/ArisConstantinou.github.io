@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {newRound,step,collect,shoot,hit,saveRound,loadRound,RULES,ownBase,sabotageTarget,rivalIntent,canDetect,moveBody} from '../src/arcade-model.js';
-import {BASES,TREES,WALLS,coverAt,hasWallSight} from '../src/arcade-bases.js';
+import {BASES,TREES,WALLS,coverAt,hasWallSight,insideHome} from '../src/arcade-bases.js';
 const tick=(s,input={},seconds=1)=>{for(let i=0;i<Math.round(seconds*60);i++)step(s,input,1/60);};
 function sandbox(){const s=newRound();s.phase='battle';s.intro=0;for(const a of s.actors.slice(1)){a.dizzyTime=1000;a.impulseX=a.impulseZ=0;}return s;}
 function atEnemyStore(s){const p=s.actors[0],g=BASES[1];Object.assign(p,{x:g.stock.x,z:g.stock.z,hop:0,idle:0,shot:0,tongue:0});return {p,g,b:s.bases[1]};}
@@ -10,6 +10,39 @@ test('new round has three occupied homes, zero carried flies and a shared 20-sec
  const s=newRound();assert.equal(s.version,2);assert.equal(s.phase,'countdown');assert.equal(s.intro,20);assert.equal(RULES.capacity,60);
  assert.equal(s.bases.length,3);assert.ok(s.bases.every(b=>!b.destroyed));
  s.actors.forEach((a,i)=>{assert.equal(a.ammo,0);assert.deepEqual({x:a.x,z:a.z},BASES[i].spawn);assert.ok(Math.hypot(a.x-BASES[i].stock.x,a.z-BASES[i].stock.z)<RULES.pickupRange);assert.equal(ownBase(s,a).owner,a.id);});
+});
+test('all three fresh frogs stand fully inside the actual home, face its door and can refill immediately',()=>{
+ const s=newRound();
+ s.actors.forEach((a,i)=>{
+  const base=BASES[i],dx=base.gate.x-a.x,dz=base.gate.z-a.z,d=Math.hypot(dx,dz);
+  assert.equal(insideHome(base,a,.78),true,`${a.id} body must fit inside the roofed home`);
+  assert.equal(a.face,base.spawnHeading);assert.ok((a.aimX*dx+a.aimZ*dz)/d>.99999);
+  assert.equal(collect(s,a),true);assert.equal(a.ammo,1);
+ });
+});
+test('every owner returns inside its own house facing the real entrance after knockout',()=>{
+ for(let index=0;index<3;index++){
+  const s=newRound();s.phase='battle';s.intro=0;
+  for(const a of s.actors)a.dizzyTime=1000;
+  const a=s.actors[index],base=BASES[index];Object.assign(a,{x:0,z:0,dizzyTime:0,face:.75,aimX:1,aimZ:0});
+  hit(s,a,{owner:s.actors[(index+1)%3].id,dx:1,dz:0,damage:9});
+  tick(s,{},RULES.respawnSeconds);
+  assert.equal(a.ko,false);assert.equal(insideHome(base,a,.78),true);assert.deepEqual({x:a.x,z:a.z},base.spawn);
+  assert.equal(a.face,base.spawnHeading);assert.ok(Math.abs(a.aimX-Math.sin(base.spawnHeading))<1e-12);assert.ok(Math.abs(a.aimZ-Math.cos(base.spawnHeading))<1e-12);
+ }
+});
+test('legacy save migration starts the new warm-up inside each home, including a previously mounted frog',()=>{
+ const old=newRound();old.version=1;delete old.bases;old.phase='battle';old.stats.hits=13;
+ for(const [i,a] of old.actors.entries())Object.assign(a,{x:4+i,z:-4,face:.6,aimX:1,aimZ:0,ammo:20+i});
+ old.actors[0].catapultId=old.catapults[0].id;
+ const loaded=loadRound(JSON.stringify(old));assert.ok(loaded);assert.equal(loaded.intro,20);assert.equal(loaded.phase,'countdown');assert.equal(loaded.stats.hits,13);
+ loaded.actors.forEach((a,i)=>{assert.deepEqual({x:a.x,z:a.z},BASES[i].spawn);assert.equal(insideHome(BASES[i],a,.78),true);assert.equal(a.face,BASES[i].spawnHeading);assert.equal(a.ammo,20+i);assert.equal(a.catapultId,null);});
+});
+test('normal version 2 resume preserves intentional travel and facing during warm-up or battle',()=>{
+ for(const phase of ['countdown','battle']){
+  const s=newRound();s.phase=phase;s.intro=phase==='battle'?0:11.2;Object.assign(s.actors[0],{x:5,z:2,face:.6,aimX:Math.sin(.6),aimZ:Math.cos(.6),ammo:31});
+  const loaded=loadRound(saveRound(s));assert.ok(loaded);assert.deepEqual({x:loaded.actors[0].x,z:loaded.actors[0].z},{x:5,z:2});assert.equal(loaded.actors[0].face,.6);assert.equal(loaded.actors[0].ammo,31);assert.equal(loaded.intro,s.intro);assert.equal(loaded.phase,phase);
+ }
 });
 test('warm-up counts down immediately inside the home and never waits for a first shot',()=>{
  const s=newRound(),positions=s.actors.map(a=>[a.x,a.z]);tick(s,{},19.9);

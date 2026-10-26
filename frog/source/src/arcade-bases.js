@@ -13,10 +13,48 @@ export const CATAPULT_SITES=Object.freeze([
 ].map(Object.freeze));
 
 export const BASES = Object.freeze([
-  {id:'base-player', owner:OWNER_IDS[0], x:0, z:20.5, spawn:freezePoint(-1,20.4), stock:freezePoint(0,21.4), gate:freezePoint(0,17.9), approach:freezePoint(0,16.25), side:'north', halfWidth:3.1, halfDepth:2.6},
-  {id:'base-rival-1', owner:OWNER_IDS[1], x:-18, z:1, spawn:freezePoint(-18.1,0), stock:freezePoint(-19.1,1), gate:freezePoint(-14.9,1), approach:freezePoint(-13.25,1), side:'east', halfWidth:3.1, halfDepth:2.9},
-  {id:'base-rival-2', owner:OWNER_IDS[2], x:18, z:1, spawn:freezePoint(18.1,2), stock:freezePoint(19.1,1), gate:freezePoint(14.9,1), approach:freezePoint(13.25,1), side:'west', halfWidth:3.1, halfDepth:2.9},
+  {id:'base-player', owner:OWNER_IDS[0], x:0, z:20.5, spawn:freezePoint(0,19.65), spawnHeading:Math.PI, stock:freezePoint(0,21.4), gate:freezePoint(0,17.9), approach:freezePoint(0,16.25), side:'north', halfWidth:3.1, halfDepth:2.6},
+  {id:'base-rival-1', owner:OWNER_IDS[1], x:-18, z:1, spawn:freezePoint(-17.35,1), spawnHeading:Math.PI/2, stock:freezePoint(-19.1,1), gate:freezePoint(-14.9,1), approach:freezePoint(-13.25,1), side:'east', halfWidth:3.1, halfDepth:2.9},
+  {id:'base-rival-2', owner:OWNER_IDS[2], x:18, z:1, spawn:freezePoint(17.35,1), spawnHeading:-Math.PI/2, stock:freezePoint(19.1,1), gate:freezePoint(14.9,1), approach:freezePoint(13.25,1), side:'west', halfWidth:3.1, halfDepth:2.9},
 ].map(Object.freeze));
+
+// A home is the whole enclosed, roofed footprint, not the small stock basket.
+export function insideHome(base,point,radius=0){
+  return Math.abs(point.x-base.x)+radius<base.halfWidth-.17&&Math.abs(point.z-base.z)+radius<base.halfDepth-.17;
+}
+
+// One shared level deck and sampled entrance ramp drives both actor height and
+// the visible house floor. Natural creek slopes must not put a frog below its hut.
+export function createHouseFloors(sampleHeight){
+  return BASES.map(base=>{
+    let maximum=-Infinity,minimum=Infinity;
+    const halfWidth=base.halfWidth+.18,halfDepth=base.halfDepth+.18;
+    const cols=Math.ceil(halfWidth*2/.22),rows=Math.ceil(halfDepth*2/.22);
+    for(let col=0;col<=cols;col++)for(let row=0;row<=rows;row++){const x=-halfWidth+halfWidth*2*col/cols,z=-halfDepth+halfDepth*2*row/rows,y=sampleHeight(base.x+x,base.z+z);maximum=Math.max(maximum,y);minimum=Math.min(minimum,y);}
+    const height=maximum+.16,dx=Math.sin(base.spawnHeading),dz=Math.cos(base.spawnHeading),rightX=-dz,rightZ=dx;
+    const ramp={x:base.gate.x+dx*.18,z:base.gate.z+dz*.18,dx,dz,rightX,rightZ,halfWidth:1.55,length:2.5,rows:10,cols:6,heights:[]};
+    for(let row=0;row<=ramp.rows;row++)for(let col=0;col<=ramp.cols;col++){
+      const along=row/ramp.rows*ramp.length,across=(col/ramp.cols*2-1)*ramp.halfWidth;
+      const x=ramp.x+dx*along+rightX*across,z=ramp.z+dz*along+rightZ*across;
+      const end=sampleHeight(ramp.x+dx*ramp.length+rightX*across,ramp.z+dz*ramp.length+rightZ*across)+.015;
+      ramp.heights.push(Math.max(height+(end-height)*row/ramp.rows,sampleHeight(x,z)+.015));
+    }
+    return {id:base.id,baseId:base.id,x:base.x,z:base.z,halfWidth,halfDepth,height,minimum,ramp};
+  });
+}
+
+export function houseFloorAt(x,z,floors){
+  if(!floors)return null;
+  for(const floor of floors){
+    if(Math.abs(x-floor.x)<=floor.halfWidth+1e-7&&Math.abs(z-floor.z)<=floor.halfDepth+1e-7)return floor.height;
+    const r=floor.ramp,dx=x-r.x,dz=z-r.z,along=dx*r.dx+dz*r.dz,across=dx*r.rightX+dz*r.rightZ;
+    if(along< -1e-7||along>r.length+1e-7||Math.abs(across)>r.halfWidth+1e-7)continue;
+    const row=Math.max(0,Math.min(r.rows,along/r.length*r.rows)),col=Math.max(0,Math.min(r.cols,(across/r.halfWidth+1)*.5*r.cols)),i=Math.min(r.rows-1,Math.floor(row)),j=Math.min(r.cols-1,Math.floor(col)),v=row-i,u=col-j;
+    const a=r.heights[i*(r.cols+1)+j],b=r.heights[i*(r.cols+1)+j+1],c=r.heights[(i+1)*(r.cols+1)+j],d=r.heights[(i+1)*(r.cols+1)+j+1];
+    return (a+(b-a)*u)*(1-v)+(c+(d-c)*u)*v;
+  }
+  return null;
+}
 
 // The operator and automatic dismount stay inside a clear south-facing gate.
 export const CATAPULT_ENCLOSURES = Object.freeze([

@@ -1,29 +1,32 @@
-# FROG 4.3.0 verification
+# FROG 4.3.1 — Controls and indoor-spawn repair
 
-## Release scope
+## Confirmed defects in 4.3.0
 
-The round now starts all three frogs inside their own shelters with zero carried flies and a shared, immediate 20-second preparation clock. Intact home stock is unlimited, carried capacity is 60, and both players and AI refill automatically. Ten uninterrupted seconds at an enemy stock destroy it; damage or a canceled action resets the attempt. KO returns an owner after 12 seconds while their stock survives. The final intact stock wins.
+The previous camera followed the frog's movement, aim and kick heading. Freezing a world-space input direction concealed a real screen-space defect: holding D rotated the camera about 85 degrees, and holding S rotated it about 177 degrees, so the visible movement no longer matched the key. Mouse hover could rotate it about 79 degrees and the aim timeout could snap it back.
 
-Six real walled enclosures have one entrance each. Tree cover slows movement and prevents distant automatic detection. The default rear camera, explicit fire control and in-battle touch-layout editor are integrated with existing automatically reloading catapults and 3D impact effects. Nearby walls and roofs become transparent when needed to keep the frog visible; collisions remain active.
+The old spawn was inside a fenced yard but outside the small canopy over the stock. The player also started off-center from the narrow doorway, so straight W hit its edge. Uneven natural ground did not match a level house interior. A legacy-save migration restarted preparation while retaining old outdoor positions.
 
-## Automated validation
+The new browser regression reproduced **25 failed checks** against 4.3.0. It now measures actual per-frame displacement projected through the displayed camera, including repeated and overlapping keys. A constant world-space vector alone is no longer accepted as sufficient evidence.
 
-- Full project regression suite: **824/824 passed** before the final wall-visibility, HUD and aim-glyph corrections.
-- Final affected arcade regression suite: **127/127 passed**, including the added wall-cutaway tests and the completed source changes.
-- Production build: `npm run build` succeeds with 30 modules. Release assets are `index-DHbaYnI0.js` and `index-CNFQrALc.css`.
-- Source/documentation whitespace checks pass. The generated Three.js shader strings retain upstream trailing whitespace in the production JavaScript bundle.
-- Defensive boundary check: an actual projectile received at 9.99 seconds interrupts storage destruction before completion.
-- AI pathing simulations with two deterministic seeds finish the stock objective naturally, including combat, KO, the ten-second channel and elimination.
+## Repair
 
-## Browser validation
+- The camera follows position with an independent yaw and pitch. Movement, aim, firing and kicking cannot rotate it. Right-button dragging, or dragging the empty world on touch, deliberately turns the view.
+- WASD, arrows and the touch stick use the current displayed camera axes, including after an intentional orbit. Mouse aim stays under the cursor without a timed camera snap.
+- Mouse-button chords, pointer cancellation and queued taps cannot leave an orbit stuck or fire an unintended shot. A cursor ray above the horizon uses a finite current direction rather than an old target.
+- All three spawns are centered inside their actual full-size roofed houses and face the door. Shared floor/ramp heights drive the visible building and the rendered frog. The old decorative refuges were removed from the arcade scene.
+- New rounds, KO returns and legacy migrations use the corrected spawns. Normal version-2 continuation retains intentional progress and position. The explicit **ΝΕΟΣ ΓΥΡΟΣ** menu action allows a fresh start.
+- The loaded-frog render offset keeps swollen front feet above the new level floor.
 
-The browser harness is `source/qa/arcade-430.mjs`. Chromium with real WebGL rendering and CDP touch input completed **28 functional/mobile checks**, followed by **2 targeted desktop checks** after a layout correction. No uncaught runtime exceptions were observed.
+## Validation
 
-Coverage includes fresh and saved rounds, 0-to-60 automatic refill, the shared preparation clock, pause/audio, sustained keyboard movement with the following camera, camera toggle, aimed mouse hits, KO/return, wall-protected catapult access, explicit stone launch, E-hold storage attack and release, projectile interruption, exact ten-second completion, save/reload, victory and defeat. Touch coverage includes simultaneous movement and aiming, the independent fire button, dragging controls while play is frozen, persistence across reload and orientation changes, storage actions and catapult launch.
-
-Checked viewports: **1280×800, 390×844, 844×390, 360×640 and 640×360**. HUD, minimap and visible controls fit without overlap or horizontal scrolling, including context-sensitive actions and custom control positions. Sixteen rendered captures were collected. Visual inspection confirmed that the rear wall no longer hides the frog or its stock.
-
-The first full browser pass found a 2.5 px desktop ammo/status overlap. The status was moved down and a targeted pass verified a clear gap. Its earlier failed report is retained in local evidence rather than rewritten. The mobile and functional checks already passed. The subsequent final source change replaces an unsupported full-width plus glyph with an ASCII plus; it does not change input behavior.
+- **135/135 affected arcade tests passed**, covering the model, indoor spawn/migration/return, gates, houses, floor/ramp geometry, camera math, artillery and touch layout.
+- **51/51 browser regression checks passed**, with zero uncaught runtime errors. The same harness exposes the prior camera and doorway defects.
+- **10/10 final targeted browser checks passed** on the published candidate `index-CbD9qxyI.js`: mouse chords, version-2 continuation, explicit new-round reset and visible 60-fly indoor clearance. The only changes after the main desktop pass were that menu action and the verified render-only foot offset; the main mobile pass also used the final bundle.
+- Desktop coverage includes isolated and repeated W/D/S/A, W→W+D→W, natural spawn-to-doorway travel, hover, firing, kick, intentional orbit, movement after orbit, chorded mouse-button release, queued taps and horizon aiming.
+- Touch coverage checks screen-relative strafe while independently aiming, and deliberate world-drag orbit without firing.
+- Actual skinned-frog geometry was checked for all three characters at 0, 30 and 60 flies, both graphics levels, over 121 idle poses: **2,178 posed bounds checks**. Bodies remain inside the walls and beneath the roof, clear of the basket; the load offset corrects visible foot penetration.
+- Production build succeeds with 30 modules. Release assets: `index-CbD9qxyI.js` and `index-Z7y7G4VM.css`.
+- Source/documentation whitespace checks pass. Generated Three.js shader strings retain upstream trailing whitespace.
 
 ## Reproduce
 
@@ -31,19 +34,20 @@ From `frog/source`:
 
 ```sh
 npm ci
-npm test
+node --test --test-isolation=none tests/arcade*.test.mjs
 npm run build
 python3 -m http.server 4173 --bind 127.0.0.1 --directory dist
 ```
 
-In another terminal, with Playwright and Chromium installed:
+With Playwright and Chromium installed, use another terminal:
 
 ```sh
-node qa/arcade-430.mjs
+node qa/arcade-431.mjs
+QA_SCOPE=final-checks node qa/arcade-431.mjs
 ```
 
-`BASE_URL` overrides the server URL; `PLAYWRIGHT_MODULE` can point to an existing Playwright installation. `QA_SCOPE=desktop-layout` runs the focused desktop layout/cutaway check. `OUT_DIR` chooses the screenshot/report directory. Generated evidence is not required by the game.
+`BASE_URL` overrides the local server, `PLAYWRIGHT_MODULE` selects an existing installation, and `OUT_DIR` selects the evidence folder. To reproduce the earlier regression against the archived 4.3.0 build, set `EXPECTED_VERSION=4.3.0 QA_MODE=reproduce`.
 
-## Practical limits
+## Limits
 
-These are Chromium desktop and emulated touch checks using software graphics, not measurements on a physical iPhone or Android. Real keyboard, mouse and touch handlers feed the production simulation. Long waits use fixed simulation steps, and combat fixtures place actors or projectiles into reproducible states. Render checkpoints use real WebGL frames. The checks establish control and rules integration, not real-device FPS or a complete human-played campaign balance assessment.
+Browser checks use Chromium with software WebGL and emulated touch; they do not measure FPS on a physical iPhone or Android. Real keyboard, mouse and touch events feed the production frame function. Free-area fixtures separate controller behavior from enemy pressure and obstacles, while a separate natural-start check traverses the real house doorway. Screenshots verify the actual rendered scene.

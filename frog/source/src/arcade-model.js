@@ -2,7 +2,7 @@
 import {ARTILLERY,CATAPULTS,createCatapults,interactCatapult,releaseCatapult,throwStone,stepArtillery} from './arcade-artillery.js';
 import {BASES,resolveWallMove,wallContact,hasWallSight,coverAt,terrainSpeed,navigateTo} from './arcade-bases.js';
 
-export const ARCADE_VERSION = '4.3.0';
+export const ARCADE_VERSION = '4.3.1';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
 export const RULES = Object.freeze({radius:25,capacity:60,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:3.6,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:10,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,revealSeconds:2.5});
@@ -13,8 +13,8 @@ const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const norm=(x,z)=>{const n=Math.hypot(x,z);return n>1e-6?{x:x/n,z:z/n}:{x:0,z:1};};
 const finite=(v,f=0)=>Number.isFinite(v)?v:f;
 function rng(s){let t=s.seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}
-function actor(id,x,z){
- return {id,x,z,aimX:0,aimZ:-1,aiming:false,face:Math.PI,ammo:0,load:0,dizzy:0,finishHits:0,dizzyTime:0,ko:false,eliminated:false,respawnTime:0,hit:0,invuln:0,shot:0,tongue:0,kick:0,kickCooldown:0,kickPending:false,impulseX:0,impulseZ:0,hop:0,hopX:0,hopZ:0,hopSpeed:0,height:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,idle:0,brain:0,decision:0,catapultId:null,catapultShots:0,catapultAim:0,interactHeld:false,machineTimer:id==='rival-1'?8:12,machineSeeking:false,aimWindup:0,aiShotReady:0,aiCharging:false,aiAimX:0,aiAimZ:-1,refilling:true,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0};
+function actor(id,x,z,heading=Math.PI){
+ return {id,x,z,aimX:Math.sin(heading),aimZ:Math.cos(heading),aiming:false,face:heading,ammo:0,load:0,dizzy:0,finishHits:0,dizzyTime:0,ko:false,eliminated:false,respawnTime:0,hit:0,invuln:0,shot:0,tongue:0,kick:0,kickCooldown:0,kickPending:false,impulseX:0,impulseZ:0,hop:0,hopX:0,hopZ:0,hopSpeed:0,height:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,idle:0,brain:0,decision:0,catapultId:null,catapultShots:0,catapultAim:0,interactHeld:false,machineTimer:id==='rival-1'?8:12,machineSeeking:false,aimWindup:0,aiShotReady:0,aiCharging:false,aiAimX:Math.sin(heading),aiAimZ:Math.cos(heading),refilling:true,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0};
 }
 export function ownBase(s,a){return s.bases?.find(b=>b.owner===a.id)||null;}
 const baseGeometry=b=>BASES.find(g=>g.id===b?.id);
@@ -40,7 +40,7 @@ function placeFly(s,f){
  f.x=patch.x+Math.sin(angle)*r;f.z=patch.z+Math.cos(angle)*r;f.wait=0;f.phase=rng(s)*Math.PI*2;
 }
 export function newRound(seed=731){
- const s={version:2,swarmVersion:1,seed,time:0,status:'playing',phase:'countdown',intro:RULES.introSeconds,actors:BASES.map(b=>actor(b.owner,b.spawn.x,b.spawn.z)),bases:BASES.map(b=>({id:b.id,owner:b.owner,x:b.x,z:b.z,destroyed:false,progress:0,attackerId:null})),flies:[],catapults:createCatapults(),shells:[],bullets:[],events:[],nextId:1,stats:{caught:0,shots:0,hits:0,kos:0,basesDestroyed:0}};
+ const s={version:2,swarmVersion:1,seed,time:0,status:'playing',phase:'countdown',intro:RULES.introSeconds,actors:BASES.map(b=>actor(b.owner,b.spawn.x,b.spawn.z,b.spawnHeading)),bases:BASES.map(b=>({id:b.id,owner:b.owner,x:b.x,z:b.z,destroyed:false,progress:0,attackerId:null})),flies:[],catapults:createCatapults(),shells:[],bullets:[],events:[],nextId:1,stats:{caught:0,shots:0,hits:0,kos:0,basesDestroyed:0}};
  for(let i=0;i<72;i++){const f={id:i,swarmId:'',x:0,z:0,wait:0,phase:0};placeFly(s,f);s.flies.push(f);}
  return s;
 }
@@ -197,7 +197,7 @@ export function rivalIntent(s,a){
 }
 function respawn(s,a){
  const home=ownBase(s,a),geometry=baseGeometry(home);if(!home||home.destroyed||!geometry)return;
- const fresh=actor(a.id,geometry.spawn.x,geometry.spawn.z);Object.assign(a,fresh,{invuln:1,refilling:true});
+ const fresh=actor(a.id,geometry.spawn.x,geometry.spawn.z,geometry.spawnHeading);Object.assign(a,fresh,{invuln:1,refilling:true});
  s.events.push({type:'respawn',id:a.id,x:a.x,z:a.z});
 }
 function evaluateWinner(s){
@@ -276,7 +276,11 @@ export function loadRound(raw){
    const home=ownBase(s,a),eliminated=home.destroyed,ko=eliminated||old.ko===true;
    Object.assign(a,{ko,eliminated,respawnTime:ko&&!eliminated?clamp(finite(old.respawnTime,RULES.respawnSeconds)||RULES.respawnSeconds,.01,RULES.respawnSeconds):0,aiming:false,catapultId:null,interactHeld:false,machineSeeking:false,aiCharging:false,aimWindup:0,refilling:old.refilling===true||finite(old.ammo)<6,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0,ammo:eliminated?0:clamp(Math.floor(finite(old.ammo)),0,RULES.capacity),load:clamp(finite(old.load),0,1),dizzy:clamp(finite(old.dizzy),0,RULES.dizzyHits),finishHits:clamp(finite(old.finishHits),0,RULES.finishHits),dizzyTime:clamp(finite(old.dizzyTime),0,RULES.dizzySeconds),kickPending:false,kick:0,hop:0,hopX:0,hopZ:0,height:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,idle:0,impulseX:0,impulseZ:0});
    for(const key of ['shot','tongue','invuln','hit','kickCooldown','aiShotReady'])a[key]=clamp(a[key],0,2);
-   a.machineTimer=clamp(a.machineTimer,0,30);a.face=finite(a.face,Math.PI);moveBody(a,0,0);
+   a.machineTimer=clamp(a.machineTimer,0,30);a.face=finite(a.face,Math.PI);
+   // Version 1 starts a new shared warm-up. Place each frog inside its new home
+   // for that transition; ordinary version 2 resumes keep their travel position.
+   if(legacy){const g=baseGeometry(home);Object.assign(a,{x:g.spawn.x,z:g.spawn.z,face:g.spawnHeading,aimX:Math.sin(g.spawnHeading),aimZ:Math.cos(g.spawnHeading)});}
+   moveBody(a,0,0);
   }
   for(let i=0;i<72;i++){
    const f=v.flies[i],patch=SWARMS[Math.floor(i/12)];if(!f)continue;
@@ -285,7 +289,7 @@ export function loadRound(raw){
   }
   if(Array.isArray(v.catapults))for(const c of s.catapults){
    const old=v.catapults.find(t=>t.id===c.id);if(old){c.cooldown=clamp(finite(old.cooldown),0,ARTILLERY.cooldown);c.loaded=c.cooldown===0;}
-   const mounted=v.actors.find(a=>a.catapultId===c.id);if(mounted){const a=s.actors.find(a=>a.id===mounted.id);a.x=c.x;a.z=c.z+2.3;moveBody(a,0,0);}
+   const mounted=!legacy&&v.actors.find(a=>a.catapultId===c.id);if(mounted){const a=s.actors.find(a=>a.id===mounted.id);a.x=c.x;a.z=c.z+2.3;moveBody(a,0,0);}
   }
   for(const k of Object.keys(s.stats))s.stats[k]=Math.max(0,Math.floor(finite(v.stats?.[k])));
   evaluateWinner(s);return s;
