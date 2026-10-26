@@ -155,7 +155,8 @@ body{position:fixed;inset:0;-webkit-tap-highlight-color:transparent}
 .settings-panel select{width:100%;min-width:0;height:34px;padding:4px 6px;font-size:16px}
 .camera-settings-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .camera-settings-heading h3{margin:0;font-size:16px}
-.camera-settings-heading #camera-follow{width:auto;flex:1;max-width:132px;height:32px;font-size:13px}
+.camera-sensitivity-label{grid-column:1/-1}
+#look-status{max-width:260px;margin:0;color:#f1f9df;text-align:center;font-size:14px}
 #camera-reset{min-height:32px;padding:6px 10px;border:1px solid #b6d39b;border-radius:9px;background:#2b513b;color:#eff8df;font-size:10px;font-weight:800}
 .camera-settings-grid output{color:#e4ff9f;font-weight:800;white-space:nowrap}
 #arcade-world.mouse-aiming{cursor:none}

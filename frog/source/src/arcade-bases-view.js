@@ -140,6 +140,21 @@ export class ArcadeBasesView {
     return false;
   }
 
+  stockObstructsPlayer(visual){
+    if(!this.roofTargetCount)return false;
+    const origin=this.roofCamera,ray=this.roofRay,box=visual.stockBounds,camera=this.game.camera;
+    const near=camera.near||.1,tan=Math.tan((camera.fov||52)*Math.PI/360);
+    const clearance=Math.max(.35,near*Math.sqrt(1+tan*tan*(1+(camera.aspect||1)**2))+.08);
+    if(box.distanceToPoint(origin)<clearance)return true;
+    ray.origin.copy(origin);
+    for(let i=0;i<this.roofTargetCount;i++){
+      ray.direction.copy(this.roofTargets[i]).sub(origin);const distanceSq=ray.direction.lengthSq();
+      if(distanceSq<1e-8)continue;ray.direction.normalize();
+      if(ray.intersectBox(box,this.roofHit)&&this.roofHit.distanceToSquared(origin)<distanceSq-1e-5)return true;
+    }
+    return false;
+  }
+
   buildHouse(base,roofMaterial,team){
     const floor=this.game.houseFloors?.find(item=>item.baseId===base.id);
     const floorY=floor?.height??this.ground(base.x,base.z),halfWidth=base.halfWidth+.18,halfDepth=base.halfDepth+.18;
@@ -194,9 +209,13 @@ export class ArcadeBasesView {
     const backYaw=base.side==='north'?0:base.side==='east'?Math.PI/2:-Math.PI/2;
     const cabin=new THREE.Group();cabin.rotation.y=backYaw;group.add(cabin);
     const team=this.material({color:COLORS[index]}),roofMaterial=this.material({color:index===0?'#61975b':index===1?'#ba7356':'#9270b0',transparent:true,opacity:1,depthWrite:true,side:THREE.DoubleSide});
-    const rim=this.mesh(cabin,this.geometries.cylinder,this.materials.wood,0,.38,0,1.25,.76,1.25);rim.name='infinite-fly-stock-basket';
-    this.mesh(cabin,this.geometries.cylinder,this.materials.darkWood,0,.77,0,1.15,.09,1.15);
-    const body=this.mesh(cabin,this.geometries.cylinder,team,0,.42,0,1.31,.14,1.31);body.name='owner-color-on-stock';
+    // Only this basket may fade. Its wood and owner band must not share the
+    // materials used by house floors, trunks, flags or other stock baskets.
+    const stockMaterials=[this.materials.wood,this.materials.darkWood,team].map(source=>{const material=source.clone();material.transparent=true;this.ownedMaterials.push(material);return material;});
+    const rim=this.mesh(cabin,this.geometries.cylinder,stockMaterials[0],0,.38,0,1.25,.76,1.25);rim.name='infinite-fly-stock-basket';
+    const lid=this.mesh(cabin,this.geometries.cylinder,stockMaterials[1],0,.77,0,1.15,.09,1.15);lid.name='stock-basket-lid';
+    const body=this.mesh(cabin,this.geometries.cylinder,stockMaterials[2],0,.42,0,1.31,.14,1.31);body.name='owner-color-on-stock';
+    const stockMeshes=[rim,lid,body];
     const {house,deck,ramp,roof,roofStem,roofLeaf,roofTriangles,roofBounds}=this.buildHouse(base,roofMaterial,team);
     const supply=new THREE.Group();supply.name='visible-fly-reserve';cabin.add(supply);
     const flyBodies=new THREE.InstancedMesh(this.geometries.sphere,this.materials.fly,8),flyWings=new THREE.InstancedMesh(this.geometries.wing,this.materials.wing,16);
@@ -211,7 +230,9 @@ export class ArcadeBasesView {
       const piece=this.geometries.box.clone();piece.scale(.2,.2,1.1);piece.rotateY(i*.8);piece.translate(Math.sin(i*2.4)*.8,.12+(i%2)*.08,Math.cos(i*2.4)*.7);wreck.push(piece);
     }
     const wreckGeometry=mergeGeometries(wreck);for(const part of wreck)part.dispose();this.ownedGeometries.push(wreckGeometry);this.mesh(ruins,wreckGeometry,this.materials.ruin);
-    return {definition:base,group,cabin,house,deck,ramp,roof,roofStem,roofLeaf,roofTriangles,roofBounds,roofObstructed:false,roofHold:0,roofMaterial,marker,markerMaterial,bar,fill,supply,flyBodies,flyWings,ruins,index};
+    group.updateWorldMatrix(true,true);
+    const stockBounds=new THREE.Box3();for(const mesh of stockMeshes)stockBounds.union(new THREE.Box3().setFromObject(mesh));stockBounds.expandByScalar(.03);
+    return {definition:base,group,cabin,house,deck,ramp,roof,roofStem,roofLeaf,roofTriangles,roofBounds,roofObstructed:false,roofHold:0,roofMaterial,stockMeshes,stockMaterials,stockBounds,stockObstructed:false,marker,markerMaterial,bar,fill,supply,flyBodies,flyWings,ruins,index};
   }
 
   buildGrove(definition,index){
@@ -246,6 +267,10 @@ export class ArcadeBasesView {
       const state=states.find(item=>item.id===visual.definition.id||item.owner===visual.definition.owner);
       const destroyed=!!state?.destroyed,progress=clamp((state?.progress||0)/10),active=progress>0&&!destroyed;
       visual.cabin.visible=!destroyed;visual.supply.visible=!destroyed;visual.ruins.visible=destroyed;
+      visual.stockObstructed=!destroyed&&this.stockObstructsPlayer(visual);
+      const recovered=visual.stockMaterials[0].opacity+(1-visual.stockMaterials[0].opacity)*(1-Math.exp(-Math.max(dt,.016)*10));
+      const stockOpacity=visual.stockObstructed?.18:recovered>.995?1:recovered;
+      for(const material of visual.stockMaterials){material.opacity=stockOpacity;material.depthWrite=stockOpacity===1;}
       visual.markerMaterial.color.set(destroyed?'#5c7067':active?'#ff9b58':COLORS[visual.index]);
       visual.markerMaterial.opacity=destroyed ? .12 : active ? .4+.12*Math.sin(this.clock*8) : .28;
       visual.bar.visible=active;visual.fill.scale.x=2.12*progress;visual.fill.position.x=-1.06+1.06*progress;

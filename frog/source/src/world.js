@@ -6,6 +6,7 @@ import { WORLD_SCALE, WORLD_RADIUS, WORLD_BOUNDARY, WORLD_REVISION, SHELTER_SCAL
 import { FORT_RADIUS, GATE_WIDTH, WALL_HEIGHT, WALL_THICKNESS, fortConstructionState } from './fortification.js';
 import {CREEK_WATER_BASE,createCreekGeography,creekBedHeight,creekCurrent,creekWaterOpacity,createCreekDecor,createNaturalShelter,updateNaturalShelter} from './creek-world.js';
 import {refugeSurface} from './refuge.js';
+import {createLilyCameraSurface} from './camera-surface.js';
 export { SHELTER_SCALE, SHELTER_RADIUS } from './world-config.js';
 
 // Everything here is authored geometry. The water is a planar reflection with a
@@ -106,7 +107,7 @@ function mergeStaticParts(target,owned=[],exclude=new Set()) {
     target.add(merged);
   }
 }
-function leafGeometry(width=1,length=1,bend=.08) {
+export function leafGeometry(width=1,length=1,bend=.08) {
   const vertices=[],uvs=[],indices=[],rings=3,segs=40;
   for(let r=0;r<=rings;r++) for(let s=0;s<=segs;s++) {
     const f=r/rings,a=.22+s/segs*(TAU-.44),ruffle=1+.027*Math.sin(a*7)+.016*Math.cos(a*13);
@@ -353,6 +354,7 @@ export function createWorld(scene, renderer, options={}) {
   }
   for(const site of campSites)insertPlatform({id:'island-'+site.id,type:'land',x:site.x,z:site.z,y:site.elevation,radius:site.radius*.8});
   const lilyMesh=spatialBatch(lilyGeo,materials.leaf,lilyData,'Veined water lily leaves',{castShadow:true,receiveShadow:true,dynamic:true});
+  const lilyCameraSurface=createLilyCameraSurface(lilyData,lilyGeo.attributes.position.array);
   lilyData.forEach((p,i)=>{object.position.set(p.x,p.y,p.z);object.rotation.set((random()-.5)*.04,p.angle,(random()-.5)*.035);object.scale.set(p.visualRadius,1,p.visualRadius*(.89+random()*.18));object.updateMatrix();lilyMesh.setMatrixAt(i,object.matrix);lilyMesh.setColorAt(i,color(['#b6cf8a','#88ac67','#749d59','#c0cc7e','#729958'][Math.floor(random()*5)]));});lilyMesh.finish();group.add(lilyMesh.group);renderStats.spatialChunks+=lilyMesh.meshes.length;
   rockData.forEach((data,j)=>{const batch=spatialBatch(rockGeos[j],j===1?materials.mossRock:materials.rock,data,'Weathered waterline outcrops',{castShadow:true,receiveShadow:true});data.forEach((p,i)=>{object.position.set(p.x,-.05,p.z);object.rotation.set(0,p.angle,0);object.scale.set(p.visualRadius,p.scaleY,p.visualRadius);object.updateMatrix();batch.setMatrixAt(i,object.matrix);batch.setColorAt(i,color('#ffffff').multiplyScalar(.7+random()*.4));});batch.finish();group.add(batch.group);renderStats.spatialChunks+=batch.meshes.length;});
 
@@ -383,6 +385,9 @@ export function createWorld(scene, renderer, options={}) {
     for(const p of near){if(p.type==='land')continue;const d=Math.hypot(x-p.x,z-p.z);if(d<=p.radius){let ph=p.y;if(p.type==='rock')ph-=smooth(p.radius*.62,p.radius,d)*.14*p.scaleY;if(natural&&ph<=shoreline)continue;if(ph>h){h=ph;type=p.type==='shelter'?'land':p.type;chosen=p;}}}
     return refugeSurface(creekRefuges,x,z)||{height:h,type,platform:chosen};}
   function sampleHeight(x,z){return surface(x,z).height;}
+  // Camera-only clearance includes the visible pad fringe and motion envelope.
+  // Frog walking, fly collection and projectile terrain keep the same surface.
+  function cameraSurfaceHeight(x,z){return Math.max(sampleHeight(x,z),lilyCameraSurface(x,z));}
 
   // Organic fly lures: fallen fruit, leaf litter and waterlogged wood.
   // Original hotspot ids remain stable for saves. New contested lures are
@@ -848,6 +853,6 @@ export function createWorld(scene, renderer, options={}) {
   // instance buffers/shaders; castles added later retain their movable pivots.
   for(const pocket of creekGeography?.refuges||[])createShelter({...pocket,natural:true,team:'neutral',nestLevel:0});
   group.traverse(o=>{o.updateMatrix();o.matrixAutoUpdate=false;});group.updateMatrixWorld(true);
-  return {group,platforms,hotspots,campSites,mapRegions,routes,predatorAnchors,bossAnchors,renderStats,seed,regionIndex,palette,toRegionPoint:layout.toWorld,radius:WORLD_RADIUS,boundary:WORLD_BOUNDARY,revision:WORLD_REVISION,sampleHeight,getTerrainHeight:terrainHeight,getSurface:surface,shelterLandHeight,update,splash,impact,createShelter,updateShelter,setConstructionProgress,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE,natural,creekLandmarks,creekNest,creekCover,creekGrips,creekRefuges,creekSpawn:natural?{x:0,z:0}:null,creekTerritories:natural?campSites.filter(s=>s.team==='enemy'):[],setCreekState,currentAt,isCreekCover,get waterLevel(){return natural?waterLevel:CREEK_WATER_BASE;}};
+  return {group,platforms,hotspots,campSites,mapRegions,routes,predatorAnchors,bossAnchors,renderStats,seed,regionIndex,palette,toRegionPoint:layout.toWorld,radius:WORLD_RADIUS,boundary:WORLD_BOUNDARY,revision:WORLD_REVISION,sampleHeight,cameraSurfaceHeight,getTerrainHeight:terrainHeight,getSurface:surface,shelterLandHeight,update,splash,impact,createShelter,updateShelter,setConstructionProgress,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE,natural,creekLandmarks,creekNest,creekCover,creekGrips,creekRefuges,creekSpawn:natural?{x:0,z:0}:null,creekTerritories:natural?campSites.filter(s=>s.team==='enemy'):[],setCreekState,currentAt,isCreekCover,get waterLevel(){return natural?waterLevel:CREEK_WATER_BASE;}};
 }
 

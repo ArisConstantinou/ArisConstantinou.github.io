@@ -3,7 +3,7 @@ import { createWorld } from './world.js';
 import { createCreature } from './creatures.js';
 import { ARCADE_VERSION, SAVE_KEY, SETTINGS_KEY, RULES, OBSTACLES, SWARMS, newRound, step, saveRound, loadRound, kickTarget, fireRing, sabotageTarget, ownBase, setProjectileWorld, projectileOrigin, traceWorldRay } from './arcade-model.js';
 import './arcade.css';
-import { cameraPose, screenToWorld, actorHeading, CAMERA_ORBIT, dragCamera } from './arcade-view-math.js';
+import { cameraPose, resolveCameraBoom, screenToWorld, actorHeading, CAMERA_ORBIT } from './arcade-view-math.js';
 import { drawRadar, drawFlyMarkers } from './arcade-radar.js';
 import { traceAim } from './arcade-aim.js';
 import { ARTILLERY, nearbyCatapult } from './arcade-artillery.js';
@@ -14,7 +14,7 @@ import { ArcadeBasesView } from './arcade-bases-view.js';
 import { createTouchLayout } from './arcade-touch-layout.js';
 import { configureArcadeAppearance, applyArcadeAppearance } from './arcade-appearance.js';
 import { normalizeCameraSettings, installCameraSettings } from './arcade-camera-settings.js';
-import { ArcadeCameraFollow } from './arcade-camera-follow.js';
+import { CAMERA_LOOK, lookCamera } from './arcade-camera-look.js';
 import { resolveMouseAim } from './arcade-mouse-aim.js';
 import { PROJECTILE } from './arcade-projectiles.js';
 
@@ -41,17 +41,17 @@ class ArcadeSound {
 
 export class ArcadeGame {
  constructor(){
-  this.touch=matchMedia('(pointer: coarse)').matches||navigator.maxTouchPoints>0;
+  this.touch=matchMedia('(pointer: coarse)').matches||navigator.maxTouchPoints>0;this.mouseControl=!this.touch;
   this.settings={volume:.5,quality:this.touch?'low':'high'};try{Object.assign(this.settings,JSON.parse(read(SETTINGS_KEY)||'{}'));}catch{}
-  Object.assign(this.settings,normalizeCameraSettings(this.settings));this.storageAlertUntil=-Infinity;
+  Object.assign(this.settings,normalizeCameraSettings(this.settings));delete this.settings.cameraAutoRotate;this.storageAlertUntil=-Infinity;
   this.settings.volume=clamp(Number(this.settings.volume)||0,0,1);
   if(!['low','high'].includes(this.settings.quality))this.settings.quality='low';
   const oldSave=read(SAVE_KEY);try{if(JSON.parse(oldSave)?.version===1&&!read(SAVE_KEY+'-before-bases'))write(SAVE_KEY+'-before-bases',oldSave);}catch{}
-  this.state=newRound();this.saved=loadRound(oldSave);this.running=false;this.mode='title';this.keys=new Set();this.actions={fire:false,kick:false,sabotage:false};this.aimStrength=0;this.lastMouseAim=-Infinity;this.move={x:0,z:0};this.aim={x:0,z:-1};this.mouse={x:0,y:0,valid:false};this.pointers=new Map();this.layoutEditing=false;this.fx=[];this.particles=[];this.splats=[];this.tongues=new Map();this.bulletMeshes=new Map();this.koTimes=new Map();this.elapsed=0;this.shake=0;this.saveClock=0;this.accumulator=0;this.failures=[];this.hitConfirmUntil=0;this.lastPlayerHit=null;
+  this.state=newRound();this.saved=loadRound(oldSave);this.running=false;this.mode='title';this.keys=new Set();this.actions={fire:false,kick:false,sabotage:false};this.aimStrength=0;this.move={x:0,z:0};this.aim={x:0,z:-1};this.mouse={x:0,y:0,valid:false,inside:false};this.pointers=new Map();this.layoutEditing=false;this.fx=[];this.particles=[];this.splats=[];this.tongues=new Map();this.bulletMeshes=new Map();this.koTimes=new Map();this.elapsed=0;this.shake=0;this.saveClock=0;this.accumulator=0;this.failures=[];this.hitConfirmUntil=0;this.lastPlayerHit=null;
   this.scene=new THREE.Scene();this.scene.background=new THREE.Color('#9fe4ff');this.scene.fog=new THREE.FogExp2('#baf0ea',.006);
   this.renderer=new THREE.WebGLRenderer({antialias:!this.touch,powerPreference:'high-performance'});this.renderer.domElement.id='arcade-world';this.renderer.domElement.setAttribute('aria-label','FROG — κωμική μάχη με μύγες');this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.3;document.body.append(this.renderer.domElement);
   this.camera=new THREE.PerspectiveCamera(this.settings.cameraFov,innerWidth/innerHeight,.1,250);this.camera.position.set(0,8,15);this.focus=new V(0,2,3);this.cameraTarget=new V(0,8,15);this.viewMode='chase3d';this.cameraReady=false;
-  this.cameraYaw=CAMERA_ORBIT.yaw;this.cameraPitch=CAMERA_ORBIT.pitch;this.cameraDrag=null;this.cameraFollow=new ArcadeCameraFollow();this.lastMovement={x:0,z:0};this.stickAim={x:0,z:-1};
+  this.cameraYaw=CAMERA_ORBIT.yaw;this.cameraPitch=CAMERA_ORBIT.pitch;this.cameraDrag=null;this.pointerLockedActive=false;this.lookRequestPending=false;this.lastMovement={x:0,z:0};this.stickAim={x:0,z:-1};
   this.mouseRay=new THREE.Raycaster();this.mousePoint=new V();this.mouseNdc=new THREE.Vector2();this.mousePlane=new THREE.Plane(UP,0);
   this.scene.add(new THREE.HemisphereLight('#def8ff','#52733a',2.6));this.sun=new THREE.DirectionalLight('#fff1bf',3.2);this.sun.position.set(-16,36,12);this.scene.add(this.sun);
   this.world=createWorld(this.scene,this.renderer,{seed:731,natural:true});
@@ -69,6 +69,7 @@ export class ArcadeGame {
   this.last=performance.now();installCameraSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});this.renderer.setAnimationLoop(now=>this.frame(now));document.getElementById('boot')?.remove();
  }
  ground(x,z){return houseFloorAt(x,z,this.houseFloors)??this.world.getSurface(x,z).height;}
+ cameraGround(x,z){return Math.max(this.ground(x,z),this.world.cameraSurfaceHeight(x,z));}
  createArena(){
   this.obstacleMeshes=[];
   for(const o of OBSTACLES){const mesh=new THREE.Mesh(new THREE.DodecahedronGeometry(o.r,1),this.materials.rock);mesh.scale.y=1.7;mesh.position.set(o.x,this.ground(o.x,o.z)+o.r*.9,o.z);this.scene.add(mesh);this.obstacleMeshes.push(mesh);}
@@ -97,65 +98,96 @@ export class ArcadeGame {
   <button id="catapult-button" class="touch-action catapult-button" aria-label="Χρήση κοντινού καταπέλτη" hidden>${catapultIcon}<span>ΧΡΗΣΗ</span></button><div id="catapult-status" hidden></div>
   <button id="sabotage-button" class="touch-action sabotage-button" aria-label="Κράτησε για καταστροφή εχθρικής αποθήκης" hidden>${storageIcon}<span>ΚΡΑΤΑ · 10″</span></button><div id="sabotage-status" hidden><span id="sabotage-copy"></span><div role="progressbar" aria-label="Καταστροφή αποθήκης" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="sabotage-track"><i id="sabotage-fill"></i></div></div>
   <canvas id="minimap" width="320" height="320" aria-label="Χάρτης: η βάση σου πράσινη, εχθρικές αποθήκες κόκκινη και μωβ, είσοδοι, καταπέλτες και σμήνη"></canvas><div id="dizzy-banner" hidden>🌀 ΖΑΛΙΣΤΗΚΕΣ! <b id="dizzy-time"></b></div><div id="callout" aria-live="polite"></div>
-  <div id="desktop-help" hidden><span><b>WASD</b> Κίνηση</span><span><b>Ποντίκι</b> Ελεύθερη στόχευση</span><span><b>Κλικ</b> Μύγες</span><span><b>E κράτημα</b> Αποθήκη</span><span><b>E</b> Καταπέλτης</span><span id="pc-kick"><b>Q</b> Κλωτσιά</span></div>
-  <div id="touch-controls" hidden><div class="stick-zone move-zone"><div id="move-stick" class="stick" aria-label="Κίνηση"><div class="stick-inner"></div><div class="stick-knob"></div></div><span class="stick-caption">ΑΛΜΑΤΑ</span></div><button id="kick-button" class="touch-action kick-button" aria-label="Αμυντική κλωτσιά για απώθηση κοντινού αντιπάλου" hidden disabled>${kickIcon}<span>ΚΛΩΤΣΙΑ</span></button><button id="fire-button" class="touch-action fire-button" aria-label="Κράτησε για εκτόξευση μυγών">${flyIcon}<span>ΠΥΡ</span></button><div class="stick-zone aim-zone"><div id="aim-stick" class="stick" aria-label="Στόχευση"><div class="fire-ring"></div><div class="stick-inner"></div><div class="stick-knob"></div><span class="aim-center" aria-hidden="true">+</span></div><span class="stick-caption">ΣΤΟΧΕΥΣΗ</span></div><button id="layout-button" class="layout-button" aria-label="Μετακίνηση χειριστηρίων"><b aria-hidden="true">↔</b><span>ΘΕΣΕΙΣ</span></button><div id="layout-hint" hidden>Σύρε τα χειριστήρια στη θέση σου.</div></div>
-  <section id="arcade-menu" class="menu"><div id="menu-main" class="menu-buttons"><button id="play-button" class="art-button play-button">${playIcon}<span>ΠΑΙΞΕ</span></button><button id="settings-button" class="art-button settings-button">${settingsIcon}<span>ΡΥΘΜΙΣΕΙΣ</span></button><button id="new-round-button" class="plain-button" hidden>ΝΕΟΣ ΓΥΡΟΣ</button></div><div id="settings-panel" class="settings-panel" hidden><h2>Ρυθμίσεις</h2><div class="settings-grid"><label>Ήχος <input id="volume" type="range" min="0" max="100" value="${Math.round(this.settings.volume*100)}"></label><label>Γραφικά <select id="quality"><option value="low">Ομαλή κίνηση</option><option value="high">Υψηλά</option></select></label></div><div class="camera-settings-heading"><h3>Κάμερα</h3><select id="camera-follow" aria-label="Περιστροφή κάμερας"><option value="auto">Αυτόματη</option><option value="manual">Χειροκίνητη</option></select><button id="camera-reset" type="button">ΕΠΑΝΑΦΟΡΑ</button></div><div class="settings-grid camera-settings-grid"><label for="camera-zoom"><span>Zoom <output id="camera-zoom-value" for="camera-zoom">100%</output></span><input id="camera-zoom" type="range" min="70" max="150" step="5" value="100"></label><label for="camera-fov"><span>Οπτικό πεδίο <output id="camera-fov-value" for="camera-fov">52°</output></span><input id="camera-fov" type="range" min="40" max="80" step="1" value="52" aria-label="Οπτικό πεδίο FOV σε μοίρες"></label></div><button id="settings-back" class="art-button compact">ΠΙΣΩ</button></div><div id="result-panel" class="result-panel" hidden><span class="result-kicker">FROG • FLY FRENZY</span><h1 id="result-title"></h1><p id="result-copy"></p><button id="replay-button" class="art-button play-button">${playIcon}<span>ΠΑΙΞΕ ΞΑΝΑ</span></button><button id="result-settings" class="plain-button">Ρυθμίσεις</button></div><span class="version">FROG ${ARCADE_VERSION}</span></section>`;
+  <div id="desktop-help" hidden><span><b>WASD</b> Κίνηση</span><span><b>Ποντίκι</b> Θέα + στόχευση</span><span><b>Κλικ</b> Μύγες</span><span><b>E κράτημα</b> Αποθήκη</span><span><b>E</b> Καταπέλτης</span><span id="pc-kick"><b>Q</b> Κλωτσιά</span><span><b>Esc</b> Παύση</span></div>
+  <div id="touch-controls" hidden><div class="stick-zone move-zone"><div id="move-stick" class="stick" aria-label="Κίνηση"><div class="stick-inner"></div><div class="stick-knob"></div></div><span class="stick-caption">ΑΛΜΑΤΑ</span></div><button id="kick-button" class="touch-action kick-button" aria-label="Αμυντική κλωτσιά για απώθηση κοντινού αντιπάλου" hidden disabled>${kickIcon}<span>ΚΛΩΤΣΙΑ</span></button><button id="fire-button" class="touch-action fire-button" aria-label="Κράτησε για εκτόξευση μυγών">${flyIcon}<span>ΠΥΡ</span></button><div class="stick-zone aim-zone"><div id="aim-stick" class="stick" aria-label="Θέα και στόχευση"><div class="fire-ring"></div><div class="stick-inner"></div><div class="stick-knob"></div><span class="aim-center" aria-hidden="true">+</span></div><span class="stick-caption">ΘΕΑ / ΣΤΟΧΕΥΣΗ</span></div><button id="layout-button" class="layout-button" aria-label="Μετακίνηση χειριστηρίων"><b aria-hidden="true">↔</b><span>ΘΕΣΕΙΣ</span></button><div id="layout-hint" hidden>Σύρε τα χειριστήρια στη θέση σου.</div></div>
+  <section id="arcade-menu" class="menu"><div id="menu-main" class="menu-buttons"><button id="play-button" class="art-button play-button">${playIcon}<span>ΠΑΙΞΕ</span></button><button id="settings-button" class="art-button settings-button">${settingsIcon}<span>ΡΥΘΜΙΣΕΙΣ</span></button><button id="new-round-button" class="plain-button" hidden>ΝΕΟΣ ΓΥΡΟΣ</button><p id="look-status" role="status" hidden></p></div><div id="settings-panel" class="settings-panel" hidden><h2>Ρυθμίσεις</h2><div class="settings-grid"><label>Ήχος <input id="volume" type="range" min="0" max="100" value="${Math.round(this.settings.volume*100)}"></label><label>Γραφικά <select id="quality"><option value="low">Ομαλή κίνηση</option><option value="high">Υψηλά</option></select></label></div><div class="camera-settings-heading"><h3>Κάμερα</h3><button id="camera-reset" type="button">ΕΠΑΝΑΦΟΡΑ</button></div><div class="settings-grid camera-settings-grid"><label for="camera-zoom"><span>Zoom <output id="camera-zoom-value" for="camera-zoom">100%</output></span><input id="camera-zoom" type="range" min="70" max="150" step="5" value="100"></label><label for="camera-fov"><span>Οπτικό πεδίο <output id="camera-fov-value" for="camera-fov">52°</output></span><input id="camera-fov" type="range" min="40" max="80" step="1" value="52" aria-label="Οπτικό πεδίο FOV σε μοίρες"></label><label class="camera-sensitivity-label" for="camera-sensitivity"><span>Ευαισθησία <output id="camera-sensitivity-value" for="camera-sensitivity">100%</output></span><input id="camera-sensitivity" type="range" min="25" max="200" step="5" value="100" aria-label="Ευαισθησία ποντικιού και θέας"></label></div><button id="settings-back" class="art-button compact">ΠΙΣΩ</button></div><div id="result-panel" class="result-panel" hidden><span class="result-kicker">FROG • FLY FRENZY</span><h1 id="result-title"></h1><p id="result-copy"></p><button id="replay-button" class="art-button play-button">${playIcon}<span>ΠΑΙΞΕ ΞΑΝΑ</span></button><button id="result-settings" class="plain-button">Ρυθμίσεις</button></div><span class="version">FROG ${ARCADE_VERSION}</span></section>`;
   document.body.append(this.ui);this.$=id=>this.ui.querySelector('#'+id);this.$('quality').value=this.settings.quality;
-  this.$('view-button').onclick=()=>this.toggleView();this.$('play-button').onclick=()=>this.startOrResume();this.$('pause-button').onclick=()=>this.pause();this.$('settings-button').onclick=()=>this.settingsMenu();this.$('result-settings').onclick=()=>this.settingsMenu();this.$('settings-back').onclick=()=>{this.$('arcade-menu').classList.remove('settings-open');this.$('settings-panel').hidden=true;if(this.mode==='result')this.$('result-panel').hidden=false;else this.$('menu-main').hidden=false;};this.$('replay-button').onclick=()=>this.startNew();this.$('new-round-button').onclick=()=>this.startNew();
+  this.$('view-button').onclick=e=>this.toggleView(e);this.$('play-button').onclick=e=>this.startOrResume(e);this.$('pause-button').onclick=()=>this.pause();this.$('settings-button').onclick=()=>this.settingsMenu();this.$('result-settings').onclick=()=>this.settingsMenu();this.$('settings-back').onclick=()=>{this.$('arcade-menu').classList.remove('settings-open');this.$('settings-panel').hidden=true;if(this.mode==='result')this.$('result-panel').hidden=false;else this.$('menu-main').hidden=false;};this.$('replay-button').onclick=e=>this.startNew(e);this.$('new-round-button').onclick=e=>this.startNew(e);
   this.$('volume').oninput=e=>{this.settings.volume=Number(e.target.value)/100;this.sound.volume=this.settings.volume;write(SETTINGS_KEY,JSON.stringify(this.settings));};this.$('quality').onchange=e=>{this.settings.quality=e.target.value;this.applyQuality();write(SETTINGS_KEY,JSON.stringify(this.settings));};
   this.touchLayout=createTouchLayout({root:this.$('touch-controls'),movePad:this.ui.querySelector('.move-zone'),aimPad:this.ui.querySelector('.aim-zone'),fireButton:this.$('fire-button'),toggleButton:this.$('layout-button'),storageKey:'frog-touch-layout-v1',onEditingChange:editing=>{this.layoutEditing=editing;this.clearInputs();this.accumulator=0;if(editing)this.sound.pause();else if(this.running)this.sound.resume();},announce:text=>this.message(text,2)});
  }
  showTitle(){this.running=false;this.mode='title';this.$('play-button').querySelector('span').textContent=this.saved?.status==='playing'?'ΣΥΝΕΧΕΙΑ':'ΠΑΙΞΕ';this.$('new-round-button').hidden=this.saved?.status!=='playing';this.ui.classList.add('in-menu');}
  settingsMenu(){this.$('arcade-menu').classList.add('settings-open');this.$('menu-main').hidden=true;this.$('result-panel').hidden=true;this.$('settings-panel').hidden=false;}
- startOrResume(){if(this.mode==='pause'){this.go();return;}if(this.saved?.status==='playing'){this.state=this.saved;this.saved=null;this.resetCamera();this.buildActors();this.go();}else this.startNew();}
- toggleView(){this.cameraFollow.reset();this.stopCameraDrag();this.mouse.valid=false;this.viewMode=this.viewMode==='chase3d'?'overview':'chase3d';this.$('view-button').textContent=this.viewMode==='chase3d'?'ΠΙΣΩ 3D · C':'ΚΑΤΟΨΗ · C';this.$('view-button').setAttribute('aria-label',this.viewMode==='chase3d'?'Αλλαγή σε κεντραρισμένη κάτοψη':'Αλλαγή σε κάμερα πίσω από τον βάτραχο');this.cameraReady=false;}
- startNew(){this.storageAlertUntil=-Infinity;this.saved=null;this.state=newRound(731+Math.floor(Math.random()*100000));this.resetCamera();this.clearEffects();this.buildActors();this.go();this.message('60 μύγες έτοιμες!',1.6);}
- resetCamera(){this.cameraFollow.reset();const p=this.state.actors[0],heading=actorHeading(p);this.cameraYaw=Math.atan2(heading.x,heading.z);this.cameraPitch=CAMERA_ORBIT.pitch;this.cameraReady=false;this.mouse.valid=false;this.aim={x:p.aimX,z:p.aimZ};this.stopCameraDrag();}
- beginCameraDrag(e){if(this.cameraDrag)return;this.cameraFollow.manual();if(this.viewMode==='overview')this.toggleView();this.mouse.valid=false;this.actions.fire=false;this.cameraDrag={id:e.pointerId,type:e.pointerType,x:e.clientX,y:e.clientY};const canvas=this.renderer.domElement;canvas.setPointerCapture(e.pointerId);canvas.classList.add('camera-dragging');}
+ startOrResume(event){if(this.mode==='pause'){this.go(event);return;}if(this.saved?.status==='playing'){this.state=this.saved;this.saved=null;this.resetCamera();this.buildActors();this.go(event);}else this.startNew(event);}
+ toggleView(event){this.stopCameraDrag();this.actions.fire=false;this.mouse.valid=false;this.viewMode=this.viewMode==='chase3d'?'overview':'chase3d';this.$('view-button').textContent=this.viewMode==='chase3d'?'ΠΙΣΩ 3D · C':'ΚΑΤΟΨΗ · C';this.$('view-button').setAttribute('aria-label',this.viewMode==='chase3d'?'Αλλαγή σε κεντραρισμένη κάτοψη':'Αλλαγή σε κάμερα πίσω από τον βάτραχο');this.cameraReady=false;if(this.viewMode==='overview')this.releaseMouseLook();else{this.centerAim();if(this.running&&(event?.pointerType==='mouse'||(this.mouseControl||event?.type==='keydown')&&event?.pointerType!=='touch'))this.requestMouseLook();}}
+ startNew(event){this.storageAlertUntil=-Infinity;this.saved=null;this.state=newRound(731+Math.floor(Math.random()*100000));this.resetCamera();this.clearEffects();this.buildActors();this.go(event);this.message('60 μύγες έτοιμες!',1.6);}
+ resetCamera(){const p=this.state.actors[0],heading=actorHeading(p);this.cameraYaw=Math.atan2(heading.x,heading.z);this.cameraPitch=CAMERA_ORBIT.pitch;this.cameraReady=false;this.mouse.valid=false;this.aim={x:p.aimX,z:p.aimZ};this.stopCameraDrag();}
+ beginCameraDrag(e){if(this.cameraDrag)return;this.mouseControl=false;if(this.viewMode==='overview')this.toggleView(e);this.centerAim();this.cameraDrag={id:e.pointerId,type:e.pointerType,x:e.clientX,y:e.clientY};const canvas=this.renderer.domElement;canvas.setPointerCapture(e.pointerId);canvas.classList.add('camera-dragging');}
  stopCameraDrag(){const drag=this.cameraDrag;this.cameraDrag=null;const canvas=this.renderer?.domElement;if(drag&&canvas?.hasPointerCapture?.(drag.id))canvas.releasePointerCapture(drag.id);canvas?.classList.remove('camera-dragging');}
- go(){this.$('arcade-menu').classList.remove('settings-open');this.clearInputs();this.accumulator=0;this.last=performance.now();this.running=true;this.mode='play';this.$('new-round-button').hidden=true;this.$('arcade-menu').hidden=true;this.$('settings-panel').hidden=true;this.$('result-panel').hidden=true;this.$('menu-main').hidden=false;this.$('arcade-hud').hidden=false;this.$('desktop-help').hidden=this.touch;this.$('touch-controls').hidden=!this.touch;this.ui.classList.remove('in-menu');this.sound.resume();this.updateHUD();this.touchLayout?.refresh();this.persist();}
- pause(){if(!this.running)return;this.touchLayout?.setEditing(false);this.running=false;this.mode='pause';this.clearInputs();this.persist();this.sound.pause();this.$('arcade-menu').hidden=false;this.$('menu-main').hidden=false;this.$('settings-panel').hidden=true;this.$('play-button').querySelector('span').textContent='ΣΥΝΕΧΕΙΑ';this.$('new-round-button').hidden=false;this.ui.classList.add('in-menu');}
- finish(){this.touchLayout?.setEditing(false);this.running=false;this.mode='finishing';this.resultAt=this.elapsed+.85;this.clearInputs();this.persist();}
+ go(event){if(event?.pointerType==='touch')this.mouseControl=false;this.$('arcade-menu').classList.remove('settings-open');this.clearInputs();this.accumulator=0;this.last=performance.now();this.running=true;this.mode='play';this.$('new-round-button').hidden=true;this.$('arcade-menu').hidden=true;this.$('settings-panel').hidden=true;this.$('result-panel').hidden=true;this.$('menu-main').hidden=false;this.$('look-status').hidden=true;this.$('arcade-hud').hidden=false;this.$('desktop-help').hidden=this.touch;this.$('touch-controls').hidden=!this.touch;this.ui.classList.remove('in-menu');this.sound.resume();this.updateHUD();this.touchLayout?.refresh();this.persist();if(this.viewMode==='chase3d'){this.centerAim();if(event?.pointerType==='mouse'||(this.mouseControl||event?.type==='keydown')&&event?.pointerType!=='touch')this.requestMouseLook();}}
+ pause(){if(!this.running)return;this.touchLayout?.setEditing(false);this.running=false;this.mode='pause';this.clearInputs();this.releaseMouseLook();this.persist();this.sound.pause();this.$('arcade-menu').hidden=false;this.$('menu-main').hidden=false;this.$('settings-panel').hidden=true;this.$('play-button').querySelector('span').textContent='ΣΥΝΕΧΕΙΑ';this.$('new-round-button').hidden=false;this.ui.classList.add('in-menu');}
+ finish(){this.touchLayout?.setEditing(false);this.running=false;this.mode='finishing';this.resultAt=this.elapsed+.85;this.clearInputs();this.releaseMouseLook();this.persist();}
  showResult(){this.running=false;this.mode='result';this.clearInputs();this.persist();const won=this.state.status==='won';this.sound.play(won?'win':'lost');this.$('arcade-menu').hidden=false;this.$('menu-main').hidden=true;this.$('result-panel').hidden=false;this.$('result-title').textContent=won?'Η ΤΕΛΕΥΤΑΙΑ ΑΠΟΘΗΚΗ ΕΙΝΑΙ ΔΙΚΗ ΣΟΥ!':'Η ΑΠΟΘΗΚΗ ΣΟΥ ΚΑΤΑΣΤΡΑΦΗΚΕ';this.$('result-copy').textContent=won?`${this.state.stats.kos} νοκ άουτ · ${this.state.stats.shots} βολές · ${Math.floor(this.state.time)}″ μάχης`:'Κράτησε την είσοδο, διέκοψε τους εισβολείς με μία εύστοχη βολή και ανεφοδιάσου πριν ξαναβγείς.';this.ui.classList.add('in-menu');}
  persist(){if(this.mode==='title')return false;return write(SAVE_KEY,saveRound(this.state));}
- clearInputs(){this.cameraFollow?.reset();this.lastMovement={x:0,z:0};this.renderer?.domElement.classList.remove('mouse-aiming');this.currentAimPreview=null;this.currentAimScreen=null;if(this.aimGuide)this.aimGuide.visible=false;if(this.aimReticle)this.aimReticle.visible=false;if(this.targetRing)this.targetRing.visible=false;this.keys.clear();this.actions={fire:false,kick:false,sabotage:false};this.aimStrength=0;this.mouse.valid=false;this.lastMouseAim=-Infinity;this.move={x:0,z:0};this.pointers.clear();this.stopCameraDrag();if(this.ui){for(const el of this.ui.querySelectorAll('.stick-knob'))el.style.transform='translate(-50%,-50%)';this.$('aim-stick').classList.remove('firing');this.$('fire-button')?.classList.remove('firing');}}
+ clearInputs(){this.lastMovement={x:0,z:0};this.renderer?.domElement.classList.remove('mouse-aiming');this.currentAimPreview=null;this.currentAimScreen=null;if(this.aimGuide)this.aimGuide.visible=false;if(this.aimReticle)this.aimReticle.visible=false;if(this.targetRing)this.targetRing.visible=false;this.keys.clear();this.actions={fire:false,kick:false,sabotage:false};this.aimStrength=0;this.mouse.valid=false;this.mouse.inside=false;this.move={x:0,z:0};this.pointers.clear();this.stopCameraDrag();if(this.ui){for(const el of this.ui.querySelectorAll('.stick-knob'))el.style.transform='translate(-50%,-50%)';this.$('aim-stick').classList.remove('firing');this.$('fire-button')?.classList.remove('firing');}}
+ pointerLocked(){return document.pointerLockElement===this.renderer.domElement;}
+ requestMouseLook(){
+  if(!this.running||this.layoutEditing||this.viewMode!=='chase3d'||this.pointerLocked()||this.lookRequestPending)return;
+  this.mouseControl=true;this.lookRequestPending=true;
+  try{const request=this.renderer.domElement.requestPointerLock();request?.catch?.(()=>this.pointerLookFailed());}catch{this.pointerLookFailed();}
+ }
+ releaseMouseLook(){if(this.pointerLocked())document.exitPointerLock();}
+ pointerLookFailed(){if(!this.lookRequestPending)return;this.lookRequestPending=false;if(!this.running||this.pointerLocked())return;this.pause();const message=this.$('look-status');message.textContent='Πάτησε ΣΥΝΕΧΕΙΑ για έλεγχο με το ποντίκι.';message.hidden=false;}
+ centerAim(){this.mouse.x=this.w/2;this.mouse.y=this.h/2;this.mouse.valid=true;}
+ turnLook(dx,dy,touch=false){
+  if(!this.running||this.layoutEditing||this.viewMode!=='chase3d')return;
+  const orbit=lookCamera({yaw:this.cameraYaw,pitch:this.cameraPitch},dx,dy,{sensitivity:CAMERA_LOOK.sensitivity*this.settings.cameraSensitivity*(touch?1.6:1)});
+  this.cameraYaw=orbit.yaw;this.cameraPitch=orbit.pitch;this.centerAim();
+ }
  bindInputs(){
-  addEventListener('keydown',e=>{if(e.target.matches('input,select'))return;if(e.code==='Escape'){e.preventDefault();if(this.layoutEditing){this.touchLayout.setEditing(false);return;}if(this.running)this.pause();else if(this.mode==='pause')this.go();return;}if(!this.running||this.layoutEditing)return;if(e.code==='KeyC'&&!e.repeat){e.preventDefault();this.toggleView();return;}if(MOVE_KEYS.has(e.code)||['KeyQ','KeyE'].includes(e.code)){e.preventDefault();this.keys.add(e.code);}});
-  addEventListener('keyup',e=>{this.keys.delete(e.code);if(MOVE_KEYS.has(e.code)&&![...this.keys].some(code=>MOVE_KEYS.has(code))&&Math.hypot(this.move.x,this.move.z)<=.08)this.cameraFollow.releaseMovement();});
+  addEventListener('keydown',e=>{if(e.target.matches('input,select'))return;if(e.code==='Escape'){e.preventDefault();if(this.layoutEditing){this.touchLayout.setEditing(false);return;}if(this.running)this.pause();return;}if(!this.running||this.layoutEditing)return;if(e.code==='KeyC'&&!e.repeat){e.preventDefault();this.toggleView(e);return;}if(MOVE_KEYS.has(e.code)||['KeyQ','KeyE'].includes(e.code)){e.preventDefault();this.keys.add(e.code);}});
+  addEventListener('keyup',e=>this.keys.delete(e.code));
   const canvas=this.renderer.domElement;
+  document.addEventListener('pointerlockchange',()=>{
+   const wasLocked=this.pointerLockedActive;this.pointerLockedActive=this.pointerLocked();this.lookRequestPending=false;
+   if(this.pointerLockedActive){if(!this.running||this.layoutEditing||this.viewMode!=='chase3d'){this.releaseMouseLook();return;}this.centerAim();}
+   else if(wasLocked){this.actions.fire=false;if(this.running&&!this.layoutEditing&&this.viewMode==='chase3d')this.pause();}
+  });
+  document.addEventListener('pointerlockerror',()=>this.pointerLookFailed());
   canvas.addEventListener('pointermove',e=>{
    if(!this.running||this.layoutEditing)return;
-   if(e.pointerType==='mouse'){if(this.cameraDrag?.type==='mouse'&&!(e.buttons&2))this.stopCameraDrag();if((e.buttons&2)&&!this.cameraDrag)this.beginCameraDrag(e);}
-   if(this.cameraDrag){if(e.pointerId!==this.cameraDrag.id)return;e.preventDefault();const orbit=dragCamera({yaw:this.cameraYaw,pitch:this.cameraPitch},e.clientX-this.cameraDrag.x,e.clientY-this.cameraDrag.y);this.cameraYaw=orbit.yaw;this.cameraPitch=orbit.pitch;this.cameraDrag.x=e.clientX;this.cameraDrag.y=e.clientY;return;}
-   if(e.pointerType==='mouse')this.captureMouseAim(e);
+   if(e.pointerType==='mouse'){
+    if(this.pointerLocked())this.turnLook(e.movementX,e.movementY);
+    else if(this.viewMode==='overview')this.captureMouseAim(e);
+    return;
+   }
+   if(this.cameraDrag?.id===e.pointerId){e.preventDefault();this.turnLook(e.clientX-this.cameraDrag.x,e.clientY-this.cameraDrag.y,true);this.cameraDrag.x=e.clientX;this.cameraDrag.y=e.clientY;}
   });
   canvas.addEventListener('pointerdown',e=>{
    if(!this.running||this.layoutEditing)return;e.preventDefault();
-   if(e.button===2||e.pointerType==='touch'){
-    this.beginCameraDrag(e);return;
-   }
-   if(e.button===0&&!this.cameraDrag){this.captureMouseAim(e);this.actions.fire=true;}
+   if(e.pointerType==='touch'||e.pointerType==='pen'){this.beginCameraDrag(e);return;}
+   if(this.viewMode==='chase3d'&&!this.pointerLocked()){if(e.button===0)this.requestMouseLook();return;}
+   if(e.button===0){if(this.viewMode==='chase3d')this.centerAim();else this.captureMouseAim(e);this.actions.fire=true;}
   });
-  addEventListener('pointerup',e=>{if(this.cameraDrag?.id===e.pointerId&&(e.button===2||e.pointerType==='touch'))this.stopCameraDrag();if(e.pointerType!=='touch'&&e.button===0)this.actions.fire=false;});
+  addEventListener('pointerup',e=>{if(this.cameraDrag?.id===e.pointerId)this.stopCameraDrag();if(e.pointerType==='mouse'&&e.button===0)this.actions.fire=false;});
   canvas.addEventListener('pointercancel',e=>{if(this.cameraDrag?.id===e.pointerId)this.stopCameraDrag();this.actions.fire=false;});
-  canvas.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!e.buttons&&!this.cameraDrag){this.mouse.valid=false;canvas.classList.remove('mouse-aiming');}});
+  canvas.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&this.viewMode==='overview'&&!e.buttons){this.mouse.valid=false;canvas.classList.remove('mouse-aiming');}});
   canvas.addEventListener('lostpointercapture',e=>{if(this.cameraDrag?.id===e.pointerId)this.stopCameraDrag();});
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   const bindStick=(id,kind)=>{const el=this.$(id),knob=el.querySelector('.stick-knob');let active=null;
-   const update=e=>{const r=el.getBoundingClientRect(),x=(e.clientX-r.left-r.width/2)/(r.width/2),y=(e.clientY-r.top-r.height/2)/(r.height/2),v=fireRing(x,y),d=Math.hypot(x,y),k=d>1?1/d:1;knob.style.transform=`translate(-50%,-50%) translate(${x*k*r.width*.31}px,${y*k*r.height*.31}px)`;if(kind==='move')this.move={x:v.x,z:v.z};else{this.aimStrength=Math.min(1,d);if(d>.08)this.stickAim={x:x/d,z:y/d};}this.mouse.valid=false;};
+   const update=e=>{const r=el.getBoundingClientRect(),x=(e.clientX-r.left-r.width/2)/(r.width/2),y=(e.clientY-r.top-r.height/2)/(r.height/2),v=fireRing(x,y),d=Math.hypot(x,y),k=d>1?1/d:1;knob.style.transform=`translate(-50%,-50%) translate(${x*k*r.width*.31}px,${y*k*r.height*.31}px)`;if(kind==='move')this.move={x:v.x,z:v.z};else{this.aimStrength=Math.min(1,d);if(d>.08)this.stickAim={x:x/d,z:y/d};}if(this.viewMode==='chase3d')this.centerAim();else this.mouse.valid=false;};
    el.onpointerdown=e=>{if(!this.running||this.layoutEditing||(active!==null&&this.pointers.has(kind)))return;e.preventDefault();active=e.pointerId;this.pointers.set(kind,active);el.setPointerCapture(e.pointerId);update(e);};el.onpointermove=e=>{if(!this.layoutEditing&&active===e.pointerId&&this.pointers.get(kind)===active){e.preventDefault();update(e);}};
-   const stop=e=>{if(e.pointerId!==active)return;active=null;this.pointers.delete(kind);knob.style.transform='translate(-50%,-50%)';if(kind==='move'){this.move={x:0,z:0};this.cameraFollow.releaseMovement();}else{this.aimStrength=0;el.classList.remove('firing');}};el.onpointerup=stop;el.onpointercancel=stop;el.onlostpointercapture=stop;
+   const stop=e=>{if(e.pointerId!==active)return;active=null;this.pointers.delete(kind);knob.style.transform='translate(-50%,-50%)';if(kind==='move')this.move={x:0,z:0};else{this.aimStrength=0;el.classList.remove('firing');}};el.onpointerup=stop;el.onpointercancel=stop;el.onlostpointercapture=stop;
   };bindStick('move-stick','move');bindStick('aim-stick','aim');
-  const hold=(id,key)=>{const el=this.$(id);let pointer=null;el.onpointerdown=e=>{if(!this.running||this.layoutEditing||el.disabled)return;e.preventDefault();pointer=e.pointerId;el.setPointerCapture(e.pointerId);this.actions[key]=true;};const release=e=>{if(e.pointerId===pointer){pointer=null;this.actions[key]=false;}};el.onpointerup=release;el.onpointercancel=release;el.onlostpointercapture=release;};hold('kick-button','kick');hold('fire-button','fire');hold('sabotage-button','sabotage');
+  const hold=(id,key)=>{const el=this.$(id);let pointer=null,lastPoint=null;
+   el.onpointerdown=e=>{if(!this.running||this.layoutEditing||el.disabled)return;e.preventDefault();pointer=e.pointerId;lastPoint={x:e.clientX,y:e.clientY};el.setPointerCapture(e.pointerId);if(this.viewMode==='chase3d')this.centerAim();this.actions[key]=true;};
+   el.onpointermove=e=>{if(key!=='fire'||pointer!==e.pointerId||e.pointerType!=='touch'||!this.actions.fire)return;this.turnLook(e.clientX-lastPoint.x,e.clientY-lastPoint.y,true);lastPoint={x:e.clientX,y:e.clientY};};
+   const release=e=>{if(e.pointerId===pointer){pointer=null;lastPoint=null;this.actions[key]=false;}};el.onpointerup=release;el.onpointercancel=release;el.onlostpointercapture=release;
+  };hold('kick-button','kick');hold('fire-button','fire');hold('sabotage-button','sabotage');
   addEventListener('blur',()=>{this.clearInputs();if(this.running)this.pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden){this.clearInputs();this.pause();this.sound.pause();}});addEventListener('beforeunload',()=>this.persist());addEventListener('resize',()=>{this.clearInputs();this.resize();});
  }
  applyQuality(){const low=this.settings.quality==='low';this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,low?1:1.5));for(const m of this.models)m.setRenderLOD(low?1:0);this.resize();}
  resize(){const w=innerWidth,h=innerHeight;this.renderer.setSize(w,h);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();this.cameraReady=false;this.labels.width=w;this.labels.height=h;this.w=w;this.h=h;this.touchLayout?.refresh();}
  captureMouseAim(e){
-  this.mouse.x=e.clientX;this.mouse.y=e.clientY;this.mouse.valid=true;this.lastMouseAim=performance.now();this.updateMouseTarget();
+  this.mouse.x=e.clientX;this.mouse.y=e.clientY;this.mouse.valid=true;this.mouse.inside=true;this.updateMouseTarget();
+ }
+ movementInput(){
+  this.lastMovement=screenToWorld(this.move.x+(this.keys.has('KeyD')||this.keys.has('ArrowRight')?1:0)-(this.keys.has('KeyA')||this.keys.has('ArrowLeft')?1:0),this.move.z+(this.keys.has('KeyS')||this.keys.has('ArrowDown')?1:0)-(this.keys.has('KeyW')||this.keys.has('ArrowUp')?1:0),this.camera.position,this.focus);
+  return this.lastMovement;
  }
  updateMouseTarget(){
-  if(!this.mouse.valid||this.cameraDrag)return;
+  if(this.viewMode==='chase3d')this.centerAim();
+  if(!this.mouse.valid)return;
   const p=this.state.actors[0];this.mouseNdc.set(this.mouse.x/this.w*2-1,1-this.mouse.y/this.h*2);this.mouseRay.setFromCamera(this.mouseNdc,this.camera);
   if(p.catapultId){
    // A catapult still selects a landing point; its separate ballistic arc stays intact.
@@ -183,12 +215,12 @@ export class ArcadeGame {
  }
  currentInput(){
   if(this.layoutEditing)return {};
-  const p=this.state.actors[0],touchAim=this.pointers.has('aim')&&this.aimStrength>.08,aiming=!this.cameraDrag&&(this.actions.fire||touchAim||this.mouse.valid);
-  if(touchAim)this.aim={...screenToWorld(this.stickAim.x,this.stickAim.z,this.camera.position,this.focus),distance:14};
+  const p=this.state.actors[0],touchAim=this.pointers.has('aim')&&this.aimStrength>.08,aiming=this.viewMode==='chase3d'||this.actions.fire||touchAim||this.mouse.valid;
+  if(touchAim&&this.viewMode==='overview')this.aim={...screenToWorld(this.stickAim.x,this.stickAim.z,this.camera.position,this.focus),distance:14};
   this.updateMouseTarget();
   if(this.mouse.valid&&aiming&&this.mouse.target){if(!p.catapultId&&this.mouse.direction)this.aim={...this.mouse.direction,distance:this.mouse.distance};else{const dx=this.mouse.target.x-p.x,dz=this.mouse.target.z-p.z,d=Math.hypot(dx,dz);if(d>.1)this.aim={x:dx/d,z:dz/d,distance:d};}}
-  const movement=this.cameraFollow.movement(this.move.x+(this.keys.has('KeyD')||this.keys.has('ArrowRight')?1:0)-(this.keys.has('KeyA')||this.keys.has('ArrowLeft')?1:0),this.move.z+(this.keys.has('KeyS')||this.keys.has('ArrowDown')?1:0)-(this.keys.has('KeyW')||this.keys.has('ArrowUp')?1:0),this.camera.position,this.focus,{enabled:this.settings.cameraAutoRotate&&this.viewMode==='chase3d',dragging:!!this.cameraDrag,continuous:this.pointers.has('move')&&![...this.keys].some(code=>MOVE_KEYS.has(code))});this.lastMovement=movement;
-  return {mx:movement.x,mz:movement.z,ax:this.aim.x,ay:this.aim.y,az:this.aim.z,aiming,fire:this.actions.fire&&!this.cameraDrag,kick:this.actions.kick||this.keys.has('KeyQ'),sabotage:!p.catapultId&&(this.actions.sabotage||this.keys.has('KeyE'))};
+  const movement=this.movementInput();
+  return {mx:movement.x,mz:movement.z,ax:this.aim.x,ay:this.aim.y,az:this.aim.z,aiming,fire:this.actions.fire,kick:this.actions.kick||this.keys.has('KeyQ'),sabotage:!p.catapultId&&(this.actions.sabotage||this.keys.has('KeyE'))};
  }
  message(text,seconds=1.5){this.$('callout').textContent=text;this.calloutUntil=this.elapsed+seconds;}
  makeFlyBullet(){const g=new THREE.Group(),b=new THREE.Mesh(this.shared.sphere,this.materials.shot);b.scale.set(.12,.10,.19);g.add(b);for(const side of [-1,1]){const w=new THREE.Mesh(this.shared.wing,this.materials.wing);w.position.set(side*.13,.07,0);w.scale.set(.17,.018,.09);g.add(w);}this.scene.add(g);return g;}
@@ -260,13 +292,16 @@ export class ArcadeGame {
    if(a.hop>0){const direction=Math.atan2(a.hopX,a.hopZ)-m.group.rotation.y,strength=Math.min(1,Math.hypot(a.hopX,a.hopZ)/8.8)*Math.sin((1-a.hop/RULES.hopDuration)*Math.PI);m.bones.spine.rotation.z-=Math.sin(direction)*strength*.1;for(const side of [-1,1])m.bones[`hip${side}`].rotation.z-=Math.sin(direction)*strength*.14;}
    if(a.dizzyTime>0){m.group.rotation.z=Math.sin(this.elapsed*7)*.17;m.bones.head.rotation.z+=Math.sin(this.elapsed*9)*.2;}else m.group.rotation.z=age<.65?age*6:0;
    m.group.rotation.x=0;if(a.knockUp>0){const progress=1-a.knockUp/a.knockUpDuration,tilt=Math.sin(progress*Math.PI)*.38,direction=Math.atan2(a.impulseX,a.impulseZ)-m.group.rotation.y;m.group.rotation.x=Math.cos(direction)*tilt;m.group.rotation.z-=Math.sin(direction)*tilt;}
+   // At an upward limit terrain can bring the eye inside the local frog.
+   // Hide only that nearby body so it cannot cover the view or crosshair.
+   if(i===0&&this.viewMode==='chase3d'&&!a.ko&&Math.hypot(this.camera.position.x-x,this.camera.position.z-z)<1.35&&this.camera.position.y<y+1.3)m.group.visible=false;
   });
   const p=this.state.actors[0];this.playerRing.position.set(p.x,this.ground(p.x,p.z)+.07,p.z);this.playerRing.scale.setScalar(1);
   const preview=traceAim(this.state,p),attr=this.aimGuide.geometry.attributes.position;
   const origin=preview.origin||projectileOrigin(this.state,p);
   attr.setXYZ(0,origin.x,origin.y,origin.z);attr.setXYZ(1,preview.x,preview.y,preview.z);attr.needsUpdate=true;this.aimGuide.computeLineDistances();this.aimGuide.geometry.computeBoundingSphere();
-  const showAim=this.running&&!this.layoutEditing&&!this.cameraDrag&&!p.catapultId&&!p.ko&&p.dizzyTime<=0&&(p.aiming||p.shot>0);
-  this.renderer.domElement.classList.toggle('mouse-aiming',showAim&&this.mouse.valid&&!this.cameraDrag);
+  const showAim=this.running&&!this.layoutEditing&&!p.catapultId&&!p.ko&&p.dizzyTime<=0&&(p.aiming||p.shot>0);
+  this.renderer.domElement.classList.toggle('mouse-aiming',showAim&&(this.pointerLocked()||this.viewMode==='overview'&&this.mouse.valid));
   this.currentAimPreview=showAim?preview:null;this.aimGuide.visible=showAim;this.aimGuide.material.color.set(preview.targetId?'#ffc09b':preview.blocked?'#b9c0b5':'#f4f7d5');
   this.aimReticle.visible=showAim;this.aimReticle.position.set(preview.x,preview.y,preview.z);this.aimReticle.quaternion.copy(this.camera.quaternion);this.aimReticle.scale.setScalar(.5);this.aimReticle.material.color.copy(this.aimGuide.material.color);
   const target=this.state.actors.find(a=>a.id===preview.targetId);this.targetRing.visible=showAim&&!!target;
@@ -281,12 +316,12 @@ export class ArcadeGame {
   SWARMS.forEach((zone,i)=>{const available=this.state.flies.filter(f=>f.swarmId===zone.id&&f.wait<=0).length,ring=this.swarmRings[i];ring.material.opacity=available?.2:.09;ring.material.color.set(available?'#c8e0a3':'#6f8c83');});
   const live=new Set();for(const b of this.state.bullets){live.add(b.id);let mesh=this.bulletMeshes.get(b.id);if(!mesh){mesh=this.makeFlyBullet();this.bulletMeshes.set(b.id,mesh);}mesh.position.set(b.x,Number.isFinite(b.y)?b.y:this.ground(b.x,b.z)+.9,b.z);mesh.quaternion.setFromUnitVectors(new V(0,0,1),new V(b.dx,b.dy||0,b.dz).normalize());mesh.children[1].rotation.z=Math.sin(this.elapsed*75);mesh.children[2].rotation.z=-Math.sin(this.elapsed*75);}
   for(const [id,mesh] of this.bulletMeshes)if(!live.has(id)){mesh.removeFromParent();this.bulletMeshes.delete(id);}
-  for(const [id,t] of this.tongues){const age=(this.elapsed-t.start)/.22;if(age>=1){t.mesh.removeFromParent();this.tongues.delete(id);continue;}const i=this.state.actors.findIndex(a=>a.id===id),m=this.models[i],start=m.mouthWorld(),end=new V(t.x,this.ground(t.x,t.z)+1,t.z),reach=Math.sin(age*Math.PI);end.lerpVectors(start,end,reach);const dir=end.clone().sub(start);t.mesh.position.copy(start).addScaledVector(dir,.5);t.mesh.quaternion.setFromUnitVectors(UP,dir.clone().normalize());t.mesh.scale.set(.07,Math.max(.001,dir.length()),.07);}
+  for(const [id,t] of this.tongues){t.mesh.visible=id!=='player'||this.models[0].group.visible;const age=(this.elapsed-t.start)/.22;if(age>=1){t.mesh.removeFromParent();this.tongues.delete(id);continue;}const i=this.state.actors.findIndex(a=>a.id===id),m=this.models[i],start=m.mouthWorld(),end=new V(t.x,this.ground(t.x,t.z)+1,t.z),reach=Math.sin(age*Math.PI);end.lerpVectors(start,end,reach);const dir=end.clone().sub(start);t.mesh.position.copy(start).addScaledVector(dir,.5);t.mesh.quaternion.setFromUnitVectors(UP,dir.clone().normalize());t.mesh.scale.set(.07,Math.max(.001,dir.length()),.07);}
  }
  project(x,y,z){const p=new V(x,y,z).project(this.camera);return {x:(p.x+1)*this.w/2,y:(1-p.y)*this.h/2,visible:p.z>-1&&p.z<1};}
  drawLabels(){const c=this.labelCtx;c.clearRect(0,0,this.w,this.h);c.textAlign='center';c.lineJoin='round';c.font='800 18px sans-serif';if(this.running){drawFlyMarkers(this,c);drawRadar(this,this.$('minimap'));}
   this.currentAimScreen=null;
-  if(this.currentAimPreview){const aim=this.currentAimPreview,q=this.mouse.valid&&!this.cameraDrag?{x:this.mouse.x,y:this.mouse.y,visible:true}:this.project(aim.x,aim.y,aim.z);this.currentAimScreen={x:q.x,y:q.y};if(q.visible&&q.x>4&&q.x<this.w-4&&q.y>4&&q.y<this.h-4){c.save();c.lineWidth=4;c.strokeStyle='#173c35';c.beginPath();c.arc(q.x,q.y,7,0,Math.PI*2);c.stroke();c.lineWidth=2;c.strokeStyle=aim.targetId?'#ffc5a0':'#f4ffdd';c.beginPath();c.arc(q.x,q.y,7,0,Math.PI*2);for(const [x,y] of [[1,0],[-1,0],[0,1],[0,-1]]){c.moveTo(q.x+x*10,q.y+y*10);c.lineTo(q.x+x*16,q.y+y*16);}c.stroke();c.restore();}}
+  if(this.currentAimPreview){const aim=this.currentAimPreview,q=this.mouse.valid?{x:this.mouse.x,y:this.mouse.y,visible:true}:this.project(aim.x,aim.y,aim.z);this.currentAimScreen={x:q.x,y:q.y};if(q.visible&&q.x>4&&q.x<this.w-4&&q.y>4&&q.y<this.h-4){c.save();c.lineWidth=4;c.strokeStyle='#173c35';c.beginPath();c.arc(q.x,q.y,7,0,Math.PI*2);c.stroke();c.lineWidth=2;c.strokeStyle=aim.targetId?'#ffc5a0':'#f4ffdd';c.beginPath();c.arc(q.x,q.y,7,0,Math.PI*2);for(const [x,y] of [[1,0],[-1,0],[0,1],[0,-1]]){c.moveTo(q.x+x*10,q.y+y*10);c.lineTo(q.x+x*16,q.y+y*16);}c.stroke();c.restore();}}
 
   if(this.hitConfirmUntil>this.elapsed&&this.lastPlayerHit){const h=this.lastPlayerHit,target=this.state.actors.find(a=>a.id===h.id),q=this.project(h.x,Number.isFinite(h.y)?h.y:this.ground(h.x,h.z)+(target?.height||0)+1.2,h.z);if(q.visible){c.save();c.strokeStyle='#143d35';c.lineWidth=6;c.beginPath();for(const [x,y] of [[1,1],[-1,1],[1,-1],[-1,-1]]){c.moveTo(q.x+x*6,q.y+y*6);c.lineTo(q.x+x*15,q.y+y*15);}c.stroke();c.strokeStyle='#fffce2';c.lineWidth=3;c.stroke();c.restore();}}
   this.state.actors.forEach((a,i)=>{if(a.eliminated)return;const p=this.project(a.x,this.ground(a.x,a.z)+a.height+2.4,a.z);if(!p.visible)return;const on=p.x>20&&p.x<this.w-20&&p.y>70&&p.y<this.h-40;
@@ -298,22 +333,33 @@ export class ArcadeGame {
   if(this.running){const player=this.state.actors[0];for(const base of this.state.bases){const definition=BASES.find(b=>b.id===base.id),near=Math.hypot(player.x-definition.stock.x,player.z-definition.stock.z)<10;if(base.destroyed||(!near&&!base.attackerId))continue;const q=this.project(definition.stock.x,this.ground(definition.stock.x,definition.stock.z)+3.5,definition.stock.z);if(!q.visible||q.x<70||q.x>this.w-70||q.y<95||q.y>this.h-(this.touch?220:85))continue;const text=base.attackerId?`ΚΑΤΑΣΤΡΟΦΗ · ${Math.max(0,RULES.sabotageSeconds-base.progress).toFixed(1)}″`:base.owner==='player'?'Η ΑΠΟΘΗΚΗ ΣΟΥ · ∞':'ΕΧΘΡΙΚΗ ΑΠΟΘΗΚΗ';c.font='800 12px sans-serif';c.strokeStyle='#14342df2';c.lineWidth=5;c.strokeText(text,q.x,q.y);c.fillStyle=base.attackerId?'#ffd197':base.owner==='player'?'#dbff9d':'#ffbdad';c.fillText(text,q.x,q.y);}}
   this.fx=this.fx.filter(f=>this.elapsed-f.start<f.life);for(const f of this.fx){const t=(this.elapsed-f.start)/f.life,p=this.project(f.x,this.ground(f.x,f.z)+2+t*2,f.z);c.globalAlpha=1-t;c.font=`900 ${f.text==='ΝΟΚ ΑΟΥΤ!'?32:22}px sans-serif`;c.strokeStyle='#244136';c.lineWidth=6;c.strokeText(f.text,p.x,p.y);c.fillStyle=f.color;c.fillText(f.text,p.x,p.y);}c.globalAlpha=1;
  }
- frame(now){
-  const dt=Math.min(.05,Math.max(0,(now-this.last)/1000));this.last=now;
-  if(this.running&&!this.layoutEditing){this.elapsed+=dt;this.accumulator+=dt;while(this.accumulator>=1/60){step(this.state,this.currentInput(),1/60);this.consumeEvents();this.accumulator-=1/60;if(this.state.status!=='playing'){this.finish();break;}}this.saveClock+=dt;if(this.saveClock>3){this.saveClock=0;this.persist();}}
-  else if(this.mode==='result'||this.mode==='finishing')this.elapsed+=dt;
-  if(this.mode==='finishing'&&this.elapsed>=this.resultAt)this.showResult();
+ updateCameraPose(dt){
   const p=this.state.actors[0];
-  this.cameraYaw=this.cameraFollow.update(this.cameraYaw,{dt,enabled:this.settings.cameraAutoRotate,mode:this.viewMode,moving:this.lastMovement,aiming:this.actions.fire||this.pointers.has('aim')||(this.mouse.valid&&performance.now()-this.lastMouseAim<350),dragging:!!this.cameraDrag,active:this.running&&!this.layoutEditing&&!p.ko&&!p.catapultId&&p.dizzyTime<=0&&p.knockUp<=0});
   const pose=cameraPose(p,this.ground(p.x,p.z),this.w/this.h,this.viewMode,{yaw:this.cameraYaw,pitch:this.cameraPitch,zoom:this.settings.cameraZoom}),lookPoint=new V(...pose.look),camPoint=new V(...pose.position);
   if(!this.cameraReady){this.focus.copy(lookPoint);this.cameraReady=true;}else this.focus.lerp(lookPoint,1-Math.exp(-dt*8));
-  // Orbit easing already happens above. Smooth position only so an aim/fire
-  // gesture freezes the visible angle immediately instead of finishing a turn.
+  // Position follows automatically; only deliberate look input changes angles.
   this.cameraTarget.copy(this.focus).add(camPoint.sub(lookPoint));
-  this.shake*=Math.exp(-dt*15);const shake=this.running?this.shake:0;this.camera.position.copy(this.cameraTarget);this.camera.position.x+=(Math.random()-.5)*shake;this.camera.lookAt(this.focus);this.camera.updateMatrixWorld();
+  const safe=resolveCameraBoom({look:this.focus.toArray(),position:this.cameraTarget.toArray()},(x,z)=>this.cameraGround(x,z));
+  this.focus.fromArray(safe.look);this.cameraTarget.fromArray(safe.position);
+  const shake=this.running?this.shake:0;this.camera.position.copy(this.cameraTarget);this.camera.position.x+=(Math.random()-.5)*shake;this.camera.lookAt(this.focus);this.camera.updateMatrixWorld();
+ }
+ frame(now){
+  const dt=Math.min(.05,Math.max(0,(now-this.last)/1000));this.last=now;
+  const p=this.state.actors[0],active=this.running&&!this.layoutEditing;
+  if(active&&this.viewMode==='chase3d'&&this.pointers.has('aim')&&this.aimStrength>.08){
+   const strength=(this.aimStrength-.08)/.92,orbit=lookCamera({yaw:this.cameraYaw,pitch:this.cameraPitch},this.stickAim.x*strength*dt,this.stickAim.z*strength*dt,{sensitivity:2.2*this.settings.cameraSensitivity});
+   this.cameraYaw=orbit.yaw;this.cameraPitch=orbit.pitch;
+  }
+  this.shake*=Math.exp(-dt*15);this.updateCameraPose(dt);
+  // Resolve shots through the camera that is actually rendered this frame,
+  // including mouse or touch look during held fire.
+  if(active){this.elapsed+=dt;this.accumulator+=dt;while(this.accumulator>=1/60){step(this.state,this.currentInput(),1/60);this.consumeEvents();this.accumulator-=1/60;if(this.state.status!=='playing'){this.finish();break;}}this.saveClock+=dt;if(this.saveClock>3){this.saveClock=0;this.persist();}}
+  else if(this.mode==='result'||this.mode==='finishing')this.elapsed+=dt;
+  if(this.mode==='finishing'&&this.elapsed>=this.resultAt)this.showResult();
+  if(!this.cameraReady)this.updateCameraPose(0);
   if(this.running||this.mode==='title'||this.mode==='result'||this.mode==='finishing'){const animationDt=this.mode==='title'||this.layoutEditing?0:dt;this.renderActors(animationDt);this.renderFlies();this.updateCatapultAim?.();this.artilleryView.update(animationDt);this.basesView.update(animationDt);this.impactEffects.update(animationDt);this.world.update(this.running&&!this.layoutEditing?dt:0,this.elapsed,1,new V(p.x,this.ground(p.x,p.z),p.z));}
   if((this.running&&!this.layoutEditing)||this.mode==='finishing'||this.mode==='result'){this.particles=this.particles.filter(p=>{if(this.elapsed-p.start>.55){p.mesh.removeFromParent();return false;}p.v.y-=dt*16;p.mesh.position.addScaledVector(p.v,dt);return true;});}
   this.renderer.render(this.scene,this.camera);this.drawLabels();this.updateHUD();
  }
- inspect(){return {version:ARCADE_VERSION,viewMode:this.viewMode,cameraAutoRotate:this.settings.cameraAutoRotate,mouse:{x:this.mouse.x,y:this.mouse.y,valid:this.mouse.valid},aim:{...this.aim},aimScreen:this.currentAimScreen,cameraYaw:this.cameraYaw,cameraPitch:this.cameraPitch,cameraDragging:!!this.cameraDrag,phase:this.state.phase,intro:this.state.intro,mode:this.mode,status:this.state.status,ammo:this.state.actors[0].ammo,fillPercent:Math.round(this.state.actors[0].ammo/RULES.capacity*100),actors:this.state.actors.map(a=>({id:a.id,x:a.x,z:a.z,ammo:a.ammo,dizzy:a.dizzy,dizzyTime:a.dizzyTime,ko:a.ko,eliminated:a.eliminated,respawnTime:a.respawnTime,sabotageId:a.sabotageId,aiming:a.aiming,aimX:a.aimX,aimY:a.aimY,aimZ:a.aimZ,face:a.face,hop:a.hop,hopX:a.hopX,hopZ:a.hopZ,height:a.height,knockUp:a.knockUp,finishHits:a.finishHits,kickCooldown:a.kickCooldown,catapultId:a.catapultId})),bases:this.state.bases.map(b=>({...b})),layoutEditing:this.layoutEditing,touch:this.touch,catapults:this.state.catapults?.map(c=>({id:c.id,occupant:c.occupant,cooldown:c.cooldown})),shells:this.state.shells?.length,hitConfirmUntil:this.hitConfirmUntil,bullets:this.state.bullets.length,splats:this.splats.length,legacySavePreserved:true};}
+ inspect(){return {version:ARCADE_VERSION,viewMode:this.viewMode,cameraControl:'direct-look',pointerLocked:this.pointerLocked(),cameraSensitivity:this.settings.cameraSensitivity,mouse:{x:this.mouse.x,y:this.mouse.y,valid:this.mouse.valid},aim:{...this.aim},aimScreen:this.currentAimScreen,cameraYaw:this.cameraYaw,cameraPitch:this.cameraPitch,cameraDragging:!!this.cameraDrag,phase:this.state.phase,intro:this.state.intro,mode:this.mode,status:this.state.status,ammo:this.state.actors[0].ammo,fillPercent:Math.round(this.state.actors[0].ammo/RULES.capacity*100),actors:this.state.actors.map(a=>({id:a.id,x:a.x,z:a.z,ammo:a.ammo,dizzy:a.dizzy,dizzyTime:a.dizzyTime,ko:a.ko,eliminated:a.eliminated,respawnTime:a.respawnTime,sabotageId:a.sabotageId,aiming:a.aiming,aimX:a.aimX,aimY:a.aimY,aimZ:a.aimZ,face:a.face,hop:a.hop,hopX:a.hopX,hopZ:a.hopZ,height:a.height,knockUp:a.knockUp,finishHits:a.finishHits,kickCooldown:a.kickCooldown,catapultId:a.catapultId})),bases:this.state.bases.map(b=>({...b})),layoutEditing:this.layoutEditing,touch:this.touch,catapults:this.state.catapults?.map(c=>({id:c.id,occupant:c.occupant,cooldown:c.cooldown})),shells:this.state.shells?.length,hitConfirmUntil:this.hitConfirmUntil,bullets:this.state.bullets.length,splats:this.splats.length,legacySavePreserved:true};}
 }

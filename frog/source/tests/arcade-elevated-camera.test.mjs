@@ -3,14 +3,16 @@ import assert from 'node:assert/strict';
 import {PerspectiveCamera,Vector3} from 'three';
 import {CAMERA_ORBIT,cameraPose,screenToWorld} from '../src/arcade-view-math.js';
 
-test('default rear camera is modestly higher, with the same range and unobstructed foreground framing',()=>{
+test('default shooter view aims ahead with the same camera range and visible foreground',()=>{
  for(const aspect of [430/745,745/430,2048/1032]){
   const player={x:0,z:19.65,face:Math.PI},ground=2,old=cameraPose(player,ground,aspect,'chase3d',{yaw:Math.PI,pitch:.37}),pose=cameraPose(player,ground,aspect),camera=new PerspectiveCamera(52,aspect,.1,250);
-  assert.ok(pose.position[1]>old.position[1]+.65&&pose.position[1]<old.position[1]+1.3,'lift is visible but restrained');
-  assert.ok(CAMERA_ORBIT.pitch>.42&&CAMERA_ORBIT.pitch<.48,'rear view remains around twenty-five degrees');
-  assert.deepEqual(pose.look,old.look,'look-ahead does not jump or introduce excess sky');
+  assert.ok(pose.position[1]>ground+1,'the default eye clears the player and flat ground');
+  assert.deepEqual(pose.look,old.look,'the framing anchor stays on the player');
   const range=p=>Math.hypot(...p.position.map((v,i)=>v-p.look[i]));assert.ok(Math.abs(range(pose)-range(old))<1e-9);
   camera.position.fromArray(pose.position);camera.lookAt(new Vector3(...pose.look));camera.updateMatrixWorld();
+  const forward=camera.getWorldDirection(new Vector3()),groundDistance=(ground-camera.position.y)/forward.y,groundPoint=camera.position.clone().addScaledVector(forward,groundDistance);
+  const aimReach=Math.hypot(groundPoint.x-player.x,groundPoint.z-player.z);
+  assert.ok(groundDistance>0&&aimReach>8&&aimReach<21.6,'the central aiming ray reaches useful combat distance instead of the ground at the frog\'s feet');
   for(const point of [[0,ground+.4,19.65],[0,ground,17.9],[0,ground,14.65]]){
    const projected=new Vector3(...point).project(camera);assert.ok(Math.abs(projected.x)<.1&&Math.abs(projected.y)<.65&&projected.z>-1&&projected.z<1,'frog, house doorway and catapult approach remain in the frame');
   }
