@@ -1,37 +1,30 @@
-# FROG 4.0.0 — verification
+# FROG 4.1.0 — verification
 
-Automated tests: **718 passed / 718 total**, 0 failed, 0 skipped. This includes 699 existing project checks and 19 new arcade-rule tests. Verified from workflow run 40289510326, job 121460987889 (Node test summary at 2026-10-26T08:03:02Z).
+Automated tests: 730 passed / 730 total.
 
 Production Vite build: succeeded.
 
-## Real Chromium WebGL and input checks
+## Browser checks
 
-- Opening menu has Play/Resume and Settings only
-- Actual WebGL world and original skinned frog models initialize
-- Keyboard tongue catches visible flies and fills ammo
-- Live count and percentage reflect collected ammunition
-- Mouse aiming and shooting consume fly ammunition
-- Pause freezes simulation and suspends sound
-- Contextual Q kick executes a nearby dizzy rival
-- Reload resumes arcade progress using its separate save
-- Win screen requires all rivals KO and offers replay
-- Portrait mobile HUD fits without page scrolling
-- Two simultaneous fingers move and aim; inner aim does not fire
-- Entering outer ring fires without lifting the movement finger
-- Touch release stops firing and moving
-- Mobile kick button performs the same contextual KO
-- Touch controls recover after pause and orientation change
-- Landscape touch targets remain inside viewport
-- No uncaught browser runtime errors
-
-Screenshots and machine-readable results: `qa/arcade/`.
+- Opening menu retains Play/Resume and Settings only
+- Default close lateral 3D camera shows the frog and at least three flies
+- Ten seconds idle causes no rival movement, shot or hit
+- C and the camera button switch views; flies and minimap stay visible in both
+- W moves screen-forward in the lateral 3D camera
+- Actual keyboard tongue collects flies and updates live percentage without starting battle
+- Mouse aiming does not spin the camera
+- Deliberate spit consumes a fly and begins a five-second battle warning
+- Pause freezes countdown, simulation and audio; resume enters battle after the warning
+- Q still delivers a contextual finishing knockout
+- Save/resume preserves knockout progress
+- Portrait phone shows flies, radar and HUD without horizontal overflow
+- Holding the actual mobile tongue button collects five flies safely
+- Two simultaneous fingers move and aim without firing in the inner ring
+- Outer ring fires while moving; releasing both fingers clears movement and fire
+- Landscape rotation keeps both sticks, actions, map and camera button inside the screen
+- No uncaught browser errors in desktop or mobile flows
 
 ## Limitations
 
-- Mobile controls tested in Chromium touch emulation, not on a physical iPhone or Android.
-- Software-rendered browser test is not a measurement of hardware FPS.
-- These checks cover the agreed small arcade prototype, not a campaign, multiplayer or long-term progression system.
-
-## Build dependency note
-
-The existing pinned development dependencies reported one high-severity npm audit finding during installation. This run did not perform a dependency upgrade or establish its exploitability. The delivered game is a static production build; do not treat the passing gameplay checks as a security audit.
+- Chromium desktop and emulated touch, not a physical iPhone/Android.
+- Input checks advance the real frame function with GPU drawing suspended; WebGL and screenshots are rendered separately. This does not measure real-device FPS.

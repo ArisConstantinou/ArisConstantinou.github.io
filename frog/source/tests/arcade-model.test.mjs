@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {newRound,step,collect,shoot,hit,kick,fireRing,kickTarget,saveRound,loadRound,RULES,SAVE_KEY,moveBody,OBSTACLES} from '../src/arcade-model.js';
+import {newRound as trainingRound,step,collect,shoot,hit,kick,fireRing,kickTarget,saveRound,loadRound,RULES,SAVE_KEY,moveBody,OBSTACLES} from '../src/arcade-model.js';
+const newRound=(seed)=>{const s=trainingRound(seed);s.phase='battle';s.intro=0;return s;};
 const dizzy=(s,a)=>{for(let i=0;i<6;i++){a.invuln=0;hit(s,a,{dx:1,dz:0,owner:'player'});}};
 test('solo player and two rivals, no army or building progression',()=>{const s=newRound();assert.equal(s.actors.length,3);assert.equal(s.actors[0].ammo,0);assert.equal(s.flies.length,72);assert.equal(s.status,'playing');assert.equal(s.camps,undefined);});
 test('deterministic round generation',()=>assert.deepEqual(newRound(45),newRound(45)));
