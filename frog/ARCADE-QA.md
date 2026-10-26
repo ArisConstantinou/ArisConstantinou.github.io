@@ -1,6 +1,6 @@
 # FROG 4.0.0 — verification
 
-Automated tests: see log passed / see log total.
+Automated tests: **718 passed / 718 total**, 0 failed, 0 skipped. This includes 699 existing project checks and 19 new arcade-rule tests. Verified from workflow run 40289510326, job 121460987889 (Node test summary at 2026-10-26T08:03:02Z).
 
 Production Vite build: succeeded.
 
@@ -24,7 +24,14 @@ Production Vite build: succeeded.
 - Landscape touch targets remain inside viewport
 - No uncaught browser runtime errors
 
+Screenshots and machine-readable results: `qa/arcade/`.
+
 ## Limitations
 
 - Mobile controls tested in Chromium touch emulation, not on a physical iPhone or Android.
 - Software-rendered browser test is not a measurement of hardware FPS.
+- These checks cover the agreed small arcade prototype, not a campaign, multiplayer or long-term progression system.
+
+## Build dependency note
+
+The existing pinned development dependencies reported one high-severity npm audit finding during installation. This run did not perform a dependency upgrade or establish its exploitability. The delivered game is a static production build; do not treat the passing gameplay checks as a security audit.
