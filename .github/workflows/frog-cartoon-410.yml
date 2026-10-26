@@ -1,0 +1,110 @@
+name: FROG 4.1 cartoon build and verify
+on:
+  push:
+    branches: [frog-cartoon-4.1.0]
+    paths:
+      - 'frog/source/**'
+      - '.github/workflows/frog-cartoon-410.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: frog-cartoon-410
+  cancel-in-progress: true
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: frog-cartoon-4.1.0
+          fetch-depth: 1
+          sparse-checkout: |
+            frog
+            .github/workflows
+      - name: Apply hash-verified local implementation once
+        run: |
+          python3 - <<'PY'
+          import pathlib, json, hashlib
+          root=pathlib.Path('frog/source').resolve()
+          manifest=root/'upgrade-410.json'
+          if manifest.exists():
+              prepared=[]
+              for relative,change in json.loads(manifest.read_text()).items():
+                  p=(root/relative).resolve()
+                  assert p.is_relative_to(root)
+                  original=p.read_text()
+                  assert hashlib.sha256(original.encode()).hexdigest()==change['base'], f'Baseline changed: {relative}'
+                  revised=original
+                  for start,end,text in reversed(change['edits']):
+                      revised=revised[:start]+text+revised[end:]
+                  assert hashlib.sha256(revised.encode()).hexdigest()==change['sha256'], f'Patch checksum failed: {relative}'
+                  prepared.append((p,revised))
+              for p,text in prepared:p.write_text(text)
+              manifest.unlink()
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frog/source/package-lock.json
+      - name: Install project dependencies
+        working-directory: frog/source
+        run: npm ci
+      - name: Test complete game and new arcade rules
+        working-directory: frog/source
+        run: |
+          set -o pipefail
+          npm test | tee /tmp/frog-410-tests.log
+      - name: Build production arcade
+        working-directory: frog/source
+        run: |
+          npm version 4.1.0 --no-git-tag-version --allow-same-version
+          npm run build
+      - name: Install browser checks
+        working-directory: frog/source
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify 3D, top-down, onboarding, controls and mobile layout
+        working-directory: frog/source
+        run: |
+          python3 -m http.server 4173 --directory dist >/tmp/frog-410-server.log 2>&1 &
+          sleep 2
+          node qa/arcade-410.mjs
+      - name: Save verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frog-410-evidence
+          path: |
+            frog/source/qa/arcade-410-evidence
+            /tmp/frog-410-tests.log
+            /tmp/frog-410-server.log
+      - name: Commit verified source and production build
+        run: |
+          mkdir -p frog/assets frog/qa/arcade-410
+          cp frog/source/dist/index.html frog/index.html
+          cp -r frog/source/dist/assets/. frog/assets/
+          cp frog/source/ARCADE.md frog/README.md
+          cp -r frog/source/qa/arcade-410-evidence/. frog/qa/arcade-410/
+          python3 - <<'PY'
+          import pathlib,json,re
+          r=json.loads(pathlib.Path('frog/qa/arcade-410/report.json').read_text())
+          assert r['ok'] is True
+          log=pathlib.Path('/tmp/frog-410-tests.log').read_text()
+          counts=re.findall(r'# tests (\d+)',log)
+          passed=re.findall(r'# pass (\d+)',log)
+          text='# FROG 4.1.0 — verification\n\n'
+          text+=f"Automated tests: {passed[-1]} passed / {counts[-1]} total.\n\nProduction Vite build: succeeded.\n\n"
+          text+='## Browser checks\n\n'+'\n'.join('- '+c for c in r['checks'])+'\n\n'
+          text+='## Limitations\n\n'+'\n'.join('- '+c for c in r['limitations'])+'\n'
+          pathlib.Path('frog/ARCADE-QA.md').write_text(text)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frog/source/src frog/source/tests frog/source/qa/arcade-410.mjs frog/source/ARCADE.md frog/source/package.json frog/source/package-lock.json frog/index.html frog/assets frog/README.md frog/ARCADE-QA.md frog/qa/arcade-410
+          git add -u frog/source/upgrade-410.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m 'Build FROG 4.1.0 with verified cartoon side camera and fair arcade onboarding'
+          git push origin HEAD:frog-cartoon-4.1.0
