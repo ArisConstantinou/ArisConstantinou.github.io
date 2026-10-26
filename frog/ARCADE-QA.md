@@ -1,0 +1,30 @@
+# FROG 4.0.0 — verification
+
+Automated tests: see log passed / see log total.
+
+Production Vite build: succeeded.
+
+## Real Chromium WebGL and input checks
+
+- Opening menu has Play/Resume and Settings only
+- Actual WebGL world and original skinned frog models initialize
+- Keyboard tongue catches visible flies and fills ammo
+- Live count and percentage reflect collected ammunition
+- Mouse aiming and shooting consume fly ammunition
+- Pause freezes simulation and suspends sound
+- Contextual Q kick executes a nearby dizzy rival
+- Reload resumes arcade progress using its separate save
+- Win screen requires all rivals KO and offers replay
+- Portrait mobile HUD fits without page scrolling
+- Two simultaneous fingers move and aim; inner aim does not fire
+- Entering outer ring fires without lifting the movement finger
+- Touch release stops firing and moving
+- Mobile kick button performs the same contextual KO
+- Touch controls recover after pause and orientation change
+- Landscape touch targets remain inside viewport
+- No uncaught browser runtime errors
+
+## Limitations
+
+- Mobile controls tested in Chromium touch emulation, not on a physical iPhone or Android.
+- Software-rendered browser test is not a measurement of hardware FPS.
