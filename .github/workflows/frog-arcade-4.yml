@@ -1,0 +1,89 @@
+name: FROG arcade build and playtest
+on:
+  push:
+    branches: [frog-arcade-4]
+    paths:
+      - 'frog/source/**'
+      - '.github/workflows/frog-arcade-4.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: frog-arcade-4
+  cancel-in-progress: true
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: frog-arcade-4
+          fetch-depth: 1
+          sparse-checkout: |
+            frog
+            .github/workflows
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frog/source/package-lock.json
+      - name: Install pinned project dependencies
+        working-directory: frog/source
+        run: npm ci
+      - name: Test existing game and new arcade rules
+        working-directory: frog/source
+        run: |
+          set -o pipefail
+          npm test | tee /tmp/frog-tests.log
+      - name: Build arcade entry
+        working-directory: frog/source
+        run: |
+          npm version 4.0.0 --no-git-tag-version --allow-same-version
+          npm run build
+      - name: Install browser test dependency
+        working-directory: frog/source
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Playtest production build in real WebGL and touch emulation
+        working-directory: frog/source
+        run: |
+          python3 -m http.server 4173 --directory dist >/tmp/frog-server.log 2>&1 &
+          sleep 2
+          node qa/arcade-smoke.mjs
+      - name: Save test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frog-arcade-evidence
+          path: |
+            frog/source/qa/arcade-evidence
+            /tmp/frog-tests.log
+            /tmp/frog-server.log
+      - name: Stage verified build without deleting old assets or saves
+        run: |
+          mkdir -p frog/assets frog/qa/arcade
+          cp frog/source/dist/index.html frog/index.html
+          cp -r frog/source/dist/assets/. frog/assets/
+          cp frog/source/ARCADE.md frog/README.md
+          cp -r frog/source/qa/arcade-evidence/. frog/qa/arcade/
+          python3 - <<'PY'
+          import pathlib,json,re
+          r=json.loads(pathlib.Path('frog/qa/arcade/report.json').read_text())
+          assert r['ok'] is True
+          log=pathlib.Path('/tmp/frog-tests.log').read_text()
+          counts=re.findall(r'# tests (\d+)',log)
+          passed=re.findall(r'# pass (\d+)',log)
+          text='# FROG 4.0.0 — verification\n\n'
+          text+=f"Automated tests: {passed[-1] if passed else 'see log'} passed / {counts[-1] if counts else 'see log'} total.\n\n"
+          text+='Production Vite build: succeeded.\n\n'
+          text+='## Real Chromium WebGL and input checks\n\n'+'\n'.join('- '+c for c in r['checks'])+'\n\n'
+          text+='## Limitations\n\n'+'\n'.join('- '+c for c in r['limitations'])+'\n'
+          pathlib.Path('frog/ARCADE-QA.md').write_text(text)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frog/source/package.json frog/source/package-lock.json frog/index.html frog/assets frog/README.md frog/ARCADE-QA.md frog/qa/arcade
+          git commit -m 'Build FROG 4.0.0 after arcade rules and WebGL playtests'
+          git push origin HEAD:frog-arcade-4
