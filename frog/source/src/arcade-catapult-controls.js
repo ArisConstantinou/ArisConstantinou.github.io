@@ -9,14 +9,13 @@ export function installCatapultControls(game) {
   game.updateCatapultAim = () => {
     if (!mounted()) { game.catapultAim = { active: false, target: null }; return; }
     const p = game.state.actors[0];
-    // Mouse targets are anchored in the world at the pointer event, so a
-    // following camera cannot rotate a stationary aim into an endless turn.
-    if (!game.touch && game.mouse.valid && game.mouse.target) {
+    // Pointer aiming also works when a touch-capable laptop has a mouse.
+    if (game.mouse.valid && game.mouse.target) {
       const dx=game.mouse.target.x-p.x,dz=game.mouse.target.z-p.z,distance=Math.hypot(dx,dz);
       if(distance>.01)game.aim={x:dx/distance,z:dz/distance,distance};
     }
     const direction = game.aim || { x: p.aimX, z: p.aimZ };
-    const power = game.touch ? Math.max(0, Math.min(1, (game.aimStrength - .08) / .92)) :
+    const power = game.touch&&!game.mouse.valid ? Math.max(0, Math.min(1, (game.aimStrength - .08) / .92)) :
       Math.max(0, Math.min(1, ((direction.distance || 17) - ARTILLERY.minRange) / (ARTILLERY.maxRange - ARTILLERY.minRange)));
     game.catapultAim = { active: true, target: stoneTarget(p, direction.x, direction.z, power) };
   };
@@ -30,6 +29,7 @@ export function installCatapultControls(game) {
       input.fire = false;
       input.aiming = true;
       input.ax = game.aim.x; input.az = game.aim.z;
+      input.ay = undefined;
       input.sabotage=false;
       if(trigger&&game.catapultAim.target?.valid!==false)input.throwStone={...game.catapultAim.target};
     }
