@@ -1,24 +1,39 @@
-# FROG 4.1.0 — cartoon arcade readability
+# FROG 4.2.0 — Μάχη στον βάλτο
 
-A solo frog catches flies with its tongue, inflates, spits them as ammunition, makes other frogs dizzy, and finishes them with a kick. No building, army management or new weapons were added.
+Οι μύγες είναι τα βασικά πυρομαχικά του βατράχου. Η μεγάλη πέτρα εκτοξεύεται από ξεχωριστό καταπέλτη: ο βάτραχος χειρίζεται τους μοχλούς με τα μπροστινά του πόδια. Δεν υπάρχει σακίδιο ή αλλαγή του περιεχομένου του στόματος.
 
-## This release
+## Χειρισμός στο κινητό
 
-- Default perspective 3D camera is low and offset to the side so the mouth, tongue and spit animation are visible. Aiming never rotates the camera automatically.
-- C / camera button switches to an optional overhead view. Larger winged flies and screen markers are readable in both views.
-- Movement and the mobile aiming stick are camera-relative. The outer aiming ring fires; the inner area only aims.
-- Persistent radar shows the player, both colour-coded rivals, flies and solid obstacles.
-- Brighter palette, simplified skin surface, exaggerated eyes, throat inflation and spit jaw animation. This is a first stylisation pass on the existing models, not a claim to match concept art exactly.
-- New rounds wait indefinitely while the player learns to catch five flies. The first deliberate spit after that begins a five-second countdown. Rivals do not move or fire before battle, and practice projectiles cannot damage opponents.
-- Rivals spawn away from the player and choose their nearest living opponent, including each other. They use collected fly ammunition and the same dizzy/kick rules.
-- Existing arcade saves and knockouts are retained. Older saves receive a safe onboarding re-entry. The older strategy save is untouched.
+- **Αριστερό χειριστήριο:** ελεύθερα άλματα προς την κατεύθυνση του δαχτύλου. Μικρή μετατόπιση σημαίνει μικρότερη ταχύτητα. Μπορείς να αλλάζεις κατεύθυνση στη διάρκεια του άλματος.
+- **Δεξί χειριστήριο:** στόχευση με ορατό στόχαστρο. Η εξωτερική περιοχή του κύκλου εκτοξεύει μύγες. Αφήνοντάς το σταματάς τις βολές και ο βάτραχος ακολουθεί ξανά την κατεύθυνση κίνησης.
+- **Συλλογή:** πλησίασε ένα από τα έξι σμήνη. Οι μύγες μαζεύονται αυτόματα, μέχρι 40. Κάθε σμήνος αδειάζει και αναπληρώνεται στην ίδια περιοχή. Ο χάρτης δείχνει τα πραγματικά σημεία ανεφοδιασμού.
+- **Κλωτσιά:** εμφανίζεται κοντά σε αντίπαλο και τον απωθεί. Λειτουργεί και χωρίς μύγες, με χρόνο επαναφοράς. Δεν χρειάζεται κλωτσιά για να ολοκληρώσεις νοκ άουτ.
+- **Καταπέλτης:** πλησίασε τον δικό σου και πάτησε «ΧΡΗΣΗ». Κρατάς και σύρεις το δεξί χειριστήριο για κατεύθυνση και απόσταση· αφήνεις για μία βολή. Το κουμπί «ΕΞΟΔΟΣ» σε κατεβάζει. Οι μύγες σου διατηρούνται.
 
-## Controls
+## Υπολογιστής
 
-Desktop: WASD/arrows move, mouse aims, left click spits, E/right click catches flies, Q finishes a nearby dizzy rival, C switches camera, Escape pauses.
+WASD/βέλη για κίνηση, ποντίκι για στόχευση, αριστερό κλικ για βολές. Q για αμυντική κλωτσιά. E για είσοδο/έξοδο από κοντινό δικό σου καταπέλτη. Μέσα στον καταπέλτη, το ποντίκι δείχνει την προσγείωση και ένα αριστερό κλικ εκτοξεύει μία πέτρα. C ή το κουμπί κάμερας αλλάζει ανάμεσα στην κεντραρισμένη κάτοψη με κλίση και την πλαϊνή 3D κάμερα. Escape ή το κουμπί παύσης σταματά παιχνίδι και ήχο.
 
-Mobile: left stick moves, right stick aims, its outer ring fires, tongue button catches flies, contextual kick button finishes a nearby dizzy rival. Portrait and landscape layouts include an always-visible minimap.
+## Κανόνες μάχης
 
-## Verification
+Η πρώτη εκκίνηση είναι προστατευμένη: μάζεψε πέντε μύγες, δοκίμασε μία βολή και περίμενε την αντίστροφη μέτρηση πέντε δευτερολέπτων. Οι αντίπαλοι παραμένουν αδρανείς μέχρι να αρχίσει η μάχη.
 
-The release workflow runs the full Node test suite, a production Vite build, and desktop/touch Chromium smoke tests. Results are recorded in `ARCADE-QA.md` and `qa/arcade-410/report.json` after a successful build. Browser emulation is not a physical-device or FPS certification.
+Έξι επιτυχημένα χτυπήματα με μύγες προκαλούν ζάλη. Τρία ακόμη στη διάρκεια της ζάλης ολοκληρώνουν το νοκ άουτ. Οι πέτρες προκαλούν πολλαπλάσια ζημιά ανά πρόσκρουση. Αν περάσει το περιθώριο ζάλης, ο βάτραχος ανακάμπτει. Οι ίδιοι κανόνες ισχύουν για τον παίκτη και τους αντιπάλους. Ένα πραγματικό χτύπημα δίνει στιγμιαία ένδειξη επιτυχίας, ήχο, αντίδραση σώματος και πρόοδο στις ενδείξεις πάνω στον αντίπαλο.
+
+Οι αντίπαλοι προετοιμάζουν τη βολή τους πριν εκτοξεύσουν μύγα και αφήνουν διαστήματα ανάμεσα στις επιθέσεις. Μπορούν να πολεμούν μεταξύ τους, να αποφεύγονται και να χρησιμοποιούν τους δικούς τους καταπέλτες.
+
+## Καταπέλτες
+
+Υπάρχει ένας σταθερός ξύλινος καταπέλτης στην πλευρά κάθε βατράχου. Κατά τη χρήση μένεις στη θέση χειρισμού και παραμένεις ευάλωτος. Ο μηχανισμός επαναφορτώνει αυτόματα σε τρία δευτερόλεπτα.
+
+Η μεγάλη γκρι πέτρα ακολουθεί παραβολική τροχιά. Ο κύκλος στο έδαφος προειδοποιεί για την πρόσκρουση σε 1,25 δευτερόλεπτα, ώστε ο αντίπαλος να μπορεί να απομακρυνθεί. Το κέντρο προκαλεί μεγαλύτερη ζημιά από την άκρη. Η πέτρα μπορεί να βλάψει και αυτόν που την εκτόξευσε αν βρεθεί στο σημείο πρόσκρουσης. Κόκκινη προεπισκόπηση δηλώνει στόχο εκτός του επιτρεπόμενου εύρους.
+
+Το χτύπημα της πέτρας τινάζει τον βάτραχο λίγο ψηλά και πίσω: πιο έντονα στο κέντρο, πιο ήπια στην άκρη. Το σώμα του γέρνει και προσγειώνεται με σύντομο πιτσίλισμα και κυματισμό. Όποιος χτυπηθεί ενώ χειρίζεται καταπέλτη απομακρύνεται από τη θέση του. Η κίνηση επανέρχεται μετά τη σύντομη προσγείωση.
+
+Τα πιτσιλίσματα και οι κυματισμοί είναι τρισδιάστατα εφέ της σκηνής, με φωτισμό, βάθος και περιορισμένο αριθμό σταγόνων για το κινητό. Η πέτρα δημιουργεί μεγαλύτερο εφέ από μία μύγα· η προσγείωση έχει δικό της μικρότερο εφέ. Η παύση παγώνει και αυτά τα εφέ.
+
+## Αποθήκευση και έλεγχος
+
+Η προηγούμενη αποθήκευση του arcade διατηρεί μύγες και πρόοδο νοκ άουτ. Τα παλιά διάσπαρτα σημεία μυγών μεταφέρονται στα νέα σμήνη. Κατά τη συνέχιση ο χειριστής κατεβαίνει με ασφάλεια από τον καταπέλτη· διατηρείται ο χρόνος επαναφόρτισής του.
+
+Οι λειτουργικές δοκιμές κινητού χρησιμοποιούν πραγματικά συμβάντα αφής σε προσομοιωμένες οθόνες Chromium. Δεν αποτελούν δοκιμή σε φυσικό iPhone/Android ή μέτρηση πραγματικών FPS.

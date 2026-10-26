@@ -1,0 +1,201 @@
+{
+  "version": "4.2.0",
+  "checks": [
+    "Real mouse catapult shot matches its visible target and preserves fly ammunition",
+    "Actual shell impact damages the rival and starts nonlethal knock-up",
+    "Frog visibly rises while native 3D droplets and terrain ripples use scene depth",
+    "Knock-up ends with the frog on the terrain and a real landing event",
+    "Portrait catapult status, exit action, sticks and map have no overlap",
+    "No uncaught browser or WebGL shader errors in focused effects and layout checks"
+  ],
+  "errors": [],
+  "screenshots": [
+    "qa/arcade-420-impact-evidence/stone-before-shot.png",
+    "qa/arcade-420-impact-evidence/stone-hit-peak.png",
+    "qa/arcade-420-impact-evidence/stone-hit-landing.png",
+    "qa/arcade-420-impact-evidence/phone-catapult-status.png"
+  ],
+  "observations": {
+    "before": {
+      "x": 6,
+      "z": 4,
+      "height": 0,
+      "knockUp": 0,
+      "duration": 0,
+      "peak": 0,
+      "dizzy": 0,
+      "ko": false,
+      "modelY": 0.105,
+      "ground": 0.105
+    },
+    "impact": {
+      "event": {
+        "type": "stoneImpact",
+        "id": 1,
+        "owner": "player",
+        "x": 6.094596630812112,
+        "z": 3.6459990141344925,
+        "radius": 2.8
+      },
+      "hits": 1,
+      "target": {
+        "id": "rival-1",
+        "x": 6,
+        "z": 4,
+        "aimX": -0.9321730870880206,
+        "aimZ": -0.36201289439575157,
+        "aiming": false,
+        "face": -1.941222674161515,
+        "ammo": 0,
+        "load": 0,
+        "dizzy": 4,
+        "finishHits": 0,
+        "dizzyTime": 0,
+        "ko": false,
+        "hit": 0.23,
+        "invuln": 0.12,
+        "shot": 997.7166666666678,
+        "tongue": 997.7166666666678,
+        "kick": 0,
+        "kickCooldown": 997.7166666666678,
+        "kickPending": false,
+        "impulseX": -3.0979553203337753,
+        "impulseZ": 11.593216673262676,
+        "hop": 0,
+        "hopX": 0,
+        "hopZ": 0,
+        "hopSpeed": 0,
+        "height": 0,
+        "knockUp": 0.48,
+        "knockUpDuration": 0.48,
+        "knockUpPeak": 0.85,
+        "knockUpStart": 0,
+        "idle": 997.7166666666678,
+        "brain": 0.4433451155045366,
+        "decision": -1,
+        "catapultId": null,
+        "catapultShots": 0,
+        "catapultAim": 0,
+        "interactHeld": false,
+        "machineTimer": 997.7166666666678,
+        "machineSeeking": false,
+        "aimWindup": 0,
+        "aiShotReady": 0,
+        "aiCharging": false,
+        "aiAimX": 0,
+        "aiAimZ": -1
+      }
+    },
+    "peak": {
+      "x": 5.696285833660337,
+      "z": 5.136563885865111,
+      "height": 0.8491909883445791,
+      "knockUp": 0.2466666666666667,
+      "duration": 0.48,
+      "peak": 0.85,
+      "dizzy": 4,
+      "ko": false,
+      "modelY": 0.954190988344579,
+      "ground": 0.105
+    },
+    "effectsAtPeak": {
+      "droplets": {
+        "name": "arcade-impact-droplets",
+        "instanced": true,
+        "attached": true,
+        "depthTest": true,
+        "depthWrite": true
+      },
+      "liveParticles": 49,
+      "activeRipples": [
+        {
+          "name": "arcade-impact-ripple-0",
+          "attached": true,
+          "depthTest": true,
+          "depthWrite": false
+        },
+        {
+          "name": "arcade-impact-ripple-1",
+          "attached": true,
+          "depthTest": true,
+          "depthWrite": false
+        }
+      ]
+    },
+    "landing": {
+      "x": 5.666348543004807,
+      "z": 5.248595681450399,
+      "height": 0,
+      "knockUp": 0,
+      "duration": 0.48,
+      "peak": 0.85,
+      "dizzy": 4,
+      "ko": false,
+      "modelY": 0.105,
+      "ground": 0.105
+    },
+    "portraitBoxes": [
+      {
+        "id": "catapult-button",
+        "visible": true,
+        "x": 40,
+        "y": 580,
+        "right": 110,
+        "bottom": 650
+      },
+      {
+        "id": "catapult-status",
+        "visible": true,
+        "x": 124,
+        "y": 609,
+        "right": 376,
+        "bottom": 634
+      },
+      {
+        "id": "move-stick",
+        "visible": true,
+        "x": 14,
+        "y": 666,
+        "right": 170,
+        "bottom": 822
+      },
+      {
+        "id": "aim-stick",
+        "visible": true,
+        "x": 220,
+        "y": 666,
+        "right": 376,
+        "bottom": 822
+      },
+      {
+        "id": "minimap",
+        "visible": true,
+        "x": 268,
+        "y": 112,
+        "right": 378,
+        "bottom": 222
+      },
+      {
+        "id": "view-button",
+        "visible": true,
+        "x": 268,
+        "y": 228,
+        "right": 378,
+        "bottom": 260
+      },
+      {
+        "id": "pause-button",
+        "visible": true,
+        "x": 338,
+        "y": 12,
+        "right": 378,
+        "bottom": 54
+      }
+    ]
+  },
+  "limitations": [
+    "Actual Chromium WebGL rendering and real pointer handlers; not a physical phone or a measurement of device FPS.",
+    "The controlled impact fixture holds a rival at a known position before the actual catapult shot. No synthetic damage or animation calls trigger the hit."
+  ],
+  "ok": true
+}

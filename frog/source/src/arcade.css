@@ -13,3 +13,20 @@
 #callout:empty{display:none}#callout{width:min(600px,64vw)}
 @media(max-width:540px) and (orientation:portrait){#arcade-hud{right:12px}.ammo-card{width:200px;flex:1;min-width:0}.ko-card{margin-left:0}#minimap{right:12px;top:112px;width:110px;height:110px}#view-button{right:12px;top:228px;width:110px;height:32px;font-size:12px}#callout{left:12px;transform:none;top:112px;width:calc(100vw - 142px);font-size:14px;padding:10px}#dizzy-banner{top:268px;font-size:16px}}
 @media(max-height:500px) and (orientation:landscape){#arcade-hud{right:132px;gap:10px}#minimap{top:10px;right:12px;width:100px;height:100px}#view-button{right:12px;top:116px;width:100px;height:30px;font-size:11px}.ko-card{margin-left:auto}#callout{top:94px;font-size:13px;width:50vw}.ammo-card{min-width:200px}}
+
+/* Two-thumb combat: gathering is passive, kick appears only at close range. */
+.aim-center{position:absolute;inset:0;display:grid;place-items:center;color:#e9f4d8a6;font-size:29px;pointer-events:none}
+.stick-knob{z-index:1}.aim-zone .stick-inner{inset:19%;border-style:dashed}.fire-ring{border-width:13px;border-color:#cde88f80}
+.stick.firing .aim-center{color:#fff4a3}.stick.firing .stick-knob{background:#a3b653e8}.ring-label{font-size:11px;letter-spacing:1px}
+#ammo-state{display:block;line-height:1.3}.ammo-card>svg{flex-shrink:0}#callout{line-height:1.4}#desktop-help{font-size:14px;gap:15px}
+#view-button{font-size:12px}.touch-action.ready{animation:none}
+@media(max-width:540px) and (orientation:portrait){#callout{font-size:13px}.ammo-numbers{gap:8px}#ammo-state{font-size:10px}.ammo-card{padding:8px}.stick-caption{font-size:10px}.ring-label{font-size:10px}#view-button{font-size:10px}}
+@media(max-height:500px) and (orientation:landscape){#callout{top:90px;font-size:12px;width:46vw}.stick-caption{font-size:10px}.ring-label{font-size:9px}.fire-ring{border-width:11px}#view-button{font-size:10px}}
+
+/* Enter the separate siege machine with a contextual action, then reuse aiming. */
+.catapult-button{left:26px;bottom:96px;width:72px;height:72px;font-size:11px}
+#catapult-status{position:absolute;left:50%;bottom:105px;transform:translateX(-50%);max-width:60vw;padding:8px 12px;border:1px solid #c4d8bf88;border-radius:12px;background:#173d34e6;color:#f4efd4;font-size:13px;font-weight:800;text-align:center;pointer-events:none}
+.is-touch .catapult-button{left:40px;bottom:calc(clamp(116px,30vh,176px) + 38px + env(safe-area-inset-bottom))}
+.stick.catapult .fire-ring{border-color:#b3d5d8a0;border-style:dashed}.stick.catapult .ring-label{visibility:hidden}.move-zone.mounted{opacity:.28;pointer-events:none}.move-zone.mounted .stick{pointer-events:none}
+@media(max-width:540px) and (orientation:portrait){.is-touch .catapult-button{bottom:calc(min(40vw,162px) + 38px + env(safe-area-inset-bottom));left:40px;width:70px;height:70px}#catapult-status{bottom:210px;left:124px;right:14px;width:auto;max-width:none;transform:none;font-size:10px;padding:6px 8px}}
+@media(max-height:500px) and (orientation:landscape){.is-touch .catapult-button{left:calc(clamp(116px,30vh,176px) + 32px);bottom:28px;width:64px;height:64px}#catapult-status{bottom:104px;font-size:11px;max-width:45vw}}

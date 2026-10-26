@@ -1,0 +1,46 @@
+{
+  "version": "4.2.0",
+  "checks": [
+    "Desktop starts in centered, tilted overview with minimap and no manual tongue control",
+    "Ten simulated seconds idle cannot start battle or allow rivals to ambush the player",
+    "Moving into the first swarm collects flies automatically and enters safe shooting practice",
+    "C switches to lower side third-person; aiming leaves the camera heading stable",
+    "Actual mouse firing spends fly ammunition and starts the five-second warning",
+    "Warning is not skipped; pause freezes simulation and audio, and resume completes countdown",
+    "A brief Q tap works with no ammunition and pushes a normal opponent away without instant KO",
+    "Real mouse-aimed projectiles finish a dizzy opponent from beyond kick range",
+    "Owned catapult mounts with E, previews mouse aim, fires on click, preserves fly ammo, reloads and dismounts",
+    "Save/reload retains ammunition and battle phase",
+    "Portrait phone: visible controls and map fit without overlapping or scrolling",
+    "Actual left-stick movement enters a swarm and refills without a collection button",
+    "Analog tilt preserves intensity; changing direction steers mid-hop and turns the visible frog",
+    "Two simultaneous fingers move and deliberately aim; the inner ring does not fire",
+    "Outer ring fires while moving; releasing aim alone restores movement-facing and stops fire",
+    "Touch camera toggle changes once per tap and keeps the player inside portrait framing",
+    "Contextual mobile kick accepts a short tap against an active opponent with an empty mouth",
+    "Portrait catapult controls: visible controls and map fit without overlapping or scrolling",
+    "Mobile catapult reuses right-stick hold/drag/release, shows arc and landing marker, and preserves flies",
+    "Landscape phone: visible controls and map fit without overlapping or scrolling",
+    "Pause clears both touch controls and audio; controls recover after resume and rotation",
+    "No uncaught browser runtime errors in desktop or touch flows"
+  ],
+  "errors": [],
+  "screenshots": [
+    "qa/arcade-420-evidence/desktop-overview.png",
+    "qa/arcade-420-evidence/desktop-third-person.png",
+    "qa/arcade-420-evidence/desktop-ranged-hit.png",
+    "qa/arcade-420-evidence/desktop-catapult-aim.png",
+    "qa/arcade-420-evidence/desktop-catapult-flight.png",
+    "qa/arcade-420-evidence/phone-portrait-overview.png",
+    "qa/arcade-420-evidence/phone-portrait-third-person.png",
+    "qa/arcade-420-evidence/phone-catapult-aim.png",
+    "qa/arcade-420-evidence/phone-catapult-flight.png",
+    "qa/arcade-420-evidence/phone-landscape-overview.png"
+  ],
+  "limitations": [
+    "Chromium desktop and CDP touch emulation, not a physical iPhone or Android.",
+    "Input is dispatched through real browser handlers. Long simulations use the production model test hook with the live input handler; real WebGL frames and screenshots are rendered at checkpoints.",
+    "Software-rendered browser verification does not measure real-device FPS."
+  ],
+  "ok": true
+}
