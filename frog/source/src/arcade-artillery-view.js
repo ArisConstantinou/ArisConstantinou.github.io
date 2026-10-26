@@ -12,11 +12,15 @@ const SEAT_HEIGHT=.45;
 // deterministic model; this class only displays that state and its events.
 export class ArtilleryView {
  constructor(game){
-  this.game=game;this.scene=game.scene;this.clock=0;this.machines=new Map();this.shellMeshes=new Map();
+  this.game=game;this.scene=game.scene;this.clock=0;this.machines=new Map();this.platforms=new Map();this.shellMeshes=new Map();
   this.dummy=new THREE.Object3D();this._vector=new THREE.Vector3();this._direction=new THREE.Vector3();
   this.geometry={box:new THREE.BoxGeometry(1,1,1),cylinder:new THREE.CylinderGeometry(.5,.5,1,8),rock:new THREE.DodecahedronGeometry(.4,0),leaf:new THREE.SphereGeometry(1,10,5),cup:new THREE.SphereGeometry(.38,10,6,0,TAU,Math.PI/2,Math.PI/2),ring:new THREE.RingGeometry(.94,1,48),disc:new THREE.CircleGeometry(1,32),rope:new THREE.TorusGeometry(.14,.027,5,10)};
   this.material={wood:new THREE.MeshToonMaterial({color:'#a47746'}),lightWood:new THREE.MeshToonMaterial({color:'#d4ac64'}),darkWood:new THREE.MeshToonMaterial({color:'#67503c'}),rope:new THREE.MeshToonMaterial({color:'#d3c593'}),leaf:new THREE.MeshToonMaterial({color:'#5c9b67'}),stone:new THREE.MeshToonMaterial({color:'#90999b',emissive:'#172023',emissiveIntensity:.16}),preview:new THREE.LineDashedMaterial({color:'#e6f7a1',dashSize:.45,gapSize:.25,transparent:true,opacity:.85,depthWrite:false}),landing:new THREE.MeshBasicMaterial({color:'#d6ed8b',transparent:true,opacity:.72,side:THREE.DoubleSide,depthWrite:false})};
-  for(const [index,definition] of CATAPULTS.entries())this.machines.set(definition.id,this.createMachine(definition,index));
+  this.material.ramp=new THREE.MeshToonMaterial({color:'#b18b59',side:THREE.DoubleSide});
+  for(const [index,definition] of CATAPULTS.entries()){
+   const platform=this.createPlatform(definition);if(platform)this.platforms.set(definition.id,platform);
+   this.machines.set(definition.id,this.createMachine(definition,index));
+  }
   const points=new Float32Array(33*3),geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(points,3));
   this.previewLine=new THREE.Line(geometry,this.material.preview);this.previewLine.name='catapult-trajectory-preview';this.previewLine.frustumCulled=false;this.previewLine.visible=false;this.scene.add(this.previewLine);
   this.landingMarker=new THREE.Mesh(this.geometry.ring,this.material.landing);this.landingMarker.name='catapult-landing-preview';this.landingMarker.rotation.x=-Math.PI/2;this.landingMarker.scale.setScalar(ARTILLERY.blastRadius);this.landingMarker.visible=false;this.scene.add(this.landingMarker);
@@ -25,6 +29,29 @@ export class ArtilleryView {
  ground(x,z){return this.game.ground(x,z);}
  mesh(parent,geometry,material,position=[0,0,0],scale=[1,1,1]){
   const mesh=new THREE.Mesh(geometry,material);mesh.position.fromArray(position);mesh.scale.fromArray(scale);parent.add(mesh);return mesh;
+ }
+ createPlatform(definition){
+  const floor=this.game.houseFloors?.find(item=>item.id===definition.enclosureId);if(!floor)return null;
+  const group=new THREE.Group();group.name=`${definition.id}-level-platform`;group.position.set(floor.x,floor.height,floor.z);this.scene.add(group);
+  const deck=this.mesh(group,this.geometry.box,this.material.darkWood,[0,-.1,0],[floor.halfWidth*2,.2,floor.halfDepth*2]);deck.name='catapult-floor-at-operator-height';
+  const planks=[],supports=[];
+  for(let z=-floor.halfDepth+.2;z<floor.halfDepth;z+=.4){const part=this.geometry.box.clone();part.scale(floor.halfWidth*2-.06,.025,.355);part.translate(0,-.012,Math.min(z,floor.halfDepth-.2));planks.push(part);}
+  for(const x of [-floor.halfWidth+.18,floor.halfWidth-.18])for(const z of [-floor.halfDepth+.18,floor.halfDepth-.18]){
+   const natural=this.game.world?.getSurface(floor.x+x,floor.z+z).height??floor.minimum,height=Math.max(.2,floor.height-natural),part=this.geometry.box.clone();
+   part.scale(.3,height,.3);part.translate(x,-height*.5,z);supports.push(part);
+  }
+  for(const [parts,material] of [[planks,this.material.lightWood],[supports,this.material.darkWood]]){
+   const geometry=mergeGeometries(parts);for(const part of parts)part.dispose();const mesh=this.mesh(group,geometry,material);mesh.userData.ownedGeometry=true;
+  }
+  const r=floor.ramp,vertices=[],indices=[];
+  for(let row=0;row<=r.rows;row++)for(let col=0;col<=r.cols;col++){
+   const along=row/r.rows*r.length,across=(col/r.cols*2-1)*r.halfWidth;
+   vertices.push(r.x+r.dx*along+r.rightX*across-floor.x,r.heights[row*(r.cols+1)+col]-floor.height,r.z+r.dz*along+r.rightZ*across-floor.z);
+  }
+  for(let row=0;row<r.rows;row++)for(let col=0;col<r.cols;col++){const a=row*(r.cols+1)+col,b=a+1,c=a+r.cols+1,d=c+1;indices.push(a,c,b,b,c,d);}
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setIndex(indices);geometry.computeVertexNormals();
+  const ramp=this.mesh(group,geometry,this.material.ramp);ramp.name=`${definition.id}-walkable-entrance-ramp`;ramp.userData.ownedGeometry=true;
+  return {group,deck,ramp,floor};
  }
  createMachine(definition,index){
   const group=new THREE.Group();group.name=definition.id;group.position.set(definition.x,this.ground(definition.x,definition.z),definition.z);this.scene.add(group);
@@ -153,10 +180,11 @@ export class ArtilleryView {
  }
 
  dispose(){
+  for(const platform of this.platforms.values()){platform.group.removeFromParent();platform.group.traverse(item=>{if(item.userData.ownedGeometry)item.geometry.dispose();});}
   for(const machine of this.machines.values()){machine.group.removeFromParent();machine.group.traverse(item=>{if(item.userData.ownedGeometry)item.geometry.dispose();});machine.factionMaterial.dispose();machine.ringMaterial.dispose();}
   for(const visual of this.shellMeshes.values()){visual.stone.removeFromParent();visual.ring.removeFromParent();visual.core.removeFromParent();visual.material.dispose();}
   this.previewLine.removeFromParent();this.previewLine.geometry.dispose();this.landingMarker.removeFromParent();
   for(const geometry of Object.values(this.geometry))geometry.dispose();for(const material of Object.values(this.material))material.dispose();
-  this.machines.clear();this.shellMeshes.clear();
+  this.machines.clear();this.platforms.clear();this.shellMeshes.clear();
  }
 }

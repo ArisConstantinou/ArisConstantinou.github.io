@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {BASES,resolveWallMove,createHouseFloors,houseFloorAt} from '../src/arcade-bases.js';
+import {BASES,CATAPULT_SITES,resolveWallMove,createHouseFloors,houseFloorAt} from '../src/arcade-bases.js';
 import {ArcadeBasesView} from '../src/arcade-bases-view.js';
 import {cameraPose} from '../src/arcade-view-math.js';
 
@@ -54,11 +54,11 @@ test('the rear spawn wall reveals the frog on the first frame without changing p
 });
 
 test('a wall blocking the camera outside an enclosure fades locally and recovers after the view clears',()=>{
-  const {game,view}=fixture();Object.assign(game.state.actors[0],{x:0,z:7});
-  game.camera.position.set(0,2,18);view.update(0);
+  const {game,view}=fixture(),station=CATAPULT_SITES[0];Object.assign(game.state.actors[0],{x:station.x,z:station.z-5});
+  game.camera.position.set(station.x,2,station.z+6);view.update(0);
   const yard=view.enclosures.get('yard-player');assert.equal(yard.faded,true);assert.equal(yard.woodMaterial.opacity,.2);
   assert.equal(view.enclosures.get('base-rival-2').woodMaterial.opacity,1);
-  game.camera.position.set(0,5,-3);for(let i=0;i<30;i++)view.update(.05);
+  game.camera.position.set(station.x,5,station.z-15);for(let i=0;i<30;i++)view.update(.05);
   assert.equal(yard.faded,false);assert.ok(yard.woodMaterial.opacity>.99);assert.equal(yard.woodMaterial.depthWrite,true);
   view.dispose();
 });

@@ -10,14 +10,14 @@ test('flies inhabit six distinct patches and replenish the same patch',()=>{
  const f=s.flies[22],patch=SWARMS.find(p=>p.id===f.swarmId);f.wait=.01;tick(s);assert.equal(f.wait,0);assert.ok(Math.hypot(f.x-patch.x,f.z-patch.z)<=patch.radius);
 });
 test('walking past a patch refills without collect input or facing its flies',()=>{
- const s=newRound(),p=s.actors[0];Object.assign(p,{x:0,z:4,aimX:0,aimZ:1});tick(s,{mx:.12,mz:0,aiming:true,ax:0,az:1},90);
+ const s=newRound(),p=s.actors[0];Object.assign(p,{x:0,z:4,aimX:0,aimZ:1,ammo:0});tick(s,{mx:.12,mz:0,aiming:true,ax:0,az:1},90);
  assert.ok(p.x>0);assert.ok(s.stats.caught>=5);assert.equal(s.phase,'countdown');assert.ok(p.ammo<=RULES.capacity);
 });
 test('empty patches do not create empty tongues or ammunition',()=>{
- const s=newRound(),p=s.actors[0];Object.assign(p,{x:0,z:0});noFlies(s);assert.equal(collect(s,p),false);assert.equal(p.tongue,0);assert.deepEqual(s.events,[]);tick(s,{},30);assert.equal(p.ammo,0);assert.equal(p.tongue,0);
+ const s=newRound(),p=s.actors[0];Object.assign(p,{x:0,z:0,ammo:0});noFlies(s);assert.equal(collect(s,p),false);assert.equal(p.tongue,0);assert.deepEqual(s.events,[]);tick(s,{},30);assert.equal(p.ammo,0);assert.equal(p.tongue,0);
 });
 test('automatic collection obeys range, obstacles, depletion and capacity',()=>{
- const s=newRound(),p=s.actors[0];noFlies(s);Object.assign(p,{x:-10.4,z:2});Object.assign(s.flies[0],{x:-6.3,z:2,wait:0});
+ const s=newRound(),p=s.actors[0];noFlies(s);Object.assign(p,{x:-10.4,z:2,ammo:0});Object.assign(s.flies[0],{x:-6.3,z:2,wait:0});
  // Place fly just inside pickup range but behind a rock; its blocked segment must win.
  Object.assign(p,{x:-9.7,z:2});Object.assign(s.flies[0],{x:-6.6,z:2});tick(s);assert.equal(p.ammo,0);
  Object.assign(p,{x:0,z:4,ammo:RULES.capacity-1});Object.assign(s.flies[0],{x:0,z:3.5,wait:0});tick(s);assert.equal(p.ammo,RULES.capacity);assert.ok(s.flies[0].wait>0);p.tongue=0;assert.equal(collect(s,p),false);
@@ -36,7 +36,7 @@ test('travel owns facing except while an explicit aim input owns shooting',()=>{
  tick(s,{mx:0,mz:1,ax:1,az:0});assert.equal(p.aiming,true,'legacy supplied aim remains deliberate');assert.equal(p.aimX,1);
  tick(s,{mx:-1,mz:0,aiming:false,ax:1,az:0});assert.equal(p.aimX,-1);assert.equal(p.aiming,false);
 });
-test('rivals refill at home but cannot move or attack during the shared warm-up',()=>{
+test('rivals wait at home with full magazines and cannot move or attack during the shared warm-up',()=>{
  const s=newRound(),before=s.actors.slice(1).map(a=>({x:a.x,z:a.z}));s.actors[0].z=3.5;tick(s,{},600);assert.equal(s.phase,'countdown');assert.deepEqual(s.actors.slice(1).map(a=>({x:a.x,z:a.z})),before);assert.ok(s.actors.slice(1).every(a=>a.ammo>0&&a.catapultId===null));assert.equal(s.bullets.length,0);
  assert.equal(shoot(s,s.actors[0]),true);tick(s,{},599);assert.equal(s.phase,'countdown');tick(s);assert.equal(s.phase,'battle');
 });

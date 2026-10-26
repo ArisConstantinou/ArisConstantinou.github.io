@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {BASES,CATAPULT_SITES,ENCLOSURES,WALLS,TREES,resolveWallMove,wallContact,hasWallSight,coverAt,terrainSpeed,navigateTo,insideHome,createHouseFloors,houseFloorAt} from '../src/arcade-bases.js';
+import {BASES,CATAPULT_SITES,CATAPULT_ENCLOSURES,ENCLOSURES,WALLS,TREES,resolveWallMove,wallContact,hasWallSight,coverAt,terrainSpeed,navigateTo,insideHome,createHouseFloors,houseFloorAt} from '../src/arcade-bases.js';
+import {OBSTACLES} from '../src/arcade-model.js';
 
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const insideWall=(p,w,radius=.78)=>Math.abs(p.x-w.x)<w.hw+radius-1e-4&&Math.abs(p.z-w.z)<w.hd+radius-1e-4;
@@ -67,6 +68,41 @@ test('all owners can route from every home to every reserve and catapult through
       if(distance(actor,target)<(target.id?2.4:.25)){reached=true;break;}
     }
     assert.ok(reached,`${base.owner} could not reach ${target.id||JSON.stringify(target)}`);
+  }
+});
+
+test('side catapult yards leave every home exit open and the player can continue straight into the arena',()=>{
+  for(const base of BASES){
+    const dx=Math.sin(base.spawnHeading),dz=Math.cos(base.spawnHeading),station=CATAPULT_SITES.find(c=>c.owner===base.owner);
+    assert.ok(Math.abs((station.x-base.x)*-dz+(station.z-base.z)*dx)>5.8,'station is well to the side of the home doorway');
+    const length=base.owner==='player'?base.gate.z:4;
+    let point={...base.gate};
+    for(let travelled=0;travelled<length-.01;travelled+=.1){
+      const next=resolveWallMove(point,dx*.1,dz*.1);
+      assert.ok(Math.hypot(next.x-point.x-dx*.1,next.z-point.z-dz*.1)<1e-6,'leaving home must not meet another mandatory gate');
+      assert.ok(OBSTACLES.every(o=>Math.hypot(next.x-o.x,next.z-o.z)>o.r+.78));
+      assert.ok(CATAPULT_SITES.every(c=>Math.hypot(next.x-c.x,next.z-c.z)>.95+.78));
+      point=next;
+    }
+  }
+  const direction=navigateTo({x:0,z:14},{x:0,z:10});
+  assert.ok(Math.abs(direction.x)<1e-8);assert.equal(direction.z,-1,'old station must not leave a ghost collider on the direct route');
+});
+
+test('relocated yards are equally reachable from homes and clear houses, trees, rocks and arena edges',()=>{
+  const distances=BASES.map(base=>distance(base,CATAPULT_SITES.find(c=>c.owner===base.owner)));
+  assert.ok(Math.max(...distances)-Math.min(...distances)<.1);
+  assert.equal(CATAPULT_SITES[1].x,-CATAPULT_SITES[2].x);assert.equal(CATAPULT_SITES[1].z,CATAPULT_SITES[2].z);
+  for(const yard of CATAPULT_ENCLOSURES){
+    const hw=yard.halfWidth+.18,hd=yard.halfDepth+.18;
+    for(const sx of [-1,1])for(const sz of [-1,1])assert.ok(Math.hypot(yard.x+sx*hw,yard.z+sz*hd)<24);
+    for(const other of ENCLOSURES.filter(c=>c.id!==yard.id))assert.ok(Math.abs(yard.x-other.x)>hw+other.halfWidth+.18||Math.abs(yard.z-other.z)>hd+other.halfDepth+.18);
+    for(const obstacle of [...TREES.map(t=>({...t,r:t.radius})),...OBSTACLES]){
+      const gap=Math.hypot(Math.max(0,Math.abs(yard.x-obstacle.x)-hw),Math.max(0,Math.abs(yard.z-obstacle.z)-hd));
+      assert.ok(gap>obstacle.r,`${yard.id} overlaps a tree patch or rock`);
+    }
+    assert.ok(hasWallSight(yard.approach,yard,.78));
+    assert.ok(WALLS.every(w=>!insideWall(yard.approach,w)));
   }
 });
 

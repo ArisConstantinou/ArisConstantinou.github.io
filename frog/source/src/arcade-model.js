@@ -2,7 +2,7 @@
 import {ARTILLERY,CATAPULTS,createCatapults,interactCatapult,releaseCatapult,throwStone,stepArtillery} from './arcade-artillery.js';
 import {BASES,resolveWallMove,wallContact,hasWallSight,coverAt,terrainSpeed,navigateTo} from './arcade-bases.js';
 
-export const ARCADE_VERSION = '4.3.2';
+export const ARCADE_VERSION = '4.3.3';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
 export const RULES = Object.freeze({radius:25,capacity:60,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:3.6,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:10,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,revealSeconds:2.5});
@@ -14,7 +14,7 @@ const norm=(x,z)=>{const n=Math.hypot(x,z);return n>1e-6?{x:x/n,z:z/n}:{x:0,z:1}
 const finite=(v,f=0)=>Number.isFinite(v)?v:f;
 function rng(s){let t=s.seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}
 function actor(id,x,z,heading=Math.PI){
- return {id,x,z,aimX:Math.sin(heading),aimZ:Math.cos(heading),aiming:false,face:heading,ammo:0,load:0,dizzy:0,finishHits:0,dizzyTime:0,ko:false,eliminated:false,respawnTime:0,hit:0,invuln:0,shot:0,tongue:0,kick:0,kickCooldown:0,kickPending:false,impulseX:0,impulseZ:0,hop:0,hopX:0,hopZ:0,hopSpeed:0,height:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,idle:0,brain:0,decision:0,catapultId:null,catapultShots:0,catapultAim:0,interactHeld:false,machineTimer:id==='rival-1'?8:12,machineSeeking:false,aimWindup:0,aiShotReady:0,aiCharging:false,aiAimX:Math.sin(heading),aiAimZ:Math.cos(heading),refilling:true,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0};
+ return {id,x,z,aimX:Math.sin(heading),aimZ:Math.cos(heading),aiming:false,face:heading,ammo:RULES.capacity,load:1,dizzy:0,finishHits:0,dizzyTime:0,ko:false,eliminated:false,respawnTime:0,hit:0,invuln:0,shot:0,tongue:0,kick:0,kickCooldown:0,kickPending:false,impulseX:0,impulseZ:0,hop:0,hopX:0,hopZ:0,hopSpeed:0,height:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,idle:0,brain:0,decision:0,catapultId:null,catapultShots:0,catapultAim:0,interactHeld:false,machineTimer:id==='rival-1'?8:12,machineSeeking:false,aimWindup:0,aiShotReady:0,aiCharging:false,aiAimX:Math.sin(heading),aiAimZ:Math.cos(heading),refilling:false,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0};
 }
 export function ownBase(s,a){return s.bases?.find(b=>b.owner===a.id)||null;}
 const baseGeometry=b=>BASES.find(g=>g.id===b?.id);
@@ -107,7 +107,7 @@ export function sabotageTarget(s,a){
  return (s.bases||[]).filter(b=>!b.destroyed&&b.owner!==a.id&&distance(a,baseGeometry(b).stock)<=RULES.sabotageRange&&clearPickupPath(a,baseGeometry(b).stock)).sort((b,c)=>distance(a,baseGeometry(b).stock)-distance(a,baseGeometry(c).stock))[0]||null;
 }
 function destroyBase(s,b,attacker){
- b.destroyed=true;b.progress=RULES.sabotageSeconds;b.attackerId=attacker.id;attacker.sabotageId=null;
+ b.destroyed=true;b.progress=RULES.sabotageSeconds;b.attackerId=null;attacker.sabotageId=null;
  const owner=s.actors.find(a=>a.id===b.owner);
  if(owner){stopSabotage(s,owner,'eliminated');releaseCatapult(s,owner);owner.eliminated=true;owner.ko=true;owner.respawnTime=0;owner.ammo=0;owner.dizzyTime=0;owner.hop=0;owner.height=0;owner.knockUp=0;}
  if(attacker.id==='player')s.stats.basesDestroyed++;
@@ -197,7 +197,7 @@ export function rivalIntent(s,a){
 }
 function respawn(s,a){
  const home=ownBase(s,a),geometry=baseGeometry(home);if(!home||home.destroyed||!geometry)return;
- const fresh=actor(a.id,geometry.spawn.x,geometry.spawn.z,geometry.spawnHeading);Object.assign(a,fresh,{invuln:1,refilling:true});
+ const fresh=actor(a.id,geometry.spawn.x,geometry.spawn.z,geometry.spawnHeading);Object.assign(a,fresh,{invuln:1});
  s.events.push({type:'respawn',id:a.id,x:a.x,z:a.z});
 }
 function evaluateWinner(s){

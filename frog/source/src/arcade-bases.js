@@ -7,9 +7,9 @@ const NAV_RADIUS = .84;
 const EPSILON = 1e-5;
 
 export const CATAPULT_SITES=Object.freeze([
-  {id:'catapult-player',owner:OWNER_IDS[0],x:0,z:12},
-  {id:'catapult-rival-1',owner:OWNER_IDS[1],x:-14,z:-16},
-  {id:'catapult-rival-2',owner:OWNER_IDS[2],x:14,z:-16},
+  {id:'catapult-player',enclosureId:'yard-player',owner:OWNER_IDS[0],x:-8.5,z:16},
+  {id:'catapult-rival-1',enclosureId:'yard-rival-1',owner:OWNER_IDS[1],x:-16,z:-8.5},
+  {id:'catapult-rival-2',enclosureId:'yard-rival-2',owner:OWNER_IDS[2],x:16,z:-8.5},
 ].map(Object.freeze));
 
 export const BASES = Object.freeze([
@@ -25,13 +25,13 @@ export function insideHome(base,point,radius=0){
 
 // One shared level deck and sampled entrance ramp drives both actor height and
 // the visible house floor. Natural creek slopes must not put a frog below its hut.
-export function createHouseFloors(sampleHeight){
-  return BASES.map(base=>{
+function createEnclosureFloors(enclosures,sampleHeight){
+  return enclosures.map(base=>{
     let maximum=-Infinity,minimum=Infinity;
     const halfWidth=base.halfWidth+.18,halfDepth=base.halfDepth+.18;
     const cols=Math.ceil(halfWidth*2/.22),rows=Math.ceil(halfDepth*2/.22);
     for(let col=0;col<=cols;col++)for(let row=0;row<=rows;row++){const x=-halfWidth+halfWidth*2*col/cols,z=-halfDepth+halfDepth*2*row/rows,y=sampleHeight(base.x+x,base.z+z);maximum=Math.max(maximum,y);minimum=Math.min(minimum,y);}
-    const height=maximum+.16,dx=Math.sin(base.spawnHeading),dz=Math.cos(base.spawnHeading),rightX=-dz,rightZ=dx;
+    const height=maximum+.16,doorDistance=Math.hypot(base.gate.x-base.x,base.gate.z-base.z),dx=(base.gate.x-base.x)/doorDistance,dz=(base.gate.z-base.z)/doorDistance,rightX=-dz,rightZ=dx;
     const ramp={x:base.gate.x+dx*.18,z:base.gate.z+dz*.18,dx,dz,rightX,rightZ,halfWidth:1.55,length:2.5,rows:10,cols:6,heights:[]};
     for(let row=0;row<=ramp.rows;row++)for(let col=0;col<=ramp.cols;col++){
       const along=row/ramp.rows*ramp.length,across=(col/ramp.cols*2-1)*ramp.halfWidth;
@@ -42,6 +42,8 @@ export function createHouseFloors(sampleHeight){
     return {id:base.id,baseId:base.id,x:base.x,z:base.z,halfWidth,halfDepth,height,minimum,ramp};
   });
 }
+export function createHouseFloors(sampleHeight){return createEnclosureFloors(BASES,sampleHeight);}
+export function createCatapultFloors(sampleHeight){return createEnclosureFloors(CATAPULT_ENCLOSURES,sampleHeight);}
 
 export function houseFloorAt(x,z,floors){
   if(!floors)return null;
@@ -56,12 +58,12 @@ export function houseFloorAt(x,z,floors){
   return null;
 }
 
-// The operator and automatic dismount stay inside a clear south-facing gate.
-export const CATAPULT_ENCLOSURES = Object.freeze([
-  {id:'yard-player',owner:OWNER_IDS[0],x:0,z:12,halfWidth:3,halfDepth:2.65,side:'south',gate:freezePoint(0,14.65),approach:freezePoint(0,16.25)},
-  {id:'yard-rival-1',owner:OWNER_IDS[1],x:-13.5,z:-15.6,halfWidth:2.45,halfDepth:2.75,side:'south',gate:freezePoint(-13.5,-12.85),approach:freezePoint(-13.5,-11.2)},
-  {id:'yard-rival-2',owner:OWNER_IDS[2],x:13.5,z:-15.6,halfWidth:2.45,halfDepth:2.75,side:'south',gate:freezePoint(13.5,-12.85),approach:freezePoint(13.5,-11.2)},
-].map(Object.freeze));
+// Stations sit beside their homes, leaving each front exit open to the arena.
+// All yards share a clear south gate for approach, mounting and dismounting.
+export const CATAPULT_ENCLOSURES = Object.freeze(CATAPULT_SITES.map(site=>Object.freeze({
+  id:site.enclosureId,owner:site.owner,x:site.x,z:site.z,halfWidth:2.8,halfDepth:2.8,side:'south',
+  gate:freezePoint(site.x,site.z+2.8),approach:freezePoint(site.x,site.z+4.45),
+})));
 
 export const ENCLOSURES = Object.freeze([
   ...BASES.map(base=>Object.freeze({...base,kind:'shelter',height:2.3})),
@@ -96,7 +98,7 @@ export const TREES=Object.freeze([
 // Avoid a model import cycle: these match the existing rocks and fixed machines.
 const NAV_CIRCLES=Object.freeze([
   {x:-8,z:2,r:1.5},{x:8,z:-3,r:1.7},{x:-2,z:-12,r:1.4},{x:13,z:12,r:1.6},
-  {x:0,z:12,r:.95,machine:true},{x:-14,z:-16,r:.95,machine:true},{x:14,z:-16,r:.95,machine:true},
+  ...CATAPULT_SITES.map(site=>({x:site.x,z:site.z,r:.95,machine:true})),
 ]);
 
 function bounds(w,padding=0){return {minX:w.x-w.hw-padding,maxX:w.x+w.hw+padding,minZ:w.z-w.hd-padding,maxZ:w.z+w.hd+padding};}
