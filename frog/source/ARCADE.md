@@ -1,27 +1,25 @@
-# FROG 4.0.0 — Fly Frenzy
+# FROG 4.1.0 — close 3D, readable flies and fair free-for-all
 
-Η ενεργή έκδοση είναι πλέον ένα μικρό κωμικό arcade παιχνίδι, όχι στρατηγική ή προσομοίωση επιβίωσης.
+The arcade loop is unchanged: collect live flies with the tongue, inflate with ammunition, spit flies, dizzy a rival with six hits, then approach and kick for KO. There is one player and two independent rivals. No construction, recruitment or squad-management systems are added.
 
-## Ο κύκλος
+## Readability corrections
 
-Ελέγχεις έναν βάτραχο και αντιμετωπίζεις δύο αντιπάλους. Πιάνεις σκορπισμένες μύγες με τη γλώσσα, γεμίζεις μέχρι 40 και το σώμα σου φουσκώνει. Κάθε βολή φτύνει μία μύγα και μειώνει τη γέμιση. Οι προσκρούσεις έχουν λευκή λάμψη, τίναγμα, οπισθοχώρηση, κωμικό ήχο και πιτσιλιές πάνω στο περιβάλλον. Οι μύγες επανεμφανίζονται για να μην τελειώνει ο αγώνας επειδή δεν υπάρχει τροφή.
+The default is a close perspective third-person camera, retaining the original 3D world and skinned frogs. C or the camera button toggles top-down. Both views have larger flying insects, bright wings, a minimum-size fly silhouette and a nearby tongue-target marker. Collected flies disappear immediately. The player has an ESY label and mint ring, rival 1 has orange skin and markers, and rival 2 has purple skin and markers. Labels, numbered map markers and off-screen arrows do not rely on colour alone. Low graphics mode retains independent identity rings.
 
-Έξι επιτυχημένες βολές προκαλούν προσωρινή ζάλη, με αστέρια πάνω από τον αντίπαλο. Οι βολές από μόνες τους δεν κάνουν νοκ άουτ. Πλησιάζεις και δίνεις κλωτσιά πριν συνέλθει. Κερδίζεις όταν όλοι οι αντίπαλοι είναι νοκ άουτ. Οι αντίπαλοι χρησιμοποιούν τους ίδιους κανόνες και μπορούν να σε ζαλίσουν και να σε βγάλουν νοκ άουτ.
+A permanently open north-up arena diagram shows the player, both rivals, live flies and physical rocks. A translucent wedge shows camera direction; dotted lines show current rival targets. This is an arena diagram, not a terrain texture.
 
-## Υπολογιστής
+## Fair start and AI
 
-WASD ή βελάκια: κατευθυνόμενα άλματα. Ποντίκι: στόχευση. E ή δεξί κλικ: γλώσσα. Αριστερό κλικ: συνεχόμενες βολές όσο έχεις μύγες. Q: κλωτσιά σε κοντινό ζαλισμένο αντίπαλο. Escape: παύση/συνέχεια.
+All frogs start unarmed. Rivals spawn more than 24 world units from the player. Ten flies are placed ahead and within tongue range. A visible 14-second protection countdown provides time to orient and collect; an actual player shot ends it early. Empty firing does not. Rivals gather their own ammunition and target visible nearby opponents without a player priority. They can shoot, dizzy and KO each other. They do not globally track the player. An alert precedes a new attack on the player, and AI firing is slower than the player's automatic spit.
 
-## Κινητό
+## Controls
 
-Αριστερό χειριστήριο: κίνηση. Εσωτερικό δεξιού χειριστηρίου: στόχευση χωρίς βολές. Εξωτερικός δακτύλιος: στόχευση και πυροβολισμός με το ίδιο δάκτυλο. Ξεχωριστή γλώσσα για συλλογή και κλωτσιά που ενεργοποιείται όταν υπάρχει κατάλληλος στόχος. Ταυτόχρονη χρήση και των δύο χειριστηρίων. Υποστήριξη οριζόντιου και κάθετου προσανατολισμού.
+Desktop: WASD/arrows hop, E/right click collects, left click fires, Q kicks a nearby dizzy opponent, Esc pauses, C toggles camera. Middle-button drag orbits the 3D camera; mouse wheel changes distance.
 
-## Όρια αυτής της βάσης
+Mobile: left stick moves; right-stick interior aims and outer ring fires. Tongue and contextual kick have separate buttons. Swipe empty world space to orbit the 3D camera; use the camera button to change view. Landscape and portrait are supported. Pause suspends sound.
 
-Μία αρένα, δύο αντίπαλοι, επανάληψη αγώνα. Δεν προστέθηκαν εκστρατεία, επίπεδα, στρατολόγηση, κατασκευές ή σύνθετες εντολές ομάδας. Το παλιό σύστημα παραμένει στον κώδικα και στο ιστορικό Git, αλλά δεν εκτελείται από το νέο main.js. Χρησιμοποιούνται ξανά τα υπάρχοντα 3D μοντέλα/σκελετοί και το τοπίο.
+## Saves and validation
 
-Η arcade αποθήκευση έχει δικό της κλειδί `frog-arcade-save-v1` και δεν αντικαθιστά τα παλαιότερα saves της 3.0.1. Resume συνεχίζει τον τελευταίο ατελή arcade αγώνα. Παύση και κρυφή καρτέλα σταματούν τον χρόνο, τις εντολές και τον ήχο. Δεν απαιτείται διαγραφή browser data.
+Version 4.1 starts a fresh arcade round under frog-arcade-save-v2 so it does not resume a hostile 4.0 spawn. The old arcade and campaign save keys are not removed. Resume applies to the new arcade round; settings include the selected camera. Settings also offer a new round.
 
-## Έλεγχοι
-
-Οι καθαροί κανόνες ελέγχονται από `tests/arcade-model.test.mjs`. Το `qa/arcade-smoke.mjs` δοκιμάζει την πραγματική 3D εφαρμογή σε Chromium με λογισμική απόδοση WebGL, συμπεριλαμβανομένων δύο ταυτόχρονων επαφών αφής. Τα αποτελέσματα δημοσιεύονται στο `ARCADE-QA.md` και στο `qa/arcade/report.json`. Ο έλεγχος αφής σε εξομοίωση δεν αντικαθιστά δοκιμή σε φυσική συσκευή iOS/Android ούτε αποτελεί μέτρηση πραγματικών FPS.
+Rules tests include protection, spawn spacing, opening flies, perception, line-of-sight and real rival-versus-rival hits. Browser checks cover combat controls, pause/sound, resume, two-touch firing and kick, and readable third/top-down views at desktop, portrait, landscape and small-phone sizes. Evidence and actual pass counts are generated by the build workflow. Chromium touch emulation is not a physical iPhone/Android or hardware-FPS test.

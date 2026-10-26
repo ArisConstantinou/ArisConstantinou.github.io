@@ -1,0 +1,97 @@
+name: FROG 4.1 readability build and playtest
+on:
+  push:
+    branches: [frog-readability-4-1]
+    paths:
+      - 'frog/source/**'
+      - '.github/workflows/frog-readability-4-1.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: frog-readability-4-1
+  cancel-in-progress: true
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: frog-readability-4-1
+          fetch-depth: 1
+          sparse-checkout: |
+            frog
+            .github/workflows
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frog/source/package-lock.json
+      - name: Update versioned fixtures to new protected spawn
+        working-directory: frog/source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tests/arcade-model.test.mjs')
+          s=p.read_text().replace('const s=newRound(),p=s.actors[0];dizzy(s,p);','const s=newRound(),p=s.actors[0];s.grace=0;dizzy(s,p);').replace('assert.equal(p.z,8)','assert.equal(p.z,18)')
+          p.write_text(s)
+          for name in ['qa/arcade-smoke.mjs','index.html']:
+            p=Path(name);p.write_text(p.read_text().replace('4.0.0','4.1.0'))
+          PY
+      - name: Install pinned dependencies and test full suite
+        working-directory: frog/source
+        run: |
+          npm ci
+          set -o pipefail
+          npm test | tee /tmp/frog-tests.log
+      - name: Build production arcade
+        working-directory: frog/source
+        run: |
+          npm version 4.1.0 --no-git-tag-version --allow-same-version
+          npm run build
+      - name: Install browser tests
+        working-directory: frog/source
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify combat, camera, touch and visibility
+        working-directory: frog/source
+        run: |
+          python3 -m http.server 4173 --directory dist >/tmp/frog-server.log 2>&1 &
+          sleep 2
+          node qa/arcade-smoke.mjs
+          node qa/readability-smoke.mjs
+      - name: Save test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frog-4-1-evidence
+          path: |
+            frog/source/qa/arcade-evidence
+            /tmp/frog-tests.log
+            /tmp/frog-server.log
+      - name: Stage verified build without deleting previous assets or saves
+        run: |
+          mkdir -p frog/assets frog/qa/arcade
+          cp frog/source/dist/index.html frog/index.html
+          cp -r frog/source/dist/assets/. frog/assets/
+          cp frog/source/ARCADE.md frog/README.md
+          cp -r frog/source/qa/arcade-evidence/. frog/qa/arcade/
+          python3 - <<'PY'
+          import pathlib,json,re
+          reports=[json.loads(pathlib.Path('frog/qa/arcade/'+name).read_text()) for name in ['report.json','readability-report.json']]
+          assert all(r['ok'] for r in reports)
+          log=pathlib.Path('/tmp/frog-tests.log').read_text()
+          total=re.findall(r'# tests (\d+)',log)[-1];passed=re.findall(r'# pass (\d+)',log)[-1]
+          text=f'# FROG 4.1.0 verification\n\nAutomated tests: {passed} passed / {total} total.\n\nProduction build: succeeded.\n\n'
+          for r in reports:
+            text+='\n'.join('- '+c for c in r['checks'])+'\n\n'
+          text+='## Limitations\n\n'+'\n'.join('- '+c for c in reports[-1]['limitations'])+'\n'
+          pathlib.Path('frog/ARCADE-QA.md').write_text(text)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frog/source/index.html frog/source/tests/arcade-model.test.mjs frog/source/qa/arcade-smoke.mjs frog/source/package.json frog/source/package-lock.json frog/index.html frog/assets frog/README.md frog/ARCADE-QA.md frog/qa/arcade
+          git commit -m 'Build FROG 4.1.0 after rules, WebGL, camera and mobile readability checks'
+          git push origin HEAD:frog-readability-4-1

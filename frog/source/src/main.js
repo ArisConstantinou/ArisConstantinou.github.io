@@ -1,4 +1,4 @@
-import { ArcadeGame } from './arcade.js';
+import { ReadableArcadeGame } from './arcade-readability.js';
 import { installTapBuffer } from './arcade-tap-buffer.js';
 function report(error){
  console.error(error);
@@ -10,4 +10,4 @@ function report(error){
 }
 addEventListener('error',e=>report(e.error||e.message));
 addEventListener('unhandledrejection',e=>report(e.reason));
-requestAnimationFrame(()=>{try{window.frogArcade=new ArcadeGame();installTapBuffer(window.frogArcade);}catch(error){report(error);}});
+requestAnimationFrame(()=>{try{window.frogArcade=new ReadableArcadeGame();installTapBuffer(window.frogArcade);}catch(error){report(error);}});

@@ -9,7 +9,7 @@ export function installTapBuffer(game){
  addEventListener('pointerdown',e=>{
   if(e.target.closest?.('#tongue-button'))mark('collect');
   else if(e.target.closest?.('#kick-button')&&!game.$('kick-button').disabled)mark('kick');
-  else if(e.target===game.renderer.domElement&&e.pointerType!=='touch')mark(e.button===2?'collect':'fire');
+  else if(e.target===game.renderer.domElement&&e.pointerType!=='touch'&&(e.button===0||e.button===2))mark(e.button===2?'collect':'fire');
   else if(e.target.closest?.('#aim-stick')){const r=game.$('aim-stick').getBoundingClientRect();if(Math.hypot(e.clientX-r.x-r.width/2,e.clientY-r.y-r.height/2)>=r.width*.36)mark('fire');}
  },true);
  addEventListener('pointercancel',()=>{for(const key of Object.keys(pending))pending[key]=false;},true);
