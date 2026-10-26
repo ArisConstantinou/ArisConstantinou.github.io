@@ -105,7 +105,7 @@ jobs:
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add frog/source/src frog/source/tests frog/source/qa/arcade-410.mjs frog/source/ARCADE.md frog/source/package.json frog/source/package-lock.json frog/index.html frog/assets frog/README.md frog/ARCADE-QA.md frog/qa/arcade-410
-          git add -u frog/source/upgrade-410.json 2>/dev/null || true
+          git add -u frog
+          git add -f frog/assets frog/qa/arcade-410 frog/ARCADE-QA.md
           git diff --cached --quiet || git commit -m 'Build FROG 4.1.0 with verified cartoon side camera and fair arcade onboarding'
           git push origin HEAD:frog-cartoon-4.1.0
