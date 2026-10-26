@@ -1,4 +1,5 @@
 import { OBSTACLES, RULES } from './arcade-model.js';
+import { wallContact } from './arcade-bases.js';
 
 // The preview uses the same ground-plane obstacle/body radii as the projectiles.
 // It is feedback for deliberate aiming; it never bends or auto-aims a shot.
@@ -22,8 +23,10 @@ export function traceAim(state, actor, range = RULES.projectileSpeed * RULES.pro
     const hit = intersection(obstacle.x, obstacle.z, obstacle.r + .1);
     if (hit < distance) { distance = hit; blocked = true; }
   }
+  const wall=wallContact(actor.x,actor.z,actor.x+dx*distance,actor.z+dz*distance,.1);
+  if(wall!==null){distance*=wall;blocked=true;}
   for (const target of state.actors) {
-    if (target === actor || target.ko) continue;
+    if (target === actor || target.ko || target.eliminated) continue;
     const hit = intersection(target.x, target.z, 1 + target.load * .2);
     if (hit < distance) { distance = hit; targetId = target.id; blocked = false; }
   }

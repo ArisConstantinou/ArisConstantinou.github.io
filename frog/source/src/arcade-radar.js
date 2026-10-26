@@ -1,4 +1,5 @@
 import {RULES,OBSTACLES,SWARMS} from './arcade-model.js';
+import {BASES,WALLS,TREES,CATAPULT_SITES,coverAt,hasWallSight} from './arcade-bases.js';
 const COLORS=['#d2ff70','#ff765d','#d7a0ff'];
 const SWARM_INDEX=new Map(SWARMS.map((swarm,i)=>[swarm.id,i]));
 const summaries=new WeakMap();
@@ -34,14 +35,18 @@ export function drawRadar(game,canvas){
  c.strokeStyle='#ffffff17';c.lineWidth=1;
  for(let a=-20;a<=20;a+=10){const u=point(a,-25),v=point(a,25),w=point(-25,a),t=point(25,a);c.beginPath();c.moveTo(u.x,u.y);c.lineTo(v.x,v.y);c.moveTo(w.x,w.y);c.lineTo(t.x,t.y);c.stroke();}
  for(const o of OBSTACLES){const q=point(o.x,o.z);c.fillStyle='#769084';c.beginPath();c.arc(q.x,q.y,o.r*k,0,Math.PI*2);c.fill();}
+ for(const tree of TREES){const q=point(tree.x,tree.z);c.fillStyle='#517d4788';c.beginPath();c.arc(q.x,q.y,tree.radius*k,0,Math.PI*2);c.fill();}
+ for(const wall of WALLS){const corners=[point(wall.x-wall.hw,wall.z-wall.hd),point(wall.x+wall.hw,wall.z-wall.hd),point(wall.x+wall.hw,wall.z+wall.hd),point(wall.x-wall.hw,wall.z+wall.hd)];c.fillStyle='#c4b492';c.beginPath();c.moveTo(corners[0].x,corners[0].y);for(const q of corners.slice(1))c.lineTo(q.x,q.y);c.closePath();c.fill();}
+ for(const machine of CATAPULT_SITES){const q=point(machine.x,machine.z);c.strokeStyle='#bfd6d0';c.lineWidth=2;c.beginPath();c.moveTo(q.x-3,q.y+3);c.lineTo(q.x,q.y-4);c.lineTo(q.x+4,q.y+3);c.moveTo(q.x,q.y-1);c.lineTo(q.x+4,q.y-6);c.stroke();}
+ for(const [i,base] of BASES.entries()){const status=game.state.bases?.find(b=>b.id===base.id),q=point(base.stock.x,base.stock.z);c.fillStyle=status?.destroyed?'#4f6258':status?.attackerId?'#ffce77':COLORS[i];c.strokeStyle='#092b22';c.lineWidth=2;c.beginPath();c.moveTo(q.x-7,q.y-2);c.lineTo(q.x,q.y-8);c.lineTo(q.x+7,q.y-2);c.lineTo(q.x+7,q.y+7);c.lineTo(q.x-7,q.y+7);c.closePath();c.fill();c.stroke();if(status?.destroyed){c.strokeStyle='#b7c7ba';c.beginPath();c.moveTo(q.x-5,q.y-5);c.lineTo(q.x+5,q.y+5);c.moveTo(q.x+5,q.y-5);c.lineTo(q.x-5,q.y+5);c.stroke();}}
  for(const row of swarmStatus(game.state)){
   const q=point(row.swarm.x,row.swarm.z),available=row.available>0;
   c.strokeStyle=available?'#b8daa7':'#6a827b';c.lineWidth=available?1.8:1.2;
   c.beginPath();c.arc(q.x,q.y,9,0,Math.PI*2);c.stroke();
   flyGlyph(c,q.x,q.y,6,available);
  }
- game.state.actors.forEach((a,i)=>{if(a.ko)return;const q=point(a.x,a.z);c.fillStyle=COLORS[i];c.strokeStyle='#102923';c.lineWidth=3;c.beginPath();c.arc(q.x,q.y,i===0?9:8,0,Math.PI*2);c.fill();c.stroke();if(i===0){const aim=point(a.aimX*2.7,a.aimZ*2.7);c.strokeStyle=COLORS[0];c.lineWidth=4;c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q.x+aim.x,q.y+aim.y);c.stroke();}else{c.fillStyle='#102923';c.beginPath();c.arc(q.x-3,q.y-2,1.6,0,Math.PI*2);c.arc(q.x+3,q.y-2,1.6,0,Math.PI*2);c.fill();}});
- c.restore();c.fillStyle='#f2ffe1';c.font='bold 18px sans-serif';c.textAlign='center';c.fillText('ΣΜΗΝΗ • ΑΝΤΙΠΑΛΟΙ',center,size-5);
+ game.state.actors.forEach((a,i)=>{if(a.ko||a.eliminated)return;const player=game.state.actors[0];if(i>0&&coverAt(a)&&a.revealedTime<=0&&Math.hypot(a.x-player.x,a.z-player.z)>2.2)return;const q=point(a.x,a.z);c.fillStyle=COLORS[i];c.strokeStyle='#102923';c.lineWidth=3;c.beginPath();c.arc(q.x,q.y,i===0?9:8,0,Math.PI*2);c.fill();c.stroke();if(i===0){const aim=point(a.aimX*2.7,a.aimZ*2.7);c.strokeStyle=COLORS[0];c.lineWidth=4;c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q.x+aim.x,q.y+aim.y);c.stroke();}else{c.fillStyle='#102923';c.beginPath();c.arc(q.x-3,q.y-2,1.6,0,Math.PI*2);c.arc(q.x+3,q.y-2,1.6,0,Math.PI*2);c.fill();}});
+ c.restore();c.fillStyle='#f2ffe1';c.font='bold 18px sans-serif';c.textAlign='center';c.fillText('ΒΑΣΕΙΣ • ΜΥΓΕΣ • ΚΑΛΥΨΗ',center,size-5);
 }
 
 // One restrained label on a nearby useful patch replaces 72 large yellow fly
@@ -49,6 +54,8 @@ export function drawRadar(game,canvas){
 export function drawFlyMarkers(game,c){
  const player=game.state.actors[0];
  if(player.ko||player.ammo>=RULES.capacity)return;
+ const own=BASES.find(base=>base.owner===player.id),status=game.state.bases?.find(base=>base.owner===player.id);
+ if(own&&status&&!status.destroyed&&Math.hypot(player.x-own.stock.x,player.z-own.stock.z)<=RULES.pickupRange&&hasWallSight(player,own.stock))return;
  let nearest=null,nearestLive=null,distance=Infinity,liveDistance=Infinity;
  for(const row of swarmStatus(game.state)){
   const d=Math.hypot(row.swarm.x-player.x,row.swarm.z-player.z);

@@ -49,13 +49,13 @@ test('catapult target range exceeds flies but remains inside the arena',()=>{
  const p={x:0,z:12},target=stoneTarget(p,0,-1,1);assert.equal(Math.hypot(target.x-p.x,target.z-p.z),ARTILLERY.maxRange);assert.ok(ARTILLERY.maxRange>RULES.projectileLifetime*RULES.projectileSpeed);const edge=stoneTarget({x:22,z:0},1,0,1);assert.ok(Math.hypot(edge.x,edge.z)<=24);
 });
 test('approach stops outside machine base, mounting stays seated and exit clears the base',()=>{
- const s=newRound(),p=s.actors[0],c=s.catapults[0];frame(s,{mx:0,mz:1,aiming:false},60);
- const clearance=ARTILLERY.baseRadius+.78;assert.ok(Math.hypot(p.x-c.x,p.z-c.z)>=clearance-1e-8);assert.ok(p.z<c.z);assert.equal(nearbyCatapult(s,p),c);
+ const s=newRound(),p=s.actors[0],c=s.catapults[0];Object.assign(p,{x:0,z:17});frame(s,{mx:0,mz:-1,aiming:false},60);
+ const clearance=ARTILLERY.baseRadius+.78;assert.ok(Math.hypot(p.x-c.x,p.z-c.z)>=clearance-1e-8);assert.ok(p.z>c.z);assert.equal(nearbyCatapult(s,p),c);
  frame(s,{interactCatapult:true});frame(s,{mx:1,mz:1},20);assert.deepEqual([p.x,p.z],[c.x,c.z]);assert.equal(p.catapultId,c.id);
  frame(s,{interactCatapult:true});assert.equal(p.catapultId,null);assert.equal(c.occupant,null);assert.ok(Math.hypot(p.x-c.x,p.z-c.z)>clearance);assert.ok(Math.hypot(p.x,p.z)<RULES.radius-1);
 });
 test('machine base collision does not shield its operator from ordinary fly projectiles',()=>{
- const {s,p}=mounted(),a=s.actors[1];Object.assign(a,{x:0,z:4,ammo:1,aimX:0,aimZ:1,tongue:99,shot:0});assert.equal(shoot(s,a),true);frame(s,{},20);assert.equal(p.dizzy,1);assert.equal(p.catapultId,s.catapults[0].id);
+ const {s,p}=mounted(),a=s.actors[1];Object.assign(a,{x:0,z:16,ammo:1,aimX:0,aimZ:-1,tongue:99,shot:0});assert.equal(shoot(s,a),true);frame(s,{},20);assert.equal(p.dizzy,1);assert.equal(p.catapultId,s.catapults[0].id);
 });
 test('near-edge artillery preview preserves aimed direction and marks impossible short range invalid',()=>{
  const source={x:-14,z:-16},n=Math.hypot(source.x,source.z),target=stoneTarget(source,source.x/n,source.z/n,1);
