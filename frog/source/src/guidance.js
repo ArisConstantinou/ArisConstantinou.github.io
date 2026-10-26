@@ -91,6 +91,9 @@ const ALIASES = {
 
 /** @returns {{title:string,hint:string}} */
 export function describeObjective(goal) {
+  // Exploration goals carry the current environmental clue. Preserve it even
+  // when an older campaign used the same identifier for a mandatory task.
+  if(goal&&typeof goal==='object'&&typeof goal.title==='string'&&goal.title.trim())return {title:goal.title.trim(),hint:typeof goal.hint==='string'?goal.hint:typeof goal.description==='string'?goal.description:''};
   const id=typeof goal==='string'?goal:typeof goal?.id==='string'?goal.id:'';
   const canonical=Object.hasOwn(ALIASES,id)?ALIASES[id]:id;
   if(Object.hasOwn(DESCRIPTIONS,canonical))return {...DESCRIPTIONS[canonical]};

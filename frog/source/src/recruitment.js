@@ -37,6 +37,7 @@ export function acceptRecruitmentQuest(game,frog){
 }
 
 export function realmRecruitmentOffer(game,frog,camp=null){
+  if(game.creekMode&&game.creek&&game.creekRecruitmentOffer)return game.creekRecruitmentOffer(frog,camp);
   const original=recruitmentOffer(frog,camp);
   if(!original.eligible||!game.campaign?.endless||frog.team!=='neutral')return {...original,requirements:[],ready:original.eligible,instant:original.guaranteed&&original.cost.food===0};
   const profile=ensureRecruitment(game,frog),level=game.player?.level||1,advantage=level-profile.unitLevel;

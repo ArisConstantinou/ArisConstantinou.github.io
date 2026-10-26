@@ -22,7 +22,7 @@ function fixture(t){
     callbacks:{onStart:mode=>starts.push(mode),onSettings:value=>changes.push(value),onAction:action=>actions.push(action)},layoutDockedPanels(){}});
   ui.refs=Object.fromEntries([...ui.markup().matchAll(/data-ref="([^"]+)"/g)].map(match=>[match[1],node()]));
   for(const name of ['title','titleSettings','titleRestartConfirm'])ui.refs[name].hidden=true;
-  const controls=Array.from({length:2},()=>['quality','volume','sensitivity'].map(field=>{
+  const controls=Array.from({length:2},()=>['quality','volume','sensitivity','uiScale'].map(field=>{
     const control=node();control.dataset.setting=field;control.closest=selector=>selector==='[data-setting]'?control:null;return control;
   })).flat();
   ui.root.querySelectorAll=selector=>selector==='[data-setting]'?controls:[];
@@ -68,13 +68,14 @@ test('startup Settings edits persist and synchronize with the pause controls wit
   ui.callbacks.onSettings=settings=>game.setSettings(settings);
   ui.showTitle(true);click(ui,'title-settings');
   assert.equal(ui.titleSettingsOpen,true);assert.equal(ui.refs.titleActions.hidden,true);assert.equal(ui.refs.titleSettings.hidden,false);
-  for(const [field,value] of [['quality','low'],['volume','0'],['sensitivity','175']]){
+  for(const [field,value] of [['quality','low'],['volume','0'],['sensitivity','175'],['uiScale','130']]){
     const control=controls.find(input=>input.dataset.setting===field);control.value=value;ui.setting({target:control});
   }
-  assert.deepEqual(JSON.parse(storage.get('frog-settings')),{quality:'low',volume:0,sensitivity:1.75});assert.equal(applied,3);
-  for(const control of controls)assert.equal(String(control.value),{quality:'low',volume:'0',sensitivity:'175'}[control.dataset.setting]);
+  assert.deepEqual(JSON.parse(storage.get('frog-settings')),{quality:'low',volume:0,sensitivity:1.75,uiScale:1.3});assert.equal(applied,4);
+  for(const control of controls)assert.equal(String(control.value),{quality:'low',volume:'0',sensitivity:'175',uiScale:'130'}[control.dataset.setting]);
   assert.equal(ui.refs.volumeOutput.textContent,'0%');assert.equal(ui.refs.titleVolumeOutput.textContent,'0%');
   assert.equal(ui.refs.sensitivityOutput.textContent,'1.8×');assert.equal(ui.refs.titleSensitivityOutput.textContent,'1.8×');
+  assert.equal(ui.refs.uiScaleOutput.textContent,'130%');assert.equal(ui.refs.titleUIScaleOutput.textContent,'130%');
   click(ui,'title-settings-back');assert.equal(ui.menu,'title');assert.equal(ui.refs.titleActions.hidden,false);assert.equal(ui.refs.titleSettings.hidden,true);
   assert.equal(document.activeElement,ui.refs.titleSettingsButton);assert.deepEqual(starts,[]);
 });

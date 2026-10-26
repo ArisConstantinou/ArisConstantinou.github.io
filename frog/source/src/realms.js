@@ -55,6 +55,18 @@ function ensureRealms(game) {
 export function realmTravelOffer(game,targetIndex) {
   const state=ensureRealms(game),target=Number(targetIndex),frontier=Math.max(...Object.keys(state.regions).map(Number),0)+1;
   const known=!!state.regions[target],descriptor=realmDescriptor(target);
+  if(game.creekMode){
+    const exit=game.world?.creekLandmarks?.find(p=>p.id==='roots'),discovered=game.creek?.regions?.[String(state.active)]?.discovered||[];
+    const near=!!exit&&distance(exit,game.player)<=12,found=discovered.includes('roots');
+    const danger=(game.predators||[]).some(p=>living(p)&&p.target===game.player&&distance(p,game.player)<24)||(game.frogs||[]).some(f=>living(f)&&game.hostile?.(game.player,f)&&distance(f,game.player)<10);
+    const requirements=[{label:'Ανακάλυψε το πέρασμα στις ρίζες',met:found},{label:'Πλησίασε το πέρασμα για να ταξιδέψεις',met:near},{label:'Απομακρύνσου από άμεση καταδίωξη',met:!danger}];
+    let reason='Έτοιμο για ταξίδι';
+    if(!Number.isInteger(target)||target<0||target>frontier||(!known&&target!==frontier))reason='Η διαδρομή δεν έχει ακόμη ανακαλυφθεί.';
+    else if(target===state.active)reason='Βρίσκεσαι ήδη σε αυτή την περιοχή.';
+    else if(game.player?.dead||game.player?.grabbedBy)reason='Πρέπει πρώτα να ξεφύγεις από τον κίνδυνο.';
+    else reason=requirements.find(r=>!r.met)?.label||reason;
+    return {allowed:reason==='Έτοιμο για ταξίδι',reason,cost:{food:0,reeds:0},requirements,targetIndex:target,name:descriptor.name,newRegion:!known,baseId:null};
+  }
   const cost=known?{food:0,reeds:0}:{food:40+10*target,reeds:25+8*target};
   const owned=(game.camps||[]).filter(completedCamp);
   const base=owned.filter(c=>distance(c,game.player)<=REALM_TRAVEL_DISTANCE).sort((a,b)=>distance(a,game.player)-distance(b,game.player))[0];
@@ -89,7 +101,7 @@ export function splitRealmParty(game,ids=null) {
 /** Store only the local region: player, supplies, XP and global statistics stay global. */
 export function archiveCurrentRealm(game,snapshot,{travelingIds=[]}={}) {
   const state=ensureRealms(game),index=state.active,copy=clone(snapshot||{}),excluded=new Set(travelingIds.map(String));
-  for(const key of ['player','resources','realms','stats','won','settings'])delete copy[key];
+  for(const key of ['player','resources','realms','creek','stats','won','settings'])delete copy[key];
   copy.frogs=(copy.frogs||[]).filter(f=>f.team!=='player'&&!excluded.has(String(f.id)));
   copy.predators=Array.isArray(copy.predators)?copy.predators:serializePredators(game);
   copy.realmEvents=clone(state.events);
@@ -218,6 +230,7 @@ function spawnRealmEvent(game,role) {
 
 /** Simulation-time scheduling: menu/pause time never advances events or production. */
 export function tickRealmEvents(game,dt=0) {
+  if(game.creekMode)return;
   const state=ensureRealms(game),now=nonnegative(game.elapsed);
   if(now<(game.realmEventCheckAt||0))return;
   game.realmEventCheckAt=now+.5;
@@ -266,6 +279,7 @@ export function realmBackgroundSnapshot(game) {
  * troops, but cannot finish jobs, spawn recruits or resolve invisible battles.
  */
 export function realmBackgroundSupply(game,dt=0) {
+  if(game.creekMode)return null;
   if(!(Number.isFinite(dt)&&dt>0))return null;
   const state=ensureRealms(game);state.backgroundAccumulator=nonnegative(state.backgroundAccumulator)+dt;
   if(state.backgroundAccumulator<1)return null;
@@ -296,5 +310,5 @@ export function realmSnapshot(game) {
   });
   const events=state.events,level=number(game.player?.level,1),eventTimes=[{label:'Νέα προαιρετική αναμέτρηση',at:events.nextGuardianAt,eligible:level>=2},{label:'Περιπλανώμενος θηρευτής',at:events.nextRoamAt,eligible:level>=3},{label:'Πιθανή επιδρομή θηρευτή',at:events.nextRaidAt,eligible:level>=4&&(game.camps||[]).some(completedCamp)}].filter(row=>row.eligible);
   const next=eventTimes.sort((a,b)=>a.at-b.at)[0];
-  return {active:state.active,name:realmDescriptor(state.active).name,frontier,regions,background:realmBackgroundSnapshot(game),milestones:[],nextEvent:next?{label:next.label,seconds:Math.max(0,Math.ceil(next.at-number(game.elapsed)))}:null};
+  return {active:state.active,name:realmDescriptor(state.active).name,frontier,regions,background:game.creekMode?{regions:Math.max(0,Object.keys(state.regions).length-1),armyCount:regions.filter(r=>!r.active).reduce((n,r)=>n+r.garrison,0)}:realmBackgroundSnapshot(game),milestones:[],nextEvent:!game.creekMode&&next?{label:next.label,seconds:Math.max(0,Math.ceil(next.at-number(game.elapsed)))}:null};
 }

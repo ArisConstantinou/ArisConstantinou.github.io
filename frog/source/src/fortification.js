@@ -7,12 +7,15 @@ export const WALL_THICKNESS=.9;
 const teamOf=actor=>actor?.team==='player'?'ally':actor?.team;
 const finite=(value,fallback)=>Number.isFinite(value)?value:fallback;
 const BODY_RADIUS=.52;
+const naturalCamp=camp=>camp?.natural===true||camp?.mesh?.userData?.natural===true;
 const fortFloor=camp=>finite(camp.floorY,finite(camp.mesh?.userData?.support?.y,finite(camp.mesh?.position?.y,0)+.11));
 const constructionStates=Array.from({length:5},(_,stage)=>Object.freeze({stage,unfinished:stage<4,wallHeight:stage===0?0:stage===1?WALL_HEIGHT*.35:WALL_HEIGHT,keep:stage>=3,gate:stage===4}));
+const unfortifiedState=Object.freeze({stage:4,unfinished:false,wallHeight:0,keep:false,gate:false});
 
 /** Construction stages are shared with the rendered masonry. An unfinished
  * door never grants a finished castle's protection, even with legacy gate HP. */
 export function fortConstructionState(camp){
+  if(naturalCamp(camp))return unfortifiedState;
   const visual=camp.mesh?.userData?.visualState;
   const unfinished=camp.underConstruction??visual?.underConstruction??false;
   const progress=unfinished?Math.max(0,Math.min(1,finite(camp.constructionProgress,finite(visual?.constructionProgress,0)))):1;
@@ -20,7 +23,7 @@ export function fortConstructionState(camp){
   return constructionStates[stage];
 }
 
-export function gateMaxHealth(camp){return 180+70*(Math.max(1,camp.tier||1)-1)+(camp.buildings?.palisade?140:0);}
+export function gateMaxHealth(camp){return naturalCamp(camp)?0:180+70*(Math.max(1,camp.tier||1)-1)+(camp.buildings?.palisade?140:0);}
 export function initializeFort(camp){
   camp.gateMaxHp=gateMaxHealth(camp);
   camp.gateHp=Math.max(0,Math.min(camp.gateMaxHp,finite(camp.gateHp,camp.gateMaxHp)));
@@ -34,17 +37,17 @@ export function campWorld(camp,point){
   const yaw=camp.yaw||0;
   return {x:camp.x+Math.cos(yaw)*point.x+Math.sin(yaw)*point.z,z:camp.z-Math.sin(yaw)*point.x+Math.cos(yaw)*point.z};
 }
-export function gatePoint(camp,offset=0){return campWorld(camp,{x:0,z:FORT_RADIUS+offset});}
+export function gatePoint(camp,offset=0){return campWorld(camp,{x:0,z:(naturalCamp(camp)?0:FORT_RADIUS)+offset});}
 export function insideFort(camp,point){return Math.hypot(point.x-camp.x,point.z-camp.z)<FORT_RADIUS-WALL_THICKNESS;}
-export function canPassGate(camp,actor){return camp.destroyed||!fortConstructionState(camp).gate||(camp.gateHp??gateMaxHealth(camp))<=0||teamOf(camp)===teamOf(actor);}
+export function canPassGate(camp,actor){return naturalCamp(camp)||camp.destroyed||!fortConstructionState(camp).gate||(camp.gateHp??gateMaxHealth(camp))<=0||teamOf(camp)===teamOf(actor);}
 
 function keepRectBlocked(rect,point,padding=BODY_RADIUS){return point.x>rect.minX-padding&&point.x<rect.maxX+padding&&point.z>rect.minZ-padding&&point.z<rect.maxZ+padding;}
 function keepWalls(camp,actor){
   const floor=fortFloor(camp),height=finite(actor.y,floor)-floor;
-  return camp.destroyed||camp.hp<=0||!fortConstructionState(camp).keep?[]:(camp.mesh?.userData?.keepCollision?.rects||[]).filter(r=>height<r.height+.15);
+  return naturalCamp(camp)||camp.destroyed||camp.hp<=0||!fortConstructionState(camp).keep?[]:(camp.mesh?.userData?.keepCollision?.rects||[]).filter(r=>height<r.height+.15);
 }
 function blockedAt(camp,actor,point){
-  if(camp.destroyed||camp.hp<=0)return false;
+  if(naturalCamp(camp)||camp.destroyed||camp.hp<=0)return false;
   const local=campLocal(camp,point),d=Math.hypot(local.x,local.z),body=BODY_RADIUS;
   if(keepWalls(camp,actor).some(r=>keepRectBlocked(r,local)))return true;
   const floor=fortFloor(camp),wallHeight=fortConstructionState(camp).wallHeight;
@@ -87,7 +90,7 @@ function clearSegment(camp,actor,from,to){
 export function resolveFortMovement(camps,actor,next){
   let target={x:next.x,z:next.z},blocked=false;
   for(const camp of camps){
-    if(camp.destroyed||Math.hypot(actor.x-camp.x,actor.z-camp.z)>FORT_RADIUS+Math.hypot(target.x-actor.x,target.z-actor.z)+3)continue;
+    if(naturalCamp(camp)||camp.destroyed||Math.hypot(actor.x-camp.x,actor.z-camp.z)>FORT_RADIUS+Math.hypot(target.x-actor.x,target.z-actor.z)+3)continue;
     if(clearSegment(camp,actor,actor,target))continue;
     blocked=true;
     const xOnly={x:target.x,z:actor.z},zOnly={x:actor.x,z:target.z};
@@ -99,7 +102,7 @@ export function resolveFortMovement(camps,actor,next){
 }
 
 export function fortLineClear(camps,actor,target){
-  return camps.every(camp=>camp.destroyed||clearSegment(camp,actor,actor,target));
+  return camps.every(camp=>naturalCamp(camp)||camp.destroyed||clearSegment(camp,actor,actor,target));
 }
 
 function crossesRing(camp,from,to){
@@ -112,7 +115,7 @@ function crossesRing(camp,from,to){
 function ringWaypoint(camps,actor,target){
   for(const camp of camps){
     const wallHeight=fortConstructionState(camp).wallHeight;
-    if(camp.destroyed||!wallHeight||finite(actor.y,fortFloor(camp))>fortFloor(camp)+wallHeight+.15)continue;
+    if(naturalCamp(camp)||camp.destroyed||!wallHeight||finite(actor.y,fortFloor(camp))>fortFloor(camp)+wallHeight+.15)continue;
     const fromInside=insideFort(camp,actor),toInside=insideFort(camp,target);
     if(fromInside&&toInside)continue;
     const local=campLocal(camp,actor),radius=FORT_RADIUS+3.2,d=Math.hypot(local.x,local.z);
@@ -153,7 +156,7 @@ function keepWaypoint(camp,actor,target){
 export function fortWaypoint(camps,actor,target){
   const waypoint=ringWaypoint(camps,actor,target);
   for(const camp of camps){
-    if(camp.destroyed||Math.hypot(actor.x-camp.x,actor.z-camp.z)>FORT_RADIUS+3)continue;
+    if(naturalCamp(camp)||camp.destroyed||Math.hypot(actor.x-camp.x,actor.z-camp.z)>FORT_RADIUS+3)continue;
     const routed=keepWaypoint(camp,actor,waypoint);
     if(Math.hypot(routed.x-waypoint.x,routed.z-waypoint.z)>.01)return routed;
   }

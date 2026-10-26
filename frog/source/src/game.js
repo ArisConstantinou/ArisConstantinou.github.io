@@ -29,6 +29,11 @@ import {builderIntent,updateConstructionSites} from './construction.js';
 import {drawConstructionLabels} from './construction-labels.js';
 import {queueCombatStrike,updateCombatFeedback,registerCombatHit,applyCombatImpulse} from './combat-feedback.js';
 import {FROG_HOP,requestFrogTravel,beginFrogJump,advanceFrogTravel,landFrog,frogHopPose} from './frog-locomotion.js';
+import {creekLighting} from './lighting-profile.js';
+import {normalizeUIScale} from './ui-preferences.js';
+import {creekMethods} from './creek-game.js';
+import {creekRivalMethods,creekHostility,creekFriendlyTerritory} from './creek-rivals.js';
+import {creekMovementMethods} from './creek-movement.js';
 
 const V=THREE.Vector3,TAU=Math.PI*2;
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
@@ -38,9 +43,11 @@ const roles=['scout','hunter','bruiser','caller'];
 
 export class FrogGame {
   constructor(){
-    this.settings={quality:'high',volume:.55,sensitivity:1};
+    this.creekMode=true;
+    this.settings={quality:'high',volume:.55,sensitivity:1,uiScale:1};
     this.frameProfile=new URLSearchParams(location.search).has('profile')?{frames:0,seconds:0,simulation:0,world:0,models:0,camera:0,hud:0,render:0}:null;
     try{Object.assign(this.settings,JSON.parse(localStorage.getItem('frog-settings')||'{}'));}catch{}
+    this.settings.uiScale=normalizeUIScale(this.settings.uiScale);
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color('#aacbd0');this.scene.fog=new THREE.FogExp2('#98b9ba',.0065);
     this.renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:false});
     this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));this.renderer.setSize(innerWidth,innerHeight);this.renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -50,11 +57,11 @@ export class FrogGame {
     this.camera=new THREE.PerspectiveCamera(59,innerWidth/innerHeight,.07,620);this.cameraYaw=.28;this.cameraPitch=.38;this.cameraDistance=12.2;this.cameraFocus=new V();this.cameraWanted=new V();
     this.sun=new THREE.DirectionalLight(0xffe7bb,3);this.sun.position.set(25,48,17);this.sun.castShadow=true;this.sun.shadow.mapSize.set(2048,2048);
     Object.assign(this.sun.shadow.camera,{left:-35,right:35,top:35,bottom:-35,near:1,far:140});this.sun.shadow.bias=-.00025;this.sun.shadow.normalBias=.035;this.scene.add(this.sun,this.sun.target);
-    this.hemi=new THREE.HemisphereLight(0xc8e4ef,0x405337,2);this.scene.add(this.hemi);this.moon=new THREE.DirectionalLight(0x91b6e8,.15);this.moon.position.set(-30,35,-20);this.scene.add(this.moon);
+    this.hemi=new THREE.HemisphereLight(0xc8e4ef,0x405337,2);this.scene.add(this.hemi);this.moon=new THREE.DirectionalLight(0xb4c9ef,.15);this.moon.position.set(-30,35,-20);this.scene.add(this.moon,this.moon.target);
     this.sky=new Sky();this.sky.scale.setScalar(1000);this.sky.material.uniforms.turbidity.value=5;this.sky.material.uniforms.rayleigh.value=1.8;this.sky.material.uniforms.mieCoefficient.value=.004;this.sky.material.uniforms.mieDirectionalG.value=.8;this.sky.material.uniforms.sunPosition.value.set(25,48,17);this.scene.add(this.sky);
     const pmrem=new THREE.PMREMGenerator(this.renderer);this.environment=pmrem.fromScene(this.sky,.04,1,1500);this.scene.environment=this.environment.texture;this.scene.environmentIntensity=.55;pmrem.dispose();
-    this.world=createWorld(this.scene,this.renderer,{seed:731});this.vfx=new GameVFX(this.scene);this.audio=new GameAudio();
-    this.selectedIds=new Set();this.portraitCache=new Map();this.portraitQueue=[];this.iconCache=new Map();this.frogs=[];this.predators=[];this.camps=[];this.resources={food:22,reeds:40};this.elapsed=0;this.frameTime=0;this.idCounter=0;this.random=mulberry32(9541);
+    this.world=createWorld(this.scene,this.renderer,{seed:731,natural:this.creekMode});this.vfx=new GameVFX(this.scene);this.audio=new GameAudio();
+    this.selectedIds=new Set();this.portraitCache=new Map();this.portraitQueue=[];this.iconCache=new Map();this.frogs=[];this.predators=[];this.camps=[];this.resources={food:12,reeds:0};this.elapsed=0;this.frameTime=0;this.idCounter=0;this.random=mulberry32(9541);
     this.started=false;this.paused=true;this.ended=false;this.won=false;this.command='follow';this.targetCommand=null;this.specialIndex=0;
     this.ui=new GameUI({onAction:(a,p)=>this.onAction(a,p),onStart:mode=>this.start(mode),onResume:()=>this.resume(),onSettings:s=>this.setSettings(s)});this.ui.setSettings(this.settings);
     this.input=new GameInput(this.renderer.domElement,a=>this.handleInputAction(a));
@@ -64,7 +71,7 @@ export class FrogGame {
     addEventListener('resize',()=>this.resize());addEventListener('beforeunload',()=>this.save());document.addEventListener('visibilitychange',()=>{if(document.hidden&&this.started){this.save();this.pause();}});
     this.renderer.domElement.addEventListener('click',()=>{if(this.canLockGameplayPointer()&&!this.input.pointerLocked)this.input.lock();});
     this.last=performance.now();this.fps=60;this.renderer.setAnimationLoop(now=>this.frame(now));
-    window.__FROG__={version:'2.1.3',inspect:()=>this.inspect(),save:()=>this.save()};
+    window.__FROG__={version:'3.0.0',inspect:()=>this.inspect(),save:()=>this.save()};
     document.getElementById('boot')?.remove();
   }
   emptyStats(){return {flies:0,recruited:0,kills:0,predatorsKilled:0,predatorsRepelled:0,campsBuilt:0,campsCaptured:0,raidsDefended:0,losses:0,gatheredFood:0,gatheredReeds:0,trained:0,crafted:0};}
@@ -72,34 +79,40 @@ export class FrogGame {
     if(this.buildPlacement)cancelBuildingPlacement(this,{quiet:true});
     for(const f of [...this.frogs,...this.predators]){this.scene.remove(f.model.group);f.model.dispose?.();}for(const c of this.camps)this.world.removeShelter(c.mesh);
     this.prepareKingdomWorld(save);
-    this.selectedIds=new Set();this.portraitQueue=[];this.frogs=[];this.predators=[];this.camps=[];this.vfx.clear();this.player=null;this.elapsed=save?.elapsed||0;this.resources={food:22,reeds:40,pearls:0,...(save?.resources||{})};this.stats={...this.emptyStats(),...(save?.stats||{})};this.idCounter=save?.idCounter||0;this.command='follow';this.targetCommand=null;this.hunt=null;this.won=save?.won||false;this.ended=false;this.nextRaid=save?.nextRaid??this.elapsed+100;this.graceUntil=save?.graceUntil??this.elapsed+55;this.deathTimer=0;
+    this.selectedIds=new Set();this.portraitQueue=[];this.frogs=[];this.predators=[];this.camps=[];this.vfx.clear();this.player=null;this.elapsed=save?.elapsed||0;this.resources={food:this.creekMode?12:22,reeds:this.creekMode?0:40,pearls:0,...(save?.resources||{})};this.stats={...this.emptyStats(),...(save?.stats||{})};this.idCounter=save?.idCounter||0;this.command='follow';this.targetCommand=null;this.hunt=null;this.won=save?.won||false;this.ended=false;this.nextRaid=save?.nextRaid??this.elapsed+100;this.graceUntil=save?.graceUntil??this.elapsed+55;this.deathTimer=0;
     for(const h of this.world.hotspots)h.flies=h.maxFlies;
     if(save&&!save.newRealm){
       this.player=this.spawnFrog({...save.player,team:'player'});for(const f of save.frogs)this.spawnFrog({...f,trained:!!f.trained||(!save.campaign&&f.team==='ally'&&f.level>=2)});
       for(const c of save.camps)this.addCamp(c);
-      for(const f of this.frogs){for(const c of this.camps){if(c.destroyed)continue;const local=campLocal(c,f),d=Math.hypot(local.x,local.z);if(Math.abs(d-FORT_RADIUS)<1.3&&!(local.z>0&&Math.abs(local.x)<GATE_WIDTH/2-1)){const safe=campWorld(c,{x:local.x/d*(d<FORT_RADIUS?FORT_RADIUS-1.4:FORT_RADIUS+1.4),z:local.z/d*(d<FORT_RADIUS?FORT_RADIUS-1.4:FORT_RADIUS+1.4)});f.x=safe.x;f.z=safe.z;}}for(const c of this.camps)Object.assign(f,clearFortPosition(c,f));f.y=this.world.sampleHeight(f.x,f.z);}
+      for(const f of this.frogs){if(!this.creekMode){for(const c of this.camps){if(c.destroyed||c.natural)continue;const local=campLocal(c,f),d=Math.hypot(local.x,local.z);if(Math.abs(d-FORT_RADIUS)<1.3&&!(local.z>0&&Math.abs(local.x)<GATE_WIDTH/2-1)){const safe=campWorld(c,{x:local.x/d*(d<FORT_RADIUS?FORT_RADIUS-1.4:FORT_RADIUS+1.4),z:local.z/d*(d<FORT_RADIUS?FORT_RADIUS-1.4:FORT_RADIUS+1.4)});f.x=safe.x;f.z=safe.z;}}for(const c of this.camps)Object.assign(f,clearFortPosition(c,f));}f.y=this.world.sampleHeight(f.x,f.z);}
       for(const h of this.world.hotspots){const s=save.hotspots?.find(x=>x.id===h.id);if(s)h.flies=clamp(s.flies,0,h.maxFlies);}
     }else{
       this.player=this.spawnFrog(save?.newRealm?{...save.player,team:'player'}:{id:'player',name:'Άρης',x:0,z:0,yaw:-.55,team:'player',role:'hunter',hp:120,maxHp:120,stomach:55});
+      if(this.creekMode){
+        if(this.world.creekSpawn){Object.assign(this.player,this.world.creekSpawn);this.player.y=this.world.getSurface(this.player.x,this.player.z).height;}
+        this.seedCreekPopulation(save);
+      }else{
       let enemies=this.world.campSites.filter(s=>s.team==='enemy').slice(0,5);if(enemies.length<5)enemies=this.world.campSites.filter(s=>dist(s,{x:0,z:0})>25).slice(0,5);
       enemies.forEach((site,i)=>{const c=this.addCamp({id:site.id||`enemy-camp-${i}`,x:site.x,z:site.z,yaw:site.yaw||0,name:['Οι Χάλκινοι','Οι Ριζοφύλακες','Τα Κόκκινα Καλάμια','Οι Νυχτοβάτες','Οι Βασιλιάδες του Βάλτου'][i],team:`enemy${i}`,originalEnemy:true,originalTeam:`enemy${i}`,rivalIndex:i,tier:i>2?2:1,hp:600+i*120,maxHp:600+i*120,stock:{food:80+i*18,reeds:60+i*12},buildings:{store:true,watchtower:i>1,nursery:i>2,palisade:i>2},morale:100});
         const count=rivalPlan(c,{alliedCount:0,isStronghold:i===enemies.length-1}).initial;for(let j=0;j<count;j++)this.spawnRival(c,{leader:j===0,guard:j<Math.ceil(count*.6)});});
       // The noble begins alone. First companions must be met and recruited.
       const spots=[{x:5.5,z:8},{x:-14,z:8},{x:20,z:18},{x:-24,z:-15}];for(let i=0;i<spots.length;i++)this.spawnFrog({...(this.world.toRegionPoint?.(spots[i].x*WORLD_SCALE,spots[i].z*WORLD_SCALE)||{x:spots[i].x*WORLD_SCALE,z:spots[i].z*WORLD_SCALE}),team:'neutral',role:roles[i],name:names[4+i],level:1+2*(this.realms?.active||0),firstRecruit:i===0&&(this.realms?.active||0)===0});
       if(save?.newRealm)for(const f of save.frogs||[])this.spawnFrog(f);
+      }
     }
-    normalizeGuardOrders(this);
+    if(!this.creekMode)normalizeGuardOrders(this);
     this.campaign=createCampaign(save?.campaign,save&&!save.campaign?inferLegacyMetrics(save):this.campaignMetrics(),{legacy:!!save&&!save.campaign,endless:true});
-    this.campaign=advanceCampaign(this.campaign,this.campaignMetrics()).state;this.won=false;this.campaignCheckAt=0;this.initKingdom(save);this.syncCampaignPredators();
-    this.prepareLegacyRivalRecovery(save);
+    this.campaign=advanceCampaign(this.campaign,this.campaignMetrics()).state;this.won=false;this.campaignCheckAt=0;this.initKingdom(save);if(this.creekMode){this.initCreek(save);this.initCreekSociety(save);}this.syncCampaignPredators();
+    if(!this.creekMode)this.prepareLegacyRivalRecovery(save);
     this.updateRoyalStatus({quiet:true});this.interactionFocus=null;
     this.cameraYaw=this.player.yaw||.28;this.cameraFocus.set(this.player.x,1.1,this.player.z);this.updateCamera(1,true);
   }
   spawnFrog(data){
+    if(this.creekMode)data={...data,legacyEquipment:data.legacyEquipment||data.equipment,equipment:{armor:null,weapon:null,crest:false},crowned:false};
     const role=data.role||roles[Math.floor(this.random()*roles.length)],tier=data.tier||1;
     const f={id:data.id||`frog-${++this.idCounter}`,name:data.name||names[this.idCounter%names.length],team:data.team||'neutral',role,tier,level:data.level||1,xp:data.xp||0,hp:data.hp??(role==='bruiser'?120:95),maxHp:data.maxHp||(role==='bruiser'?120:95),stomach:data.stomach??65,maxStomach:100,x:data.x||0,z:data.z||0,y:0,yaw:data.yaw||0,vx:0,vz:0,vy:0,grounded:true,jump:0,jumpTime:0,speed:0,morale:data.morale??100,home:data.home||null,guard:!!data.guard,leader:!!data.leader,surrendered:isSurrendered(data),dead:false,attackAnim:0,attackType:'',roarAnim:0,hitAnim:0,attackCD:0,specialCD:0,invulnerable:0,stun:0,aiTime:0,brain:0,eatCD:0,intent:null,seed:this.idCounter,grabbedBy:null,thinkOffset:this.random()*5};
     const identity=[...f.id].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0,17);f.seed=identity%997;f.order=data.order||(f.guard?'guard':'follow');f.trained=!!data.trained;f.trainingProgress=data.trainingProgress||0;f.trainingPaid=!!data.trainingPaid;f.trainingCamp=data.trainingCamp||null;f.returnOrder=data.returnOrder==='guard'?'guard':'follow';f.raidTarget=data.raidTarget||null;f.loot=data.loot||0;f.surrenderTimer=data.surrenderTimer??90;f.persuadeCD=data.persuadeCD||0;f.crowned=f.team==='player'&&data.crowned===true;
-    for(const key of ['equipment','recruitment','firstRecruit','recruitXpAwarded','tacticalPath','tacticalTargetId'])if(data[key]!==undefined)f[key]=data[key];
+    for(const key of ['equipment','recruitment','firstRecruit','recruitXpAwarded','tacticalPath','tacticalTargetId','legacyEquipment','creekOrderPoint','creekOrderUntil','creekTargetId','creekRecoveryAt'])if(data[key]!==undefined)f[key]=data[key];
     const palette=f.team==='player'?[0x5c8f35]:f.team==='ally'?[0x57966b,0x718749,0x3f8d79,0x8d985b]:f.team==='neutral'?[0xb4a44d]:[0xa85a32,0x80576a,0x987343];
     const color=data.skinColor??palette[identity%palette.length];f.skinColor=color;
     f.model=createCreature('frog',{color,team:f.team,role,tier,level:f.level,equipment:f.equipment,seed:f.seed});f.model.setCrowned?.(f.crowned);f.model.setOutline(COLORS[f.team]||COLORS.enemy,true);f.y=this.world.sampleHeight(f.x,f.z);f.model.group.position.set(f.x,f.y,f.z);f.model.group.rotation.y=f.yaw;f.model.group.userData.actor=f;this.scene.add(f.model.group);this.frogs.push(f);
@@ -114,13 +127,13 @@ export class FrogGame {
     if(boss)p.model.group.traverse(o=>{if(o.isMesh&&o.material?.color&&o.name!=='animated-color-silhouette'){if(data.type==='heron')o.material.color.set(0x909da8);else o.material.color.multiplyScalar(.76);}});
     p.y=data.type==='fish'?-.7:this.world.sampleHeight(p.x,p.z);p.model.group.position.set(p.x,p.y,p.z);this.scene.add(p.model.group);this.predators.push(p);return p;
   }
-  addCamp(data){const rank=data.rivalIndex??Number((String(data.originalTeam||data.team).match(/enemy(\d+)/)||[])[1]??this.camps.filter(c=>c.originalEnemy).length);const c={rivalIndex:rank,originalTeam:data.originalEnemy?`enemy${rank}`:null,tier:1,hp:350,maxHp:350,stock:data.team==='ally'?{food:0,reeds:0}:{food:14,reeds:20},buildings:{},morale:100,destroyed:false,spawnTimer:0,mealCount:0,mealDay:0,...data};if(c.originalEnemy&&!c.originalTeam)c.originalTeam=`enemy${rank}`;initializeFort(c);settleCampSupplies(this.resources,c);c.mesh=this.world.createShelter({...c,storage:this.campStorage(c)});this.camps.push(c);return c;}
+  addCamp(data){if(this.creekMode)data={...data,natural:true,buildings:{},underConstruction:false,gateHp:0};const rank=data.rivalIndex??Number((String(data.originalTeam||data.team).match(/enemy(\d+)/)||[])[1]??this.camps.filter(c=>c.originalEnemy).length);const c={rivalIndex:rank,originalTeam:data.originalEnemy?`enemy${rank}`:null,tier:1,hp:350,maxHp:350,stock:data.team==='ally'?{food:0,reeds:0}:{food:14,reeds:20},buildings:{},morale:100,destroyed:false,spawnTimer:0,mealCount:0,mealDay:0,...data};if(c.originalEnemy&&!c.originalTeam)c.originalTeam=`enemy${rank}`;initializeFort(c);settleCampSupplies(this.resources,c);c.mesh=this.world.createShelter({...c,storage:this.campStorage(c)});this.camps.push(c);return c;}
   campStorage(c){if(c.team!=='ally')return c.stock;const n=Math.max(1,this.ownedCamps().length);return {food:this.resources.food/n,reeds:this.resources.reeds/n};}
   allies(){return this.frogs.filter(f=>f.team==='ally'&&!f.dead);}
   ownedCamps(){return this.camps.filter(c=>c.team==='ally'&&!c.destroyed&&!c.underConstruction);}
   guardAssignment(f){return guardAssignment(this,f);}
   garrisonCommand(payload){return commandGarrison(this,payload);}
-  hostile(a,b){if(a.dead||b.dead||a===b||a.team==='neutral'||b.team==='neutral'||isSurrendered(a)||isSurrendered(b))return false;const ta=a.team==='player'?'ally':a.team,tb=b.team==='player'?'ally':b.team;return ta!==tb;}
+  hostile(a,b){if(this.creekMode)return creekHostility(this,a,b);if(a.dead||b.dead||a===b||a.team==='neutral'||b.team==='neutral'||isSurrendered(a)||isSurrendered(b))return false;const ta=a.team==='player'?'ally':a.team,tb=b.team==='player'?'ally':b.team;return ta!==tb;}
   start(mode){
     const request=(this.startRequestId||0)+1;this.startRequestId=request;
     if((mode==='continue'||mode==='play')&&this.saveLoadPromise){const loading=this.saveLoadPromise;this.saveLoadPromise=null;loading.then(()=>{if(this.startRequestId===request)this.start(mode);});return;}
@@ -129,11 +142,12 @@ export class FrogGame {
     if(mode==='play')mode=this.saved?'continue':'new';
     // An explicit new campaign always rebuilds a solo world, even from the title.
     // A delayed Continue request must not replace a newer New Game selection.
+    if(this.creekMode&&mode==='continue'&&this.saved&&!this.saved.creek){try{if(!localStorage.getItem(SAVE_KEY+'-before-wild-creek'))localStorage.setItem(SAVE_KEY+'-before-wild-creek',JSON.stringify(this.saved));}catch{}}
     this.resetWorld(mode==='continue'&&this.saved?this.saved:null);
     this.ui.hideMenus?.();if(this.ui.refs?.hud)this.ui.refs.hud.hidden=false;
     this.started=true;this.paused=false;this.ended=false;this.ui.closePanels();this.ui.showPause(false);this.audio.init?.();this.audio.start?.();this.audio.setVolume?.(this.settings.volume);this.input.clear();this.input.lock();
     this.audio.setPaused?.(false);
-    this.ui.toast(mode==='continue'?'WASD πηδήματα · Shift γρήγορα άλματα · E αλληλεπίδραση · O στόχοι':'Ξεκινάς μόνος ως Ευγενής. Πλησίασε έναν κίτρινο βάτραχο και πάτησε E για να μάθεις τους όρους ένταξης. H: εικονογραφημένος οδηγός.','info');this.discoverGuide('movement');this.save();
+    this.ui.toast(this.creekMode?(mode==='continue'?'Το ρυάκι σε περιμένει. V · Ανακαλύψεις · Tab · Ομάδα':'Ξεκινάς μόνος. Πήδηξε ανάμεσα στα νούφαρα και ακολούθησε την κίνηση των εντόμων.'):mode==='continue'?'WASD πηδήματα · Shift γρήγορα άλματα · E αλληλεπίδραση · O στόχοι':'Ξεκινάς μόνος ως Ευγενής. Πλησίασε έναν κίτρινο βάτραχο και πάτησε E για να μάθεις τους όρους ένταξης. H: εικονογραφημένος οδηγός.','info');this.discoverGuide('movement');this.save();
   }
   handleInputAction(action){
     if(action==='escape'){this.escape();return;}
@@ -169,7 +183,7 @@ export class FrogGame {
     }
     if(this.paused)this.resume();else this.pause();
   }
-  setSettings(s){Object.assign(this.settings,s);localStorage.setItem('frog-settings',JSON.stringify(this.settings));this.applySettings();}
+  setSettings(s){Object.assign(this.settings,s);this.settings.uiScale=normalizeUIScale(this.settings.uiScale);this.ui?.setSettings?.(this.settings);localStorage.setItem('frog-settings',JSON.stringify(this.settings));this.applySettings();}
   applySettings(){const q=this.settings.quality;this.renderer.setPixelRatio(Math.min(devicePixelRatio,q==='high'?1.5:q==='medium'?1.15:1));this.renderer.shadowMap.enabled=q!=='low';this.scene.fog.density=q==='low'?.009:.0065;this.audio?.setVolume?.(this.settings.volume);this.resize();}
   resize(){this.camera.aspect=innerWidth/innerHeight;this.camera.updateProjectionMatrix();this.renderer.setSize(innerWidth,innerHeight);if(this.labels){this.labels.width=innerWidth;this.labels.height=innerHeight;}}
   frame(now){
@@ -182,12 +196,12 @@ export class FrogGame {
     if(this.input.hit('KeyU')){this.toggleConceptPanels();this.input.pressed.delete('KeyU');}
     if(this.input.hit('KeyO')){this.toggleObjectives();this.input.pressed.delete('KeyO');}
     if(this.ui.panel&&this.started&&!this.paused&&!this.buildPlacement?.active){
-      if((this.ui.panel==='build'&&this.input.hit('KeyV'))||(['roster','map'].includes(this.ui.panel)&&this.input.hit('Tab'))){this.ui.closePanels();this.paused=false;this.input.pressed.delete('KeyV');this.input.pressed.delete('Tab');if(this.canLockGameplayPointer())this.input.lock();}
+      if((['build','exploration'].includes(this.ui.panel)&&this.input.hit('KeyV'))||(['roster','map'].includes(this.ui.panel)&&this.input.hit('Tab'))){this.ui.closePanels();this.paused=false;this.input.pressed.delete('KeyV');this.input.pressed.delete('Tab');if(this.canLockGameplayPointer())this.input.lock();}
       else if(this.ui.panel==='build'){for(let i=0;i<8;i++)if(this.input.hit(`Digit${i+1}`)){const b=this.buildOptions()[i];if(b?.enabled)this.build(b.type);this.input.pressed.delete(`Digit${i+1}`);}}
     }
     if(this.started&&!this.paused&&!this.ended&&(!this.ui.isBlocking?.()||this.buildPlacement?.active)){
       if(this.hitPause>0){this.hitPause-=dt;dt*=.17;}
-      this.elapsed+=dt;updateConstructionSites(this,dt);this.updatePlayer(dt);this.updateFrogs(dt);this.updatePredators(dt);updateCombatFeedback(this,dt);this.updateEconomy(dt);this.updateKingdom(dt);this.updateCampaign();this.checkVictory();
+      this.elapsed+=dt;if(!this.creekMode)updateConstructionSites(this,dt);this.updatePlayer(dt);this.updateFrogs(dt);this.updatePredators(dt);updateCombatFeedback(this,dt);this.updateCreek?.(dt);this.updateEconomy(dt);this.updateKingdom(dt);this.updateCampaign();this.checkVictory();
     }
     measured('simulation');
     const day=dayState(this.elapsed);this.updateLighting(day);this.world.update(dt,this.elapsed+this.frameTime*.025,day.daylight,new V(this.player.x,this.player.y,this.player.z));this.vfx.update(dt);
@@ -199,10 +213,12 @@ export class FrogGame {
     if(profile){profile.frames++;profile.seconds+=rawDt;if(profile.seconds>=5){const frames=profile.frames;console.info('FROG_PROFILE '+JSON.stringify({fps:Math.round(frames/profile.seconds),actors:this.frogs.filter(f=>!f.dead).length,drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,cpuMs:Object.fromEntries(['simulation','world','models','camera','hud','render'].map(key=>[key,+(profile[key]/frames).toFixed(2)]))}));for(const key of Object.keys(profile))profile[key]=0;}}
   }
   updateLighting(day){
-    const a=day.phase*TAU-Math.PI/2,d=day.daylight;
-    this.sun.position.set(this.player.x+Math.cos(a)*35,this.player.y+Math.max(8,Math.sin(a)*45+12),this.player.z+25);this.sun.target.position.set(this.player.x,0,this.player.z);this.sun.intensity=.1+d*3;this.hemi.intensity=.5+d*1.3;this.moon.intensity=.65*(1-d);this.scene.environmentIntensity=.12+d*.48;
-    this.sun.color.setHSL(.1,.3+.3*(1-d),.82);this.hemi.color.setRGB(.38+d*.39,.5+d*.37,.69+d*.25);this.scene.fog.color.setRGB(.04+d*.52,.095+d*.58,.16+d*.56);this.scene.background.copy(this.scene.fog.color);
-    this.sky.material.uniforms.sunPosition.value.set(Math.cos(a)*80,Math.max(-6,Math.sin(a)*70+10),40);this.sky.material.uniforms.rayleigh.value=1.5+2*(1-d);this.sky.visible=d>.05;this.renderer.toneMappingExposure=.88+d*.18;
+    const light=creekLighting(day),p=this.player;
+    this.sun.position.set(p.x+light.sunOffset[0],p.y+light.sunOffset[1],p.z+light.sunOffset[2]);this.sun.target.position.set(p.x,0,p.z);
+    this.moon.position.set(p.x+light.moonOffset[0],p.y+light.moonOffset[1],p.z+light.moonOffset[2]);this.moon.target.position.set(p.x,p.y,p.z);
+    this.sun.intensity=light.sunIntensity;this.hemi.intensity=light.hemisphereIntensity;this.moon.intensity=light.moonIntensity;this.scene.environmentIntensity=light.environmentIntensity;
+    this.sun.color.setHSL(...light.sunHSL);this.hemi.color.setRGB(...light.hemisphereSky);this.hemi.groundColor.setRGB(...light.hemisphereGround);this.scene.fog.color.setRGB(...light.fog);this.scene.background.copy(this.scene.fog.color);
+    this.sky.material.uniforms.sunPosition.value.set(...light.skySun);this.sky.material.uniforms.rayleigh.value=light.rayleigh;this.sky.visible=light.skyVisible;this.renderer.toneMappingExposure=light.exposure;
   }
   updateCamera(dt,snap=false){
     updateGameCamera(this,dt,snap);
@@ -212,8 +228,10 @@ export class FrogGame {
     for(const k of ['attackCD','specialCD','invulnerable','stun','eatCD','roarCD','dodgeCD'])p[k]=Math.max(0,(p[k]||0)-dt);
     if(p.grabbedBy){p.hop=null;if(this.input.hit('KeyQ')||this.input.hit('Space')||this.input.hit('KeyR')){p.grabbedBy.rescueDamage+=13;this.audio.play?.('hit');}return;}
     const ix=(this.input.down('KeyD')?1:0)-(this.input.down('KeyA')?1:0),iz=(this.input.down('KeyW')?1:0)-(this.input.down('KeyS')?1:0),len=Math.hypot(ix,iz);
-    const sprint=this.input.down('ShiftLeft')&&p.stamina>8&&len>0,blocking=!this.buildPlacement?.active&&this.input.right&&p.stamina>2;p.blocking=blocking;if(blocking)this.discoverGuide('block',{pause:false});if(sprint)this.discoverGuide('sprint',{pause:false});
-    let speed=(sprint?MOVEMENT.sprint:MOVEMENT.walk)*(p.stomach<10?.78:1)*(p.swimming?MOVEMENT.swimming:1)*(blocking?.55:1)*(p.stun>0?.1:1);
+    const creekMove=this.creekMode?this.creekAbilityModifiers():null;
+    const divingInput=creekMove?.dive&&this.input.right&&this.world.getSurface(p.x,p.z).type==='water';
+    const sprint=this.input.down('ShiftLeft')&&p.stamina>8&&len>0,blocking=!this.buildPlacement?.active&&this.input.right&&!divingInput&&p.stamina>2;p.blocking=blocking;if(blocking)this.discoverGuide('block',{pause:false});if(sprint)this.discoverGuide('sprint',{pause:false});
+    let speed=(sprint?MOVEMENT.sprint:MOVEMENT.walk)*(p.stomach<10?.78:1)*(p.swimming?MOVEMENT.swimming*(creekMove?.swimSpeed||1):1)*(blocking?.55:1)*(p.stun>0?.1:1);
     const moveYaw=this.viewMode==='topdown'?0:this.cameraYaw;
     const mx=len?(Math.sin(moveYaw)*iz-Math.cos(moveYaw)*ix)/len:0,mz=len?(Math.cos(moveYaw)*iz+Math.sin(moveYaw)*ix)/len:0;
     requestFrogTravel(p,mx*speed,mz*speed);
@@ -223,9 +241,9 @@ export class FrogGame {
     if(this.input.hit('Space')&&p.stamina>12){p.charge=0;p.jumpReleaseQueued=false;}
     if(p.charge>=0&&this.input.down('Space'))p.charge=Math.min(.65,p.charge+dt);
     if(this.input.up('Space')&&p.charge>=0)p.jumpReleaseQueued=true;
-    if(p.jumpReleaseQueued&&p.charge>=0&&p.grounded){const cost=12+p.charge*8;if(p.stamina>=cost){this.jump(p,8+p.charge*4);p.stamina-=cost;}p.charge=-1;p.jumpReleaseQueued=false;}
+    if(p.jumpReleaseQueued&&p.charge>=0&&p.grounded){const cost=12+p.charge*8;if(p.stamina>=cost){if(this.jump(p,(8+p.charge*4)*(creekMove?.leapStrength||1)))this.recordCreekAction?.('chargedLeap');p.stamina-=cost;}p.charge=-1;p.jumpReleaseQueued=false;}
     if(this.input.hit('KeyZ'))this.dodge();
-    this.moveActor(p,dt);p.stamina=clamp(p.stamina+dt*(sprint?-12:blocking?-3.5:15),0,100);p.stomach=clamp(p.stomach-dt*(sprint?.14:.085),0,100);
+    this.moveActor(p,dt);p.stamina=clamp(p.stamina+dt*(sprint?-12:blocking?-3.5:15),0,100);p.stomach=clamp(p.stomach-dt*(this.creekMode?(sprint?.09:.045):(sprint?.14:.085)),0,100);
     if(p.stomach<=0&&this.elapsed%2<dt)this.damage(p,2,null);
     if(this.buildPlacement?.active){if(this.input.hit('KeyQ'))this.rotateBuildingPlacement(-1);if(this.input.hit('KeyR'))this.rotateBuildingPlacement(1);if(this.input.hit('MouseLeft'))this.confirmBuildingPlacement();return;}this.aimTarget=this.findAim();
     if(this.input.hit('MouseLeft')&&this.aimTarget?.kind==='actor'&&this.aimTarget.entity.team==='ally')this.selectFrog(this.aimTarget.entity.id,this.input.down('ShiftLeft'));
@@ -234,7 +252,7 @@ export class FrogGame {
     if(this.input.hit('KeyF'))this.gangCommand(this.command==='attack'?'follow':'attack');
     if(this.input.hit('KeyT'))this.gangCommand(this.command==='forage'?'follow':'forage');
     if(this.input.hit('KeyX'))this.gangCommand(this.input.down('ShiftLeft')?'regroup':'guard');
-    if(this.input.hit('KeyV'))this.openPanel('build');if(this.input.hit('Tab'))this.openPanel('roster');
+    if(this.input.hit('KeyV'))this.openPanel(this.creekMode?'exploration':'build');if(this.input.hit('Tab'))this.openPanel('roster');
     if(this.input.hit('KeyH')){if(['help','guide'].includes(this.ui.panel))this.ui.closeGuideCard();else this.ui.openGuideLibrary();}
     for(let i=0;i<3;i++)if(this.input.hit(`Digit${i+4}`))this.handleKingdomAction(this.input.down('ShiftLeft')?'save-group':'select-group',{groupId:String(i+1)});
     if(this.input.hit('KeyG'))this.consume();for(let i=0;i<3;i++)if(this.input.hit(`Digit${i+1}`)){this.specialIndex=i;this.ui.toast(`Ειδική κίνηση: ${['Εναέρια κλωτσιά','Βαριά προσγείωση','Χτύπημα γλώσσας'][i]}`);}
@@ -252,16 +270,22 @@ export class FrogGame {
     this.discoverGuide('dodge',{pause:false});return true;
   }
   moveActor(f,dt){
+    if(this.creekMode&&this.moveCreekDiver(f,dt))return;
+    const creekMove=this.creekMode&&f===this.player?this.creekAbilityModifiers():null;
+    if(creekMove?.airControl&&!f.grounded&&f.hop?.phase==='air'&&!f.diving){const wish=f.travelWish||{vx:0,vz:0},blend=creekMove.airControl*dt*5;f.vx+=(wish.vx-f.vx)*blend;f.vz+=(wish.vz-f.vz)*blend;if(Math.hypot(f.vx,f.vz)>.1)f.hop.yaw=Math.atan2(f.vx,f.vz);}
     // A small terrain probe gives AI frogs a higher take-off when a rock is
     // immediately ahead. The same collision/surface solver still owns travel.
     f.hopStrength=FROG_HOP.strength;
     if(f.grounded&&f.travelWish){const wish=f.travelWish,d=Math.hypot(wish.vx,wish.vz);if(d>.05){const ahead=this.world.getSurface(f.x+wish.vx/d*.9,f.z+wish.vz/d*.9),rise=ahead.height-f.y;if(rise>.45&&f!==this.player)f.hopStrength=Math.min(8.5,Math.sqrt(2*FROG_HOP.gravity*(rise+.25)));if(f.swimming&&ahead.type!=='water'&&rise>.1&&!(f.charge>=0)){const strength=Math.min(8.5,Math.max(FROG_HOP.strength,Math.sqrt(2*FROG_HOP.gravity*(rise+.25))));beginFrogJump(f,strength,{automatic:true});}}}
     const motionDt=advanceFrogTravel(f,dt);
     const recoil=applyCombatImpulse(f,dt),intended={x:clamp(f.x+f.vx*motionDt+recoil.dx,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1),z:clamp(f.z+f.vz*motionDt+recoil.dz,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1)},resolved=resolveFortMovement(this.camps,f,intended);let nx=resolved.x,nz=resolved.z,surface=this.world.getSurface(nx,nz),height=surface.height;
-    const nextY=f.y+f.vy*motionDt-.5*FROG_HOP.gravity*motionDt*motionDt;
+    let nextY=f.y+f.vy*motionDt-.5*FROG_HOP.gravity*motionDt*motionDt;
+    f.climbing=false;
+    if(creekMove?.grip&&this.input.down('Space')&&f.stamina>5&&height>f.y+.16&&height-f.y<3.3&&Math.hypot(f.travelWish?.vx||0,f.travelWish?.vz||0)>.1){f.climbing=true;f.grounded=false;f.vy=3.4;nextY=f.y+3.4*dt;f.stamina=Math.max(0,f.stamina-dt*15);f.charge=-1;f.jumpReleaseQueued=false;}
     if(height>Math.max(f.y,nextY)+.16){nx=f.x;nz=f.z;surface=this.world.getSurface(nx,nz);height=surface.height;}
     let landingRemainder=0;
     if(!f.grounded&&nextY<=height+1e-7&&f.vy-FROG_HOP.gravity*motionDt<=0){const discriminant=f.vy*f.vy+2*FROG_HOP.gravity*(f.y-height);if(discriminant>=0){const contact=clamp((f.vy+Math.sqrt(discriminant))/FROG_HOP.gravity,0,motionDt),ratio=motionDt>0?contact/motionDt:0;nx=f.x+(nx-f.x)*ratio;nz=f.z+(nz-f.z)*ratio;landingRemainder=motionDt-contact;surface=this.world.getSurface(nx,nz);height=surface.height;}}
+    if(this.creekMode&&surface.type==='water'&&f.grounded){const flow=this.world.currentAt?.(nx,nz);if(flow){const tx=clamp(nx+(flow.x||0)*dt,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1),tz=clamp(nz+(flow.z||0)*dt,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1);if(this.world.getSurface(tx,tz).type==='water'){nx=tx;nz=tz;surface=this.world.getSurface(nx,nz);height=surface.height;}}}
     const oldX=f.x,oldZ=f.z;f.x=nx;f.z=nz;f.speed=Math.hypot(nx-oldX,nz-oldZ)/Math.max(dt,.00001);f.swimming=surface.type==='water';
     if(!f.grounded){f.y=nextY;f.vy-=FROG_HOP.gravity*motionDt;if(f.y<=height+1e-7&&f.vy<=0){const force=Math.abs(f.vy),automatic=f.hop?.automatic;f.y=height;landFrog(f);f.hop.time=landingRemainder;if(f.swimming||surface.type==='lily')this.world.splash(new V(f.x,0,f.z),Math.min(1.2,force*.12));if(f===this.player&&force>5&&!automatic)this.audio.play?.('land');}}
     else if(f.y>height+.2){f.grounded=false;f.vy=0;}else{f.y=height+(f.swimming?Math.sin(this.elapsed*4+f.seed)*.025:0);}
@@ -302,12 +326,17 @@ export class FrogGame {
     }
     // Swarms compete at their centre depth, so a real foreground ally remains
     // selectable while a distant body cannot steal a closer fly target.
-    for(const h of this.world.hotspots){if(h.flies<1||dist(h,p)>10)continue;point.set(h.x,(h.y||0)+1.2,h.z);raycaster.ray.closestPointToPoint(point,closest);const depth=closest.distanceTo(raycaster.ray.origin);if(point.clone().sub(raycaster.ray.origin).dot(raycaster.ray.direction)>0&&closest.distanceToSquared(point)<4&&depth<bestDepth){bestDepth=depth;best={kind:'flies',entity:h};}}
+    for(const h of this.world.hotspots){if(h.flies<1||dist(h,p)>(this.creekMode?this.creekAbilityModifiers().tongueRange:10))continue;point.set(h.x,(h.y||0)+1.2,h.z);raycaster.ray.closestPointToPoint(point,closest);const depth=closest.distanceTo(raycaster.ray.origin);if(point.clone().sub(raycaster.ray.origin).dot(raycaster.ray.direction)>0&&closest.distanceToSquared(point)<4&&depth<bestDepth){bestDepth=depth;best={kind:'flies',entity:h};}}
+    if(this.creekMode&&this.creekAbilityModifiers().tongueRange>10)for(const anchor of this.world.creekGrips||[]){
+      point.set(anchor.x,anchor.y,anchor.z);if(point.distanceTo(new V(p.x,p.y,p.z))>14)continue;
+      raycaster.ray.closestPointToPoint(point,closest);const depth=closest.distanceTo(raycaster.ray.origin);
+      if(point.clone().sub(raycaster.ray.origin).dot(raycaster.ray.direction)>0&&closest.distanceToSquared(point)<(anchor.radius||1.1)**2&&depth<bestDepth){bestDepth=depth;best={kind:'creek-grip',entity:anchor,point:point.clone()};}
+    }
     return best;
   }
   gainXP(amount){
     const levelled=awardXP(this.player,amount);
-    if(levelled){this.player.model.setLevel?.(this.player.level);this.updateFrogPortrait?.(this.player,true);this.ui.toast(`Επίπεδο ${this.player.level} — περισσότερη ζωή και κύρος!`,'success');this.audio.play?.('levelup');this.discoverGuide('progress');}
+    if(levelled){this.player.model.setLevel?.(this.player.level);this.updateFrogPortrait?.(this.player,true);this.ui.toast(this.creekMode?`Εμπειρία ${this.player.level} · συνέχισε να ανακαλύπτεις νέες κινήσεις`:`Επίπεδο ${this.player.level} — περισσότερη ζωή και κύρος!`,'success');this.audio.play?.('levelup');this.discoverGuide('progress');}
     for(const f of this.allies())if(dist(f,this.player)<24&&awardXP(f,amount*.45)){f.model.setLevel?.(f.level);this.updateFrogPortrait?.(f,true);}
   }
   power(team='ally'){return this.frogs.filter(f=>!f.dead&&!isSurrendered(f)&&(team==='ally'?['ally','player'].includes(f.team):f.team===team)).reduce((n,f)=>n+(f.tier+.15*f.level)*(.35+.65*f.hp/f.maxHp),0);}
@@ -334,32 +363,37 @@ export class FrogGame {
         target.hp=target.maxHp*.15;target.surrendered=true;target.morale=0;target.guard=false;target.surrenderTimer=80;target.model.setOutline(COLORS.surrender,true);
         if(this.targetCommand===target){this.targetCommand=null;if(this.command==='attack')this.command='follow';}
         for(const f of this.frogs)if(f.intent?.target===target){f.intent=null;f.brain=0;}
-        if(source?.team==='player'||source?.team==='ally'){this.stats.kills++;this.gainXP(24);this.resources.reeds+=5;this.ui.toast(`${target.name} παραδόθηκε. E για στρατολόγηση.`,'success');}
+        if(source?.team==='player'||source?.team==='ally'){this.stats.kills++;this.gainXP(24);if(!this.creekMode)this.resources.reeds+=5;this.ui.toast(`${target.name} υποχώρησε. E για προσέγγιση.`,'success');}
+        if(this.creekMode&&target.leader){const territory=this.camps.find(c=>c.id===target.home);if(territory)this.resolveCreekTerritory(territory,'contest');}
         return;
       }
-      target.dead=true;target.deadTime=0;target.model.setOutline(COLORS.enemy,false);if(target===this.player){if(this.buildPlacement)cancelBuildingPlacement(this,{quiet:true});this.deathTimer=0;this.ui.toast('Έπεσες στη μάχη…','danger');this.input.clear();this.save();}else{if(target.team==='ally'){this.stats.losses++;this.ui.toast(`Χάθηκε ο ${target.name}.`,'danger');}else{this.stats.kills++;if(source?.team==='player'||source?.team==='ally'){this.gainXP(22);this.resources.food+=4;this.resources.reeds+=6;}}}
+      if(this.creekMode&&target.team==='ally'&&source?.team!=='predator'&&!options.eaten){target.hp=Math.max(1,target.maxHp*.15);target.surrendered=true;target.creekRecoveryAt=this.elapsed+25;target.order='retreat';target.guard=false;target.intent=null;target.brain=0;this.ui.toast(`${target.name} τραυματίστηκε και χρειάζεται βοήθεια.`,'warning');return;}
+      target.dead=true;target.deadTime=0;target.model.setOutline(COLORS.enemy,false);if(target===this.player){if(this.buildPlacement)cancelBuildingPlacement(this,{quiet:true});this.deathTimer=0;this.onCreekPlayerDefeat?.();this.ui.toast('Έπεσες στη μάχη…','danger');this.input.clear();this.save();}else{if(target.team==='ally'){this.stats.losses++;this.ui.toast(`Χάθηκε ο ${target.name}.`,'danger');}else{this.stats.kills++;if(source?.team==='player'||source?.team==='ally'){this.gainXP(22);this.resources.food+=4;this.resources.reeds+=6;}}}
     }
   }
   primaryAttack(){
     const p=this.player,t=this.aimTarget;if(p.dead||p.grabbedBy||p.attackCD>0)return;
+    if(this.creekMode&&t?.kind==='creek-grip'){this.creekTongueGrip(t);return;}
+    const tongueRange=this.creekMode?this.creekAbilityModifiers().tongueRange:10;
     if(t?.entity?.team==='ally'){this.selectFrog(t.entity.id,false);return;}
     if(t?.kind==='actor'&&this.frogs.includes(t.entity)&&this.focusRecruit(t.entity))return;
     if(p.stamina<3)return;
     p.attackCD=.43;p.attackAnim=.34;p.attackDuration=.34;p.attackType='tongue';
     const aim=this.aimYaw??this.cameraYaw;let end=new V(p.x+Math.sin(aim)*7,p.y+.7,p.z+Math.cos(aim)*7),target=null,includeCamps=false;
-    if(t?.kind==='actor'&&dist(t.entity,p)<10&&(this.hostile(p,t.entity)||t.entity.team==='predator')){
+    if(t?.kind==='actor'&&dist(t.entity,p)<tongueRange&&(this.hostile(p,t.entity)||t.entity.team==='predator')){
       target=t.entity;if(t.point)end.copy(t.point);else end.set(target.x,target.y+(target.type==='heron'?1.6:.55),target.z);p.stamina=Math.max(0,p.stamina-5);
     }else if(t?.kind==='flies'){
       const h=t.entity,result=feedFromFly(p,h);
       if(result.consumed){this.resources.food+=result.food;this.creditGathering(result.food,0);this.stats.flies++;this.gainXP(4);end.set(h.x+(this.random()-.5),1.3+this.random(),h.z+(this.random()-.5));this.audio.play?.('eat');p.healingUntil=this.elapsed+1;this.ui.toast({id:'player-feed',icon:result.healed?'heal':'fly',value:result.healed?Math.round(result.healed):'+1',progress:p.hp/p.maxHp,tone:'success'});this.discoverGuide('flies');}
+      else if(result.reason==='full'&&this.creekMode&&h.flies>=1&&p.eatCD<=0){h.flies--;this.resources.food++;this.stats.flies++;this.creditGathering(1,0);p.eatCD=1.8;end.set(h.x,(h.y||0)+1.2,h.z);this.audio.play?.('eat');}
       else if(result.reason==='full'){this.ui.toast({id:'stomach-full',icon:'stomach',progress:1,tone:'info',detail:'Γεμάτο στομάχι και ζωή. E για αποθέματα.'});p.attackCD=1;}
       this.vfx.tongue(p,end);return;
     }else{
       target=this.frogs.find(f=>this.hostile(p,f)&&dist(f,p)<3.2&&Math.cos(Math.atan2(f.x-p.x,f.z-p.z)-aim)>.3)||null;
       if(target)end.set(target.x,target.y+.6,target.z);
-      else{const c=this.camps.find(c=>c.team.startsWith('enemy')&&!c.destroyed&&dist(c,p)<SHELTER_RADIUS+9&&Math.cos(Math.atan2(c.x-p.x,c.z-p.z)-aim)>.3);if(c){const gate=insideFort(c,p)?c:gatePoint(c);end.set(gate.x,this.world.sampleHeight(c.x,c.z)+1,gate.z);includeCamps=true;p.stamina=Math.max(0,p.stamina-3);}}
+      else{const c=this.camps.find(c=>c.team.startsWith('enemy')&&!c.destroyed&&(!this.creekMode||!creekFriendlyTerritory(c))&&dist(c,p)<SHELTER_RADIUS+9&&Math.cos(Math.atan2(c.x-p.x,c.z-p.z)-aim)>.3);if(c){const gate=insideFort(c,p)?c:gatePoint(c);end.set(gate.x,this.world.sampleHeight(c.x,c.z)+1,gate.z);includeCamps=true;p.stamina=Math.max(0,p.stamina-3);}}
     }
-    queueCombatStrike(this,{source:p,target,kind:'tongue',damage:attackDamage(14,p.tier,p.level),range:10,yaw:aim,arc:-.1,includeCamps});
+    queueCombatStrike(this,{source:p,target,kind:'tongue',damage:attackDamage(14,p.tier,p.level),range:tongueRange,yaw:aim,arc:-.1,includeCamps});
     this.vfx.tongue(p,end);this.discoverGuide('tongue',{pause:false});
   }
   special(f){
@@ -376,9 +410,11 @@ export class FrogGame {
   intimidate(f){
     if(f.roarCD>0||f.dead)return;if(f===this.player&&f.stamina<18)return;f.roarCD=8;f.specialCD=Math.max(f.specialCD||0,5);f.roarAnim=1.25;if(f===this.player)f.stamina-=18;
     this.audio.play?.('croak');this.vfx.strike?.('croak',new V(f.x,f.y+.4,f.z),f.yaw,.6);
-    const strength=28+f.tier*7;
-    for(const enemy of this.frogs){if(!this.hostile(f,enemy)||dist(f,enemy)>9)continue;enemy.morale=Math.max(0,enemy.morale-strength);if(f===this.player&&this.elapsed>=(enemy.fearReady||0)){enemy.fear=.85;enemy.fearReady=this.elapsed+9;enemy.fearFrom={x:f.x,z:f.z};}if(enemy.team!=='player'&&enemy.hp<enemy.maxHp*.42&&enemy.morale<20){enemy.surrendered=true;if(enemy.team!=='ally')enemy.guard=false;enemy.model.setOutline(COLORS.surrender,true);}}
-    for(const p of this.predators)if(!p.dead&&dist(f,p)<10&&p.phase!=='patrol'){p.rescueDamage+=20;if(f===this.player)intimidatePredator(this,p,strength);}
+    const modifiers=this.creekMode&&f===this.player?this.creekAbilityModifiers():null;
+    const strength=(28+f.tier*7)*(modifiers?.croakPower||1),croakRange=9*(modifiers?.croakRadius||1);
+    if(f===this.player)this.recordCreekAction?.('croak');
+    for(const enemy of this.frogs){if(!this.hostile(f,enemy)||dist(f,enemy)>croakRange)continue;enemy.morale=Math.max(0,enemy.morale-strength);if(f===this.player&&this.elapsed>=(enemy.fearReady||0)){enemy.fear=.85;enemy.fearReady=this.elapsed+9;enemy.fearFrom={x:f.x,z:f.z};}if(enemy.team!=='player'&&enemy.hp<enemy.maxHp*.42&&enemy.morale<20){enemy.surrendered=true;if(enemy.team!=='ally')enemy.guard=false;enemy.model.setOutline(COLORS.surrender,true);}}
+    for(const p of this.predators)if(!p.dead&&dist(f,p)<croakRange+1&&p.phase!=='patrol'){p.rescueDamage+=20;if(f===this.player)intimidatePredator(this,p,strength);}
     if(f===this.player){this.ui.toast({icon:'roar',progress:1,tone:'success'});this.discoverGuide('intimidate',{pause:false});}
   }
   recruitmentContext(f){
@@ -386,9 +422,9 @@ export class FrogGame {
     const cooldown=offer.guaranteed?0:Math.max(0,(f.persuadeCD||0)-this.elapsed),missing=Math.max(0,Math.ceil((offer.cost.food||0)-(this.resources.food||0))),reachable=fortLineClear(this.camps,p,f);
     const chance=offer.guaranteed?1:persuasionChance({allyPower:this.power(),enemyPower:this.power(f.team),hp:f.hp,maxHp:f.maxHp,morale:f.morale,campDestroyed:!!camp?.destroyed,neutral:f.team==='neutral'});
     const contract=this.campaign?.endless&&f.team==='neutral'&&!offer.instant;
-    const reason=!offer.eligible?'Δεν είναι διαθέσιμος για στρατολόγηση':distance>RECRUIT_RANGE?`Πλησίασε ${Math.ceil(distance-RECRUIT_RANGE)} μ. για συζήτηση`:!reachable?'Τα τείχη εμποδίζουν την επαφή · πλησίασε από την πύλη':cooldown>0?`Έτοιμο σε ${Math.ceil(cooldown)}″`:(offer.requirements?.length?offer.reason:'')|| (missing?`Λείπουν ${missing} τροφή`:offer.cost.food===0?'Δωρεάν ένταξη':offer.guaranteed?`${offer.cost.food} τροφή · σίγουρη ένταξη`:`Πειθώ ${Math.round(chance*100)}%`);
+    const reason=!offer.eligible?'Δεν είναι έτοιμος να ακολουθήσει':distance>RECRUIT_RANGE?`Πλησίασε ${Math.ceil(distance-RECRUIT_RANGE)} μ.${this.creekMode?'':' για συζήτηση'}`:!reachable?this.creekMode?'Βρες ένα ανοικτό πέρασμα για να πλησιάσεις':'Τα τείχη εμποδίζουν την επαφή · πλησίασε από την πύλη':cooldown>0?`Έτοιμο σε ${Math.ceil(cooldown)}″`:(offer.requirements?.length?offer.reason:'')|| (missing?`Λείπουν ${missing} τροφή`:offer.cost.food===0?(this.creekMode?'Έτοιμος να ακολουθήσει':'Δωρεάν ένταξη'):offer.guaranteed?`${offer.cost.food} τροφή · ${this.creekMode?'έτοιμος να ακολουθήσει':'σίγουρη ένταξη'}`:`${this.creekMode?'Εμπιστοσύνη':'Πειθώ'} ${Math.round(chance*100)}%`);
     const discussing=f.team==='neutral',inspecting=discussing&&this.activeRecruitId!==f.id;
-    return {type:'recruit',entity:f,cost:offer.cost,offer,available:offer.eligible&&offer.ready&&distance<=RECRUIT_RANGE&&reachable&&!missing&&!cooldown,canTalk:offer.eligible&&distance<=RECRUIT_RANGE&&reachable,reason,chance,cooldown,cooldownDuration:8,progress:contract?offer.requirements.filter(r=>r.done).length/Math.max(1,offer.requirements.length):cooldown?1-cooldown/8:chance,actionLabel:distance>RECRUIT_RANGE?'Πλησίασε':inspecting?'Απαιτήσεις':contract?'Συζήτησε':offer.guaranteed?'Στρατολόγησε':'Πείσε',actionIcon:offer.guaranteed?'recruit':'persuade',hint:`${f.name} · E · ${discussing?'Όροι ένταξης':offer.guaranteed?'Στρατολόγηση':'Πρόταση συμμαχίας'} · ${reason}`};
+    return {type:'recruit',entity:f,cost:offer.cost,offer,available:offer.eligible&&offer.ready&&distance<=RECRUIT_RANGE&&reachable&&!missing&&!cooldown,canTalk:offer.eligible&&distance<=RECRUIT_RANGE&&reachable,reason,chance,cooldown,cooldownDuration:8,progress:contract?offer.requirements.filter(r=>r.done).length/Math.max(1,offer.requirements.length):cooldown?1-cooldown/8:chance,actionLabel:distance>RECRUIT_RANGE?'Πλησίασε':inspecting?'Απαιτήσεις':this.creekMode?offer.ready?'Ακολούθησε':'Παρατήρησε':contract?'Συζήτησε':offer.guaranteed?'Στρατολόγησε':'Πείσε',actionIcon:offer.guaranteed?'recruit':'persuade',hint:`${f.name} · E · ${this.creekMode?'Γνωριμία':discussing?'Όροι ένταξης':offer.guaranteed?'Στρατολόγηση':'Πρόταση συμμαχίας'} · ${reason}`};
   }
   focusRecruit(f){
     const offer=recruitmentOffer(f,this.camps.find(c=>c.id===f?.home));
@@ -402,6 +438,7 @@ export class FrogGame {
     return true;
   }
   context(){
+    if(this.creekMode&&this.creek)return this.creekContext();
     const p=this.player,near=this.frogs.filter(f=>f!==p&&!f.dead&&dist(f,p)<4.5).sort((a,b)=>dist(a,p)-dist(b,p));
     const campFor=f=>this.camps.find(c=>c.id===f.home),offerFor=f=>recruitmentOffer(f,campFor(f)),recruitment=f=>this.recruitmentContext(f);
     // The visible conversation advertises E, so it owns that action until
@@ -443,6 +480,7 @@ export class FrogGame {
   interact(){
     if(!this.started||this.paused||this.ended||this.ui.isBlocking?.()||this.buildPlacement?.active)return false;
     const ctx=this.context(),p=this.player;this.discoverGuide('interact',{pause:false});
+    if(this.creekMode&&ctx.type?.startsWith('creek-'))return this.creekInteract(ctx);
     if(ctx.type==='recruit'&&ctx.entity.team==='neutral'&&ctx.canTalk){this.discoverGuide('recruit');return this.interactRecruitment(ctx.entity);}
     if(ctx.available===false){this.ui.toast({id:`interaction-${ctx.type}-${ctx.reason}`,icon:ctx.type==='recruit'?'recruit':ctx.type==='reeds'?'reeds':'forage',secondaryIcon:ctx.cooldown?'recover':'warning',label:ctx.reason,detail:ctx.hint||ctx.reason,value:ctx.cooldown?`${Math.ceil(ctx.cooldown)}″`:ctx.cost?.food,progress:ctx.progress,tone:'warning'});return false;}
     if(ctx.type==='recruit')return this.recruit(ctx.entity);
@@ -453,9 +491,9 @@ export class FrogGame {
     if(ctx.type==='ally'){this.selectFrog(ctx.entity.id,false);this.openPanel('roster');return true;}
     if(ctx.type==='gather'||ctx.type==='reeds'){
       if((p.gatherReadyAt||0)>this.elapsed)return false;
-      let food=0,reeds=3;if(ctx.entity){const count=Math.min(Math.floor(ctx.entity.flies),8);if(count<1)return false;ctx.entity.flies-=count;food=Math.max(1,Math.floor(count*.65));reeds=ctx.entity.rich?6:3;}
+      let food=0,reeds=this.creekMode?0:3;if(ctx.entity){const count=Math.min(Math.floor(ctx.entity.flies),8);if(count<1)return false;ctx.entity.flies-=count;food=Math.max(1,Math.floor(count*.65));reeds=this.creekMode?0:ctx.entity.rich?6:3;}
       p.gatherReadyAt=this.elapsed+4;
-      this.resources.food+=food;this.resources.reeds+=reeds;this.creditGathering(food,reeds);this.discoverGuide(food?'forage':'materials');this.ui.toast({id:'gather-resources',icon:'forage',resources:{food,reeds},label:'Συλλογή',detail:`Συλλογή: +${food} τροφή · +${reeds} υλικά`,progress:1,tone:'success'});this.audio.play?.('eat');this.vfx.number(new V(p.x,p.y,p.z),`+${reeds}`,'#dfd3a6');return true;
+      this.resources.food+=food;this.resources.reeds+=reeds;this.creditGathering(food,reeds);this.discoverGuide(food?'forage':'materials');this.ui.toast({id:'gather-resources',icon:'forage',resources:{food,reeds},label:'Συλλογή',detail:this.creekMode?`+${food} τροφή για την εξόρμηση`:`Συλλογή: +${food} τροφή · +${reeds} υλικά`,progress:1,tone:'success'});this.audio.play?.('eat');this.vfx.number(new V(p.x,p.y,p.z),`+${this.creekMode?food:reeds}`,'#dfd3a6');return true;
     }
     if(ctx.type==='none')this.ui.toast('Πλησίασε βάτραχο, σμήνος, όχθη ή καταφύγιο για αλληλεπίδραση.');
   }
@@ -475,10 +513,12 @@ export class FrogGame {
     return true;
   }
   campDiplomacy(c){
+    if(this.creekMode)return this.creekTerritoryOffer(c);
     const defenders=this.frogs.filter(f=>f.home===c.id&&f.team===c.team&&!f.dead&&!f.surrendered&&dist(f,c)<SHELTER_RADIUS+8);
     return campSurrenderOffer({...c,isStronghold:c===this.stronghold()},{defenders:defenders.length,leaderAlive:defenders.some(f=>f.leader),alliedPower:this.power(),enemyPower:this.power(c.team)});
   }
   persuadeCamp(c){
+    if(this.creekMode){const offer=this.creekTerritoryOffer(c);return offer.allowed?this.resolveCreekTerritory(c,offer.approach):false;}
     if(!c||c.destroyed||!c.team.startsWith('enemy'))return false;
     const offer=this.campDiplomacy(c);
     if(!offer.allowed){this.ui.toast({icon:'shield',tone:'warning',label:'Η φρουρά αντιστέκεται',detail:offer.reason});return false;}
@@ -489,6 +529,7 @@ export class FrogGame {
     this.ui.toast('Η φρουρά απέρριψε τη συμφωνία. Δεν ξοδεύτηκε τροφή.','warning');return false;
   }
   captureCamp(c){
+    if(this.creekMode)return this.resolveCreekTerritory(c,'contest');
     if(!c||c.team==='ally')return;const old=c.team;
     const firstCapture=!c.capturedOnce;c.capturedOnce=true;c.team='ally';c.destroyed=false;c.hp=Math.max(c.hp,c.maxHp*.5);c.gateHp=Math.max(c.gateHp||0,gateMaxHealth(c)*.5);c.morale=100;c.spawnTimer=0;c.underRaid=false;c.rebuildTimer=0;this.stats.campsCaptured++;c.supplyMigrated=false;settleCampSupplies(this.resources,c);
     let guarded=false;
@@ -510,6 +551,7 @@ export class FrogGame {
     this.save();return true;
   }
   damageCamp(c,amount,source,options={}){
+    if(this.creekMode){if(!c||c.destroyed||creekFriendlyTerritory(c))return;const leader=this.frogs.find(f=>f.home===c.id&&f.leader&&!f.dead&&!f.surrendered);if(!leader)return this.resolveCreekTerritory(c,'contest');if(source&&dist(source,leader)<10)this.damage(leader,amount,source,options);return;}
     if(!c||c.destroyed)return;
     if(source&&(source.dead||isSurrendered(source)||(source.team==='player'?'ally':source.team)===(c.team==='player'?'ally':c.team)))return;
     initializeFort(c);
@@ -560,12 +602,12 @@ export class FrogGame {
       const attackInvalid=intent.kind==='attack'&&(!intent.target||intent.target.dead||isSurrendered(intent.target)||intent.target.phase==='dormant'||(intent.target.team!=='predator'&&!this.hostile(f,intent.target)));
       const campInvalid=intent.kind==='camp-attack'&&(!intent.target||intent.target.destroyed||intent.target.team==='neutral'||(f.team==='player'?'ally':f.team)===(intent.target.team==='player'?'ally':intent.target.team));
       if(attackInvalid||campInvalid){f.intent=null;f.brain=0;requestFrogTravel(f,0,0);this.moveActor(f,dt);continue;}
-      const target=intent.target,siegeGate=intent.kind==='camp-attack'&&(target.gateHp??gateMaxHealth(target))>0&&!insideFort(target,f),goal=siegeGate?gatePoint(target,2.2):target,waypoint=fortWaypoint(this.camps,f,goal),routing=dist(waypoint,goal)>.1,d=dist(f,waypoint),travelling=f.team==='ally'&&!f.guard&&f.order!=='training';
+      const target=intent.target,siegeGate=!target.natural&&intent.kind==='camp-attack'&&(target.gateHp??gateMaxHealth(target))>0&&!insideFort(target,f),goal=siegeGate?gatePoint(target,2.2):intent.kind==='camp-attack'&&target.natural?(this.frogs.find(e=>e.home===target.id&&e.leader&&!e.dead&&!e.surrendered)||target):target,waypoint=fortWaypoint(this.camps,f,goal),routing=dist(waypoint,goal)>.1,d=dist(f,waypoint),travelling=f.team==='ally'&&!f.guard&&f.order!=='training';
       let speed=(f.team==='ally'?(f.role==='scout'?MOVEMENT.allyScout:MOVEMENT.ally):(f.role==='scout'?MOVEMENT.enemyScout:MOVEMENT.enemy))*(f.stomach<10?.8:1);
       // A hopping or sprinting player must not permanently outrun the squad.
       // Catch-up remains physical movement, and ends as allies reach formation/combat range.
       if(travelling&&(intent.formation||intent.support)&&d>4.5)speed=Math.max(speed,dist(f,p)>22?MOVEMENT.farCatchUp:MOVEMENT.catchUp);
-      const stop=routing?.25:siegeGate?2.8:intent.kind==='attack'?(target.team==='predator'?(f.role==='hunter'?7:Math.min(4.8,2.8+Math.max(0,(target.scale||1)-1)*.6)):f.role==='hunter'?5:1.6):intent.kind==='camp-attack'?SHELTER_RADIUS*.76:intent.kind==='eat'?2:1.1;
+      const stop=routing?.25:siegeGate?2.8:intent.kind==='attack'?(target.team==='predator'?(f.role==='hunter'?7:Math.min(4.8,2.8+Math.max(0,(target.scale||1)-1)*.6)):f.role==='hunter'?5:1.6):intent.kind==='camp-attack'?(target.natural?3.6:SHELTER_RADIUS*.76):intent.kind==='eat'?2:1.1;
       if(d>stop+.035){const dx=(waypoint.x-f.x)/Math.max(d,.01),dz=(waypoint.z-f.z)/Math.max(d,.01);let sx=0,sz=0;for(const other of this.nearbyFrogs(f,1.5)){if(other===f||other.dead)continue;const dd=dist(f,other);if(dd<1.15&&dd>.01){sx+=(f.x-other.x)/dd*(1.15-dd);sz+=(f.z-other.z)/dd*(1.15-dd);}}const slow=f.stun>0?.2:1;requestFrogTravel(f,(dx*speed+sx*2)*slow,(dz*speed+sz*2)*slow,{distance:Math.max(0,d-stop)});
       }else{requestFrogTravel(f,0,0);if(d>.1&&f.grounded)f.yaw=angleLerp(f.yaw,Math.atan2(target.x-f.x,target.z-f.z),dt*10);
         if(!routing&&intent.kind==='attack'&&!target.dead&&f.attackCD<=0&&dist(f,target)<=stop+.3&&fortLineClear(this.camps,f,target)){f.attackCD=1.15+this.random()*.35;f.attackAnim=.4;f.attackDuration=.4;f.attackType=f.role==='hunter'?'tongue':'kick';queueCombatStrike(this,{source:f,target,kind:f.attackType,damage:attackDamage(f.role==='bruiser'?14:10,f.tier,f.level),range:stop+.6,yaw:f.yaw,arc:-.2});if(f.role==='hunter')this.vfx.tongue(f,new V(target.x,target.y+.6,target.z));if(f.specialCD<=0){if(f.role==='caller')this.intimidate(f);else if(d<4)this.special(f);}}
@@ -577,10 +619,11 @@ export class FrogGame {
     }
   }
   thinkFrog(f,allies){
+    if(this.creekMode){const rival=this.creekRivalIntent(f);if(rival)return rival;const tactical=this.creekTacticalIntent(f);if(tactical)return tactical;const companion=this.creekCompanionIntent(f);if(companion)return companion;}
     if(f.fear>0&&f.fearFrom){const a=Math.atan2(f.x-f.fearFrom.x,f.z-f.fearFrom.z);return {kind:'move',target:{x:f.x+Math.sin(a)*4,z:f.z+Math.cos(a)*4}};}
     const own=f.team==='ally',home=this.camps.find(c=>c.id===f.home&&!c.destroyed);
     let order=f.order||(f.guard?'guard':'follow');
-    if(own&&f.guard&&(!home||home.team!=='ally')){f.guard=false;f.order=order='follow';f.orderTarget=null;f.combatTarget=null;}
+    if(own&&f.guard&&(!home||home.team!=='ally')&&!this.creekMode){f.guard=false;f.order=order='follow';f.orderTarget=null;f.combatTarget=null;}
     if(f.team==='neutral')return {kind:'move',target:{x:f.x+Math.sin(this.elapsed*.15+f.seed)*.2,z:f.z+Math.cos(this.elapsed*.15+f.seed)*.2}};
     const activePred=pr=>pr&&!pr.dead&&pr.hp>0&&!['patrol','dormant','dead','flee'].includes(pr.phase);
     const validTarget=t=>t&&(t.model?!t.dead&&!isSurrendered(t)&&t.phase!=='dormant'&&(t.team==='predator'||this.hostile(f,t)):!t.destroyed&&typeof t.team==='string'&&t.team.startsWith('enemy'));
@@ -655,12 +698,14 @@ export class FrogGame {
   }
   creditGathering(food=0,reeds=0){this.stats.gatheredFood=(this.stats.gatheredFood||0)+Math.max(0,food);this.stats.gatheredReeds=(this.stats.gatheredReeds||0)+Math.max(0,reeds);if(this.campaign)this.campaign=recordGathering(this.campaign,food,reeds);}
   updateRoyalStatus({quiet=false}={}){
+    if(this.creekMode)return false;
     const p=this.player;if(!p||p.crowned||!royalProgress(p,this.allKingdomCamps()).crowned)return false;
     p.crowned=true;p.model.setCrowned?.(true);this.updateFrogPortrait?.(p,true);
     if(!quiet){this.ui.toast({id:'coronation',icon:'crown',label:'Στέφθηκες Βασιλιάς',detail:'Ένωσες τρία αντίπαλα οχυρά. Το στέμμα είναι πλέον δικό σου.',tone:'success'});this.audio.play?.('levelup');}
     return true;
   }
   updateCampaign(force=false){
+    if(this.creekMode)return;
     if(!this.campaign||(!force&&this.elapsed<(this.campaignCheckAt||0)))return;this.campaignCheckAt=this.elapsed+.25;
     if(this.updateRoyalStatus())this.save();
     const result=advanceCampaign(this.campaign,this.campaignMetrics());this.campaign=result.state;
@@ -668,11 +713,12 @@ export class FrogGame {
     this.syncCampaignPredators();
   }
   syncCampaignPredators(){
+    if(this.creekMode)return;
     if(!this.campaign)return;if(this.campaign.endless){tickRealmEvents(this,0);return;}const anchors=this.world.predatorAnchors||{heron:{x:34*WORLD_SCALE,z:14*WORLD_SCALE},snake:{x:-38*WORLD_SCALE,z:-22*WORLD_SCALE},fish:{x:12*WORLD_SCALE,z:48*WORLD_SCALE}};
     if(this.campaign.phase==='hunters')for(const type of ['heron','snake','fish']){if(!this.campaign.defeated.includes(type)&&!this.predators.some(p=>p.type===type&&!p.boss&&!p.dead))this.spawnPredator({type,...anchors[type],campaignTracked:true});}
     if(this.campaign.phase==='bosses'){const type=nextBossType(this.campaign);if(type&&!this.predators.some(p=>p.type===type&&p.boss&&!p.dead))this.spawnPredator({type,...(this.world.bossAnchors?.[type]||anchors[type]),boss:true,campaignTracked:true});}
   }
-  onPredatorDefeated(p){if(this.campaign?.endless){recordRealmPredatorDefeat(this,p);this.updateCampaign(true);this.save();return;}if(!p?.campaignTracked||p.campaignKillRecorded||!this.campaign)return;p.campaignKillRecorded=true;this.campaign=recordCampaignKill(this.campaign,p.type,{boss:!!p.boss});this.updateCampaign(true);this.save();}
+  onPredatorDefeated(p){if(this.creekMode){p.rewardGranted=true;p.eventDefeatedAt=this.elapsed;this.save();return;}if(this.campaign?.endless){recordRealmPredatorDefeat(this,p);this.updateCampaign(true);this.save();return;}if(!p?.campaignTracked||p.campaignKillRecorded||!this.campaign)return;p.campaignKillRecorded=true;this.campaign=recordCampaignKill(this.campaign,p.type,{boss:!!p.boss});this.updateCampaign(true);this.save();}
   trainSquad(squad){
     const camp=this.ownedCamps().filter(c=>c.buildings?.training).sort((a,b)=>dist(a,this.player)-dist(b,this.player))[0];
     if(!camp){this.ui.toast({icon:'training',progress:0,tone:'warning',detail:'Χτίσε χώρο εκπαίδευσης.'});return false;}
@@ -745,6 +791,7 @@ export class FrogGame {
     return count;
   }
   updateEconomy(dt){
+    if(this.creekMode){this.updateCreekSociety(dt);return;}
     const day=dayState(this.elapsed);
     this.finishLegacyRivalRecovery();
     normalizeGuardOrders(this);updateGarrisonAlerts(this);
@@ -789,7 +836,7 @@ export class FrogGame {
     const corpses=this.frogs.filter(f=>f!==this.player&&f.dead&&(f.deadTime||0)>10);
     if(corpses.length){for(const f of corpses){this.scene?.remove(f.model.group);f.model.dispose?.();this.selectedIds?.delete(f.id);if(this.portraits)delete this.portraits[f.id];}this.frogs=this.frogs.filter(f=>!corpses.includes(f));}
   }
-  campSafe(c){return !this.frogs.some(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered&&dist(f,c)<SHELTER_RADIUS+9)&&!this.predators.some(p=>!p.dead&&dist(p,c)<SHELTER_RADIUS+9&&!['patrol','dormant','dead'].includes(p.phase));}
+  campSafe(c){return !this.frogs.some(f=>(this.creekMode?this.hostile(this.player,f):f.team.startsWith('enemy'))&&!f.dead&&!f.surrendered&&dist(f,c)<SHELTER_RADIUS+9)&&!this.predators.some(p=>!p.dead&&dist(p,c)<SHELTER_RADIUS+9&&!['patrol','dormant','dead'].includes(p.phase));}
   launchRaid(){
     const bases=this.ownedCamps();if(!bases.length)return [];
     const enemies=this.camps.filter(c=>c.team.startsWith('enemy')&&!c.destroyed);if(!enemies.length)return [];
@@ -817,6 +864,7 @@ export class FrogGame {
     const s=this.world.getSurface(p.x,p.z);if(s.type==='land'||(s.type==='rock'&&s.platform?.radius>3.5))return {x:p.x,z:p.z};return null;
   }
   buildOptions(){
+    if(this.creekMode)return [];
     const c=this.nearestHome(),place=this.placement();if(c)c.safe=this.campSafe(c);return [...Object.entries(BUILDINGS).map(([type,b])=>{
       let reason='';if(type==='shelter'){if(!place)reason='Πλησίασε ελεύθερη νησίδα, όχθη ή ερείπιο, μακριά από άλλη βάση.';}
       else if(!c)reason='Πλησίασε ενεργό φιλικό καταφύγιο.';
@@ -828,14 +876,15 @@ export class FrogGame {
       return {type,...b,enabled:!reason,reason};
     }),{type:'promote-player',name:'Προαγωγή αρχηγού',description:`Βαθμίδα ${this.player.tier+1}: περισσότερη ζωή και ισχυρότερα χτυπήματα. Ο εξοπλισμός κατασκευάζεται χωριστά στο εργαστήριο. Απαιτεί επίπεδο ${this.player.tier*2}.`,cost:promoteCost(this.player),enabled:canPromote(this.player,this.resources),reason:this.player.tier>=3?'Ανώτερη βαθμίδα.':`Απαιτεί επίπεδο ${this.player.tier*2} και τους απαραίτητους πόρους.`}];
   }
-  build(type){return PLACEABLE_BUILDINGS.has(type)?this.beginBuildingPlacement(type):this.commitBuild(type);}
+  build(type){if(this.creekMode){this.openPanel('exploration');return false;}return PLACEABLE_BUILDINGS.has(type)?this.beginBuildingPlacement(type):this.commitBuild(type);}
   buildDayState(){return dayState(this.elapsed);}
-  beginBuildingPlacement(type,options={}){return beginBuildingPlacement(this,type,options);}
+  beginBuildingPlacement(type,options={}){if(this.creekMode)return false;return beginBuildingPlacement(this,type,options);}
   updateBuildingPlacement(pointer){return updateBuildingPlacement(this,pointer);}
   rotateBuildingPlacement(direction){const ok=rotateBuildingPlacement(this,direction);this.updateUI(dayState(this.elapsed));return ok;}
   confirmBuildingPlacement(){updateBuildingPlacement(this);const ok=confirmBuildingPlacement(this);this.updateUI(dayState(this.elapsed));return ok;}
   cancelBuildingPlacement(){const ok=cancelBuildingPlacement(this);this.updateUI(dayState(this.elapsed));return ok;}
   commitBuild(type,placementRecord=null){
+    if(this.creekMode)return false;
     this.lastBuildCommitted=false;
     if(type==='promote-player'){if(promote(this.player,this.resources)){this.player.model.setTier(this.player.tier);this.updateFrogPortrait(this.player,true);this.ui.toast(`Αρχηγός βαθμίδας ${this.player.tier}!`,'success');this.audio.play?.('levelup');this.save();}return;}
     if(this.campaign?.endless){const ok=queueConstruction(this,type,placementRecord);this.updateUI(dayState(this.elapsed));this.ui.renderPanel?.(true);return ok;}
@@ -850,7 +899,7 @@ export class FrogGame {
       spend(this.resources,def.cost);if(type==='upgrade'){const oldGate=gateMaxHealth(c);c.tier++;c.maxHp+=150;c.hp=Math.min(c.maxHp,c.hp+180);c.gateMaxHp=gateMaxHealth(c);c.gateHp=Math.min(c.gateMaxHp,(c.gateHp||0)+c.gateMaxHp-oldGate);}else if(type==='repair'){c.hp=Math.min(c.maxHp,c.hp+150);c.gateMaxHp=gateMaxHealth(c);c.gateHp=Math.min(c.gateMaxHp,(c.gateHp||0)+120);}else{c.buildings[type]=true;if(type==='nursery')c.spawnTimer=0;if(placementRecord?.local){c.buildingPlacements??={};c.buildingPlacements[type]={...placementRecord.local};}if(type==='palisade'){c.maxHp+=180;c.hp+=180;c.gateMaxHp=gateMaxHealth(c);c.gateHp=Math.min(c.gateMaxHp,(c.gateHp||0)+140);delete c.buildingPlacements?.palisade;}}this.world.updateShelter(c.mesh,{...c,storage:this.campStorage(c)});this.ui.toast(`${def.name}: ολοκληρώθηκε στο ${c.name}.`,'success');}
     this.lastBuildCommitted=true;this.audio.play?.('build');this.vfx.strike?.('debris',new V(this.player.x,this.player.y+.5,this.player.z),this.player.yaw,1);this.updateUI(dayState(this.elapsed));this.ui.renderPanel?.(true);this.save();return true;
   }
-  consume(){const c=this.nearestHome();if(!c){this.ui.toast('Πρέπει να βρίσκεσαι σε φιλικό καταφύγιο.','warning');return;}const day=dayState(this.elapsed).day;if(c.mealDay!==day){c.mealDay=day;c.mealCount=0;}if(c.mealCount>=2){this.ui.toast('Οι δύο εφεδρικές μερίδες της ημέρας εξαντλήθηκαν. Βγες για κυνήγι.','warning');return;}if(this.player.stomach>85){this.ui.toast('Δεν χρειάζεσαι ακόμη εφεδρικό γεύμα.');return;}if(!spend(this.resources,{food:10})){this.ui.toast('Χρειάζονται 10 τροφή για μια εφεδρική μερίδα.','warning');return;}eat(this.player,25);c.mealCount++;this.audio.play?.('eat');this.ui.toast('+25 στομάχι. Η εφεδρική τροφή είναι περιορισμένη.','food');}
+  consume(){if(this.creekMode)return this.consumeCreekFood();const c=this.nearestHome();if(!c){this.ui.toast('Πρέπει να βρίσκεσαι σε φιλικό καταφύγιο.','warning');return;}const day=dayState(this.elapsed).day;if(c.mealDay!==day){c.mealDay=day;c.mealCount=0;}if(c.mealCount>=2){this.ui.toast('Οι δύο εφεδρικές μερίδες της ημέρας εξαντλήθηκαν. Βγες για κυνήγι.','warning');return;}if(this.player.stomach>85){this.ui.toast('Δεν χρειάζεσαι ακόμη εφεδρικό γεύμα.');return;}if(!spend(this.resources,{food:10})){this.ui.toast('Χρειάζονται 10 τροφή για μια εφεδρική μερίδα.','warning');return;}eat(this.player,25);c.mealCount++;this.audio.play?.('eat');this.ui.toast('+25 στομάχι. Η εφεδρική τροφή είναι περιορισμένη.','food');}
   rallyAlly(f){
     if(!f||f.team!=='ally'||f.dead||!isSurrendered(f))return false;
     f.surrendered=false;f.surrenderTimer=0;f.fear=0;f.fearFrom=null;f.morale=Math.max(35,f.morale||0);
@@ -858,6 +907,7 @@ export class FrogGame {
     return true;
   }
   gangCommand(command,selection=null){
+    if(this.creekMode){const handled=this.creekGroupCommand(command,selection);if(handled!==null)return handled;if(command==='train')return false;this.recordCreekAction?.('command');}
     const ids=selection?new Set(selection):null;
     if(command==='guard'){
       const camp=this.nearestHome(SHELTER_RADIUS+6);if(!camp){this.ui.toast({icon:'camp',tone:'warning',label:'Επίλεξε καταφύγιο',detail:'Πλησίασε δικό σου καταφύγιο ή άνοιξε V → Άμυνα για να επιλέξεις βάση.'});return false;}
@@ -867,7 +917,7 @@ export class FrogGame {
     if(command==='train')return this.trainSquad(squad);
     if(['flank-left','flank-right'].includes(command)){const ok=orderFlank(this,squad.map(f=>f.id),command.endsWith('left')?'left':'right');if(ok){this.discoverGuide('flank');this.save();}return ok;}
     let target=null;
-    if(command==='attack'){target=this.aimTarget?.kind==='actor'?this.aimTarget.entity:null;if(!target||(!this.hostile(this.player,target)&&target.team!=='predator'))target=this.hunt&&!this.hunt.dead?this.hunt:this.camps.filter(c=>c.team.startsWith('enemy')&&!c.destroyed&&dist(c,this.player)<38).sort((a,b)=>dist(a,this.player)-dist(b,this.player))[0];if(!target){this.ui.toast({icon:'attack',progress:0,tone:'warning'});return false;}}
+    if(command==='attack'){target=this.aimTarget?.kind==='actor'?this.aimTarget.entity:null;if(!target||(!this.hostile(this.player,target)&&target.team!=='predator'))target=this.hunt&&!this.hunt.dead?this.hunt:this.camps.filter(c=>c.team.startsWith('enemy')&&!c.destroyed&&(!this.creekMode||!creekFriendlyTerritory(c))&&dist(c,this.player)<38).sort((a,b)=>dist(a,this.player)-dist(b,this.player))[0];if(!target){this.ui.toast({icon:'attack',progress:0,tone:'warning'});return false;}}
     if(!ids){this.command=command==='regroup'?'follow':command;this.targetCommand=target;}
     for(const f of squad){if(command==='follow'||command==='regroup')this.rallyAlly(f);if(f.trainingPaid)this.cancelTraining(f);if(command==='forage')f.returnOrder=f.guard?'guard':'follow';else f.returnOrder='follow';f.order=command==='regroup'?'follow':command;f.guard=false;f.orderTarget=target;f.tacticalPath=[];f.tacticalTargetId=null;f.combatTarget=null;f.combatUntil=0;f.fear=0;f.intent=null;f.brain=0;}
     this.ui.toast({icon:{guard:'shield',attack:'attack',forage:'forage',regroup:'regroup',follow:'follow'}[command]||'group',value:squad.length,progress:1,tone:'success'});this.audio.play?.('croak');this.updateUI(dayState(this.elapsed));this.ui.renderPanel?.(true);this.save();return true;
@@ -887,11 +937,12 @@ export class FrogGame {
     if(!this.started||this.ended||this.buildPlacement?.active)return false;
     this.ui.toggleConceptPanels?.();this.ignoreUnlockUntil=performance.now()+700;this.input.clear?.();this.input.unlock?.();return true;
   }
-  openPanel(name){if(this.buildPlacement?.active)return;if(name==='recruitment'){const ctx=this.context();return ctx.type==='recruit'&&ctx.entity.team==='neutral'?this.showRecruitment(ctx.entity):false;}if(this.ui.panel===name){this.ui.closePanels();if(this.canLockGameplayPointer())this.input.lock();return;}this.updateUI(dayState(this.elapsed));this.ui.showPanel(name);this.ignoreUnlockUntil=performance.now()+700;this.input.clear?.();this.input.unlock();}
+  openPanel(name){if(this.creekMode&&name==='build')name='exploration';if(this.buildPlacement?.active)return;if(name==='recruitment'){const ctx=this.context();return ctx.type==='recruit'&&ctx.entity.team==='neutral'?this.showRecruitment(ctx.entity):false;}if(this.ui.panel===name){this.ui.closePanels();if(this.canLockGameplayPointer())this.input.lock();return;}this.updateUI(dayState(this.elapsed));this.ui.showPanel(name);this.ignoreUnlockUntil=performance.now()+700;this.input.clear?.();this.input.unlock();}
   onAction(action,payload={}){
     // A compact Pause leaves the world visible, but its HUD cannot spend
     // resources, issue orders or trigger attacks until the player resumes.
     if(this.paused&&!['save','restart','pause','hud-disclosure','guide-open','guide-close','recruit-close'].includes(action))return;
+    if(this.creekMode&&this.handleCreekAction(action,payload))return;
     if(this.handleKingdomAction(action,payload))return;
     if(action==='hud-disclosure'){if(payload.open&&payload.name!=='objectives'){this.ignoreUnlockUntil=performance.now()+700;this.input.clear?.();this.input.unlock?.();}return;}
     if(action==='begin-placement'){this.beginBuildingPlacement(payload.type,{dragging:!!payload.dragging});return;}
@@ -916,6 +967,7 @@ export class FrogGame {
     else if(action==='pause')this.pause();else if(action==='panel-open')this.openPanel(payload.name);else if(action==='cycle-view')cycleGameView(this);
   }
   objective(){
+    if(this.creekMode)return this.hunt&&!this.hunt.dead?predatorObjective(this.hunt):this.creekObjective();
     const job=this.economy?.jobs?.find(j=>j.kind==='construction');if(job&&!this.hunt)return job.workRate>0?`Χτίζεται ${BUILDINGS[job.type].name}: ${Math.floor(job.progress/job.duration*100)}%. Προστάτευσε τους οικοδόμους.`:'Πλησίασε τον πάγκο με τη σημαία στο εργοτάξιο ή φέρε ελεύθερους συνοδούς για να χτίσουν.';
     if(this.hunt&&!this.hunt.dead)return predatorObjective(this.hunt);
     if(!this.ownedCamps().length){if(this.player.stomach<85)return 'Κυνήγησε μύγες, τάισε τη συμμορία και βρες μια ασφαλή νησίδα.';return 'Το στομάχι σου γέμισε. Πήγαινε στη νησίδα κοντά στην αρχή και πάτησε V για καταφύγιο.';}
@@ -928,21 +980,22 @@ export class FrogGame {
     const p=this.player,c=this.nearestHome(),allies=this.allies(),original=this.camps.filter(c=>c.originalEnemy),won=original.filter(c=>!c.destroyed&&c.team==='ally').length;
     const selectedIds=[...(this.selectedIds||[])].filter(id=>allies.some(f=>f.id===id));
     const hunt=this.hunt&&!this.hunt.dead?{...this.hunt,portrait:this.portraits?.[this.hunt.boss?'boss-'+this.hunt.type:this.hunt.type],objective:predatorObjective(this.hunt)}:null;
-    const roster=allies.map(f=>({id:f.id,name:f.name,hp:f.hp,maxHp:f.maxHp,stomach:f.stomach,maxStomach:100,level:f.level,tier:f.tier,role:f.role,guard:f.guard,order:f.order||(f.guard?'guard':'follow'),selected:selectedIds.includes(f.id),portrait:this.portraits?.[f.id],home:f.home,healing:(f.healingUntil||0)>this.elapsed,trained:f.trained,trainingProgress:f.trainingPaid?(f.trainingProgress||0)/TRAINING.duration:0,canTrain:canTrain(f,c,this.resources),canPromote:canPromote(f,this.resources),promoteCost:promoteCost(f),team:'ally',skinColor:f.skinColor}));
+    const roster=allies.map(f=>({id:f.id,name:f.name,hp:f.hp,maxHp:f.maxHp,stomach:f.stomach,maxStomach:100,level:f.level,tier:f.tier,role:f.role,creekTrait:f.creekTrait,guard:f.guard,order:f.order||(f.guard?'guard':'follow'),selected:selectedIds.includes(f.id),portrait:this.portraits?.[f.id],home:f.home,healing:(f.healingUntil||0)>this.elapsed,trained:f.trained,trainingProgress:f.trainingPaid?(f.trainingProgress||0)/TRAINING.duration:0,canTrain:canTrain(f,c,this.resources),canPromote:canPromote(f,this.resources),promoteCost:promoteCost(f),team:'ally',skinColor:f.skinColor}));
     const ctx=this.context(),contextState={type:ctx.type,progress:ctx.progress??(ctx.type==='gather'?Math.min(1,(ctx.entity?.flies||0)/20):ctx.type==='home'?(c?.hp||1)/(c?.maxHp||1):1),portrait:ctx.entity?.model?this.portraits?.[ctx.entity.id]:null,
       name:ctx.entity?.name,cost:ctx.cost,available:ctx.type==='recruit'&&ctx.canTalk&&this.campaign?.endless?true:ctx.available,reason:ctx.reason,hint:ctx.hint,actionLabel:ctx.actionLabel,actionIcon:ctx.actionIcon,canTalk:ctx.canTalk,cooldown:ctx.cooldown,cooldownDuration:ctx.cooldownDuration,chance:ctx.chance};
-    const placement=this.placement();
+    const placement=this.creekMode?null:this.placement(),creek=this.creekMode?this.creekSnapshot():null;
     this.ui.update({
-      ...this.kingdomState(),
-      player:{hp:p.hp,maxHp:p.maxHp,stamina:p.stamina,maxStamina:100,stomach:p.stomach,maxStomach:100,level:p.level,xp:p.xp,nextXp:nextLevelXP(p.level),tier:p.tier,crowned:p.crowned,rank:royalProgress(p,this.allKingdomCamps()),portrait:this.portraits?.[p.id],specialIndex:this.specialIndex,specialCD:p.specialCD,specialDuration:p.specialDuration||5.2,attackCD:p.attackCD,roarCD:p.roarCD,dodgeCD:p.dodgeCD},
-      resources:this.resources,buildPlacement:this.buildPlacement?{active:true,type:this.buildPlacement.type,valid:this.buildPlacement.valid,reason:this.buildPlacement.reason,yaw:this.buildPlacement.yaw,cost:this.buildPlacement.cost,dragging:this.buildPlacement.dragging}:null,allies:roster,selectedIds,defenses:defenseSnapshot(this),capacity:null,recruitmentUnlimited:true,camps:this.camps,predator:hunt,context:contextState,campaign:{...this.campaign,objectives:campaignObjectives(this.campaign,this.campaignMetrics())},training:TRAINING,placement:{valid:!!placement,x:placement?.x,z:placement?.z},
-      objectiveVisual:{type:'conquer',current:won,total:original.length,progress:won/Math.max(1,original.length),targets:original.map(c=>({id:c.id,team:c.team==='ally'?'ally':c.team,done:!c.destroyed&&c.team==='ally'}))},
-      objective:this.objective(),objectiveProgress:won+' / '+original.length,hint:ctx.hint,timeLabel:day.timeLabel,day:day.day,night:day.night,
-      world:{radius:this.world.radius||WORLD_RADIUS,mapRegions:this.world.mapRegions||[],routes:this.world.routes||[],stronghold:this.strongholdSnapshot(),player:{x:p.x,z:p.z,yaw:p.yaw},platforms:this.world.platforms,hotspots:this.world.hotspots,camps:[...this.camps,...this.world.campSites.filter(s=>!this.camps.some(c=>dist(c,s)<8)).map(s=>({...s,team:'neutral'}))],enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead),allies,predators:this.predators.filter(pr=>!pr.dead&&pr.phase!=='dormant').map(pr=>({id:pr.id,name:pr.name,type:pr.type,x:pr.x,z:pr.z,hp:pr.hp,boss:pr.boss,hunting:pr===this.hunt}))},
-      stats:this.stats,fps:Math.round(this.fps),paused:this.paused,inCamp:!!c,currentCamp:c,currentCampId:c?.id,campName:c?.name,buildOptions:this.buildOptions(),squadMode:this.command,gangCount:allies.length+(p.dead?0:1),savedAt:this.savedAt,aiming:!!this.aimTarget,viewMode:this.viewMode,mouse:this.input.mouse,locationName:c?.name||'Ο Μεγάλος Ποταμός'
+      ...this.kingdomState(),creek,
+      player:{hp:p.hp,maxHp:p.maxHp,stamina:p.stamina,maxStamina:100,stomach:p.stomach,maxStomach:100,level:p.level,xp:p.xp,nextXp:nextLevelXP(p.level),tier:p.tier,crowned:p.crowned,rank:royalProgress(p,this.allKingdomCamps()),portrait:this.portraits?.[p.id],specialIndex:this.specialIndex,specialCD:p.specialCD,specialDuration:p.specialDuration||5.2,attackCD:p.attackCD,roarCD:p.roarCD,dodgeCD:p.dodgeCD,breath:p.breath??100,diving:!!p.diving,hiddenInCover:!!p.creekConcealed},
+      resources:this.resources,buildPlacement:this.buildPlacement?{active:true,type:this.buildPlacement.type,valid:this.buildPlacement.valid,reason:this.buildPlacement.reason,yaw:this.buildPlacement.yaw,cost:this.buildPlacement.cost,dragging:this.buildPlacement.dragging}:null,allies:roster,selectedIds,defenses:defenseSnapshot(this),capacity:null,recruitmentUnlimited:true,camps:this.camps,predator:hunt,context:contextState,campaign:{...this.campaign,objectives:this.creekMode?this.creekObjectives():campaignObjectives(this.campaign,this.campaignMetrics())},training:TRAINING,placement:{valid:!!placement,x:placement?.x,z:placement?.z},
+      objectiveVisual:this.creekMode?{type:'explore',current:creek.discoveryCount,total:creek.totalLandmarks,progress:creek.discoveryCount/Math.max(1,creek.totalLandmarks),targets:creek.discoveries.map(d=>({id:d.id,done:d.found}))}:{type:'conquer',current:won,total:original.length,progress:won/Math.max(1,original.length),targets:original.map(c=>({id:c.id,team:c.team==='ally'?'ally':c.team,done:!c.destroyed&&c.team==='ally'}))},
+      objective:this.objective(),objectiveProgress:this.creekMode?creek.discoveryCount+' / '+creek.totalLandmarks:won+' / '+original.length,hint:ctx.hint,timeLabel:day.timeLabel,day:day.day,night:day.night,
+      world:{creek,radius:this.world.radius||WORLD_RADIUS,mapRegions:this.world.mapRegions||[],routes:this.world.routes||[],stronghold:this.strongholdSnapshot(),player:{x:p.x,z:p.z,yaw:p.yaw},platforms:this.world.platforms,hotspots:this.world.hotspots,camps:[...this.camps,...(this.creekMode?[]:this.world.campSites.filter(s=>!this.camps.some(c=>dist(c,s)<8)).map(s=>({...s,team:'neutral'})))],enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead),allies,predators:this.predators.filter(pr=>!pr.dead&&pr.phase!=='dormant').map(pr=>({id:pr.id,name:pr.name,type:pr.type,x:pr.x,z:pr.z,hp:pr.hp,boss:pr.boss,hunting:pr===this.hunt}))},
+      stats:this.stats,fps:Math.round(this.fps),paused:this.paused,inCamp:!!c,currentCamp:c,currentCampId:c?.id,campName:c?.name,buildOptions:this.buildOptions(),squadMode:this.command,gangCount:allies.length+(p.dead?0:1),savedAt:this.savedAt,aiming:!!this.aimTarget,viewMode:this.viewMode,mouse:this.input.mouse,locationName:c?.name||(this.creekMode?'Το ζωντανό ρυάκι':'Ο Μεγάλος Ποταμός')
     });
   }
   strongholdSnapshot(){
+    if(this.creekMode)return null;
     const c=this.stronghold();if(!c)return null;
     const plan=this.rivalPlanFor(c),population=this.frogs.filter(f=>f.home===c.id&&f.team===c.team&&!f.dead&&!f.surrendered&&!f.raidTarget&&dist(f,c)<SHELTER_RADIUS+15).length;
     return {id:c.id,name:c.name,x:c.x,z:c.z,population,target:plan.garrison};
@@ -1044,8 +1097,8 @@ export class FrogGame {
   }
   checkVictory(){if(this.campaign?.endless)return;if(!this.won&&this.campaign?.phase==='complete'){this.won=true;this.paused=true;this.ended=true;this.input.unlock();this.audio.play?.('victory');this.ui.showEnding(true,{...this.stats,days:dayState(this.elapsed).day});this.save();}}
   readSave(){try{return validateSave(JSON.parse(localStorage.getItem(SAVE_KEY)||'null'));}catch{return null;}}
-  inspect(){return {version:'2.1.3',realm:this.realms?.active,constructionJobs:this.economy?.jobs?.filter(j=>j.kind==='construction').map(j=>({id:j.id,type:j.type,progress:j.progress,duration:j.duration,workers:j.workersPresent,status:j.status})),started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
+  inspect(){return {version:'3.0.0',realm:this.realms?.active,constructionJobs:this.economy?.jobs?.filter(j=>j.kind==='construction').map(j=>({id:j.id,type:j.type,progress:j.progress,duration:j.duration,workers:j.workersPresent,status:j.status})),started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
 }
 
 
-Object.assign(FrogGame.prototype,kingdomMethods);
+Object.assign(FrogGame.prototype,kingdomMethods,creekMethods,creekRivalMethods,creekMovementMethods);

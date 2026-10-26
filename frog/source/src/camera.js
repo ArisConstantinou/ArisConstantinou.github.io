@@ -18,18 +18,30 @@ function surfaceHeight(game,x,z){
   else if(game.world?.getSurface)h=game.world.getSurface(x,z)?.height;
   return Number.isFinite(h)?h:0;
 }
+function cameraCollisionHeight(game,x,z){
+  const world=game.world;
+  if(game.creekMode&&world?.natural&&world.getSurface&&world.getTerrainHeight){
+    const surface=world.getSurface(x,z);
+    // A swimmer's support plane is not solid terrain. Treating it as ground
+    // collapses the camera boom as soon as the tracked frog dives below it.
+    // Physical lily pads and rocks remain solid camera obstructions.
+    const height=surface?.type==='water'?world.getTerrainHeight(x,z):surface?.height;
+    if(Number.isFinite(height))return height;
+  }
+  return surfaceHeight(game,x,z);
+}
 function preventTerrainClipping(game,from,to,data){
   // Pull the shoulder camera forward when a bank or rock interrupts its boom.
   for(let i=3;i<=18;i++){
     const t=i/18;
     data.sample.lerpVectors(from,to,t);
-    const ground=surfaceHeight(game,data.sample.x,data.sample.z);
+    const ground=cameraCollisionHeight(game,data.sample.x,data.sample.z);
     if(data.sample.y<ground+.28){
       to.lerpVectors(from,to,Math.max(.16,t-.085));
       break;
     }
   }
-  to.y=Math.max(to.y,surfaceHeight(game,to.x,to.z)+.3);
+  to.y=Math.max(to.y,cameraCollisionHeight(game,to.x,to.z)+.3);
 }
 function visiblyAttached(object){
   for(let node=object;node;node=node.parent)if(node.visible===false)return false;

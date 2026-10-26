@@ -106,6 +106,20 @@ test('a terrain obstruction shortens the boom and keeps transforms finite during
   }
 });
 
+test('natural diving camera treats open water as transparent space while lily and rock supports remain solid',()=>{
+  const distances={};
+  for(const type of ['water','lily','rock']){
+    const {game}=makeGame({creekMode:true,world:{natural:true,sampleHeight:()=>0,getSurface:()=>({type,height:0}),getTerrainHeight:()=>-3}});
+    game.player.y=-1.7;
+    updateGameCamera(game,0,true);
+    distances[type]=game.camera.position.distanceTo(game.cameraFocus);
+    if(type!=='water')assert.ok(game.camera.position.y>=.3,'solid platforms keep the camera above their surface');
+    assert.ok([...game.camera.position.toArray(),...game.camera.quaternion.toArray()].every(Number.isFinite));
+  }
+  assert.ok(distances.water>distances.lily*2,'open water must not collapse the dive camera boom');
+  assert.ok(distances.water>distances.rock*2,'physical rocks still obstruct the camera');
+});
+
 test('real castle wall geometry stops both the requested boom and the interpolated shoulder camera',()=>{
   const geometry=new THREE.BoxGeometry(1,1,1),material=new THREE.MeshBasicMaterial(),wall=new THREE.InstancedMesh(geometry,material,1),mesh=new THREE.Group(),transform=new THREE.Object3D();
   transform.position.set(FORT_RADIUS,.11+WALL_HEIGHT/2,0);transform.scale.set(WALL_THICKNESS,WALL_HEIGHT,8);transform.updateMatrix();wall.setMatrixAt(0,transform.matrix);mesh.add(wall);mesh.userData.fortWalls=wall;

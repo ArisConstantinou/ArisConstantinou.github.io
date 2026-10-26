@@ -1,0 +1,103 @@
+/* Exploration uses the existing measured live-panel slots. */
+#frog-ui.fg-creek-mode .fg-player-crest,
+#frog-ui.fg-creek-mode .fg-construction-hud,
+#frog-ui.fg-creek-mode .fg-placement-hud,
+#frog-ui.fg-creek-mode .fg-map-stronghold {display:none!important}
+#frog-ui.fg-creek-mode .fg-player-rank {border-top:1px solid #b4d29b22;padding-top:9px}
+#frog-ui.fg-creek-mode .fg-objective-count {opacity:.9}
+#frog-ui.fg-creek-mode .fg-territory>.fg-pictogram {width:36px;height:36px}
+#frog-ui.fg-in-cover .fg-player {outline:2px solid #96cb87;outline-offset:3px}
+#frog-ui .fg-breath {grid-column:1/-1;display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;margin-top:8px;color:#c4ecf2;font-size:var(--fg-type-control)}
+#frog-ui .fg-breath[hidden] {display:none}
+#frog-ui .fg-breath progress {appearance:none;height:10px;width:100%;min-width:0;border:0;background:#143a43;border-radius:7px;overflow:hidden}
+#frog-ui .fg-breath progress::-webkit-progress-bar {background:#143a43}
+#frog-ui .fg-breath progress::-webkit-progress-value {background:#91dce6}
+#frog-ui .fg-breath progress::-moz-progress-bar {background:#91dce6}
+#frog-ui .fg-breath.is-low {color:#f1b18d}
+#frog-ui .fg-breath.is-low progress {accent-color:#e69068}
+#frog-ui .fg-exploration-panel .fg-live-panel-body {display:flex;flex-direction:column;gap:20px}
+#frog-ui .fg-creek-condition,
+#frog-ui .fg-creek-nest {display:flex;gap:14px;padding:16px;border:1px solid #b8d7ac2b;border-radius:14px;background:linear-gradient(130deg,#294f3b88,#16362d99)}
+#frog-ui :is(.fg-creek-condition,.fg-creek-nest)>span {flex:0 0 50px}
+#frog-ui :is(.fg-creek-condition,.fg-creek-nest)>span>.fg-pictogram {width:50px;height:54px}
+#frog-ui :is(.fg-creek-condition,.fg-creek-nest) h3 {margin:4px 0 9px}
+#frog-ui :is(.fg-creek-condition,.fg-creek-nest) p {margin:0;color:#d3e0c5}
+#frog-ui .fg-creek-condition small {letter-spacing:.08em;color:#a8c8a8}
+#frog-ui .fg-creek-inventory {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#frog-ui .fg-creek-inventory>div {display:grid;grid-template-columns:40px minmax(0,1fr);gap:3px 7px;align-items:center;padding:12px;border:1px solid #d6e9b925;border-radius:10px;background:#122f25}
+#frog-ui .fg-creek-inventory .fg-pictogram {width:38px;height:42px;grid-row:1/3}
+#frog-ui .fg-creek-inventory>div>b {font-size:var(--fg-type-number)!important}
+#frog-ui .fg-creek-inventory>div>span {font-size:var(--fg-type-small)!important;color:#c4d6b6}
+#frog-ui .fg-creek-section>h3 {margin:0 0 13px}
+#frog-ui .fg-creek-section .fg-realm-section-heading {margin-bottom:12px;gap:10px;align-items:center}
+#frog-ui .fg-creek-section .fg-realm-section-heading>h3 {margin:0}
+#frog-ui .fg-creek-discoveries {display:flex;flex-direction:column;gap:10px}
+#frog-ui .fg-creek-discoveries>article {display:flex;align-items:flex-start;gap:12px;padding:13px;border-radius:10px;border:1px solid #a2c9992a;background:#152f25}
+#frog-ui .fg-creek-discoveries>article>span {flex:0 0 36px}
+#frog-ui .fg-creek-discoveries>article>span>.fg-pictogram {width:36px;height:38px}
+#frog-ui .fg-creek-discoveries>article>div {min-width:0;flex:1}
+#frog-ui .fg-creek-discoveries>article>.fg-pictogram {width:26px;height:26px;flex:0 0 26px}
+#frog-ui .fg-creek-discoveries h3 {margin:0 0 7px;font-size:var(--fg-type-body)!important}
+#frog-ui .fg-creek-discoveries p {margin:0;color:#c3d3b8;font-size:var(--fg-type-control)!important}
+#frog-ui .fg-creek-discoveries .is-unknown {background:#11291f;border-style:dashed}
+#frog-ui .fg-creek-abilities {display:flex;flex-direction:column;gap:9px}
+#frog-ui .fg-creek-ability {border:1px solid #b9d8a52b;border-radius:11px;background:#18382c;overflow:hidden}
+#frog-ui .fg-creek-ability.is-earned {border-color:#b5d89477;background:#254732}
+#frog-ui .fg-creek-ability>summary {display:flex;align-items:center;gap:12px;cursor:pointer;padding:13px;list-style:none;min-height:70px}
+#frog-ui .fg-creek-ability>summary::-webkit-details-marker {display:none}
+#frog-ui .fg-creek-ability>summary>span {flex:0 0 42px}
+#frog-ui .fg-creek-ability>summary>span>.fg-pictogram {width:42px;height:44px}
+#frog-ui .fg-creek-ability>summary>div {display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
+#frog-ui .fg-creek-ability>summary>.fg-pictogram {width:26px;height:26px;flex:0 0 26px}
+#frog-ui .fg-creek-ability>summary small {color:#c1d2b6}
+#frog-ui .fg-creek-ability-detail {padding:0 15px 16px}
+#frog-ui .fg-creek-ability-detail>p {margin:0 0 10px;color:#d5e4ca}
+#frog-ui .fg-creek-ability-detail>progress {display:block;width:100%;height:9px;accent-color:#b4d696}
+#frog-ui .fg-creek-controls {display:block;padding:10px;border-radius:8px;background:#0e271d;color:#dbedb7}
+#frog-ui .fg-creek-recovery {padding:15px;background:#4a3d2466;border:1px solid #d7bd7177;border-radius:12px}
+#frog-ui .fg-creek-recovery h3 {margin:0 0 10px}
+#frog-ui .fg-creek-recovery p {color:#e4d8b8}
+#frog-ui .fg-creek-recovery>div {display:flex;flex-direction:column;gap:8px}
+#frog-ui .fg-creek-recovery>div>span {display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+#frog-ui .fg-creek-recovery .fg-pictogram {width:31px;height:31px}
+#frog-ui .fg-creek-footer {display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-top:1px solid #c5d9a92a;padding-top:15px}
+#frog-ui .fg-creek-footer .fg-button>.fg-pictogram {width:28px;height:28px}
+#frog-ui .fg-creek-squad-summary {display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:13px}
+#frog-ui .fg-creek-squad-summary>span {display:flex;align-items:center;gap:8px}
+#frog-ui .fg-creek-squad-summary .fg-pictogram {width:38px;height:38px}
+#frog-ui .fg-creek-global-orders {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:18px}
+#frog-ui .fg-creek-global-orders>button,
+#frog-ui .fg-creek-command-grid>button {width:100%;min-width:0;max-width:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:94px;height:auto;padding:10px 6px;gap:7px;background:#193c2b;border:1px solid #c4dca335;border-radius:10px;cursor:pointer;color:#e2ecd1}
+#frog-ui :is(.fg-creek-global-orders,.fg-creek-command-grid)>button>.fg-pictogram {width:40px;height:40px}
+#frog-ui :is(.fg-creek-global-orders,.fg-creek-command-grid) .fg-command-caption {white-space:normal;line-height:1.25;text-align:center;overflow-wrap:anywhere}
+#frog-ui .fg-creek-frog-grid {display:grid;grid-template-columns:1fr;gap:9px;margin:14px 0}
+#frog-ui .fg-creek-frog {display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:13px;align-items:center;text-align:left;color:#dfebce;border:1px solid #b9d8a536;background:#153226;border-radius:12px;padding:10px;cursor:pointer}
+#frog-ui .fg-creek-frog.is-selected {border-color:#d7e59a;background:#345033;box-shadow:inset 0 0 0 1px #d7e59a}
+#frog-ui .fg-creek-frog>img {width:72px;height:72px;border-radius:12px;object-fit:cover}
+#frog-ui .fg-creek-frog>div {display:flex;flex-direction:column;gap:5px;min-width:0}
+#frog-ui .fg-creek-frog>div>small {color:#bbd1b0}
+#frog-ui .fg-creek-frog-vitals>span {display:flex;align-items:center;gap:6px;justify-content:flex-end}
+#frog-ui .fg-creek-frog-vitals .fg-pictogram {width:25px;height:27px}
+#frog-ui .fg-creek-orders>p {color:#c9d6bd}
+#frog-ui .fg-creek-command-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;border:0;padding:0;margin:12px 0 0;min-width:0}
+#frog-ui .fg-creek-command-grid:disabled {opacity:.5}
+#frog-ui.fg-creek-mode .fg-group-orders {display:flex;flex-wrap:wrap;gap:8px}
+#frog-ui.fg-creek-mode .fg-group-orders>span {flex-basis:100%;white-space:normal}
+#frog-ui.fg-creek-mode .fg-group-orders>button {min-height:42px;white-space:normal;padding:9px}
+#frog-ui.fg-creek-mode .fg-travel-requirements .fg-pictogram,
+#frog-ui.fg-creek-mode .fg-region-action .fg-button>.fg-pictogram {width:25px;height:25px;flex:0 0 25px}
+#frog-ui .fg-title-settings .fg-settings {max-height:min(65dvh,600px);overflow-y:auto;padding-right:6px}
+@media(max-width:600px) {
+  #frog-ui .fg-creek-condition,#frog-ui .fg-creek-nest {padding:11px;gap:9px}
+  #frog-ui :is(.fg-creek-condition,.fg-creek-nest)>span {flex-basis:35px}
+  #frog-ui :is(.fg-creek-condition,.fg-creek-nest)>span>.fg-pictogram {width:35px;height:40px}
+  #frog-ui .fg-creek-inventory>div {grid-template-columns:1fr;justify-items:center;padding:8px}
+  #frog-ui .fg-creek-inventory .fg-pictogram {grid-row:auto;width:30px;height:32px}
+  #frog-ui .fg-creek-frog {grid-template-columns:50px minmax(0,1fr);gap:9px}
+  #frog-ui .fg-creek-frog>img {width:50px;height:58px}
+  #frog-ui .fg-creek-frog-vitals {grid-column:1/-1;flex-direction:row!important;justify-content:space-between}
+  #frog-ui .fg-creek-command-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+.fg-creek-mode .fg-minimap-legend .is-pact{background:#79c4be}
+.fg-creek-recruitment{max-width:calc(380px * var(--fg-ui-scale,1));padding:calc(18px * var(--fg-ui-scale,1));margin:auto}
+.fg-creek-recruitment>p{margin:0 0 18px;line-height:1.5}

@@ -38,6 +38,10 @@ function protectedByGrace(game,p,f) {
 }
 function canReach(game,p,f) {
   if(!alive(f)||f.grabbedBy&&f.grabbedBy!==p||protectedByGrace(game,p,f))return false;
+  if(game.creekMode){
+    if(p.type==='heron'&&f.diving&&f.diveDepth>.55)return false;
+    if(f.creekConcealed&&game.elapsed>=(p.provokedUntil||0)&&distance(p,f)>(p.type==='heron'?6:p.type==='snake'?11:15))return false;
+  }
   if(p.eventRole==='guardian'&&game.elapsed>=(p.provokedUntil||0)&&distance(f,p.anchor)>(p.territoryRadius||26))return false;
   if(p.type!=='heron'&&(game.camps||[]).some(c=>!c.destroyed&&insideFort(c,f)&&!insideFort(c,p)&&!canPassGate(c,p)))return false;
   if(p.type==='fish')return wet(game,f.x,f.z)&&f.y<1.15;
@@ -63,7 +67,7 @@ function activateHunt(game,p) {
   if(!game.hunt||game.hunt.dead||game.hunt.phase==='dormant'||distance(game.player,p)<distance(game.player,game.hunt)*.72)game.hunt=p;
   if(!p.announced || game.elapsed-p.announced>28) {
     p.announced=game.elapsed;
-    game.ui?.toast?.(`${p.name} σε κυνηγά! Πολέμησε για να τον απωθήσεις ή να τον σκοτώσεις.`, 'warning');
+    game.ui?.toast?.(game.creekMode?`${p.name} σε παρακολουθεί. Χρησιμοποίησε κάλυψη, διαφυγή ή την ομάδα σου.`:`${p.name} σε κυνηγά! Πολέμησε για να τον απωθήσεις ή να τον σκοτώσεις.`, 'warning');
     sound(game,p,'hunt',.9);
   }
 }
@@ -118,7 +122,7 @@ function setHeight(game,p) {
     if(p.phase==='grab')y=-.74+Math.sin(game.elapsed*3)*.08;
     if(p.phase==='recover')y=-1.52+Math.max(0,1-p.phaseTime/.7)*.40;
     if(p.dead)y=-.78;
-    p.y=y;
+    p.y=y+(game.creekMode?(game.world.waterLevel||0)+.035:0);
   } else {
     const h=game.world.sampleHeight(p.x,p.z);
     p.y=p.type==='snake'?Math.max(-.10,h):Math.max(-.20,h);

@@ -180,6 +180,6 @@ test('an eligible first frog needs only the food pictogram, ×8 and the E enlist
   const html=ui.refs.recruitmentBubble.innerHTML;
   assert.match(html,/<svg\b/);assert.match(html,/<b>×8<\/b>/);assert.match(html,/<kbd>E<\/kbd>/);
   assert.doesNotMatch(html,/22\s*\/\s*8|<header\b|<ul\b|fg-recruit-conditions|fg-recruit-next|recruit-close/);
-  assert.equal(ui.recruitmentBadgeWidth,176);
+  assert.equal(ui.recruitmentBadgeWidth,240);
   assert.doesNotMatch(buttonMarkup(html,'recruit-target'),/\bdisabled\b/);
 });

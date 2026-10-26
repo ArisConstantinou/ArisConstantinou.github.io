@@ -4,6 +4,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { EXTRA_HUT_FOOTPRINT } from './placement-rules.js';
 import { WORLD_SCALE, WORLD_RADIUS, WORLD_BOUNDARY, WORLD_REVISION, SHELTER_SCALE, SHELTER_LAYOUT_SCALE, SHELTER_RADIUS, CASTLE_GROUND_RADIUS, ISLAND_TERRACE_RADIUS, CASTLE_BANK_BLEND } from './world-config.js';
 import { FORT_RADIUS, GATE_WIDTH, WALL_HEIGHT, WALL_THICKNESS, fortConstructionState } from './fortification.js';
+import {CREEK_WATER_BASE,createCreekGeography,creekBedHeight,creekCurrent,creekWaterOpacity,createCreekDecor,createNaturalShelter,updateNaturalShelter} from './creek-world.js';
 export { SHELTER_SCALE, SHELTER_RADIUS } from './world-config.js';
 
 // Everything here is authored geometry. The water is a planar reflection with a
@@ -176,6 +177,9 @@ function spatialBatch(geometry,material,records,name,{castShadow=false,receiveSh
 
 export function createWorld(scene, renderer, options={}) {
   const regionIndex=Math.max(0,Math.floor(Number(options.regionIndex)||0)),seed=options.seed??731+regionIndex*7919,layout=createRegionLayout(regionIndex,seed),palette=layout.palette,random=rng(seed),group=new THREE.Group();group.name='The living creek';scene.add(group);
+  const natural=options.natural===true,creekGeography=natural?createCreekGeography(layout):null;
+  const creekLandmarks=creekGeography?.landmarks||[],creekNest=creekGeography?.nest||null,creekCover=creekGeography?.cover||[],creekGrips=[];
+  let waterLevel=CREEK_WATER_BASE,targetWaterLevel=CREEK_WATER_BASE,creekPhase={flow:.45},creekStateApplied=false,nestVisual=null;
   const platforms=[],hotspots=[],shelters=new Set(),castleTerraces=new Map(),buildingPreviews=new Set(),disposables=[],buckets=new Map(),bucketSize=6;let buildArea=null;
   const renderStats={reflectionRenders:0,reflectionSkips:0,flyMatricesUpdated:0,spatialChunks:0,terrainUpdates:0};
   const skyColor=new THREE.Color(palette.sky),fogColor=new THREE.Color(palette.fog);
@@ -213,9 +217,10 @@ export function createWorld(scene, renderer, options={}) {
   // The soft irregular shore still leaves a water route between neighbouring sites.
   const islandLevels={home:.65,mudfang:2.7,redreed:4.1,mossjaw:1.8,blackpool:5.2,thornback:7.1,oldwillow:2.9,quietbend:1.2,foxglove:2.1,reedcrossing:1.7,longreed:2.5,eastshallows:3.4};
   const islandRandom=rng(seed^0x36ab27);
+  const naturalSites={home:{x:17,z:16,radius:7.4,elevation:.65},mudfang:{x:38,z:-19,radius:9,elevation:1.35},redreed:{x:-37,z:-46,radius:11,elevation:1.2},mossjaw:{x:-34,z:44,radius:11,elevation:1.05},blackpool:{x:40,z:86,radius:12,elevation:1.5},thornback:{x:-16,z:-120,radius:12,elevation:1.65}};
   for(const site of campSites){
-    const source={x:site.x*WORLD_SCALE,z:site.z*WORLD_SCALE};Object.assign(site,layout.toWorld(source.x,source.z));
-    site.radius=Math.max(36,site.radius*(site.id==='thornback'?5.8:4.9));site.elevation=Math.max(.45,islandLevels[site.id]+(regionIndex?(islandRandom()-.5)*.6:0));
+    const naturalSite=naturalSites[site.id],source=natural&&naturalSite?{x:naturalSite.x,z:naturalSite.z}:{x:site.x*WORLD_SCALE,z:site.z*WORLD_SCALE};Object.assign(site,layout.toWorld(source.x,source.z));
+    site.radius=natural?(naturalSite?.radius||10):Math.max(36,site.radius*(site.id==='thornback'?5.8:4.9));site.elevation=natural?(naturalSite?.elevation||1.1):Math.max(.45,islandLevels[site.id]+(regionIndex?(islandRandom()-.5)*.6:0));
     site.shorePhase=source.x+(regionIndex?islandRandom()*TAU:0);if(regionIndex)site.yaw=layout.yaw;
   }
   campSites.find(s=>s.id==='thornback').stronghold=true;
@@ -235,8 +240,14 @@ export function createWorld(scene, renderer, options={}) {
     snake:layout.toWorld(-39*WORLD_SCALE,70*WORLD_SCALE),
     fish:layout.toWorld(11*WORLD_SCALE,94*WORLD_SCALE)
   };
+  if(natural){
+    Object.assign(predatorAnchors,{heron:layout.toWorld(34,15),snake:layout.toWorld(-26,-23),fish:layout.toWorld(5,-34)});
+    Object.assign(bossAnchors,{heron:layout.toWorld(41,-70),snake:layout.toWorld(-34,62),fish:layout.toWorld(7,106)});
+  }
+  const naturalSourceSites=natural?campSites.map(site=>({...site,...layout.toSource(site.x,site.z)})):[];
   function bedHeight(x,z) {
     const source=layout.toSource(x,z),nx=source.x/WORLD_SCALE,nz=source.z/WORLD_SCALE;
+    if(natural)return creekBedHeight(source.x,source.z,noise(source.x+layout.noiseOffset.x,source.z+layout.noiseOffset.z),naturalSourceSites);
     const channel=Math.sin(nz*.032)*15+Math.sin(nz*.073)*5,dist=Math.abs(nx-channel);
     let h=-2.2+noise(source.x+layout.noiseOffset.x,source.z+layout.noiseOffset.z)*.47+smooth(44,71,dist)*6;
     // Rolling bank ridges and island terraces create visible elevation. Their
@@ -286,7 +297,7 @@ export function createWorld(scene, renderer, options={}) {
 
   const waterGeo=new THREE.PlaneGeometry(266*WORLD_SCALE,266*WORLD_SCALE,88,88);
   const water=new Water(waterGeo,{textureWidth:512,textureHeight:512,waterNormals:normals,sunDirection:new THREE.Vector3(.6,.8,-.3),sunColor:0xffe9bd,waterColor:0x2e625b,distortionScale:2.5,alpha:.91,fog:true});
-  water.name='Reflecting creek';water.rotation.x=-Math.PI/2;water.position.y=-.035;water.material.transparent=true;water.material.depthWrite=false;water.renderOrder=-2;
+  water.name='Reflecting creek';water.rotation.x=-Math.PI/2;water.position.y=CREEK_WATER_BASE;water.material.transparent=true;water.material.depthWrite=false;water.renderOrder=-2;
   water.material.uniforms.size.value=4.8;group.add(water);
   // Water otherwise renders the complete scene a second time on every frame.
   // Normals, lighting and ripples still animate each frame; the reflection is
@@ -322,16 +333,19 @@ export function createWorld(scene, renderer, options={}) {
   function addRock(x,z,radius=1.3+random()*1.3,height=.65+random()*.65){const variant=Math.floor(random()*3),p=insertPlatform({id:'p'+platforms.length,type:'rock',x,z,y:height*.76-.05,radius:radius*.72,visualRadius:radius,scaleY:height,angle:random()*TAU,variant});rockData[variant].push(p);return p;}
   const startLeaf=layout.toWorld(3.7,1),startRock=layout.toWorld(-3.9,2.2);
   addLily(0,0,3.1);addLily(startLeaf.x,startLeaf.z,2.3);addRock(startRock.x,startRock.z,2.5,.9);
-  function path(a,b){const distance=Math.hypot(b.x-a.x,b.z-a.z),steps=Math.ceil(distance/3.65),from=layout.toSource(a.x,a.z),to=layout.toSource(b.x,b.z);for(let i=1;i<steps;i++){const t=i/steps,{x,z}=layout.toWorld(from.x+(to.x-from.x)*t+Math.sin(t*Math.PI*3)*1.25,from.z+(to.z-from.z)*t);if(bedHeight(x,z)>-.1)continue;if(random()<.18)addRock(x,z,1.8+random()*.7,.65+random()*.55);else addLily(x,z,1.65+random()*.65);}}
+  if(natural){const p=creekLandmarks.find(p=>p.id==='pond').findPoint;addLily(p.x,p.z,1.7);}
+  function path(a,b){const distance=Math.hypot(b.x-a.x,b.z-a.z),steps=Math.ceil(distance/3.65),from=layout.toSource(a.x,a.z),to=layout.toSource(b.x,b.z);for(let i=1;i<steps;i++){const t=i/steps,{x,z}=layout.toWorld(from.x+(to.x-from.x)*t+Math.sin(t*Math.PI*3)*1.25,from.z+(to.z-from.z)*t);if(bedHeight(x,z)>-.1)continue;const source=layout.toSource(x,z);if(natural&&source.x>14&&source.x<32&&Math.abs(source.z+16)<3.7)continue;if(random()<.18)addRock(x,z,1.8+random()*.7,.65+random()*.55);else addLily(x,z,1.65+random()*.65);}}
   // Two crossing routes join the factions, with neutral staging islands between
   // them. Distances grow, but jump spacing and individual leaves stay frog-sized.
   const origin={id:'origin',x:0,z:0},siteById=new Map(campSites.map(s=>[s.id,s]));siteById.set('origin',origin);
   const routePairs=[['origin','home'],['origin','foxglove'],['home','mudfang'],['home','quietbend'],['mudfang','reedcrossing'],['reedcrossing','redreed'],['reedcrossing','thornback'],['foxglove','mossjaw'],['quietbend','mossjaw'],['quietbend','eastshallows'],['mossjaw','longreed'],['longreed','blackpool'],['longreed','oldwillow'],['eastshallows','blackpool'],['redreed','thornback']];
   const routes=routePairs.map(([a,b])=>({from:a,to:b,start:siteById.get(a),end:siteById.get(b)}));
   for(const route of routes)path(route.start,route.end);
+  if(natural){const point=id=>creekLandmarks.find(p=>p.id===id);for(const [a,b] of [[origin,point('creek')],[point('creek'),point('roots')],[point('roots'),point('bank')],[point('bank'),creekNest]])path(a,b);}
   for(let i=0;i<1180;i++){
     const sourceZ=(random()-.5)*218*WORLD_SCALE,sourceX=((random()-.5)*108+Math.sin(sourceZ/WORLD_SCALE*.032)*10)*WORLD_SCALE,{x,z}=layout.toWorld(sourceX,sourceZ);
     if(bedHeight(x,z)>-.18)continue;
+    const source=layout.toSource(x,z);if(natural&&source.x>14&&source.x<32&&Math.abs(source.z+16)<3.7)continue;
     const neighbours=buckets.get(Math.floor(x/bucketSize)+':'+Math.floor(z/bucketSize))||[];
     if(neighbours.some(p=>Math.hypot(p.x-x,p.z-z)<p.radius+1))continue;
     if(random()<.15)addRock(x,z,1.1+random()*2.3,.55+random()*1.2);else addLily(x,z,1.1+random()*1.1);
@@ -364,8 +378,8 @@ export function createWorld(scene, renderer, options={}) {
   const windUniform={value:0};materials.plant.onBeforeCompile=shader=>{shader.uniforms.uCreekTime=windUniform;shader.vertexShader='uniform float uCreekTime;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n transformed.x += sin(uCreekTime * 1.1 + position.y * 2.3 + instanceMatrix[3].x * .13 + instanceMatrix[3].z * .17) * pow(max(position.y, 0.0), 1.6) * .035;');};
   materials.plant.customProgramCacheKey=()=> 'creek-wind-1';
 
-  function surface(x,z){let h=terrainHeight(x,z),type=h>-.1?'land':'water',chosen=null;if(h<=-.1)h=-.25;const near=buckets.get(Math.floor(x/bucketSize)+':'+Math.floor(z/bucketSize))||[];
-    for(const p of near){if(p.type==='land')continue;const d=Math.hypot(x-p.x,z-p.z);if(d<=p.radius){let ph=p.y;if(p.type==='rock')ph-=smooth(p.radius*.62,p.radius,d)*.14*p.scaleY;if(ph>h){h=ph;type=p.type==='shelter'?'land':p.type;chosen=p;}}}
+  function surface(x,z){const shoreline=natural?waterLevel-.065:-.1;let h=terrainHeight(x,z),type=h>shoreline?'land':'water',chosen=null;if(h<=shoreline)h=natural?waterLevel-.215:-.25;const near=buckets.get(Math.floor(x/bucketSize)+':'+Math.floor(z/bucketSize))||[];
+    for(const p of near){if(p.type==='land')continue;const d=Math.hypot(x-p.x,z-p.z);if(d<=p.radius){let ph=p.y;if(p.type==='rock')ph-=smooth(p.radius*.62,p.radius,d)*.14*p.scaleY;if(natural&&ph<=shoreline)continue;if(ph>h){h=ph;type=p.type==='shelter'?'land':p.type;chosen=p;}}}
     return {height:h,type,platform:chosen};}
   function sampleHeight(x,z){return surface(x,z).height;}
 
@@ -373,10 +387,11 @@ export function createWorld(scene, renderer, options={}) {
   // Original hotspot ids remain stable for saves. New contested lures are
   // appended, and the starter lure stays within a few hops of the spawn pad.
   const spotSpecs=[{x:4.5/WORLD_SCALE,z:-4/WORLD_SCALE,rich:false},{x:-10,z:12,rich:true},{x:15,z:-20,rich:false},{x:-25,z:-23,rich:true},{x:26,z:-47,rich:true},{x:-17,z:40,rich:true},{x:27,z:69,rich:true},{x:-4,z:-81,rich:true},{x:-34,z:86,rich:true},{x:23,z:26,rich:false},{x:-33,z:7,rich:false},{x:4,z:51,rich:false},{x:9,z:-59,rich:false},{x:-12,z:76,rich:false},{x:39,z:-4,rich:false},{x:-42,z:-59,rich:true},{x:7,z:-39,rich:true},{x:0,z:63,rich:true},{x:53,z:33,rich:true},{x:-24,z:17,rich:false},{x:17,z:-70,rich:false},{x:18,z:90,rich:true}].map(s=>({...s,...layout.toWorld(s.x*WORLD_SCALE,s.z*WORLD_SCALE)}));
+  if(natural){for(const [i,p] of [{x:4.5,z:-4},{x:18,z:14},{x:9,z:-24},{x:26,z:10},{x:31,z:-16},{x:-20,z:-8}].entries())Object.assign(spotSpecs[i],layout.toWorld(p.x,p.z));}
   const fruitInstances=[],spotMounds=[],compostGeos=[],litterGroup=new THREE.Group();group.add(litterGroup);
   for(let i=0;i<spotSpecs.length;i++){
     const s=spotSpecs[i],base=bedHeight(s.x,s.z);if(base<-.15)addRock(s.x,s.z,s.rich?3.2:2.2,.62);
-    const h=sampleHeight(s.x,s.z),spot={id:'flies-'+i,x:s.x,z:s.z,y:h+.25,flies:s.rich?240:100,maxFlies:s.rich?240:100,rich:s.rich};hotspots.push(spot);
+    const h=sampleHeight(s.x,s.z),spot={id:'flies-'+i,x:s.x,z:s.z,y:h+.25,flies:s.rich?240:100,maxFlies:s.rich?240:100,rich:s.rich};if(natural){const habitat=[...creekLandmarks].sort((a,b)=>Math.hypot(s.x-a.x,s.z-a.z)-Math.hypot(s.x-b.x,s.z-b.z))[0]?.id||'creek';spot.ecology={habitat,activity:1};spot.regenMultiplier=1;}hotspots.push(spot);
     const mound=new THREE.Mesh(rockGeos[i%3],materials.compost);mound.position.set(s.x,h+.05,s.z);mound.scale.set(s.rich?1.7:1.05,.28,s.rich?1.25:.75);mound.rotation.y=random()*TAU;group.add(mound);spotMounds.push(mound);
     for(let j=0;j<(s.rich?12:6);j++){const a=random()*TAU,r=random()*(s.rich?1.5:.85),offset=.12+random()*.16;fruitInstances.push({spot:i,groundOffset:offset,x:s.x+Math.cos(a)*r,y:h+offset,z:s.z+Math.sin(a)*r,scale:.12+random()*.18,rot:random()*TAU});}
     for(let j=0;j<3;j++){const a=random()*TAU,len=.7+random()*.8;const branch=tube([[0,0,0],[len*.5,.02,.06],[len,.04,.14]],.035,materials.bark,4);branch.position.set(s.x+(random()-.5)*1.6,h+.1,s.z+(random()-.5)*1.6);branch.rotation.y=a;litterGroup.add(branch);compostGeos.push(branch.geometry);}
@@ -391,6 +406,28 @@ export function createWorld(scene, renderer, options={}) {
   const flies=[];for(let j=0;j<hotspots.length;j++)for(let i=0;i<(hotspots[j].rich?65:30);i++)flies.push({spot:j,phase:random()*TAU,phase2:random()*TAU,r:.25+random()*(hotspots[j].rich?2.3:1.35),height:.45+random()*1.9,speed:.65+random()*1.7,rank:i});
   const fliesBySpot=hotspots.map(()=>[]);for(const fly of flies)fliesBySpot[fly.spot].push(fly);
   const flyMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.45,side:THREE.DoubleSide}),fliesMesh=new THREE.InstancedMesh(flyGeometry(),flyMat,flies.length);fliesMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);fliesMesh.frustumCulled=false;fliesMesh.name='Fly swarms';fliesMesh.count=0;group.add(fliesMesh);
+  const creekDecor=natural?createCreekDecor({group,layout,terrainHeight,surface,insertPlatform,materials,rockGeos,tube,leafGeometry,bladeGeometry,geography:creekGeography}):null;
+  if(creekDecor)creekGrips.push(...creekDecor.grips);
+
+  function currentAt(x,z){return natural&&surface(x,z).type==='water'?creekCurrent(layout,x,z,creekPhase.flow):{x:0,z:0,strength:0};}
+  function isCreekCover(x,z){return natural&&creekCover.some(p=>Math.hypot(x-p.x,z-p.z)<p.radius*.85)&&terrainHeight(x,z)>waterLevel-.5;}
+  function applyCreekWater(level){
+    waterLevel=level;water.position.y=level;water.updateMatrix();petals.position.y=level-CREEK_WATER_BASE;petals.updateMatrix();
+    for(const p of lilyData)p.y=.105+level-CREEK_WATER_BASE;
+  }
+  function setCreekState(snapshot={}){
+    if(!natural)return false;
+    creekPhase={...creekPhase,...(snapshot.phase||{})};
+    targetWaterLevel=CREEK_WATER_BASE+clamp(Number(creekPhase.waterOffset)||0,-.75,.65);
+    if(!creekStateApplied){applyCreekWater(targetWaterLevel);creekStateApplied=true;}
+    for(const spot of hotspots){const activity=spot.ecology?.habitat===creekPhase.foodShift?1.4:(typeof creekPhase.foodShift==='string' ? .45 : 1);spot.regenMultiplier=activity;spot.ecology.activity=activity;}
+    const nest=snapshot.nest;
+    if(nest&&Number.isFinite(nest.x)&&Number.isFinite(nest.z)){
+      const data={id:'living-creek-nest',x:nest.x,z:nest.z,team:'ally',natural:true,nestLevel:nest.level??0,safe:nest.safe,hp:1,maxHp:1};
+      if(!nestVisual)nestVisual=createShelter(data);else updateShelter(nestVisual,data);
+    }
+    creekDecor.sync(snapshot,waterLevel);return true;
+  }
 
   // A single instanced ripple draw and one point cloud cover every splash.
   const rippleCount=64,rippleBase=new THREE.PlaneGeometry(2,2),rippleGeo=new THREE.InstancedBufferGeometry();rippleBase.rotateX(-Math.PI/2);rippleGeo.index=rippleBase.index;rippleGeo.attributes.position=rippleBase.attributes.position;rippleGeo.attributes.uv=rippleBase.attributes.uv;
@@ -402,11 +439,11 @@ export function createWorld(scene, renderer, options={}) {
   const dropGeo=new THREE.BufferGeometry();dropGeo.setAttribute('position',new THREE.BufferAttribute(dropPos,3).setUsage(THREE.DynamicDrawUsage));dropGeo.setAttribute('aColor',new THREE.BufferAttribute(dropColor,3).setUsage(THREE.DynamicDrawUsage));dropGeo.setAttribute('aSize',new THREE.BufferAttribute(dropSize,1).setUsage(THREE.DynamicDrawUsage));dropGeo.setAttribute('aAlpha',new THREE.BufferAttribute(dropAlpha,1).setUsage(THREE.DynamicDrawUsage));
   const dropMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uScale:{value:500}},vertexShader:`attribute vec3 aColor;attribute float aSize;attribute float aAlpha;uniform float uScale;varying vec3 vColor;varying float vAlpha;void main(){vColor=aColor;vAlpha=aAlpha;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;gl_PointSize=clamp(aSize*uScale/max(.1,-mv.z),1.,35.);}`,fragmentShader:`varying vec3 vColor;varying float vAlpha;void main(){vec2 p=gl_PointCoord-.5;float d=length(p)*2.;if(d>1.)discard;float shade=.6+.4*max(0.,1.-length(p-vec2(-.12,.12))*2.);gl_FragColor=vec4(vColor*shade,smoothstep(1.,.55,d)*vAlpha);}`});
   const dropMesh=new THREE.Points(dropGeo,dropMat);dropMesh.frustumCulled=false;dropMesh.renderOrder=3;group.add(dropMesh);
-  function addRipple(position,strength,tint){const i=rippleCursor++%rippleCount;centers.set([position.x,Math.max(-.005,(position.y??0)+.025),position.z],i*3);starts[i]=now;sizes[i]=.7+strength*.7;const c=color(tint??'#c2e1d5');c.toArray(rippleColors,i*3);for(const a of ['aCenter','aStart','aSize','aTint'])rippleGeo.attributes[a].needsUpdate=true;}
+  function addRipple(position,strength,tint){const i=rippleCursor++%rippleCount;centers.set([position.x,natural?(position.y??waterLevel)+.025:Math.max(-.005,(position.y??0)+.025),position.z],i*3);starts[i]=now;sizes[i]=.7+strength*.7;const c=color(tint??'#c2e1d5');c.toArray(rippleColors,i*3);for(const a of ['aCenter','aStart','aSize','aTint'])rippleGeo.attributes[a].needsUpdate=true;}
   function particles(position,strength,tint,isWater){const n=Math.min(90,Math.round(18+strength*21)),c=color(tint??(isWater?'#b2d7ce':'#d5bc80'));
     for(let i=0;i<n;i++){const id=dropCursor++%dropCount,d=drops[id],a=random()*TAU,s=(.6+random()*2.7)*Math.sqrt(strength);d.life=d.max=.5+random()*.8;d.vx=Math.cos(a)*s;d.vz=Math.sin(a)*s;d.vy=(1.5+random()*4)*Math.sqrt(strength);d.water=isWater;dropPos.set([position.x+(random()-.5)*.3,(position.y??0)+.12,position.z+(random()-.5)*.3],id*3);c.clone().multiplyScalar(.85+random()*.3).toArray(dropColor,id*3);dropSize[id]=(.045+random()*.085)*(isWater?1:.8);dropAlpha[id]=.9;}
     dropGeo.attributes.aColor.needsUpdate=true;dropGeo.attributes.aSize.needsUpdate=true;}
-  function splash(position,strength=1,tint){strength=clamp(strength,.1,4);addRipple({x:position.x,y:.01,z:position.z},strength,tint);particles({x:position.x,y:.03,z:position.z},strength,tint,true);}
+  function splash(position,strength=1,tint){strength=clamp(strength,.1,4);addRipple({x:position.x,y:natural?waterLevel+.01:.01,z:position.z},strength,tint);particles({x:position.x,y:natural?waterLevel+.03:.03,z:position.z},strength,tint,true);}
   function impact(position,tint='#e9cb87',strength=1){particles(position,strength,tint,false);}
 
   function roofGeometry(width,length,height,seedValue=1){const p=[],uv=[],idx=[],cols=[],r=rng(seedValue);const rows=16,columns=20;
@@ -569,6 +606,7 @@ export function createWorld(scene, renderer, options={}) {
     const terrace={id:data.id,x:data.x,z:data.z,elevation};castleTerraces.set(data.id,terrace);refreshTerrain(terrace);refreshGroundDecor(terrace);return terrace;
   }
   function createShelter(data,buildOptions={}){
+    if((natural||data.natural===true)&&!buildOptions.preview){const s=createNaturalShelter(data,{terrainHeight,materials,rockGeos,tube,leafGeometry,mergeStaticParts,teamColor});group.add(s);shelters.add(s);return s;}
     const preview=!!buildOptions.preview;
     const terrace=preview?null:addCastleLand(data);
     const s=new THREE.Group();s.name='Shelter '+(data.id??'');s.position.set(data.x,terrace?.elevation??0,data.z);s.scale.setScalar(SHELTER_SCALE);s.userData.id=data.id;s.userData.radius=SHELTER_RADIUS;s.userData.owned=[];s.userData.terrain=terrace;const owned=s.userData.owned;
@@ -640,6 +678,7 @@ export function createWorld(scene, renderer, options={}) {
     return s;
   }
   function updateShelter(s,data={}){if(!s)return;
+    if(s.userData.natural)return updateNaturalShelter(s,data,teamColor);
     const previous=s.userData.visualState||{},state={...previous,...data},tier=Math.max(1,state.tier??1),b=state.buildings||{},health=clamp((state.hp??state.maxHp??100)/(state.maxHp??100),0,1),destroyed=!!state.destroyed||health<=0;
     const team=state.team??previous.team??'neutral';
     // Retain only render data, never the gameplay mesh reference or a cycle.
@@ -710,6 +749,7 @@ export function createWorld(scene, renderer, options={}) {
 
   /** Real construction geometry, built once per placement session, with no support/collision registration. */
   function createBuildingPreview(type){
+    if(natural)return null;
     if(!['shelter','store','nursery','watchtower','training'].includes(type))return null;
     const preview=createShelter({id:'construction-preview',x:0,z:0,team:'ally',tier:1,hp:350,maxHp:350,buildings:{},storage:{food:80}},{preview:true});
     preview.name='Construction preview: '+type;preview.userData.previewType=type;preview.userData.previewMaterials=[];
@@ -768,19 +808,29 @@ export function createWorld(scene, renderer, options={}) {
     s.add(buildArea);return buildArea;
   }
 
-  let frame=0;
+  let frame=0,lastRenderedWaterLevel=CREEK_WATER_BASE;
   const dayWater=color(palette.water),nightWater=color(palette.nightWater),daySun=color('#fff0cb'),nightSun=color('#7aa5cb');
   function update(dt,time,dayFactor=1,playerPos){now=time;frame++;dayFactor=clamp(dayFactor,0,1);windUniform.value=time;
+    if(natural){
+      const blend=1-Math.exp(-Math.max(0,Math.min(.5,Number(dt)||0))*3);applyCreekWater(waterLevel+(targetWaterLevel-waterLevel)*blend);
+      // Water.js uses its own alpha uniform; material.opacity has no effect.
+      // Preserve the reflected surface on land, then reveal submerged actors
+      // smoothly as the player's body dives beneath it.
+      const alpha=water.material.uniforms.alpha,targetAlpha=creekWaterOpacity(playerPos?.y,waterLevel);
+      alpha.value+=(targetAlpha-alpha.value)*(1-Math.exp(-Math.max(0,Math.min(.5,Number(dt)||0))*8));
+      if(Math.abs(lastRenderedWaterLevel-waterLevel)>.008){for(let i=0;i<lilyData.length;i++){const p=lilyData[i];object.position.set(p.x,p.y,p.z);object.rotation.set(0,p.angle,0);object.scale.set(p.visualRadius,1,p.visualRadius);object.updateMatrix();lilyMesh.setMatrixAt(i,object.matrix);}lilyMesh.flush();lastRenderedWaterLevel=waterLevel;}
+      creekDecor.update(waterLevel,time);
+    }
     water.material.uniforms.time.value=time*.45;water.material.uniforms.waterColor.value.copy(nightWater).lerp(dayWater,dayFactor);water.material.uniforms.sunColor.value.copy(nightSun).lerp(daySun,dayFactor);
     water.material.uniforms.sunDirection.value.set(.35+.25*Math.sin(time*.008),.45+dayFactor*.4,-.45).normalize();
     if(frame%3===0){const p=waterGeo.attributes.position;for(let i=0;i<p.count;i++){const x=waterBase[i*3],y=waterBase[i*3+1];p.setZ(i,Math.sin(x*.33+y*.21+time*.91)*.025+Math.sin(x*.14-y*.38-time*.72)*.018);}p.needsUpdate=true;}
     rippleMat.uniforms.uTime.value=time;
     let changed=false;for(let i=0;i<dropCount;i++){const d=drops[i];if(d.life<=0)continue;d.life-=dt;d.vy-=9.2*dt;dropPos[i*3]+=d.vx*dt;dropPos[i*3+1]+=d.vy*dt;dropPos[i*3+2]+=d.vz*dt;dropAlpha[i]=Math.max(0,d.life/d.max)*.88;
-      if(dropPos[i*3+1]<-.03||d.life<=0){d.life=0;dropAlpha[i]=0;}changed=true;}
+      if(dropPos[i*3+1]<(natural?waterLevel-.03:-.03)||d.life<=0){d.life=0;dropAlpha[i]=0;}changed=true;}
     if(changed){dropGeo.attributes.position.needsUpdate=true;dropGeo.attributes.aAlpha.needsUpdate=true;}
     if(frame%2===0){let visible=0;
       for(let spot=0;spot<hotspots.length;spot++){const s=hotspots[spot];if(playerPos&&(s.x-playerPos.x)**2+(s.z-playerPos.z)**2>90**2)continue;
-        const limit=(s.rich?65:30)*clamp(s.flies/s.maxFlies,0,1);
+        const limit=(s.rich?65:30)*clamp(s.flies/s.maxFlies,0,1)*(natural?Math.min(1,s.ecology?.activity??1):1);
         for(const f of fliesBySpot[spot]){if(f.rank>=limit)continue;const a=time*f.speed+f.phase;object.position.set(s.x+Math.sin(a)*f.r+Math.sin(a*2.9)*.13,s.y+f.height+Math.sin(a*1.7+f.phase2)*.26,s.z+Math.cos(a*.83+f.phase2)*f.r);object.scale.setScalar(.55+.3*Math.sin(f.phase2)**2);object.rotation.set(Math.sin(a*3)*.25,-a,Math.sin(a*12)*.25);object.updateMatrix();fliesMesh.setMatrixAt(visible++,object.matrix);}
       }
       fliesMesh.count=visible;renderStats.flyMatricesUpdated=visible;
@@ -789,13 +839,13 @@ export function createWorld(scene, renderer, options={}) {
     // Nearby leaves flex gently; geometry and physics retain the same support
     // height so a player's footing never drifts under a stationary character.
     if(frame%5===0&&playerPos){lilyData.forEach((p,i)=>{if(Math.hypot(playerPos.x-p.x,playerPos.z-p.z)>48)return;object.position.set(p.x,p.y+Math.sin(time*.9+p.phase)*.018,p.z);object.rotation.set(Math.sin(time*.61+p.phase)*.015,p.angle,Math.cos(time*.8+p.phase)*.015);object.scale.set(p.visualRadius,1,p.visualRadius);object.updateMatrix();lilyMesh.setMatrixAt(i,object.matrix);});lilyMesh.flush();}
-    const closeLights=[...shelters].filter(s=>!s.userData.destroyed&&!s.userData.visualState?.underConstruction).sort((a,b)=>playerPos?a.position.distanceToSquared(playerPos)-b.position.distanceToSquared(playerPos):0).slice(0,3);
-    for(const s of shelters){s.userData.light.visible=closeLights.includes(s);s.userData.light.intensity=.25+(1-dayFactor)*3;s.userData.lamp.material.emissiveIntensity=.3+(1-dayFactor)*1.3;s.userData.banner.userData.flag.rotation.y=Math.sin(time*1.4+s.position.x)*.06;}
+    const closeLights=[...shelters].filter(s=>!s.userData.natural&&!s.userData.destroyed&&!s.userData.visualState?.underConstruction).sort((a,b)=>playerPos?a.position.distanceToSquared(playerPos)-b.position.distanceToSquared(playerPos):0).slice(0,3);
+    for(const s of shelters){if(s.userData.natural)continue;s.userData.light.visible=closeLights.includes(s);s.userData.light.intensity=.25+(1-dayFactor)*3;s.userData.lamp.material.emissiveIntensity=.3+(1-dayFactor)*1.3;s.userData.banner.userData.flag.rotation.y=Math.sin(time*1.4+s.position.x)*.06;}
   }
-  function dispose(){hideBuildArea();for(const preview of [...buildingPreviews])removeBuildingPreview(preview);scene.remove(group);const geos=new Set(),mats=new Set();group.traverse(o=>{if(o.isInstancedMesh)o.dispose();if(o.geometry)geos.add(o.geometry);if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>mats.add(m));else mats.add(o.material);}});for(const g of geos)g.dispose();for(const m of mats)m.dispose();for(const t of disposables)t.dispose();water.material.uniforms.mirrorSampler?.value?.dispose?.();shelters.clear();}
+  function dispose(){hideBuildArea();for(const preview of [...buildingPreviews])removeBuildingPreview(preview);scene.remove(group);const geos=new Set(),mats=new Set();group.traverse(o=>{if(o.isInstancedMesh)o.dispose();if(o.geometry)geos.add(o.geometry);if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>mats.add(m));else mats.add(o.material);}});for(const resource of creekDecor?.resources||[]){if(resource.isBufferGeometry)geos.add(resource);if(resource.isMaterial)mats.add(resource);}for(const g of geos)g.dispose();for(const m of mats)m.dispose();for(const t of disposables)t.dispose();water.material.uniforms.mirrorSampler?.value?.dispose?.();shelters.clear();}
   // Authored terrain and vegetation never move as objects. Dynamic motion uses
   // instance buffers/shaders; castles added later retain their movable pivots.
   group.traverse(o=>{o.updateMatrix();o.matrixAutoUpdate=false;});group.updateMatrixWorld(true);
-  return {group,platforms,hotspots,campSites,mapRegions,routes,predatorAnchors,bossAnchors,renderStats,seed,regionIndex,palette,toRegionPoint:layout.toWorld,radius:WORLD_RADIUS,boundary:WORLD_BOUNDARY,revision:WORLD_REVISION,sampleHeight,getTerrainHeight:terrainHeight,getSurface:surface,shelterLandHeight,update,splash,impact,createShelter,updateShelter,setConstructionProgress,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE};
+  return {group,platforms,hotspots,campSites,mapRegions,routes,predatorAnchors,bossAnchors,renderStats,seed,regionIndex,palette,toRegionPoint:layout.toWorld,radius:WORLD_RADIUS,boundary:WORLD_BOUNDARY,revision:WORLD_REVISION,sampleHeight,getTerrainHeight:terrainHeight,getSurface:surface,shelterLandHeight,update,splash,impact,createShelter,updateShelter,setConstructionProgress,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE,natural,creekLandmarks,creekNest,creekCover,creekGrips,creekSpawn:natural?{x:0,z:0}:null,creekTerritories:natural?campSites.filter(s=>s.team==='enemy'):[],setCreekState,currentAt,isCreekCover,get waterLevel(){return natural?waterLevel:CREEK_WATER_BASE;}};
 }
 

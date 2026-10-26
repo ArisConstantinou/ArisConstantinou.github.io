@@ -6,7 +6,7 @@ import {WORLD_REVISION,SHELTER_RADIUS} from './world-config.js';
 import {gatePoint,gateMaxHealth,clearFortPosition} from './fortification.js';
 import {acceptRecruitmentQuest} from './recruitment.js';
 import {createTacticalGroups,saveTacticalGroup,selectTacticalGroup,tacticalSnapshot,orderFlank} from './tactics.js';
-import {initRealmEconomy,updateRealmEconomy,economySave,realmEconomySnapshot,setCampSpecialization,craftEquipment,cancelRealmJob,constructionOffer} from './realm-economy.js';
+import {initRealmEconomy,updateRealmEconomy,economySave,realmEconomySnapshot,setCampSpecialization,craftEquipment,cancelRealmJob,constructionOffer,normalizeRealmEconomySave} from './realm-economy.js';
 import {createRealmState,realmDescriptor,realmSnapshot,splitRealmParty,completeRealmTravel,serializePredators,restoreRealmPredators,realmBackgroundSupply,realmBackgroundSnapshot,tickRealmEvents} from './realms.js';
 import {tutorialProgress,guideCard} from './field-guide.js';
 import {loadPersistentSave,persistSave,mostRecentSave} from './save-store.js';
@@ -14,8 +14,8 @@ import {updateConstructionSites,constructionWorkRate,constructionQueued,disposeC
 import {clearCombatFeedback} from './combat-feedback.js';
 import {recruitmentBubbleTarget,recruitmentBubbleAnchor} from './recruitment-bubble.js';
 
-export const ACTOR_SAVE_FIELDS=['id','name','team','role','tier','level','hp','maxHp','stomach','maxStomach','xp','x','z','yaw','morale','home','guard','leader','surrendered','order','skinColor','trained','trainingProgress','trainingCamp','trainingPaid','returnOrder','raidTarget','loot','surrenderTimer','persuadeCD','crowned','equipment','recruitment','firstRecruit','recruitXpAwarded','tacticalPath','tacticalTargetId'];
-const CAMP_FIELDS=['id','x','z','name','team','yaw','buildingPlacements','tier','hp','maxHp','gateHp','stock','buildings','originalEnemy','originalTeam','rivalIndex','capturedOnce','destroyRewarded','rebuildTimer','persuadeCD','destroyed','lootTaken','supplyMigrated','morale','spawnTimer','mealCount','mealDay','specialization','legacySlots','underConstruction','constructionProgress'];
+export const ACTOR_SAVE_FIELDS=['id','name','team','role','tier','level','hp','maxHp','stomach','maxStomach','xp','x','z','yaw','morale','home','guard','leader','surrendered','order','skinColor','trained','trainingProgress','trainingCamp','trainingPaid','returnOrder','raidTarget','loot','surrenderTimer','persuadeCD','crowned','equipment','recruitment','firstRecruit','recruitXpAwarded','tacticalPath','tacticalTargetId','legacyEquipment','creekOrderPoint','creekOrderUntil','creekTargetId','creekRecoveryAt'];
+const CAMP_FIELDS=['id','x','z','name','team','yaw','buildingPlacements','tier','hp','maxHp','gateHp','stock','buildings','originalEnemy','originalTeam','rivalIndex','capturedOnce','destroyRewarded','rebuildTimer','persuadeCD','destroyed','lootTaken','supplyMigrated','morale','spawnTimer','mealCount','mealDay','specialization','legacySlots','underConstruction','constructionProgress','natural','creekRelation','creekApproach','creekResolvedAt','creekVictory'];
 const clean=(object,fields)=>Object.fromEntries(fields.filter(k=>object[k]!==undefined).map(k=>[k,object[k]]));
 const clone=value=>JSON.parse(JSON.stringify(value));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
@@ -26,17 +26,20 @@ export const kingdomMethods={
     disposeConstructionSites(this);clearCombatFeedback(this);
     this.realms=createRealmState(save?.realms,{elapsed:save?.elapsed||0});
     const descriptor=realmDescriptor(this.realms.active);
-    if(this.world.seed!==undefined&&this.world.seed!==descriptor.seed){this.world.dispose?.();this.world=createWorld(this.scene,this.renderer,{seed:descriptor.seed,regionIndex:descriptor.index});}
+    if(this.world.seed!==undefined&&this.world.seed!==descriptor.seed){this.world.dispose?.();this.world=createWorld(this.scene,this.renderer,{seed:descriptor.seed,regionIndex:descriptor.index,natural:this.creekMode});}
   },
   initKingdom(save){
     this.realms??=createRealmState(save?.realms,{elapsed:this.elapsed});
-    initRealmEconomy(this,save);this.tacticalGroups=createTacticalGroups(save?.tacticalGroups);
+    if(this.creekMode){
+      if(save&&!save.creekSociety?.initialized)for(const job of save.economy?.jobs||[])for(const key of ['food','reeds'])this.resources[key]=(this.resources[key]||0)+Math.max(0,Number(job.cost?.[key])||0);
+      this.economy={...normalizeRealmEconomySave({}),servedRatio:1,nextShortageNotice:0};
+    }else initRealmEconomy(this,save);this.tacticalGroups=createTacticalGroups(save?.tacticalGroups);
     const source=save?.guide||{};
     this.guide={version:1,seen:[...new Set((source.seen||[]).filter(id=>guideCard(id)))],hinted:[...new Set((source.hinted||[]).filter(id=>guideCard(id)))],pending:[],distance:Math.max(0,Number(source.distance)||0),groupsSaved:Math.max(0,Number(source.groupsSaved)||0),tutorialDismissed:!!source.tutorialDismissed,nextPauseAt:this.elapsed+5};
     this.guideLastPosition={x:this.player.x,z:this.player.z};this.closeRecruitment();this._guidePause=null;this.nextGuideCheck=0;
     this.pendingRespawn=!!save?.pendingRespawn;this.won=false;
     if(save?.predators?.length)restoreRealmPredators(this,save.predators);
-    updateConstructionSites(this,0);
+    if(!this.creekMode)updateConstructionSites(this,0);
   },
   async loadCampaignSave(){
     try{
@@ -45,7 +48,7 @@ export const kingdomMethods={
     }catch{ /* The complete local fallback, when present, stays usable. */ }
   },
   createSaveData(){
-    return {version:SAVE_VERSION,worldRevision:WORLD_REVISION,balanceRevision:this.balanceRevision??1,pendingRivalRecoveryCampId:this.pendingRivalRecoveryCampId||null,nextRaid:this.nextRaid,graceUntil:this.graceUntil,elapsed:this.elapsed,savedAt:Date.now(),pendingRespawn:!!this.player.dead,resources:{...this.resources},stats:{...this.stats},campaign:this.campaign,realms:this.realms,economy:economySave(this),guide:this.guide,tacticalGroups:this.tacticalGroups,player:clean(this.player,ACTOR_SAVE_FIELDS),frogs:this.frogs.filter(f=>f!==this.player&&!f.dead).map(f=>clean(f,ACTOR_SAVE_FIELDS)),camps:this.camps.map(c=>clean(c,CAMP_FIELDS)),predators:serializePredators(this),hotspots:this.world.hotspots.map(h=>({id:h.id,flies:h.flies})),idCounter:this.idCounter,won:false};
+    return {version:SAVE_VERSION,creekMode:!!this.creekMode,creek:this.creekSave?.(),creekSociety:this.creekSociety?{...this.creekSociety}:undefined,worldRevision:WORLD_REVISION,balanceRevision:this.balanceRevision??1,pendingRivalRecoveryCampId:this.pendingRivalRecoveryCampId||null,nextRaid:this.nextRaid,graceUntil:this.graceUntil,elapsed:this.elapsed,savedAt:Date.now(),pendingRespawn:!!this.player.dead,resources:{...this.resources},stats:{...this.stats},campaign:this.campaign,realms:this.realms,economy:economySave(this),guide:this.guide,tacticalGroups:this.tacticalGroups,player:clean(this.player,ACTOR_SAVE_FIELDS),frogs:this.frogs.filter(f=>f!==this.player&&!f.dead).map(f=>clean(f,ACTOR_SAVE_FIELDS)),camps:this.camps.map(c=>clean(c,CAMP_FIELDS)),predators:serializePredators(this),hotspots:this.world.hotspots.map(h=>({id:h.id,flies:h.flies})),idCounter:this.idCounter,won:false};
   },
   save(){
     if(!this.started)return false;
@@ -60,12 +63,16 @@ export const kingdomMethods={
     return [...this.camps.map(c=>({...c,id:`${this.realms?.active??0}:${c.id}`})),...Object.entries(this.realms?.regions||{}).filter(([id])=>Number(id)!==this.realms.active).flatMap(([id,r])=>(r.snapshot?.camps||[]).map(c=>({...c,id:`${id}:${c.id}`})))];
   },
   kingdomState(){
+    if(this.creekMode){
+      const background=Object.entries(this.realms?.regions||{}).filter(([id])=>Number(id)!==this.realms.active).flatMap(([,r])=>r.snapshot?.frogs||[]).filter(f=>f.team==='ally'&&f.hp>0);
+      return {realmEconomy:{jobs:[],recipes:[],camps:[],shortage:false},realm:realmSnapshot(this),recruitment:this.recruitmentSnapshot(recruitmentBubbleTarget(this)),tacticalGroups:tacticalSnapshot(this),guide:{...this.guide,tutorial:[]},kingdomPopulation:this.allies().length+background.length+(this.player.dead?0:1),kingdomGuards:this.allies().filter(f=>f.guard).length+background.filter(f=>f.guard).length};
+    }
     const economy=realmEconomySnapshot(this),background=realmBackgroundSnapshot(this),p=this.player;
     const recruitment=this.recruitmentSnapshot(recruitmentBubbleTarget(this));
     return {realmEconomy:{...economy,background},realm:realmSnapshot(this),recruitment,tacticalGroups:tacticalSnapshot(this),guide:{...this.guide,tutorial:tutorialProgress({distance:this.guide?.distance,gatheredFood:this.stats.gatheredFood,gatheredReeds:this.stats.gatheredReeds,recruited:this.stats.recruited,shelters:this.allKingdomCamps().filter(completed).length,groupsSaved:this.guide?.groupsSaved,crafted:this.stats.crafted})},kingdomPopulation:this.allies().length+background.armyCount+(p.dead?0:1),kingdomGuards:this.allies().filter(f=>f.guard).length+background.guards};
   },
   updateKingdom(dt){
-    updateRealmEconomy(this,dt);realmBackgroundSupply(this,dt);
+    if(!this.creekMode){updateRealmEconomy(this,dt);realmBackgroundSupply(this,dt);}
     if(this.guide){const p=this.player,last=this.guideLastPosition;this.guide.distance+=last?Math.min(1,distance(p,last)):0;this.guideLastPosition={x:p.x,z:p.z};}
     if(this.pendingRespawn){this.pendingRespawn=false;this.respawn();}
     if(this.elapsed<(this.nextGuideCheck||0))return;this.nextGuideCheck=this.elapsed+.7;
@@ -79,6 +86,7 @@ export const kingdomMethods={
     this.guide.hinted.push(id);this.ui.showGuideHint?.(id);
   },
   discoverNearbyGuides(){
+    if(this.creekMode){if(this.world.hotspots.some(h=>distance(h,this.player)<9))this.discoverGuide('flies');for(const p of this.predators)if(!p.dead&&distance(p,this.player)<35)this.discoverGuide(p.type);return;}
     if(!this.started||this.ui.panel)return;
     const ctx=this.context();if(ctx.type==='recruit')this.discoverGuide(ctx.entity.team==='neutral'?'neutral':'surrender');
     if(this.world.hotspots.some(h=>distance(h,this.player)<9))this.discoverGuide('flies');
@@ -163,22 +171,24 @@ export const kingdomMethods={
     const homes=destination?.camps?.filter(completed)||[],safe=homes[0]?gatePoint(homes[0],-5.5):{x:0,z:0};
     Object.assign(player,safe);player.home=null;
     const frogs=[...(destination?.frogs||[]),...travellers.map((f,i)=>({...f,x:safe.x+Math.sin(i*2.4)*(3+Math.sqrt(i)),z:safe.z+Math.cos(i*2.4)*(3+Math.sqrt(i)),guard:false,order:'follow',home:homes[0]?.id||null,tacticalPath:[],tacticalTargetId:null}))];
-    const loading={...(destination||{}),newRealm:!destination,version:SAVE_VERSION,worldRevision:WORLD_REVISION,realms,player,frogs,resources,stats:{...this.stats},campaign:this.campaign,guide:this.guide,tacticalGroups:this.tacticalGroups,idCounter:this.idCounter,elapsed:this.elapsed,balanceRevision:1,nextRaid:this.elapsed+90,graceUntil:this.elapsed+45};
+    const loading={...(destination||{}),creek:this.creekSave?.(),creekMode:!!this.creekMode,creekSociety:destination?.creekSociety,newRealm:!destination,version:SAVE_VERSION,worldRevision:WORLD_REVISION,realms,player,frogs,resources,stats:{...this.stats},campaign:this.campaign,guide:this.guide,tacticalGroups:this.tacticalGroups,idCounter:this.idCounter,elapsed:this.elapsed,balanceRevision:1,nextRaid:this.elapsed+90,graceUntil:this.elapsed+45};
     this.ui.closePanels();this.resetWorld(loading);this.started=true;this.paused=false;this.ended=false;this.player.invulnerable=7;this.input.clear();this.input.lock();this.discoverGuide('frontier');this.save();
-    this.ui.toast({icon:'map',label:result.descriptor.name,detail:'Οι προηγούμενες περιοχές, οι φρουρές και τα εργοτάξιά σου διατηρούνται.',tone:'success'});return true;
+    this.ui.toast({icon:'map',label:result.descriptor.name,detail:this.creekMode?'Οι ανακαλύψεις, οι σύντροφοι και οι σχέσεις στις προηγούμενες όχθες διατηρούνται.':'Οι προηγούμενες περιοχές, οι φρουρές και τα εργοτάξιά σου διατηρούνται.',tone:'success'});return true;
   },
   respawn(){
     const p=this.player;
     if(p.grabbedBy){p.grabbedBy.grabbed=null;p.grabbedBy.target=null;p.grabbedBy=null;}
     const homes=this.ownedCamps().filter(c=>this.campSafe(c));
-    const choices=[...homes.map(c=>gatePoint(c,-5.5)),{x:0,z:0},...this.world.campSites.filter(c=>c.team==='neutral')];
-    const danger=point=>Math.min(100,...this.frogs.filter(f=>!f.dead&&!f.surrendered&&f.team.startsWith('enemy')).map(f=>distance(point,f)),...this.predators.filter(f=>!f.dead).map(f=>distance(point,f)));
+    const nest=this.creekMode?this.creekNestState?.():null;
+    const choices=[...(nest?.safe?[nest]:[]),...homes.map(c=>gatePoint(c,-5.5)),{x:0,z:0},...this.world.campSites.filter(c=>c.team==='neutral')];
+    const danger=point=>Math.min(100,...this.frogs.filter(f=>!f.dead&&!f.surrendered&&(this.creekMode?this.hostile(p,f):f.team.startsWith('enemy'))).map(f=>distance(point,f)),...this.predators.filter(f=>!f.dead).map(f=>distance(point,f)));
     const point=choices.find(c=>danger(c)>28)||choices.sort((a,b)=>danger(b)-danger(a))[0]||{x:0,z:0};
-    clearCombatFeedback(this);Object.assign(p,{dead:false,hp:p.maxHp*.7,stomach:Math.max(45,p.stomach),stamina:100,vx:0,vz:0,vy:0,grounded:true,invulnerable:10,stun:0,surrendered:false,charge:-1,...point});p.y=this.world.sampleHeight(p.x,p.z);
+    clearCombatFeedback(this);Object.assign(p,{dead:false,hp:p.maxHp*.7,stomach:Math.max(45,p.stomach),stamina:100,vx:0,vz:0,vy:0,grounded:true,invulnerable:10,stun:0,surrendered:false,charge:-1,x:point.x,z:point.z});p.y=this.world.sampleHeight(p.x,p.z);
     this.graceUntil=this.elapsed+20;this.hunt=null;this.deathTimer=0;this.ended=false;this.guideLastPosition={x:p.x,z:p.z};p.model.setOutline(COLORS.player,true);this.updateCamera(.1,true);
-    this.ui.toast('Επέστρεψες σε ασφαλές σημείο. Οι απώλειες στρατιωτών και εδαφών παραμένουν.','warning');this.discoverGuide('respawn');this.save();
+    this.onCreekRespawn?.();this.ui.toast(this.creekMode?'Επέστρεψες σε καταφύγιο. Τα σημαντικά ευρήματα περιμένουν εκεί που έπεσες.':'Επέστρεψες σε ασφαλές σημείο. Οι απώλειες στρατιωτών και εδαφών παραμένουν.','warning');this.discoverGuide('respawn');this.save();
   },
   handleKingdomAction(action,payload={}){
+    if(this.creekMode&&['craft-target-player','camp-specialization','craft-equipment','cancel-job','recruit-help'].includes(action))return true;
     if(action==='recruit-close'){
       this.closeRecruitment();if(this.canLockGameplayPointer())this.input.lock?.();return true;
     }

@@ -25,7 +25,7 @@ export function tacticalSnapshot(game){
 /** A flank is a real two-leg path before attacking, never a teleport or damage bonus. */
 export function orderFlank(game,ids,side){
   const aimed=game.aimTarget?.kind==='actor'?game.aimTarget.entity:null;
-  const target=aimed&&(aimed.team==='predator'||game.hostile(game.player,aimed))?aimed:game.hunt&&!game.hunt.dead?game.hunt:game.camps.filter(c=>!c.destroyed&&c.team.startsWith('enemy')).sort((a,b)=>Math.hypot(a.x-game.player.x,a.z-game.player.z)-Math.hypot(b.x-game.player.x,b.z-game.player.z))[0];
+  const target=aimed&&(aimed.team==='predator'||game.hostile(game.player,aimed))?aimed:game.hunt&&!game.hunt.dead?game.hunt:game.camps.filter(c=>!c.destroyed&&c.team.startsWith('enemy')&&(!game.creekMode||!['coexist','respect','yielded'].includes(c.creekRelation))).sort((a,b)=>Math.hypot(a.x-game.player.x,a.z-game.player.z)-Math.hypot(b.x-game.player.x,b.z-game.player.z))[0];
   if(!target)return false;
   const selected=new Set(ids),squad=game.frogs.filter(f=>validFrog(f)&&selected.has(f.id));if(!squad.length)return false;
   const dx=target.x-game.player.x,dz=target.z-game.player.z,d=Math.max(1,Math.hypot(dx,dz)),sign=side==='left'?-1:1;

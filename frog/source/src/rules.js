@@ -5,6 +5,8 @@ import {WORLD_BOUNDARY,WORLD_REVISION} from './world-config.js';
 import {migrateWorldSave} from './save-migration.js';
 import {normalizeEquipment,normalizeRealmEconomySave} from './realm-economy.js';
 import {normalizeRecruitment} from './recruitment.js';
+import {normalizeCreekState} from './creek-state.js';
+import {normalizeCreekSociety} from './creek-society-state.js';
 export const SAVE_VERSION = 1;
 export const SAVE_KEY = 'frog-creek-dominion-v1';
 export const COLORS = {player:0xe4f58c,ally:0x72edbb,enemy:0xff7865,neutral:0xeed585,predator:0xffa54f,surrender:0xffe59b};
@@ -69,14 +71,14 @@ const savedYaw=value=>Number.isFinite(value)?Math.atan2(Math.sin(value),Math.cos
 const savedCounter=value=>Math.floor(clamp(value??0,0,Number.MAX_SAFE_INTEGER));
 const savedStrings=value=>[...new Set((Array.isArray(value)?value:[]).filter(v=>stringId(v)))];
 const validTeam=t=>typeof t==='string'&&/^(player|ally|neutral|enemy\d*)$/.test(t);
-const savedOrders=['follow','attack','guard','forage','regroup','training','flank'];
+const savedOrders=['follow','attack','guard','forage','regroup','training','flank','scout','distract','protect','retreat'];
 
 /** JSON data can contain accidental cycles in IndexedDB. Strip nested realm
  * ledgers before cloning, so a region never recursively contains the kingdom. */
 function cloneSaveData(data){
   const ancestors=[];
   try{return JSON.parse(JSON.stringify(data,function(key,value){
-    if(['__proto__','prototype','constructor'].includes(key)||(key==='realms'&&this!==data)||typeof value==='bigint')return undefined;
+    if(['__proto__','prototype','constructor'].includes(key)||(['realms','creek'].includes(key)&&this!==data)||typeof value==='bigint')return undefined;
     if(value&&typeof value==='object'){
       while(ancestors.length&&ancestors.at(-1)!==this)ancestors.pop();
       if(ancestors.includes(value))return undefined;
@@ -94,6 +96,11 @@ function savedActor(f,elapsed){
   const contract=record(f.recruitment)?f.recruitment:null,quest=record(contract?.quest)?contract.quest:{};
   const terms=contract?normalizeRecruitment({...contract,requirements:Array.isArray(contract.requirements)?contract.requirements.filter(id=>typeof id==='string'):[],quest:{...quest,accepted:quest.accepted===true}}):null;
   actor.recruitment=terms?.requirements.length?terms:null;
+  if(finitePoint(f.creekOrderPoint))actor.creekOrderPoint=savedPoint(f.creekOrderPoint);else delete actor.creekOrderPoint;
+  if(f.creekOrderUntil!==undefined)actor.creekOrderUntil=clamp(f.creekOrderUntil,0,elapsed+3600);
+  if(f.creekRecoveryAt!==undefined)actor.creekRecoveryAt=clamp(f.creekRecoveryAt,0,elapsed+60);
+  if(f.creekTargetId!==undefined)actor.creekTargetId=stringId(f.creekTargetId);
+  if(record(f.legacyEquipment))actor.legacyEquipment=normalizeEquipment(f.legacyEquipment);
   if(actor.order==='flank'&&!actor.tacticalTargetId){actor.order='follow';actor.tacticalPath=[];}
   for(const key of ['dead','grabbedBy','combatImpulse','orderTarget','combatTarget','intent','model'])delete actor[key];
   return actor;
@@ -101,6 +108,7 @@ function savedActor(f,elapsed){
 
 function savedCamp(c,elapsed){
   const camp={...c,name:typeof c.name==='string'?c.name.slice(0,80):'Καταφύγιο',...savedPoint(c),yaw:savedYaw(c.yaw),tier:Math.floor(clamp(c.tier||1,1,3)),maxHp:clamp(c.maxHp||350,100,10000),gateHp:Number.isFinite(c.gateHp)?clamp(c.gateHp,0,10000):undefined,hp:clamp(c.hp??350,0,clamp(c.maxHp||350,100,10000)),stock:{food:clamp(c.stock?.food||0,0,1e6),reeds:clamp(c.stock?.reeds||0,0,1e6)},buildings:Object.fromEntries(['store','nursery','training','watchtower','palisade'].map(k=>[k,!!c.buildings?.[k]])),morale:clamp(c.morale??100,0,100),destroyed:!!c.destroyed,originalEnemy:!!c.originalEnemy,originalTeam:typeof c.originalTeam==='string'&&/^enemy\d+$/.test(c.originalTeam)?c.originalTeam:null,rivalIndex:Math.floor(clamp(c.rivalIndex??Number((c.team.match(/enemy(\d+)/)||[])[1])??0,0,4)),capturedOnce:!!c.capturedOnce,destroyRewarded:!!c.destroyRewarded,lootTaken:!!c.lootTaken,rebuildTimer:clamp(c.rebuildTimer||0,0,300),persuadeCD:clamp(c.persuadeCD||0,0,elapsed+60),supplyMigrated:!!c.supplyMigrated,spawnTimer:clamp(c.spawnTimer||0,0,10000),mealCount:clamp(c.mealCount||0,0,2),mealDay:clamp(c.mealDay||0,0,1e6),specialization:['production','defense','training'].includes(c.specialization)?c.specialization:null,legacySlots:Math.floor(clamp(c.legacySlots??0,0,5)),underConstruction:c.underConstruction===true,constructionProgress:clamp(c.constructionProgress??(c.underConstruction?0:1),0,1)};
+  if(c.natural===true){camp.natural=true;camp.gateHp=0;camp.creekRelation=['hostile','coexist','yielded','respect'].includes(c.creekRelation)?c.creekRelation:'hostile';camp.creekApproach=['share','respect','coexist'].includes(c.creekApproach)?c.creekApproach:'share';camp.creekResolvedAt=clamp(c.creekResolvedAt||0,0,elapsed);camp.creekVictory=['contest','share','respect','coexist'].includes(c.creekVictory)?c.creekVictory:null;}
   camp.buildingPlacements=normalizeBuildingPlacements(camp);
   if(camp.team==='ally'&&(!camp.buildings.nursery||camp.underConstruction))camp.spawnTimer=0;
   delete camp.mesh;delete camp.safe;
@@ -140,6 +148,7 @@ function normalizeLocalSave(copy,{player=false}={}){
   delete copy.realmEconomy;
   copy.hotspots=(Array.isArray(copy.hotspots)?copy.hotspots:[]).filter(h=>record(h)&&stringId(h.id)).map(h=>({id:h.id,flies:clamp(h.flies??0,0,1e6)}));
   if(copy.realmEvents!==undefined)copy.realmEvents=savedRealmEvents(copy.realmEvents,copy.elapsed);
+  if(copy.creekSociety!==undefined)copy.creekSociety=normalizeCreekSociety(record(copy.creekSociety)?copy.creekSociety:{},copy.elapsed);
   copy.nextRaid=clamp(copy.nextRaid??copy.elapsed+90,copy.elapsed,copy.elapsed+300);copy.graceUntil=clamp(copy.graceUntil??copy.elapsed,0,copy.elapsed+90);
   copy.idCounter=savedCounter(copy.idCounter);copy.pendingRivalRecoveryCampId=stringId(copy.pendingRivalRecoveryCampId);
   return copy;
@@ -177,6 +186,7 @@ export function validateSave(data){
   if(copy.realms!==undefined)copy.realms=savedRealmState(copy.realms,originalRevision,copy.elapsed);
   if(copy.guide!==undefined){const guide=record(copy.guide)?copy.guide:{};copy.guide={version:1,seen:savedStrings(guide.seen),hinted:savedStrings(guide.hinted),distance:clamp(guide.distance??0,0,Number.MAX_SAFE_INTEGER),groupsSaved:savedCounter(guide.groupsSaved),tutorialDismissed:guide.tutorialDismissed===true};}
   if(copy.tacticalGroups!==undefined)copy.tacticalGroups=(Array.isArray(copy.tacticalGroups)?copy.tacticalGroups:[]).filter(g=>record(g)&&['1','2','3'].includes(String(g.id))).map(g=>({id:String(g.id),ids:savedStrings(g.ids)}));
+  if(record(copy.creek)){copy.creek=normalizeCreekState(copy.creek,{elapsed:copy.elapsed,realmIndex:copy.realms?.active||0});copy.creekMode=true;}else delete copy.creek;
   copy.won=!!copy.won;return copy;
 }
 export function mulberry32(seed){return()=>{let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}

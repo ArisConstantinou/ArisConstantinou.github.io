@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {computeHUDLayout,hudRectsOverlap,refreshHUDLayout} from '../src/hud-layout.js';
+import {computeHUDLayout,hudRectsOverlap,refreshHUDLayout,needsCompactHUD} from '../src/hud-layout.js';
 const r=(left,top,width,height)=>({left,top,width,height,right:left+width,bottom:top+height});
 const desktop=()=>({viewport:{width:1280,height:720},bounds:{player:r(16,16,222,184),navigation:r(16,208,222,35),minimap:r(1018,16,246,396),actionbar:r(300,616,680,88),selection:r(16,640,260,44),objective:r(523,16,234,52),mainHeader:r(16,166,560,78)},mainPanel:{open:true,expanded:true}});
 const fixed=(data,layout)=>['player','navigation','minimap','tutorial','actionbar','selection','tactics'].map(key=>['selection','tactics'].includes(key)?layout[key]:data.bounds[key]).filter(Boolean);
@@ -137,4 +137,92 @@ test('a construction widget clipped to zero height is measured from its contents
   const root={querySelector:s=>elements[s]||null,getBoundingClientRect:()=>r(0,0,1280,720),style:{setProperty:(key,value)=>styles[key]=value},classList:{toggle(){},add(){}}};
   const layout=refreshHUDLayout({root,refs:{constructionHUD:element(r(485,310,310,0),34),constructionToggle:element(r(485,310,310,34)),constructionBody:{scrollHeight:192},panelLayer:{hidden:true}},constructionExpanded:true});
   assert.equal(layout.construction.height,226);assert.equal(styles['--hud-construction-height'],'226px');
+});
+
+test('readable 1440p HUD reserves larger text containers at every supported interface scale',()=>{
+  for(const uiScale of [.85,1,1.4]){
+    const s=uiScale,width=2560,height=1440,playerWidth=294*s,mapWidth=320*s,barWidth=950*s;
+    const data={uiScale,viewport:{width,height},bounds:{
+      player:r(20,20,playerWidth,225*s),navigation:r(20,253*s,playerWidth,46*s),tutorial:r(20,309*s,playerWidth,115*s),
+      minimap:r(width-20-mapWidth,20,mapWidth,590*s),actionbar:r((width-barWidth)/2,height-20-116*s,barWidth,116*s),
+      selection:r(20,height-20-72*s,330*s,72*s),tactics:r(20,height-108*s,300*s,58*s),
+      objective:r(1060,20,440*s,170*s),hunt:r(1065,200,430*s,120*s),
+      construction:r(1085,330,390*s,250*s),constructionHeader:r(1085,330,390*s,48*s)
+    },mainPanel:{open:true,expanded:true},conceptOpen:true};
+    const layout=computeHUDLayout(data),obstacles=fixed(data,layout);
+    assert.equal(layout.goal.width,440*s);assert.equal(layout.hunt.width,430*s);assert.equal(layout.construction.width,390*s);
+    assert.equal(layout.left.width,640*s);assert.equal(layout.right.width,380*s);
+    for(const [name,item] of Object.entries({goal:layout.goal,hunt:layout.hunt,construction:layout.construction,left:layout.left,right:layout.right})){
+      inside(item,data.viewport);clear(item,obstacles,`readable ${name} at ${s}`);
+    }
+    clear(layout.hunt,[layout.goal],'readable warning');clear(layout.construction,[layout.goal,layout.hunt],'readable progress');
+    clear(layout.left,[layout.goal,layout.hunt,layout.construction,layout.right],'readable main panel');
+    clear(layout.right,[layout.goal,layout.hunt,layout.construction],'readable concept panel');
+  }
+});
+
+test('large readable text keeps More and objective details above the footer while preserving real construction header height',()=>{
+  const base={uiScale:1.4,viewport:{width:1366,height:900},bounds:{
+    player:r(20,20,412,285),navigation:r(20,313,412,60),tutorial:r(20,383,412,132),
+    minimap:r(898,20,448,510),actionbar:r(20,716,1326,164),selection:r(20,810,300,70),
+    objective:r(452,20,426,220),hunt:r(452,250,426,125),construction:r(452,385,426,280),constructionHeader:r(452,385,426,68),
+    objectiveDetails:r(452,250,426,500),actionDrawer:r(347,500,672,430)
+  }};
+  for(const mode of ['objectives','actions']){
+    const data={...base,objectiveDetailsOpen:mode==='objectives',actionDrawerOpen:mode==='actions'};
+    const layout=computeHUDLayout(data),drawer=mode==='objectives'?layout.objectiveDetails:layout.actionDrawer;
+    inside(drawer,data.viewport);clear(drawer,[...fixed(data,layout),layout.goal,layout.hunt,layout.construction],mode);
+    assert.ok(drawer.height>0,`${mode} remains reachable`);
+    assert.ok(layout.construction.height>=68,'the larger progress header is never clipped to the old 34px budget');
+  }
+});
+
+test('readable scale changes reserve larger widths without accumulating coordinate drift',()=>{
+  const data={...desktop(),viewport:{width:1920,height:1080},bounds:{...desktop().bounds,player:r(20,20,294,225),navigation:r(20,253,294,46),minimap:r(1580,20,320,510),actionbar:r(485,944,950,116),objective:r(740,20,440,170)}};
+  const normal=computeHUDLayout({...data,uiScale:1}),large=computeHUDLayout({...data,uiScale:1.4});
+  assert.equal(normal.goal.width,440);assert.equal(large.goal.width,616);
+  const again=computeHUDLayout({...data,uiScale:1,bounds:{...data.bounds,objective:large.goal,selection:large.selection}});
+  assert.deepEqual(again.goal,normal.goal);assert.deepEqual(again.selection,normal.selection);
+  const legacy=computeHUDLayout(data);assert.equal(legacy.goal.width,328,'non-game callers keep their existing geometry contract');
+});
+
+test('browser-measured 1280 by 720 at 140 percent leaves a real roster body beside every essential HUD item',()=>{
+  // Measured from the live GameUI fixture with roster, recruitment condition and
+  // a heron warning. The compact class retains 140% type and removes duplicate docks.
+  const data={uiScale:1.4,viewport:{width:1280,height:720},bounds:{
+    player:r(12,12,364,188.59),navigation:r(13,207.59,362,45.36),minimap:r(960,12,308,298.80),
+    actionbar:r(12,598,1256,110),objective:r(386,12,564,162.42),hunt:r(386,184.42,564,111.36),
+    mainHeader:r(12,305.78,896,64)
+  },mainPanel:{open:true,expanded:true}};
+  assert.equal(needsCompactHUD(data.viewport,1.4),true);
+  assert.equal(needsCompactHUD({width:2560,height:1440},1.4),false,'1440p retains its full layout');
+  const layout=computeHUDLayout(data),obstacles=fixed(data,layout);
+  assert.equal(layout.goal.height,162.42,'reserve the full painted objective instead of clipping its layout box');
+  assert.equal(layout.hunt.height,111.36);
+  assert.ok(layout.left.height>=280,'the open roster has usable height, not just a zero-height anchor');
+  assert.ok(layout.left.height-data.bounds.mainHeader.height>=210,'large text still has a scrollable body below its visible header');
+  for(const [name,item] of Object.entries({goal:layout.goal,hunt:layout.hunt,left:layout.left})){inside(item,data.viewport);clear(item,obstacles,name);}
+  clear(layout.goal,[layout.hunt,layout.left],'objective');clear(layout.hunt,[layout.left],'warning');
+  assert.ok(layout.left.bottom<=data.bounds.actionbar.top-10);
+});
+
+test('a shallow wide drawer moves into a clear column instead of becoming unreachable below the viewport',()=>{
+  const data={uiScale:1.4,viewport:{width:1280,height:800},bounds:{
+    player:r(12,12,412,290),navigation:r(12,310,412,49),minimap:r(820,12,448,500),
+    actionbar:r(12,678,1256,110),objective:r(12,369,412,160),hunt:r(12,539,412,110),mainHeader:r(12,659,798,80)
+  },mainPanel:{open:true,expanded:true}};
+  const layout=computeHUDLayout(data);
+  assert.ok(layout.left.height>=200);assert.ok(layout.left.width>=300);
+  assert.ok(layout.left.left>data.bounds.player.right,'the free centre column remains a usable option');
+  inside(layout.left,data.viewport);clear(layout.left,[...fixed(data,layout),layout.goal,layout.hunt],'fallback drawer');
+});
+
+test('compact composition is applied before DOM measurements and restored after widening to 1440p',()=>{
+  const classes=new Set(),measurements=[],styles={};let width=1280,height=720;
+  const bounds={'.fg-player':r(12,12,364,188.59),'.fg-knowledge-tools':r(13,207.59,362,45.36),'.fg-location':r(960,12,308,298.80),'.fg-primary-actions':r(12,598,1256,110)};
+  const root={querySelector:selector=>bounds[selector]?{hidden:false,closest:()=>null,getBoundingClientRect(){measurements.push(classes.has('fg-short-hud'));return bounds[selector];}}:null,getBoundingClientRect:()=>r(0,0,width,height),style:{setProperty:(key,value)=>styles[key]=value},classList:{toggle:(key,on)=>on?classes.add(key):classes.delete(key),add:key=>classes.add(key)}};
+  const ui={root,settings:{uiScale:1.4},refs:{panelLayer:{hidden:false}},panel:'roster',menu:null};
+  refreshHUDLayout(ui);assert.ok(measurements.every(Boolean),'CSS changes must take effect before the first rectangle read');assert.equal(classes.has('fg-main-open'),true);
+  width=2560;height=1440;measurements.length=0;ui.panel=null;
+  refreshHUDLayout(ui);assert.ok(measurements.every(value=>!value));assert.equal(classes.has('fg-main-open'),false);
 });
