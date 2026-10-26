@@ -2,6 +2,7 @@ import { ArcadeGame } from './arcade.js';
 import { installTapBuffer } from './arcade-tap-buffer.js';
 import { installCameraButton } from './arcade-camera-button.js';
 import { installCatapultControls } from './arcade-catapult-controls.js';
+import { installArcadeGestureGuard } from './arcade-gesture-guard.js';
 function report(error){
  console.error(error);
  let boot=document.getElementById('boot');
@@ -12,4 +13,4 @@ function report(error){
 }
 addEventListener('error',e=>report(e.error||e.message));
 addEventListener('unhandledrejection',e=>report(e.reason));
-requestAnimationFrame(()=>{try{window.frogArcade=new ArcadeGame();installTapBuffer(window.frogArcade);installCameraButton(window.frogArcade);installCatapultControls(window.frogArcade);}catch(error){report(error);}});
+requestAnimationFrame(()=>{try{const game=window.frogArcade=new ArcadeGame();installTapBuffer(game);installCameraButton(game);installCatapultControls(game);installArcadeGestureGuard({surfaces:[game.renderer.domElement,game.labels,game.ui]});}catch(error){report(error);}});

@@ -5,6 +5,7 @@ import {BASES,ENCLOSURES,WALLS,TREES,enclosingYard} from './arcade-bases.js';
 const COLORS=['#b5dc72','#ee8c72','#bd9ee3'];
 const clamp=(n,min=0,max=1)=>Math.max(min,Math.min(max,n));
 const TAU=Math.PI*2;
+const ROOF_SIGHT_BONES=['pelvis','spine','head','eyeL','eyeR','wrist-1','wrist1','foot-1','foot1'];
 
 // Geometry comes from the same footprints used by collisions and AI routes.
 // The roof and nearby foliage fade locally, while the physical walls stay solid.
@@ -14,6 +15,8 @@ export class ArcadeBasesView {
     this.group=new THREE.Group();this.group.name='storage-homes-and-fenced-catapult-yards';this.scene.add(this.group);
     this.bases=new Map();this.groves=[];this.enclosures=new Map();this.ownedGeometries=[];this.ownedMaterials=[];this.dummy=new THREE.Object3D();
     this.sightRay=new THREE.Ray();this.sightTarget=new THREE.Vector3();this.sightHit=new THREE.Vector3();
+    this.roofRay=new THREE.Ray();this.roofHit=new THREE.Vector3();this.roofCamera=new THREE.Vector3();this.roofAnchor=new THREE.Vector3();this.roofNearest=new THREE.Vector3();
+    this.roofTargets=Array.from({length:16},()=>new THREE.Vector3());this.roofTargetCount=0;
     this.geometries={box:new THREE.BoxGeometry(1,1,1),cylinder:new THREE.CylinderGeometry(.5,.5,1,8),cone:new THREE.ConeGeometry(1,1,5),leaf:new THREE.IcosahedronGeometry(1,1),ring:new THREE.RingGeometry(.91,1,40),wing:new THREE.SphereGeometry(1,6,4),sphere:new THREE.SphereGeometry(1,8,6)};
     this.materials={wood:new THREE.MeshToonMaterial({color:'#866244'}),lightWood:new THREE.MeshToonMaterial({color:'#c69b62'}),darkWood:new THREE.MeshToonMaterial({color:'#554535'}),leaf:new THREE.MeshToonMaterial({color:'#56874d'}),fly:new THREE.MeshToonMaterial({color:'#233e38'}),wing:new THREE.MeshToonMaterial({color:'#d5eee1',transparent:true,opacity:.85}),ruin:new THREE.MeshToonMaterial({color:'#6a6855'}),dark:new THREE.MeshBasicMaterial({color:'#173b31'}),alert:new THREE.MeshBasicMaterial({color:'#f4af69'})};
     this.buildWalls();
@@ -91,6 +94,52 @@ export class ArcadeBasesView {
     }
   }
 
+  prepareRoofSight(player){
+    this.roofTargetCount=0;
+    const camera=this.game.camera;if(!player||!camera)return;
+    camera.getWorldPosition(this.roofCamera);
+    const model=this.game.models?.[0],load=clamp(player.load||0);
+    if(model?.group){
+      model.group.updateWorldMatrix(true,true);this.roofAnchor.setFromMatrixPosition(model.group.matrixWorld);
+      for(const name of ROOF_SIGHT_BONES){
+        const bone=model.bones?.[name];if(bone)this.roofTargets[this.roofTargetCount++].setFromMatrixPosition(bone.matrixWorld);
+      }
+    }else this.roofAnchor.set(player.x,this.ground(player.x,player.z)+(player.height||0)+load*.28+(player.catapultId?.45:0),player.z);
+    // Cover the full visible body as well as the rig's head, hands and feet.
+    // A centre-only ray can miss a roof cutting across one edge of the frog.
+    const radius=.86+load*.45,bodyY=.55+load*.22,topY=.85+load*.32,anchor=this.roofAnchor;
+    this.roofTargets[this.roofTargetCount++].set(anchor.x,anchor.y+bodyY,anchor.z);
+    this.roofTargets[this.roofTargetCount++].set(anchor.x-radius,anchor.y+bodyY,anchor.z);
+    this.roofTargets[this.roofTargetCount++].set(anchor.x+radius,anchor.y+bodyY,anchor.z);
+    this.roofTargets[this.roofTargetCount++].set(anchor.x,anchor.y+bodyY,anchor.z-radius);
+    this.roofTargets[this.roofTargetCount++].set(anchor.x,anchor.y+bodyY,anchor.z+radius);
+    this.roofTargets[this.roofTargetCount++].set(anchor.x,anchor.y+.08,anchor.z);
+    this.roofTargets[this.roofTargetCount++].set(anchor.x,anchor.y+topY,anchor.z);
+  }
+
+  roofObstructsPlayer(visual){
+    if(!this.roofTargetCount)return false;
+    const origin=this.roofCamera,ray=this.roofRay;
+    // Also remove a roof crossing the camera's near plane. Such a surface can
+    // fill the screen even when the centre ray starts just beyond its edge.
+    const camera=this.game.camera,near=camera.near||.1,tan=Math.tan((camera.fov||52)*Math.PI/360);
+    const clearance=Math.max(.35,near*Math.sqrt(1+tan*tan*(1+(camera.aspect||1)**2))+.08);
+    for(const triangle of visual.roofTriangles){
+      triangle.closestPointToPoint(origin,this.roofNearest);
+      if(this.roofNearest.distanceToSquared(origin)<clearance*clearance)return true;
+    }
+    ray.origin.copy(origin);
+    for(let i=0;i<this.roofTargetCount;i++){
+      ray.direction.copy(this.roofTargets[i]).sub(origin);const distanceSq=ray.direction.lengthSq();
+      if(distanceSq<1e-8)continue;ray.direction.normalize();
+      if(!ray.intersectsBox(visual.roofBounds))continue;
+      for(const triangle of visual.roofTriangles){
+        if(ray.intersectTriangle(triangle.a,triangle.b,triangle.c,false,this.roofHit)&&this.roofHit.distanceToSquared(origin)<distanceSq)return true;
+      }
+    }
+    return false;
+  }
+
   buildHouse(base,roofMaterial,team){
     const floor=this.game.houseFloors?.find(item=>item.baseId===base.id);
     const floorY=floor?.height??this.ground(base.x,base.z),halfWidth=base.halfWidth+.18,halfDepth=base.halfDepth+.18;
@@ -112,6 +161,17 @@ export class ArcadeBasesView {
     roofGeometry.setIndex([0,3,4,0,4,1,1,4,5,1,5,2,0,1,2,3,5,4]);roofGeometry.computeVertexNormals();
     if(sideways)roofGeometry.rotateY(Math.PI/2);this.ownedGeometries.push(roofGeometry);
     const roof=this.mesh(house,roofGeometry,roofMaterial);roof.name='full-house-leaf-roof';
+    // Cache the actual rendered faces in world space. Roofs are static, so
+    // visibility can use exact triangles without raycast arrays each frame.
+    roof.updateWorldMatrix(true,false);
+    const roofTriangles=[],roofBounds=new THREE.Box3(),positions=roofGeometry.attributes.position,indices=roofGeometry.index;
+    for(let i=0;i<indices.count;i+=3){
+      const triangle=new THREE.Triangle();
+      triangle.a.fromBufferAttribute(positions,indices.getX(i)).applyMatrix4(roof.matrixWorld);
+      triangle.b.fromBufferAttribute(positions,indices.getX(i+1)).applyMatrix4(roof.matrixWorld);
+      triangle.c.fromBufferAttribute(positions,indices.getX(i+2)).applyMatrix4(roof.matrixWorld);
+      roofTriangles.push(triangle);roofBounds.expandByPoint(triangle.a).expandByPoint(triangle.b).expandByPoint(triangle.c);
+    }
     const roofStem=this.mesh(house,this.geometries.cylinder,team,0,ridge+.18,0,.13,.55,.13);roofStem.rotation.z=.2;
     const roofLeaf=this.mesh(house,this.geometries.leaf,team,.2,ridge+.48,0,.5,.14,.24);roofLeaf.rotation.z=.3;
     let ramp=null;
@@ -126,7 +186,7 @@ export class ArcadeBasesView {
       const material=this.material({color:'#b18b59',side:THREE.DoubleSide});ramp=new THREE.Mesh(geometry,material);ramp.name=`${base.id}-walkable-door-ramp`;this.group.add(ramp);
     }
     house.userData={baseId:base.id,interior:{x:base.x,z:base.z,halfWidth:base.halfWidth-.17,halfDepth:base.halfDepth-.17},floorY,roofEaveY:floorY+eave,roofRidgeY:floorY+ridge};
-    return {house,deck,ramp,roof,roofStem,roofLeaf};
+    return {house,deck,ramp,roof,roofStem,roofLeaf,roofTriangles,roofBounds};
   }
 
   buildBase(base,index){
@@ -137,7 +197,7 @@ export class ArcadeBasesView {
     const rim=this.mesh(cabin,this.geometries.cylinder,this.materials.wood,0,.38,0,1.25,.76,1.25);rim.name='infinite-fly-stock-basket';
     this.mesh(cabin,this.geometries.cylinder,this.materials.darkWood,0,.77,0,1.15,.09,1.15);
     const body=this.mesh(cabin,this.geometries.cylinder,team,0,.42,0,1.31,.14,1.31);body.name='owner-color-on-stock';
-    const {house,deck,ramp,roof,roofStem,roofLeaf}=this.buildHouse(base,roofMaterial,team);
+    const {house,deck,ramp,roof,roofStem,roofLeaf,roofTriangles,roofBounds}=this.buildHouse(base,roofMaterial,team);
     const supply=new THREE.Group();supply.name='visible-fly-reserve';cabin.add(supply);
     const flyBodies=new THREE.InstancedMesh(this.geometries.sphere,this.materials.fly,8),flyWings=new THREE.InstancedMesh(this.geometries.wing,this.materials.wing,16);
     flyBodies.name='reserve-fly-bodies';flyWings.name='reserve-fly-wings';flyBodies.frustumCulled=flyWings.frustumCulled=false;supply.add(flyBodies,flyWings);
@@ -151,7 +211,7 @@ export class ArcadeBasesView {
       const piece=this.geometries.box.clone();piece.scale(.2,.2,1.1);piece.rotateY(i*.8);piece.translate(Math.sin(i*2.4)*.8,.12+(i%2)*.08,Math.cos(i*2.4)*.7);wreck.push(piece);
     }
     const wreckGeometry=mergeGeometries(wreck);for(const part of wreck)part.dispose();this.ownedGeometries.push(wreckGeometry);this.mesh(ruins,wreckGeometry,this.materials.ruin);
-    return {definition:base,group,cabin,house,deck,ramp,roof,roofStem,roofLeaf,roofMaterial,marker,markerMaterial,bar,fill,supply,flyBodies,flyWings,ruins,index};
+    return {definition:base,group,cabin,house,deck,ramp,roof,roofStem,roofLeaf,roofTriangles,roofBounds,roofObstructed:false,roofHold:0,roofMaterial,marker,markerMaterial,bar,fill,supply,flyBodies,flyWings,ruins,index};
   }
 
   buildGrove(definition,index){
@@ -180,22 +240,23 @@ export class ArcadeBasesView {
   update(dt=0){
     const advancing=this.game.running?Math.max(0,Math.min(.1,dt)):0;this.clock+=advancing;
     const player=this.game.state.actors?.[0],yard=player?enclosingYard(player):null;
-    this.updateWallVisibility(player,yard,dt);
+    this.updateWallVisibility(player,yard,dt);this.prepareRoofSight(player);
     const states=this.game.state.bases||[];
     for(const visual of this.bases.values()){
       const state=states.find(item=>item.id===visual.definition.id||item.owner===visual.definition.owner);
       const destroyed=!!state?.destroyed,progress=clamp((state?.progress||0)/10),active=progress>0&&!destroyed;
-      visual.cabin.visible=!destroyed;visual.roof.visible=!destroyed;visual.supply.visible=!destroyed;visual.ruins.visible=destroyed;
+      visual.cabin.visible=!destroyed;visual.supply.visible=!destroyed;visual.ruins.visible=destroyed;
       visual.markerMaterial.color.set(destroyed?'#5c7067':active?'#ff9b58':COLORS[visual.index]);
       visual.markerMaterial.opacity=destroyed ? .12 : active ? .4+.12*Math.sin(this.clock*8) : .28;
       visual.bar.visible=active;visual.fill.scale.x=2.12*progress;visual.fill.position.x=-1.06+1.06*progress;
       if(this.game.camera)visual.bar.quaternion.copy(this.game.camera.quaternion);
-      const playerNearby=player&&Math.hypot(player.x-visual.definition.stock.x,player.z-visual.definition.stock.z)<5.2;
-      const inside=yard?.id===visual.definition.id,obscures=this.enclosures.get(visual.definition.id)?.faded;
-      const desiredOpacity=inside||obscures ? .08 : playerNearby ? .25 : 1;
-      visual.roofMaterial.opacity=desiredOpacity<visual.roofMaterial.opacity?desiredOpacity:visual.roofMaterial.opacity+(desiredOpacity-visual.roofMaterial.opacity)*(1-Math.exp(-Math.max(dt,.016)*10));
+      visual.roofObstructed=yard?.id===visual.definition.id||this.roofObstructsPlayer(visual);
+      visual.roofHold=visual.roofObstructed?.18:Math.max(0,visual.roofHold-Math.max(dt,.016));
+      const cutaway=visual.roofObstructed||visual.roofHold>0;
+      visual.roof.visible=!destroyed&&!cutaway;
+      visual.roofMaterial.opacity=cutaway?0:visual.roofMaterial.opacity+(1-visual.roofMaterial.opacity)*(1-Math.exp(-Math.max(dt,.016)*10));
       visual.roofMaterial.depthWrite=visual.roofMaterial.opacity>.9;
-      visual.roofStem.visible=visual.roofLeaf.visible=!destroyed&&visual.roofMaterial.opacity>.6;
+      visual.roofStem.visible=visual.roofLeaf.visible=visual.roof.visible&&visual.roofMaterial.opacity>.6;
       visual.cabin.position.x=active?Math.sin(this.clock*25)*.025:0;
       for(let i=0;i<8;i++){
         const angle=this.clock*(1.4+(i%3)*.2)+i*TAU/8,r=.3+(i%3)*.13;

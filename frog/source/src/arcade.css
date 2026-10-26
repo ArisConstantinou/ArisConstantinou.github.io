@@ -92,3 +92,35 @@
 /* Camera turns only during a deliberate drag; the help row fits desktop widths. */
 #arcade-world.camera-dragging{cursor:grabbing}
 #desktop-help{max-width:calc(100vw - 32px);flex-wrap:wrap;justify-content:center;row-gap:6px}
+
+/* Keep browser gestures out of the game; pointer controls still receive input. */
+body{position:fixed;inset:0;-webkit-tap-highlight-color:transparent}
+#arcade-world,#arcade-labels,#arcade-ui{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#arcade-ui svg,#arcade-world,#arcade-labels{-webkit-user-drag:none}
+#arcade-ui input,#arcade-ui select,#arcade-ui textarea,#arcade-ui [contenteditable=true]{user-select:auto;-webkit-user-select:auto;-webkit-touch-callout:default}
+
+/* A compact mobile header leaves the frog and route through the doorway visible. */
+.is-touch #arcade-hud{align-items:center;gap:8px}
+.is-touch .ammo-card{min-width:0;max-width:270px;height:52px;padding:8px 11px;gap:8px;border-radius:15px}
+.is-touch .ammo-card>svg{width:26px;height:26px;flex-shrink:0}
+.is-touch .ammo-numbers{gap:0}
+.is-touch .ammo-numbers strong{font-size:20px}
+.is-touch #ammo-percent,.is-touch #ammo-state{display:none}
+.is-touch #ammo-track{height:5px;margin:5px 0 0}
+.is-touch .base-card{flex:0 0 74px;height:52px;min-height:52px;padding:4px 7px;gap:3px;border-radius:15px}
+.is-touch .base-card>b{font-size:17px;line-height:1}
+.is-touch .base-card>span{font-size:8px;letter-spacing:.6px;line-height:1}
+.is-touch #base-dots{gap:5px}
+.is-touch #base-dots i{width:9px;height:9px;border-width:1px}
+@media(max-width:540px) and (orientation:portrait){
+ .is-touch #arcade-hud{top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right))}
+ .is-touch .ammo-card{flex:1;max-width:none}
+ #minimap{top:calc(max(12px,env(safe-area-inset-top)) + 70px);right:12px;width:92px;height:92px;border-radius:18px}
+ #view-button{top:calc(max(12px,env(safe-area-inset-top)) + 168px);right:12px;width:92px;height:44px;min-height:44px;font-size:10px}
+ #round-status,#base-status,#catapult-status,#callout{left:12px;right:auto;width:calc(100vw - 126px);max-width:none;transform:none;padding:7px 9px;font-size:11px;text-align:left}
+ #round-status{top:calc(max(12px,env(safe-area-inset-top)) + 70px);display:flex;align-items:center;gap:7px;min-height:36px}
+ #round-time{font-size:17px}
+ #base-status{top:calc(max(12px,env(safe-area-inset-top)) + 116px)}
+ #catapult-status{top:calc(max(12px,env(safe-area-inset-top)) + 70px);bottom:auto}
+ #callout{top:calc(max(12px,env(safe-area-inset-top)) + 162px)}
+}

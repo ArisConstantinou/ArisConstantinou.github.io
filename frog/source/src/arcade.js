@@ -173,7 +173,8 @@ export class ArcadeGame {
  makeFlyBullet(){const g=new THREE.Group(),b=new THREE.Mesh(this.shared.sphere,this.materials.shot);b.scale.set(.12,.10,.19);g.add(b);for(const side of [-1,1]){const w=new THREE.Mesh(this.shared.wing,this.materials.wing);w.position.set(side*.13,.07,0);w.scale.set(.17,.018,.09);g.add(w);}this.scene.add(g);return g;}
  consumeEvents(){
   for(const e of this.state.events){this.artilleryView?.consumeEvent(e);const index=this.state.actors.findIndex(a=>a.id===e.id),a=this.state.actors[index],m=this.models[index];
-   if(e.type==='tongue'&&a){const old=this.tongues.get(a.id);if(old)this.scene.remove(old.mesh);const mesh=new THREE.Mesh(this.shared.cylinder,this.materials.tongue);this.scene.add(mesh);this.tongues.set(a.id,{mesh,start:this.elapsed,x:e.x,z:e.z});if(a.id==='player'&&!e.empty)this.sound.play('tongue');}
+   // Automatic collection stays silent, including the initial 60-fly refill.
+   if(e.type==='tongue'&&a){const old=this.tongues.get(a.id);if(old)this.scene.remove(old.mesh);const mesh=new THREE.Mesh(this.shared.cylinder,this.materials.tongue);this.scene.add(mesh);this.tongues.set(a.id,{mesh,start:this.elapsed,x:e.x,z:e.z});}
    if(e.type==='shot'&&a?.id==='player')this.sound.play('shot');
    if(e.type==='hit'&&m){m.mesh.material.emissive?.set('#ffffff');const yaw=m.group.rotation.y,c=Math.cos(yaw),ss=Math.sin(yaw);m.setImpact({x:c*e.dx-ss*e.dz,z:ss*e.dx+c*e.dz,strength:1.3,duration:a.knockUp>0?.42:.27});this.impactEffects.hit({...e,height:this.ground(e.x,e.z)+a.height+.75,heavy:a.knockUp>0});this.shake=Math.max(this.shake,a.id==='player'?.16:.025);if(e.owner==='player'&&a.id!=='player'){this.hitConfirmUntil=this.elapsed+.2;this.lastPlayerHit={id:a.id,x:e.x,z:e.z,time:this.elapsed};this.sound.play('hitConfirm');}else if(a.id==='player')this.sound.play('hit');}
    if(e.type==='dizzy'){this.addText('ΖΑΛΗ!',a.x,a.z,'#ffe375',1);this.sound.play('dizzy');if(a.id!=='player')this.message('ΖΑΛΙΣΤΗΚΕ! ΣΥΝΕΧΙΣΕ ΤΙΣ ΕΥΣΤΟΧΕΣ ΒΟΛΕΣ.',2);}
@@ -186,7 +187,7 @@ export class ArcadeGame {
    if(e.type==='stoneShot')this.sound.play('stoneShot');
    if(e.type==='land'&&e.stone){this.impactEffects.landing(e);if(Math.hypot(e.x-this.state.actors[0].x,e.z-this.state.actors[0].z)<10)this.sound.play('land');}
    if(e.type==='stoneImpact'){this.sound.play('stoneImpact');this.impactEffects.stone(e);if(Math.hypot(e.x-this.state.actors[0].x,e.z-this.state.actors[0].z)<7)this.shake=Math.max(this.shake,.16);}
-   if(e.type==='battle')this.message('ΜΑΧΗ! Κερδίζει η τελευταία άθικτη αποθήκη.',4);
+   if(e.type==='battle')this.message('ΜΑΧΗ!',1.2);
   }
  }
  addText(text,x,z,color,life){this.fx.push({text,x,z,color,life,start:this.elapsed});if(this.fx.length>28)this.fx.shift();}
@@ -209,18 +210,18 @@ export class ArcadeGame {
   this.$('sabotage-copy').textContent='ΚΑΤΑΣΤΡΟΦΗ ΑΠΟΘΗΚΗΣ';this.$('sabotage-fill').style.transform=`scaleX(${progress})`;this.$('sabotage-track').setAttribute('aria-valuenow',String(Math.round(progress*100)));
   const mounted=this.state.catapults?.find(c=>c.id===p.catapultId),near=nearbyCatapult(this.state,p),useButton=this.$('catapult-button');
   useButton.hidden=!this.running||p.ko||(!mounted&&(!near||this.state.phase!=='battle'));useButton.disabled=p.dizzyTime>0||p.knockUp>0;useButton.querySelector('span').textContent=mounted?'ΕΞΟΔΟΣ':'ΧΡΗΣΗ';useButton.setAttribute('aria-label',mounted?'Έξοδος από τον καταπέλτη':'Χρήση κοντινού καταπέλτη');useButton.classList.toggle('ready',!!mounted);
-  this.$('catapult-status').hidden=!mounted||!this.running;this.$('catapult-status').textContent=mounted?(mounted.cooldown>0?`ΦΟΡΤΩΝΕΙ ΠΕΤΡΑ · ${mounted.cooldown.toFixed(1)}″`:this.touch?'ΣΗΜΑΔΕΨΕ · ΠΑΤΑ ΠΕΤΡΑ':'ΠΕΤΡΑ ΕΤΟΙΜΗ · ΑΡΙΣΤΕΡΟ ΚΛΙΚ'):'';
+  this.$('catapult-status').hidden=!mounted||!this.running||this.layoutEditing;this.$('catapult-status').textContent=mounted?(mounted.cooldown>0?`ΦΟΡΤΩΝΕΙ ΠΕΤΡΑ · ${mounted.cooldown.toFixed(1)}″`:this.touch?'ΣΗΜΑΔΕΨΕ · ΠΑΤΑ ΠΕΤΡΑ':'ΠΕΤΡΑ ΕΤΟΙΜΗ · ΑΡΙΣΤΕΡΟ ΚΛΙΚ'):'';
   this.$('aim-stick').classList.toggle('catapult',!!mounted);this.ui.querySelector('.aim-zone .stick-caption').textContent=mounted?'ΚΑΤΕΥΘΥΝΣΗ · ΙΣΧΥΣ':'ΣΤΟΧΕΥΣΗ';this.ui.querySelector('.move-zone').classList.toggle('mounted',!!mounted);
   this.$('fire-button').disabled=!this.layoutEditing&&(p.ko||p.dizzyTime>0||p.knockUp>0);this.$('fire-button').querySelector('span').textContent=mounted?'ΠΕΤΡΑ':'ΠΥΡ';this.$('fire-button').classList.toggle('firing',this.actions.fire);this.$('fire-button').classList.toggle('empty',mounted?mounted.cooldown>0:p.ammo===0);
   this.$('ammo-count').textContent=`${p.ammo} / ${RULES.capacity}`;this.$('ammo-percent').textContent=pct+'%';this.$('ammo-fill').style.transform=`scaleX(${pct/100})`;this.$('ammo-track').setAttribute('aria-valuenow',String(pct));this.$('ammo-state').textContent=p.ko?'Επιστρέφεις στην αποθήκη':p.ammo===RULES.capacity?'ΓΕΜΑΤΟΣ!':refilling?'ΑΠΟΘΗΚΗ ∞ · ΓΕΜΙΖΕΙ…':p.tongue>0?'ΜΑΖΕΥΕΙ ΜΥΓΕΣ…':p.ammo===0?'Γύρνα στην αποθήκη ή βρες σμήνος':'Μύγες για τις επόμενες βολές';this.$('ko-count').textContent=`${activeBases} / 3`;
   for(const dot of this.$('base-dots').children){const b=this.state.bases.find(b=>b.owner===dot.dataset.owner);dot.classList.toggle('destroyed',!!b?.destroyed);dot.classList.toggle('attacked',!!b?.attackerId);dot.title=(dot.dataset.owner==='player'?'Η αποθήκη σου':dot.dataset.owner==='rival-1'?'Κόκκινη αποθήκη':'Μωβ αποθήκη')+(b?.destroyed?' · κατεστραμμένη':b?.attackerId?' · υπό επίθεση':' · άθικτη');}
-  this.$('round-status').hidden=!this.running;this.$('round-status').classList.toggle('warmup',this.state.phase!=='battle');
+  this.$('round-status').hidden=!this.running||(!this.layoutEditing&&!p.ko&&this.state.phase==='battle');this.$('round-status').classList.toggle('warmup',this.state.phase!=='battle');
   this.$('round-time').textContent=this.layoutEditing?'↔':p.ko?`${Math.ceil(p.respawnTime||0)}″`:this.state.phase!=='battle'?`${Math.ceil(this.state.intro)}″`:`${activeBases}`;
-  this.$('round-copy').textContent=this.layoutEditing?'ΡΥΘΜΙΣΗ ΘΕΣΕΩΝ · Το παιχνίδι περιμένει':p.ko?'ΕΠΙΣΤΡΟΦΗ ΣΤΗ ΒΑΣΗ':this.state.phase!=='battle'?'ΠΡΟΕΤΟΙΜΑΣΙΑ · Γέμισε έως 60 μύγες':'ΑΠΟΘΗΚΕΣ · Κερδίζει η τελευταία άθικτη';
-  this.$('base-status').hidden=!this.running;this.$('base-status').classList.toggle('threat',!!home?.attackerId);this.$('base-status').textContent=home?.attackerId?`ΕΙΣΒΟΛΕΑΣ! ${Math.max(0,RULES.sabotageSeconds-home.progress).toFixed(1)}″ · Χτύπησέ τον!`:hidden?'ΚΡΥΜΜΕΝΟΣ ΣΤΑ ΔΕΝΤΡΑ · Πιο αργά άλματα':refilling?'Η ΑΠΟΘΗΚΗ ΣΟΥ · Απεριόριστες μύγες':'Προστάτεψε την αποθήκη σου';
+  this.$('round-copy').textContent=this.layoutEditing?(this.touch?'ΡΥΘΜΙΣΗ ΘΕΣΕΩΝ':'ΡΥΘΜΙΣΗ ΘΕΣΕΩΝ · Το παιχνίδι περιμένει'):p.ko?(this.touch?'ΕΠΙΣΤΡΟΦΗ':'ΕΠΙΣΤΡΟΦΗ ΣΤΗ ΒΑΣΗ'):this.state.phase!=='battle'?(this.touch?'ΠΡΟΕΤΟΙΜΑΣΙΑ':'ΠΡΟΕΤΟΙΜΑΣΙΑ · Γέμισε έως 60 μύγες'):'';
+  this.$('base-status').hidden=!this.running||this.layoutEditing||(!home?.attackerId&&!hidden);this.$('base-status').classList.toggle('threat',!!home?.attackerId);this.$('base-status').textContent=home?.attackerId?`ΕΙΣΒΟΛΕΑΣ! ${Math.max(0,RULES.sabotageSeconds-home.progress).toFixed(1)}″ · Χτύπησέ τον!`:hidden?(this.touch?'ΚΡΥΜΜΕΝΟΣ · Αργά άλματα':'ΚΡΥΜΜΕΝΟΣ ΣΤΑ ΔΕΝΤΡΑ · Πιο αργά άλματα'):'';
   const kickReady=!p.ko&&!!target&&this.state.phase==='battle'&&!p.catapultId&&p.dizzyTime<=0&&p.knockUp<=0&&p.kick<=0&&(p.kickCooldown||0)<=0;this.$('kick-button').hidden=!this.running||p.ko||this.state.phase!=='battle'||!!p.catapultId||(!target&&p.kick<=0);this.$('kick-button').disabled=!kickReady;this.$('kick-button').classList.toggle('ready',kickReady);this.$('pc-kick').classList.toggle('ready',kickReady);this.$('dizzy-banner').hidden=p.dizzyTime<=0;this.$('dizzy-time').textContent=p.dizzyTime.toFixed(1)+'″';this.$('aim-stick').classList.toggle('empty',mounted?mounted.cooldown>0:p.ammo===0);
   if(this.calloutUntil<this.elapsed)this.$('callout').textContent='';
-  const contextLayout=['catapult-button','catapult-status','kick-button','sabotage-button','sabotage-status'].map(id=>this.$(id).hidden?0:1).join('');
+  const contextLayout=['round-status','base-status','catapult-button','catapult-status','kick-button','sabotage-button','sabotage-status'].map(id=>this.$(id).hidden?0:1).join('');
   if(this.touch&&!this.layoutEditing&&this.running&&contextLayout!==this.contextLayout){this.contextLayout=contextLayout;this.touchLayout?.refresh();}
  }
  renderActors(dt){
