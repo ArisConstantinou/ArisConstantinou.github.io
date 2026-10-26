@@ -13,8 +13,9 @@ import {loadPersistentSave,persistSave,mostRecentSave} from './save-store.js';
 import {updateConstructionSites,constructionWorkRate,constructionQueued,disposeConstructionSites} from './construction.js';
 import {clearCombatFeedback} from './combat-feedback.js';
 import {recruitmentBubbleTarget,recruitmentBubbleAnchor} from './recruitment-bubble.js';
+import {refugeOccupant,refugeInteriorPoint,refugeLineClear,clearRefugePosition} from './refuge.js';
 
-export const ACTOR_SAVE_FIELDS=['id','name','team','role','tier','level','hp','maxHp','stomach','maxStomach','xp','x','z','yaw','morale','home','guard','leader','surrendered','order','skinColor','trained','trainingProgress','trainingCamp','trainingPaid','returnOrder','raidTarget','loot','surrenderTimer','persuadeCD','crowned','equipment','recruitment','firstRecruit','recruitXpAwarded','tacticalPath','tacticalTargetId','legacyEquipment','creekOrderPoint','creekOrderUntil','creekTargetId','creekRecoveryAt'];
+export const ACTOR_SAVE_FIELDS=['id','name','team','role','tier','level','hp','maxHp','stomach','maxStomach','xp','x','y','z','yaw','morale','home','guard','leader','surrendered','order','skinColor','trained','trainingProgress','trainingCamp','trainingPaid','returnOrder','raidTarget','loot','surrenderTimer','persuadeCD','crowned','equipment','recruitment','firstRecruit','recruitXpAwarded','tacticalPath','tacticalTargetId','legacyEquipment','creekOrderPoint','creekOrderUntil','creekTargetId','creekRecoveryAt'];
 const CAMP_FIELDS=['id','x','z','name','team','yaw','buildingPlacements','tier','hp','maxHp','gateHp','stock','buildings','originalEnemy','originalTeam','rivalIndex','capturedOnce','destroyRewarded','rebuildTimer','persuadeCD','destroyed','lootTaken','supplyMigrated','morale','spawnTimer','mealCount','mealDay','specialization','legacySlots','underConstruction','constructionProgress','natural','creekRelation','creekApproach','creekResolvedAt','creekVictory'];
 const clean=(object,fields)=>Object.fromEntries(fields.filter(k=>object[k]!==undefined).map(k=>[k,object[k]]));
 const clone=value=>JSON.parse(JSON.stringify(value));
@@ -182,7 +183,14 @@ export const kingdomMethods={
     const nest=this.creekMode?this.creekNestState?.():null;
     const choices=[...(nest?.safe?[nest]:[]),...homes.map(c=>gatePoint(c,-5.5)),{x:0,z:0},...this.world.campSites.filter(c=>c.team==='neutral')];
     const danger=point=>Math.min(100,...this.frogs.filter(f=>!f.dead&&!f.surrendered&&(this.creekMode?this.hostile(p,f):f.team.startsWith('enemy'))).map(f=>distance(point,f)),...this.predators.filter(f=>!f.dead).map(f=>distance(point,f)));
-    const point=choices.find(c=>danger(c)>28)||choices.sort((a,b)=>danger(b)-danger(a))[0]||{x:0,z:0};
+    const refuges=this.creekMode?this.world.creekRefuges||[]:[],hostiles=this.frogs.filter(f=>!f.dead&&!f.surrendered&&this.hostile(p,f)),hunters=this.predators.filter(f=>!f.dead&&f.phase!=='dormant');
+    const covered=refuges.filter(r=>{
+      const camp=this.camps.find(c=>c.id===r.id);
+      return r.active!==false&&!r.destroyed&&(!camp||camp.team==='ally'||camp.team==='neutral'||['coexist','yielded','respect'].includes(camp.creekRelation))&&![...hostiles,...hunters].some(f=>refugeOccupant([r],f));
+    }).sort((a,b)=>(a.id==='living-creek-nest'?-1:0)-(b.id==='living-creek-nest'?-1:0)||distance(a,p)-distance(b,p));
+    const protectedPoint=covered.map(r=>refugeInteriorPoint(r,0)).find(point=>[...hostiles,...hunters].every(f=>distance(f,point)>28||!refugeLineClear(refuges,f,{...p,...point})));
+    let point=protectedPoint||choices.find(c=>danger(c)>28)||choices.sort((a,b)=>danger(b)-danger(a))[0]||{x:0,z:0};
+    if(refuges.length)point=clearRefugePosition(refuges,{...p,...point,y:Number.isFinite(point.y)?point.y:this.world.sampleHeight(point.x,point.z)});
     clearCombatFeedback(this);Object.assign(p,{dead:false,hp:p.maxHp*.7,stomach:Math.max(45,p.stomach),stamina:100,vx:0,vz:0,vy:0,grounded:true,invulnerable:10,stun:0,surrendered:false,charge:-1,x:point.x,z:point.z});p.y=this.world.sampleHeight(p.x,p.z);
     this.graceUntil=this.elapsed+20;this.hunt=null;this.deathTimer=0;this.ended=false;this.guideLastPosition={x:p.x,z:p.z};p.model.setOutline(COLORS.player,true);this.updateCamera(.1,true);
     this.onCreekRespawn?.();this.ui.toast(this.creekMode?'Επέστρεψες σε καταφύγιο. Τα σημαντικά ευρήματα περιμένουν εκεί που έπεσες.':'Επέστρεψες σε ασφαλές σημείο. Οι απώλειες στρατιωτών και εδαφών παραμένουν.','warning');this.discoverGuide('respawn');this.save();

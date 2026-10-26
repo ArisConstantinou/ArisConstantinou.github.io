@@ -101,3 +101,15 @@
 .fg-creek-mode .fg-minimap-legend .is-pact{background:#79c4be}
 .fg-creek-recruitment{max-width:calc(380px * var(--fg-ui-scale,1));padding:calc(18px * var(--fg-ui-scale,1));margin:auto}
 .fg-creek-recruitment>p{margin:0 0 18px;line-height:1.5}
+#frog-ui .fg-creek-nest>div {min-width:0;flex:1}
+#frog-ui .fg-creek-nest>div>small {display:block;margin-top:5px;color:#cbdcc1}
+#frog-ui .fg-creek-locate {display:inline-flex;align-items:center;gap:8px;margin-top:10px;min-height:42px;padding:7px 11px;border:1px solid #c6e3a56b;border-radius:8px;background:#244c35;color:#edf3d9;cursor:pointer}
+#frog-ui .fg-creek-locate:disabled {opacity:.5;cursor:default}
+#frog-ui .fg-creek-locate>.fg-pictogram {width:25px;height:27px;flex:none}
+#frog-ui .fg-map-home-control {position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:8px;z-index:2;padding:8px 11px;min-height:42px;border:1px solid #bcd69b;border-radius:8px;background:#163728f2;color:#e9f1d4;cursor:pointer}
+#frog-ui .fg-map-home-control>.fg-pictogram {width:26px;height:28px;flex:none}
+#frog-ui.fg-refuge-status .fg-compact-hud .fg-player-rank {display:flex;flex-wrap:nowrap;gap:7px;margin-top:6px;padding-top:6px;color:#e4d3a7}
+#frog-ui.fg-refuge-status .fg-compact-hud .fg-player-rank>small {display:none}
+#frog-ui.fg-refuge-covered .fg-compact-hud .fg-player-rank {color:#d2e9ae}
+#frog-ui.fg-refuge-threat .fg-compact-hud .fg-player-rank {color:#ffc09b;border-top-color:#d68a6080}
+#frog-ui.fg-refuge-status .fg-compact-hud .fg-player-rank>strong {min-width:0;font-size:var(--fg-type-control);line-height:1.25}

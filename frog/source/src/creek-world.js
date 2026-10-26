@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {createRefugeDescriptor} from './refuge.js';
 
 /** Frog-scale geography shared by the rendered land and exploration systems. */
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -23,7 +24,8 @@ export function createCreekGeography(layout){
   const point=p=>({...p,...layout.toWorld(p.x,p.z)});
   return {
     landmarks:Object.values(CREEK_FOCUS).map(p=>({...point(p),findPoint:point(p.findPoint)})),
-    nest:point({id:'creek-nest',x:17,z:16,radius:4,label:'Καταφύγιο κάτω από τα φύλλα'}),
+    nest:point({id:'creek-nest',x:17,z:16,radius:4,label:'Κοιλότητα κάτω από τις ρίζες'}),
+    refuges:[{id:'willow-crevice',x:-20,z:7,label:'Κρυψώνα της πεσμένης ιτιάς'},{id:'bank-crevice',x:34,z:-9,label:'Κοιλότητα της πετρώδους όχθης'}].map(p=>({...point(p),yaw:Math.atan2(-p.x,-p.z)+layout.yaw})),
     cover:[{id:'nest-reeds',x:14,z:20,radius:3.1},{id:'root-reeds',x:18,z:-7,radius:3},{id:'bank-reeds',x:29,z:11,radius:3.3},{id:'creek-reeds',x:18,z:-22,radius:3}].map(point)
   };
 }
@@ -123,31 +125,64 @@ export function createCreekDecor({group,layout,terrainHeight,surface,insertPlatf
   return {group:decor,grips,sync,update,resources:[pointGeometry,shellMaterial,seedMaterial,findLeafGeometry,findLeafMaterial,gripMaterial,coverGeometry]};
 }
 
+function refugeStoneGeometry(solid){
+  const outline=solid.outline||[{x:solid.minX,z:solid.minZ},{x:solid.maxX,z:solid.minZ},{x:solid.maxX,z:solid.maxZ},{x:solid.minX,z:solid.maxZ}],n=outline.length,positions=[],indices=[];
+  for(const y of [solid.minY,solid.maxY])for(const p of outline)positions.push(p.x,y,p.z);
+  for(let i=1;i<n-1;i++){indices.push(0,i,i+1,n,n+i+1,n+i);}
+  for(let i=0;i<n;i++){const next=(i+1)%n;indices.push(i,n+i,next,next,n+i,n+next);}
+  const indexed=new THREE.BufferGeometry();indexed.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));indexed.setIndex(indices);
+  const geometry=indexed.toNonIndexed();indexed.dispose();geometry.computeVertexNormals();
+  const p=geometry.attributes.position,normals=geometry.attributes.normal,uv=[];
+  for(let i=0;i<p.count;i++){const top=Math.abs(normals.getY(i))>.5;uv.push((top?p.getX(i):Math.abs(normals.getX(i))>.5?p.getZ(i):p.getX(i))*.35,(top?p.getZ(i):p.getY(i))*.35);}
+  geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));return geometry;
+}
+
 export function createNaturalShelter(data,{terrainHeight,materials,rockGeos,tube,leafGeometry,mergeStaticParts,teamColor}){
-  const s=new THREE.Group();s.name='Natural refuge '+(data.id||'');s.position.set(data.x,terrainHeight(data.x,data.z),data.z);
-  const owned=[],leafMaterial=materials.leaf.clone();owned.push(leafMaterial);
-  const foliage=new THREE.Group();foliage.name='Fallen leaves and living roots';s.add(foliage);
+  const refuge=createRefugeDescriptor(data,{terrainHeight}),s=new THREE.Group();s.name='Natural refuge '+(data.id||'');s.position.set(data.x,refuge.floorY,data.z);s.rotation.y=refuge.yaw;
+  const owned=[],leafMaterial=materials.leaf.clone(),interiorMaterial=materials.rock.clone();interiorMaterial.color.set('#71816a');owned.push(leafMaterial,interiorMaterial);
+  const shell=new THREE.Group();shell.name='Opaque rock and root cavity';s.add(shell);
+  const roof=new THREE.Group();roof.name='Overhanging refuge slab';shell.add(roof);
+  // These opaque meshes are generated directly from the physics solids. The
+  // darker recessed baffle gives a protected chamber behind the visible mouth.
+  for(const solid of refuge.solids){
+    const geometry=refugeStoneGeometry(solid),material=solid.id==='root-baffle'?materials.bark:solid.id==='floor'?interiorMaterial:materials.mossRock;
+    const mesh=new THREE.Mesh(geometry,material);mesh.name='Refuge solid · '+solid.id;mesh.userData.refugeSolid=solid;
+    mesh.position.y=-refuge.floorY;mesh.castShadow=true;mesh.receiveShadow=true;owned.push(geometry);(solid.id==='roof'?roof:shell).add(mesh);
+  }
+  const ramp=refuge.ramp,positions=[],indices=[];
+  for(let row=0;row<=ramp.rows;row++)for(let col=0;col<=ramp.cols;col++){
+    const index=row*(ramp.cols+1)+col;positions.push(ramp.minX+(ramp.maxX-ramp.minX)*col/ramp.cols,ramp.heights[index]-refuge.floorY,ramp.minZ+(ramp.maxZ-ramp.minZ)*row/ramp.rows);
+  }
+  for(let row=0;row<ramp.rows;row++)for(let col=0;col<ramp.cols;col++){const a=row*(ramp.cols+1)+col,b=a+1,c=a+ramp.cols+1,d=c+1;indices.push(a,c,b,b,c,d);}
+  const boundary=[];for(let col=0;col<=ramp.cols;col++)boundary.push(col);for(let row=1;row<=ramp.rows;row++)boundary.push(row*(ramp.cols+1)+ramp.cols);for(let col=ramp.cols-1;col>=0;col--)boundary.push(ramp.rows*(ramp.cols+1)+col);for(let row=ramp.rows-1;row>0;row--)boundary.push(row*(ramp.cols+1));
+  for(let i=0;i<boundary.length;i++){const a=boundary[i],b=boundary[(i+1)%boundary.length],c=positions.length/3,d=c+1;positions.push(positions[a*3],ramp.bottoms[a]-refuge.floorY,positions[a*3+2],positions[b*3],ramp.bottoms[b]-refuge.floorY,positions[b*3+2]);indices.push(a,b,c,b,d,c);}
+  const rampGeometry=new THREE.BufferGeometry();rampGeometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));rampGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(Array.from({length:positions.length/3},(_,i)=>[positions[i*3]*.35,positions[i*3+2]*.35]).flat(),2));rampGeometry.setIndex(indices);rampGeometry.computeVertexNormals();owned.push(rampGeometry);
+  const rampMesh=new THREE.Mesh(rampGeometry,materials.mossRock);rampMesh.name='Terrain-joined natural refuge ledge';rampMesh.castShadow=true;rampMesh.receiveShadow=true;shell.add(rampMesh);
+  // Thick roots wrap the slab and broken rock faces; no posts, woven roof or
+  // construction pieces. Root decoration stays out of the traversable mouth.
+  for(const sign of [-1,1])for(let i=0;i<3;i++){
+    const x=sign*(3.6-i*.12),z=-2.4+i*2.3,root=tube([[x,refuge.floorBottom-refuge.floorY,z+.55],[x+sign*.08,.55,z+.35],[x-sign*.12,1.8,z],[x-sign*.45,2.6,z-.2]],.16+i*.045,materials.bark,15,.48);
+    root.castShadow=true;owned.push(root.geometry);shell.add(root);
+  }
+  for(let i=0;i<5;i++){
+    const z=-2.3+i*1.3,root=tube([[-3.5,3.03,z],[-1.6,3.12,z-.2],[.5,3.1,z+.1],[3.4,3.04,z+.35]],.075+(i%2)*.045,materials.bark,18,.35);root.castShadow=true;owned.push(root.geometry);roof.add(root);
+  }
+  // Jagged leaf litter breaks the silhouette of the naturally fallen slab;
+  // its top-only skin follows the roof in a local top-down camera cutaway.
   const growth=[];
   for(let level=0;level<4;level++){
-    const layer=new THREE.Group();layer.name='Natural life '+level;growth.push(layer);foliage.add(layer);
-    for(let i=0;i<5+level*2;i++){
-      const angle=i*2.399+level*.7,r=1.1+level*.48+(i%3)*.3,x=Math.cos(angle)*r,z=Math.sin(angle)*r;
-      const leaf=new THREE.Mesh(leafGeometry(.6+(i%3)*.13,.85,.12),leafMaterial);owned.push(leaf.geometry);
-      leaf.position.set(x,.08+(i%3)*.08,z);leaf.rotation.set((i%3-1)*.16,angle,(i%2-.5)*.18);leaf.receiveShadow=true;layer.add(leaf);
-    }
-    if(level>0)for(let i=0;i<3;i++){
-      const angle=i*2.1+level,r=2.2+level*.3,x=Math.cos(angle)*r,z=Math.sin(angle)*r;
-      const plant=tube([[x,0,z],[x*.96,.6+level*.15,z],[x*.9,.9+level*.2,z+.12]],.025,materials.reed,8,.5);owned.push(plant.geometry);layer.add(plant);
+    const layer=new THREE.Group();layer.name='Natural life '+level;growth.push(layer);roof.add(layer);
+    for(let i=0;i<8+level*3;i++){
+      const angle=i*2.399+level*.7,x=Math.cos(angle)*(2.1+(i%3)*.48),z=.35+Math.sin(angle)*(2.1+(i%4)*.2);
+      const leaf=new THREE.Mesh(leafGeometry(.65+(i%3)*.15,.85,.12),leafMaterial);owned.push(leaf.geometry);
+      leaf.position.set(x,3.07+(i%3)*.025,z);leaf.rotation.set((i%3-1)*.08,angle,(i%2-.5)*.1);leaf.castShadow=true;leaf.receiveShadow=true;layer.add(leaf);
     }
     mergeStaticParts(layer,owned);
   }
-  for(const sign of [-1,1]){
-    const root=tube([[sign*3,-.12,1],[sign*2.2,.7,.5],[sign*1.6,1.5,-.2],[sign*.7,1.9,-1.1],[0,1.65,-1.6]],.23,materials.bark,16,.35);root.castShadow=true;owned.push(root.geometry);s.add(root);
-  }
-  const fallen=new THREE.Mesh(leafGeometry(2.25,1.7,.32),leafMaterial);owned.push(fallen.geometry);fallen.position.set(.1,1.42,-.55);fallen.rotation.set(-.16,.18,.12);fallen.castShadow=true;s.add(fallen);
-  const stones=new THREE.InstancedMesh(rockGeos[1],materials.mossRock,7),object=new THREE.Object3D();
-  for(let i=0;i<7;i++){const a=i*.81+.4;object.position.set(Math.cos(a)*(2.7+(i%2)*.3),-.03,Math.sin(a)*2.3);object.scale.set(.4+(i%3)*.1,.35,.4);object.rotation.set(0,a,0);object.updateMatrix();stones.setMatrixAt(i,object.matrix);}stones.receiveShadow=true;s.add(stones);
-  s.userData={id:data.id,natural:true,radius:4,owned,growth,leafMaterial,terrain:null,keepCollision:{rects:[]},trainingPoint:s.position.clone(),support:{x:data.x,z:data.z,y:s.position.y,type:'land',radius:0},team:data.team};
+  const litter=new THREE.Group();litter.name='Dry leaves inside the root hollow';shell.add(litter);
+  for(let i=0;i<8;i++){const leaf=new THREE.Mesh(leafGeometry(.3,.48,.045),leafMaterial);owned.push(leaf.geometry);leaf.position.set(Math.sin(i*2.4)*2,.025,-1.1+Math.cos(i*2.4)*.7);leaf.rotation.y=i*1.7;leaf.receiveShadow=true;litter.add(leaf);}mergeStaticParts(litter,owned);
+  refuge.mesh=s;
+  s.userData={id:data.id,natural:true,radius:refuge.radius,owned,growth,leafMaterial,terrain:null,keepCollision:{rects:[]},trainingPoint:s.position.clone(),support:{x:data.x,z:data.z,y:refuge.floorY,type:'land',radius:0},team:data.team,refuge,refugeSolids:shell,refugeRoof:roof};
   updateNaturalShelter(s,data,teamColor);return s;
 }
 
@@ -155,6 +190,7 @@ export function updateNaturalShelter(s,data={},teamColor){
   const old=s.userData.visualState||{},state={...old,...data},level=clamp(Math.floor(Number(state.nestLevel??state.level??state.tier??1)||0),0,3);
   s.userData.visualState={team:state.team??'neutral',tier:state.tier??1,nestLevel:level,safe:state.safe!==false,hp:state.hp,maxHp:state.maxHp,destroyed:!!state.destroyed};
   s.userData.team=s.userData.visualState.team;s.userData.level=level;s.userData.destroyed=!!state.destroyed;
+  if(s.userData.refuge)s.userData.refuge.team=s.userData.team;
   s.userData.leafMaterial.color.set(teamColor(s.userData.team)).lerp(new THREE.Color('#72964b'),.7);
   s.userData.growth.forEach((g,i)=>{g.visible=i<=level;});
   s.userData.collisionRevision=(s.userData.collisionRevision||0)+1;

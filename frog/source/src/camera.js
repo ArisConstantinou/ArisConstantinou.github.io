@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {refugeAt} from './refuge.js';
 
 const internals=new WeakMap();
 const clamp=THREE.MathUtils.clamp;
@@ -49,9 +50,11 @@ function visiblyAttached(object){
 }
 function preventStructureClipping(game,from,to,data){
   const length=data.boomDirection.subVectors(to,from).length();
-  if(length<.001||!game.camps?.length)return;
+  if(length<.001)return;
   const meshes=data.structureMeshes;meshes.length=0;
-  for(const camp of game.camps){
+  const structures=[...(game.camps||[])],seen=new Set(structures.map(c=>c.mesh));
+  if(game.creekMode)for(const refuge of game.world?.creekRefuges||[])if(refuge.mesh&&!seen.has(refuge.mesh)){structures.push(refuge);seen.add(refuge.mesh);}
+  for(const camp of structures){
     const mesh=camp.mesh;if(camp.destroyed||camp.hp<=0||!mesh?.isObject3D||!visiblyAttached(mesh))continue;
     const radius=mesh.userData.radius||20;
     if(Math.hypot((camp.x??mesh.position.x)-from.x,(camp.z??mesh.position.z)-from.z)>radius+length+8)continue;
@@ -64,7 +67,7 @@ function preventStructureClipping(game,from,to,data){
       mesh.updateWorldMatrix(true,true);
       data.structureTransforms.set(mesh,{revision,frame:data.frame,x:mesh.position.x,y:mesh.position.y,z:mesh.position.z,yaw:mesh.rotation.y});
     }
-    const refs=mesh.userData,roots=[refs.fortWalls,refs.fortTowers,refs.core,refs.palisade,...(refs.gateLeaves||[])];
+    const refs=mesh.userData,roots=[refs.refugeSolids,refs.fortWalls,refs.fortTowers,refs.core,refs.palisade,...(refs.gateLeaves||[])];
     for(const root of roots){
       if(!root?.isObject3D||!visiblyAttached(root))continue;
       let parts=data.structureCache.get(root);
@@ -133,6 +136,12 @@ export function updateGameCamera(game,dt,snap=false){
   }
   game.hidePlayer=mode==='first';
   if(player.model?.group)player.model.group.visible=!game.hidePlayer;
+  // A top-down cutaway reveals the occupied chamber without changing its
+  // physical roof or predator line-of-sight geometry.
+  if(game.creekMode){
+    const inside=refugeAt(game.world?.creekRefuges||[],player);
+    for(const refuge of game.world?.creekRefuges||[]){const roof=refuge.mesh?.userData?.refugeRoof;if(roof)roof.visible=!(mode==='topdown'&&inside?.id===refuge.id);}
+  }
   const yaw=game.cameraYaw,pitch=game.cameraPitch;
   data.forward.set(Math.sin(yaw),0,Math.cos(yaw));
   data.right.set(-Math.cos(yaw),0,Math.sin(yaw));

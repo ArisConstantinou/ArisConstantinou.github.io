@@ -5,6 +5,7 @@ import { EXTRA_HUT_FOOTPRINT } from './placement-rules.js';
 import { WORLD_SCALE, WORLD_RADIUS, WORLD_BOUNDARY, WORLD_REVISION, SHELTER_SCALE, SHELTER_LAYOUT_SCALE, SHELTER_RADIUS, CASTLE_GROUND_RADIUS, ISLAND_TERRACE_RADIUS, CASTLE_BANK_BLEND } from './world-config.js';
 import { FORT_RADIUS, GATE_WIDTH, WALL_HEIGHT, WALL_THICKNESS, fortConstructionState } from './fortification.js';
 import {CREEK_WATER_BASE,createCreekGeography,creekBedHeight,creekCurrent,creekWaterOpacity,createCreekDecor,createNaturalShelter,updateNaturalShelter} from './creek-world.js';
+import {refugeSurface} from './refuge.js';
 export { SHELTER_SCALE, SHELTER_RADIUS } from './world-config.js';
 
 // Everything here is authored geometry. The water is a planar reflection with a
@@ -178,7 +179,7 @@ function spatialBatch(geometry,material,records,name,{castShadow=false,receiveSh
 export function createWorld(scene, renderer, options={}) {
   const regionIndex=Math.max(0,Math.floor(Number(options.regionIndex)||0)),seed=options.seed??731+regionIndex*7919,layout=createRegionLayout(regionIndex,seed),palette=layout.palette,random=rng(seed),group=new THREE.Group();group.name='The living creek';scene.add(group);
   const natural=options.natural===true,creekGeography=natural?createCreekGeography(layout):null;
-  const creekLandmarks=creekGeography?.landmarks||[],creekNest=creekGeography?.nest||null,creekCover=creekGeography?.cover||[],creekGrips=[];
+  const creekLandmarks=creekGeography?.landmarks||[],creekNest=creekGeography?.nest||null,creekCover=creekGeography?.cover||[],creekGrips=[],creekRefuges=[];
   let waterLevel=CREEK_WATER_BASE,targetWaterLevel=CREEK_WATER_BASE,creekPhase={flow:.45},creekStateApplied=false,nestVisual=null;
   const platforms=[],hotspots=[],shelters=new Set(),castleTerraces=new Map(),buildingPreviews=new Set(),disposables=[],buckets=new Map(),bucketSize=6;let buildArea=null;
   const renderStats={reflectionRenders:0,reflectionSkips:0,flyMatricesUpdated:0,spatialChunks:0,terrainUpdates:0};
@@ -380,7 +381,7 @@ export function createWorld(scene, renderer, options={}) {
 
   function surface(x,z){const shoreline=natural?waterLevel-.065:-.1;let h=terrainHeight(x,z),type=h>shoreline?'land':'water',chosen=null;if(h<=shoreline)h=natural?waterLevel-.215:-.25;const near=buckets.get(Math.floor(x/bucketSize)+':'+Math.floor(z/bucketSize))||[];
     for(const p of near){if(p.type==='land')continue;const d=Math.hypot(x-p.x,z-p.z);if(d<=p.radius){let ph=p.y;if(p.type==='rock')ph-=smooth(p.radius*.62,p.radius,d)*.14*p.scaleY;if(natural&&ph<=shoreline)continue;if(ph>h){h=ph;type=p.type==='shelter'?'land':p.type;chosen=p;}}}
-    return {height:h,type,platform:chosen};}
+    return refugeSurface(creekRefuges,x,z)||{height:h,type,platform:chosen};}
   function sampleHeight(x,z){return surface(x,z).height;}
 
   // Organic fly lures: fallen fruit, leaf litter and waterlogged wood.
@@ -606,7 +607,7 @@ export function createWorld(scene, renderer, options={}) {
     const terrace={id:data.id,x:data.x,z:data.z,elevation};castleTerraces.set(data.id,terrace);refreshTerrain(terrace);refreshGroundDecor(terrace);return terrace;
   }
   function createShelter(data,buildOptions={}){
-    if((natural||data.natural===true)&&!buildOptions.preview){const s=createNaturalShelter(data,{terrainHeight,materials,rockGeos,tube,leafGeometry,mergeStaticParts,teamColor});group.add(s);shelters.add(s);return s;}
+    if((natural||data.natural===true)&&!buildOptions.preview){const s=createNaturalShelter(data,{terrainHeight,materials,rockGeos,tube,leafGeometry,mergeStaticParts,teamColor});group.add(s);shelters.add(s);creekRefuges.push(s.userData.refuge);return s;}
     const preview=!!buildOptions.preview;
     const terrace=preview?null:addCastleLand(data);
     const s=new THREE.Group();s.name='Shelter '+(data.id??'');s.position.set(data.x,terrace?.elevation??0,data.z);s.scale.setScalar(SHELTER_SCALE);s.userData.id=data.id;s.userData.radius=SHELTER_RADIUS;s.userData.owned=[];s.userData.terrain=terrace;const owned=s.userData.owned;
@@ -745,7 +746,7 @@ export function createWorld(scene, renderer, options={}) {
     if(stage!==s.userData.constructionStage){applyConstructionStage(s);s.userData.collisionRevision=(s.userData.collisionRevision||0)+1;}
     return true;
   }
-  function removeShelter(s){if(!s)return;if(buildArea?.userData.camp===s)hideBuildArea();group.remove(s);shelters.delete(s);for(const support of [s.userData.support,s.userData.landmark])if(support){const at=platforms.indexOf(support);if(at>=0)platforms.splice(at,1);for(const list of buckets.values()){const i=list.indexOf(support);if(i>=0)list.splice(i,1);}}const terrace=s.userData.terrain;if(terrace){castleTerraces.delete(terrace.id);refreshTerrain(terrace);refreshGroundDecor(terrace);}s.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const d of s.userData.owned||[])d.dispose?.();}
+  function removeShelter(s){if(!s)return;if(buildArea?.userData.camp===s)hideBuildArea();group.remove(s);shelters.delete(s);if(s.userData.refuge){s.userData.refuge.active=false;const at=creekRefuges.indexOf(s.userData.refuge);if(at>=0)creekRefuges.splice(at,1);}if(s===nestVisual)nestVisual=null;for(const support of [s.userData.support,s.userData.landmark])if(support){const at=platforms.indexOf(support);if(at>=0)platforms.splice(at,1);for(const list of buckets.values()){const i=list.indexOf(support);if(i>=0)list.splice(i,1);}}const terrace=s.userData.terrain;if(terrace){castleTerraces.delete(terrace.id);refreshTerrain(terrace);refreshGroundDecor(terrace);}s.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const d of s.userData.owned||[])d.dispose?.();}
 
   /** Real construction geometry, built once per placement session, with no support/collision registration. */
   function createBuildingPreview(type){
@@ -842,10 +843,11 @@ export function createWorld(scene, renderer, options={}) {
     const closeLights=[...shelters].filter(s=>!s.userData.natural&&!s.userData.destroyed&&!s.userData.visualState?.underConstruction).sort((a,b)=>playerPos?a.position.distanceToSquared(playerPos)-b.position.distanceToSquared(playerPos):0).slice(0,3);
     for(const s of shelters){if(s.userData.natural)continue;s.userData.light.visible=closeLights.includes(s);s.userData.light.intensity=.25+(1-dayFactor)*3;s.userData.lamp.material.emissiveIntensity=.3+(1-dayFactor)*1.3;s.userData.banner.userData.flag.rotation.y=Math.sin(time*1.4+s.position.x)*.06;}
   }
-  function dispose(){hideBuildArea();for(const preview of [...buildingPreviews])removeBuildingPreview(preview);scene.remove(group);const geos=new Set(),mats=new Set();group.traverse(o=>{if(o.isInstancedMesh)o.dispose();if(o.geometry)geos.add(o.geometry);if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>mats.add(m));else mats.add(o.material);}});for(const resource of creekDecor?.resources||[]){if(resource.isBufferGeometry)geos.add(resource);if(resource.isMaterial)mats.add(resource);}for(const g of geos)g.dispose();for(const m of mats)m.dispose();for(const t of disposables)t.dispose();water.material.uniforms.mirrorSampler?.value?.dispose?.();shelters.clear();}
+  function dispose(){hideBuildArea();for(const preview of [...buildingPreviews])removeBuildingPreview(preview);scene.remove(group);const geos=new Set(),mats=new Set();group.traverse(o=>{if(o.isInstancedMesh)o.dispose();if(o.geometry)geos.add(o.geometry);if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>mats.add(m));else mats.add(o.material);}});for(const resource of creekDecor?.resources||[]){if(resource.isBufferGeometry)geos.add(resource);if(resource.isMaterial)mats.add(resource);}for(const g of geos)g.dispose();for(const m of mats)m.dispose();for(const t of disposables)t.dispose();water.material.uniforms.mirrorSampler?.value?.dispose?.();shelters.clear();for(const refuge of creekRefuges)refuge.active=false;creekRefuges.length=0;}
   // Authored terrain and vegetation never move as objects. Dynamic motion uses
   // instance buffers/shaders; castles added later retain their movable pivots.
+  for(const pocket of creekGeography?.refuges||[])createShelter({...pocket,natural:true,team:'neutral',nestLevel:0});
   group.traverse(o=>{o.updateMatrix();o.matrixAutoUpdate=false;});group.updateMatrixWorld(true);
-  return {group,platforms,hotspots,campSites,mapRegions,routes,predatorAnchors,bossAnchors,renderStats,seed,regionIndex,palette,toRegionPoint:layout.toWorld,radius:WORLD_RADIUS,boundary:WORLD_BOUNDARY,revision:WORLD_REVISION,sampleHeight,getTerrainHeight:terrainHeight,getSurface:surface,shelterLandHeight,update,splash,impact,createShelter,updateShelter,setConstructionProgress,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE,natural,creekLandmarks,creekNest,creekCover,creekGrips,creekSpawn:natural?{x:0,z:0}:null,creekTerritories:natural?campSites.filter(s=>s.team==='enemy'):[],setCreekState,currentAt,isCreekCover,get waterLevel(){return natural?waterLevel:CREEK_WATER_BASE;}};
+  return {group,platforms,hotspots,campSites,mapRegions,routes,predatorAnchors,bossAnchors,renderStats,seed,regionIndex,palette,toRegionPoint:layout.toWorld,radius:WORLD_RADIUS,boundary:WORLD_BOUNDARY,revision:WORLD_REVISION,sampleHeight,getTerrainHeight:terrainHeight,getSurface:surface,shelterLandHeight,update,splash,impact,createShelter,updateShelter,setConstructionProgress,removeShelter,createBuildingPreview,setBuildingPreview,removeBuildingPreview,showBuildArea,hideBuildArea,dispose,water,shelterRadius:SHELTER_RADIUS,shelterScale:SHELTER_SCALE,natural,creekLandmarks,creekNest,creekCover,creekGrips,creekRefuges,creekSpawn:natural?{x:0,z:0}:null,creekTerritories:natural?campSites.filter(s=>s.team==='enemy'):[],setCreekState,currentAt,isCreekCover,get waterLevel(){return natural?waterLevel:CREEK_WATER_BASE;}};
 }
 

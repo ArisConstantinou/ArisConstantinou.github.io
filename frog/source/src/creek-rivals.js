@@ -8,6 +8,7 @@ import {RECRUIT_RANGE,RECRUIT_PREVIEW_RANGE,passiveRecruitTarget} from './squad-
 import {orderFlank} from './tactics.js';
 import {dayState} from './rules.js';
 import {normalizeCreekSociety} from './creek-society-state.js';
+import {clearRefugePosition} from './refuge.js';
 
 const distance=(a,b)=>Math.hypot((a?.x||0)-(b?.x||0),(a?.z||0)-(b?.z||0));
 const living=f=>f&&!f.dead&&f.hp>0;
@@ -81,9 +82,10 @@ export const creekRivalMethods={
     return candidates.find(point=>{
       const surface=this.world.getSurface(point.x,point.z);
       const wet=surface.type==='water';
+      const clear=clearRefugePosition(this.world.creekRefuges||[],{...point,y:surface.height,team:'predator',type,scale:PREDATORS[type].scale});
       return (type!=='fish'||wet)&&distance(point,this.player)>(migration?52:24)
         &&!allies.some(f=>distance(point,f)<18)
-        &&(!nest||distance(point,nest)>18);
+        &&(!nest||distance(point,nest)>18)&&distance(clear,point)<.01;
     })||null;
   },
 
@@ -201,6 +203,7 @@ export const creekRivalMethods={
   creekRivalIntent(f){
     if(!f.team?.startsWith('enemy'))return null;
     const home=this.camps.find(c=>c.id===f.home),friendlyArea=creekFriendlyTerritory(home);
+    const shelter=this.creekRefugeIntent?.(f,{predatorsOnly:true});if(shelter)return shelter;
     if(f.fear>0&&f.fearFrom){const a=Math.atan2(f.x-f.fearFrom.x,f.z-f.fearFrom.z);return {kind:'move',target:bounded({x:f.x+Math.sin(a)*5,z:f.z+Math.cos(a)*5})};}
     const predator=this.predators.filter(p=>living(p)&&!['patrol','flee','dormant'].includes(p.phase)&&distance(f,p)<14).sort((a,b)=>distance(a,f)-distance(b,f))[0];
     if(predator)return f.hp<f.maxHp*.45?{kind:'move',target:bounded({x:f.x+(f.x-predator.x),z:f.z+(f.z-predator.z)})}:{kind:'attack',target:predator};
@@ -245,7 +248,8 @@ export const creekRivalMethods={
     const threats=[...this.predators.filter(t=>living(t)&&!['patrol','dormant','flee'].includes(t.phase)),...this.frogs.filter(t=>this.hostile(f,t))];
     const danger=threats.filter(t=>distance(t,f)<10).sort((a,b)=>distance(a,f)-distance(b,f))[0];
     if(f.order==='retreat'){
-      if(distance(f,p)<4&&!danger){f.order='follow';return {kind:'move',formation:true,target:p};}
+      const shelter=this.creekRefugeIntent?.(f,{force:true});if(shelter)return shelter;
+      if(distance(f,p)<4&&!danger)return {kind:'move',formation:true,target:p};
       if(danger){
         const dx=f.x-danger.x,dz=f.z-danger.z,d=Math.max(.1,Math.hypot(dx,dz)),ux=dx/d,uz=dz/d;
         f.creekRetreatSide??=(f.seed||0)%2?1:-1;

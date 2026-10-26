@@ -3,6 +3,7 @@ import { PREDATORS, clamp } from './rules.js';
 import {WORLD_BOUNDARY} from './world-config.js';
 import {insideFort,canPassGate,resolveFortMovement,gatePoint} from './fortification.js';
 import {applyCombatImpulse} from './combat-feedback.js';
+import {refugeAt,refugeLineClear,resolveRefugeMovement,refugeWaypoint,refugeEntrancePoint,refugeInteriorPoint,refugeCanEnter,clearRefugePosition,updateRefugeSnake} from './refuge.js';
 
 const distance = (a,b) => Math.hypot(a.x-b.x,a.z-b.z);
 const friendly = f => f && (f.team==='player'||f.team==='ally');
@@ -14,6 +15,8 @@ const radius = {heron:2.65,snake:1.65,fish:2.85};
 const lungeDuration = {heron:.44,snake:.38,fish:.58};
 const mouthOffset = {heron:1.8,snake:2.05,fish:1.35};
 const mouthPosition = new THREE.Vector3();
+const refuges = game => game.creekMode?game.world?.creekRefuges||[]:[];
+const refugeSight = (game,from,to) => refugeLineClear(refuges(game),from,to);
 
 function initialize(p) {
   if(p._aiReady)return;
@@ -30,6 +33,7 @@ function initialize(p) {
   p.playerDamage=Math.max(0,Number(p.playerDamage)||0);p.lastCombatAt=Number.isFinite(p.lastCombatAt)?p.lastCombatAt:-100;p.engagedPlayer=false;p.hitAnim=0;
   p.repelAwarded=!!p.repelAwarded;p.killAwarded=!!p.killAwarded;p.provokedUntil=Number(p.provokedUntil)||0;p.hunting=false;p.fearPressure=0;
   p.attackDuration=1;p.attackType='lunge';p.movePulse=0;p.grace=p.grace||0;
+  p.refugeSearchId=null;p.refugeSearchUntil=0;p.refugeSearchEntering=false;
 }
 function surface(game,x,z) {return game.world.getSurface(x,z);}
 function wet(game,x,z) {const s=surface(game,x,z);return s.type==='water'||s.type==='lily'||(s.type==='leaf')||s.height<.13;}
@@ -40,7 +44,9 @@ function canReach(game,p,f) {
   if(!alive(f)||f.grabbedBy&&f.grabbedBy!==p||protectedByGrace(game,p,f))return false;
   if(game.creekMode){
     if(p.type==='heron'&&f.diving&&f.diveDepth>.55)return false;
-    if(f.creekConcealed&&game.elapsed>=(p.provokedUntil||0)&&distance(p,f)>(p.type==='heron'?6:p.type==='snake'?11:15))return false;
+    const coverRange=f.creekConcealed?(p.type==='heron'?6:p.type==='snake'?11:15):f.creekNaturalCover?(p.type==='heron'?12:p.type==='snake'?14:18):Infinity;
+    if(game.elapsed>=(p.provokedUntil||0)&&distance(p,f)>coverRange)return false;
+    if(!refugeSight(game,p,f))return false;
   }
   if(p.eventRole==='guardian'&&game.elapsed>=(p.provokedUntil||0)&&distance(f,p.anchor)>(p.territoryRadius||26))return false;
   if(p.type!=='heron'&&(game.camps||[]).some(c=>!c.destroyed&&insideFort(c,f)&&!insideFort(c,p)&&!canPassGate(c,p)))return false;
@@ -83,13 +89,16 @@ function acquire(game,p) {
     if(score<bestScore){bestScore=score;best=f;}
   }
   if(best) {
-    p.target=best;p.targetId=best.id;p.chaseTime=0;p.lostTime=0;enter(p,'stalk');
+    p.target=best;p.targetId=best.id;p.chaseTime=0;p.lostTime=0;p.refugeSearchId=null;p.refugeSearchUntil=0;p.refugeSearchEntering=false;enter(p,'stalk');
     if(friendly(best)&&visibleToPlayer(game,p,40))activateHunt(game,p);
     else sound(game,p,p.type,.45);
   }
   return best;
 }
 function walk(game,p,x,z,speed,dt) {
+  if(p.type==='snake')p.refugeSnakeGoal={x,z};
+  const cover=refuges(game);
+  if(cover.length){const routed=refugeWaypoint(cover,p,{x,z});x=routed.x;z=routed.z;}
   let dx=x-p.x,dz=z-p.z,d=Math.hypot(dx,dz);if(d<.05){p.speed=0;return;}
   let nx=p.x+dx/d*Math.min(d,speed*dt),nz=p.z+dz/d*Math.min(d,speed*dt);
   // Fish remain in the water. Look around rock/island edges instead of sliding over them.
@@ -107,6 +116,7 @@ function walk(game,p,x,z,speed,dt) {
   }
   nx=clamp(nx,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);nz=clamp(nz,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);
   if(p.type!=='heron'){const resolved=resolveFortMovement(game.camps||[],p,{x:nx,z:nz});nx=resolved.x;nz=resolved.z;}
+  if(cover.length){const resolved=resolveRefugeMovement(cover,p,{x:nx,z:nz});nx=resolved.x;nz=resolved.z;}
   p.yaw=angleLerp(p.yaw,Math.atan2(dx,dz),dt*(p.type==='heron'?4:7));
   p.speed=Math.hypot(nx-p.x,nz-p.z)/Math.max(.001,dt);p.x=nx;p.z=nz;
   p.movePulse+=dt*p.speed;
@@ -127,6 +137,8 @@ function setHeight(game,p) {
     const h=game.world.sampleHeight(p.x,p.z);
     p.y=p.type==='snake'?Math.max(-.10,h):Math.max(-.20,h);
   }
+  if(game.creekMode&&p.type==='snake')updateRefugeSnake(refuges(game),p,{surface:(x,z)=>game.world.getSurface(x,z),
+    target:p.phase==='lunge'?p.lungeEnd:p.phase==='windup'?p.strike:p.refugeSnakeGoal||p.anchor});
 }
 
 /** Recoil uses the same enclosure solver as ordinary units. Fish may slide
@@ -147,7 +159,7 @@ export function applyPredatorCombatImpulse(game,p,dt){
   };
   let resolved=origin;
   for(const candidate of [intended,{x:intended.x,z:origin.z},{x:origin.x,z:intended.z}]){
-    const point=resolveFortMovement(game.camps||[],p,candidate);
+    const point=resolveRefugeMovement(refuges(game),p,resolveFortMovement(game.camps||[],p,candidate));
     if(traversable(point)){resolved=point;break;}
   }
   const dx=resolved.x-origin.x,dz=resolved.z-origin.z;
@@ -160,7 +172,7 @@ export function applyPredatorCombatImpulse(game,p,dt){
   setHeight(game,p);return !!(dx||dz);
 }
 function forget(game,p) {
-  p.target=null;p.targetId=null;p.chaseTime=0;p.lostTime=0;
+  p.target=null;p.targetId=null;p.chaseTime=0;p.lostTime=0;p.refugeSearchId=null;p.refugeSearchUntil=0;p.refugeSearchEntering=false;
   p.cooldown=Math.max(p.cooldown,2.5);p.huntUntil=Math.min(p.huntUntil,game.elapsed+3);
   enter(p,'patrol');
 }
@@ -207,6 +219,9 @@ function strike(game,p) {
   for(const f of game.frogs) {
     if(!alive(f)||f.grabbedBy||protectedByGrace(game,p,f))continue;
     if(p.type==='fish'&&!wet(game,f.x,f.z))continue;
+    // Windups commit to a point, but a frog can get behind real rock or a roof
+    // before impact. The strike cannot pass through that intervening surface.
+    if(!refugeSight(game,p,f))continue;
     if(distance(f,p.strike)>p.strikeRadius||f.y>pos.y+(p.type==='heron'?2:1.15)*(p.boss?1.4:1))continue;
     const oldHp=f.hp,wasInvulnerable=(f.invulnerable||0)>0;
     const candidate=f===p.target&&!wasInvulnerable&&!f.blocking&&p.grabCooldown<=0&&(f.hp/f.maxHp<.68||neighbors(game,f,5)<=1);
@@ -222,7 +237,8 @@ export function releaseGrab(game,p) {
   p.grabbed=null;p.rescueDamage=0;f.grabbedBy=null;
   if(!f.dead) {
     const a=p.yaw+(p.type==='snake'?1.5:1.1),r=(p.type==='heron'?2.6:2.1)*(p.boss?1.5:1);
-    f.x=clamp(p.x+Math.sin(a)*r,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);f.z=clamp(p.z+Math.cos(a)*r,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2);
+    const landing=resolveRefugeMovement(refuges(game),f,{x:clamp(p.x+Math.sin(a)*r,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2),z:clamp(p.z+Math.cos(a)*r,-WORLD_BOUNDARY+2,WORLD_BOUNDARY-2)});
+    f.x=landing.x;f.z=landing.z;
     f.y=Math.max(game.world.sampleHeight(f.x,f.z)+.45,p.type==='heron'?p.y+.9:.35);
     f.vx=Math.sin(a)*3;f.vz=Math.cos(a)*3;f.vy=3.7;f.grounded=false;f.jumpTime=.7;
     f.invulnerable=Math.max(f.invulnerable||0,1.4);f.stun=Math.max(f.stun||0,.18);
@@ -321,6 +337,7 @@ export function predatorObjective(p) {
   if(!p)return '';
   if(p.grabbed?.team==='player')return 'ΣΕ ΑΡΠΑΞΕ — Πάτα Q / Space / R. Οι σύμμαχοι μπορούν να σε ελευθερώσουν!';
   if(p.grabbed&&friendly(p.grabbed))return `ΔΙΑΣΩΣΗ — Χτύπα τον θηρευτή πριν καταπιεί τον ${p.grabbed.name}!`;
+  if(p.phase==='stalk'&&p.refugeSearchId)return p.refugeSearchEntering?'ΕΡΕΥΝΑ ΤΗΝ ΚΡΥΨΩΝΑ — Το φίδι χωρά στο άνοιγμα. Βρες διέξοδο ή ετοιμάσου να το αντιμετωπίσεις.':'ΨΑΧΝΕΙ ΣΤΗΝ ΕΙΣΟΔΟ — Μείνε πίσω από την κάλυψη ή περίμενε ευκαιρία να φύγεις.';
   if(p.phase==='windup')return p.type==='fish'?'ΕΦΟΔΟΣ ΑΠΟ ΚΑΤΩ — Πήδηξε σε βράχο ή άλλαξε κατεύθυνση!':'ΕΤΟΙΜΑΖΕΙ ΕΠΙΘΕΣΗ — Απέφυγε την έφοδο και αντεπιτέσου.';
   if(p.phase==='flee')return 'ΥΠΟΧΩΡΕΙ — Απώθησέ τον ή καταδίωξέ τον για να τον νικήσεις.';
   if(p.phase==='recover')return 'ΠΑΡΑΘΥΡΟ ΑΝΤΕΠΙΘΕΣΗΣ — Συντόνισε τα χτυπήματα της ομάδας.';
@@ -342,6 +359,19 @@ export function updatePredators(game,dt) {
     if(p.phase==='dormant') {
       if(!p.campaignTracked&&!p.realmEvent&&!game.campaign?.endless&&game.elapsed>=p.respawnAt&&distance(game.player,p.anchor)>34&&!game.allies().some(f=>distance(f,p.anchor)<15))respawn(game,p);
       continue;
+    }
+    // Repair old/newly placed geometry once. Ordinary ramp and doorway travel
+    // belongs to the swept movement solver, never to migration relocation.
+    const cover=refuges(game);
+    if(cover.length&&p._refugeGeometryCount!==cover.length){
+      p._refugeGeometryCount=cover.length;
+      const clear=clearRefugePosition(cover,p),dx=clear.x-p.x,dz=clear.z-p.z;
+      if(Math.abs(dx)+Math.abs(dz)>.001){
+        p.x=clear.x;p.z=clear.z;
+        if(p.phase==='lunge')for(const key of ['lungeStart','lungeEnd'])if(p[key]){p[key].x+=dx;p[key].z+=dz;}
+        const anchor=clearRefugePosition(cover,{...p,x:p.anchor.x,z:p.anchor.z});p.anchor={x:anchor.x,z:anchor.z};
+        setHeight(game,p);
+      }
     }
     if(p.phase==='flee') {
       p.fleeTime+=dt;
@@ -368,7 +398,12 @@ export function updatePredators(game,dt) {
     if(p.phase==='lunge') {
       const t=clamp(p.phaseTime/p.lungeTime,0,1),eased=1-Math.pow(1-t,3);
       const tx=p.lungeStart.x+(p.lungeEnd.x-p.lungeStart.x)*eased,tz=p.lungeStart.z+(p.lungeEnd.z-p.lungeStart.z)*eased;
-      if(p.type!=='fish'||wet(game,tx,tz)){p.speed=distance(p,{x:tx,z:tz})/Math.max(.001,dt);p.x=tx;p.z=tz;}
+      if(p.type!=='fish'||wet(game,tx,tz)){
+        const legal=resolveRefugeMovement(cover,p,{x:tx,z:tz});
+        if(p.type!=='fish'||wet(game,legal.x,legal.z)){p.speed=distance(p,legal)/Math.max(.001,dt);p.x=legal.x;p.z=legal.z;}
+      }
+      // Occlusion must use the head at this frame's legal impact position.
+      setHeight(game,p);
       if(t>=.55)strike(game,p);
       if(p.phase==='lunge'&&t>=1){
         if(p.burstRemaining>0&&canReach(game,p,p.target)&&distance(p,p.target)<p.reach+3){p.burstRemaining--;beginWindup(game,p,true);}
@@ -386,6 +421,18 @@ export function updatePredators(game,dt) {
     if(p.phase==='stalk') {
       p.chaseTime+=dt;
       if(!alive(p.target)){forget(game,p);setHeight(game,p);continue;}
+      const hidden=refugeAt(cover,p.target);
+      if(hidden&&!refugeSight(game,p,p.target)){
+        const canEnter=p.type==='snake'&&refugeCanEnter(hidden,p);
+        if(p.refugeSearchId!==hidden.id){p.refugeSearchId=hidden.id;p.refugeSearchEntering=canEnter;p.refugeSearchUntil=game.elapsed+(canEnter?22:8);}
+        if(game.elapsed>=p.refugeSearchUntil){forget(game,p);setHeight(game,p);continue;}
+        // A snake that fits investigates through the real dog-leg passage.
+        // The search point is fixed; attacks still require seeing the frog.
+        // Larger hunters can only investigate from outside the opening.
+        const search=canEnter?refugeInteriorPoint(hidden,0):refugeEntrancePoint(hidden,3.2);
+        walk(game,p,search.x,search.z,p.baseSpeed*.65,dt);setHeight(game,p);continue;
+      }
+      p.refugeSearchId=null;p.refugeSearchUntil=0;p.refugeSearchEntering=false;
       if(!canReach(game,p,p.target))p.lostTime+=dt;else p.lostTime=0;
       const committed=game.elapsed<p.provokedUntil;
       if(p.lostTime>(committed?14:2.4)||distance(p,p.target)>(committed?52:34)||(!committed&&p.chaseTime>36&&distance(p,p.target)>13)){forget(game,p);setHeight(game,p);continue;}

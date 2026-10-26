@@ -495,6 +495,12 @@ function getAttack(attack, elapsed) {
   return { type, phase, force: Math.sin(phase * Math.PI) };
 }
 
+function sampleSnakeRoute(pose,distance,out){
+  const points=pose.points;if(distance<=points[0].s){out.copy(points[0]);return out;}
+  for(let i=1;i<points.length;i++)if(distance<=points[i].s){const a=points[i-1],b=points[i],t=(distance-a.s)/(b.s-a.s||1);return out.set(lerp(a.x,b.x,t),lerp(a.y,b.y,t),lerp(a.z,b.z,t));}
+  out.copy(points.at(-1));return out;
+}
+
 /**
  * Creates an original, skinned animal. World transform belongs to caller.
  * attack accepts {type:'kick'|'slam'|'tongue'|'lunge', phase:0..1} or a string.
@@ -548,6 +554,31 @@ export function createCreature(type = 'frog', options = {}) {
     }
   };
   const reset = () => { for (let i = 0; i < boneList.length; i++) { boneList[i].rotation.set(0, 0, 0); boneList[i].scale.set(1, 1, 1); boneList[i].position.copy(restPositions[i]); } };
+  let snakeRouteRig=null;
+  function followSnakeRoute(pose){
+    if(type!=='snake'||!pose?.points?.length||!pose.weight)return;
+    if(!snakeRouteRig)snakeRouteRig={targets:Array.from({length:21},()=>new THREE.Matrix4()),local:new THREE.Matrix4(),inverse:new THREE.Matrix4(),point:V(),before:V(),after:V(),translation:V(),rotation:new THREE.Quaternion(),scale:V(1,1,1),localPosition:V(),localRotation:new THREE.Quaternion(),localScale:V()};
+    const rig=snakeRouteRig,weight=clamp(pose.weight),scale=pose.scale||1,origin=pose.origin,c=Math.cos(pose.yaw||0),s=Math.sin(pose.yaw||0);
+    // The outside snake keeps its ordinary slither. Close to stone, a short
+    // actual path guides each vertebra and prevents the rigid whole animal
+    // from rotating its head or tail through the side of the passage.
+    pivot.position.y*=1-weight;pivot.rotation.x*=1-weight;pivot.rotation.z*=1-weight;
+    for(let i=0;i<=20;i++){
+      const bone=i?bones['coil'+i]:bones.head,restZ=1.97-i*.22,station=(i?restZ:2.17)*scale;
+      sampleSnakeRoute(pose,station,rig.point);sampleSnakeRoute(pose,station-.07*scale,rig.before);sampleSnakeRoute(pose,station+.07*scale,rig.after);
+      const dx=rig.after.x-rig.before.x,dz=rig.after.z-rig.before.z,len=Math.hypot(dx,dz),yaw=len>.0001?Math.atan2(dx,dz):pose.yaw||0;
+      if(!i){rig.point.x-=Math.sin(yaw)*.2*scale;rig.point.z-=Math.cos(yaw)*.2*scale;}
+      const x=(rig.point.x-origin.x)/scale,z=(rig.point.z-origin.z)/scale;
+      const ground=Math.max(rig.point.y,rig.before.y,rig.after.y);
+      rig.translation.set(c*x-s*z,(ground-origin.y)/scale+(i?.26:.30),s*x+c*z);rig.rotation.setFromAxisAngle(UP,yaw-(pose.yaw||0));
+      rig.targets[i].compose(rig.translation,rig.rotation,rig.scale);
+      rig.local.copy(rig.targets[i]);if(i)rig.local.premultiply(rig.inverse.copy(rig.targets[i-1]).invert());
+      rig.local.decompose(rig.localPosition,rig.localRotation,rig.localScale);
+      bone.position.lerp(rig.localPosition,weight);bone.quaternion.slerp(rig.localRotation,weight);bone.scale.lerp(rig.localScale,weight);
+    }
+    bones.jaw.rotation.x*=1-weight*.8;
+    const tongue=extras.find(m=>m.name==='tongue');if(tongue&&weight>.8)tongue.visible=false;
+  }
   const api = {
     group, bones, skeleton, mesh: body,
     get crowned() { return crowned; },
@@ -758,6 +789,7 @@ export function createCreature(type = 'frog', options = {}) {
         pivot.rotation.x+=impact.z*.055*recoil;pivot.rotation.z-=impact.x*.08*recoil;
         bones.head.rotation.x-=.075*recoil;bones.head.rotation.z-=impact.x*.05*recoil;
       }
+      if(type==='snake')followSnakeRoute(state.snakePose);
     },
     dispose() { skin.dispose(); eyeMat.dispose(); outline.material.dispose(); for (const e of extras) e.material.dispose(); if (royalCrown) royalCrown.traverse(mesh => { if (mesh.isMesh) mesh.material.dispose(); }); skeleton.dispose(); group.removeFromParent(); }
   };

@@ -7,6 +7,7 @@ import {dayState,validateSave,SAVE_KEY} from '../src/rules.js';
 import {realmTravelOffer} from '../src/realms.js';
 import {FORT_RADIUS} from '../src/fortification.js';
 import {GameInput} from '../src/input.js';
+import {refugeAt,refugeEntrancePoint,refugeInteriorPoint} from '../src/refuge.js';
 
 function creekGame(t){
   const previous=globalThis.document;
@@ -173,4 +174,17 @@ test('continuing an older save preserves earned companions and resources while r
   assert.deepEqual(g.player.equipment,{armor:null,weapon:null,crest:false});assert.deepEqual(g.player.legacyEquipment,legacy.player.equipment);
   assert.equal(g.player.crowned,false);assert.equal(g.economy.jobs.length,0);assert.equal(g.camps[0].underConstruction,false);assert.deepEqual(g.camps[0].buildings,{});
   const newSave=saved(g);assert.ok(newSave.creek);assert.equal(newSave.creekSociety.initialized,true);
+});
+
+test('real terrain refuge admits a retreating companion and restores sheltered actors without duplicate collision geometry',t=>{
+  const {game:g}=creekGame(t),home=g.world.creekRefuges.find(r=>r.id==='living-creek-nest');assert.ok(home);
+  const door=refugeEntrancePoint(home,home.ramp.maxZ-home.entrance.z+.7),interior=refugeInteriorPoint(home);
+  moveTo(g,interior);const ally=g.spawnFrog({id:'refuge-returner',team:'ally',role:'scout',x:door.x,z:door.z,order:'retreat'});
+  ally.y=g.world.getSurface(ally.x,ally.z).height;g.graceUntil=g.elapsed+30;
+  tick(g,15);assert.equal(refugeAt(g.world.creekRefuges,ally)?.id,home.id);assert.equal(refugeAt(g.world.creekRefuges,g.player)?.id,home.id);
+  assert.equal(g.creekSnapshot().shelter.playerPosition,'inside');assert.doesNotThrow(()=>JSON.stringify(g.creekSnapshot()));
+  const count=g.world.creekRefuges.length,data=saved(g);g.resetWorld(data);
+  assert.equal(g.world.creekRefuges.length,count);assert.equal(new Set(g.world.creekRefuges.map(r=>r.id)).size,count);
+  assert.equal(refugeAt(g.world.creekRefuges,g.player)?.id,home.id);assert.equal(refugeAt(g.world.creekRefuges,g.frogs.find(f=>f.id===ally.id))?.id,home.id);
+  tick(g,.2);assert.equal(g.frogs.find(f=>f.id===ally.id).order,'retreat');
 });

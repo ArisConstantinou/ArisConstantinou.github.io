@@ -1,10 +1,12 @@
 /** Integration for exploration, living water, natural abilities and recoverable finds. */
 import {CREEK_ABILITIES,normalizeCreekState,creekRegion,creekPhase,abilityStatus,unlockCreekAbilities,recordCreekMetric,remainingDropFood,dropCreekInventory,recoverCreekDrop,collectCreekFind,creekModifiers} from './creek-state.js';
+import {refugeAt,refugeEntrancePoint,refugeInteriorPoint,refugeLineClear,refugeOccupant} from './refuge.js';
 
 const distance=(a,b)=>Math.hypot((a?.x||0)-(b?.x||0),(a?.z||0)-(b?.z||0));
 const finite=(v,fallback=0)=>Number.isFinite(v)?v:fallback;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,finite(v,a)));
 const living=f=>f&&!f.dead&&finite(f.hp,1)>0;
+const refuges=game=>game.creekMode?game.world?.creekRefuges||[]:[];
 const fallbackLandmarks=[
   {id:'pond',label:'Η λιμνούλα με τα νούφαρα',description:'Πλωτά φύλλα και έντομα γύρω από το ρηχό νερό.',hint:'Τα έντομα κινούνται ανάμεσα στα πλατιά φύλλα.',x:0,z:0,radius:9},
   {id:'creek',label:'Το στενό ρυάκι',description:'Το ρεύμα ενώνει τη λιμνούλα με βαθύτερα νερά.',hint:'Ακολούθησε τον ήχο του τρεχούμενου νερού.',x:8,z:-24,radius:8},
@@ -56,14 +58,33 @@ export const creekMethods={
     if(typeof this.world?.isCreekCover==='function')return !!this.world.isCreekCover(actor.x,actor.z);
     return this.creekLandmarks().some(l=>['bank','roots'].includes(l.id)&&distance(l,actor)<(l.radius||6));
   },
+  creekRefugeState(actor=this.player,only=null){
+    if(!this.creekMode||!living(actor))return null;
+    const choices=only?[only]:refuges(this),inside=refugeAt(choices,actor);
+    const refuge=inside||choices.filter(r=>distance(actor,r)<9).sort((a,b)=>distance(a,actor)-distance(b,actor))[0];
+    if(!refuge)return null;
+    const entrance=refugeEntrancePoint(refuge),nearDoor=distance(actor,entrance)<2.6&&finite(actor.y)>=refuge.floorY-.5&&finite(actor.y)<refuge.roofTop+.1;
+    const camp=this.camps?.find(c=>c.id===refuge.id);
+    const threats=[...(this.predators||[]).filter(t=>living(t)&&!['dead','dormant'].includes(t.phase)),
+      ...(this.frogs||[]).filter(t=>living(t)&&!t.surrendered&&this.hostile?.(actor,t))];
+    const occupant=threats.find(t=>refugeOccupant([refuge],t)),intruder=occupant?{id:occupant.id,type:occupant.type||'frog',label:occupant.name||(occupant.type==='snake'?'Το φίδι':'Ένας εχθρός')}:null;
+    const exposedThreat=threats.some(t=>t.phase!=='flee'&&distance(t,actor)<24&&refugeLineClear(choices,t,actor));
+    const restSafe=!!inside&&!intruder&&!exposedThreat&&!actor.grabbedBy&&finite(actor.speed)<.8&&!(actor.attackCD>0)&&!(actor.attackAnim>0);
+    return {id:refuge.id,label:camp?.name||refuge.label||(refuge.id==='living-creek-nest'?'Η φυσική φωλιά':'Φυσικό καταφύγιο'),x:refuge.x,z:refuge.z,entrance,
+      playerPosition:inside?'inside':nearDoor?'entrance':'exposed',protected:!!inside,restSafe,intruder};
+  },
   creekNestState(){
     if(!this.creekMode||!this.creek)return null;
     const nest=this.world?.creekNest||{x:17,z:16},state=creekRegion(this.creek,activeRegion(this)).nest;
     const threats=[...(this.predators||[]).filter(p=>living(p)&&!['dead','dormant','flee'].includes(p.phase)),
       ...(this.frogs||[]).filter(f=>living(f)&&!f.surrendered&&String(f.team).startsWith('enemy')&&(typeof this.hostile!=='function'||this.hostile(this.player,f)))];
     const safe=!threats.some(f=>distance(f,nest)<(f.team==='predator'?22:15));
+    const refuge=refuges(this).find(r=>r.id==='living-creek-nest'||distance(r,nest)<.25),cover=refuge?this.creekRefugeState(this.player,refuge):null;
     return {...nest,level:state.level,safe,visited:state.visited,label:state.level>=3?'Ζωντανό καταφύγιο':state.level===2?'Φωλιά συντρόφων':state.level===1?'Ήσυχη φωλιά':'Φυσικό καταφύγιο',
-      hint:safe?'Ένα μικρό ασφαλές σημείο για ανάπαυση.':'Κάτι κινείται κοντά στη φωλιά.',progress:Math.min(1,state.safeSeconds/240)};
+      playerPosition:cover?.playerPosition||null,protected:!!cover?.protected,restSafe:!!cover?.restSafe,intruder:cover?.intruder||null,entrance:refuge?refugeEntrancePoint(refuge):null,
+      hint:cover?.intruder?`${cover.intruder.label} βρίσκεται μέσα στην κρυψώνα. Βρες έξοδο ή αντιμετώπισε την απειλή πριν ξεκουραστείς.`:
+        cover?.protected?(cover.restSafe?(safe?'Είσαι κάτω από συμπαγή κάλυψη. Μπορείς να ξεκουραστείς μέσα.':'Ο κίνδυνος παραμένει έξω. Αναπαύεσαι πίσω από τα τοιχώματα.'):'Είσαι κάτω από κάλυψη, αλλά χρειάζεται ησυχία μέσα για ανάπαυση.'):
+        cover?.playerPosition==='entrance'?'Η είσοδος είναι εκτεθειμένη. Μπες στον πίσω χώρο για κάλυψη.':safe?'Πέρασε από τη χαμηλή είσοδο και ξεκουράσου μέσα.':'Κάτι κινείται κοντά στη φωλιά. Η κάλυψη βρίσκεται μέσα.',progress:Math.min(1,state.safeSeconds/240)};
   },
   creekSnapshot(){
     if(!this.creekMode||!this.creek)return null;
@@ -77,7 +98,7 @@ export const creekMethods={
       abilities:CREEK_ABILITIES.map(a=>abilityStatus(this.creek,a)),
       inventory:{food:Math.floor(finite(this.resources?.food)),finds:this.creek.inventory.finds.length,keepsakes:this.creek.inventory.keepsakes.length,
         findItems:this.creek.inventory.finds.map(x=>({...x})),keepsakeItems:this.creek.inventory.keepsakes.map(x=>({...x}))},
-      nest:this.creekNestState(),dropped,finds:this.creekFinds(),concealed:!!this.player?.creekConcealed};
+      nest:this.creekNestState(),shelter:this.creekRefugeState(),dropped,finds:this.creekFinds(),concealed:!!this.player?.creekConcealed};
   },
   creekAbilityModifiers(){return creekModifiers(this.creekMode?this.creek:null);},
   recordCreekAction(kind,amount=1){
@@ -101,7 +122,8 @@ export const creekMethods={
       const observed=(this.predators||[]).some(f=>living(f)&&f.phase!=='dormant'&&distance(f,p)<32&&distance(f,p)>5);
       const covered=this.creekCoverAt(p),still=finite(p.speed)<.6&&moved<step*.9;
       if(observed&&covered&&still&&!p.grabbedBy&&!(p.attackCD>0))recordCreekMetric(this.creek,'observeSeconds',step);
-      p.creekConcealed=this.creek.unlocked.includes('hide')&&covered&&still&&!!p.blocking&&!p.grabbedBy;
+      p.creekNaturalCover=covered&&still&&!p.grabbedBy&&!(p.attackCD>0);
+      p.creekConcealed=this.creek.unlocked.includes('hide')&&p.creekNaturalCover&&!!p.blocking;
       for(const place of places){
         if(region.discovered.includes(place.id)||distance(p,place)>(place.radius||7))continue;
         region.discovered.push(place.id);this._creekSavePending=true;
@@ -109,7 +131,7 @@ export const creekMethods={
         this.gainXP?.(12);this.audio?.play?.('discover');
       }
       markUnlocks(this);
-    }else p.creekConcealed=false;
+    }else {p.creekConcealed=false;p.creekNaturalCover=false;}
     const nest=this.creekNestState(),nearNest=nest&&living(p)&&distance(p,nest)<8;
     if(nearNest&&!region.nest.visited){region.nest.visited=true;this._creekSavePending=true;}
     // Local wildlife develops a discovered safe refuge while the player explores.
@@ -118,8 +140,9 @@ export const creekMethods={
       region.nest.safeSeconds+=step;
       const level=region.nest.safeSeconds>=240?3:region.nest.safeSeconds>=90?2:region.nest.safeSeconds>=20?1:0;
       if(level>region.nest.level){region.nest.level=level;this._creekSavePending=true;notice(this,`creek-nest-${activeRegion(this)}-${level}`,'Η φωλιά ζωντανεύει','Η ησυχία προσελκύει μικρά ζώα. Οι όχθες έξω παραμένουν άγριες.','leaf','success');}
-      if(nearNest&&p.speed<.8&&!p.grabbedBy)p.hp=Math.min(p.maxHp,p.hp+step*.9);
     }
+    const shelter=this.creekRefugeState();
+    if(shelter?.restSafe)p.hp=Math.min(p.maxHp,p.hp+step*(shelter.id==='living-creek-nest'?.9:.45));
     const phase=this.creekPhaseState;
     if(region.lastPhase!==phase.stamp){
       if(region.lastPhase!==null)notice(this,`creek-phase-${activeRegion(this)}-${phase.stamp}`,phase.label,phase.hint,'swim');
@@ -141,7 +164,7 @@ export const creekMethods={
   onCreekRespawn(){
     if(!this.creekMode||!this.creek)return;
     this._creekDeathRecorded=false;this._creekLastPosition={x:this.player.x,z:this.player.z};this._creekLastGrounded=this.player.grounded;
-    this.player.creekConcealed=false;
+    this.player.creekConcealed=false;this.player.creekNaturalCover=false;
   },
   creekInteractionContext(){
     if(!this.creekMode||!this.creek||!living(this.player))return null;
@@ -151,7 +174,7 @@ export const creekMethods={
     const find=this.creekFinds().filter(f=>f.visible&&!f.collected&&distance(f,p)<=2.8).sort((a,b)=>distance(a,p)-distance(b,p))[0];
     if(find)return {type:'creek-find',entity:find,available:true,actionLabel:'Εύρημα',actionIcon:find.kind==='keepsakes'?'pearl':'scout',hint:`E · ${find.label}`,reason:'Αυτόματη ταξινόμηση στις ανακαλύψεις'};
     const nest=this.creekNestState();
-    if(nest&&distance(p,nest)<5)return {type:'creek-nest',entity:nest,available:nest.safe,actionLabel:'Ανάπαυση',actionIcon:'leaf',reason:nest.hint,hint:nest.safe?'Η φωλιά σε ξεκουράζει όσο μένεις εδώ · E για τα ευρήματά σου':'Παρατήρησε την κίνηση γύρω από τη φωλιά πριν ξεκουραστείς'};
+    if(nest&&distance(p,nest)<5)return {type:'creek-nest',entity:nest,available:nest.protected?nest.restSafe:nest.safe,actionLabel:nest.protected?'Ανάπαυση':'Καταφύγιο',actionIcon:'leaf',reason:nest.hint,hint:nest.restSafe?'Αναπαύεσαι μέσα στη φωλιά · E για τα ευρήματά σου':nest.hint};
     return null;
   },
   creekInteract(ctx=this.creekInteractionContext()){
@@ -207,6 +230,57 @@ export const creekMethods={
     }
     const ready=requirements.every(r=>r.done),pending=requirements.find(r=>!r.done);
     return {eligible:true,guaranteed:neutral,cost,requirements,ready,instant:false,reason:pending?.label||`${cost.food} τροφή · έτοιμος να ακολουθήσει`,personality:roleTraits[frog.role]||roleTraits.scout};
+  },
+  creekRefugeIntent(frog,{force=false,joinPlayer=false,predatorsOnly=false}={}){
+    if(!this.creekMode||!living(frog)||frog.grabbedBy||frog.surrendered)return null;
+    const all=refuges(this);if(!all.length)return null;
+    const inside=refugeAt(all,frog),playerInside=joinPlayer?refugeAt(all,this.player):null;
+    const livingHunters=(this.predators||[]).filter(t=>living(t)&&!['dead','dormant'].includes(t.phase));
+    const predators=livingHunters.filter(t=>t.phase!=='flee'
+      &&(distance(t,frog)<18||inside&&distance(t,inside)<22)&&(t.phase!=='patrol'||distance(t,frog)<8));
+    const opponents=(this.frogs||[]).filter(t=>living(t)&&!t.surrendered&&this.hostile?.(frog,t)&&distance(t,frog)<11),enemies=predatorsOnly?[]:opponents;
+    const threats=[...predators,...enemies],danger=threats.length>0,followingHome=playerInside&&distance(frog,playerInside)<32;
+    const occupied=r=>[...livingHunters,...opponents].some(t=>refugeOccupant([r],t));
+    // Cover can stop an outside bird while a fitting snake or another frog
+    // enters the passage. An occupied refuge is not a safe resting destination.
+    if(inside&&occupied(inside)&&!force){delete frog.creekRefugeId;delete frog.creekRefugeReason;return null;}
+    if(!force&&!danger&&!followingHome&&!(inside&&this.elapsed<(frog.creekRefugeHoldUntil||0))){
+      delete frog.creekRefugeId;delete frog.creekRefugeReason;return null;
+    }
+    const available=all.filter(r=>{
+      if(distance(r,frog)>(force?42:32))return false;
+      const camp=this.camps?.find(c=>c.id===r.id);
+      if(camp&&!camp.destroyed){
+        const friends=['player','ally'].includes(frog.team),friendlyCamp=camp.team==='ally'||['coexist','yielded','respect'].includes(camp.creekRelation);
+        if(friends&&!friendlyCamp&&String(camp.team).startsWith('enemy'))return false;
+        if(!friends&&frog.home!==camp.id&&camp.team!==frog.team&&camp.team!=='neutral')return false;
+      }
+      if(occupied(r))return false;
+      const entry=refugeEntrancePoint(r,1.5);
+      return r===inside||!threats.some(t=>distance(t,entry)<3.4);
+    });
+    const score=r=>{
+      const entry=refugeEntrancePoint(r,1.5),dx=entry.x-frog.x,dz=entry.z-frog.z,length=dx*dx+dz*dz;
+      const crossed=threats.some(t=>{const at=length?clamp(((t.x-frog.x)*dx+(t.z-frog.z)*dz)/length,0,1):0;return at>.1&&at<.95&&distance(t,{x:frog.x+dx*at,z:frog.z+dz*at})<4;});
+      return distance(frog,entry)+(crossed?35:0)-(r===inside?50:0)-(r.id===frog.creekRefugeId?3:0)-(r===playerInside?4:0);
+    };
+    const refuge=available.sort((a,b)=>score(a)-score(b))[0];if(!refuge)return null;
+    frog.creekRefugeId=refuge.id;frog.creekRefugeReason=force?'retreat':danger?'danger':'follow';
+    if(danger)frog.creekRefugeHoldUntil=this.elapsed+4;
+    const residents=(this.frogs||[]).filter(f=>living(f)&&f.team===frog.team),slot=Math.max(0,residents.indexOf(frog));
+    frog.combatTarget=null;frog.combatUntil=0;
+    return {kind:'move',formation:true,refuge:true,refugeId:refuge.id,target:refugeInteriorPoint(refuge,slot)};
+  },
+  creekAllyIntent(frog){
+    if(!this.creekMode)return null;
+    // Unrecruited wildlife also recognizes a hiding place when a hunter comes
+    // close; a player's presence alone does not send neutral frogs fleeing.
+    if(frog.team==='neutral')return this.creekRefugeIntent(frog,{predatorsOnly:true});
+    if(frog.team!=='ally')return null;
+    // Healthy companions keep deliberate combat tasks. Retreat and ordinary
+    // following use nearby physical cover without replacing the player's order.
+    if(['attack','flank','distract','protect'].includes(frog.order)&&frog.hp>=frog.maxHp*.35)return null;
+    return this.creekRefugeIntent(frog,{force:frog.order==='retreat',joinPlayer:!frog.order||frog.order==='follow'});
   },
   creekCompanionIntent(frog){
     if(!this.creekMode||!this.creek||!living(frog)||frog.team!=='ally'||frog.grabbedBy||frog.surrendered)return null;

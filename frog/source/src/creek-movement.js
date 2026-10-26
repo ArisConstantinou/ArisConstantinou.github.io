@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {clamp} from './rules.js';
 import {WORLD_BOUNDARY} from './world-config.js';
 import {beginFrogJump} from './frog-locomotion.js';
+import {refugeLineClear} from './refuge.js';
 
 export const creekMovementMethods={
   moveCreekDiver(f,dt){
@@ -38,6 +39,7 @@ export const creekMovementMethods={
     if(!this.creekMode||!this.creekAbilityModifiers().tongueRange||this.creekAbilityModifiers().tongueRange<=10||target?.kind!=='creek-grip')return false;
     const p=this.player,anchor=target.entity,dx=anchor.x-p.x,dz=anchor.z-p.z,distance=Math.hypot(dx,dz);
     if(p.dead||p.grabbedBy||p.attackCD>0||p.stamina<14||distance>14||distance<1)return false;
+    if(!refugeLineClear(this.world.creekRefuges||[],p,anchor,{toHeight:0}))return false;
     const landing=this.world.getSurface(anchor.x,anchor.z).height,rise=Math.max(0,landing-p.y);
     if(rise>4.5)return false;
     const flight=Math.max(.7,distance/16,Math.sqrt((rise+.5)/10)+.3);

@@ -15,7 +15,7 @@ import {refreshHUDLayout} from './hud-layout.js';
 import {recruitmentCardMarkup,placeRecruitmentCard} from './recruitment-card.js';
 import {normalizeUIScale} from './ui-preferences.js';
 import {CREEK_GUIDE_CARDS,CREEK_GUIDE_CATEGORIES,creekGuideCard} from './creek-guide.js';
-import {creekUIMethods} from './creek-ui.js';
+import {creekUIMethods,creekRefugeStatus} from './creek-ui.js';
 
 const $ = (root, selector) => root.querySelector(selector);
 const $$ = (root, selector) => Array.from(root.querySelectorAll(selector));
@@ -261,7 +261,7 @@ export class GameUI {
         <div class="fg-vital fg-hunger" title="Στομάχι">${pictogram('stomach')}<div class="fg-meter"><span data-ref="stomachBar"></span></div><small data-ref="stomachLabel">70%</small></div>
         <div class="fg-xp" title="Εμπειρία"><span data-ref="xpBar"></span></div>
         <div class="fg-breath" data-ref="breath" role="status" hidden><span>Ανάσα</span><progress data-ref="breathBar" max="100" value="100" aria-label="Ανάσα κατάδυσης"></progress><b data-ref="breathValue">100%</b></div>
-        <div class="fg-player-rank" data-ref="playerRank" title="Κράτησε τρία αντίπαλα οχυρά για να στεφθείς βασιλιάς."><span data-ref="rankIcon">${icon('shield')}</span><strong data-ref="rankTitle">Ευγενής</strong><small data-ref="rankProgress">Στέψη 0/3</small></div>
+        <div class="fg-player-rank" data-ref="playerRank" title="Κράτησε τρία αντίπαλα οχυρά για να στεφθείς βασιλιάς."><span data-ref="rankIcon">${icon('shield')}</span><strong data-ref="rankTitle" role="status" aria-live="polite" aria-atomic="true">Ευγενής</strong><small data-ref="rankProgress">Στέψη 0/3</small></div>
         <button class="fg-population" data-action="open-roster" data-ref="populationButton" title="Όλο το βασίλειο · χωρίς όριο πληθυσμού" aria-label="Πληθυσμός βασιλείου"><span class="fg-population-total">${pictogram('group')}<span>Πληθυσμός</span><b data-ref="populationTotal">1</b></span><span class="fg-population-duties"><span>Συνοδοί <b data-ref="populationTravelers">0</b></span><span>Φρουροί <b data-ref="populationGuards">0</b></span></span><span class="fg-population-duties fg-population-regions" data-ref="populationRegions" hidden><span>Εδώ <b data-ref="populationLocal">1</b></span><span>Άλλες λίμνες <b data-ref="populationAway">0</b></span></span></button>
         <div class="fg-player-guidance">
         <div class="fg-knowledge-tools"><button data-action="open-guide" aria-label="Εικονογραφημένο βιβλίο οδηγιών">${icon('leaf')}<span>Οδηγός</span></button><button data-action="open-realm" aria-label="Περιοχές και μεθόριος">${icon('pin')}<span>Περιοχές</span></button></div>
@@ -397,9 +397,16 @@ export class GameUI {
       this.hideMenus(); this.callbacks.onResume(); return;
     }
     if(action==='open-pause'){this.showPause(true);this.callbacks.onAction('pause',{});return;}
+    if(action==='locate-shelter'){
+      if(!this.creekHomeNest())return;
+      this.mapFocus='nest';
+      if(this.panel==='map')this.renderPanel(true);else this.callbacks.onAction('panel-open',{name:'map'});
+      return;
+    }
+    if(action==='map-overview'){this.mapFocus=null;this.renderPanel(true);return;}
     if(action==='open-exploration'||action==='open-build'){this.callbacks.onAction('panel-open',{name:this.state.creek?.enabled?'exploration':'build'});return;}
     if(action==='open-roster'){this.callbacks.onAction('panel-open',{name:'roster'});return;}
-    if(action==='open-map'){this.callbacks.onAction('panel-open',{name:'map'});return;}
+    if(action==='open-map'){this.mapFocus=null;this.callbacks.onAction('panel-open',{name:'map'});return;}
     if(action==='special-select'){this.callbacks.onAction('special-select',{index:Number(target.dataset.index)});return;}
     if(action==='select-frog'){this.callbacks.onAction('select-frog',{id:target.dataset.id,additive:Boolean(event.shiftKey||event.ctrlKey||event.metaKey)});if(this.panel==='roster')this.renderPanel(true);return;}
     if(action==='select-all'){this.callbacks.onAction('select-all',{filter:target.dataset.filter||'all'});this.renderPanel(true);return;}
@@ -414,7 +421,7 @@ export class GameUI {
       if(this.guideReturn){this.closeGuideCard();return;}
       this.closePanels(); if(this.returnMenu==='title')this.showTitle(this.hasSave);else this.showPause(true);return;
     }
-    if(action==='tab-roster'||action==='tab-map'){this.showPanel(action==='tab-map'?'map':'roster');return;}
+    if(action==='tab-roster'||action==='tab-map'){this.mapFocus=null;this.showPanel(action==='tab-map'?'map':'roster');return;}
     if(action==='build'){this.callbacks.onAction('build',{type:target.dataset.type,campId:target.dataset.camp || this.state.currentCampId});return;}
     if(action==='frog-command'){this.callbacks.onAction('frog-command',{id:target.dataset.id,command:target.dataset.command});return;}
     if(action==='gang-toggle'){
@@ -517,7 +524,7 @@ export class GameUI {
     this.syncConceptVisibility();this.layoutDockedPanels();
   }
   isBlocking(){return Boolean(this.menu);}
-  closePanels(){this.panel=null;this.refs.panelLayer.hidden=true;this.root.classList.remove('fg-game-panel-open');this.syncConceptVisibility();this.layoutDockedPanels();}
+  closePanels(){this.panel=null;this.mapFocus=null;this.refs.panelLayer.hidden=true;this.root.classList.remove('fg-game-panel-open');this.syncConceptVisibility();this.layoutDockedPanels();}
   resetPanelScroll(){this.refs.panel.scrollTop=0;const body=$(this.refs.panel,'.fg-live-panel-body');if(body)body.scrollTop=0;}
   setPanelExpanded(expanded){
     this.panelExpanded=Boolean(expanded);this.refs.panel.classList.toggle('is-collapsed',!this.panelExpanded);
@@ -538,6 +545,7 @@ export class GameUI {
   showPanel(name,data){
     this.closeHudDisclosure();
     if(this.state.creek?.enabled&&name==='build')name='exploration';
+    if(name!=='map')this.mapFocus=null;
     this.panel=name;this.panelData=data||{};
     this.panelExpanded=true;this.root.classList.add('fg-game-panel-open');
     if(this.narrowPanelViewport()&&this.conceptPanelsOpen&&!['guide','help'].includes(name))this.setConceptPanelsOpen(false);
@@ -652,10 +660,10 @@ export class GameUI {
     const conquest=$(this.root,'.fg-conquest-label');if(conquest)conquest.textContent=enabled?'Γνώριμα σημεία':'Συμμορίες';
     const location=$(this.root,'.fg-location-tools>strong');if(location)location.textContent=enabled?'Ρυάκι':'Λίμνη';
     const locationPanel=$(this.root,'.fg-location');locationPanel?.setAttribute?.('aria-label',enabled?'Ευρήματα και χάρτης ρυακιού':'Πόροι και χάρτης λίμνης');
-    this.refs.minimap?.setAttribute?.('aria-label',enabled?'Θέσεις βατράχων, φυσικών περιοχών, θηρευτών και χαμένων ευρημάτων':'Θέσεις συμμάχων, αντιπάλων, οχυρών και αρχηγών');
+    this.refs.minimap?.setAttribute?.('aria-label',enabled?'Θέσεις βατράχων, καταφυγίου, φυσικών περιοχών, θηρευτών και χαμένων ευρημάτων':'Θέσεις συμμάχων, αντιπάλων, οχυρών και αρχηγών');
     this.refs.mapBosses?.setAttribute?.('aria-label',enabled?'Μεγάλοι θηρευτές':'Ενεργοί αρχηγοί');
     this.refs.recruitmentBubble?.setAttribute?.('aria-label',enabled?'Τροφή και συνθήκες για να σε ακολουθήσει ο βάτραχος':'Απαιτήσεις στρατολόγησης');
-    const legend=$(this.root,'.fg-minimap-legend');if(legend)legend.innerHTML=enabled?'<span><i class="is-ally"></i>Εσύ / ομάδα</span><span><i class="is-pact"></i>Συνύπαρξη</span><span><i class="is-enemy"></i>Αντίπαλοι</span>':`<span><i class="is-ally"></i>Εσύ / ομάδα</span><span><i class="is-enemy"></i>Αντίπαλοι</span><span>${pictogram('crown')}Αρχηγοί</span>`;
+    const legend=$(this.root,'.fg-minimap-legend');if(legend)legend.innerHTML=enabled?`<span><i class="is-ally"></i>Εσύ / ομάδα</span><span><i class="is-pact"></i>Συνύπαρξη</span><span><i class="is-enemy"></i>Αντίπαλοι</span><span>${pictogram('leaf')}Καταφύγιο</span>`:`<span><i class="is-ally"></i>Εσύ / ομάδα</span><span><i class="is-enemy"></i>Αντίπαλοι</span><span>${pictogram('crown')}Αρχηγοί</span>`;
     this.refs.objectiveBox?.setAttribute?.('aria-label',enabled?'Ενδείξεις εξερεύνησης':'Στόχοι εκστρατείας');
     this.refs.objectiveToggle?.setAttribute?.('aria-label',enabled?'Ενδείξεις εξερεύνησης · O':'Στόχοι εκστρατείας · O');
     if(enabled&&this.panel==='build'){this.panel='exploration';this.renderPanel(true);}
@@ -670,8 +678,11 @@ export class GameUI {
     this.setText('stomachLabel',`${whole(fraction(p.stomach,p.maxStomach)*100)}%`);
     this.setText('level',p.level||1);this.setText('tier',['','I','II','III','IV','V'][p.tier||1]||p.tier);
     const creek=state.creek?.enabled,rank=creek?{crowned:false,title:'Εξερευνητής',detail:'Παρατήρησε το ρυάκι και βρες νέους τρόπους να κινηθείς.'}:p.rank||{crowned:!!p.crowned,title:p.crowned?'Βασιλιάς':'Ευγενής',territories:0,target:3};
-    this.setText('rankTitle',creek&&p.hiddenInCover?'Σε κάλυψη':rank.title);this.setText('rankProgress',creek?`${whole(state.creek.discoveryCount)} σημεία`:rank.crowned?'Στέφθηκες':`Στέψη ${Math.min(rank.territories,rank.target)}/${rank.target}`);
-    if(this.refs.playerRank){this.refs.playerRank.title=rank.detail||'Κράτησε τρία αντίπαλα οχυρά για το στέμμα.';this.refs.playerRank.classList.toggle('is-crowned',rank.crowned);}
+    const refuge=creek?creekRefugeStatus(state.creek.shelter):null;
+    this.root.classList.toggle('fg-refuge-status',Boolean(refuge));this.root.classList.toggle('fg-refuge-covered',Boolean(refuge?.covered));
+    this.root.classList.toggle('fg-refuge-threat',Boolean(refuge?.warning));
+    this.setText('rankTitle',refuge?.label||(creek&&p.hiddenInCover?'Σε κάλυψη':rank.title));this.setText('rankProgress',creek?`${whole(state.creek.discoveryCount)} σημεία`:rank.crowned?'Στέφθηκες':`Στέψη ${Math.min(rank.territories,rank.target)}/${rank.target}`);
+    if(this.refs.playerRank){this.refs.playerRank.title=refuge?.detail||rank.detail||'Κράτησε τρία αντίπαλα οχυρά για το στέμμα.';this.refs.playerRank.classList.toggle('is-crowned',rank.crowned);}
     if(this.lastCrowned!==rank.crowned&&this.refs.rankIcon){this.refs.rankIcon.innerHTML=icon(rank.crowned?'crown':'shield');this.lastCrowned=rank.crowned;}
     this.updatePopulation(state);
     this.updateMapLegend(state.world||{});
@@ -805,8 +816,9 @@ export class GameUI {
     else if(this.panel==='build')container.innerHTML=this.buildMarkup();
     else if(this.panel==='roster')container.innerHTML=this.rosterMarkup();
     else if(this.panel==='map'){
-      const creek=Boolean(s.creek?.enabled);
-      container.innerHTML=this.panelHeader('Ο ΚΟΣΜΟΣ ΣΟΥ',creek?'Το ζωντανό ρυάκι':'Ο Μεγάλος Ποταμός',this.tabs('map'))+`<div class="fg-large-map"><canvas width="1024" height="720" aria-label="${creek?'Φυσικές περιοχές, βάτραχοι και θηρευτές':'Μεγάλος χάρτης'}"></canvas><span class="fg-map-north">N</span></div><div class="fg-map-legend"><span><i style="--legend:#c8f3a1"></i>Εσύ & σύμμαχοι</span>${creek?'<span><i style="--legend:#79c4be"></i>Ομάδες σε συνύπαρξη</span>':''}<span><i style="--legend:#ee9a71"></i>Αντίπαλοι</span><span><i style="--legend:#f6db82"></i>Τροφή</span><span><i style="--legend:${creek?'#a8d8c6':'#c2b9e8'}"></i>${creek?'Γνώριμα σημεία':'Ελεύθερες θέσεις'}</span><span><i style="--legend:#f85a48"></i>Θηρευτές</span>${creek?'<span><i style="--legend:#f5d78f"></i>E · Χαμένα ευρήματα</span>':`<span>${pictogram('crown')} Αρχηγοί · εικονίδιο είδους</span>`}</div>`;
+      const creek=Boolean(s.creek?.enabled),home=this.creekHomeNest(),focused=Boolean(home&&this.mapFocus==='nest');
+      const homeControl=home?`<button class="fg-map-home-control" data-action="${focused?'map-overview':'locate-shelter'}" aria-label="${focused?'Δείξε ολόκληρο τον χάρτη':'Εστίαση στο φυσικό καταφύγιο'}">${pictogram(focused?'eye':'leaf')}${focused?'Όλος ο χάρτης':'Καταφύγιο'}</button>`:'';
+      container.innerHTML=this.panelHeader('Ο ΚΟΣΜΟΣ ΣΟΥ',creek?'Το ζωντανό ρυάκι':'Ο Μεγάλος Ποταμός',this.tabs('map'))+`<div class="fg-large-map"><canvas width="1024" height="720" aria-label="${focused?'Το καταφύγιο και η θέση του βατράχου σου':creek?'Φυσικές περιοχές, καταφύγιο, βάτραχοι και θηρευτές':'Μεγάλος χάρτης'}"></canvas>${homeControl}<span class="fg-map-north">N</span></div><div class="fg-map-legend">${home?`<span>${pictogram('leaf')} Καταφύγιο</span>`:''}<span><i style="--legend:#c8f3a1"></i>Εσύ & σύμμαχοι</span>${creek?'<span><i style="--legend:#79c4be"></i>Ομάδες σε συνύπαρξη</span>':''}<span><i style="--legend:#ee9a71"></i>Αντίπαλοι</span><span><i style="--legend:#f6db82"></i>Τροφή</span><span><i style="--legend:${creek?'#a8d8c6':'#c2b9e8'}"></i>${creek?'Γνώριμα σημεία':'Ελεύθερες θέσεις'}</span><span><i style="--legend:#f85a48"></i>Θηρευτές</span>${creek?'<span><i style="--legend:#f5d78f"></i>E · Χαμένα ευρήματα</span>':`<span>${pictogram('crown')} Αρχηγοί · εικονίδιο είδους</span>`}</div>`;
       this.drawMap($(container,'canvas'),this.state.world||{},true);
     }
     const headerEnd=container.innerHTML.indexOf('</header>')+9;
@@ -1162,11 +1174,14 @@ export class GameUI {
   }
   drawMap(canvas,world={},large=false){
     const ctx=canvas.getContext('2d');if(!ctx)return;
-    const w=canvas.width,h=canvas.height,radius=world.radius||110,creek=Boolean(this.state.creek?.enabled);
+    const w=canvas.width,h=canvas.height,creek=Boolean(this.state.creek?.enabled),home=this.creekHomeNest(),focused=Boolean(large&&home&&this.mapFocus==='nest');
+    const player=world.player||{x:0,z:0,yaw:0},distance=home?Math.hypot((player.x||0)-home.x,(player.z||0)-home.z):0;
+    const radius=focused?Math.min(world.radius||110,Math.max(24,distance/2+16)):world.radius||110;
+    const origin=focused?{x:((player.x||0)+home.x)/2,z:((player.z||0)+home.z)/2}:{x:0,z:0};
     const camps=world.camps||this.state.camps||[],campById=new Map([...camps,...(this.state.camps||[])].map(c=>[String(c.id),c]));
     const hasPact=camp=>creek&&['coexist','respect'].includes(camp?.creekRelation);
     const scale=Math.min(w,h)/(radius*2.12);const cx=w/2,cy=h/2;
-    const pos=p=>[cx+(p.x??p.position?.x??0)*scale,cy+(p.z??p.position?.z??0)*scale];
+    const pos=p=>[cx+((p.x??p.position?.x??0)-origin.x)*scale,cy+((p.z??p.position?.z??0)-origin.z)*scale];
     ctx.clearRect(0,0,w,h);ctx.fillStyle='#102825';ctx.fillRect(0,0,w,h);
     ctx.strokeStyle='#263e37';ctx.lineWidth=1;
     const grid=20*scale;
@@ -1221,7 +1236,23 @@ export class GameUI {
         if(large){ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.fillStyle='#ffdf87';ctx.fillText(predator.name||mapPredatorNames[predator.type]||'Αρχηγός',x,y+s+17);}
       }else{ctx.save();ctx.translate(x,y);ctx.rotate(Math.PI/4);ctx.fillStyle=predator.hunting?'#ff6953':'#b47b67';ctx.fillRect(-s,-s,s*2,s*2);ctx.restore();}
     }
-    const player=world.player||{x:0,z:0,yaw:0};const[px,py]=pos(player);
+    const[px,py]=pos(player);
+    if(home){
+      const[x,y]=pos(home),nearPlayer=Math.hypot(x-px,y-py)<42,size=large?18:15;
+      const mx=clamp(x+(nearPlayer?size+13:0),size+4,w-size-4),my=clamp(y-size-10,size+4,h-size-4);
+      ctx.strokeStyle=focused?'#f7efb6':'#d6e8a9';ctx.lineWidth=focused?3:2;
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(mx,my+size);ctx.stroke();
+      if(focused){ctx.beginPath();ctx.arc(mx,my,size+7,0,Math.PI*2);ctx.stroke();}
+      ctx.fillStyle=home.visited?'#356846':'#263f31';ctx.beginPath();ctx.arc(mx,my,size,0,Math.PI*2);ctx.fill();ctx.stroke();
+      const leaf=this.mapSymbolImage('leaf');
+      if(leaf.complete&&leaf.naturalWidth)ctx.drawImage(leaf,mx-size+3,my-size+3,(size-3)*2,(size-3)*2);
+      else {ctx.strokeStyle='#e4efba';ctx.beginPath();ctx.moveTo(mx-size*.5,my+size*.4);ctx.lineTo(mx,my-size*.45);ctx.lineTo(mx+size*.5,my+size*.4);ctx.stroke();}
+      if(large){ctx.font=`600 ${focused?22:18}px system-ui`;ctx.textAlign='center';ctx.fillStyle='#edf3ca';ctx.fillText('Καταφύγιο',mx,my-size-12);}
+      if(focused&&Number.isFinite(home.entrance?.x)&&Number.isFinite(home.entrance?.z)){
+        const[ex,ey]=pos(home.entrance);ctx.fillStyle='#efcf8c';ctx.strokeStyle='#132b20';ctx.lineWidth=2;
+        ctx.beginPath();ctx.arc(ex,ey,6,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.font='600 20px system-ui';ctx.fillStyle='#f5dfad';ctx.fillText('Είσοδος',ex,ey+25);
+      }
+    }
     ctx.strokeStyle='rgba(199,235,165,.16)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(px,py,18*scale,0,Math.PI*2);ctx.stroke();
     ctx.save();ctx.translate(px,py);ctx.rotate(Math.PI-(player.yaw||0));ctx.fillStyle='#e2f4bc';ctx.strokeStyle='#142a20';ctx.lineWidth=2;const sz=large?9:13;ctx.beginPath();ctx.moveTo(0,-sz);ctx.lineTo(sz*.65,sz*.7);ctx.lineTo(0,sz*.35);ctx.lineTo(-sz*.65,sz*.7);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
     if(large){for(const region of world.mapRegions||[]){if(!region.name)continue;const[x,y]=pos(region);ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle='#b6c6a5';ctx.fillText(region.name,x,y+(region.radius||20)*scale*.6);}ctx.font='12px system-ui';ctx.textAlign='left';ctx.fillStyle='#829b8c';ctx.fillText('Κάθε τετράγωνο: 20 μονάδες',20,h-20);}

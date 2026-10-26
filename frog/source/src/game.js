@@ -34,6 +34,7 @@ import {normalizeUIScale} from './ui-preferences.js';
 import {creekMethods} from './creek-game.js';
 import {creekRivalMethods,creekHostility,creekFriendlyTerritory} from './creek-rivals.js';
 import {creekMovementMethods} from './creek-movement.js';
+import {refugeLineClear,resolveRefugeMovement,refugeWaypoint,refugeSurface,refugeCeiling,clearRefugePosition,updateRefugeSnake} from './refuge.js';
 
 const V=THREE.Vector3,TAU=Math.PI*2;
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
@@ -71,7 +72,7 @@ export class FrogGame {
     addEventListener('resize',()=>this.resize());addEventListener('beforeunload',()=>this.save());document.addEventListener('visibilitychange',()=>{if(document.hidden&&this.started){this.save();this.pause();}});
     this.renderer.domElement.addEventListener('click',()=>{if(this.canLockGameplayPointer()&&!this.input.pointerLocked)this.input.lock();});
     this.last=performance.now();this.fps=60;this.renderer.setAnimationLoop(now=>this.frame(now));
-    window.__FROG__={version:'3.0.0',inspect:()=>this.inspect(),save:()=>this.save()};
+    window.__FROG__={version:'3.0.1',inspect:()=>this.inspect(),save:()=>this.save()};
     document.getElementById('boot')?.remove();
   }
   emptyStats(){return {flies:0,recruited:0,kills:0,predatorsKilled:0,predatorsRepelled:0,campsBuilt:0,campsCaptured:0,raidsDefended:0,losses:0,gatheredFood:0,gatheredReeds:0,trained:0,crafted:0};}
@@ -104,6 +105,21 @@ export class FrogGame {
     this.campaign=createCampaign(save?.campaign,save&&!save.campaign?inferLegacyMetrics(save):this.campaignMetrics(),{legacy:!!save&&!save.campaign,endless:true});
     this.campaign=advanceCampaign(this.campaign,this.campaignMetrics()).state;this.won=false;this.campaignCheckAt=0;this.initKingdom(save);if(this.creekMode){this.initCreek(save);this.initCreekSociety(save);}this.syncCampaignPredators();
     if(!this.creekMode)this.prepareLegacyRivalRecovery(save);
+    else if(this.world.creekRefuges?.length){
+      const savedActors=new Map(save&&!save.newRealm?[save.player,...(save.frogs||[])].filter(Boolean).map(f=>[f.id,f]):[]);
+      for(const f of this.frogs){
+        const stored=savedActors.get(f.id),position=clearRefugePosition(this.world.creekRefuges,{...f,y:Number.isFinite(stored?.y)?stored.y:f.y});
+        Object.assign(f,{x:position.x,z:position.z});f.y=this.actorSurfaceAt({...f,y:position.y},f.x,f.z).height;
+      }
+      // A restored snake must already follow the crevice before the first
+      // rendered frame, including while the Resume screen still owns input.
+      for(const predator of this.predators)if(predator.type==='snake'&&!predator.dead){
+        predator.y=Math.max(-.1,this.world.sampleHeight(predator.x,predator.z));
+        const position=clearRefugePosition(this.world.creekRefuges,predator);
+        predator.x=position.x;predator.z=position.z;predator.y=Math.max(-.1,this.world.sampleHeight(predator.x,predator.z));
+        updateRefugeSnake(this.world.creekRefuges,predator,{surface:(x,z)=>this.world.getSurface(x,z),target:predator.anchor||predator});
+      }
+    }
     this.updateRoyalStatus({quiet:true});this.interactionFocus=null;
     this.cameraYaw=this.player.yaw||.28;this.cameraFocus.set(this.player.x,1.1,this.player.z);this.updateCamera(1,true);
   }
@@ -269,6 +285,11 @@ export class FrogGame {
     p.stamina-=22;p.dodgeCD=1.5;p.invulnerable=.42;p.charge=-1;p.jumpReleaseQueued=false;
     this.discoverGuide('dodge',{pause:false});return true;
   }
+  actorLineClear(from,to){return fortLineClear(this.camps,from,to)&&(!this.creekMode||refugeLineClear(this.world?.creekRefuges||[],from,to));}
+  actorSurfaceAt(actor,x,z){
+    const ground=this.world.getSurface(x,z),support=this.creekMode?refugeSurface(this.world.creekRefuges||[],x,z,{y:actor.y}):null;
+    return support&&support.height>=ground.height-.001?{...ground,...support}:ground;
+  }
   moveActor(f,dt){
     if(this.creekMode&&this.moveCreekDiver(f,dt))return;
     const creekMove=this.creekMode&&f===this.player?this.creekAbilityModifiers():null;
@@ -278,13 +299,14 @@ export class FrogGame {
     f.hopStrength=FROG_HOP.strength;
     if(f.grounded&&f.travelWish){const wish=f.travelWish,d=Math.hypot(wish.vx,wish.vz);if(d>.05){const ahead=this.world.getSurface(f.x+wish.vx/d*.9,f.z+wish.vz/d*.9),rise=ahead.height-f.y;if(rise>.45&&f!==this.player)f.hopStrength=Math.min(8.5,Math.sqrt(2*FROG_HOP.gravity*(rise+.25)));if(f.swimming&&ahead.type!=='water'&&rise>.1&&!(f.charge>=0)){const strength=Math.min(8.5,Math.max(FROG_HOP.strength,Math.sqrt(2*FROG_HOP.gravity*(rise+.25))));beginFrogJump(f,strength,{automatic:true});}}}
     const motionDt=advanceFrogTravel(f,dt);
-    const recoil=applyCombatImpulse(f,dt),intended={x:clamp(f.x+f.vx*motionDt+recoil.dx,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1),z:clamp(f.z+f.vz*motionDt+recoil.dz,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1)},resolved=resolveFortMovement(this.camps,f,intended);let nx=resolved.x,nz=resolved.z,surface=this.world.getSurface(nx,nz),height=surface.height;
+    const recoil=applyCombatImpulse(f,dt),intended={x:clamp(f.x+f.vx*motionDt+recoil.dx,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1),z:clamp(f.z+f.vz*motionDt+recoil.dz,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1)},fortResolved=resolveFortMovement(this.camps,f,intended),resolved=this.creekMode?resolveRefugeMovement(this.world.creekRefuges||[],f,fortResolved):fortResolved;let nx=resolved.x,nz=resolved.z,surface=this.actorSurfaceAt(f,nx,nz),height=surface.height;
     let nextY=f.y+f.vy*motionDt-.5*FROG_HOP.gravity*motionDt*motionDt;
     f.climbing=false;
     if(creekMove?.grip&&this.input.down('Space')&&f.stamina>5&&height>f.y+.16&&height-f.y<3.3&&Math.hypot(f.travelWish?.vx||0,f.travelWish?.vz||0)>.1){f.climbing=true;f.grounded=false;f.vy=3.4;nextY=f.y+3.4*dt;f.stamina=Math.max(0,f.stamina-dt*15);f.charge=-1;f.jumpReleaseQueued=false;}
-    if(height>Math.max(f.y,nextY)+.16){nx=f.x;nz=f.z;surface=this.world.getSurface(nx,nz);height=surface.height;}
+    if(height>Math.max(f.y,nextY)+.16){nx=f.x;nz=f.z;surface=this.actorSurfaceAt(f,nx,nz);height=surface.height;}
+    if(this.creekMode){const ceiling=refugeCeiling(this.world.creekRefuges||[],{...f,x:nx,z:nz},nextY);if(Number.isFinite(ceiling)&&nextY>ceiling){nextY=ceiling;f.vy=Math.min(0,f.vy);}}
     let landingRemainder=0;
-    if(!f.grounded&&nextY<=height+1e-7&&f.vy-FROG_HOP.gravity*motionDt<=0){const discriminant=f.vy*f.vy+2*FROG_HOP.gravity*(f.y-height);if(discriminant>=0){const contact=clamp((f.vy+Math.sqrt(discriminant))/FROG_HOP.gravity,0,motionDt),ratio=motionDt>0?contact/motionDt:0;nx=f.x+(nx-f.x)*ratio;nz=f.z+(nz-f.z)*ratio;landingRemainder=motionDt-contact;surface=this.world.getSurface(nx,nz);height=surface.height;}}
+    if(!f.grounded&&nextY<=height+1e-7&&f.vy-FROG_HOP.gravity*motionDt<=0){const discriminant=f.vy*f.vy+2*FROG_HOP.gravity*(f.y-height);if(discriminant>=0){const contact=clamp((f.vy+Math.sqrt(discriminant))/FROG_HOP.gravity,0,motionDt),ratio=motionDt>0?contact/motionDt:0;nx=f.x+(nx-f.x)*ratio;nz=f.z+(nz-f.z)*ratio;landingRemainder=motionDt-contact;surface=this.actorSurfaceAt(f,nx,nz);height=surface.height;}}
     if(this.creekMode&&surface.type==='water'&&f.grounded){const flow=this.world.currentAt?.(nx,nz);if(flow){const tx=clamp(nx+(flow.x||0)*dt,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1),tz=clamp(nz+(flow.z||0)*dt,-WORLD_BOUNDARY+1,WORLD_BOUNDARY-1);if(this.world.getSurface(tx,tz).type==='water'){nx=tx;nz=tz;surface=this.world.getSurface(nx,nz);height=surface.height;}}}
     const oldX=f.x,oldZ=f.z;f.x=nx;f.z=nz;f.speed=Math.hypot(nx-oldX,nz-oldZ)/Math.max(dt,.00001);f.swimming=surface.type==='water';
     if(!f.grounded){f.y=nextY;f.vy-=FROG_HOP.gravity*motionDt;if(f.y<=height+1e-7&&f.vy<=0){const force=Math.abs(f.vy),automatic=f.hop?.automatic;f.y=height;landFrog(f);f.hop.time=landingRemainder;if(f.swimming||surface.type==='lily')this.world.splash(new V(f.x,0,f.z),Math.min(1.2,force*.12));if(f===this.player&&force>5&&!automatic)this.audio.play?.('land');}}
@@ -297,6 +319,7 @@ export class FrogGame {
     const cache=this.aimMeshCache||(this.aimMeshCache=new WeakMap()),point=new V(),closest=new V(),inverse=new THREE.Matrix4(),candidates=[],hits=[];let best=null,bestDepth=Infinity;
     for(const f of [...this.frogs,...this.predators]){
       if(f===p||f.dead||f.phase==='dormant'||!f.model?.mesh||f.model.group.visible===false||dist(f,p)>26+(f.model.stats?.length||2)*(f.scale||1))continue;
+      if(this.creekMode&&!refugeLineClear(this.world.creekRefuges||[],p,f))continue;
       let shape=cache.get(f.model);
       if(!shape){const parts=[];f.model.group.traverse(o=>{if(o.isMesh&&o.name!=='animated-color-silhouette'&&o.name!=='tongue')parts.push(o);});shape={parts,bones:Object.values(f.model.bones||{}),bounds:new THREE.Sphere()};cache.set(f.model,shape);}
       // Bone envelopes follow the actual animated pose, scale and body length.
@@ -342,7 +365,7 @@ export class FrogGame {
   power(team='ally'){return this.frogs.filter(f=>!f.dead&&!isSurrendered(f)&&(team==='ally'?['ally','player'].includes(f.team):f.team===team)).reduce((n,f)=>n+(f.tier+.15*f.level)*(.35+.65*f.hp/f.maxHp),0);}
   damage(target,amount,source,options={}){
     if(!target||target.dead)return;
-    if(!options.bypass&&source&&source.team!=='predator'&&!fortLineClear(this.camps,source,target))return;
+    if(!options.bypass&&source&&((source.team!=='predator'&&!fortLineClear(this.camps,source,target))||(this.creekMode&&!refugeLineClear(this.world?.creekRefuges||[],source,target))))return;
     amount*=equipmentBonuses(source).attackMultiplier;
     if(target.team==='predator'){const before=target.hp;damagePredator(this,target,amount,source,{feedback:false});const actual=Math.max(0,before-target.hp);registerCombatHit(this,target,actual,source,{...options,killed:target.dead});return actual;}
     // An order can outlive a surrender or a change of allegiance. Validate the
@@ -419,7 +442,7 @@ export class FrogGame {
   }
   recruitmentContext(f){
     const p=this.player,camp=this.camps.find(c=>c.id===f?.home),offer=realmRecruitmentOffer(this,f,camp),distance=dist(f,p);
-    const cooldown=offer.guaranteed?0:Math.max(0,(f.persuadeCD||0)-this.elapsed),missing=Math.max(0,Math.ceil((offer.cost.food||0)-(this.resources.food||0))),reachable=fortLineClear(this.camps,p,f);
+    const cooldown=offer.guaranteed?0:Math.max(0,(f.persuadeCD||0)-this.elapsed),missing=Math.max(0,Math.ceil((offer.cost.food||0)-(this.resources.food||0))),reachable=this.actorLineClear(p,f);
     const chance=offer.guaranteed?1:persuasionChance({allyPower:this.power(),enemyPower:this.power(f.team),hp:f.hp,maxHp:f.maxHp,morale:f.morale,campDestroyed:!!camp?.destroyed,neutral:f.team==='neutral'});
     const contract=this.campaign?.endless&&f.team==='neutral'&&!offer.instant;
     const reason=!offer.eligible?'Δεν είναι έτοιμος να ακολουθήσει':distance>RECRUIT_RANGE?`Πλησίασε ${Math.ceil(distance-RECRUIT_RANGE)} μ.${this.creekMode?'':' για συζήτηση'}`:!reachable?this.creekMode?'Βρες ένα ανοικτό πέρασμα για να πλησιάσεις':'Τα τείχη εμποδίζουν την επαφή · πλησίασε από την πύλη':cooldown>0?`Έτοιμο σε ${Math.ceil(cooldown)}″`:(offer.requirements?.length?offer.reason:'')|| (missing?`Λείπουν ${missing} τροφή`:offer.cost.food===0?(this.creekMode?'Έτοιμος να ακολουθήσει':'Δωρεάν ένταξη'):offer.guaranteed?`${offer.cost.food} τροφή · ${this.creekMode?'έτοιμος να ακολουθήσει':'σίγουρη ένταξη'}`:`${this.creekMode?'Εμπιστοσύνη':'Πειθώ'} ${Math.round(chance*100)}%`);
@@ -453,14 +476,14 @@ export class FrogGame {
     // silently become guards when the player is collecting materials.
     const aimed=this.aimTarget,aimedFrog=aimed?.kind==='actor'&&this.frogs.includes(aimed.entity)&&!aimed.entity.dead&&dist(aimed.entity,p)<=RECRUIT_PREVIEW_RANGE?aimed.entity:null;
     if(aimedFrog&&offerFor(aimedFrog).eligible)return recruitment(aimedFrog);
-    if(aimedFrog?.team==='ally'&&aimedFrog.surrendered){const distance=dist(aimedFrog,p),reachable=fortLineClear(this.camps,p,aimedFrog),reason=distance>RECRUIT_RANGE?`Πλησίασε ${Math.ceil(distance-RECRUIT_RANGE)} μ.`:!reachable?'Πλησίασε από την πύλη':'Σύμμαχος σε υποχώρηση · κάλεσέ τον πίσω στην ομάδα';return {type:'rally',entity:aimedFrog,available:distance<=RECRUIT_RANGE&&reachable,reason,actionLabel:'Ακολούθησε',actionIcon:'regroup',hint:`${aimedFrog.name} · E · Ακολούθησε · ${reason}`};}
+    if(aimedFrog?.team==='ally'&&aimedFrog.surrendered){const distance=dist(aimedFrog,p),reachable=this.actorLineClear(p,aimedFrog),reason=distance>RECRUIT_RANGE?`Πλησίασε ${Math.ceil(distance-RECRUIT_RANGE)} μ.`:!reachable?'Πλησίασε από την πύλη':'Σύμμαχος σε υποχώρηση · κάλεσέ τον πίσω στην ομάδα';return {type:'rally',entity:aimedFrog,available:distance<=RECRUIT_RANGE&&reachable,reason,actionLabel:'Ακολούθησε',actionIcon:'regroup',hint:`${aimedFrog.name} · E · Ακολούθησε · ${reason}`};}
     const swarms=this.world.hotspots.filter(h=>dist(h,p)<8).sort((a,b)=>dist(a,p)-dist(b,p));
     const aimedSwarm=aimed?.kind==='flies'&&swarms.includes(aimed.entity)&&aimed.entity.flies>=1?aimed.entity:null;
     if(aimedSwarm)return gather('gather',aimedSwarm);
     const focus=this.interactionFocus?.until>this.elapsed?this.interactionFocus.entity:null;
     if(focus&&this.frogs.includes(focus)&&!focus.dead&&dist(focus,p)<=RECRUIT_PREVIEW_RANGE&&offerFor(focus).eligible)return recruitment(focus);
     const yaw=this.aimYaw??this.cameraYaw??p.yaw;
-    const recruit=passiveRecruitTarget(p,this.frogs,this.camps,{yaw,isReachable:f=>fortLineClear(this.camps,p,f)});
+    const recruit=passiveRecruitTarget(p,this.frogs,this.camps,{yaw,isReachable:f=>this.actorLineClear(p,f)});
     if(recruit&&(dist(recruit,p)<.5||Math.cos(Math.atan2(recruit.x-p.x,recruit.z-p.z)-yaw)>=.5))return recruitment(recruit);
     const swarm=swarms.find(h=>h.flies>=1);if(swarm)return gather('gather',swarm);
     if(recruit)return recruitment(recruit);
@@ -500,7 +523,7 @@ export class FrogGame {
   recruit(f){
     const camp=this.camps.find(c=>c.id===f?.home),offer=realmRecruitmentOffer(this,f,camp);if(!offer.eligible)return false;
     if(!offer.ready){this.ui.toast({icon:'recruit',label:'Δεν έχουν εκπληρωθεί οι όροι',detail:offer.reason,tone:'warning'});return false;}
-    if(dist(f,this.player)>RECRUIT_RANGE||!fortLineClear(this.camps,this.player,f)){const ctx=this.recruitmentContext(f);this.ui.toast({icon:'recruit',label:ctx.reason,detail:ctx.hint,tone:'warning'});return false;}
+    if(dist(f,this.player)>RECRUIT_RANGE||!this.actorLineClear(this.player,f)){const ctx=this.recruitmentContext(f);this.ui.toast({icon:'recruit',label:ctx.reason,detail:ctx.hint,tone:'warning'});return false;}
     if(!canAfford(this.resources,offer.cost)){const missing=Math.ceil(offer.cost.food-(this.resources.food||0));this.ui.toast({icon:'fly',value:`${Math.floor(this.resources.food||0)}/${offer.cost.food}`,label:`Λείπουν ${missing} τροφή`,detail:`Η στρατολόγηση του ${f.name} κοστίζει ${offer.cost.food} τροφή. Μάζεψε αποθέματα με E σε σμήνος.`,tone:'warning'});return false;}
     if(!offer.guaranteed&&(f.persuadeCD||0)>this.elapsed){const seconds=Math.ceil(f.persuadeCD-this.elapsed);this.ui.toast({icon:'recruit',secondaryIcon:'recover',value:`${seconds}″`,label:'Περίμενε λίγο',detail:`Ο ${f.name} θα ακούσει νέα πρόταση σε ${seconds} δευτερόλεπτα.`,tone:'warning'});return false;}
     const chance=offer.guaranteed?1:persuasionChance({allyPower:this.power(),enemyPower:this.power(f.team),hp:f.hp,maxHp:f.maxHp,morale:f.morale,campDestroyed:!!camp?.destroyed,neutral:f.team==='neutral'});
@@ -602,15 +625,15 @@ export class FrogGame {
       const attackInvalid=intent.kind==='attack'&&(!intent.target||intent.target.dead||isSurrendered(intent.target)||intent.target.phase==='dormant'||(intent.target.team!=='predator'&&!this.hostile(f,intent.target)));
       const campInvalid=intent.kind==='camp-attack'&&(!intent.target||intent.target.destroyed||intent.target.team==='neutral'||(f.team==='player'?'ally':f.team)===(intent.target.team==='player'?'ally':intent.target.team));
       if(attackInvalid||campInvalid){f.intent=null;f.brain=0;requestFrogTravel(f,0,0);this.moveActor(f,dt);continue;}
-      const target=intent.target,siegeGate=!target.natural&&intent.kind==='camp-attack'&&(target.gateHp??gateMaxHealth(target))>0&&!insideFort(target,f),goal=siegeGate?gatePoint(target,2.2):intent.kind==='camp-attack'&&target.natural?(this.frogs.find(e=>e.home===target.id&&e.leader&&!e.dead&&!e.surrendered)||target):target,waypoint=fortWaypoint(this.camps,f,goal),routing=dist(waypoint,goal)>.1,d=dist(f,waypoint),travelling=f.team==='ally'&&!f.guard&&f.order!=='training';
+      const target=intent.target,siegeGate=!target.natural&&intent.kind==='camp-attack'&&(target.gateHp??gateMaxHealth(target))>0&&!insideFort(target,f),goal=siegeGate?gatePoint(target,2.2):intent.kind==='camp-attack'&&target.natural?(this.frogs.find(e=>e.home===target.id&&e.leader&&!e.dead&&!e.surrendered)||target):target,fortGoal=fortWaypoint(this.camps,f,goal),waypoint=this.creekMode?refugeWaypoint(this.world.creekRefuges||[],f,fortGoal):fortGoal,routing=dist(waypoint,goal)>.1,d=dist(f,waypoint),travelling=f.team==='ally'&&!f.guard&&f.order!=='training';
       let speed=(f.team==='ally'?(f.role==='scout'?MOVEMENT.allyScout:MOVEMENT.ally):(f.role==='scout'?MOVEMENT.enemyScout:MOVEMENT.enemy))*(f.stomach<10?.8:1);
       // A hopping or sprinting player must not permanently outrun the squad.
       // Catch-up remains physical movement, and ends as allies reach formation/combat range.
       if(travelling&&(intent.formation||intent.support)&&d>4.5)speed=Math.max(speed,dist(f,p)>22?MOVEMENT.farCatchUp:MOVEMENT.catchUp);
-      const stop=routing?.25:siegeGate?2.8:intent.kind==='attack'?(target.team==='predator'?(f.role==='hunter'?7:Math.min(4.8,2.8+Math.max(0,(target.scale||1)-1)*.6)):f.role==='hunter'?5:1.6):intent.kind==='camp-attack'?(target.natural?3.6:SHELTER_RADIUS*.76):intent.kind==='eat'?2:1.1;
+      const stop=routing?.25:siegeGate?2.8:intent.kind==='attack'?(target.team==='predator'?(f.role==='hunter'?7:Math.min(4.8,2.8+Math.max(0,(target.scale||1)-1)*.6)):f.role==='hunter'?5:1.6):intent.kind==='camp-attack'?(target.natural?3.6:SHELTER_RADIUS*.76):intent.kind==='eat'?2:intent.refuge?.22:1.1;
       if(d>stop+.035){const dx=(waypoint.x-f.x)/Math.max(d,.01),dz=(waypoint.z-f.z)/Math.max(d,.01);let sx=0,sz=0;for(const other of this.nearbyFrogs(f,1.5)){if(other===f||other.dead)continue;const dd=dist(f,other);if(dd<1.15&&dd>.01){sx+=(f.x-other.x)/dd*(1.15-dd);sz+=(f.z-other.z)/dd*(1.15-dd);}}const slow=f.stun>0?.2:1;requestFrogTravel(f,(dx*speed+sx*2)*slow,(dz*speed+sz*2)*slow,{distance:Math.max(0,d-stop)});
       }else{requestFrogTravel(f,0,0);if(d>.1&&f.grounded)f.yaw=angleLerp(f.yaw,Math.atan2(target.x-f.x,target.z-f.z),dt*10);
-        if(!routing&&intent.kind==='attack'&&!target.dead&&f.attackCD<=0&&dist(f,target)<=stop+.3&&fortLineClear(this.camps,f,target)){f.attackCD=1.15+this.random()*.35;f.attackAnim=.4;f.attackDuration=.4;f.attackType=f.role==='hunter'?'tongue':'kick';queueCombatStrike(this,{source:f,target,kind:f.attackType,damage:attackDamage(f.role==='bruiser'?14:10,f.tier,f.level),range:stop+.6,yaw:f.yaw,arc:-.2});if(f.role==='hunter')this.vfx.tongue(f,new V(target.x,target.y+.6,target.z));if(f.specialCD<=0){if(f.role==='caller')this.intimidate(f);else if(d<4)this.special(f);}}
+        if(!routing&&intent.kind==='attack'&&!target.dead&&f.attackCD<=0&&dist(f,target)<=stop+.3&&this.actorLineClear(f,target)){f.attackCD=1.15+this.random()*.35;f.attackAnim=.4;f.attackDuration=.4;f.attackType=f.role==='hunter'?'tongue':'kick';queueCombatStrike(this,{source:f,target,kind:f.attackType,damage:attackDamage(f.role==='bruiser'?14:10,f.tier,f.level),range:stop+.6,yaw:f.yaw,arc:-.2});if(f.role==='hunter')this.vfx.tongue(f,new V(target.x,target.y+.6,target.z));if(f.specialCD<=0){if(f.role==='caller')this.intimidate(f);else if(d<4)this.special(f);}}
         if(!routing&&intent.kind==='camp-attack'&&f.attackCD<=0&&!target.destroyed){f.attackCD=1.4;f.attackAnim=.4;f.attackDuration=.4;f.attackType='kick';queueCombatStrike(this,{source:f,kind:'kick',damage:attackDamage(10,f.tier,f.level),range:10,yaw:f.yaw,arc:-.2,includeCamps:true});if(f.raidTarget&&target.team==='ally'&&!this.frogs.some(g=>g.team==='ally'&&g.guard&&g.home===target.id&&!g.dead&&dist(g,target)<SHELTER_RADIUS+4)){const food=Math.min(1,this.resources.food);this.resources.food-=food;f.loot=(f.loot||0)+food;}}
         if(!routing&&intent.kind==='eat'&&f.eatCD<=0){const result=feedFromFly(f,target);if(result.consumed){f.attackAnim=.3;f.attackDuration=.3;f.attackType='tongue';f.healingUntil=this.elapsed+1;if(dist(f,p)<30)this.vfx.tongue(f,new V(target.x,1.5,target.z));if(f.team==='ally'){this.resources.food+=result.food;this.creditGathering(result.food,0);if(awardXP(f,3)){f.model.setLevel?.(f.level);this.updateFrogPortrait?.(f,true);}}}}
         if(!routing&&intent.kind==='train')this.updateTraining(f,intent.camp,dt);
@@ -619,7 +642,7 @@ export class FrogGame {
     }
   }
   thinkFrog(f,allies){
-    if(this.creekMode){const rival=this.creekRivalIntent(f);if(rival)return rival;const tactical=this.creekTacticalIntent(f);if(tactical)return tactical;const companion=this.creekCompanionIntent(f);if(companion)return companion;}
+    if(this.creekMode){const shelter=this.creekAllyIntent?.(f);if(shelter)return shelter;const rival=this.creekRivalIntent(f);if(rival)return rival;const tactical=this.creekTacticalIntent(f);if(tactical)return tactical;const companion=this.creekCompanionIntent(f);if(companion)return companion;}
     if(f.fear>0&&f.fearFrom){const a=Math.atan2(f.x-f.fearFrom.x,f.z-f.fearFrom.z);return {kind:'move',target:{x:f.x+Math.sin(a)*4,z:f.z+Math.cos(a)*4}};}
     const own=f.team==='ally',home=this.camps.find(c=>c.id===f.home&&!c.destroyed);
     let order=f.order||(f.guard?'guard':'follow');
@@ -1039,7 +1062,7 @@ export class FrogGame {
       predator.model.group.position.set(predator.x,predator.y,predator.z);predator.model.group.rotation.y=predator.yaw;
       sphere.center.set(predator.x,predator.y+(predator.scale||1),predator.z);sphere.radius=Math.max(2.5,(predator.model.stats?.length||3)*(predator.scale||1)*.65);
       if(canCull&&!frustum.intersectsSphere(sphere))continue;
-      predator.model.update(dt,{time:this.elapsed,speed:predator.phase==='patrol'?1:predator.phase==='stalk'||predator.phase==='flee'?predator.speed:0,swimming:predator.type==='fish',attack:predator.attackAnim>0?{type:predator.attackType||'lunge',phase:1-predator.attackAnim/(predator.attackDuration||.65)}:0,hit:predator.hitAnim/.35,dead:predator.dead});
+      predator.model.update(dt,{time:this.elapsed,speed:predator.phase==='patrol'?1:predator.phase==='stalk'||predator.phase==='flee'?predator.speed:0,swimming:predator.type==='fish',attack:predator.attackAnim>0?{type:predator.attackType||'lunge',phase:1-predator.attackAnim/(predator.attackDuration||.65)}:0,hit:predator.hitAnim/.35,dead:predator.dead,snakePose:predator.refugeSnakePose});
     }
     this.shake=Math.max(0,this.shake-dt*1.8);
   }
@@ -1097,7 +1120,7 @@ export class FrogGame {
   }
   checkVictory(){if(this.campaign?.endless)return;if(!this.won&&this.campaign?.phase==='complete'){this.won=true;this.paused=true;this.ended=true;this.input.unlock();this.audio.play?.('victory');this.ui.showEnding(true,{...this.stats,days:dayState(this.elapsed).day});this.save();}}
   readSave(){try{return validateSave(JSON.parse(localStorage.getItem(SAVE_KEY)||'null'));}catch{return null;}}
-  inspect(){return {version:'3.0.0',realm:this.realms?.active,constructionJobs:this.economy?.jobs?.filter(j=>j.kind==='construction').map(j=>({id:j.id,type:j.type,progress:j.progress,duration:j.duration,workers:j.workersPresent,status:j.status})),started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
+  inspect(){return {version:'3.0.1',realm:this.realms?.active,constructionJobs:this.economy?.jobs?.filter(j=>j.kind==='construction').map(j=>({id:j.id,type:j.type,progress:j.progress,duration:j.duration,workers:j.workersPresent,status:j.status})),started:this.started,paused:this.paused,ended:this.ended,view:this.viewMode,elapsed:Math.round(this.elapsed),player:{x:this.player.x,y:this.player.y,z:this.player.z,hp:this.player.hp,stomach:this.player.stomach,level:this.player.level,grounded:this.player.grounded,swimming:this.player.swimming},frogs:this.frogs.length,allies:this.allies().length,population:this.allies().length+(this.player.dead?0:1),worldRadius:this.world.radius||WORLD_RADIUS,stronghold:this.strongholdSnapshot(),enemies:this.frogs.filter(f=>f.team.startsWith('enemy')&&!f.dead&&!f.surrendered).length,camps:this.camps.map(c=>({name:c.name,team:c.team,hp:c.hp,destroyed:c.destroyed})),predators:this.predators.map(p=>({type:p.type,phase:p.phase,hp:p.hp,x:p.x,z:p.z})),hunt:this.hunt?.type,resources:this.resources,objective:this.objective(),performance:{fps:Math.round(this.fps),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometries:this.renderer.info.memory.geometries,textures:this.renderer.info.memory.textures},rigs:this.frogs[0].model.stats};}
 }
 
 

@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {normalizeUIScale} from '../src/ui-preferences.js';
 import {CREEK_GUIDE_CARDS,creekGuideCard} from '../src/creek-guide.js';
 import {describeObjective} from '../src/guidance.js';
+import {creekRefugeStatus} from '../src/creek-ui.js';
 
 const bundle=await build({entryPoints:[fileURLToPath(new URL('../src/ui.js',import.meta.url))],bundle:true,write:false,platform:'node',format:'esm',loader:{'.css':'empty'},logLevel:'silent'});
 const {GameUI}=await import('data:text/javascript;base64,'+Buffer.from(bundle.outputFiles[0].text).toString('base64'));
@@ -97,6 +98,16 @@ test('natural help aliases old guide requests and keeps building instructions ou
   assert.doesNotMatch(ui.helpMarkup(),/Κάστρα & τεχνίτες/);
 });
 
+test('natural refuge guide explains physical cover and entry by snakes that fit the opening',()=>{
+  const nest=creekGuideCard('nest');
+  assert.match(nest.subtitle,/στέγη.*τοιχώματα.*ανάμεσα.*απειλή/,'cover must describe real intervening geometry');
+  assert.match(nest.steps.join(' '),/φίδι που χωρά μπορεί να γλιστρήσει μέσα/,'the opening is passable to a fitting predator');
+  assert.match(nest.steps.join(' '),/ανάπαυση όσο δεν σε απειλεί ζώο στο εσωτερικό/,'being under a roof alone does not guarantee rest');
+  assert.match(nest.result,/έξω παραμένει κίνδυνος/,'rest must not require clearing the surrounding ecosystem');
+  assert.match(nest.tip,/άνοιγμα.*στέγη.*εκτεθειμένος/);
+  assert.ok(nest.related.includes('snake'),'the refuge guide should lead to the relevant animal behaviour');
+});
+
 test('scale handles corrupt saved preferences and remains independent of browser zoom',t=>{
   const {ui}=fixture(t);
   for(const value of [null,undefined,NaN,Infinity,''])assert.equal(normalizeUIScale(value),1);
@@ -148,4 +159,47 @@ test('map keeps coexistence and respect groups separate from enemies and control
   assert.equal(fills.find(fill=>fill.color==='#94ca8c')?.arcs.length,1);
   assert.equal(world.enemies.length,3,'presentation never changes group allegiance');
   ui.showPanel('map');assert.match(ui.refs.panel.innerHTML,/Ομάδες σε συνύπαρξη/);assert.doesNotMatch(ui.refs.panel.innerHTML,/Ελεύθερες θέσεις|οχυρ|κάστρ/i);
+});
+
+test('home can be located directly from V without a new menu or a discovery gate',t=>{
+  const {ui,events}=fixture(t);ui.state.creek.nest={id:'creek-nest',x:17,z:16,visited:false,label:'Φυσικό καταφύγιο'};
+  const markup=ui.explorationMarkup();
+  assert.match(markup,/data-action="locate-shelter"/);
+  assert.ok(markup.indexOf('data-action="locate-shelter"')<markup.indexOf('Μόνιμες ικανότητες'),'the locator is available before the long discovery/ability lists');
+  assert.equal((markup.match(/class="fg-creek-nest"/g)||[]).length,1,'the original shelter card is moved rather than duplicated');
+  click(ui,'locate-shelter');assert.equal(ui.mapFocus,'nest');assert.deepEqual(events.at(-1),{action:'panel-open',data:{name:'map'}});
+  ui.showPanel('map');assert.match(ui.refs.panel.innerHTML,/data-action="map-overview"/);assert.match(ui.refs.panel.innerHTML,/Το καταφύγιο και η θέση του βατράχου σου/);
+  click(ui,'map-overview');assert.equal(ui.mapFocus,null);assert.equal(ui.panel,'map');
+  click(ui,'locate-shelter');assert.equal(ui.mapFocus,'nest');assert.equal(ui.panel,'map','locating from the map never toggles it closed');
+  ui.showPanel('exploration');assert.equal(ui.mapFocus,null);
+});
+
+test('both maps paint the real home before and after discovery, and locate focuses home with the player',t=>{
+  const {ui}=fixture(t),images=[],labels=[],translations=[];
+  const context={clearRect(){images.length=0;labels.length=0;translations.length=0;},fillRect(){},beginPath(){},moveTo(){},lineTo(){},stroke(){},fill(){},arc(){},ellipse(){},save(){},restore(){},translate(x,y){translations.push({x,y});},rotate(){},closePath(){},fillText(text,x,y){labels.push({text,x,y});},drawImage(image,x,y,width,height){images.push({name:image.name,x,y,width,height});}};
+  ui.mapSymbolImage=name=>({name,complete:true,naturalWidth:24});
+  const world={radius:200,player:{x:0,z:0,yaw:0},camps:[]},canvas={width:1024,height:720,getContext:()=>context};
+  ui.state.creek.nest={id:'creek-nest',x:17,z:16,visited:false,entrance:{x:17,z:20}};
+  for(const visited of [false,true])for(const large of [false,true]){
+    ui.state.creek.nest.visited=visited;GameUI.prototype.drawMap.call(ui,canvas,world,large);
+    assert.equal(images.filter(image=>image.name==='leaf').length,1,`home is present with visited=${visited}, large=${large}`);
+    assert.ok(labels.every(label=>label.text!=='Άγνωστο σημείο'),'other undiscovered landmarks remain hidden');
+  }
+  const overviewHome=images.find(image=>image.name==='leaf'),overviewPlayer=translations.at(-1);
+  const overviewDistance=Math.hypot(overviewHome.x+overviewHome.width/2-overviewPlayer.x,overviewHome.y+overviewHome.height/2-overviewPlayer.y);
+  ui.mapFocus='nest';GameUI.prototype.drawMap.call(ui,canvas,world,true);
+  const home=images.find(image=>image.name==='leaf'),player=translations.at(-1),focusedDistance=Math.hypot(home.x+home.width/2-player.x,home.y+home.height/2-player.y);
+  assert.ok(focusedDistance>overviewDistance*2,'locating creates useful local separation instead of leaving two overlapping world-scale markers');
+  assert.ok(home.x>=0&&home.y>=0&&home.x+home.width<=canvas.width&&home.y+home.height<=canvas.height);
+  assert.ok(player.x>=0&&player.x<=canvas.width&&player.y>=0&&player.y<=canvas.height);
+  assert.ok(labels.some(label=>label.text==='Είσοδος'),'only the focused view labels the real opening');
+});
+
+test('refuge status uses real interior coverage and never infers shelter from calm surroundings',()=>{
+  assert.equal(creekRefugeStatus(null),null);assert.equal(creekRefugeStatus({safe:true}),null);
+  assert.equal(creekRefugeStatus({playerPosition:'entrance',safe:true,protected:false}).covered,false);
+  assert.equal(creekRefugeStatus({playerPosition:'exposed',safe:true,protected:true}).covered,false,'an exterior state cannot imply cover');
+  const inside=creekRefugeStatus({playerPosition:'inside',safe:false,protected:true});
+  assert.equal(inside.label,'Μέσα στο καταφύγιο');assert.equal(inside.covered,true,'outside threats and physical roof coverage remain independent');
+  assert.match(inside.detail,/Φίδι που χωρά μπορεί να μπει/);
 });

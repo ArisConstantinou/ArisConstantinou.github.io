@@ -7,6 +7,7 @@ import {FORT_RADIUS,initializeFort,canPassGate,fortConstructionState,fortLineCle
 import {createCreature} from '../src/creatures.js';
 import {updateGameCamera} from '../src/camera.js';
 import {creekMovementMethods} from '../src/creek-movement.js';
+import {refugeAt,refugeWorld,refugeLineClear,refugeSurface,refugeEntrancePoint,refugeInteriorPoint} from '../src/refuge.js';
 
 const context={fillRect(){},beginPath(){},moveTo(){},quadraticCurveTo(){},bezierCurveTo(){},closePath(){},save(){},restore(){},translate(){},scale(){},lineTo(){},stroke(){},ellipse(){},fill(){},putImageData(){},createRadialGradient(){return {addColorStop(){}}},createImageData(w,h){return {data:new Uint8ClampedArray(w*h*4)}}};
 function makeWorld(t,regionIndex=0,natural=true){
@@ -174,4 +175,42 @@ test('diving clarity is restricted to natural worlds and safely accepts missing 
   assert.equal(alpha.value,.91,'legacy water does not change');
   const natural=makeWorld(t);natural.update(.016,1,1);
   assert.equal(natural.water.material.uniforms.alpha.value,.91);
+});
+
+test('natural refuges are real opaque cavities at the home, rival territory and neutral creek hiding places',t=>{
+  const world=makeWorld(t);
+  assert.deepEqual(world.creekRefuges.map(r=>r.id),['willow-crevice','bank-crevice']);
+  world.setCreekState({phase:phase(),nest:{...world.creekNest,level:0,safe:true}});
+  const camp=world.createShelter({...world.creekTerritories[0],id:'test-rival-hollow',team:'enemy0',natural:true});
+  assert.equal(world.creekRefuges.length,4);
+  world.group.updateMatrixWorld(true);
+  for(const r of world.creekRefuges){
+    const interior={...refugeInteriorPoint(r),team:'player'},roof=r.mesh.getObjectByName('Refuge solid · roof'),shell=r.mesh.userData.refugeSolids;
+    assert.equal(refugeAt(world.creekRefuges,interior),r);assert.equal(world.getSurface(interior.x,interior.z).height,r.floorY);
+    assert.ok(roof&&shell&&r.mesh.userData.refugeRoof);assert.equal(roof.material.transparent,false);assert.equal(roof.material.depthWrite,true);
+    const down=new THREE.Raycaster(new THREE.Vector3(interior.x,r.roofTop+3,interior.z),new THREE.Vector3(0,-1,0));
+    const hits=down.intersectObject(roof);assert.ok(hits.length,'the rendered roof must actually cover the rear chamber');
+    assert.ok(Math.abs(hits[0].point.y-r.roofTop)<1e-5);
+    assert.equal(refugeLineClear([r],{x:interior.x,z:interior.z,y:r.roofTop+3},interior,{fromHeight:0,toHeight:.5}),false);
+    const outside=refugeWorld(r,{x:-7,y:r.floorY+.5,z:-1.2}),inside=refugeWorld(r,{x:.75,y:r.floorY+.5,z:-1.2}),direction=new THREE.Vector3(inside.x-outside.x,0,inside.z-outside.z).normalize(),sideRay=new THREE.Raycaster(new THREE.Vector3(outside.x,outside.y,outside.z),direction,0,10);
+    assert.ok(sideRay.intersectObject(shell,true).some(h=>h.object.userData.refugeSolid?.id==='left-wall'),'visible wall matches the occluder');
+    const mouth=refugeWorld(r,{x:1.55,z:4.6,y:r.floorY+.5}),justInside=refugeWorld(r,{x:1.55,z:3.65,y:r.floorY+.5}),doorRay=new THREE.Raycaster(new THREE.Vector3(mouth.x,mouth.y,mouth.z),new THREE.Vector3(justInside.x-mouth.x,0,justInside.z-mouth.z).normalize(),0,.9);
+    assert.equal(doorRay.intersectObject(shell,true).filter(h=>h.object.userData.refugeSolid).length,0,'the visible entrance is actually open at frog height');
+    r.mesh.userData.refugeRoof.visible=false;assert.equal(refugeLineClear([r],{x:interior.x,z:interior.z,y:r.roofTop+3},interior,{fromHeight:0,toHeight:.5}),false,'camera cutaway never removes gameplay cover');r.mesh.userData.refugeRoof.visible=true;
+  }
+  const rival=camp.userData.refuge;world.removeShelter(camp);assert.equal(world.creekRefuges.includes(rival),false);assert.equal(rival.active,false);
+});
+
+test('old submerged shelter sites receive rendered dry flooring and a terrain-joined ledge, with sampled support matching the mesh',t=>{
+  const world=makeWorld(t),shelter=world.createShelter({id:'migrated-wet-refuge',x:0,z:-8,yaw:0,team:'ally',natural:true}),r=shelter.userData.refuge;
+  world.group.updateMatrixWorld(true);
+  assert.ok(r.floorY>.615);assert.ok(world.getTerrainHeight(r.x,r.z)<-1);
+  const ramp=shelter.getObjectByName('Terrain-joined natural refuge ledge');assert.ok(ramp);
+  for(let i=1;i<12;i++){
+    const local={x:r.entrance.x+(i%3-1)*.25,z:r.ramp.minZ+(r.ramp.maxZ-r.ramp.minZ)*i/12},p=refugeWorld(r,local),support=refugeSurface([r],p.x,p.z),ray=new THREE.Raycaster(new THREE.Vector3(p.x,r.floorY+12,p.z),new THREE.Vector3(0,-1,0));
+    const hit=ray.intersectObject(ramp)[0];assert.ok(hit);assert.ok(Math.abs(hit.point.y-support.height)<1e-5,'ramp triangle and collision sampler agree');
+  }
+  const end=refugeEntrancePoint(r,r.ramp.maxZ-r.entrance.z);assert.ok(Math.abs(end.y-world.getTerrainHeight(end.x,end.z))<.025,'the outer edge meets actual terrain');
+  const inside=refugeInteriorPoint(r);assert.equal(world.getSurface(inside.x,inside.z).height,r.floorY,'an occupant is supported by the cavity floor, not projected onto the roof');
+  world.setCreekState({phase:phase(.65,1.2,'bank')});advance(world);assert.equal(world.getSurface(inside.x,inside.z).type,'land');
 });

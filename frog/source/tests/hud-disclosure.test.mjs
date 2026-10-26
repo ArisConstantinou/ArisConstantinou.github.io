@@ -60,6 +60,44 @@ test('default HUD exposes eight essentials including illustrated U guidance and 
   assert.ok(!html.includes('fg-dock-orders'));
 });
 
+test('nearby refuge state replaces the existing rank line and clears when the frog leaves',()=>{
+  const {ui}=fixture(),base=state({food:20,reeds:0}),creek={enabled:true,discoveryCount:1,totalLandmarks:4,inventory:{food:20,finds:0,keepsakes:0},discoveries:[],nest:{safe:true}};
+  for(const [playerPosition,protectedState,label] of [['inside',true,'Μέσα στο καταφύγιο'],['entrance',false,'Στην είσοδο'],['exposed',false,'Έξω από την κάλυψη']]){
+    ui.update({...base,creek:{...creek,shelter:{id:'owned-refuge',playerPosition,protected:protectedState}}});
+    assert.equal(ui.refs.rankTitle.textContent,label);assert.equal(ui.root.classList.contains('fg-refuge-status'),true);
+    assert.equal(ui.root.classList.contains('fg-refuge-covered'),protectedState);
+  }
+  ui.update({...base,creek:{...creek,shelter:null}});assert.equal(ui.refs.rankTitle.textContent,'Εξερευνητής');assert.equal(ui.root.classList.contains('fg-refuge-status'),false);
+});
+
+test('an intruder in the current neutral refuge replaces the existing status and clears without losing physical cover',()=>{
+  const {ui,html}=fixture(),base=state({food:20,reeds:0});
+  const creek={enabled:true,discoveryCount:1,totalLandmarks:4,inventory:{food:20,finds:0,keepsakes:0},discoveries:[],nest:{id:'creek-nest',safe:true,protected:false,intruder:null}};
+  const shelter={id:'willow-crevice',label:'Κρυψώνα της πεσμένης ιτιάς',playerPosition:'inside',protected:true,restSafe:true,intruder:null};
+  const render=nearby=>ui.update({...base,creek:{...creek,shelter:nearby}});
+  render(shelter);assert.equal(ui.refs.rankTitle.textContent,'Μέσα στο καταφύγιο');
+  const intruder={id:'snake-neutral-refuge',type:'snake',label:'Νερόφιδο της όχθης'};
+  render({...shelter,restSafe:false,intruder});
+  assert.equal(ui.refs.rankTitle.textContent,'Απειλή μέσα','a neutral refuge warning must read the current shelter rather than the home nest');
+  assert.equal(ui.root.classList.contains('fg-refuge-threat'),true);
+  assert.equal(ui.root.classList.contains('fg-refuge-covered'),true,'the threat does not remove physical roof coverage');
+  assert.match(ui.refs.playerRank.title,/Νερόφιδο της όχθης.*μέσα.*Δεν μπορείς να αναπαυθείς/);
+  assert.match(html,/data-ref="rankTitle"[^>]*role="status"[^>]*aria-live="polite"/,'the changing existing status is announced without adding a new panel');
+  render({...shelter,playerPosition:'entrance',protected:false,restSafe:false,intruder});
+  assert.equal(ui.refs.rankTitle.textContent,'Απειλή μέσα','the entrance must warn instead of advising entry into an occupied chamber');
+  assert.equal(ui.root.classList.contains('fg-refuge-covered'),false);
+  assert.equal(ui.root.classList.contains('fg-refuge-threat'),true);
+  render(shelter);
+  assert.equal(ui.refs.rankTitle.textContent,'Μέσα στο καταφύγιο');
+  assert.equal(ui.root.classList.contains('fg-refuge-covered'),true);
+  assert.equal(ui.root.classList.contains('fg-refuge-threat'),false,'the warning clears when the intruder leaves');
+  assert.match(ui.refs.playerRank.title,/Φίδι που χωρά μπορεί να μπει/);
+  creek.nest.intruder=intruder;render(shelter);
+  assert.equal(ui.root.classList.contains('fg-refuge-threat'),false,'a remote home intruder must not be attributed to the current neutral refuge');
+  render(null);assert.equal(ui.refs.rankTitle.textContent,'Εξερευνητής');
+  assert.equal(ui.root.classList.contains('fg-refuge-status'),false);assert.equal(ui.root.classList.contains('fg-refuge-covered'),false);assert.equal(ui.root.classList.contains('fg-refuge-threat'),false);
+});
+
 test('one HUD disclosure opens at a time and unlock notification fires only on an actual change',()=>{
   const {ui,events}=fixture();
   ui.setHudDisclosure(null);assert.equal(events.length,0);

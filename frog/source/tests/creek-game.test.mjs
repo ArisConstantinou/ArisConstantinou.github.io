@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {creekMethods} from '../src/creek-game.js';
+import {createRefugeDescriptor,refugeInteriorPoint,refugeWorld,refugeEntrancePoint} from '../src/refuge.js';
 
 function fixture(save=null){
   const messages=[],renders=[];
@@ -64,12 +65,16 @@ test('defeat drops once, later defeats keep earlier important caches, and recove
   assert.equal(game.creek.regions[0].drops.length,1);assert.equal(game.creek.regions[0].drops[0].keepsakes.length,1);
 });
 
-test('safe natural nest develops without resources and danger stops rest without erasing development',()=>{
-  const {game,player}=fixture();player.x=17;player.z=16;const food=game.resources.food;tick(game,22);
+test('safe nest develops naturally while real cover permits rest even with danger outside',()=>{
+  const {game,player}=fixture(),home=createRefugeDescriptor({id:'living-creek-nest',x:17,z:16,yaw:0});game.world.creekRefuges=[home];
+  Object.assign(player,refugeInteriorPoint(home));const food=game.resources.food;tick(game,22);
   assert.equal(game.creekSnapshot().nest.level,1);assert.equal(game.resources.food,food);assert.ok(player.hp>80);
-  game.predators.push({id:'snake',team:'predator',hp:120,x:18,z:16,phase:'stalk'});
+  game.predators.push({id:'snake',type:'snake',team:'predator',hp:120,...refugeWorld(home,{x:6,z:0,y:0}),phase:'stalk'});
   const hp=player.hp,safeSeconds=game.creek.regions[0].nest.safeSeconds;tick(game,5);
-  assert.equal(game.creekSnapshot().nest.safe,false);assert.equal(player.hp,hp);assert.equal(game.creek.regions[0].nest.safeSeconds,safeSeconds);assert.equal(game.creekSnapshot().nest.level,1);
+  assert.equal(game.creekSnapshot().nest.safe,false);assert.equal(game.creekSnapshot().nest.restSafe,true);assert.ok(player.hp>hp);
+  assert.equal(game.creek.regions[0].nest.safeSeconds,safeSeconds);assert.equal(game.creekSnapshot().nest.level,1);
+  Object.assign(player,refugeEntrancePoint(home,1));const exposedHp=player.hp;tick(game,2);
+  assert.equal(game.creekSnapshot().nest.protected,false);assert.equal(player.hp,exposedHp);
 });
 
 test('a visited safe nest develops during exploration without healing the player remotely',()=>{

@@ -7,17 +7,39 @@ const fraction=(value,max=100)=>Math.max(0,Math.min(1,(Number(value)||0)/(Number
 const roleNames={scout:'Ανιχνευτής',hunter:'Κυνηγός',bruiser:'Μαχητής',caller:'Κράχτης'};
 const orderNames={follow:'Ακολουθεί',attack:'Επίθεση',scout:'Ανιχνεύει',distract:'Αντιπερισπασμός',protect:'Προστατεύει',retreat:'Υποχωρεί',forage:'Βρίσκει τροφή',guard:'Κρατά θέση',regroup:'Επιστρέφει'};
 
+/** Physical cover is supplied by refuge geometry; local calm never implies cover. */
+export function creekRefugeStatus(refuge){
+  const position=refuge?.playerPosition;
+  if(!['inside','entrance','exposed'].includes(position))return null;
+  if(refuge.intruder){
+    const name=refuge.intruder.label||({snake:'Το φίδι',heron:'Ο ερωδιός',fish:'Το αρπακτικό ψάρι',frog:'Ένας αντίπαλος βάτραχος'}[refuge.intruder.type]||'Μια απειλή');
+    return {covered:position==='inside'&&refuge.protected===true,warning:true,label:'Απειλή μέσα',detail:`${name} βρίσκεται μέσα στην κρυψώνα. Δεν μπορείς να αναπαυθείς εδώ· βρες έξοδο ή αντιμετώπισε την απειλή.`};
+  }
+  if(position==='inside'&&refuge.protected===true)return {covered:true,label:'Μέσα στο καταφύγιο',detail:'Η στέγη και τα τοιχώματα προσφέρουν κάλυψη. Φίδι που χωρά μπορεί να μπει.'};
+  if(position==='entrance')return {covered:false,label:'Στην είσοδο',detail:'Η είσοδος είναι εκτεθειμένη. Προχώρησε κάτω από τη στέγη.'};
+  return {covered:false,label:'Έξω από την κάλυψη',detail:'Η κοντινή φωλιά δεν σε καλύπτει εδώ. Μπες στο εσωτερικό.'};
+}
+
 /** Presentation only. Every action is routed through the existing GameUI controller. */
 export const creekUIMethods={
+  creekHomeNest(){
+    const nest=this.state.creek?.enabled?this.state.creek.nest:null;
+    return nest&&Number.isFinite(nest.x)&&Number.isFinite(nest.z)?nest:null;
+  },
+  creekNestMarkup(){
+    const nest=this.state.creek?.nest||{},status=creekRefugeStatus(nest),locatable=Boolean(this.creekHomeNest());
+    return `<section class="fg-creek-nest"><span>${pictogram('leaf')}</span><div><h3>${esc(nest.label||'Φυσικό καταφύγιο')}</h3><p>${status?esc(status.label):nest.visited?'Η φωλιά σου βρίσκεται κάτω από τη φυσική στέγη.':'Βρες τη φυσική στέγη ανάμεσα στις ρίζες.'}</p>${status?`<small>${esc(nest.hint||status.detail)}</small>`:''}<button class="fg-creek-locate" data-action="locate-shelter" ${locatable?'':'disabled'}>${pictogram('leaf')}<span>Δείξε στον χάρτη</span></button></div></section>`;
+  },
   creekRecruitmentMarkup(){
     const r=this.state.recruitment;
     if(!r)return this.panelHeader('ΣΥΝΑΝΤΗΣΕΙΣ','Γνώρισε τους βατράχους')+`<p class="fg-realm-empty">Πλησίασε έναν ουδέτερο βάτραχο και πάτησε E. Η εικόνα δίπλα του δείχνει την τροφή και τις συνθήκες που χρειάζεται για να σε ακολουθήσει.</p>${this.guideButton('recruit','Πώς αποκτώ έναν σύντροφο;')}`;
     return this.panelHeader('ΣΥΝΑΝΤΗΣΕΙΣ',esc(r.name||'Ένας νέος σύντροφος'))+`<section class="fg-creek-recruitment"><p>Παρατήρησε τη συμπεριφορά του και μοιράσου τροφή όταν είναι έτοιμος να σε ακολουθήσει.</p>${recruitmentCardMarkup(r,Boolean(this.state.paused))}</section>${this.guideButton('recruit','Πώς αποκτώ έναν σύντροφο;')}`;
   },
   explorationMarkup(){
-    const creek=this.state.creek||{},phase=creek.phase||{},inventory=creek.inventory||{},nest=creek.nest||{};
+    const creek=this.state.creek||{},phase=creek.phase||{},inventory=creek.inventory||{};
     const discoveries=creek.discoveries||[],abilities=creek.abilities||[],dropped=creek.dropped||[];
     return this.panelHeader('ΤΟ ΡΥΑΚΙ ΑΛΛΑΖΕΙ','Ανακαλύψεις')+`
+      ${this.creekNestMarkup()}
       <section class="fg-creek-condition"><span>${pictogram('leaf')}</span><div><small>ΤΩΡΙΝΕΣ ΣΥΝΘΗΚΕΣ</small><h3>${esc(phase.label||'Η ζωή στην όχθη')}</h3><p>${esc(phase.hint||'Παρατήρησε τη ροή, τα έντομα και τις κινήσεις των ζώων.')}</p></div></section>
       <div class="fg-creek-inventory" aria-label="Αυτόματη ταξινόμηση αντικειμένων">${[['food','fly','Τροφή'],['finds','leaf','Ευρήματα'],['keepsakes','pearl','Ενθύμια']].map(([id,art,label])=>`<div>${pictogram(art)}<b>${number(inventory[id])}</b><span>${label}</span></div>`).join('')}</div>
       <section class="fg-creek-section"><div class="fg-realm-section-heading"><h3>Όσα γνώρισες</h3><span>${number(creek.discoveryCount)} / ${number(creek.totalLandmarks||discoveries.length)}</span></div><div class="fg-creek-discoveries">${discoveries.map(d=>`<article class="${d.found?'is-found':'is-unknown'}"><span>${pictogram(d.found?'leaf':'eye')}</span><div><h3>${esc(d.label||'Άγνωστο σημείο')}</h3><p>${esc(d.description||'Ακολούθησε μια αλλαγή στην κίνηση των ζώων.')}</p></div>${d.found?pictogram('check'):''}</article>`).join('')}</div></section>
@@ -25,7 +47,6 @@ export const creekUIMethods={
         const target=Math.max(.001,Number(a.target)||1),progress=a.unlocked?target:Math.max(0,Math.min(target,Number(a.progress??a.current)||0));
         return `<details class="fg-creek-ability ${a.unlocked?'is-earned':''}" data-creek-section="ability-${esc(a.id)}"><summary><span>${pictogram(a.icon||'jump')}</span><div><strong>${esc(a.label||a.name||'Νέα ικανότητα')}</strong><small>${a.unlocked?'Αποκτήθηκε · μόνιμη':'Δες πώς ανακαλύπτεται'}</small></div>${pictogram(a.unlocked?'check':'leaf')}</summary><div class="fg-creek-ability-detail"><p>${esc(a.description||'')}</p>${a.unlocked&&a.controls?`<strong class="fg-creek-controls">${esc(a.controls)}</strong>`:`<p>${esc(a.hint||'Συνέχισε την εξερεύνηση και την παρατήρηση.')}</p><progress value="${progress}" max="${target}" aria-label="Πρόοδος: ${esc(a.label||a.name||'ικανότητα')}"></progress>`}</div></details>`;
       }).join('')}</div></section>
-      <section class="fg-creek-nest"><span>${pictogram('leaf')}</span><div><h3>${esc(nest.label||'Φυσική φωλιά')}</h3><p>${nest.visited===false?'Παρατήρησε τις ρίζες και τα μικρά ασφαλή περάσματα.':nest.safe?'Ένα ασφαλές σημείο ανάπαυσης. Η ζωή συγκεντρώνεται εδώ.':'Παρατήρησε τις απειλές γύρω από το καταφύγιο πριν πλησιάσεις.'}</p>${nest.level?`<small>Ζωή στη φωλιά · ${number(nest.level)}</small>`:''}</div></section>
       ${dropped.length?`<section class="fg-creek-recovery"><h3>Ανάκτηση ευρημάτων</h3><p>Τα σημεία εμφανίζονται στον χάρτη. Πλησίασε και πάτησε E· η τροφή μπορεί να φαγωθεί όσο λείπεις.</p><div>${dropped.map(d=>`<span>${pictogram('recover')}<b>${number(d.food)}</b> τροφή · <b>${number(d.findsCount)+number(d.keepsakesCount)}</b> ευρήματα</span>`).join('')}</div></section>`:''}
       <footer class="fg-creek-footer"><button class="fg-button" data-action="open-realm">${pictogram('leaf')} Περιοχές</button>${this.guideButton('exploration','Διάβασε το ρυάκι')}</footer>`;
   },
