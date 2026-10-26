@@ -19,10 +19,10 @@ try{
   assert.equal(await page.locator('#arcade-radar').isVisible(),true);
   const state=await page.evaluate(()=>{const g=window.frogArcade,p=g.state.actors[0],q=g.project(p.x,g.ground(p.x,p.z)+.65,p.z);return {...g.inspect(),projectedPlayer:q};});
   assert.ok(state.grace>0);assert.ok(state.projectedPlayer.visible&&state.projectedPlayer.x>20&&state.projectedPlayer.x<width-20&&state.projectedPlayer.y>90&&state.projectedPlayer.y<height-20);
-  const boxes=await page.locator('#arcade-radar,#arcade-tip,#arcade-hud').evaluateAll(els=>els.map(e=>{const r=e.getBoundingClientRect();return {id:e.id,x:r.x,y:r.y,right:r.right,bottom:r.bottom};}));
+  const boxes=await page.locator('#arcade-radar,#arcade-tip,.ammo-card,.ko-card,#pause-button').evaluateAll(els=>els.map(e=>{const r=e.getBoundingClientRect();return {id:e.id,x:r.x,y:r.y,right:r.right,bottom:r.bottom};}));
   assert.ok(boxes.every(b=>b.x>=0&&b.y>=0&&b.right<=innerWidthFallback(width)&&b.bottom<=height));
   const overlap=(a,b)=>Math.min(a.right,b.right)-Math.max(a.x,b.x)>1&&Math.min(a.bottom,b.bottom)-Math.max(a.y,b.y)>1;
-  assert.ok(!overlap(boxes[0],boxes[1])&&!overlap(boxes[0],boxes[2]));
+  assert.ok(boxes.slice(1).every(b=>!overlap(boxes[0],b)));
   await page.screenshot({path:`${out}/${name}-third.png`});
   report.views.push({name,view:'third',visibleFlies:state.visibleFlies,projectedPlayer:state.projectedPlayer});
   pass(`${name}: default close perspective, visible player and flies, open map, safe spawn, non-overlapping panels`);
