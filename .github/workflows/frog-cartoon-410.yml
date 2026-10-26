@@ -94,8 +94,9 @@ jobs:
           r=json.loads(pathlib.Path('frog/qa/arcade-410/report.json').read_text())
           assert r['ok'] is True
           log=pathlib.Path('/tmp/frog-410-tests.log').read_text()
-          counts=re.findall(r'# tests (\d+)',log)
-          passed=re.findall(r'# pass (\d+)',log)
+          counts=re.findall(r'(?:#|ℹ)\s+tests\s+(\d+)',log)
+          passed=re.findall(r'(?:#|ℹ)\s+pass\s+(\d+)',log)
+          assert counts and passed, 'Missing test summary'
           text='# FROG 4.1.0 — verification\n\n'
           text+=f"Automated tests: {passed[-1]} passed / {counts[-1]} total.\n\nProduction Vite build: succeeded.\n\n"
           text+='## Browser checks\n\n'+'\n'.join('- '+c for c in r['checks'])+'\n\n'
