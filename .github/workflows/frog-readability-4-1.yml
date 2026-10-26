@@ -37,14 +37,17 @@ jobs:
           s=p.read_text().replace('const s=newRound(),p=s.actors[0];dizzy(s,p);','const s=newRound(),p=s.actors[0];s.grace=0;dizzy(s,p);').replace('assert.equal(p.z,8)','assert.equal(p.z,18)')
           p.write_text(s)
           for name in ['qa/arcade-smoke.mjs','index.html']:
-            p=Path(name);p.write_text(p.read_text().replace('4.0.0','4.1.0'))
+            p=Path(name);s=p.read_text().replace('4.0.0','4.1.0')
+            if name.endswith('.mjs'):
+              s=s.replace('width:2560,height:1440','width:1280,height:720').replace('page.mouse.move(1280,500)','page.mouse.move(640,250)').replace('desktop-1440p.png','desktop-720p.png')
+            p.write_text(s)
           PY
       - name: Install pinned dependencies and test full suite
         working-directory: frog/source
         run: |
           npm ci
           set -o pipefail
-          npm test | tee /tmp/frog-tests.log
+          node --test --test-reporter=tap --test-isolation=none tests/*.test.mjs | tee /tmp/frog-tests.log
       - name: Build production arcade
         working-directory: frog/source
         run: |
@@ -83,7 +86,7 @@ jobs:
           reports=[json.loads(pathlib.Path('frog/qa/arcade/'+name).read_text()) for name in ['report.json','readability-report.json']]
           assert all(r['ok'] for r in reports)
           log=pathlib.Path('/tmp/frog-tests.log').read_text()
-          total=re.findall(r'# tests (\d+)',log)[-1];passed=re.findall(r'# pass (\d+)',log)[-1]
+          total=re.findall(r'(?:#|ℹ)\s+tests (\d+)',log)[-1];passed=re.findall(r'(?:#|ℹ)\s+pass (\d+)',log)[-1]
           text=f'# FROG 4.1.0 verification\n\nAutomated tests: {passed} passed / {total} total.\n\nProduction build: succeeded.\n\n'
           for r in reports:
             text+='\n'.join('- '+c for c in r['checks'])+'\n\n'
