@@ -1,11 +1,45 @@
 import { ARTILLERY, stoneTarget } from './arcade-artillery.js';
 import { sabotageTarget } from './arcade-model.js';
+import { catapultPointerPoint } from './arcade-catapult-pointer.js';
 
 // The catapult is a separate machine: mounting never replaces the frog's ammo.
 export function installCatapultControls(game) {
   game.catapultAim = { active: false, target: null };
   let pendingInteract = false, fireWasHeld = false, savedPower = .5, aimedCatapult = null;
   const mounted = () => !!game.state.actors[0].catapultId;
+  let pointerCatapult=null,mousePoint=null;
+  game.usesCatapultMouse=()=>mounted()&&game.mouseControl;
+  game.syncCatapultPointer=()=>{
+    const id=game.state.actors[0].catapultId||null;
+    if(id!==pointerCatapult){
+      const previous=game.mouse.valid?{x:game.mouse.x,y:game.mouse.y}:null;
+      pointerCatapult=id;
+      // Entering or leaving the machine must not carry a held fly shot or
+      // camera gesture into another control mode. No native capture is
+      // requested here: it needs the next deliberate on-foot activation.
+      game.clearInputs();
+      if(id){
+        game.releaseMouseLook?.();
+        mousePoint={x:Number.isFinite(previous?.x)?previous.x:game.w/2,y:Number.isFinite(previous?.y)?previous.y:game.h/2};
+      }else mousePoint=null;
+    }
+    // clearInputs also runs for Pause, Resume, and view changes. Retain the
+    // chosen mouse position without restoring any held firing action.
+    if(id&&game.running&&game.mouseControl&&mousePoint&&!game.mouse.valid){
+      Object.assign(game.mouse,{x:Math.max(0,Math.min(game.w,mousePoint.x)),y:Math.max(0,Math.min(game.h,mousePoint.y)),valid:true,inside:true});
+    }
+  };
+  game.captureCatapultMouse=event=>{
+    if(!mounted()||!game.running||game.layoutEditing||event?.pointerType!=='mouse')return false;
+    game.syncCatapultPointer();
+    const point=catapultPointerPoint(mousePoint,event,{width:game.w,height:game.h,locked:game.pointerLocked()});
+    if(!point)return false;
+    mousePoint=point;game.mouseControl=true;game.stopCameraDrag?.();
+    Object.assign(game.mouse,{...point,valid:true,inside:true});
+    game.updateMouseTarget();return true;
+  };
+  const originalHUD=game.updateHUD.bind(game);
+  game.updateHUD=()=>{game.syncCatapultPointer();originalHUD();};
   game.updateCatapultAim = () => {
     if (!mounted()) { game.catapultAim = { active: false, target: null }; aimedCatapult=null;return; }
     const p = game.state.actors[0];
@@ -26,6 +60,7 @@ export function installCatapultControls(game) {
   };
   const originalInput = game.currentInput.bind(game), originalClear = game.clearInputs.bind(game);
   game.currentInput = () => {
+    game.syncCatapultPointer();
     const input = originalInput();
     if(game.layoutEditing){pendingInteract=false;fireWasHeld=false;return {};}
     const trigger=input.fire&&!fireWasHeld;fireWasHeld=!!input.fire;

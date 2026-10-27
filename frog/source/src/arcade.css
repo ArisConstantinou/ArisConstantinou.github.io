@@ -209,3 +209,6 @@ body{position:fixed;inset:0;-webkit-tap-highlight-color:transparent}
 #aim-stick:after{content:'›';right:7px}
 #aim-stick .stick-inner{inset:12%;border-color:#e4f4c83d;background:none;pointer-events:none}
 .aim-zone .stick-caption{font-size:10px;letter-spacing:.5px}
+
+/* Mounted mouse aiming uses a visible cursor over the landing preview. */
+#arcade-world.catapult-aiming{cursor:crosshair}

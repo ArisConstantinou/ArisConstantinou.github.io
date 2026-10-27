@@ -1,4 +1,4 @@
-# FROG 4.3.9 camera and aiming design
+# FROG 4.3.10 camera and aiming design
 
 ## Decision
 
@@ -27,19 +27,35 @@ For camera placement, [Unity's Third Person Follow documentation](https://github
 
 ## Desktop behavior
 
-- New Round or Continue starts gameplay immediately and requests native mouse look as an enhancement. Mouse deltas rotate the view directly, including while either mouse button is held.
+- New Round or Continue starts gameplay immediately. On foot, it requests native mouse look as an enhancement; mouse deltas rotate the view directly, including while either mouse button is held. A resumed mouse-controlled catapult uses the free aiming cursor described below.
 - Left click fires repeatedly while held. Right click is not a prerequisite for rotating.
 - The rear-view crosshair stays at screen center. Its camera ray chooses the world aim point; the projectile travels from the frog's mouth toward that point, preserving parallax and collision checks.
 - W/S move forward/backward in the rendered camera's horizontal basis. A/D strafe. The basis updates immediately when the player looks elsewhere.
 - Mouse displacement determines angular displacement, independently of frame rate. A stationary mouse leaves yaw and pitch unchanged.
 - Escape pauses and releases the pointer. Unexpected pointer-lock loss also pauses. Continue attempts to reacquire control through a new activation, without making gameplay depend on the browser accepting it.
-- C switches to the existing overview and releases the pointer for free cursor aiming. Returning to the rear view reacquires mouse look through the initiating key/click.
+- C switches to the existing overview and releases the pointer for free cursor aiming. Returning to the rear view reacquires mouse look through the initiating key/click while on foot. A mounted catapult keeps its free aiming cursor in either view.
 
 The browser input mechanism follows [MDN's Pointer Lock API documentation](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API). Relative movement remains available while the visible cursor is hidden, independent of button state and screen boundaries. Menu activations never queue shots.
 
 Pointer Lock can be denied, absent, or briefly unavailable after Escape. These cases must not reverse the menu action by calling pause. While unlocked, pointer movement provides bounded direct look inside the viewport and left click still fires. A world click also retries native capture without withholding its shot. The cursor remains visible in this fallback; continuous turning beyond the viewport requires native capture. No camera angle changes or automatic view switches are introduced.
 
 The request session uses generation-bound promise handling, legacy event handling and a bounded timeout. An intentional release is recorded before asynchronous browser events arrive, so an old unlock cannot pause a newly resumed round. A late grant while gameplay is inactive is released. Real unexpected loss of an established lock still pauses and clears held inputs.
+
+## Frog body direction
+
+The player body follows the simulation's last movement heading during ordinary hopping, independently of the camera and the persistent center reticle. Left, right, backward and diagonal movement therefore turn the frog toward travel. The heading remains through landing gaps and after movement release; zero hop velocity does not snap it back toward the reticle.
+
+Deliberate manual fire, eligible automatic fire, the complete shot interval, kicks and mounted catapults use aim-facing so the visible mouth/body agrees with the attack direction. Storage sabotage uses the simulation's storage-facing heading. KO, elimination, dizzy and knock-up retain the current visual yaw for their existing reaction poses. NPC combat aiming and windup remain intact.
+
+This is a rendering decision. It does not change logical aiming, aim vectors, movement axes, projectile traces or camera yaw. Models receive their initial facing when created, then interpolate toward the chosen yaw through the shortest angular path. Passive looking alone does not force the player's body away from its movement heading.
+
+## Mouse aiming from a catapult
+
+A mounted mouse-controlled catapult uses a free screen cursor to choose the stone landing direction and range in both chase and overview views. Mouse movement changes that target while camera yaw and pitch stay fixed. A fresh left click launches one stone toward the current selection; holding does not repeatedly launch stones.
+
+Mounting intentionally releases native pointer lock without pausing. No new lock request is made while mounted. Relative mouse deltas update the aiming cursor during any delay before the browser delivers the unlock, so the transition remains usable. Pause and Resume retain the selected cursor position. Dismount clears held input and returns to ordinary on-foot mouse look; the next world click retries native capture if necessary, while the existing unlocked-look fallback remains available.
+
+The fixed-camera cursor behavior applies to mouse control. Touch players retain the established joystick/world-drag catapult aiming and explicit central stone button.
 
 ## Round menu
 
@@ -85,7 +101,7 @@ Only the deliberately dragged pad overwrites its saved preference. Temporary dis
 The meaningful check is the combined action, not merely whether an isolated camera function changes a number:
 
 1. Actual mouse input turns horizontally and vertically while left click continues firing.
-2. Strafing, backing up, idle time and held fire do not introduce yaw/pitch changes by themselves.
+2. Left/right/backward movement, idle time and held fire do not introduce camera yaw/pitch changes by themselves. Ordinary player hops face movement, including after a camera turn; landing and release retain that heading. Deliberate fire, kicks and mounted operation face aim.
 3. Holding W while turning intentionally changes travel direction immediately.
 4. The rendered center ray, chosen aim point and newly fired projectile agree in the same frame.
 5. Real upward and downward shots remain possible; camera placement does not enter terrain or fill the view with the local body.
@@ -97,4 +113,6 @@ The meaningful check is the combined action, not merely whether an isolated came
 11. A held right-stick deflection continues turning through more than one revolution with no new pointermove events. Neutral/release stops it. Intentional outward world swipes continue at the side edge and stop on inward motion/release; edge taps and vertical swipes never start the continuation.
 12. Pads can be moved into formerly forbidden passive-HUD areas while real buttons remain accessible. The center fire button moves with the aim pad. Portrait and landscape preferences survive reload and temporary contextual/editor displacement without unexpected overwriting.
 
-Unit tests cover math, boom placement, camera/fire settings, tap buffering, menu activations, native mouse-look request lifecycle, automatic-fire eligibility, fresh directional visibility, continuous look input and touch-control layout. The original camera acceptance harness is `qa/arcade-435.mjs`; menu/capture failure regression coverage is `qa/arcade-436.mjs`. Historical mobile auto-fire and selectable-firing-mode coverage remains in `qa/arcade-437.mjs` and `qa/arcade-438.mjs`. Current integrated-fire, continuous-turning and flexible-placement coverage is `qa/arcade-439.mjs`. These use browser input with deterministic simulation fixtures. Mobile coverage is emulated and does not claim physical iPhone/Safari testing.
+13. A mouse-controlled catapult has a usable free aiming cursor in both views; mouse movement selects the landing target without rotating the camera. Mount unlock does not pause, fresh clicks launch stones, and dismount restores normal on-foot look without stuck firing.
+
+Unit tests cover math, boom placement, camera/fire settings, tap buffering, menu activations, native mouse-look request lifecycle, automatic-fire eligibility, fresh directional visibility, continuous look input, visual body-facing and touch-control layout. The original camera acceptance harness is `qa/arcade-435.mjs`; menu/capture failure regression coverage is `qa/arcade-436.mjs`. Historical mobile auto-fire and selectable-firing-mode coverage remains in `qa/arcade-437.mjs` and `qa/arcade-438.mjs`. Integrated-fire, continuous-turning and flexible-placement coverage remains in `qa/arcade-439.mjs`. Current movement-facing and mounted-mouse coverage is `qa/arcade-4310.mjs`. These use browser input with deterministic simulation fixtures. Mobile coverage is emulated and does not claim physical iPhone/Safari testing.

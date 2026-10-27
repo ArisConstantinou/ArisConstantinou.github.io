@@ -24,6 +24,7 @@ import { PROJECTILE } from './arcade-projectiles.js';
 import { resolveAutoFire } from './arcade-auto-fire.js';
 import { autoFireTargetVisible } from './arcade-auto-fire-visibility.js';
 import { normalizeFireSettings, installFireSettings } from './arcade-fire-settings.js';
+import { actorVisualFacing } from './arcade-facing.js';
 
 const V=THREE.Vector3, UP=new V(0,1,0);
 const SHOT_RANGE=PROJECTILE.muzzleOffset+RULES.projectileSpeed*RULES.projectileLifetime;
@@ -90,7 +91,7 @@ export class ArcadeGame {
  }
  buildActors(){
   setProjectileWorld(this.state,{ground:(x,z)=>this.ground(x,z)});
-  for(const m of this.models||[])m.dispose();this.models=this.state.actors.map((a,i)=>{const m=createCreature('frog',{seed:7+i*39,team:i===0?'player':`enemy${i}`,role:i===2?'bruiser':'hunter',tier:1,level:1});m.setEquipment({});m.setOutline(i===0?'#e7fca7':i===1?'#ffae88':'#d3a8ff',true);if(this.settings.quality==='low')m.setRenderLOD(1);if(m.mesh?.material){const mat=m.mesh.material;mat.bumpScale=0;mat.roughness=.85;mat.userData?.tint?.set(['#86da38','#ff694a','#bb70ed'][i]);}configureArcadeAppearance(m);this.scene.add(m.group);return m;});
+  for(const m of this.models||[])m.dispose();this.models=this.state.actors.map((a,i)=>{const m=createCreature('frog',{seed:7+i*39,team:i===0?'player':`enemy${i}`,role:i===2?'bruiser':'hunter',tier:1,level:1});m.setEquipment({});m.setOutline(i===0?'#e7fca7':i===1?'#ffae88':'#d3a8ff',true);if(this.settings.quality==='low')m.setRenderLOD(1);if(m.mesh?.material){const mat=m.mesh.material;mat.bumpScale=0;mat.roughness=.85;mat.userData?.tint?.set(['#86da38','#ff694a','#bb70ed'][i]);}configureArcadeAppearance(m);m.group.rotation.y=actorVisualFacing(a,{currentYaw:a.face}).yaw;this.scene.add(m.group);return m;});
  }
  createFlies(){
   const count=this.state.flies.length;
@@ -118,12 +119,12 @@ export class ArcadeGame {
  updateRoundActions(){this.$('play-button').disabled=!(this.mode==='pause'&&this.state.status==='playing'||this.saved?.status==='playing');}
  settingsMenu(){this.$('arcade-menu').classList.add('settings-open');this.$('menu-main').hidden=true;this.$('result-panel').hidden=true;this.$('settings-panel').hidden=false;}
  startOrResume(event){if(this.running)return;if(this.mode==='pause'&&this.state.status==='playing'){this.go(event);return;}if(this.saved?.status==='playing'){this.state=this.saved;this.saved=null;this.resetCamera();this.buildActors();this.go(event);}}
- toggleView(event){this.clearInputs();this.viewMode=this.viewMode==='chase3d'?'overview':'chase3d';this.$('view-button').textContent=this.viewMode==='chase3d'?'ΠΙΣΩ 3D · C':'ΚΑΤΟΨΗ · C';this.$('view-button').setAttribute('aria-label',this.viewMode==='chase3d'?'Αλλαγή σε κεντραρισμένη κάτοψη':'Αλλαγή σε κάμερα πίσω από τον βάτραχο');this.cameraReady=false;if(this.viewMode==='overview')this.releaseMouseLook();else{this.centerAim();if(this.running&&(event?.pointerType==='mouse'||(this.mouseControl||event?.type==='keydown')&&!['touch','pen'].includes(event?.pointerType)))this.requestMouseLook();}}
+ toggleView(event){this.clearInputs();this.viewMode=this.viewMode==='chase3d'?'overview':'chase3d';this.$('view-button').textContent=this.viewMode==='chase3d'?'ΠΙΣΩ 3D · C':'ΚΑΤΟΨΗ · C';this.$('view-button').setAttribute('aria-label',this.viewMode==='chase3d'?'Αλλαγή σε κεντραρισμένη κάτοψη':'Αλλαγή σε κάμερα πίσω από τον βάτραχο');this.cameraReady=false;if(this.viewMode==='overview')this.releaseMouseLook();else{if(!this.state.actors[0].catapultId||!this.mouseControl)this.centerAim();if(this.running&&(event?.pointerType==='mouse'||(this.mouseControl||event?.type==='keydown')&&!['touch','pen'].includes(event?.pointerType)))this.requestMouseLook();}}
  startNew(event){if(this.running)return;this.storageAlertUntil=-Infinity;this.saved=null;this.state=newRound(731+Math.floor(Math.random()*100000));this.resetCamera();this.clearEffects();this.buildActors();this.go(event);this.message('60 μύγες έτοιμες!',1.6);}
  resetCamera(){const p=this.state.actors[0],heading=actorHeading(p);this.cameraYaw=Math.atan2(heading.x,heading.z);this.cameraPitch=CAMERA_ORBIT.pitch;this.cameraReady=false;this.mouse.valid=false;this.aim={x:p.aimX,z:p.aimZ};this.stopCameraDrag();}
  beginCameraDrag(e){if(this.cameraDrag||this.pointers.has('aim'))return;this.mouseControl=false;if(this.viewMode==='overview')this.captureMouseAim(e);else this.centerAim();this.cameraDrag={id:e.pointerId,type:e.pointerType,x:e.clientX,y:e.clientY};this.touchEdgeLook.begin(e);const canvas=this.renderer.domElement;canvas.setPointerCapture(e.pointerId);canvas.classList.add('camera-dragging');}
  stopCameraDrag(){const drag=this.cameraDrag;this.cameraDrag=null;this.touchEdgeLook?.clear();this.autoFireTargetId=null;const canvas=this.renderer?.domElement;if(drag&&canvas?.hasPointerCapture?.(drag.id))canvas.releasePointerCapture(drag.id);canvas?.classList.remove('camera-dragging');}
- go(event){if(event?.pointerType==='touch'||event?.pointerType==='pen')this.mouseControl=false;else if(event?.pointerType==='mouse')this.mouseControl=true;this.$('arcade-menu').classList.remove('settings-open');this.clearInputs();if(this.mouseControl&&Number.isFinite(event?.clientX)&&Number.isFinite(event?.clientY))this.freeMousePoint={x:event.clientX,y:event.clientY};this.accumulator=0;this.last=performance.now();this.running=true;this.mode='play';this.$('arcade-menu').hidden=true;this.$('settings-panel').hidden=true;this.$('result-panel').hidden=true;this.$('menu-main').hidden=false;this.$('arcade-hud').hidden=false;this.$('desktop-help').hidden=this.touch;this.$('touch-controls').hidden=!this.touch;this.ui.classList.remove('in-menu');this.sound.resume();this.updateHUD();this.touchLayout?.refresh();this.persist();if(this.viewMode==='chase3d'){this.centerAim();if(this.mouseControl)this.requestMouseLook();}}
+ go(event){if(event?.pointerType==='touch'||event?.pointerType==='pen')this.mouseControl=false;else if(event?.pointerType==='mouse')this.mouseControl=true;this.$('arcade-menu').classList.remove('settings-open');this.clearInputs();if(this.mouseControl&&Number.isFinite(event?.clientX)&&Number.isFinite(event?.clientY))this.freeMousePoint={x:event.clientX,y:event.clientY};this.accumulator=0;this.last=performance.now();this.running=true;this.mode='play';this.$('arcade-menu').hidden=true;this.$('settings-panel').hidden=true;this.$('result-panel').hidden=true;this.$('menu-main').hidden=false;this.$('arcade-hud').hidden=false;this.$('desktop-help').hidden=this.touch;this.$('touch-controls').hidden=!this.touch;this.ui.classList.remove('in-menu');this.sound.resume();this.updateHUD();this.touchLayout?.refresh();this.persist();if(this.viewMode==='chase3d'){if(!this.state.actors[0].catapultId||!this.mouseControl)this.centerAim();if(this.mouseControl)this.requestMouseLook();}}
  pause(){if(!this.running)return;this.touchLayout?.setEditing(false);this.running=false;this.mode='pause';this.clearInputs();this.releaseMouseLook();this.persist();this.sound.pause();this.$('arcade-menu').hidden=false;this.$('menu-main').hidden=false;this.$('settings-panel').hidden=true;this.updateRoundActions();this.ui.classList.add('in-menu');}
  finish(){this.touchLayout?.setEditing(false);this.running=false;this.mode='finishing';this.resultAt=this.elapsed+.85;this.clearInputs();this.releaseMouseLook();this.persist();}
  showResult(){this.running=false;this.mode='result';this.clearInputs();this.persist();const won=this.state.status==='won';this.sound.play(won?'win':'lost');this.$('arcade-menu').hidden=false;this.$('menu-main').hidden=true;this.$('result-panel').hidden=false;this.$('result-title').textContent=won?'Η ΤΕΛΕΥΤΑΙΑ ΑΠΟΘΗΚΗ ΕΙΝΑΙ ΔΙΚΗ ΣΟΥ!':'Η ΑΠΟΘΗΚΗ ΣΟΥ ΚΑΤΑΣΤΡΑΦΗΚΕ';this.$('result-copy').textContent=won?`${this.state.stats.kos} νοκ άουτ · ${this.state.stats.shots} βολές · ${Math.floor(this.state.time)}″ μάχης`:'Κράτησε την είσοδο, διέκοψε τους εισβολείς με μία εύστοχη βολή και ανεφοδιάσου πριν ξαναβγείς.';this.ui.classList.add('in-menu');}
@@ -131,6 +132,7 @@ export class ArcadeGame {
  clearInputs(){for(const stick of Object.values(this.touchSticks||{}))stick.clear();this.lastMovement={x:0,z:0};this.freeMousePoint=null;this.stopMouseFireCapture();this.renderer?.domElement.classList.remove('mouse-aiming');this.currentAimPreview=null;this.currentAimScreen=null;if(this.aimGuide)this.aimGuide.visible=false;if(this.aimReticle)this.aimReticle.visible=false;if(this.targetRing)this.targetRing.visible=false;this.keys.clear();this.actions={fire:false,kick:false,sabotage:false};this.aimStrength=0;this.mouse.valid=false;this.mouse.inside=false;this.move={x:0,z:0};this.pointers.clear();this.pointerTypes.clear();this.stopCameraDrag();if(this.ui){for(const el of this.ui.querySelectorAll('.stick-knob'))el.style.transform='translate(-50%,-50%)';this.$('aim-stick').classList.remove('firing');this.$('fire-button')?.classList.remove('firing');}}
  pointerLocked(){return document.pointerLockElement===this.renderer.domElement;}
  requestMouseLook(){
+  if(this.state.actors[0].catapultId)return;
   this.mouseControl=true;this.mouseLookSession?.request();
  }
  releaseMouseLook(){this.mouseLookSession?.release();}
@@ -147,13 +149,14 @@ export class ArcadeGame {
   addEventListener('keyup',e=>this.keys.delete(e.code));
   const canvas=this.renderer.domElement;
   this.mouseLookSession=createMouseLookSession({canvas,
-   active:()=>this.running&&!this.layoutEditing&&this.viewMode==='chase3d',
+   active:()=>this.running&&!this.layoutEditing&&this.viewMode==='chase3d'&&!this.state.actors[0].catapultId,
    onLock:()=>{this.stopMouseFireCapture();this.freeMousePoint=null;this.centerAim();},
    onUnexpectedUnlock:()=>{this.actions.fire=false;this.pause();},
   });
   canvas.addEventListener('pointermove',e=>{
    if(!this.running||this.layoutEditing)return;
    if(e.pointerType==='mouse'){
+    if(this.state.actors[0].catapultId){this.captureCatapultMouse(e);return;}
     if(this.pointerLocked())this.turnLook(e.movementX,e.movementY);
     else if(this.viewMode==='overview')this.captureMouseAim(e);
     else this.turnFreeMouse(e);
@@ -165,6 +168,11 @@ export class ArcadeGame {
    if(!this.running||this.layoutEditing)return;e.preventDefault();
    if(e.pointerType==='touch'||e.pointerType==='pen'){this.beginCameraDrag(e);return;}
    if(e.button===0){
+    if(this.state.actors[0].catapultId){
+     this.captureCatapultMouse(e);
+     if(!this.pointerLocked()){this.mouseFirePointer=e.pointerId;canvas.setPointerCapture(e.pointerId);}
+     this.actions.fire=true;return;
+    }
     if(this.viewMode==='chase3d'){
      this.centerAim();
      if(!this.pointerLocked()){
@@ -179,7 +187,7 @@ export class ArcadeGame {
   addEventListener('pointerup',e=>{if(this.cameraDrag?.id===e.pointerId)this.stopCameraDrag();if(e.pointerType==='mouse'&&e.button===0){if(!this.touchSticks.aim?.firing)this.actions.fire=false;this.stopMouseFireCapture();}});
   canvas.addEventListener('pointercancel',e=>{if(this.cameraDrag?.id===e.pointerId)this.stopCameraDrag();if(e.pointerType==='mouse'&&(this.mouseFirePointer===null||this.mouseFirePointer===e.pointerId)){this.stopMouseFireCapture();if(!this.touchSticks.aim?.firing)this.actions.fire=false;this.freeMousePoint=null;}});
   canvas.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&!this.pointerLocked())this.freeMousePoint={x:e.clientX,y:e.clientY};});
-  canvas.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){this.freeMousePoint=null;if(this.viewMode==='overview'&&!e.buttons){this.mouse.valid=false;canvas.classList.remove('mouse-aiming');}}});
+  canvas.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){this.freeMousePoint=null;if(this.viewMode==='overview'&&!this.state.actors[0].catapultId&&!e.buttons){this.mouse.valid=false;canvas.classList.remove('mouse-aiming');}}});
   canvas.addEventListener('lostpointercapture',e=>{if(this.cameraDrag?.id===e.pointerId)this.stopCameraDrag();});
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   this.touchSticks.move=installTouchStick(this,{id:'move-stick',kind:'move'});this.touchSticks.aim=installTouchStick(this,{id:'aim-stick',kind:'aim'});
@@ -199,9 +207,10 @@ export class ArcadeGame {
   return this.lastMovement;
  }
  updateMouseTarget(){
-  if(this.viewMode==='chase3d')this.centerAim();
+  const p=this.state.actors[0];
+  if(this.viewMode==='chase3d'&&(!p.catapultId||!this.mouseControl))this.centerAim();
   if(!this.mouse.valid){this.mouse.targetId=null;return;}
-  const p=this.state.actors[0];this.mouseNdc.set(this.mouse.x/this.w*2-1,1-this.mouse.y/this.h*2);this.mouseRay.setFromCamera(this.mouseNdc,this.camera);
+  this.mouseNdc.set(this.mouse.x/this.w*2-1,1-this.mouse.y/this.h*2);this.mouseRay.setFromCamera(this.mouseNdc,this.camera);
   if(p.catapultId){
    // A catapult still selects a landing point; its separate ballistic arc stays intact.
    this.mousePlane.constant=-this.ground(p.x,p.z)-.9;
@@ -291,8 +300,8 @@ export class ArcadeGame {
   this.$('sabotage-copy').textContent='ΚΑΤΑΣΤΡΟΦΗ ΑΠΟΘΗΚΗΣ';this.$('sabotage-fill').style.transform=`scaleX(${progress})`;this.$('sabotage-track').setAttribute('aria-valuenow',String(Math.round(progress*100)));
   const mounted=this.state.catapults?.find(c=>c.id===p.catapultId),near=nearbyCatapult(this.state,p),useButton=this.$('catapult-button');
   useButton.hidden=!this.running||p.ko||(!mounted&&(!near||this.state.phase!=='battle'));useButton.disabled=p.dizzyTime>0||p.knockUp>0;useButton.querySelector('span').textContent=mounted?'ΕΞΟΔΟΣ':'ΧΡΗΣΗ';useButton.setAttribute('aria-label',mounted?'Έξοδος από τον καταπέλτη':'Χρήση κοντινού καταπέλτη');useButton.classList.toggle('ready',!!mounted);
-  this.$('catapult-status').hidden=!mounted||!this.running||this.layoutEditing;this.$('catapult-status').textContent=mounted?(mounted.cooldown>0?`ΦΟΡΤΩΝΕΙ ΠΕΤΡΑ · ${mounted.cooldown.toFixed(1)}″`:this.touch?'ΣΗΜΑΔΕΨΕ · ΠΑΤΑ ΠΕΤΡΑ':'ΠΕΤΡΑ ΕΤΟΙΜΗ · ΑΡΙΣΤΕΡΟ ΚΛΙΚ'):'';
-  this.$('aim-stick').classList.toggle('catapult',!!mounted);this.$('aim-stick').setAttribute('aria-label',mounted?'Στόχευση καταπέλτη και κεντρικό κουμπί ΠΕΤΡΑ':'Περιφέρεια για στόχευση, κεντρικό ΠΥΡ για βολή και στόχευση');this.ui.querySelector('.move-zone').classList.toggle('mounted',!!mounted);
+  this.$('catapult-status').hidden=!mounted||!this.running||this.layoutEditing;this.$('catapult-status').textContent=mounted?(mounted.cooldown>0?`ΦΟΡΤΩΝΕΙ ΠΕΤΡΑ · ${mounted.cooldown.toFixed(1)}″`:this.mouseControl?'ΠΟΝΤΙΚΙ ΓΙΑ ΣΤΟΧΕΥΣΗ · ΚΛΙΚ ΓΙΑ ΠΕΤΡΑ':'ΣΗΜΑΔΕΨΕ · ΠΑΤΑ ΠΕΤΡΑ'):'';
+  this.renderer.domElement.classList.toggle('catapult-aiming',!!mounted&&this.mouseControl&&this.running&&!this.layoutEditing);this.$('aim-stick').classList.toggle('catapult',!!mounted);this.$('aim-stick').setAttribute('aria-label',mounted?'Στόχευση καταπέλτη και κεντρικό κουμπί ΠΕΤΡΑ':'Περιφέρεια για στόχευση, κεντρικό ΠΥΡ για βολή και στόχευση');this.ui.querySelector('.move-zone').classList.toggle('mounted',!!mounted);
   if(this.lastMounted!==!!mounted){this.lastMounted=!!mounted;this.touchSticks?.aim?.clear();this.actions.fire=false;this.pointers.delete('aim');this.pointerTypes.delete('aim');this.aimStrength=0;this.$('aim-stick').querySelector('.stick-knob').style.transform='translate(-50%,-50%)';this.$('fire-button').innerHTML=(mounted?catapultIcon:flyIcon)+`<span>${mounted?'ΠΕΤΡΑ':'ΠΥΡ'}</span>`;this.$('fire-button').setAttribute('aria-label',mounted?'Πάτησε για βολή πέτρας από τον καταπέλτη':'Κράτα ΠΥΡ και σύρε για συνεχή βολή και περιστροφή');}
   this.ui.querySelector('.aim-zone').hidden=false;this.$('fire-button').hidden=false;
   this.$('fire-button').disabled=!this.layoutEditing&&(p.ko||p.dizzyTime>0||p.knockUp>0);this.$('fire-button').classList.toggle('firing',this.actions.fire);this.$('fire-button').classList.toggle('empty',mounted?mounted.cooldown>0:p.ammo===0);
@@ -317,7 +326,7 @@ export class ArcadeGame {
  renderActors(dt){
   this.state.actors.forEach((a,i)=>{const m=this.models[i];m.group.visible=!a.eliminated;if(a.eliminated)return;const ground=this.ground(a.x,a.z);let x=a.x,z=a.z,y=ground+a.height+(a.catapultId?.45:0);
    const launch=this.koTimes.get(a.id),age=launch?this.elapsed-launch.time:99;if(age<.65){x+=launch.dx*age*5;z+=launch.dz*age*5;y+=Math.sin(age/.65*Math.PI)*2.5;}
-   m.group.position.set(x,y,z);const active=a.aiming||a.shot>.02||a.kick>0,wanted=active?(Math.hypot(a.aimX,a.aimZ)>.001?Math.atan2(a.aimX,a.aimZ):m.group.rotation.y):a.face;let diff=Math.atan2(Math.sin(wanted-m.group.rotation.y),Math.cos(wanted-m.group.rotation.y));m.group.rotation.y+=diff*(1-Math.exp(-dt*22));
+   m.group.position.set(x,y,z);const facing=actorVisualFacing(a,{currentYaw:m.group.rotation.y,manualFire:i===0&&this.actions.fire,autoFire:i===0&&!!this.autoFireTargetId}),active=facing.aiming;const diff=Math.atan2(Math.sin(facing.yaw-m.group.rotation.y),Math.cos(facing.yaw-m.group.rotation.y));m.group.rotation.y+=diff*(1-Math.exp(-dt*22));
    m.update(dt,{time:this.elapsed,speed:Math.hypot(a.hopX,a.hopZ),building:!!a.sabotageId,hop:a.knockUp>0?{phase:'air',progress:1-a.knockUp/a.knockUpDuration}:a.hop>0?{phase:'air',progress:1-a.hop/RULES.hopDuration}:a.idle>0?{phase:'land',progress:1-a.idle/RULES.landingDuration}:{phase:'idle',progress:0},dead:a.ko,attack:a.kick>0?{type:'kick',phase:1-a.kick/(RULES.kickDuration||.48)}:a.tongue>0||a.shot>0?{type:'tongue',phase:a.tongue>0?1-a.tongue/.22:1-a.shot/RULES.shotInterval}:null});
    const load=a.load,spit=a.shot>0?Math.sin((1-a.shot/RULES.shotInterval)*Math.PI):0;applyArcadeAppearance(m,{load,spit});
    if(active&&!a.ko&&!a.catapultId){const pitch=clamp(Math.atan2(a.aimY||0,Math.hypot(a.aimX,a.aimZ)),-.5,1.1);m.bones.head.rotation.x-=pitch*.7;m.bones.spine.rotation.x-=pitch*.12;}
