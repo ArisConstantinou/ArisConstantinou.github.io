@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {installMenuAction} from '../src/arcade-menu-actions.js';
 
-function fixture(){
+function fixture(options){
  const listeners=new Map(),calls=[],captures=new Set();let time=0;
  const button={disabled:false,
   getBoundingClientRect:()=>({left:10,top:20,right:210,bottom:130}),
@@ -10,7 +10,7 @@ function fixture(){
   removeEventListener(name,fn){if(listeners.get(name)===fn)listeners.delete(name);},
   setPointerCapture(id){captures.add(id);},releasePointerCapture(id){captures.delete(id);},
  };
- const cleanup=installMenuAction(button,event=>calls.push(event),()=>time);
+ const cleanup=installMenuAction(button,event=>calls.push(event),()=>time,options);
  return {button,calls,captures,listeners,cleanup,set time(value){time=value;},
   send(type,values={}){
    const event={type,pointerType:'touch',pointerId:1,isPrimary:true,button:0,clientX:80,clientY:70,detail:1,defaultPrevented:false,preventDefault(){this.defaultPrevented=true;},...values};
@@ -43,10 +43,20 @@ test('a real mouse click and keyboard activation work immediately after touch',(
 });
 
 test('only the matching primary pointer release may activate the button',()=>{
- const f=fixture();f.send('pointerdown',{isPrimary:false});f.send('pointerup');assert.equal(f.calls.length,0);
+ const f=fixture();f.send('pointerdown',{pointerId:2,isPrimary:false});f.send('pointerup',{pointerId:2,isPrimary:false});assert.equal(f.calls.length,0);assert.equal(f.captures.size,0);
  f.send('pointerdown',{pointerType:'pen',button:2});f.send('pointerup',{pointerType:'pen'});assert.equal(f.calls.length,0);
  f.send('pointerdown');f.send('pointerup',{pointerId:2});assert.equal(f.calls.length,0);
  const release=f.send('pointerup');assert.deepEqual(f.calls,[release]);
+});
+
+test('an opted-in action accepts a second touch while aiming and activates exactly once on its matching release',()=>{
+ const f=fixture({allowSecondary:true}),secondary={pointerId:2,isPrimary:false};
+ f.send('pointerdown',secondary);assert.ok(f.captures.has(2));assert.equal(f.calls.length,0);
+ f.send('pointerdown',{pointerId:3,isPrimary:false});f.send('pointerup',{pointerId:3,isPrimary:false});
+ f.send('pointerup',{pointerId:1});assert.equal(f.calls.length,0,'other fingers cannot release the pause action');
+ const release=f.send('pointerup',secondary);assert.deepEqual(f.calls,[release]);assert.equal(f.captures.size,0);assert.ok(release.defaultPrevented);
+ f.send('pointerup',secondary);f.send('click',secondary);f.time=100;f.send('click',{pointerType:undefined});
+ assert.deepEqual(f.calls,[release],'duplicate releases and compatibility clicks cannot toggle pause twice');
 });
 
 test('dragging outside cancels activation even if the pointer returns before release',()=>{

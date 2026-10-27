@@ -36,6 +36,12 @@
 #touch-controls{--touch-safe-top:env(safe-area-inset-top,0px);--touch-safe-right:env(safe-area-inset-right,0px);--touch-safe-bottom:env(safe-area-inset-bottom,0px);--touch-safe-left:env(safe-area-inset-left,0px)}
 .fire-button{right:calc(var(--stick-size) + 36px);bottom:26px;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 35% 25%,#e4b548,#8c571d);border-color:#ffe1a0;box-shadow:0 5px 0 #593d21b8,0 0 16px #d99f3829}
 .fire-button svg{width:35px;height:35px}.fire-button span{font-size:12px;letter-spacing:1px}.fire-button.firing{background:#f9cd62;box-shadow:0 0 20px #ffd87a90;transform:scale(.97)}
+/* Normal mobile combat leaves the right thumb free to aim on the world. */
+#touch-aim-hint{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(32px,env(safe-area-inset-bottom));width:min(220px,calc(50vw - 38px));display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;color:#efffdfb8;text-shadow:0 2px 4px #092f28,0 0 10px #092f28;pointer-events:none;line-height:1.35}
+#touch-aim-hint .touch-aim-symbol{font-size:36px;line-height:1;font-weight:400;opacity:.75}
+#touch-aim-hint b{font-size:11px;letter-spacing:.6px}#auto-fire-status{font-size:10px;letter-spacing:.7px;color:#d9eea7}
+#touch-aim-hint.aiming{color:#f4ffe3}#touch-aim-hint.firing,#touch-aim-hint.firing #auto-fire-status{color:#dfff85}
+@media(max-height:500px) and (orientation:landscape){#touch-aim-hint{right:max(24px,env(safe-area-inset-right));width:190px;bottom:max(26px,env(safe-area-inset-bottom))}}
 .aim-zone .fire-ring,.aim-zone .ring-label{display:none}.aim-zone .stick-inner{inset:23%;border-style:dashed}.aim-zone .aim-center{font-size:27px}
 .layout-button{position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);width:52px;height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:1px solid #d0eab9a6;border-radius:15px;background:#173e35ed;color:#eff8dd;font-size:23px;font-weight:800;touch-action:none;box-shadow:0 3px 0 #09281f}
 .layout-button span{font-size:8px;letter-spacing:.4px}.layout-button[aria-pressed=true]{background:#5e762c;color:#fff6b8;border-color:#e7f6a4}

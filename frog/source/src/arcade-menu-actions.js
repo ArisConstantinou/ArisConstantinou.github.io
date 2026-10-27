@@ -1,5 +1,5 @@
 // Touch releases must work even when a gesture guard suppresses the browser's click.
-export function installMenuAction(button,action,now=()=>performance.now()){
+export function installMenuAction(button,action,now=()=>performance.now(),{allowSecondary=false}={}){
  const direct=event=>event.pointerType==='touch'||event.pointerType==='pen';
  let pressed=null,lastDirectRelease=-Infinity;
  const inside=event=>{
@@ -12,7 +12,7 @@ export function installMenuAction(button,action,now=()=>performance.now()){
    if(pressed){const id=pressed.id;pressed=null;release(id);}
    lastDirectRelease=-Infinity;return;
   }
-  if(button.disabled||!direct(event)||event.isPrimary===false||event.button!==0||pressed)return;
+  if(button.disabled||!direct(event)||event.isPrimary===false&&!allowSecondary||event.button!==0||pressed)return;
   pressed={id:event.pointerId,canceled:false};
   try{button.setPointerCapture?.(event.pointerId);}catch{}
  };

@@ -24,23 +24,25 @@ function freePosition(target,size,bounds,obstacles,fallback=target){
  return best||clip(fallback);
 }
 
-export function defaultTouchPositions(width,height,controls){
- const portrait=height>=width,move=controls.move,aim=controls.aim,fire=controls.fire;
- return {
-  move:{x:14+move.width/2,y:height-26-move.height/2},
-  aim:{x:width-14-aim.width/2,y:height-26-aim.height/2},
-  fire:portrait
-   ?{x:width-14-aim.width/2,y:height-26-aim.height-20-fire.height/2}
-   :{x:width-14-aim.width-22-fire.width/2,y:height-26-fire.height/2},
- };
+export function defaultTouchPositions(width,height,controls,activeKeys=KEYS){
+ const portrait=height>=width,active=new Set(activeKeys),positions={};
+ const move=active.has('move')&&controls.move,aim=active.has('aim')&&controls.aim,fire=active.has('fire')&&controls.fire;
+ if(move)positions.move={x:14+move.width/2,y:height-26-move.height/2};
+ if(aim)positions.aim={x:width-14-aim.width/2,y:height-26-aim.height/2};
+ if(fire)positions.fire=aim?(portrait
+  ?{x:width-14-aim.width/2,y:height-26-aim.height-20-fire.height/2}
+  :{x:width-14-aim.width-22-fire.width/2,y:height-26-fire.height/2})
+  :{x:width-14-fire.width/2,y:height-26-fire.height/2};
+ return positions;
 }
 
 // Pure placement logic is shared by initial load, orientation changes and tests.
 // Preferred positions are normalized viewport centers, not fragile CSS offsets.
-export function solveTouchLayout({width,height,controls,preferred={},blocked=[],insets={}}){
+export function solveTouchLayout({width,height,controls={},activeKeys=KEYS,preferred={},blocked=[],insets={}}){
+ const keys=KEYS.filter(key=>activeKeys.includes(key)&&controls[key]);
  const bounds={left:Math.max(10,number(insets.left,0)+8),top:Math.max(10,number(insets.top,0)+8),right:width-Math.max(10,number(insets.right,0)+8),bottom:height-Math.max(18,number(insets.bottom,0)+8)};
- const defaults=defaultTouchPositions(width,height,controls),positions={},obstacles=[...blocked];
- for(const key of KEYS){
+ const defaults=defaultTouchPositions(width,height,controls,keys),positions={},obstacles=[...blocked];
+ for(const key of keys){
   const saved=preferred[key],wanted=saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)?{x:saved.x*width,y:saved.y*height}:defaults[key];
   positions[key]=freePosition(wanted,controls[key],bounds,obstacles,defaults[key]);
   obstacles.push(rect(positions[key],controls[key]));
@@ -51,11 +53,16 @@ export function solveTouchLayout({width,height,controls,preferred={},blocked=[],
 export function createTouchLayout({root,movePad,aimPad,fireButton,toggleButton,storageKey='frog.touch-layout.v1',onEditingChange=()=>{},announce=()=>{}}){
  const doc=root.ownerDocument,view=doc.defaultView,controls={move:movePad,aim:aimPad,fire:fireButton};
  const hint=root.querySelector('#layout-hint');
- let editing=false,drag=null,positions={},sizes={},bounds={},saved={portrait:{},landscape:{}},frame=0,destroyed=false;
+ let editing=false,drag=null,positions={},sizes={},bounds={},activeKeys=[],saved={portrait:{},landscape:{}},frame=0,destroyed=false;
  let viewport={width:view.innerWidth,height:view.innerHeight,mode:view.innerHeight>=view.innerWidth?'portrait':'landscape'};
  const removers=[];
  const listen=(el,event,handler,options)=>{el.addEventListener(event,handler,options);removers.push(()=>el.removeEventListener(event,handler,options));};
  const orientation=()=>view.innerHeight>=view.innerWidth?'portrait':'landscape';
+ const visible=el=>{
+  if(!el||el.hidden||el.closest('[hidden]'))return false;
+  const css=view.getComputedStyle(el),r=el.getBoundingClientRect();
+  return css.display!=='none'&&css.visibility!=='hidden'&&css.visibility!=='collapse'&&r.width>0&&r.height>0;
+ };
  try{
   const stored=JSON.parse(view.localStorage.getItem(storageKey)||'null');
   if(stored?.version===1)for(const mode of ['portrait','landscape'])for(const key of KEYS){
@@ -65,53 +72,60 @@ export function createTouchLayout({root,movePad,aimPad,fireButton,toggleButton,s
  }catch{}
  const persist=()=>{
   const {mode,width,height}=viewport;
-  for(const key of KEYS)if(positions[key])saved[mode][key]={x:positions[key].x/width,y:positions[key].y/height};
+  // Temporarily hidden catapult controls retain their last saved positions.
+  for(const key of activeKeys)if(positions[key])saved[mode][key]={x:positions[key].x/width,y:positions[key].y/height};
   try{view.localStorage.setItem(storageKey,JSON.stringify({version:1,...saved}));}catch{}
  };
  const blockedRects=()=>{
   const out=[];
   for(const el of doc.querySelectorAll('#arcade-hud, #minimap, #view-button, #layout-button, #layout-hint, #round-status, #base-status, #catapult-status, #sabotage-status, #kick-button, #catapult-button, #sabotage-button')){
-   if(el.hidden||el.closest('[hidden]')||view.getComputedStyle(el).visibility==='hidden')continue;
+   if(!visible(el))continue;
    const r=el.getBoundingClientRect();if(r.width&&r.height)out.push({left:r.left,top:r.top,right:r.right,bottom:r.bottom});
   }
   return out;
  };
  const paint=()=>{
-  for(const key of KEYS){const el=controls[key],p=positions[key];if(!p)continue;el.style.left=`${p.x-sizes[key].width/2}px`;el.style.top=`${p.y-sizes[key].height/2}px`;el.style.right='auto';el.style.bottom='auto';}
+  for(const key of activeKeys){const el=controls[key],p=positions[key];if(!p)continue;el.style.left=`${p.x-sizes[key].width/2}px`;el.style.top=`${p.y-sizes[key].height/2}px`;el.style.right='auto';el.style.bottom='auto';}
  };
  const refresh=()=>{
   if(destroyed)return;
+  const nextKeys=KEYS.filter(key=>visible(controls[key]));
+  if(drag&&!nextKeys.includes(drag.key))finishDrag();
+  activeKeys=nextKeys;
   const style=view.getComputedStyle(root),insets={};
   for(const edge of ['left','right','top','bottom'])insets[edge]=parseFloat(style.getPropertyValue(`--touch-safe-${edge}`))||0;
-  for(const key of KEYS){const el=controls[key],r=el.getBoundingClientRect(),css=view.getComputedStyle(el);sizes[key]={width:Math.max(44,r.width||parseFloat(css.width)||72),height:Math.max(44,r.height||parseFloat(css.height)||72)};}
-  const result=solveTouchLayout({width:view.innerWidth,height:view.innerHeight,controls:sizes,preferred:saved[orientation()],blocked:blockedRects(),insets});
+  for(const key of activeKeys){const el=controls[key],r=el.getBoundingClientRect();sizes[key]={width:Math.max(44,r.width),height:Math.max(44,r.height)};}
+  for(const key of KEYS)controls[key]?.classList.toggle('layout-draggable',editing&&activeKeys.includes(key));
+  const result=solveTouchLayout({width:view.innerWidth,height:view.innerHeight,controls:sizes,activeKeys,preferred:saved[orientation()],blocked:blockedRects(),insets});
   positions=result.positions;bounds=result.bounds;viewport={width:view.innerWidth,height:view.innerHeight,mode:orientation()};paint();
  };
  const requestRefresh=()=>{view.cancelAnimationFrame(frame);frame=view.requestAnimationFrame(refresh);};
  const finishDrag=()=>{if(!drag)return;drag=null;persist();};
  const setEditing=value=>{
   const next=Boolean(value);if(next===editing)return;
+  if(next)refresh();
   finishDrag();editing=next;root.classList.toggle('layout-editing',editing);toggleButton.setAttribute('aria-pressed',String(editing));toggleButton.setAttribute('aria-label',editing?'Ολοκλήρωση αλλαγής θέσεων χειριστηρίων':'Αλλαγή θέσεων χειριστηρίων');
   toggleButton.querySelector('span')?.replaceChildren(editing?'ΤΕΛΟΣ':'ΘΕΣΕΙΣ');
   if(hint)hint.hidden=!editing;
-  for(const key of KEYS){controls[key].setAttribute('data-layout-label',{move:'ΚΙΝΗΣΗ',aim:'ΣΤΟΧΕΥΣΗ',fire:'ΒΟΛΗ'}[key]);controls[key].classList.toggle('layout-draggable',editing);}
+  for(const key of KEYS){const el=controls[key];if(!el)continue;el.setAttribute('data-layout-label',{move:'ΚΙΝΗΣΗ',aim:'ΣΤΟΧΕΥΣΗ',fire:'ΒΟΛΗ'}[key]);el.classList.toggle('layout-draggable',editing&&activeKeys.includes(key));}
   if(!editing)persist();onEditingChange(editing);announce(editing?'Σύρε τα χειριστήρια στη θέση που σε βολεύει. Πάτησε ΤΕΛΟΣ για να συνεχίσεις.':'Οι θέσεις των χειριστηρίων αποθηκεύτηκαν.');
   // Show the inline hint without shifting the controls the player is about to drag.
  };
- const reset=()=>{saved[orientation()]={};refresh();persist();announce('Επαναφέρθηκαν οι αρχικές θέσεις χειριστηρίων.');};
+ const reset=()=>{for(const key of activeKeys)delete saved[orientation()][key];refresh();persist();announce('Επαναφέρθηκαν οι αρχικές θέσεις χειριστηρίων.');};
  if(hint){
-  if(!hint.textContent.trim())hint.append('Σύρε κίνηση, στόχευση και βολή. ');
+  if(!hint.textContent.trim())hint.append('Σύρε τα ορατά χειριστήρια. ');
   const resetButton=doc.createElement('button');resetButton.type='button';resetButton.className='layout-reset';resetButton.textContent='ΕΠΑΝΑΦΟΡΑ';resetButton.setAttribute('aria-label','Επαναφορά αρχικών θέσεων χειριστηρίων');hint.append(resetButton);listen(resetButton,'click',reset);
  }
  for(const key of KEYS){
   const el=controls[key];
+  if(!el)continue;
   listen(el,'pointerdown',event=>{
-   if(!editing)return;event.preventDefault();event.stopImmediatePropagation();if(drag)return;
+   if(!editing||!activeKeys.includes(key)||!visible(el))return;event.preventDefault();event.stopImmediatePropagation();if(drag)return;
    if(!positions[key])refresh();drag={key,id:event.pointerId,dx:event.clientX-positions[key].x,dy:event.clientY-positions[key].y};el.setPointerCapture?.(event.pointerId);
   },true);
   listen(el,'pointermove',event=>{
-   if(!editing)return;event.preventDefault();event.stopImmediatePropagation();if(!drag||drag.id!==event.pointerId||drag.key!==key)return;
-   const obstacles=blockedRects();for(const other of KEYS)if(other!==key&&positions[other])obstacles.push(rect(positions[other],sizes[other]));
+   if(!editing||!activeKeys.includes(key)||!visible(el))return;event.preventDefault();event.stopImmediatePropagation();if(!drag||drag.id!==event.pointerId||drag.key!==key)return;
+   const obstacles=blockedRects();for(const other of activeKeys)if(other!==key&&positions[other])obstacles.push(rect(positions[other],sizes[other]));
    positions[key]=freePosition({x:event.clientX-drag.dx,y:event.clientY-drag.dy},sizes[key],bounds,obstacles,positions[key]);paint();
   },true);
   for(const name of ['pointerup','pointercancel','lostpointercapture'])listen(el,name,event=>{

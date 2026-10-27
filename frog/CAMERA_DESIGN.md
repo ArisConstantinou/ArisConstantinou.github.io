@@ -17,7 +17,9 @@ The closest reference is **Plants vs. Zombies: Garden Warfare 2 / Battle for Nei
 | [EA: Garden Warfare 2 PC manual, pages 3 and 5](https://eaassets-a.akamaihd.net/eahelp/manuals/pvz-garden-warfare-2-manual_PC_na.pdf) | The same desktop mapping; the HUD example shows a central aiming reference and the character below it. | A stable central crosshair is compatible with freely changing the aiming direction. |
 | [Epic: camera types and gameplay controls](https://www.fortnite.com/news/new-camera-types-gameplay-controls-and-map-options) | Standard Fortnite third-person movement is tied to the camera direction. Independent movement is a different control configuration. | Holding W follows an intentional mouse turn; A/D remain camera-relative strafing. |
 | [Nintendo: Splatoon 2 basic battle controls](https://support-jp.nintendo.com/app/answers/detail/a_id/34693) | Left stick moves; right stick looks; gyro aims, or right stick when gyro is off; ZR fires; Y resets the camera. | Movement and view/aim have distinct input channels, and firing coexists with looking. This source describes Splatoon 2 specifically. |
-| [Krafton: PUBG Mobile controls](https://pubgmobile.helpshift.com/hc/en/3-pubg-mobile/faq/37-what-are-the-controls/) | Left-side movement, dragging empty screen space to change the view in both axes, and separate attack/aim controls. | Touch look should change view and aim together; retain accessible fire input and movable controls. |
+| [Krafton: PUBG Mobile controls](https://pubgmobile.helpshift.com/hc/en/3-pubg-mobile/faq/37-what-are-the-controls/) | Left-side movement and dragging empty screen space to change the view in both axes. | Touch look changes view and aim together. |
+| [Activision: Call of Duty Mobile Boot Camp, 2019](https://blog.activision.com/call-of-duty/2019-09/Call-of-Duty-Mobile-Boot-Camp-Part-1-Getting-Started-in-the-Game) | Simple Mode fires automatically when the player aims at a target. | FROG mobile uses the two thumbs for movement and aim; normal fly fire is automatic. |
+| [Epic: Fortnite mobile guide, 2020](https://www.fortnite.com/news/getting-started---fortnite-for-mobile) | Auto Fire is one of the mobile fire modes, recommended in that guide for new mobile players. | Remove the need to press a separate normal-fire control while aiming. |
 
 These manuals establish controls and visible composition. They do not disclose the games' private collision algorithms, automatic recentering logic, smoothing constants, or input implementations. The FROG rules below are design decisions informed by those references.
 
@@ -45,11 +47,15 @@ New Round and Continue are equal halves of one shared visual control, implemente
 
 ## Touch behavior
 
-The left stick moves in the current view's horizontal basis. The right stick controls yaw and pitch, and dragging the world also changes view and aim together. A separate fire pointer can stay held during either look input.
+The left stick moves in the current view's horizontal basis. The right thumb drags the world to change yaw and pitch together with aim. Ordinary mobile combat has no separate fire button or right look joystick. A passive hint identifies the aiming area and confirms automatic fire; it never intercepts touch events.
 
-Dragging the held fire button also changes the view. This permits two-finger play: the left thumb moves, and the right thumb aims while firing. Releasing/canceling either pointer clears only its active input. Pausing, blur, layout editing, and resizing clear held inputs.
+Normal fly fire is automatic only while a touch/pen aiming pointer is held on the world and the reticle has a valid opponent in range. Lifting/canceling that pointer stops fire independently of the movement pointer. Touch contact, rather than a global device flag, enables auto-fire, so mouse input on a touch-capable laptop retains manual firing. An unmoving aim finger keeps the chosen viewing direction.
 
-The overview retains its existing directional aiming scheme. It does not silently inherit rear-view look rotation.
+The camera ray and the actual source-to-muzzle/projectile trace must agree on the opponent. The resolver uses this frame's input direction and the model's existing body volume, lifetime, terrain, walls and rock collision. It never redirects aim or enlarges the target. Visible decorative roofs and opaque stock baskets additionally block acquisition, without introducing new projectile physics. Projectiles retain their flight time and can be dodged. The simulation owns the unchanged firing cooldown and ammo use.
+
+Auto-fire yields during preparation, inactive/finished rounds, layout editing, incapacitation, empty ammo, sabotage, kicks, and catapult use. Invulnerable targets do not consume ammo. Pausing, blur, resizing, and visibility loss clear held intent. An old touch cannot resume firing after those transitions.
+
+In overview, the aiming thumb selects the world point under its contact and can drag to update it. The movement thumb preserves that aim; touching the world does not change the selected view. Catapults retain deliberate manual stone firing and show their aim/fire controls only while mounted. Temporarily hidden controls preserve their saved positions without reserving layout space.
 
 ## Position, visibility and preferences
 
@@ -70,7 +76,7 @@ The meaningful check is the combined action, not merely whether an isolated came
 4. The rendered center ray, chosen aim point and newly fired projectile agree in the same frame.
 5. Real upward and downward shots remain possible; camera placement does not enter terrain or fill the view with the local body.
 6. Escape, pointer-lock loss, Continue and overview transitions leave no stuck input.
-7. Move/look/fire combinations work with touch, including dragging the held fire button.
+7. Two touch contacts perform movement and world aiming together, with eligible automatic fly fire and independent release/cancel behavior. Empty space, cover, preparation and sabotage never auto-fire. Catapult fire remains deliberate.
 8. Camera settings preview safely while paused and survive reload.
 
-Unit tests cover the math, boom placement, settings, tap buffer, menu activations and native mouse-look request lifecycle. The original camera acceptance harness is `qa/arcade-435.mjs`. The current menu and input regression harness is `qa/arcade-436.mjs`; it covers New/Continue, saved state, native and unavailable/rejected/silent Pointer Lock, simultaneous look/fire, and actual touch input in full Chromium. Mobile coverage is emulated and does not claim physical iPhone/Safari testing.
+Unit tests cover the math, boom placement, settings, tap buffer, menu activations, native mouse-look request lifecycle, auto-fire eligibility and visible touch-control layout. The original camera acceptance harness is `qa/arcade-435.mjs`; menu/capture failure regression coverage is `qa/arcade-436.mjs`. The mobile auto-fire harness is `qa/arcade-437.mjs`, using actual browser touch input and deterministic simulation fixtures. Mobile coverage is emulated and does not claim physical iPhone/Safari testing.
