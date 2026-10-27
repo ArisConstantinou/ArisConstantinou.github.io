@@ -25,15 +25,23 @@ For camera placement, [Unity's Third Person Follow documentation](https://github
 
 ## Desktop behavior
 
-- Play or Continue is the user gesture that activates mouse look. Mouse deltas rotate the view directly, including while either mouse button is held.
+- New Round or Continue starts gameplay immediately and requests native mouse look as an enhancement. Mouse deltas rotate the view directly, including while either mouse button is held.
 - Left click fires repeatedly while held. Right click is not a prerequisite for rotating.
 - The rear-view crosshair stays at screen center. Its camera ray chooses the world aim point; the projectile travels from the frog's mouth toward that point, preserving parallax and collision checks.
 - W/S move forward/backward in the rendered camera's horizontal basis. A/D strafe. The basis updates immediately when the player looks elsewhere.
 - Mouse displacement determines angular displacement, independently of frame rate. A stationary mouse leaves yaw and pitch unchanged.
-- Escape pauses and releases the pointer. Unexpected pointer-lock loss also pauses. Continue reacquires control through a new click.
+- Escape pauses and releases the pointer. Unexpected pointer-lock loss also pauses. Continue attempts to reacquire control through a new activation, without making gameplay depend on the browser accepting it.
 - C switches to the existing overview and releases the pointer for free cursor aiming. Returning to the rear view reacquires mouse look through the initiating key/click.
 
-The browser input mechanism follows [MDN's Pointer Lock API documentation](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API). Relative movement remains available while the visible cursor is hidden, independent of button state and screen boundaries. The initial engagement click is not also buffered as a shot.
+The browser input mechanism follows [MDN's Pointer Lock API documentation](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API). Relative movement remains available while the visible cursor is hidden, independent of button state and screen boundaries. Menu activations never queue shots.
+
+Pointer Lock can be denied, absent, or briefly unavailable after Escape. These cases must not reverse the menu action by calling pause. While unlocked, pointer movement provides bounded direct look inside the viewport and left click still fires. A world click also retries native capture without withholding its shot. The cursor remains visible in this fallback; continuous turning beyond the viewport requires native capture. No camera angle changes or automatic view switches are introduced.
+
+The request session uses generation-bound promise handling, legacy event handling and a bounded timeout. An intentional release is recorded before asynchronous browser events arrive, so an old unlock cannot pause a newly resumed round. A late grant while gameplay is inactive is released. Real unexpected loss of an established lock still pauses and clears held inputs.
+
+## Round menu
+
+New Round and Continue are equal halves of one shared visual control, implemented as two native buttons in an accessible group. New Round resets the simulation; Continue restores the paused or saved unfinished round. Continue is disabled only when no unfinished round exists. Touch and pen activate on release inside the selected half, preserve their original pointer identity, and suppress the following compatibility click. Mouse and keyboard retain native click activation.
 
 ## Touch behavior
 
@@ -65,4 +73,4 @@ The meaningful check is the combined action, not merely whether an isolated came
 7. Move/look/fire combinations work with touch, including dragging the held fire button.
 8. Camera settings preview safely while paused and survive reload.
 
-Unit tests cover the math, boom placement, settings and tap buffer. The browser acceptance harness is `qa/arcade-435.mjs`; it uses native Pointer Lock and actual mouse/key/touch input in full Chromium. Mobile coverage is emulated and does not claim physical iPhone/Safari testing.
+Unit tests cover the math, boom placement, settings, tap buffer, menu activations and native mouse-look request lifecycle. The original camera acceptance harness is `qa/arcade-435.mjs`. The current menu and input regression harness is `qa/arcade-436.mjs`; it covers New/Continue, saved state, native and unavailable/rejected/silent Pointer Lock, simultaneous look/fire, and actual touch input in full Chromium. Mobile coverage is emulated and does not claim physical iPhone/Safari testing.

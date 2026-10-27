@@ -8,7 +8,7 @@ export function installTapBuffer(game){
  addEventListener('keydown',e=>{if(e.repeat||e.target.matches('input,select'))return;if(e.code==='KeyQ')mark('kick');},true);
  addEventListener('pointerdown',e=>{
   if(e.target.closest?.('#kick-button')&&!game.$('kick-button').disabled)mark('kick');
-  else if(e.target===game.renderer.domElement&&e.pointerType==='mouse'&&e.button===0&&(game.viewMode!=='chase3d'||game.pointerLocked?.()))mark('fire');
+  else if(e.target===game.renderer.domElement&&e.pointerType==='mouse'&&e.button===0)mark('fire');
   else if(e.target.closest?.('#fire-button')&&!game.$('fire-button').disabled)mark('fire');
  },true);
  addEventListener('pointercancel',()=>{for(const key of Object.keys(pending))pending[key]=false;},true);

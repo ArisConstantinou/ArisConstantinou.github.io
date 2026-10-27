@@ -14,13 +14,21 @@ function fixture(){
  return {game,canvas,controls,send,press,button};
 }
 
-test('the click that acquires desktop mouse look does not secretly queue a shot',()=>{
+test('menu activation never queues a shot when the round begins',()=>{
+ const {game,press,button}=fixture();
+ for(const id of ['new-round-button','play-button']){
+  press(button(id));game.locked=true;
+  assert.equal(game.currentInput().fire,false,'only clicking the world or fire button can queue a shot');
+ }
+});
+
+test('a short world click fires while native mouse capture is pending or unavailable',()=>{
  const {game,press}=fixture();
- press();game.locked=true;
- assert.equal(game.currentInput().fire,false,'a later pointerlockchange cannot convert the acquisition click into fire');
+ assert.equal(game.locked,false);
  press();const tap=game.currentInput();
  assert.equal(tap.fire,true);assert.equal(tap.aiming,true);
  assert.equal(game.currentInput().fire,false,'a short click is delivered once rather than becoming held fire');
+ game.locked=true;press();assert.equal(game.currentInput().fire,true);
 });
 
 test('held fire continues while a touch finger moves the camera',()=>{
