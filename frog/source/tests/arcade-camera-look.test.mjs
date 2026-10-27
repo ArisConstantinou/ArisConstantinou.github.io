@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CAMERA_LOOK,lookCamera} from '../src/arcade-camera-look.js';
+import {CAMERA_LOOK,lookCamera,lookCameraRate} from '../src/arcade-camera-look.js';
 import {screenToWorld} from '../src/arcade-view-math.js';
 
 const delta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
@@ -84,4 +84,59 @@ test('invalid deltas or saved angles cannot poison camera state',()=>{
  }
  const overflow=lookCamera({yaw:1,pitch:.2},Number.MAX_VALUE,Number.MAX_VALUE,{sensitivity:Number.MAX_VALUE});
  assert.ok(Number.isFinite(overflow.yaw)&&Number.isFinite(overflow.pitch));
+});
+
+test('a stationary held stick keeps turning left or right through multiple revolutions',()=>{
+ for(const direction of [-1,1]){
+  let orbit={yaw:Math.PI,pitch:.12},total=0;
+  for(let frame=0;frame<900;frame++){
+   const next=lookCameraRate(orbit,direction,0,1/60);
+   total+=delta(next.yaw,orbit.yaw);orbit=next;
+  }
+  close(total,-direction*33);
+  assert.ok(Math.abs(total)>Math.PI*2*5,'holding without new pointer events never reaches a yaw stop');
+  close(orbit.pitch,.12);
+ }
+});
+
+test('centering or releasing the stick stops rate-look immediately without recentering the view',()=>{
+ const turned=lookCameraRate({yaw:1,pitch:.12},.8,-.3,.04);
+ for(const [x,y] of [[0,0],[.04,.04],[.079,0]]){
+  let orbit=turned;
+  for(let frame=0;frame<120;frame++)orbit=lookCameraRate(orbit,x,y,1/60);
+  close(delta(orbit.yaw,turned.yaw),0);close(orbit.pitch,turned.pitch);
+ }
+});
+
+test('held turning depends on elapsed time and sensitivity, not display frame count',()=>{
+ const start={yaw:.6,pitch:.12};
+ const run=(fps,sensitivity=1)=>{
+  let orbit=start;
+  for(let frame=0;frame<fps;frame++)orbit=lookCameraRate(orbit,.7,0,1/fps,{sensitivity});
+  return orbit;
+ };
+ const reference=run(60);
+ for(const fps of [20,30,120,144])close(delta(run(fps).yaw,reference.yaw),0);
+ close(delta(run(60,.5).yaw,start.yaw),delta(reference.yaw,start.yaw)*.5);
+ close(delta(run(60,2).yaw,start.yaw),delta(reference.yaw,start.yaw)*2);
+});
+
+test('stick travel beyond its rim stays bounded and diagonal travel does not turn faster',()=>{
+ const start={yaw:0,pitch:0};
+ close(lookCameraRate(start,30,0,.05).yaw,lookCameraRate(start,1,0,.05).yaw);
+ const diagonal=lookCameraRate(start,1,1,.05);
+ close(Math.hypot(diagonal.yaw,diagonal.pitch),.11);
+ assert.equal(lookCameraRate(start,0,-1,100).pitch,CAMERA_LOOK.minPitch);
+ assert.equal(lookCameraRate(start,0,1,100).pitch,CAMERA_LOOK.maxPitch);
+});
+
+test('rate-look can accept smooth edge input without the joystick deadzone and rejects invalid elapsed time',()=>{
+ const start={yaw:1,pitch:.12};
+ close(lookCameraRate(start,.04,0,.05).yaw,start.yaw);
+ assert.ok(lookCameraRate(start,.04,0,.05,{deadzone:0}).yaw<start.yaw);
+ for(const dt of [-1,NaN,Infinity])assert.deepEqual(lookCameraRate(start,1,1,dt),start);
+ for(const [x,y] of [[NaN,Infinity],[Number.MAX_VALUE,Number.MAX_VALUE]]){
+  const orbit=lookCameraRate(start,x,y,.05);
+  assert.ok(Number.isFinite(orbit.yaw)&&Number.isFinite(orbit.pitch));
+ }
 });

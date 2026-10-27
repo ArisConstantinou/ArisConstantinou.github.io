@@ -36,7 +36,7 @@ for(const [width,height] of [[360,640],[390,844],[640,360],[844,390]]){
 test('landscape camera cutout and gesture bar margins survive a resize',()=>{
  const input={...scenario(844,390),insets:{left:44,right:34,top:12,bottom:21},preferred:{move:{x:0,y:1},aim:{x:1,y:1},fire:{x:1,y:1}}};
  const result=solveTouchLayout(input);assertUsable(input,result);
- assert.ok(result.bounds.left>=52&&result.bounds.right<=802&&result.bounds.bottom<=361);
+ assert.ok(result.bounds.left>=48&&result.bounds.right<=806&&result.bounds.bottom<=365,'controls retain a four-pixel gap beyond every physical safe inset');
 });
 test('invalid stored coordinates cannot put controls outside the viewport',()=>{
  const input={...scenario(360,640),preferred:{move:{x:NaN,y:NaN},aim:{x:Infinity,y:-Infinity},fire:{x:-10,y:20}}};
@@ -58,19 +58,21 @@ test('a visible fire button without an aim stick uses the free lower-right corne
  assert.deepEqual(solveTouchLayout({...full,blocked:[],activeKeys:['fire']}).positions,result.positions,'hidden aim dimensions do not reserve a gap');
 });
 
-function layoutFixture(){
+function layoutFixture({integratedFire=false,blocks=[],hintRect=null,onEditingChange=()=>{}}={}){
  class Element extends EventTarget{
   constructor(width=120,height=120){
-   super();this.width=width;this.height=height;this.hidden=false;this.style={};this.css={display:'block',visibility:'visible'};this.attrs={};this.captures=[];this.parentElement=null;
+   super();this.width=width;this.height=height;this.hidden=false;this.style={};this.css={display:'block',visibility:'visible'};this.attrs={};this.captures=[];this.parentElement=null;this.children=[];this.textContent='';
    const classes=new Set();this.classList={contains:name=>classes.has(name),toggle(name,enabled){if(enabled)classes.add(name);else classes.delete(name);}};
   }
+  contains(node){for(let el=node;el;el=el.parentElement)if(el===this)return true;return false;}
   closest(){for(let el=this;el;el=el.parentElement)if(el.hidden)return el;return null;}
   getBoundingClientRect(){
    let hidden=false;for(let el=this;el;el=el.parentElement)hidden ||= el.hidden||el.css.display==='none';
-   const width=hidden?0:this.width,height=hidden?0:this.height,left=parseFloat(this.style.left)||0,top=parseFloat(this.style.top)||0;
+   const parent=this.parentElement?.getBoundingClientRect(),width=hidden?0:this.width,height=hidden?0:this.height,left=(parent?.left||0)+(parseFloat(this.style.left)||0),top=(parent?.top||0)+(parseFloat(this.style.top)||0);
    return {width,height,left,top,right:left+width,bottom:top+height};
   }
   setAttribute(name,value){this.attrs[name]=value;}
+  append(node){if(typeof node==='string')this.textContent+=node;else{this.children.push(node);node.parentElement=this;}}
   setPointerCapture(id){this.captures.push(id);}
   querySelector(selector){return selector==='span'?{replaceChildren:()=>{}}:null;}
  }
@@ -82,12 +84,15 @@ function layoutFixture(){
   requestAnimationFrame:callback=>{frames.set(++frame,callback);return frame;},cancelAnimationFrame:id=>frames.delete(id),
   localStorage:{getItem:key=>storage.get(key),setItem:(key,value)=>storage.set(key,value)},
  });
- const doc={defaultView:view,querySelectorAll:()=>[]},root=new Element(390,844),move=new Element(),aim=new Element(),fire=new Element(72,72),toggle=new Element(52,48);
+ const hud=blocks.map(block=>{const el=new Element(block.width,block.height);el.style.left=`${block.left}px`;el.style.top=`${block.top}px`;el.selector=block.selector||`#${block.id}`;return el;});
+ const doc={defaultView:view,querySelectorAll:selector=>hud.filter(el=>selector.split(',').map(s=>s.trim()).includes(el.selector)),createElement:()=>{const el=new Element(108,44);el.style.left='11px';el.style.top='48px';el.selector='#layout-hint .layout-reset';hud.push(el);return el;}},root=new Element(390,844),move=new Element(),aim=new Element(),fire=new Element(72,72),toggle=new Element(52,48);
  root.ownerDocument=doc;for(const el of [move,aim,fire,toggle])el.parentElement=root;
- const layout=createTouchLayout({root,movePad:move,aimPad:aim,fireButton:fire,toggleButton:toggle,storageKey:'test-layout'});layout.refresh();
+ let hint=null;if(hintRect){hint=new Element(hintRect.width,hintRect.height);hint.hidden=true;hint.style.left=`${hintRect.left}px`;hint.style.top=`${hintRect.top}px`;hint.parentElement=root;hint.textContent='Move controls';root.querySelector=selector=>selector==='#layout-hint'?hint:null;}
+ if(integratedFire){fire.parentElement=aim;fire.style.left='24px';fire.style.top='24px';}
+ const layout=createTouchLayout({root,movePad:move,aimPad:aim,fireButton:fire,toggleButton:toggle,storageKey:'test-layout',onEditingChange:value=>onEditingChange(value,{hud})});layout.refresh();
  const center=el=>{const r=el.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};};
  const send=(el,type,values={})=>{const event=new Event(type,{cancelable:true});Object.assign(event,{pointerId:1,pointerType:'touch',clientX:0,clientY:0,...values});el.dispatchEvent(event);return event;};
- return {layout,root,move,aim,fire,toggle,view,initial,center,send,stored:()=>JSON.parse(storage.get('test-layout'))};
+ return {layout,root,move,aim,fire,toggle,view,initial,hud,hint,center,send,stored:()=>JSON.parse(storage.get('test-layout'))};
 }
 
 test('editing movement while catapult controls are hidden preserves their saved positions',()=>{
@@ -123,4 +128,107 @@ test('hiding the entire touch HUD does not overwrite any saved control placement
  const f=layoutFixture();f.root.hidden=true;f.layout.refresh();f.layout.setEditing(true);f.layout.setEditing(false);
  assert.deepEqual(f.stored(),f.initial);f.root.hidden=false;f.layout.refresh();
  assert.deepEqual(f.center(f.move),{x:f.initial.portrait.move.x*390,y:f.initial.portrait.move.y*844});f.layout.destroy();
+});
+
+test('circular pads can use each other’s transparent corners without overlapping touch areas',()=>{
+ const controls={move:{width:120,height:120,shape:'circle'},aim:{width:120,height:120,shape:'circle'}};
+ const preferred={move:{x:140/390,y:180/844},aim:{x:234/390,y:274/844}};
+ const result=solveTouchLayout({width:390,height:844,controls,preferred});
+ assert.deepEqual(result.positions,{move:{x:140,y:180},aim:{x:234,y:274}});
+ assert.ok(Math.hypot(result.positions.move.x-result.positions.aim.x,result.positions.move.y-result.positions.aim.y)>=128);
+ assert.ok(result.positions.move.x+60>result.positions.aim.x-60&&result.positions.move.y+60>result.positions.aim.y-60,'their old square exclusion regions would overlap');
+});
+
+test('a round pad can sit beside a button corner while respecting its real touch rectangle',()=>{
+ const controls={move:{width:120,height:120,shape:'circle'}},blocked=[{left:100,top:100,right:140,bottom:140}];
+ const result=solveTouchLayout({width:390,height:844,controls,blocked,preferred:{move:{x:192/390,y:192/844}}});
+ assert.deepEqual(result.positions.move,{x:192,y:192});
+ assert.ok(Math.hypot(192-140,192-140)>=68);
+});
+
+test('pads may cross screen halves and captions stay above the physical bottom inset',()=>{
+ const controls={move:{width:120,height:120,shape:'circle',overflowBottom:18},aim:{width:120,height:120,shape:'circle',overflowBottom:18}};
+ const result=solveTouchLayout({width:844,height:390,controls,insets:{bottom:21},preferred:{move:{x:.8,y:1},aim:{x:.2,y:.4}}});
+ assert.equal(result.positions.move.x,844*.8);assert.equal(result.positions.aim.x,844*.2);
+ assert.equal(result.positions.move.y+60+18,result.bounds.bottom);
+ assert.ok(result.bounds.bottom<=390-21-4);
+});
+
+test('passive HUD, map and status areas are available for exact joystick placement',()=>{
+ const f=layoutFixture({integratedFire:true,blocks:[
+  {id:'arcade-hud',left:0,top:0,width:390,height:250},
+  {id:'round-status',left:0,top:160,width:200,height:64},
+  {id:'minimap',left:240,top:115,width:130,height:110},
+  {id:'pause-button',left:334,top:20,width:44,height:44},
+ ]});
+ f.layout.setEditing(true);
+ for(const [el,target] of [[f.move,{x:100,y:185}],[f.aim,{x:300,y:170}]]){
+  const start=f.center(el);f.send(el,'pointerdown',{clientX:start.x,clientY:start.y});f.send(el,'pointermove',{clientX:target.x,clientY:target.y});f.send(el,'pointerup');
+  assert.deepEqual(f.center(el),target);
+ }
+ f.layout.setEditing(false);f.layout.refresh();
+ assert.ok(Math.hypot(f.center(f.move).x-100,f.center(f.move).y-185)<1e-9);assert.deepEqual(f.center(f.aim),{x:300,y:170});f.layout.destroy();
+});
+
+test('the actual pause button stays reachable when dragging a pad toward it',()=>{
+ const f=layoutFixture({integratedFire:true,blocks:[{id:'pause-button',left:334,top:20,width:44,height:44}]});
+ f.layout.setEditing(true);const start=f.center(f.move);
+ f.send(f.move,'pointerdown',{clientX:start.x,clientY:start.y});f.send(f.move,'pointermove',{clientX:356,clientY:42});f.send(f.move,'pointerup');
+ const p=f.center(f.move),nearest={x:Math.max(334,Math.min(378,p.x)),y:Math.max(20,Math.min(64,p.y))};
+ assert.ok(Math.hypot(p.x-nearest.x,p.y-nearest.y)>=68-.001,'the circle and button retain their eight-pixel touch gap');
+ assert.ok(p.x>=64&&p.x<=326&&p.y>=64);f.layout.destroy();
+});
+
+test('integrated fire moves with the aim pad and never becomes a third movable control',()=>{
+ const f=layoutFixture({integratedFire:true}),fireStyle={...f.fire.style};f.layout.setEditing(true);
+ assert.equal(f.aim.classList.contains('layout-draggable'),true);assert.equal(f.fire.classList.contains('layout-draggable'),false);
+ assert.equal(f.aim.attrs['data-layout-label'],'ΣΤΟΧΕΥΣΗ + ΠΥΡ');
+ const start=f.center(f.fire),target={x:300,y:400};
+ f.send(f.aim,'pointerdown',{clientX:start.x,clientY:start.y});f.send(f.aim,'pointermove',{clientX:target.x,clientY:target.y});f.send(f.aim,'pointerup');
+ assert.deepEqual(f.center(f.aim),target);assert.deepEqual(f.center(f.fire),target);assert.deepEqual(f.fire.style,fireStyle,'layout paint never overwrites the nested fire positioning');
+ assert.deepEqual(f.stored().portrait.fire,f.initial.portrait.fire,'legacy standalone fire position is retained without affecting the new group');
+ f.layout.setEditing(false);f.layout.refresh();assert.deepEqual(f.center(f.aim),target);f.layout.destroy();
+});
+
+test('temporary contextual-button displacement does not replace an untouched saved preference',()=>{
+ const f=layoutFixture({integratedFire:true,blocks:[{id:'kick-button',left:260,top:590,width:104,height:86}]}),preferred={x:312,y:633};
+ assert.notDeepEqual(f.center(f.aim),preferred,'a visible contextual button is currently using the preferred area');
+ f.layout.setEditing(true);const start=f.center(f.move);
+ f.send(f.move,'pointerdown',{clientX:start.x,clientY:start.y});f.send(f.move,'pointermove',{clientX:100,clientY:350});f.send(f.move,'pointerup');f.layout.setEditing(false);
+ assert.deepEqual(f.stored().portrait.aim,f.initial.portrait.aim,'only the deliberately dragged movement pad is persisted');
+ f.hud[0].hidden=true;f.layout.refresh();assert.deepEqual(f.center(f.aim),preferred);f.layout.destroy();
+});
+
+test('combined aim/fire preserves independent portrait and landscape positions and resets together',()=>{
+ const f=layoutFixture({integratedFire:true});
+ const dragAim=target=>{f.layout.setEditing(true);const start=f.center(f.aim);f.send(f.aim,'pointerdown',{clientX:start.x,clientY:start.y});f.send(f.aim,'pointermove',{clientX:target.x,clientY:target.y});f.send(f.aim,'pointerup');f.layout.setEditing(false);};
+ dragAim({x:300,y:400});
+ f.view.innerWidth=844;f.view.innerHeight=390;f.layout.refresh();assert.deepEqual(f.center(f.aim),{x:844*.8,y:390*.6});
+ dragAim({x:450,y:250});
+ f.view.innerWidth=390;f.view.innerHeight=844;f.layout.refresh();assert.deepEqual(f.center(f.aim),{x:300,y:400});assert.deepEqual(f.center(f.fire),f.center(f.aim));
+ assert.deepEqual(f.stored().landscape.aim,{x:450/844,y:250/390});
+ f.layout.reset();assert.deepEqual(f.center(f.aim),{x:316,y:758});assert.deepEqual(f.center(f.fire),f.center(f.aim));
+ assert.deepEqual(f.stored().portrait.fire,f.initial.portrait.fire);assert.deepEqual(f.stored().landscape.aim,{x:450/844,y:250/390});f.layout.destroy();
+});
+
+test('entering layout edit reserves the newly visible Reset without replacing the preferred position',()=>{
+ const f=layoutFixture({integratedFire:true,hintRect:{left:250,top:570,width:130,height:100}}),preferred=f.center(f.aim);
+ f.layout.setEditing(true);const p=f.center(f.aim),r=f.hint.children[0].getBoundingClientRect();
+ const nearest={x:Math.max(r.left,Math.min(r.right,p.x)),y:Math.max(r.top,Math.min(r.bottom,p.y))};
+ assert.ok(Math.hypot(p.x-nearest.x,p.y-nearest.y)>=68-.001,'Reset and the pad are both reachable immediately on edit entry');
+ assert.notDeepEqual(p,preferred);assert.deepEqual(f.stored().portrait.aim,f.initial.portrait.aim);
+ f.layout.setEditing(false);assert.deepEqual(f.center(f.aim),preferred,'the pad returns when the temporary Reset button is hidden');
+ assert.deepEqual(f.stored().portrait.aim,f.initial.portrait.aim);f.layout.destroy();
+});
+
+test('editor visibility callbacks run before placement so returning gameplay buttons stay reachable',()=>{
+ const f=layoutFixture({integratedFire:true,blocks:[{id:'sabotage-button',left:260,top:590,width:104,height:86}],onEditingChange:(editing,{hud})=>{hud[0].hidden=editing;}});
+ const preferred={x:312,y:633};f.layout.setEditing(true);const editorPosition=f.center(f.aim),start=f.center(f.aim);
+ f.send(f.aim,'pointerdown',{clientX:start.x,clientY:start.y});f.send(f.aim,'pointermove',{clientX:preferred.x,clientY:preferred.y});f.send(f.aim,'pointerup');
+ assert.deepEqual(f.center(f.aim),preferred,'the editor can use the now-hidden contextual button area');
+ f.layout.setEditing(false);const p=f.center(f.aim),r=f.hud[0].getBoundingClientRect();
+ const nearest={x:Math.max(r.left,Math.min(r.right,p.x)),y:Math.max(r.top,Math.min(r.bottom,p.y))};
+ assert.ok(Math.hypot(p.x-nearest.x,p.y-nearest.y)>=68-.001,'a contextual button returning on edit exit is reserved immediately');
+ assert.deepEqual(editorPosition,preferred,'entering the editor also releases the hidden contextual button area immediately');
+ assert.deepEqual(f.stored().portrait.aim,f.initial.portrait.aim,'temporary gameplay displacement preserves the deliberately saved preference');f.layout.destroy();
 });

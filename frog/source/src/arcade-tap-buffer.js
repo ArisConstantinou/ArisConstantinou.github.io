@@ -9,7 +9,12 @@ export function installTapBuffer(game){
  addEventListener('pointerdown',e=>{
   if(e.target.closest?.('#kick-button')&&!game.$('kick-button').disabled)mark('kick');
   else if(e.target===game.renderer.domElement&&e.pointerType==='mouse'&&e.button===0)mark('fire');
-  else if(e.target.closest?.('#fire-button')&&!game.$('fire-button').disabled)mark('fire');
+  else if(e.target.closest?.('#fire-button')&&!game.$('fire-button').disabled){
+   // The center button shares the aim stick's pointer. An extra finger must
+   // not queue a shot when the first finger already owns that stick.
+   const integrated=game.$('fire-button').closest?.('#aim-stick');
+   if((e.pointerType!=='mouse'||e.button===0)&&(!integrated||!game.pointers?.has('aim')))mark('fire');
+  }
  },true);
  addEventListener('pointercancel',()=>{for(const key of Object.keys(pending))pending[key]=false;},true);
 }

@@ -57,3 +57,19 @@ test('touching the world to look and touching a disabled fire control never queu
  const f=fixture();f.press(f.canvas,'touch');assert.equal(f.game.currentInput().fire,false);
  f.controls['fire-button'].disabled=true;f.press(f.button('fire-button'),'touch');assert.equal(f.game.currentInput().fire,false);
 });
+
+test('a second finger on the integrated fire button cannot steal an aim-only contact',()=>{
+ const f=fixture();f.game.pointers=new Map([['aim',7]]);
+ f.controls['fire-button'].closest=selector=>selector==='#aim-stick'?{}:null;
+ f.press(f.button('fire-button'),'touch');
+ assert.equal(f.game.currentInput().fire,false);
+ f.game.pointers.clear();f.press(f.button('fire-button'),'touch');
+ assert.equal(f.game.currentInput().fire,true,'a fresh center tap is still buffered');
+ assert.equal(f.game.currentInput().fire,false);
+});
+
+test('a right mouse press on the center fire button cannot queue a rejected shot',()=>{
+ const f=fixture();
+ f.send('pointerdown',{target:f.button('fire-button'),pointerType:'mouse',button:2});
+ assert.equal(f.game.currentInput().fire,false);
+});

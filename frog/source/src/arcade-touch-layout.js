@@ -2,22 +2,43 @@ const KEYS=['move','aim','fire'];
 const GAP=8;
 const bounded=(v,min,max)=>Math.max(min,Math.min(max,v));
 const number=(v,fallback)=>Number.isFinite(v)?v:fallback;
-const rect=(p,size)=>({left:p.x-size.width/2,top:p.y-size.height/2,right:p.x+size.width/2,bottom:p.y+size.height/2});
-const overlap=(a,b,gap=GAP)=>a.left<b.right+gap&&a.right>b.left-gap&&a.top<b.bottom+gap&&a.bottom>b.top-gap;
+const rect=(p,size)=>({left:p.x-size.width/2,top:p.y-size.height/2,right:p.x+size.width/2,bottom:p.y+size.height/2,...(size.shape==='circle'?{shape:'circle'}:{})});
+const circle=box=>({x:(box.left+box.right)/2,y:(box.top+box.bottom)/2,radius:Math.min(box.right-box.left,box.bottom-box.top)/2});
+function overlap(a,b,gap=GAP){
+ if(a.shape==='circle'&&b.shape==='circle'){
+  const ac=circle(a),bc=circle(b);return Math.hypot(ac.x-bc.x,ac.y-bc.y)<ac.radius+bc.radius+gap-.001;
+ }
+ if(a.shape==='circle'||b.shape==='circle'){
+  const c=circle(a.shape==='circle'?a:b),box=a.shape==='circle'?b:a;
+  return Math.hypot(c.x-bounded(c.x,box.left,box.right),c.y-bounded(c.y,box.top,box.bottom))<c.radius+gap-.001;
+ }
+ return a.left<b.right+gap&&a.right>b.left-gap&&a.top<b.bottom+gap&&a.bottom>b.top-gap;
+}
 
 function freePosition(target,size,bounds,obstacles,fallback=target){
  const minX=bounds.left+size.width/2,maxX=Math.max(minX,bounds.right-size.width/2);
- const minY=bounds.top+size.height/2,maxY=Math.max(minY,bounds.bottom-size.height/2);
+ const minY=bounds.top+size.height/2,maxY=Math.max(minY,bounds.bottom-size.height/2-number(size.overflowBottom,0));
  const clip=p=>({x:bounded(number(p?.x,minX),minX,maxX),y:bounded(number(p?.y,minY),minY,maxY)});
- const desired=clip(target),candidates=[desired,clip(fallback)];
+ const desired=clip(target),free=p=>!obstacles.some(b=>overlap(rect(p,size),b));
+ // An unobstructed drag follows the finger exactly, without grid snapping.
+ if(free(desired))return desired;
+ const candidates=[clip(fallback)];
  for(const block of obstacles){
   candidates.push(clip({x:block.left-size.width/2-GAP,y:desired.y}),clip({x:block.right+size.width/2+GAP,y:desired.y}),clip({x:desired.x,y:block.top-size.height/2-GAP}),clip({x:desired.x,y:block.bottom+size.height/2+GAP}));
+  if(size.shape==='circle'){
+   const radius=Math.min(size.width,size.height)/2+GAP;
+   const origin=block.shape==='circle'?circle(block):{x:bounded(desired.x,block.left,block.right),y:bounded(desired.y,block.top,block.bottom),radius:0};
+   const angle=Math.atan2(desired.y-origin.y,desired.x-origin.x),distance=radius+origin.radius;
+   // The closest circular boundary leaves the transparent corners usable.
+   candidates.push(clip({x:origin.x+Math.cos(angle)*distance,y:origin.y+Math.sin(angle)*distance}));
+   if(block.shape==='circle')for(let i=0;i<24;i++)candidates.push(clip({x:origin.x+Math.cos(i*Math.PI/12)*distance,y:origin.y+Math.sin(i*Math.PI/12)*distance}));
+  }
  }
  // A compact grid also finds free corners when more than one obstacle intersects.
  for(let y=minY;y<=maxY+16;y+=16)for(let x=minX;x<=maxX+16;x+=16)candidates.push(clip({x,y}));
  let best=null,score=Infinity;
  for(const p of candidates){
-  if(obstacles.some(b=>overlap(rect(p,size),b)))continue;
+  if(!free(p))continue;
   const distance=(p.x-desired.x)**2+(p.y-desired.y)**2;
   if(distance<score){best=p;score=distance;}
  }
@@ -40,7 +61,7 @@ export function defaultTouchPositions(width,height,controls,activeKeys=KEYS){
 // Preferred positions are normalized viewport centers, not fragile CSS offsets.
 export function solveTouchLayout({width,height,controls={},activeKeys=KEYS,preferred={},blocked=[],insets={}}){
  const keys=KEYS.filter(key=>activeKeys.includes(key)&&controls[key]);
- const bounds={left:Math.max(10,number(insets.left,0)+8),top:Math.max(10,number(insets.top,0)+8),right:width-Math.max(10,number(insets.right,0)+8),bottom:height-Math.max(18,number(insets.bottom,0)+8)};
+ const bounds={left:Math.max(4,number(insets.left,0)+4),top:Math.max(4,number(insets.top,0)+4),right:width-Math.max(4,number(insets.right,0)+4),bottom:height-Math.max(6,number(insets.bottom,0)+4)};
  const defaults=defaultTouchPositions(width,height,controls,keys),positions={},obstacles=[...blocked];
  for(const key of keys){
   const saved=preferred[key],wanted=saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)?{x:saved.x*width,y:saved.y*height}:defaults[key];
@@ -63,6 +84,7 @@ export function createTouchLayout({root,movePad,aimPad,fireButton,toggleButton,s
   const css=view.getComputedStyle(el),r=el.getBoundingClientRect();
   return css.display!=='none'&&css.visibility!=='hidden'&&css.visibility!=='collapse'&&r.width>0&&r.height>0;
  };
+ const integratedFire=()=>!!(fireButton&&aimPad?.contains?.(fireButton));
  try{
   const stored=JSON.parse(view.localStorage.getItem(storageKey)||'null');
   if(stored?.version===1)for(const mode of ['portrait','landscape'])for(const key of KEYS){
@@ -70,15 +92,17 @@ export function createTouchLayout({root,movePad,aimPad,fireButton,toggleButton,s
    if(Number.isFinite(p?.x)&&Number.isFinite(p?.y))saved[mode][key]={x:bounded(p.x,0,1),y:bounded(p.y,0,1)};
   }
  }catch{}
- const persist=()=>{
+ const persist=(keys=activeKeys)=>{
   const {mode,width,height}=viewport;
   // Temporarily hidden catapult controls retain their last saved positions.
-  for(const key of activeKeys)if(positions[key])saved[mode][key]={x:positions[key].x/width,y:positions[key].y/height};
+  for(const key of keys)if(positions[key])saved[mode][key]={x:positions[key].x/width,y:positions[key].y/height};
   try{view.localStorage.setItem(storageKey,JSON.stringify({version:1,...saved}));}catch{}
  };
  const blockedRects=()=>{
   const out=[];
-  for(const el of doc.querySelectorAll('#arcade-hud, #minimap, #view-button, #layout-button, #layout-hint, #round-status, #base-status, #catapult-status, #sabotage-status, #kick-button, #catapult-button, #sabotage-button')){
+  // Passive HUD cards and map/status text do not claim whole forbidden regions.
+  // Only the actual buttons must remain reachable around the movable pads.
+  for(const el of doc.querySelectorAll('#pause-button, #view-button, #layout-button, #layout-hint .layout-reset, #kick-button, #catapult-button, #sabotage-button')){
    if(!visible(el))continue;
    const r=el.getBoundingClientRect();if(r.width&&r.height)out.push({left:r.left,top:r.top,right:r.right,bottom:r.bottom});
   }
@@ -89,27 +113,30 @@ export function createTouchLayout({root,movePad,aimPad,fireButton,toggleButton,s
  };
  const refresh=()=>{
   if(destroyed)return;
-  const nextKeys=KEYS.filter(key=>visible(controls[key]));
+  const nextKeys=KEYS.filter(key=>visible(controls[key])&&(key!=='fire'||!integratedFire()));
   if(drag&&!nextKeys.includes(drag.key))finishDrag();
   activeKeys=nextKeys;
   const style=view.getComputedStyle(root),insets={};
   for(const edge of ['left','right','top','bottom'])insets[edge]=parseFloat(style.getPropertyValue(`--touch-safe-${edge}`))||0;
-  for(const key of activeKeys){const el=controls[key],r=el.getBoundingClientRect();sizes[key]={width:Math.max(44,r.width),height:Math.max(44,r.height)};}
+  for(const key of activeKeys){const el=controls[key],r=el.getBoundingClientRect(),caption=el.querySelector('.stick-caption')?.getBoundingClientRect();sizes[key]={width:Math.max(44,r.width),height:Math.max(44,r.height),shape:'circle',overflowBottom:Math.max(0,(caption?.bottom||r.bottom)-r.bottom)};}
   for(const key of KEYS)controls[key]?.classList.toggle('layout-draggable',editing&&activeKeys.includes(key));
   const result=solveTouchLayout({width:view.innerWidth,height:view.innerHeight,controls:sizes,activeKeys,preferred:saved[orientation()],blocked:blockedRects(),insets});
   positions=result.positions;bounds=result.bounds;viewport={width:view.innerWidth,height:view.innerHeight,mode:orientation()};paint();
  };
  const requestRefresh=()=>{view.cancelAnimationFrame(frame);frame=view.requestAnimationFrame(refresh);};
- const finishDrag=()=>{if(!drag)return;drag=null;persist();};
+ const finishDrag=()=>{if(!drag)return;const key=drag.key;drag=null;persist([key]);};
  const setEditing=value=>{
   const next=Boolean(value);if(next===editing)return;
-  if(next)refresh();
   finishDrag();editing=next;root.classList.toggle('layout-editing',editing);toggleButton.setAttribute('aria-pressed',String(editing));toggleButton.setAttribute('aria-label',editing?'Ολοκλήρωση αλλαγής θέσεων χειριστηρίων':'Αλλαγή θέσεων χειριστηρίων');
   toggleButton.querySelector('span')?.replaceChildren(editing?'ΤΕΛΟΣ':'ΘΕΣΕΙΣ');
   if(hint)hint.hidden=!editing;
-  for(const key of KEYS){const el=controls[key];if(!el)continue;el.setAttribute('data-layout-label',{move:'ΚΙΝΗΣΗ',aim:'ΣΤΟΧΕΥΣΗ',fire:'ΒΟΛΗ'}[key]);el.classList.toggle('layout-draggable',editing&&activeKeys.includes(key));}
-  if(!editing)persist();onEditingChange(editing);announce(editing?'Σύρε τα χειριστήρια στη θέση που σε βολεύει. Πάτησε ΤΕΛΟΣ για να συνεχίσεις.':'Οι θέσεις των χειριστηρίων αποθηκεύτηκαν.');
-  // Show the inline hint without shifting the controls the player is about to drag.
+  // Let gameplay update its contextual buttons before measuring obstacles.
+  onEditingChange(editing);
+  // Reserve the real Reset button only while it is visible. Any temporary
+  // displacement is restored on exit without overwriting a saved preference.
+  refresh();
+  for(const key of KEYS){const el=controls[key];if(!el)continue;el.setAttribute('data-layout-label',{move:'ΚΙΝΗΣΗ',aim:integratedFire()?'ΣΤΟΧΕΥΣΗ + ΠΥΡ':'ΣΤΟΧΕΥΣΗ',fire:'ΒΟΛΗ'}[key]);el.classList.toggle('layout-draggable',editing&&activeKeys.includes(key));}
+  announce(editing?'Σύρε τα χειριστήρια σε όλη την οθόνη. Πάτησε ΤΕΛΟΣ για να συνεχίσεις.':'Οι θέσεις των χειριστηρίων αποθηκεύτηκαν.');
  };
  const reset=()=>{for(const key of activeKeys)delete saved[orientation()][key];refresh();persist();announce('Επαναφέρθηκαν οι αρχικές θέσεις χειριστηρίων.');};
  if(hint){

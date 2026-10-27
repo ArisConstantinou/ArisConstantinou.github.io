@@ -15,3 +15,19 @@ export function lookCamera(orbit,dx=0,dy=0,{sensitivity=CAMERA_LOOK.sensitivity,
  const vertical=finite(finite(dy)*rate)*(invertY===true?-1:1);
  return {yaw:wrap(yaw-horizontal),pitch:clamp(pitch+vertical,CAMERA_LOOK.minPitch,CAMERA_LOOK.maxPitch)};
 }
+
+// A held analogue control expresses angular speed rather than a fresh swipe.
+// Call every active frame, including frames with no pointermove event. The
+// camera shares the mouse's yaw wrapping and safe vertical limits.
+export function lookCameraRate(orbit,x=0,y=0,dt=0,{sensitivity=1,deadzone=.08}={}){
+ x=finite(x);y=finite(y);
+ const scale=Math.max(1,Math.abs(x),Math.abs(y));
+ const scaledX=x/scale,scaledY=y/scale,length=Math.hypot(scaledX,scaledY);
+ const magnitude=Math.min(1,length*scale);
+ const zone=Number.isFinite(deadzone)?clamp(deadzone,0,.95):.08;
+ const strength=Math.max(0,(magnitude-zone)/(1-zone));
+ const seconds=Math.max(0,finite(dt));
+ const multiplier=Number.isFinite(sensitivity)&&sensitivity>0?sensitivity:1;
+ const amount=length?strength*seconds/length:0;
+ return lookCamera(orbit,scaledX*amount,scaledY*amount,{sensitivity:2.2*multiplier});
+}

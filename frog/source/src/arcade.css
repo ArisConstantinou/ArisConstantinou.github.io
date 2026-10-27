@@ -31,7 +31,7 @@
 @media(max-width:540px) and (orientation:portrait){.is-touch .catapult-button{bottom:calc(min(40vw,162px) + 38px + env(safe-area-inset-bottom));left:40px;width:70px;height:70px}#catapult-status{bottom:210px;left:124px;right:14px;width:auto;max-width:none;transform:none;font-size:10px;padding:6px 8px}}
 @media(max-height:500px) and (orientation:landscape){.is-touch .catapult-button{left:calc(clamp(116px,30vh,176px) + 32px);bottom:28px;width:64px;height:64px}#catapult-status{bottom:104px;font-size:11px;max-width:45vw}}
 
-/* Live control placement and independent aim / fire controls. */
+/* The center button travels with the right stick for one-thumb aim and fire. */
 .is-touch,#touch-controls{--stick-size:clamp(116px,30vh,160px)}
 #touch-controls{--touch-safe-top:env(safe-area-inset-top,0px);--touch-safe-right:env(safe-area-inset-right,0px);--touch-safe-bottom:env(safe-area-inset-bottom,0px);--touch-safe-left:env(safe-area-inset-left,0px)}
 .fire-button{right:calc(var(--stick-size) + 36px);bottom:26px;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 35% 25%,#e4b548,#8c571d);border-color:#ffe1a0;box-shadow:0 5px 0 #593d21b8,0 0 16px #d99f3829}
@@ -44,8 +44,8 @@
 .aim-zone .fire-ring,.aim-zone .ring-label{display:none}.aim-zone .stick-inner{inset:23%;border-style:dashed}.aim-zone .aim-center{font-size:27px}
 .layout-button{position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);width:52px;height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:1px solid #d0eab9a6;border-radius:15px;background:#173e35ed;color:#eff8dd;font-size:23px;font-weight:800;touch-action:none;box-shadow:0 3px 0 #09281f}
 .layout-button span{font-size:8px;letter-spacing:.4px}.layout-button[aria-pressed=true]{background:#5e762c;color:#fff6b8;border-color:#e7f6a4}
-#layout-hint{position:absolute;left:50%;bottom:calc(var(--stick-size) + 140px);transform:translateX(-50%);width:min(310px,88vw);padding:9px 12px;border:1px solid #dfecb7;border-radius:14px;background:#183c32f0;color:#f4f6d8;text-align:center;font-size:12px;line-height:1.4;pointer-events:auto;z-index:4}
-.layout-reset{display:block;min-width:108px;min-height:44px;margin:4px auto 0;padding:8px 14px;border:1px solid #c6deac;border-radius:10px;background:#304f37;color:#f4f8df;font-size:10px;font-weight:800}
+#layout-hint{position:absolute;left:50%;bottom:calc(var(--stick-size) + 140px);transform:translateX(-50%);width:min(310px,88vw);padding:9px 12px;border:1px solid #dfecb7;border-radius:14px;background:#183c32f0;color:#f4f6d8;text-align:center;font-size:12px;line-height:1.4;pointer-events:none;z-index:4}
+.layout-reset{display:block;min-width:108px;min-height:44px;margin:4px auto 0;padding:8px 14px;border:1px solid #c6deac;border-radius:10px;background:#304f37;color:#f4f8df;font-size:10px;font-weight:800;pointer-events:auto}
 .layout-editing .layout-draggable{outline:2px dashed #ffe491;outline-offset:5px;cursor:move;pointer-events:auto;touch-action:none;opacity:1!important}
 .layout-editing .layout-draggable:after{content:attr(data-layout-label);position:absolute;left:50%;top:-22px;transform:translateX(-50%);padding:2px 5px;border-radius:5px;background:#173a2fed;color:#fff3b1;font-size:10px;font-weight:800;white-space:nowrap;pointer-events:none}
 .layout-editing .layout-draggable .stick{pointer-events:auto!important}.layout-editing .layout-draggable:active{transform:none}.layout-editing .layout-draggable .stick-knob{transform:translate(-50%,-50%)!important}
@@ -94,7 +94,7 @@
 .ammo-info{min-width:0}#ammo-state{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(min-width:801px) and (min-height:501px){#base-status{top:132px}#callout{font-size:14px;max-width:480px}}
 
-/* Camera turns only during a deliberate drag; the help row fits desktop widths. */
+/* Camera follows deliberate touch input; the help row fits desktop widths. */
 #arcade-world.camera-dragging{cursor:grabbing}
 #desktop-help{max-width:calc(100vw - 32px);flex-wrap:wrap;justify-content:center;row-gap:6px}
 
@@ -197,3 +197,15 @@ body{position:fixed;inset:0;-webkit-tap-highlight-color:transparent}
  .round-action{min-height:88px;padding:10px 8px;gap:5px;font-size:20px}
  .round-action svg{width:32px;height:32px}
 }
+
+/* The outer ring aims without firing. A center press keeps firing as it moves. */
+#aim-stick .aim-fire-knob{width:clamp(52px,44%,64px);height:clamp(52px,44%,64px);border:0;background:none;box-shadow:none}
+#aim-stick #fire-button{position:absolute;inset:0;width:100%;height:100%;min-width:52px;min-height:52px;padding:3px;border-radius:50%;gap:0;transform:none;pointer-events:auto}
+#aim-stick #fire-button svg{width:28px;height:28px}
+#aim-stick #fire-button span{font-size:10px;line-height:1.1;letter-spacing:.4px}
+#aim-stick #fire-button.firing{background:radial-gradient(circle at 35% 25%,#ffe7a2,#bb7d26);box-shadow:0 0 18px #ffd87a90}
+#aim-stick:before,#aim-stick:after{position:absolute;top:50%;transform:translateY(-50%);color:#e9f4d8a6;font-size:26px;line-height:1;pointer-events:none}
+#aim-stick:before{content:'‹';left:7px}
+#aim-stick:after{content:'›';right:7px}
+#aim-stick .stick-inner{inset:12%;border-color:#e4f4c83d;background:none;pointer-events:none}
+.aim-zone .stick-caption{font-size:10px;letter-spacing:.5px}
