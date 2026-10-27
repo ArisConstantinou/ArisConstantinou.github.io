@@ -1,9 +1,11 @@
 // Shared arena geometry. The simulation, radar and Three.js scene use these
 // exact footprints, so a visible gate is also the only physical way inside.
+import { FROG_BODY } from './arcade-actor-bounds.js';
+import { sweepBody, clearBodySegment, rectangleClearance } from './arcade-collision.js';
 const freezePoint = (x, z) => Object.freeze({x, z});
 const OWNER_IDS = ['player', 'rival-1', 'rival-2'];
-const ACTOR_RADIUS = .78;
-const NAV_RADIUS = .84;
+const ACTOR_RADIUS = FROG_BODY.movementRadius;
+const NAV_RADIUS = ACTOR_RADIUS+.08;
 const EPSILON = 1e-5;
 
 export const CATAPULT_SITES=Object.freeze([
@@ -95,10 +97,13 @@ export const TREES=Object.freeze([
   {id:'grove-northeast',x:7.6,z:-9.2,radius:2.5},
 ].map(Object.freeze));
 
-// Avoid a model import cycle: these match the existing rocks and fixed machines.
-const NAV_CIRCLES=Object.freeze([
+// One footprint source for movement, navigation and the rendered creek rocks.
+export const ARENA_ROCKS=Object.freeze([
   {x:-8,z:2,r:1.5},{x:8,z:-3,r:1.7},{x:-2,z:-12,r:1.4},{x:13,z:12,r:1.6},
-  ...CATAPULT_SITES.map(site=>({x:site.x,z:site.z,r:.95,machine:true})),
+].map(Object.freeze));
+const NAV_CIRCLES=Object.freeze([
+  ...ARENA_ROCKS,
+  ...CATAPULT_SITES.map(site=>({id:site.id,x:site.x,z:site.z,r:.95,machine:true})),
 ]);
 
 function bounds(w,padding=0){return {minX:w.x-w.hw-padding,maxX:w.x+w.hw+padding,minZ:w.z-w.hd-padding,maxZ:w.z+w.hd+padding};}
@@ -125,46 +130,26 @@ export function wallContact(x,z,nx,nz,padding=0){
 }
 export function hasWallSight(a,b,padding=.1){return wallContact(a.x,a.z,b.x,b.z,padding)===null;}
 
-/** Swept movement prevents tunnelling, and slides along the contacted wall. */
+/** Rounded clearance preserves sliding and lets a touching frog turn away. */
 export function resolveWallMove(actor,dx,dz,radius=ACTOR_RADIUS){
-  let x=actor.x,z=actor.z,rx=Number.isFinite(dx)?dx:0,rz=Number.isFinite(dz)?dz:0;
-  // Saves made before fences existed can load inside a newly added fence.
-  for(let pass=0;pass<4;pass++){
-    let corrected=false;
-    for(const wall of WALLS){const b=bounds(wall,radius);if(!within(x,z,b,EPSILON))continue;
-      const options=[{distance:x-b.minX,x:b.minX-EPSILON,z},{distance:b.maxX-x,x:b.maxX+EPSILON,z},{distance:z-b.minZ,x,z:b.minZ-EPSILON},{distance:b.maxZ-z,x,z:b.maxZ+EPSILON}];
-      options.sort((a,b)=>a.distance-b.distance);x=options[0].x;z=options[0].z;corrected=true;
-    }
-    if(!corrected)break;
-  }
-  for(let iteration=0;iteration<4&&(Math.abs(rx)>EPSILON||Math.abs(rz)>EPSILON);iteration++){
-    let nearest=null;
-    for(const wall of WALLS){const contact=segmentBox(x,z,x+rx,z+rz,wall,radius);if(contact&&(!nearest||contact.t<nearest.t))nearest=contact;}
-    if(!nearest){x+=rx;z+=rz;break;}
-    const fraction=Math.max(0,nearest.t-EPSILON);
-    x+=rx*fraction;z+=rz*fraction;
-    const remaining=1-nearest.t;rx*=remaining;rz*=remaining;
-    const into=rx*nearest.nx+rz*nearest.nz;
-    if(into<0){rx-=nearest.nx*into;rz-=nearest.nz*into;}
-    else break;
-  }
-  return {x,z};
+  return sweepBody(actor,dx,dz,{walls:WALLS,radius});
+}
+
+/** All solids participate in the same sweep; a rock correction cannot re-enter a wall. */
+export function resolveArenaMove(actor,dx,dz,{radius=ACTOR_RADIUS,arenaRadius=24}={}){
+  const circles=actor.catapultId?NAV_CIRCLES.filter(c=>c.id!==actor.catapultId):NAV_CIRCLES;
+  return sweepBody(actor,dx,dz,{walls:WALLS,circles,radius,arenaRadius});
 }
 
 export function coverAt(actor){return TREES.find(tree=>Math.hypot(actor.x-tree.x,actor.z-tree.z)<=tree.radius)||null;}
 export function terrainSpeed(actor){return coverAt(actor) ? .55 : 1;}
 export function enclosingYard(actor){return ENCLOSURES.find(c=>Math.abs(actor.x-c.x)<c.halfWidth&&Math.abs(actor.z-c.z)<c.halfDepth)||null;}
 
-function segmentCircle(a,b,c,r){
-  const dx=b.x-a.x,dz=b.z-a.z,length=dx*dx+dz*dz;
-  const t=length?Math.max(0,Math.min(1,((c.x-a.x)*dx+(c.z-a.z)*dz)/length)):0;
-  return Math.hypot(a.x+t*dx-c.x,a.z+t*dz-c.z)<r-EPSILON;
-}
 function navigationSight(a,b){
-  return hasWallSight(a,b,NAV_RADIUS)&&NAV_CIRCLES.every(c=>!segmentCircle(a,b,c,c.r+NAV_RADIUS));
+  return clearBodySegment(a,b,{walls:WALLS,circles:NAV_CIRCLES,radius:NAV_RADIUS,arenaRadius:24});
 }
 function freePoint(p){
-  return Math.hypot(p.x,p.z)<=23.85&&WALLS.every(w=>!within(p.x,p.z,bounds(w,NAV_RADIUS),-EPSILON))&&NAV_CIRCLES.every(c=>Math.hypot(p.x-c.x,p.z-c.z)>c.r+NAV_RADIUS+EPSILON);
+  return Math.hypot(p.x,p.z)<=23.85&&WALLS.every(w=>rectangleClearance(p,w)>NAV_RADIUS+EPSILON)&&NAV_CIRCLES.every(c=>Math.hypot(p.x-c.x,p.z-c.z)>c.r+NAV_RADIUS+EPSILON);
 }
 
 let graph=null;
@@ -185,7 +170,7 @@ function goalPoint(actor,goal){
   let point={x:goal.x,z:goal.z};
   const machine=NAV_CIRCLES.find(c=>c.machine&&Math.hypot(point.x-c.x,point.z-c.z)<c.r+NAV_RADIUS);
   if(machine)point={x:machine.x,z:machine.z+2.05};
-  return resolveWallMove(point,0,0,NAV_RADIUS+.02);
+  return resolveArenaMove(point,0,0,{radius:NAV_RADIUS});
 }
 function findRoute(actor,goal){
   const {nodes,edges}=makeGraph(),count=nodes.length,dist=new Float64Array(count),previous=new Int32Array(count),used=new Uint8Array(count);
@@ -212,17 +197,13 @@ export function navigateTo(actor,target){
   if(!Number.isFinite(target?.x)||!Number.isFinite(target?.z))return {x:0,z:0};
   // A shove can leave the actor touching the physical wall. Step clear of the
   // small navigation margin before searching; otherwise every ray starts blocked.
-  const clearance=resolveWallMove(actor,0,0,NAV_RADIUS+.02),correction=Math.hypot(clearance.x-actor.x,clearance.z-actor.z);
+  const clearance=resolveArenaMove(actor,0,0,{radius:NAV_RADIUS}),correction=Math.hypot(clearance.x-actor.x,clearance.z-actor.z);
   if(correction>.005){routes.delete(actor);return {x:(clearance.x-actor.x)/correction,z:(clearance.z-actor.z)/correction};}
-  for(const circle of NAV_CIRCLES){
-    const dx=actor.x-circle.x,dz=actor.z-circle.z,d=Math.hypot(dx,dz);
-    if(d<circle.r+NAV_RADIUS+.01){routes.delete(actor);return d>1e-6?{x:dx/d,z:dz/d}:{x:0,z:1};}
-  }
   const goal=goalPoint(actor,target),distance=Math.hypot(goal.x-actor.x,goal.z-actor.z);
   if(distance<.18){routes.delete(actor);return {x:0,z:0};}
   if(navigationSight(actor,goal)){routes.delete(actor);return {x:(goal.x-actor.x)/distance,z:(goal.z-actor.z)/distance};}
   let route=routes.get(actor);
-  if(!route||Math.hypot(route.goal.x-goal.x,route.goal.z-goal.z)>1.1||Math.hypot(route.lastX-actor.x,route.lastZ-actor.z)>3){route={goal,path:findRoute(actor,goal),lastX:actor.x,lastZ:actor.z};routes.set(actor,route);}
+  if(!route||!route.path.length||!navigationSight(actor,route.path[0])||Math.hypot(route.goal.x-goal.x,route.goal.z-goal.z)>.35||Math.hypot(route.lastX-actor.x,route.lastZ-actor.z)>3){route={goal,path:findRoute(actor,goal),lastX:actor.x,lastZ:actor.z};routes.set(actor,route);}
   route.lastX=actor.x;route.lastZ=actor.z;
   while(route.path.length&&Math.hypot(route.path[0].x-actor.x,route.path[0].z-actor.z)<.18&&(route.path.length===1||navigationSight(actor,route.path[1])))route.path.shift();
   // Skip waypoints as soon as a clear route opens; this avoids corner wobble.

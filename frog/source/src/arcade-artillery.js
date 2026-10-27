@@ -31,7 +31,7 @@ export function throwStone(s,a,target){
  const dx=x-c.x,dz=z-c.z,range=Math.hypot(dx,dz);if(range<ARTILLERY.minRange-1e-6)return false;
  const ax=dx/range,az=dz/range;if(range>ARTILLERY.maxRange){x=c.x+ax*ARTILLERY.maxRange;z=c.z+az*ARTILLERY.maxRange;}
  const shell={id:s.nextId++,owner:a.id,catapultId:c.id,startX:c.x+ax,startZ:c.z+az,startHeight:1.6,tx:x,tz:z,age:0,duration:ARTILLERY.flightTime,arcHeight:ARTILLERY.arcHeight};
- c.aimX=ax;c.aimZ=az;c.loaded=false;c.cooldown=ARTILLERY.cooldown;c.recoil=ARTILLERY.recoilDuration;a.catapultShots++;s.shells.push(shell);
+ c.aimX=ax;c.aimZ=az;c.loaded=false;c.cooldown=ARTILLERY.cooldown;c.recoil=ARTILLERY.recoilDuration;a.catapultShots++;a.spawnShield=0;s.shells.push(shell);
  s.events.push({type:'stoneShot',id:a.id,shellId:shell.id,catapultId:c.id});return true;
 }
 export function stepArtillery(s,dt,hit){

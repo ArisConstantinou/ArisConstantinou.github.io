@@ -9,7 +9,10 @@ function arena(ground){
  const s=newRound();s.phase='battle';s.intro=0;s.flies.forEach(f=>f.wait=100);
  Object.assign(s.actors[0],{x:0,z:8,face:.7,ammo:60});
  for(const a of s.actors.slice(1))Object.assign(a,{ko:true,respawnTime:99});
- if(ground)setProjectileWorld(s,{ground});return s;
+ // Keep the displayed target orientation still while comparing a preview
+ // with a later physical impact; AI intent can change during the flight.
+ const visibleYaw=new Map(s.actors.map(a=>[a.id,a.face]));
+ setProjectileWorld(s,{ground:ground||(()=>0),actorYaw:a=>visibleYaw.get(a.id)});return s;
 }
 function target(s,x=0,z=0){const a=s.actors[1];Object.assign(a,{x,z,ko:false,respawnTime:0,ammo:0,load:0,idle:99,shot:99,tongue:99,kickCooldown:99,machineTimer:99,refilling:true});return a;}
 function aim(a,x,y,z){const d=Math.hypot(x,y,z);Object.assign(a,{aimX:x/d,aimY:y/d,aimZ:z/d,aim3D:true});}
@@ -36,7 +39,9 @@ test('a shot above the visible head misses instead of hitting a tall invisible a
 test('rising and descending shots hit actors at their actual different terrain heights',()=>{
  for(const downhill of [false,true]){
   const s=arena((x,z)=>downhill?(z>=6?2:0):(z<2?2:0)),p=s.actors[0],a=target(s);
-  if(downhill){p.z=6.1;aim(p,0,-2,-6.1);}else aim(p,0,2.4,-8);
+  // The rising ray clears the two-unit cliff and meets the visible upper body,
+  // rather than the old oversized cylinder above it.
+  if(downhill){p.z=6.1;aim(p,0,-2,-6.1);}else aim(p,0,2.25,-8);
   const preview=traceAim(s,p);assert.equal(preview.targetId,a.id);assert.equal(preview.kind,'actor');
   const result=flight(s);assert.equal(s.stats.hits,1);assert.equal(a.dizzy,1);assert.equal(result.impact.kind,'actor');
   near(result.impact.x,preview.x);near(result.impact.y,preview.y);near(result.impact.z,preview.z);
@@ -60,9 +65,11 @@ test('the source-to-muzzle sweep cannot create a projectile across a nearby wall
  const preview=traceAim(s,p);assert.ok(preview.distance<PROJECTILE.muzzleOffset);assert.equal(shoot(s,p),true);assert.equal(s.bullets.length,0);
  const impact=s.events.find(e=>e.type==='splat');assert.equal(impact.kind,'wall');near(impact.z,preview.z);near(impact.y,PROJECTILE.originHeight);
 });
-test('a fast vertical segment detects the body cap before passing through it into terrain',()=>{
- const s=arena(),a=target(s);s.bullets.push({id:99,owner:'player',x:a.x,y:2.2,z:a.z,dx:0,dy:-1,dz:0,followGround:false,life:.65});step(s,{},.05);
- assert.equal(a.dizzy,1);assert.equal(s.bullets.length,0);const impact=s.events.find(e=>e.type==='splat');assert.equal(impact.kind,'actor');near(impact.y,PROJECTILE.bodyHeight+PROJECTILE.radius);
+test('a fast vertical segment hits the rounded visible back before terrain, not an oversized flat cap',()=>{
+ const s=arena(),a=target(s),preview=traceWorldRay(s,{x:a.x,y:2.2,z:a.z},{x:0,y:-1,z:0},2.2,{ignoreId:'player'});
+ s.bullets.push({id:99,owner:'player',x:a.x,y:2.2,z:a.z,dx:0,dy:-1,dz:0,followGround:false,life:.65});step(s,{},.05);
+ assert.equal(a.dizzy,1);assert.equal(s.bullets.length,0);const impact=s.events.find(e=>e.type==='splat');assert.equal(impact.kind,'actor');near(impact.y,preview.y);
+ assert.ok(impact.y>.7&&impact.y<.85,'the center back is lower than the eye ridges and old 1.05-unit cap');
 });
 test('terrain sweeping catches a narrow ridge even when both frame endpoints are clear',()=>{
  const s=arena((x,z)=>z>5.15&&z<5.35?1:0);s.bullets.push({id:99,owner:'player',x:0,y:.45,z:6,dx:0,dy:0,dz:-1,followGround:false,life:.65});step(s,{},.05);

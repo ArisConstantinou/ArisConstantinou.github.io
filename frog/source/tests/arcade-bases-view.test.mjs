@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {BASES,CATAPULT_SITES,resolveWallMove,createHouseFloors,houseFloorAt} from '../src/arcade-bases.js';
+import {BASES,CATAPULT_SITES,WALLS,resolveWallMove,createHouseFloors,houseFloorAt} from '../src/arcade-bases.js';
+import {FROG_BODY} from '../src/arcade-actor-bounds.js';
 import {ArcadeBasesView} from '../src/arcade-bases-view.js';
 import {cameraPose} from '../src/arcade-view-math.js';
 
@@ -49,7 +50,7 @@ test('the rear spawn wall reveals the frog on the first frame without changing p
   const home=view.enclosures.get('base-player'),other=view.enclosures.get('base-rival-1');
   assert.equal(home.faded,true);assert.equal(home.woodMaterial.opacity,.2);assert.equal(home.capMaterial.opacity,.2);assert.equal(home.woodMaterial.depthWrite,false);
   assert.equal(other.woodMaterial.opacity,1);
-  const blocked=resolveWallMove(player,20,0);assert.ok(blocked.x<2.2,'faded wall still stops physical movement');
+  const blocked=resolveWallMove(player,20,0),wall=WALLS.find(w=>w.id==='base-player-east-whole');assert.ok(blocked.x<=wall.x-wall.hw-FROG_BODY.movementRadius+1e-5,'faded wall still stops physical movement');
   view.dispose();
 });
 

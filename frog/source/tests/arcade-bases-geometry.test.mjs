@@ -2,9 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {BASES,CATAPULT_SITES,CATAPULT_ENCLOSURES,ENCLOSURES,WALLS,TREES,resolveWallMove,wallContact,hasWallSight,coverAt,terrainSpeed,navigateTo,insideHome,createHouseFloors,houseFloorAt} from '../src/arcade-bases.js';
 import {OBSTACLES} from '../src/arcade-model.js';
+import {FROG_BODY} from '../src/arcade-actor-bounds.js';
+import {rectangleClearance} from '../src/arcade-collision.js';
 
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
-const insideWall=(p,w,radius=.78)=>Math.abs(p.x-w.x)<w.hw+radius-1e-4&&Math.abs(p.z-w.z)<w.hd+radius-1e-4;
+const insideWall=(p,w,radius=FROG_BODY.movementRadius)=>rectangleClearance(p,w)<radius-1e-4;
 
 test('three stocked homes and three catapult compounds have one genuine opening each',()=>{
   assert.equal(BASES.length,3);assert.equal(ENCLOSURES.length,6);
@@ -39,8 +41,8 @@ test('walking through a gate works in both directions without teleporting to the
 
 test('a high impulse cannot tunnel through the wall and movement can slide along it',()=>{
   const p={x:0,z:20.5};
-  const stopped=resolveWallMove(p,12,0);assert.ok(stopped.x<2.2);assert.ok(stopped.x>2.0);assert.equal(stopped.z,p.z);
-  const slide=resolveWallMove({x:2.1,z:19.5},2,1.2);assert.ok(slide.x<2.16);assert.ok(slide.z>20.6);
+  const stopped=resolveWallMove(p,12,0);assert.ok(Math.abs(stopped.x-(3.1-.17-FROG_BODY.movementRadius))<.001);assert.equal(stopped.z,p.z);
+  const slide=resolveWallMove({x:2.1,z:19.5},2,1.2);assert.ok(slide.x<2.3);assert.ok(slide.z>20.6);
   assert.ok(WALLS.every(w=>!insideWall(stopped,w)&&!insideWall(slide,w)));
 });
 

@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {newRound,step,hit,shoot,saveRound,loadRound,moveBody,RULES} from '../src/arcade-model.js';
+import {newRound,step,hit,shoot,saveRound,loadRound,moveBody,projectileOrigin,RULES} from '../src/arcade-model.js';
 import {ARTILLERY,CATAPULTS,stoneTarget,nearbyCatapult,interactCatapult,throwStone,stepArtillery} from '../src/arcade-artillery.js';
 import {BASES,navigateTo,resolveWallMove,hasWallSight} from '../src/arcade-bases.js';
+import {FROG_BODY} from '../src/arcade-actor-bounds.js';
 const frame=(s,input={},n=1)=>{for(let i=0;i<n;i++)step(s,input,1/60);};
 function mounted(){const s=newRound();s.phase='battle';const p=s.actors[0],machine=s.catapults[0];Object.assign(p,{x:machine.x,z:machine.z+2.05,ammo:17});assert.equal(interactCatapult(s,p),true);for(const a of s.actors.slice(1))Object.assign(a,{idle:99,shot:99,machineTimer:99,tongue:99});return {s,p,machine};}
 
@@ -51,7 +52,7 @@ test('catapult target range exceeds flies but remains inside the arena',()=>{
 });
 test('approach stops outside machine base, mounting stays seated and exit clears the base',()=>{
  const s=newRound(),p=s.actors[0],c=s.catapults[0];Object.assign(p,{x:c.x,z:c.z+5.2});frame(s,{mx:0,mz:-1,aiming:false},60);
- const clearance=ARTILLERY.baseRadius+.78;assert.ok(Math.hypot(p.x-c.x,p.z-c.z)>=clearance-1e-8);assert.ok(p.z>c.z);assert.equal(nearbyCatapult(s,p),c);
+ const clearance=ARTILLERY.baseRadius+FROG_BODY.movementRadius;assert.ok(Math.hypot(p.x-c.x,p.z-c.z)>=clearance-1e-8);assert.ok(p.z>c.z);assert.equal(nearbyCatapult(s,p),c);
  frame(s,{interactCatapult:true});frame(s,{mx:1,mz:1},20);assert.deepEqual([p.x,p.z],[c.x,c.z]);assert.equal(p.catapultId,c.id);
  frame(s,{interactCatapult:true});assert.equal(p.catapultId,null);assert.equal(c.occupant,null);assert.ok(Math.hypot(p.x-c.x,p.z-c.z)>clearance);assert.ok(Math.hypot(p.x,p.z)<RULES.radius-1);
 });
@@ -64,13 +65,16 @@ test('every owner can navigate from home to the relocated station, mount, dismou
   assert.deepEqual([actor.x,actor.z],[station.x,station.z]);assert.equal(interactCatapult(s,actor),true);
   assert.equal(actor.catapultId,null);assert.equal(station.occupant,null);
   assert.deepEqual(resolveWallMove(actor,0,0),{x:actor.x,z:actor.z},'dismount does not intersect a wall');
-  assert.ok(Math.hypot(actor.x-station.x,actor.z-station.z)>ARTILLERY.baseRadius+.78);assert.ok(hasWallSight(actor,station));
+  assert.ok(Math.hypot(actor.x-station.x,actor.z-station.z)>ARTILLERY.baseRadius+FROG_BODY.movementRadius);assert.ok(hasWallSight(actor,station));
   for(let i=0;i<1600&&Math.hypot(actor.x-home.stock.x,actor.z-home.stock.z)>.25;i++){const direction=navigateTo(actor,home.stock);moveBody(actor,direction.x*.08,direction.z*.08);}
   assert.ok(Math.hypot(actor.x-home.stock.x,actor.z-home.stock.z)<.25,`${actor.id} can refill after using its side station`);
  }
 });
 test('machine base collision does not shield its operator from ordinary fly projectiles',()=>{
- const {s,p,machine}=mounted(),a=s.actors[1];Object.assign(a,{x:machine.x,z:machine.z+4,ammo:1,aimX:0,aimZ:-1,tongue:99,shot:0});assert.equal(shoot(s,a),true);frame(s,{},20);assert.equal(p.dizzy,1);assert.equal(p.catapultId,machine.id);
+ const {s,p,machine}=mounted(),a=s.actors[1];Object.assign(a,{x:machine.x,z:machine.z+4,ammo:1,tongue:99,shot:0});
+ const origin=projectileOrigin(s,a),body=projectileOrigin(s,p);
+ Object.assign(a,{aimX:body.x-origin.x,aimY:body.y-origin.y,aimZ:body.z-origin.z,aim3D:true});
+ assert.equal(shoot(s,a),true);frame(s,{},20);assert.equal(p.dizzy,1);assert.equal(p.catapultId,machine.id);
 });
 test('near-edge artillery preview preserves aimed direction and marks impossible short range invalid',()=>{
  const source={x:-14,z:-16},n=Math.hypot(source.x,source.z),target=stoneTarget(source,source.x/n,source.z/n,1);

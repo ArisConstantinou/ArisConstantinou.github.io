@@ -11,12 +11,12 @@ export function resolveAutoFire({state,actor,input={},active=false,aiming=false}
  const ay=input.ay===undefined?0:input.ay;
  if(!Number.isFinite(actor.x)||!Number.isFinite(actor.z)||!Number.isFinite(input.ax)||!Number.isFinite(ay)||!Number.isFinite(input.az)||Math.hypot(input.ax,ay,input.az)<=.05)return off;
 
- // The ordinary swept projectile test supplies both its existing forgiving
- // body volume and exact range/height/cover rules, including the muzzle offset.
+ // The ordinary swept projectile test supplies the same visible body volumes
+ // and exact range/height/cover rules, including the muzzle offset.
  // Do not enlarge a target here: that would fire flies that actually miss.
  const trace=traceShot(state,{...actor,aimX:input.ax,aimY:ay,aimZ:input.az,aim3D:Number.isFinite(input.ay)});
  const target=trace.kind==='actor'?state.actors.find(candidate=>candidate.id===trace.targetId):null;
- if(!target||target.id===actor.id||target.ko||target.eliminated||target.invuln>0)return {...off,trace};
+ if(!target||target.id===actor.id||target.ko||target.eliminated||target.invuln>0||target.spawnShield>0)return {...off,trace};
 
  // Keep this as fire intent during a shot cooldown. The simulation decrements
  // that timer before shoot(), preserving the same cadence as held manual fire.

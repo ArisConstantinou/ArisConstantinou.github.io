@@ -1,4 +1,4 @@
-# FROG 4.3.10 camera and aiming design
+# FROG 4.3.11 camera and aiming design
 
 ## Decision
 
@@ -41,13 +41,35 @@ Pointer Lock can be denied, absent, or briefly unavailable after Escape. These c
 
 The request session uses generation-bound promise handling, legacy event handling and a bounded timeout. An intentional release is recorded before asynchronous browser events arrive, so an old unlock cannot pause a newly resumed round. A late grant while gameplay is inactive is released. Real unexpected loss of an established lock still pauses and clears held inputs.
 
+## Overview aim and feedback in 4.3.11
+
+The overview has a planar default: an empty-space cursor ray selects a bearing on the standing firing plane, and flies follow terrain at their normal firing height, exactly like the directional stick. A direct visible actor hit instead selects the true 3D body point, including source/target hop height and a mounted operator. Chase and catapult aiming retain their separate existing contracts. This is a direction rule, not enlarged hit volumes or hidden horizontal aim assistance.
+
+The preview samples the same launch and flight evaluation used by actual projectiles, ending at the first physical contact or maximum travel distance. A stronger outlined path and main impact marker make that result visible; a smaller cursor hint can remain beyond it. An obstacle, a body and a clear path have distinct feedback. Overview preserves the last stick bearing and its preview after release. Confirmed-hit feedback still comes only from an actual damage event.
+
+Primary references for this decision: the [official Alien Swarm: Reactive Drop weapon source](https://github.com/ReactiveDrop/reactivedrop_public_src/blob/af3be02c1d7db2cd07c41105e7519cf8edd66ce3/src/game/client/swarm/c_asw_weapon.cpp) ends its laser at the shot trace's actual contact, and its [input source](https://github.com/ReactiveDrop/reactivedrop_public_src/blob/af3be02c1d7db2cd07c41105e7519cf8edd66ce3/src/game/client/swarm/asw_input.cpp) compensates muzzle offset and rejects occluded assist targets. [Enter the Gungeon's developer patch notes](https://steamcommunity.com/app/311690/discussions/0/1711815918578469582/) document optional stick aim assistance. [The Ascent's official description](https://theascent.krafton.com/en) makes high/low aim an explicit rule. These references motivate visible, consistent aiming; FROG's specific plane, colors and timings are our own design choices. No new automatic aiming mode was added.
+
+## Bot attack fairness in 4.3.11
+
+Newly acquired or changed targets require 0.35–0.60 seconds of reaction, followed by a visible 0.40–0.55 second windup. A world aim point is sampled once at windup start; neither target motion nor target height is tracked during that commitment. Aim is recalculated only from the bot's current mouth to that frozen point, so the bot's own strafe or hop does not invalidate its shot. Horizontal error is uniformly sampled within ±0.14 radians, with an additional ±0.04-radian allowance while moving, and a small ±0.09-unit vertical error. There is no velocity prediction. This preserves close-range danger while making lateral dodges and medium-range misses meaningful.
+
+Bots fire two-shot bursts, with 0.25–0.40 seconds recovery before the next windup and 1.15–1.60 seconds rest after a burst. Recovery survives loss of sight. Target change, loss of sight, impact and incapacitation cancel pending aim; fresh acquisition is required to resume. All countdowns use simulation seconds, including the movement-decision timer. A still-visible target is retained to avoid frame-by-frame switching between near-equal distances. Both rivals use the same policy and can attack each other. Projectile speed, collision rules and ammunition remain shared with the player.
+
 ## Frog body direction
+
+### Contact geometry in 4.3.11
+
+Ammo never changes the frog's collision size. A shared horizontal body radius of 0.64 drives swept movement, scenery clearance and separation between active frogs. Projectile traces instead use fixed rounded volumes following the visible torso, head, eye ridges and low legs, expanded only by the fly's 0.1 radius. Ground height, hop height, the mounted offset and the currently rendered body yaw are included. Camera targeting, preview, manual shots and automatic fire all use these same projectile contacts.
+
+Walls have rounded clearance corners. Walls, rocks, stationary machines and the arena rim participate in one sweep, preserving tangent movement and immediate movement away from a contact. Navigation uses the same solids with a small additional clearance and rechecks cached route segments after displacement. Close kicks require matching body height and recheck contact when the foot lands. NPCs aim at the actual target body height, including mounted operators.
+
+The objective uses 12-second respawns and an 8-second uninterrupted sabotage for every owner. The one-second spawn shield ends on a successful offensive action and is separate from the short post-hit immunity. A small shield symbol shows its lifetime; automatic fire does not spend ammunition on it. Respawning into an occupied home chooses a nearby clear interior position, avoiding an automatic displacement/interruption of the attacker.
 
 The player body follows the simulation's last movement heading during ordinary hopping, independently of the camera and the persistent center reticle. Left, right, backward and diagonal movement therefore turn the frog toward travel. The heading remains through landing gaps and after movement release; zero hop velocity does not snap it back toward the reticle.
 
 Deliberate manual fire, eligible automatic fire, the complete shot interval, kicks and mounted catapults use aim-facing so the visible mouth/body agrees with the attack direction. Storage sabotage uses the simulation's storage-facing heading. KO, elimination, dizzy and knock-up retain the current visual yaw for their existing reaction poses. NPC combat aiming and windup remain intact.
 
-This is a rendering decision. It does not change logical aiming, aim vectors, movement axes, projectile traces or camera yaw. Models receive their initial facing when created, then interpolate toward the chosen yaw through the shortest angular path. Passive looking alone does not force the player's body away from its movement heading.
+The facing choice does not rotate logical aiming, movement axes or camera yaw. Models receive their initial facing when created, then interpolate toward the chosen yaw through the shortest angular path. Projectile body volumes follow that rendered yaw. Passive looking alone does not force the player's body away from its movement heading.
 
 ## Mouse aiming from a catapult
 
@@ -115,4 +137,4 @@ The meaningful check is the combined action, not merely whether an isolated came
 
 13. A mouse-controlled catapult has a usable free aiming cursor in both views; mouse movement selects the landing target without rotating the camera. Mount unlock does not pause, fresh clicks launch stones, and dismount restores normal on-foot look without stuck firing.
 
-Unit tests cover math, boom placement, camera/fire settings, tap buffering, menu activations, native mouse-look request lifecycle, automatic-fire eligibility, fresh directional visibility, continuous look input, visual body-facing and touch-control layout. The original camera acceptance harness is `qa/arcade-435.mjs`; menu/capture failure regression coverage is `qa/arcade-436.mjs`. Historical mobile auto-fire and selectable-firing-mode coverage remains in `qa/arcade-437.mjs` and `qa/arcade-438.mjs`. Integrated-fire, continuous-turning and flexible-placement coverage remains in `qa/arcade-439.mjs`. Current movement-facing and mounted-mouse coverage is `qa/arcade-4310.mjs`. These use browser input with deterministic simulation fixtures. Mobile coverage is emulated and does not claim physical iPhone/Safari testing.
+Unit tests cover math, boom placement, camera/fire settings, tap buffering, menu activations, native mouse-look request lifecycle, automatic-fire eligibility, fresh directional visibility, continuous look input, visual body-facing and touch-control layout. The original camera acceptance harness is `qa/arcade-435.mjs`; menu/capture failure regression coverage is `qa/arcade-436.mjs`. Historical mobile auto-fire and selectable-firing-mode coverage remains in `qa/arcade-437.mjs` and `qa/arcade-438.mjs`. Integrated-fire, continuous-turning and flexible-placement coverage remains in `qa/arcade-439.mjs`. Movement-facing and mounted-mouse coverage is `qa/arcade-4310.mjs`. Contact, objective timing, spawn protection and overview feedback coverage is `qa/arcade-4311.mjs`; seeded combat tests measure real first-shot hits and sidestep avoidance. These use browser input with deterministic simulation fixtures. Mobile coverage is emulated and does not claim physical iPhone/Safari testing.

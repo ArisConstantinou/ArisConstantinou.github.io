@@ -1,14 +1,16 @@
 // FROG arcade rules. Rendering-free and deterministic for repeatable tests.
 import {ARTILLERY,CATAPULTS,createCatapults,interactCatapult,releaseCatapult,throwStone,stepArtillery} from './arcade-artillery.js';
-import {BASES,resolveWallMove,hasWallSight,coverAt,terrainSpeed,navigateTo} from './arcade-bases.js';
-import {PROJECTILE,normalizeAim,worldRay,projectileLaunch,projectilePoint,traceProjectile} from './arcade-projectiles.js';
+import {BASES,ARENA_ROCKS,resolveArenaMove,hasWallSight,coverAt,terrainSpeed,navigateTo,insideHome} from './arcade-bases.js';
+import {PROJECTILE,normalizeAim,worldRay,projectileLaunch,projectilePoint,traceProjectile,projectileOrigin,projectileGround} from './arcade-projectiles.js';
+import {FROG_BODY,actorBodiesOverlapHeight} from './arcade-actor-bounds.js';
+import {resetBotAim,planBotShot} from './arcade-bot-combat.js';
 export {setProjectileWorld,projectileOrigin} from './arcade-projectiles.js';
 
-export const ARCADE_VERSION = '4.3.10';
+export const ARCADE_VERSION = '4.3.11';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
-export const RULES = Object.freeze({radius:25,capacity:60,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:3.6,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:10,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,revealSeconds:2.5});
-export const OBSTACLES = Object.freeze([{x:-8,z:2,r:1.5},{x:8,z:-3,r:1.7},{x:-2,z:-12,r:1.4},{x:13,z:12,r:1.6}]);
+export const RULES = Object.freeze({radius:25,capacity:60,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:1.95,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});
+export const OBSTACLES = ARENA_ROCKS;
 export const SWARMS = Object.freeze([[0,3.5],[-13,8],[13,1],[-12,-11],[10,-14],[2,17]].map(([x,z],i)=>Object.freeze({id:`swarm-${i}`,x,z,radius:2.1})));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
@@ -16,21 +18,35 @@ const norm=(x,z)=>{const n=Math.hypot(x,z);return n>1e-6?{x:x/n,z:z/n}:{x:0,z:1}
 const finite=(v,f=0)=>Number.isFinite(v)?v:f;
 function rng(s){let t=s.seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}
 function actor(id,x,z,heading=Math.PI){
- return {id,x,z,aimX:Math.sin(heading),aimY:0,aimZ:Math.cos(heading),aim3D:false,aiming:false,face:heading,ammo:RULES.capacity,load:1,dizzy:0,finishHits:0,dizzyTime:0,ko:false,eliminated:false,respawnTime:0,hit:0,invuln:0,shot:0,tongue:0,kick:0,kickCooldown:0,kickPending:false,impulseX:0,impulseZ:0,hop:0,hopX:0,hopZ:0,hopSpeed:0,height:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,idle:0,brain:0,decision:0,catapultId:null,catapultShots:0,catapultAim:0,interactHeld:false,machineTimer:id==='rival-1'?8:12,machineSeeking:false,aimWindup:0,aiShotReady:0,aiCharging:false,aiAimX:Math.sin(heading),aiAimZ:Math.cos(heading),refilling:false,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0};
+ return {id,x,z,aimX:Math.sin(heading),aimY:0,aimZ:Math.cos(heading),aim3D:false,aiming:false,face:heading,ammo:RULES.capacity,load:1,dizzy:0,finishHits:0,dizzyTime:0,ko:false,eliminated:false,respawnTime:0,hit:0,invuln:0,spawnShield:0,shot:0,tongue:0,kick:0,kickCooldown:0,kickPending:false,impulseX:0,impulseZ:0,hop:0,hopX:0,hopZ:0,hopSpeed:0,height:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,idle:0,brain:0,decision:0,catapultId:null,catapultShots:0,catapultAim:0,interactHeld:false,machineTimer:id==='rival-1'?8:12,machineSeeking:false,aimWindup:0,aiShotReady:0,aiCharging:false,aiTargetId:null,aiReaction:0,aiBurstShots:0,aiAimPoint:null,aiAimX:Math.sin(heading),aiAimY:0,aiAimZ:Math.cos(heading),refilling:false,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0};
 }
 export function ownBase(s,a){return s.bases?.find(b=>b.owner===a.id)||null;}
 const baseGeometry=b=>BASES.find(g=>g.id===b?.id);
 
-// Substeps keep both normal hops and large hit impulses on the same side of walls.
+// Resolve every scenery contact together, so sliding past a corner or rock
+// cannot put the frog back inside a different solid.
 export function moveBody(a,dx,dz){
- const count=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.35));
- for(let step=0;step<count;step++){
-  let {x,z}=resolveWallMove(a,dx/count,dz/count);
-  for(const o of OBSTACLES){const d=Math.hypot(x-o.x,z-o.z),r=o.r+.78;if(d<r){const n=norm(x-o.x,z-o.z);x=o.x+n.x*r;z=o.z+n.z*r;}}
-  for(const c of CATAPULTS){if(a.catapultId===c.id)continue;const d=Math.hypot(x-c.x,z-c.z),r=ARTILLERY.baseRadius+.78;if(d<r){const n=norm(x-c.x,z-c.z);x=c.x+n.x*r;z=c.z+n.z*r;}}
-  ({x,z}=resolveWallMove(a,x-a.x,z-a.z));
-  const d=Math.hypot(x,z);if(d>RULES.radius-1){x*=(RULES.radius-1)/d;z*=(RULES.radius-1)/d;}
-  const final=resolveWallMove({x,z},0,0);a.x=final.x;a.z=final.z;
+ const next=resolveArenaMove(a,dx,dz,{arenaRadius:RULES.radius-1});a.x=next.x;a.z=next.z;
+}
+const overlappingHeight=(s,a,b,padding=0)=>actorBodiesOverlapHeight(a,b,{groundA:projectileGround(s,a.x,a.z),groundB:projectileGround(s,b.x,b.z),padding});
+// Small symmetric body contacts keep active frogs distinct. Scenery still
+// constrains every correction; a neighbour can never push a frog through a wall.
+export function resolveActorContacts(s){
+ const actors=s.actors.filter(a=>!a.ko&&!a.eliminated),minimum=FROG_BODY.movementRadius*2;
+ for(let pass=0;pass<3;pass++)for(let i=0;i<actors.length;i++)for(let j=i+1;j<actors.length;j++){
+  const a=actors[i],b=actors[j],dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz);
+  if(d>=minimum-1e-5||!overlappingHeight(s,a,b))continue;
+  const movableA=!a.catapultId,movableB=!b.catapultId,total=Number(movableA)+Number(movableB);if(!total)continue;
+  const nx=d>1e-7?dx/d:1,nz=d>1e-7?dz/d:0,share=(minimum-d+1e-4)/total;
+  const ax=a.x,az=a.z,bx=b.x,bz=b.z;
+  if(movableA)moveBody(a,-nx*share,-nz*share);
+  if(movableB)moveBody(b,nx*share,nz*share);
+  const remaining=minimum-Math.hypot(b.x-a.x,b.z-a.z);
+  if(remaining>1e-5){
+   const travelledA=(ax-a.x)*nx+(az-a.z)*nz,travelledB=(b.x-bx)*nx+(b.z-bz)*nz;
+   if(movableB&&(!movableA||travelledA<share*.5))moveBody(b,nx*(remaining+1e-4),nz*(remaining+1e-4));
+   else if(movableA&&(!movableB||travelledB<share*.5))moveBody(a,-nx*(remaining+1e-4),-nz*(remaining+1e-4));
+  }
  }
 }
 function segmentCircle(x,z,nx,nz,c,r){const dx=nx-x,dz=nz-z,ox=x-c.x,oz=z-c.z,A=dx*dx+dz*dz,C=ox*ox+oz*oz-r*r;if(C<=0)return 0;if(A<1e-12)return null;const B=2*(ox*dx+oz*dz),D=B*B-4*A*C;if(D<0)return null;const t=(-B-Math.sqrt(D))/(2*A);return t>=0&&t<=1?t:null;}
@@ -47,7 +63,7 @@ export function newRound(seed=731){
  return s;
 }
 export function fireRing(x,y){const d=Math.hypot(x,y);return {x:d>.08?x/Math.max(1,d):0,z:d>.08?y/Math.max(1,d):0,fire:d>=.72};}
-export function kickTarget(s,a){return s.actors.filter(b=>b!==a&&!b.ko&&distance(a,b)<=RULES.kickRange&&clearPickupPath(a,b)).sort((b,c)=>distance(a,b)-distance(a,c))[0]||null;}
+export function kickTarget(s,a){return s.actors.filter(b=>b!==a&&!b.ko&&!b.eliminated&&distance(a,b)<=RULES.kickRange&&overlappingHeight(s,a,b,.1)&&clearPickupPath(a,b)).sort((b,c)=>distance(a,b)-distance(a,c))[0]||null;}
 export function collect(s,a){
  if(a.ko||a.eliminated||a.dizzyTime>0||a.catapultId||a.tongue>0||a.ammo>=RULES.capacity)return false;
  const home=ownBase(s,a),stock=baseGeometry(home)?.stock;
@@ -77,7 +93,7 @@ function projectileImpact(s,bullet,contact){
 }
 export function shoot(s,a){
  if(a.ko||a.eliminated||a.dizzyTime>0||a.hit>0||a.catapultId||a.knockUp>0||a.shot>0||a.ammo<=0||(a.id!=='player'&&s.phase!=='battle'))return false;
- a.shot=RULES.shotInterval;a.ammo--;a.revealedTime=RULES.revealSeconds;
+ a.shot=RULES.shotInterval;a.ammo--;a.spawnShield=0;a.revealedTime=RULES.revealSeconds;
  const launch=projectileLaunch(s,a),bullet={id:s.nextId++,owner:a.id,...launch,life:RULES.projectileLifetime};
  // Sweep source to muzzle so nearby solids cannot be skipped by its offset.
  const contact=traceProjectile(s,bullet,PROJECTILE.muzzleOffset,{obstacles:OBSTACLES,ignoreId:a.id,hitActors:s.phase==='battle',arenaRadius:RULES.radius-.2});
@@ -90,14 +106,14 @@ function stopSabotage(s,a,reason='interrupted'){
  a.sabotageId=null;
 }
 function knockOut(s,a,b){
- stopSabotage(s,a,'knockout');releaseCatapult(s,a);a.ko=true;a.dizzyTime=0;a.hop=0;a.knockUp=0;a.knockUpStart=0;a.height=.9;a.impulseX=b.dx*17;a.impulseZ=b.dz*17;a.ammo=0;a.aiCharging=false;
+ stopSabotage(s,a,'knockout');releaseCatapult(s,a);resetBotAim(a);a.ko=true;a.dizzyTime=0;a.hop=0;a.knockUp=0;a.knockUpStart=0;a.height=.9;a.impulseX=b.dx*17;a.impulseZ=b.dz*17;a.ammo=0;
  a.respawnTime=ownBase(s,a)?.destroyed?0:RULES.respawnSeconds;
  s.events.push({type:'ko',id:a.id,by:b.owner,x:a.x,z:a.z,dx:b.dx,dz:b.dz});if(b.owner==='player'&&a.id!=='player')s.stats.kos++;
 }
 export function hit(s,a,b){
- if(a.ko||a.eliminated||a.invuln>0)return false;
+ if(a.ko||a.eliminated||a.invuln>0||a.spawnShield>0)return false;
  const startHeight=Math.max(0,a.height),direction=norm(finite(b.dx),finite(b.dz)),force=clamp(finite(b.force,5),0,30);let damage=clamp(Math.floor(finite(b.damage,1)),1,9);
- stopSabotage(s,a,'hit');a.sabotageRecovery=RULES.sabotageRecovery;a.aiCharging=false;a.aimWindup=0;a.aiShotReady=Math.max(a.aiShotReady,.4);
+ stopSabotage(s,a,'hit');a.sabotageRecovery=RULES.sabotageRecovery;resetBotAim(a);a.aiShotReady=Math.max(a.aiShotReady,.4);
  a.hit=.23;a.invuln=.12;a.impulseX=direction.x*force;a.impulseZ=direction.z*force;a.revealedTime=RULES.revealSeconds;
  if(a.dizzyTime<=0){const hits=Math.min(damage,RULES.dizzyHits-a.dizzy);a.dizzy+=hits;damage-=hits;if(a.dizzy>=RULES.dizzyHits){a.dizzy=RULES.dizzyHits;a.dizzyTime=RULES.dizzySeconds;a.finishHits=0;a.hop=0;if(a.knockUp<=0)a.height=0;releaseCatapult(s,a);s.events.push({type:'dizzy',id:a.id});}}
  if(a.dizzyTime>0&&damage>0)a.finishHits=Math.min(RULES.finishHits,a.finishHits+damage);
@@ -108,13 +124,12 @@ export function hit(s,a,b){
 export function kick(s,a){
  if(s.phase!=='battle'||a.ko||a.eliminated||a.dizzyTime>0||a.hit>0||a.catapultId||a.knockUp>0||a.kick>0||a.kickCooldown>0)return false;
  const target=kickTarget(s,a);if(!target)return false;
- const d=norm(target.x-a.x,target.z-a.z);a.aimX=d.x;a.aimY=0;a.aimZ=d.z;a.aim3D=false;a.kick=RULES.kickDuration;a.kickCooldown=RULES.kickCooldown;a.kickPending=true;a.kickId=target.id;a.revealedTime=RULES.revealSeconds;s.events.push({type:'kick',id:a.id});return true;
+ const d=norm(target.x-a.x,target.z-a.z);a.aimX=d.x;a.aimY=0;a.aimZ=d.z;a.aim3D=false;a.kick=RULES.kickDuration;a.kickCooldown=RULES.kickCooldown;a.kickPending=true;a.kickId=target.id;a.spawnShield=0;a.revealedTime=RULES.revealSeconds;s.events.push({type:'kick',id:a.id});return true;
 }
 function settleKick(s,a){
  a.kickPending=false;const t=s.actors.find(b=>b.id===a.kickId);
- if(!t||t.ko||distance(a,t)>RULES.kickRange+.25||!clearPickupPath(a,t))return;
+ if(!t||t.ko||distance(a,t)>RULES.kickRange+.25||!overlappingHeight(s,a,t,.1)||!clearPickupPath(a,t))return;
  const d=norm(t.x-a.x,t.z-a.z);hit(s,t,{owner:a.id,dx:d.x,dz:d.z,damage:1,force:14});
- if(!t.ko){t.impulseX=d.x*14;t.impulseZ=d.z*14;}
 }
 export function sabotageTarget(s,a){
  if(a.ko||a.eliminated||a.catapultId)return null;
@@ -140,32 +155,39 @@ function updateSabotage(s,requests,dt){
    s.events.push({type:'sabotageStart',baseId:b.id,id:b.owner,by:holder.id});
   }
   const stock=baseGeometry(b).stock,toStock=norm(stock.x-holder.x,stock.z-holder.z);
-  holder.sabotageId=b.id;holder.aiming=false;holder.face=Math.atan2(toStock.x,toStock.z);holder.aimX=toStock.x;holder.aimY=0;holder.aimZ=toStock.z;holder.aim3D=false;holder.revealedTime=RULES.revealSeconds;b.progress=Math.min(RULES.sabotageSeconds,b.progress+dt);
+  holder.sabotageId=b.id;holder.spawnShield=0;holder.aiming=false;holder.face=Math.atan2(toStock.x,toStock.z);holder.aimX=toStock.x;holder.aimY=0;holder.aimZ=toStock.z;holder.aim3D=false;holder.revealedTime=RULES.revealSeconds;b.progress=Math.min(RULES.sabotageSeconds,b.progress+dt);
   if(b.progress>=RULES.sabotageSeconds-1e-8)destroyBase(s,b,holder);
  }
 }
 function navigateIntent(a,goal,extra={}){const move=navigateTo(a,goal);return {mx:move.x,mz:move.z,aiming:false,...extra};}
-function resetEnemyAim(a){a.aiCharging=false;a.aimWindup=0;}
+const resetEnemyAim=resetBotAim;
 function combatIntent(s,a,target){
  const d=distance(a,target),to=norm(target.x-a.x,target.z-a.z);
- a.brain-=1/60;if(a.brain<=0){a.brain=.7+rng(s)*.5;a.decision=rng(s)>.5?1:-1;}
+ const source=projectileOrigin(s,a),body=projectileOrigin(s,target),vertical=(body.y-source.y)/Math.max(.01,d);
+ if(a.brain<=0){a.brain=.7+rng(s)*.5;a.decision=rng(s)>.5?1:-1;}
  let fire=false;
- if(d<16&&a.ammo>0&&clearPickupPath(a,target)){
-  if(!a.aiCharging&&a.aiShotReady<=0){const error=(rng(s)-.5)*.08,cos=Math.cos(error),sin=Math.sin(error);a.aiAimX=to.x*cos-to.z*sin;a.aiAimZ=to.x*sin+to.z*cos;a.aimWindup=.32;a.aiCharging=true;}
-  else if(a.aiCharging&&a.aimWindup<=0){fire=true;a.aiCharging=false;a.aiShotReady=.22+rng(s)*.1;}
+ if(d<16&&a.ammo>0&&a.kick<=0&&clearPickupPath(a,target)){
+  fire=planBotShot(a,{targetId:target.id,x:to.x,z:to.z,vertical,distance:d,moving:Math.hypot(a.hopX,a.hopZ)>.1,origin:source,random:()=>rng(s)});
  }else resetEnemyAim(a);
  let mx=0,mz=0;
  if(d>11){const move=navigateTo(a,target);mx=move.x;mz=move.z;}
  else{const chase=d<6?-1:0;mx=to.x*chase+to.z*a.decision*.45;mz=to.z*chase-to.x*a.decision*.45;}
- return {mx,mz,aiming:true,ax:a.aiCharging||fire?a.aiAimX:to.x,az:a.aiCharging||fire?a.aiAimZ:to.z,fire,kick:d<3.3};
+ const closeKick=d<RULES.kickRange&&a.kickCooldown<=0&&overlappingHeight(s,a,target,.1);
+ // A short physical kick needs planted feet; retreating throughout its windup
+ // would make every newly corrected close-range strike miss its own target.
+ if(a.kick>0||closeKick){mx=0;mz=0;}
+ return {mx,mz,aiming:true,ax:a.aiCharging||fire?a.aiAimX:to.x,ay:a.aiCharging||fire?finite(a.aiAimY):vertical,az:a.aiCharging||fire?a.aiAimZ:to.z,fire,kick:closeKick};
 }
 export function rivalIntent(s,a){
- if(s.phase!=='battle'||a.ko||a.eliminated)return {};
+ if(s.phase!=='battle'||a.ko||a.eliminated||a.dizzyTime>0||a.knockUp>0){resetEnemyAim(a);return {};}
  if(a.hit>0){resetEnemyAim(a);const away=norm(a.impulseX,a.impulseZ);return {mx:away.x,mz:away.z,aiming:false};}
  const home=ownBase(s,a),homeGeometry=baseGeometry(home);
  const seen=s.actors.filter(b=>b!==a&&canDetect(a,b)).sort((b,c)=>distance(a,b)-distance(a,c));
- const target=seen[0],d=target?distance(a,target):Infinity;
+ // Keep a visible opponent while fighting, instead of snapping between two
+ // nearly equidistant frogs and reading a fresh perfect aim every frame.
+ const target=seen.find(b=>b.id===a.aiTargetId&&distance(a,b)<16)||seen[0],d=target?distance(a,target):Infinity;
  if(a.catapultId){
+  resetEnemyAim(a);
   if(!target||d<7||a.catapultShots>=2){a.machineTimer=18;a.machineSeeking=false;return {interactCatapult:true};}
   const c=s.catapults.find(c=>c.id===a.catapultId),to=norm(target.x-a.x,target.z-a.z);
   return {aiming:true,ax:to.x,az:to.z,throwStone:c?.loaded&&a.catapultAim<=0?{x:target.x,z:target.z}:undefined};
@@ -173,11 +195,12 @@ export function rivalIntent(s,a){
  if(a.ammo<6)a.refilling=true;
  if(a.ammo>=48)a.refilling=false;
  if(a.refilling&&home&&!home.destroyed){
-  resetEnemyAim(a);
   if(distance(a,homeGeometry.stock)<=RULES.pickupRange-.35&&clearPickupPath(a,homeGeometry.stock)){
    if(target&&d<5&&a.ammo>0)return combatIntent(s,a,target);
+   resetEnemyAim(a);
    return {};
   }
+  resetEnemyAim(a);
   return navigateIntent(a,homeGeometry.stock);
  }
  // A public storage alarm gives a reason to return home, without revealing hidden frogs.
@@ -201,7 +224,7 @@ export function rivalIntent(s,a){
   if(a.machineTimer<=0&&!a.machineSeeking){a.machineSeeking=!!machine&&d>11&&rng(s)<.35;a.machineTimer=8;}
   if(a.machineSeeking&&machine){
    if(d<7){a.machineSeeking=false;a.machineTimer=12;}
-   else return navigateIntent(a,{x:machine.x,z:machine.z+2.2},{interactCatapult:distance(a,machine)<=ARTILLERY.interactionRange&&hasWallSight(a,machine)});
+   else{resetEnemyAim(a);return navigateIntent(a,{x:machine.x,z:machine.z+2.2},{interactCatapult:distance(a,machine)<=ARTILLERY.interactionRange&&hasWallSight(a,machine)});}
   }
   return combatIntent(s,a,target);
  }
@@ -211,7 +234,18 @@ export function rivalIntent(s,a){
 }
 function respawn(s,a){
  const home=ownBase(s,a),geometry=baseGeometry(home);if(!home||home.destroyed||!geometry)return;
- const fresh=actor(a.id,geometry.spawn.x,geometry.spawn.z,geometry.spawnHeading);Object.assign(a,fresh,{invuln:1});
+ // Appear at the nearest clear place inside the same home. A defender must
+ // never materialize inside an invader and cancel a channel by pushing it away.
+ const others=s.actors.filter(b=>b!==a&&!b.ko&&!b.eliminated),candidates=[];
+ for(const x of [0,-.8,.8,-1.6,1.6])for(const z of [0,-.8,.8,-1.6,1.6]){
+  const p={x:geometry.spawn.x+x,z:geometry.spawn.z+z};
+  if(!insideHome(geometry,p,FROG_BODY.movementRadius))continue;
+  const valid=resolveArenaMove(p,0,0,{arenaRadius:RULES.radius-1});if(distance(p,valid)>.01)continue;
+  if(others.some(b=>distance(p,b)<FROG_BODY.movementRadius*2+.03))continue;
+  candidates.push({...p,cost:x*x+z*z});
+ }
+ const position=candidates.sort((b,c)=>b.cost-c.cost)[0]||geometry.spawn;
+ const fresh=actor(a.id,position.x,position.z,geometry.spawnHeading);Object.assign(a,fresh,{spawnShield:RULES.respawnProtectionSeconds});
  s.events.push({type:'respawn',id:a.id,x:a.x,z:a.z});
 }
 function evaluateWinner(s){
@@ -224,7 +258,7 @@ export function step(s,input={},dt=1/60){
  for(const f of s.flies)if(f.wait>0){f.wait-=dt;if(f.wait<=0)placeFly(s,f);}
  const sabotageRequests=new Map();
  for(const a of s.actors){
-  for(const k of ['shot','tongue','invuln','hit','idle','kickCooldown','aimWindup','aiShotReady','catapultAim','sabotageRecovery','revealedTime'])a[k]=Math.max(0,a[k]-dt);
+  for(const k of ['shot','tongue','invuln','spawnShield','hit','idle','kickCooldown','aimWindup','aiShotReady','aiReaction','brain','catapultAim','sabotageRecovery','revealedTime'])a[k]=Math.max(0,finite(a[k])-dt);
   if(s.phase==='battle')a.machineTimer=Math.max(0,a.machineTimer-dt);
   if(a.ko){
    releaseCatapult(s,a);moveBody(a,a.impulseX*dt,a.impulseZ*dt);a.impulseX*=Math.exp(-dt*3);a.impulseZ*=Math.exp(-dt*3);a.height=Math.max(0,a.height-dt*1.6);
@@ -260,6 +294,7 @@ export function step(s,input={},dt=1/60){
   }
   a.load+=(a.ammo/RULES.capacity-a.load)*(1-Math.exp(-dt*12));
  }
+ resolveActorContacts(s);
  for(const b of s.bullets){
   const travel=Math.min(dt,Math.max(0,b.life));b.life-=dt;if(travel<=0)continue;
   const distance=RULES.projectileSpeed*travel,contact=traceProjectile(s,b,distance,{obstacles:OBSTACLES,ignoreId:b.owner,hitActors:s.phase==='battle',arenaRadius:RULES.radius-.2});
@@ -285,8 +320,9 @@ export function loadRound(raw){
    const old=v.actors[i],a=s.actors[i];if(old?.id!==a.id||!Number.isFinite(old.x)||!Number.isFinite(old.z))return null;
    for(const key of Object.keys(a))if(typeof a[key]==='number')a[key]=clamp(finite(old[key],a[key]),-1e4,1e4);
    const home=ownBase(s,a),eliminated=home.destroyed,ko=eliminated||old.ko===true;
-   Object.assign(a,{ko,eliminated,respawnTime:ko&&!eliminated?clamp(finite(old.respawnTime,RULES.respawnSeconds)||RULES.respawnSeconds,.01,RULES.respawnSeconds):0,aiming:false,catapultId:null,interactHeld:false,machineSeeking:false,aiCharging:false,aimWindup:0,refilling:old.refilling===true||finite(old.ammo)<6,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0,ammo:eliminated?0:clamp(Math.floor(finite(old.ammo)),0,RULES.capacity),load:clamp(finite(old.load),0,1),dizzy:clamp(finite(old.dizzy),0,RULES.dizzyHits),finishHits:clamp(finite(old.finishHits),0,RULES.finishHits),dizzyTime:clamp(finite(old.dizzyTime),0,RULES.dizzySeconds),kickPending:false,kick:0,hop:0,hopX:0,hopZ:0,height:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,idle:0,impulseX:0,impulseZ:0});
+   Object.assign(a,{ko,eliminated,respawnTime:ko&&!eliminated?clamp(finite(old.respawnTime,RULES.respawnSeconds)||RULES.respawnSeconds,.01,RULES.respawnSeconds):0,aiming:false,catapultId:null,interactHeld:false,machineSeeking:false,aiCharging:false,aimWindup:0,aiTargetId:null,aiReaction:0,aiBurstShots:0,aiAimPoint:null,refilling:old.refilling===true||finite(old.ammo)<6,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0,ammo:eliminated?0:clamp(Math.floor(finite(old.ammo)),0,RULES.capacity),load:clamp(finite(old.load),0,1),dizzy:clamp(finite(old.dizzy),0,RULES.dizzyHits),finishHits:clamp(finite(old.finishHits),0,RULES.finishHits),dizzyTime:clamp(finite(old.dizzyTime),0,RULES.dizzySeconds),kickPending:false,kick:0,hop:0,hopX:0,hopZ:0,height:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,idle:0,impulseX:0,impulseZ:0});
    for(const key of ['shot','tongue','invuln','hit','kickCooldown','aiShotReady'])a[key]=clamp(a[key],0,2);
+   a.spawnShield=clamp(finite(old.spawnShield),0,RULES.respawnProtectionSeconds);
    a.machineTimer=clamp(a.machineTimer,0,30);a.face=finite(a.face,Math.PI);
    a.aim3D=old.aim3D===true||Math.abs(finite(old.aimY))>1e-9;
    const aim=normalizeAim(a.aimX,a.aim3D?a.aimY:0,a.aimZ,{x:Math.sin(a.face),y:0,z:Math.cos(a.face)});a.aimX=aim.x;a.aimY=aim.y;a.aimZ=aim.z;

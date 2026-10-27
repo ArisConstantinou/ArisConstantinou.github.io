@@ -50,3 +50,34 @@ export function resolveMouseAim({rayOrigin,rayDirection,muzzle,range,hits=[]}={}
  const distance=length>EPSILON?Math.min(reach,length):reach;
  return {target:along(origin,direction,distance),direction,distance,source};
 }
+
+// Overview is directional aim: empty ground must not pitch a fly into the dirt.
+// Intersect a stable standing-height plane, then use only its X/Z bearing. The
+// omitted direction.y deliberately selects the same terrain-following flight
+// as the touch stick. An actual first camera-ray actor hit retains its real 3D
+// point (including jumping or mounted bodies); nothing snaps toward nearby foes.
+export function resolveOverviewAim({rayOrigin,rayDirection,muzzle,planeHeight,range,hits=[],fallback={x:0,z:-1}}={}) {
+ const origin=point(muzzle)?muzzle:{x:0,y:0,z:0},camera=point(rayOrigin)?rayOrigin:origin;
+ const magnitude=point(rayDirection)?Math.hypot(rayDirection.x,rayDirection.y,rayDirection.z):0;
+ const ray=magnitude>EPSILON?{x:rayDirection.x/magnitude,y:rayDirection.y/magnitude,z:rayDirection.z/magnitude}:{x:0,y:-1,z:0};
+ const reach=Number.isFinite(range)&&range>EPSILON?range:1,height=Number.isFinite(planeHeight)?planeHeight:origin.y;
+ let first=null,nearest=Infinity;
+ for(const hit of hits||[]){
+  const target=hit?.point??hit;if(!point(target))continue;
+  const depth=dot(subtract(target,camera),ray);
+  if(depth>EPSILON&&depth<nearest){first=hit;nearest=depth;}
+ }
+ if(first?.kind==='actor'&&first.targetId!=null){
+  const result=resolveMouseAim({rayOrigin:camera,rayDirection:ray,muzzle:origin,range:reach,hits:[first]});
+  if(result.source==='hit')return {...result,source:'actor',targetId:first.targetId};
+ }
+ const t=Math.abs(ray.y)>EPSILON?(height-camera.y)/ray.y:-1;
+ const target=t>EPSILON?along(camera,ray,t):null;
+ let x=target?target.x-origin.x:ray.x,z=target?target.z-origin.z:ray.z,length=Math.hypot(x,z);
+ if(!Number.isFinite(length)||length<EPSILON){
+  x=Number.isFinite(fallback?.x)?fallback.x:0;z=Number.isFinite(fallback?.z)?fallback.z:-1;length=Math.hypot(x,z);
+  if(length<EPSILON){x=0;z=-1;length=1;}
+ }
+ const direction={x:x/length,z:z/length},distance=target?Math.min(reach,Math.max(EPSILON,length)):reach;
+ return {target:{x:origin.x+direction.x*distance,y:height,z:origin.z+direction.z*distance},direction,distance,source:'plane',targetId:null};
+}

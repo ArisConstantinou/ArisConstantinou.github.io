@@ -26,10 +26,10 @@ test('a held aim on a live opponent fires along this frame input without changin
  assert.equal(traceShot(fixture.state,fixture.actor).targetId,null,'the actor previous aim deliberately points elsewhere');
 });
 
-test('the existing full body hit volume is usable without hidden snapping or shots that miss',()=>{
- const fixture=arena();fixture.target.x=.98;
+test('the visible body is usable without hidden snapping into the old oversized hit volume',()=>{
+ const fixture=arena();fixture.target.x=.35;
  assert.equal(resolve(fixture).fire,true,'the side of the real body remains a target');
- fixture.target.x=1.02;noFire(resolve(fixture));
+ fixture.target.x=.98;noFire(resolve(fixture));fixture.target.load=1;noFire(resolve(fixture));
  fixture.target.x=0;
  noFire(resolve(fixture,{input:{...fixture.input,ax:.3}}));
  noFire(resolve(fixture,{input:{...fixture.input,ay:.3}}));
@@ -38,7 +38,10 @@ test('the existing full body hit volume is usable without hidden snapping or sho
 
 test('automatic eligibility follows the exact fly lifetime range and arena boundary',()=>{
  const fixture=arena();fixture.actor.z=10;
- fixture.target.z=fixture.actor.z-(RULES.projectileSpeed*RULES.projectileLifetime+PROJECTILE.muzzleOffset+1-.01);
+ // Measure the current body's front surface, then place that surface on either
+ // side of the maximum fly travel. No fixed, oversized cylinder is assumed.
+ const front=traceWorldRay(fixture.state,{x:0,y:PROJECTILE.originHeight,z:3},{x:0,y:0,z:-1},4,{ignoreId:fixture.actor.id}).z-fixture.target.z;
+ fixture.target.z=fixture.actor.z-(RULES.projectileSpeed*RULES.projectileLifetime+PROJECTILE.muzzleOffset+front-.01);
  assert.equal(resolve(fixture).fire,true,'a body entering the last hundredth of fly range is reachable');
  fixture.target.z-=.02;noFire(resolve(fixture));
  Object.assign(fixture.actor,{x:22,z:6});Object.assign(fixture.target,{x:26.5,z:6});
@@ -67,11 +70,12 @@ test('a terrain ridge blocks auto-fire even when both endpoints are clear',()=>{
 
 test('elevated bodies require real vertical aim and descending shots remain usable',()=>{
  const rising=arena((x,z)=>z<2?2:0);
- noFire(resolve(rising));assert.equal(resolve(rising,{input:{ax:0,ay:2.4,az:-8,aiming:true}}).fire,true);
+ noFire(resolve(rising));assert.equal(resolve(rising,{input:{ax:0,ay:2.25,az:-8,aiming:true}}).fire,true);
+ noFire(resolve(rising,{input:{ax:0,ay:2.4,az:-8,aiming:true}})); // Above the real body, inside the former invisible cylinder.
  const falling=arena((x,z)=>z>=6?2:0);falling.actor.z=6.1;
  noFire(resolve(falling));assert.equal(resolve(falling,{input:{ax:0,ay:-2,az:-6.1,aiming:true}}).fire,true);
  const airborne=arena();airborne.target.height=2;
- noFire(resolve(airborne));assert.equal(resolve(airborne,{input:{ax:0,ay:2.4,az:-8,aiming:true}}).fire,true);
+ noFire(resolve(airborne));assert.equal(resolve(airborne,{input:{ax:0,ay:2,az:-8,aiming:true}}).fire,true);
 });
 
 test('self, knocked-out and eliminated frogs cannot trigger auto-fire',()=>{
@@ -88,6 +92,8 @@ test('an invulnerable first body suppresses fire and cannot be skipped to shoot 
  Object.assign(fixture.state.actors[2],{ko:false,x:0,z:-4,dizzyTime:100});
  const result=resolve(fixture);noFire(result);assert.equal(result.trace.targetId,fixture.target.id);
  fixture.target.invuln=0;assert.equal(resolve(fixture).fire,true);
+ fixture.target.spawnShield=.8;noFire(resolve(fixture));
+ fixture.target.spawnShield=0;assert.equal(resolve(fixture).fire,true,'fire resumes once the spawn shield ends');
  fixture.actor.invuln=.5;assert.equal(resolve(fixture).fire,true,'shooter protection is not an inability to shoot');
 });
 

@@ -1,14 +1,17 @@
 import {WALLS} from './arcade-bases.js';
+import {FROG_BODY,FROG_HIT_VOLUMES,actorBodyBase,actorBodyYaw} from './arcade-actor-bounds.js';
 
-export const PROJECTILE=Object.freeze({radius:.1,muzzleOffset:.8,originHeight:.45,bodyHeight:.95,terrainStep:.12});
+export const PROJECTILE=Object.freeze({radius:.1,muzzleOffset:.8,originHeight:.45,bodyHeight:FROG_BODY.height,terrainStep:.12});
 const EPS=1e-9,contexts=new WeakMap();
 const flat={ground:()=>0,solids:new Map()};
 const finite=(value,fallback=0)=>Number.isFinite(value)?value:fallback;
 const clamp=(value,low,high)=>Math.max(low,Math.min(high,value));
 const context=state=>contexts.get(state)||flat;
-export function setProjectileWorld(state,{ground}={}){
+export function setProjectileWorld(state,{ground,actorYaw}={}){
  if(typeof ground!=='function'){contexts.delete(state);return state;}
- if(contexts.get(state)?.ground!==ground)contexts.set(state,{ground,solids:new Map()});
+ const previous=contexts.get(state);
+ if(previous?.ground!==ground)contexts.set(state,{ground,actorYaw,solids:new Map()});
+ else previous.actorYaw=actorYaw;
  return state;
 }
 export function projectileGround(state,x,z){return finite(context(state).ground(x,z));}
@@ -17,7 +20,7 @@ export function normalizeAim(x,y,z,fallback={x:0,y:0,z:1}){
  return length>EPS?{x:x/length,y:y/length,z:z/length}:{...fallback};
 }
 export function projectileOrigin(state,actor){
- return {x:actor.x,y:projectileGround(state,actor.x,actor.z)+Math.max(0,finite(actor.height))+(actor.catapultId?.45:0)+PROJECTILE.originHeight,z:actor.z};
+ return {x:actor.x,y:actorBodyBase(actor,projectileGround(state,actor.x,actor.z))+PROJECTILE.originHeight,z:actor.z};
 }
 export function projectileDirection(actor){return normalizeAim(actor.aimX,actor.aimY,actor.aimZ);}
 export function projectileFollowsGround(actor){return !actor.aim3D&&Math.abs(finite(actor.aimY))<EPS;}
@@ -36,23 +39,26 @@ function boxContact(a,b,box){
  if(!normal.x&&!normal.y&&!normal.z)normal=normalizeAim(a.x-b.x,a.y-b.y,a.z-b.z,{x:0,y:1,z:0});
  return {t:Math.max(0,enter),normal};
 }
-function cylinderContact(a,b,c,radius,bottom,top){
- const dx=b.x-a.x,dz=b.z-a.z,ox=a.x-c.x,oz=a.z-c.z,A=dx*dx+dz*dz,C=ox*ox+oz*oz-radius*radius;
- let near=-Infinity,far=Infinity,vertical=false;
- if(A<EPS){if(C>0)return null;}
- else{const B=ox*dx+oz*dz,D=B*B-A*C;if(D<0)return null;const root=Math.sqrt(D);near=(-B-root)/A;far=(-B+root)/A;}
- const dy=b.y-a.y;
- if(Math.abs(dy)<EPS){if(a.y<bottom||a.y>top)return null;}
- else{const t1=(bottom-a.y)/dy,t2=(top-a.y)/dy,low=Math.min(t1,t2);if(low>near){near=low;vertical=true;}far=Math.min(far,Math.max(t1,t2));}
- const t=Math.max(0,near);if(t>Math.min(1,far)+EPS||far<0)return null;
- const normal=vertical?{x:0,y:dy>0?-1:1,z:0}:normalizeAim(a.x+dx*t-c.x,0,a.z+dz*t-c.z,{x:0,y:1,z:0});
- return {t,normal};
-}
 function ellipsoidContact(a,b,center,radii){
  const ox=(a.x-center.x)/radii.x,oy=(a.y-center.y)/radii.y,oz=(a.z-center.z)/radii.z;
  const dx=(b.x-a.x)/radii.x,dy=(b.y-a.y)/radii.y,dz=(b.z-a.z)/radii.z,A=dx*dx+dy*dy+dz*dz,B=ox*dx+oy*dy+oz*dz,C=ox*ox+oy*oy+oz*oz-1;
  let t=0;if(C>0){if(A<EPS)return null;const D=B*B-A*C;if(D<0)return null;t=(-B-Math.sqrt(D))/A;if(t<0||t>1)return null;}
  return {t,normal:normalizeAim((ox+dx*t)/radii.x,(oy+dy*t)/radii.y,(oz+dz*t)/radii.z,{x:0,y:1,z:0})};
+}
+function actorContact(state,a,b,actor){
+ const suppliedYaw=context(state).actorYaw?.(actor),yaw=Number.isFinite(suppliedYaw)?suppliedYaw:actorBodyYaw(actor),c=Math.cos(yaw),s=Math.sin(yaw);
+ const floor=actorBodyBase(actor,projectileGround(state,actor.x,actor.z));
+ const local=p=>{const x=p.x-actor.x,z=p.z-actor.z;return {x:c*x-s*z,y:p.y-floor,z:s*x+c*z};};
+ const start=local(a),end=local(b),padding=PROJECTILE.radius;
+ let best=null;
+ for(const body of FROG_HIT_VOLUMES){
+  // The only expansion is the fly's physical radius, not magazine size or
+  // aiming assistance. Actual flight and the preview share this exact sweep.
+  const hit=ellipsoidContact(start,end,body.center,{x:body.radii.x+padding,y:body.radii.y+padding,z:body.radii.z+padding});
+  if(hit&&(!best||hit.t<best.t))best=hit;
+ }
+ if(!best)return null;
+ const n=best.normal;return {...best,normal:{x:c*n.x+s*n.z,y:n.y,z:-s*n.x+c*n.z}};
 }
 function solids(state,obstacles){
  const c=context(state);let cached=c.solids.get(obstacles);if(cached)return cached;
@@ -109,8 +115,7 @@ export function traceWorldSegment(state,a,b,{obstacles=[],ignoreId,hitActors=tru
  // camera-side scenery is skipped; ignoreId already excludes the aiming frog.
  if(hitActors)for(const actor of state.actors){
   if(actor.id===ignoreId||actor.ko||actor.eliminated)continue;
-  const floor=projectileGround(state,actor.x,actor.z)+Math.max(0,finite(actor.height))+(actor.catapultId?.45:0);
-  consider(cylinderContact(a,b,actor,1+clamp(finite(actor.load),0,1)*.2,floor-PROJECTILE.radius,floor+PROJECTILE.bodyHeight+PROJECTILE.radius),'actor',{targetId:actor.id});
+  consider(actorContact(state,a,b,actor),'actor',{targetId:actor.id});
  }
  if(terrain)consider(terrainContact(state,a,b),'terrain');
  consider(boundaryContact(a,b,arenaRadius),'boundary');
@@ -128,8 +133,8 @@ export function projectilePoint(state,projectile,distance){
 }
 export function traceProjectile(state,projectile,distance,options={}){
  const origin={x:projectile.x,y:finite(projectile.y,projectileGround(state,projectile.x,projectile.z)+PROJECTILE.originHeight),z:projectile.z};
- // Legacy touch/AI flight follows the surface, but still uses the same finite
- // wall/body heights. Explicit 3D mouse flight never snaps back to this surface.
+ // Planar overview/stick flight follows the surface, using the same finite
+ // wall/body heights. Explicit 3D flight never snaps back to this surface.
  const count=projectile.followGround&&contexts.has(state)?Math.max(1,Math.ceil(distance/.2)):1;
  let previous=origin;
  for(let i=1;i<=count;i++){
@@ -141,7 +146,7 @@ export function traceProjectile(state,projectile,distance,options={}){
 }
 export function projectileLaunch(state,actor){
  const origin=projectileOrigin(state,actor),direction=projectileDirection(actor),followGround=projectileFollowsGround(actor);
- // Preserve classic surface-level touch/AI shots while the frog hops. Mouse
+ // Preserve surface-level directional shots while the frog hops. Explicit 3D
  // shots use the real elevated body origin and never follow terrain afterward.
  if(followGround)origin.y=projectileGround(state,actor.x,actor.z)+PROJECTILE.originHeight;
  return {...origin,dx:direction.x,dy:direction.y,dz:direction.z,followGround,heightOffset:origin.y-projectileGround(state,actor.x,actor.z)};

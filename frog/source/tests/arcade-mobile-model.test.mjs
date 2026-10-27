@@ -46,7 +46,7 @@ test('dizzy hit damage and recovery work symmetrically for the player',()=>{
  const r=newRound(),a=r.actors[0];hit(r,a,{owner:'rival-1',dx:0,dz:1,damage:8});a.dizzyTime=.01;tick(r);assert.equal(a.finishHits,0);assert.equal(a.dizzy,0);
 });
 test('kick does not execute a fresh dizzy opponent and has a real cooldown',()=>{
- const s=newRound(),p=s.actors[0],a=s.actors[1];s.phase='battle';Object.assign(p,{x:0,z:8});Object.assign(a,{x:2,z:8,idle:10,kickCooldown:10});hit(s,a,{owner:'player',dx:0,dz:1,damage:6});a.invuln=0;a.impulseX=a.impulseZ=0;
+ const s=newRound(),p=s.actors[0],a=s.actors[1];s.phase='battle';Object.assign(p,{x:0,z:8});Object.assign(a,{x:1.7,z:8,idle:10,kickCooldown:10});hit(s,a,{owner:'player',dx:0,dz:1,damage:6});a.invuln=0;a.impulseX=a.impulseZ=0;
  assert.equal(kick(s,p),true);tick(s,{},14);assert.equal(a.ko,false);assert.equal(a.finishHits,1);p.kick=0;assert.equal(kick(s,p),false);
 });
 test('legacy saves retain resource depletion and progress while moving flies into patches',()=>{
@@ -58,13 +58,13 @@ test('legacy saves retain resource depletion and progress while moving flies int
 test('fly ammunition expires at the configured short range',()=>{
  const s=newRound(),p=s.actors[0];Object.assign(p,{x:-10,z:0,ammo:1,aimX:1,aimZ:0});noFlies(s);shoot(s,p);const b=s.bullets[0],start=b.x;tick(s,{},40);assert.equal(s.bullets.length,0);assert.ok(b.x-start<=RULES.projectileSpeed*RULES.projectileLifetime+1e-8);
 });
-test('rivals visibly wind up their first shot and cannot fire a continuous laser',()=>{
+test('rivals react before visibly winding up their first shot and cannot fire a continuous laser',()=>{
  const s=newRound(),p=s.actors[0],a=s.actors[1];s.phase='battle';s.actors[2].ko=true;s.actors[2].respawnTime=99;noFlies(s);Object.assign(p,{x:0,z:8});Object.assign(a,{x:0,z:-2,ammo:40,refilling:false,idle:99,brain:99,decision:0,machineTimer:99});
- const shots=[];for(let i=0;i<150;i++){step(s);if(i===0)assert.ok(a.aimWindup>.25);if(i<19)assert.ok(!s.events.some(e=>e.type==='shot'&&e.id===a.id));if(s.events.some(e=>e.type==='shot'&&e.id===a.id))shots.push(s.time);}
- assert.ok(shots.length>=3&&shots.length<=5);for(let i=1;i<shots.length;i++)assert.ok(shots[i]-shots[i-1]>=.5);assert.ok(p.dizzy>0,'real rival projectiles can still hit a stationary player');
+ const shots=[];let sawWindup=false;for(let i=0;i<150;i++){step(s);if(i===0){assert.ok(a.aiReaction>0);assert.equal(a.aimWindup,0);}sawWindup ||= a.aimWindup>0;if(i<40)assert.ok(!s.events.some(e=>e.type==='shot'&&e.id===a.id));if(s.events.some(e=>e.type==='shot'&&e.id===a.id))shots.push(s.time);}
+ assert.equal(sawWindup,true);assert.ok(shots.length>=2&&shots.length<=3);for(let i=1;i<shots.length;i++)assert.ok(shots[i]-shots[i-1]>=.6);assert.ok(p.dizzy>0,'real rival projectiles can still hit a stationary player');
 });
 test('enemy windup commits its aim rather than instantly tracking a dodge',()=>{
- const s=newRound(),p=s.actors[0],a=s.actors[1];s.phase='battle';s.actors[2].ko=true;s.actors[2].respawnTime=99;noFlies(s);Object.assign(p,{x:0,z:8});Object.assign(a,{x:0,z:-2,ammo:40,refilling:false,idle:99,brain:99,machineTimer:99});tick(s);const held=[a.aiAimX,a.aiAimZ];p.x=5;tick(s,{},8);assert.deepEqual([a.aiAimX,a.aiAimZ],held);assert.ok(a.aimWindup>0);
+ const s=newRound(),p=s.actors[0],a=s.actors[1];s.phase='battle';s.actors[2].ko=true;s.actors[2].respawnTime=99;noFlies(s);Object.assign(p,{x:0,z:8});Object.assign(a,{x:0,z:-2,ammo:40,refilling:false,idle:99,brain:99,machineTimer:99});for(let i=0;i<90&&!a.aiCharging;i++)tick(s);assert.equal(a.aiCharging,true);const held=[a.aiAimX,a.aiAimZ];p.x=5;tick(s,{},8);assert.deepEqual([a.aiAimX,a.aiAimZ],held);assert.ok(a.aimWindup>0);
 });
 test('real player projectiles register owner-confirmed hits and finish from outside kick range',()=>{
  const s=newRound(),p=s.actors[0],a=s.actors[1];s.phase='battle';s.actors[2].ko=true;s.actors[2].respawnTime=99;noFlies(s);Object.assign(p,{x:0,z:8,ammo:30});Object.assign(a,{x:0,z:0,idle:99,tongue:99,shot:99,brain:99,machineTimer:99,kickCooldown:99});let hitEvents=0;

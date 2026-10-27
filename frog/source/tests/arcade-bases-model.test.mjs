@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {newRound,step,collect,shoot,hit,saveRound,loadRound,RULES,ownBase,sabotageTarget,rivalIntent,canDetect,moveBody} from '../src/arcade-model.js';
 import {BASES,TREES,WALLS,coverAt,hasWallSight,insideHome} from '../src/arcade-bases.js';
 import {CATAPULTS,ARTILLERY} from '../src/arcade-artillery.js';
+import {FROG_BODY} from '../src/arcade-actor-bounds.js';
+import {rectangleClearance} from '../src/arcade-collision.js';
 const tick=(s,input={},seconds=1)=>{for(let i=0;i<Math.round(seconds*60);i++)step(s,input,1/60);};
 function sandbox(){const s=newRound();s.phase='battle';s.intro=0;for(const a of s.actors.slice(1)){a.dizzyTime=1000;a.impulseX=a.impulseZ=0;}return s;}
 function atEnemyStore(s){const p=s.actors[0],g=BASES[1];Object.assign(p,{x:g.stock.x,z:g.stock.z,hop:0,idle:0,shot:0,tongue:0});return {p,g,b:s.bases[1]};}
@@ -86,11 +88,11 @@ test('an enemy store supplies no free ammunition and destroyed stores cannot ref
  const s=sandbox(),{p}=atEnemyStore(s);p.ammo=0;s.flies.forEach(f=>f.wait=100);assert.equal(collect(s,p),false);assert.equal(p.ammo,0);
  Object.assign(p,BASES[0].spawn);s.bases[0].destroyed=true;assert.equal(collect(s,p),false);
 });
-test('storage sabotage requires ten uninterrupted battle seconds at the actual storage',()=>{
- const s=sandbox(),{p,b}=atEnemyStore(s);assert.equal(sabotageTarget(s,p),b);tick(s,{sabotage:true},9.9);assert.equal(b.destroyed,false);assert.ok(b.progress>9.89);assert.equal(b.attackerId,p.id);
+test('storage sabotage requires the full uninterrupted channel at the actual storage',()=>{
+ const s=sandbox(),{p,b}=atEnemyStore(s);assert.equal(sabotageTarget(s,p),b);tick(s,{sabotage:true},RULES.sabotageSeconds-.1);assert.equal(b.destroyed,false);assert.ok(b.progress>RULES.sabotageSeconds-.11);assert.equal(b.attackerId,p.id);
  tick(s,{sabotage:true},.1);assert.equal(b.destroyed,true);assert.equal(b.attackerId,null);assert.equal(p.sabotageId,null);assert.equal(s.actors[1].eliminated,true);assert.equal(s.stats.basesDestroyed,1);assert.equal(s.status,'playing');
  assert.equal(s.events.filter(e=>e.type==='baseDestroyed'&&e.baseId===b.id).length,1);assert.equal(s.events.some(e=>e.type==='sabotageInterrupted'),false);
- const g=BASES[2];Object.assign(p,{x:g.stock.x,z:g.stock.z,hop:0,shot:0});tick(s,{sabotage:true},10);assert.equal(s.status,'won');assert.equal(s.bases.filter(b=>!b.destroyed).length,1);
+ const g=BASES[2];Object.assign(p,{x:g.stock.x,z:g.stock.z,hop:0,shot:0});tick(s,{sabotage:true},RULES.sabotageSeconds);assert.equal(s.status,'won');assert.equal(s.bases.filter(b=>!b.destroyed).length,1);
 });
 test('warm-up blocks sabotage even inside the opposing storage',()=>{
  const s=newRound(),{b}=atEnemyStore(s);tick(s,{sabotage:true},10);assert.equal(b.progress,0);assert.equal(b.destroyed,false);assert.equal(s.phase,'countdown');
@@ -140,7 +142,7 @@ test('empty rivals route to their own store and refill before resuming their rai
 });
 test('returning and invading rivals use real entrances instead of crossing a home wall',()=>{
  const s=sandbox(),a=s.actors[1];a.dizzyTime=0;Object.assign(a,{x:-10,z:8,ammo:0,refilling:true});
- for(let i=0;i<600;i++){step(s);for(const w of WALLS)assert.ok(!(Math.abs(a.x-w.x)<w.hw+.72&&Math.abs(a.z-w.z)<w.hd+.72),`${a.id} crossed ${w.id}`);}
+ for(let i=0;i<600;i++){step(s);for(const w of WALLS)assert.ok(rectangleClearance(a,w)>=FROG_BODY.movementRadius-1e-4,`${a.id} crossed ${w.id}`);}
  assert.ok(a.ammo>0);
 });
 test('save resumes the global timer, destroyed stores and KO return, but never a half-finished attack',()=>{
@@ -162,11 +164,11 @@ test('trees slow actual hop distance without blocking free direction changes',()
  for(let i=0;i<8;i++){step(open,{mx:1,mz:0});step(hidden,{mx:1,mz:0});}
  assert.ok(Math.abs(hidden.actors[0].x/open.actors[0].x-.55)<1e-9);
 });
-test('an unopposed AI raid destroys a storage through the same ten-second channel',()=>{
+test('an unopposed AI raid destroys a storage through the same full channel',()=>{
  const s=newRound();s.phase='battle';s.intro=0;const attacker=s.actors[1],victim=s.actors[2],stock=BASES[2].stock;
  for(const a of [s.actors[0],victim]){a.ko=true;a.respawnTime=99;}
  Object.assign(attacker,{x:stock.x,z:stock.z,ammo:60,refilling:false,raidId:s.bases[2].id});
- tick(s,{},9.9);assert.equal(s.bases[2].destroyed,false);assert.ok(s.bases[2].progress>9.89);tick(s,{},.1);
+ tick(s,{},RULES.sabotageSeconds-.1);assert.equal(s.bases[2].destroyed,false);assert.ok(s.bases[2].progress>RULES.sabotageSeconds-.11);tick(s,{},.1);
  assert.equal(s.bases[2].destroyed,true);assert.equal(victim.eliminated,true);assert.equal(victim.respawnTime,0);
 });
 
@@ -176,7 +178,7 @@ test('a passive defender respawning nearby does not interrupt an already committ
  s.actors[1].ko=true;s.actors[1].respawnTime=99;p.ko=true;p.respawnTime=4;
  Object.assign(attacker,{x:stock.x-1,z:stock.z,ammo:60,refilling:false,raidId:s.bases[0].id});
  tick(s,{},4.5);assert.equal(p.ko,false);assert.ok(s.bases[0].progress>4.4);
- tick(s,{},5.5);assert.equal(s.bases[0].destroyed,true);assert.equal(s.status,'lost');
+ tick(s,{},RULES.sabotageSeconds-4.5);assert.equal(s.bases[0].destroyed,true);assert.equal(s.status,'lost');
 });
 
 

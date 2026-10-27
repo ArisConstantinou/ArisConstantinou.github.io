@@ -19,7 +19,7 @@ import { createTouchEdgeLook } from './arcade-touch-edge-look.js';
 import { installTouchStick } from './arcade-touch-stick.js';
 import { createMouseLookSession } from './arcade-mouse-look-session.js';
 import { installMenuAction } from './arcade-menu-actions.js';
-import { resolveMouseAim } from './arcade-mouse-aim.js';
+import { resolveMouseAim, resolveOverviewAim } from './arcade-mouse-aim.js';
 import { PROJECTILE } from './arcade-projectiles.js';
 import { resolveAutoFire } from './arcade-auto-fire.js';
 import { autoFireTargetVisible } from './arcade-auto-fire-visibility.js';
@@ -84,13 +84,15 @@ export class ArcadeGame {
   for(const o of OBSTACLES){const mesh=new THREE.Mesh(new THREE.DodecahedronGeometry(o.r,1),this.materials.rock);mesh.scale.y=1.7;mesh.position.set(o.x,this.ground(o.x,o.z)+o.r*.9,o.z);this.scene.add(mesh);this.obstacleMeshes.push(mesh);}
   const points=[];for(let i=0;i<=160;i++){const a=i/160*Math.PI*2,x=Math.sin(a)*RULES.radius,z=Math.cos(a)*RULES.radius;points.push(new V(x,this.ground(x,z)+.06,z));}const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),this.materials.rim);this.scene.add(line);
   this.playerRing=new THREE.Mesh(new THREE.RingGeometry(1.05,1.18,32),new THREE.MeshBasicMaterial({color:'#ecff9a',side:THREE.DoubleSide,transparent:true,opacity:.85,depthWrite:false}));this.playerRing.rotation.x=-Math.PI/2;this.scene.add(this.playerRing);
-  this.aimGuide=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new V(),new V()]),new THREE.LineDashedMaterial({color:'#fff2b0',dashSize:.45,gapSize:.35,transparent:true,opacity:.65}));this.scene.add(this.aimGuide);
+  const aimGeometry=new THREE.BufferGeometry(),aimVertices=Math.ceil(SHOT_RANGE/PROJECTILE.terrainStep)+2;
+  aimGeometry.setAttribute('position',new THREE.Float32BufferAttribute(aimVertices*3,3));aimGeometry.setAttribute('lineDistance',new THREE.Float32BufferAttribute(aimVertices,1));aimGeometry.setDrawRange(0,0);
+  this.aimGuide=new THREE.Line(aimGeometry,new THREE.LineDashedMaterial({color:'#fff2b0',dashSize:.45,gapSize:.35,transparent:true,opacity:.65}));this.scene.add(this.aimGuide);
   this.aimReticle=new THREE.Mesh(new THREE.RingGeometry(.35,.42,24),new THREE.MeshBasicMaterial({color:'#fff2b0',side:THREE.DoubleSide,transparent:true,opacity:.88,depthWrite:false}));this.aimReticle.rotation.x=-Math.PI/2;this.scene.add(this.aimReticle);
   this.targetRing=new THREE.Mesh(new THREE.RingGeometry(1.32,1.44,32),new THREE.MeshBasicMaterial({color:'#ffb19c',side:THREE.DoubleSide,transparent:true,opacity:.9,depthWrite:false}));this.targetRing.rotation.x=-Math.PI/2;this.targetRing.visible=false;this.scene.add(this.targetRing);
   this.swarmRings=SWARMS.map(zone=>{const ring=new THREE.Mesh(new THREE.RingGeometry(zone.radius-.08,zone.radius+.03,40),new THREE.MeshBasicMaterial({color:'#c8e0a3',side:THREE.DoubleSide,transparent:true,opacity:.22,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.set(zone.x,this.ground(zone.x,zone.z)+.08,zone.z);this.scene.add(ring);return ring;});
  }
  buildActors(){
-  setProjectileWorld(this.state,{ground:(x,z)=>this.ground(x,z)});
+  setProjectileWorld(this.state,{ground:(x,z)=>this.ground(x,z),actorYaw:a=>this.models?.[this.state.actors.indexOf(a)]?.group.rotation.y});
   for(const m of this.models||[])m.dispose();this.models=this.state.actors.map((a,i)=>{const m=createCreature('frog',{seed:7+i*39,team:i===0?'player':`enemy${i}`,role:i===2?'bruiser':'hunter',tier:1,level:1});m.setEquipment({});m.setOutline(i===0?'#e7fca7':i===1?'#ffae88':'#d3a8ff',true);if(this.settings.quality==='low')m.setRenderLOD(1);if(m.mesh?.material){const mat=m.mesh.material;mat.bumpScale=0;mat.roughness=.85;mat.userData?.tint?.set(['#86da38','#ff694a','#bb70ed'][i]);}configureArcadeAppearance(m);m.group.rotation.y=actorVisualFacing(a,{currentYaw:a.face}).yaw;this.scene.add(m.group);return m;});
  }
  createFlies(){
@@ -105,7 +107,7 @@ export class ArcadeGame {
   this.ui.innerHTML=`<header id="arcade-hud" hidden><button class="view-button" id="view-button" aria-label="Αλλαγή σε κεντραρισμένη κάτοψη">ΠΙΣΩ 3D · C</button><div class="ammo-card">${flyIcon}<div class="ammo-info"><div class="ammo-numbers"><strong id="ammo-count">0 / ${RULES.capacity}</strong><b id="ammo-percent">0%</b></div><div id="ammo-track" role="progressbar" aria-label="Γέμιση με μύγες" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="ammo-fill"></i></div><span id="ammo-state">Γέμισε στην αποθήκη σου</span></div></div><div class="ko-card base-card"><b id="ko-count">3 / 3</b><span>ΑΠΟΘΗΚΕΣ</span><div id="base-dots" aria-label="Άθικτες αποθήκες"><i data-owner="player"></i><i data-owner="rival-1"></i><i data-owner="rival-2"></i></div></div><button class="small-button" id="pause-button" aria-label="Παύση">Ⅱ</button></header>
   <div id="round-status" hidden><b id="round-time">20″</b><span id="round-copy">ΠΡΟΕΤΟΙΜΑΣΙΑ · Προστάτεψε την αποθήκη σου</span></div><div id="base-status" hidden><b id="base-warning-title" role="alert" aria-atomic="true"></b><span id="base-warning-detail"></span></div>
   <button id="catapult-button" class="touch-action catapult-button" aria-label="Χρήση κοντινού καταπέλτη" hidden>${catapultIcon}<span>ΧΡΗΣΗ</span></button><div id="catapult-status" hidden></div>
-  <button id="sabotage-button" class="touch-action sabotage-button" aria-label="Κράτησε για καταστροφή εχθρικής αποθήκης" hidden>${storageIcon}<span>ΚΡΑΤΑ · 10″</span></button><div id="sabotage-status" hidden><span id="sabotage-copy"></span><div role="progressbar" aria-label="Καταστροφή αποθήκης" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="sabotage-track"><i id="sabotage-fill"></i></div></div>
+  <button id="sabotage-button" class="touch-action sabotage-button" aria-label="Κράτησε για καταστροφή εχθρικής αποθήκης" hidden>${storageIcon}<span>ΚΡΑΤΑ · ${RULES.sabotageSeconds}″</span></button><div id="sabotage-status" hidden><span id="sabotage-copy"></span><div role="progressbar" aria-label="Καταστροφή αποθήκης" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="sabotage-track"><i id="sabotage-fill"></i></div></div>
   <canvas id="minimap" width="320" height="320" aria-label="Χάρτης: η βάση σου πράσινη, εχθρικές αποθήκες κόκκινη και μωβ, είσοδοι, καταπέλτες και σμήνη"></canvas><div id="dizzy-banner" hidden>🌀 ΖΑΛΙΣΤΗΚΕΣ! <b id="dizzy-time"></b></div><div id="callout" aria-live="polite"></div>
   <div id="desktop-help" hidden><span><b>WASD</b> Κίνηση</span><span><b>Ποντίκι</b> Θέα + στόχευση</span><span><b>Κλικ</b> Μύγες</span><span><b>E κράτημα</b> Αποθήκη</span><span><b>E</b> Καταπέλτης</span><span id="pc-kick"><b>Q</b> Κλωτσιά</span><span><b>Esc</b> Παύση</span></div>
   <div id="touch-controls" hidden><div class="stick-zone move-zone"><div id="move-stick" class="stick" aria-label="Κίνηση"><div class="stick-inner"></div><div class="stick-knob"></div></div><span class="stick-caption">ΑΛΜΑΤΑ</span></div><button id="kick-button" class="touch-action kick-button" aria-label="Αμυντική κλωτσιά για απώθηση κοντινού αντιπάλου" hidden disabled>${kickIcon}<span>ΚΛΩΤΣΙΑ</span></button><div class="stick-zone aim-zone"><div id="aim-stick" class="stick" aria-label="Σύρε την περιφέρεια για στόχευση ή κράτα το κεντρικό ΠΥΡ για βολή και στόχευση"><div class="fire-ring"></div><div class="stick-inner"></div><div class="stick-knob aim-fire-knob"><button id="fire-button" type="button" class="touch-action fire-button" aria-label="Κράτα ΠΥΡ και σύρε για συνεχή βολή και περιστροφή">${flyIcon}<span>ΠΥΡ</span></button></div><div id="touch-aim-hint"><span id="auto-fire-status">ΧΕΙΡΟΚΙΝΗΤΗ</span></div></div><span id="touch-aim-copy" class="stick-caption">ΘΕΑ / ΣΤΟΧΕΥΣΗ</span></div><button id="layout-button" class="layout-button" aria-label="Μετακίνηση χειριστηρίων"><b aria-hidden="true">↔</b><span>ΘΕΣΕΙΣ</span></button><div id="layout-hint" hidden>Σύρε τα χειριστήρια στη θέση σου.</div></div>
@@ -119,7 +121,7 @@ export class ArcadeGame {
  updateRoundActions(){this.$('play-button').disabled=!(this.mode==='pause'&&this.state.status==='playing'||this.saved?.status==='playing');}
  settingsMenu(){this.$('arcade-menu').classList.add('settings-open');this.$('menu-main').hidden=true;this.$('result-panel').hidden=true;this.$('settings-panel').hidden=false;}
  startOrResume(event){if(this.running)return;if(this.mode==='pause'&&this.state.status==='playing'){this.go(event);return;}if(this.saved?.status==='playing'){this.state=this.saved;this.saved=null;this.resetCamera();this.buildActors();this.go(event);}}
- toggleView(event){this.clearInputs();this.viewMode=this.viewMode==='chase3d'?'overview':'chase3d';this.$('view-button').textContent=this.viewMode==='chase3d'?'ΠΙΣΩ 3D · C':'ΚΑΤΟΨΗ · C';this.$('view-button').setAttribute('aria-label',this.viewMode==='chase3d'?'Αλλαγή σε κεντραρισμένη κάτοψη':'Αλλαγή σε κάμερα πίσω από τον βάτραχο');this.cameraReady=false;if(this.viewMode==='overview')this.releaseMouseLook();else{if(!this.state.actors[0].catapultId||!this.mouseControl)this.centerAim();if(this.running&&(event?.pointerType==='mouse'||(this.mouseControl||event?.type==='keydown')&&!['touch','pen'].includes(event?.pointerType)))this.requestMouseLook();}}
+ toggleView(event){this.clearInputs();this.viewMode=this.viewMode==='chase3d'?'overview':'chase3d';this.$('view-button').textContent=this.viewMode==='chase3d'?'ΠΙΣΩ 3D · C':'ΚΑΤΟΨΗ · C';this.$('view-button').setAttribute('aria-label',this.viewMode==='chase3d'?'Αλλαγή σε κεντραρισμένη κάτοψη':'Αλλαγή σε κάμερα πίσω από τον βάτραχο');this.cameraReady=false;if(this.viewMode==='overview'){const heading=actorHeading(this.state.actors[0]);this.aim={...heading};this.stickAim={x:heading.x,z:heading.z};this.releaseMouseLook();}else{if(!this.state.actors[0].catapultId||!this.mouseControl)this.centerAim();if(this.running&&(event?.pointerType==='mouse'||(this.mouseControl||event?.type==='keydown')&&!['touch','pen'].includes(event?.pointerType)))this.requestMouseLook();}}
  startNew(event){if(this.running)return;this.storageAlertUntil=-Infinity;this.saved=null;this.state=newRound(731+Math.floor(Math.random()*100000));this.resetCamera();this.clearEffects();this.buildActors();this.go(event);this.message('60 μύγες έτοιμες!',1.6);}
  resetCamera(){const p=this.state.actors[0],heading=actorHeading(p);this.cameraYaw=Math.atan2(heading.x,heading.z);this.cameraPitch=CAMERA_ORBIT.pitch;this.cameraReady=false;this.mouse.valid=false;this.aim={x:p.aimX,z:p.aimZ};this.stopCameraDrag();}
  beginCameraDrag(e){if(this.cameraDrag||this.pointers.has('aim'))return;this.mouseControl=false;if(this.viewMode==='overview')this.captureMouseAim(e);else this.centerAim();this.cameraDrag={id:e.pointerId,type:e.pointerType,x:e.clientX,y:e.clientY};this.touchEdgeLook.begin(e);const canvas=this.renderer.domElement;canvas.setPointerCapture(e.pointerId);canvas.classList.add('camera-dragging');}
@@ -129,7 +131,7 @@ export class ArcadeGame {
  finish(){this.touchLayout?.setEditing(false);this.running=false;this.mode='finishing';this.resultAt=this.elapsed+.85;this.clearInputs();this.releaseMouseLook();this.persist();}
  showResult(){this.running=false;this.mode='result';this.clearInputs();this.persist();const won=this.state.status==='won';this.sound.play(won?'win':'lost');this.$('arcade-menu').hidden=false;this.$('menu-main').hidden=true;this.$('result-panel').hidden=false;this.$('result-title').textContent=won?'Η ΤΕΛΕΥΤΑΙΑ ΑΠΟΘΗΚΗ ΕΙΝΑΙ ΔΙΚΗ ΣΟΥ!':'Η ΑΠΟΘΗΚΗ ΣΟΥ ΚΑΤΑΣΤΡΑΦΗΚΕ';this.$('result-copy').textContent=won?`${this.state.stats.kos} νοκ άουτ · ${this.state.stats.shots} βολές · ${Math.floor(this.state.time)}″ μάχης`:'Κράτησε την είσοδο, διέκοψε τους εισβολείς με μία εύστοχη βολή και ανεφοδιάσου πριν ξαναβγείς.';this.ui.classList.add('in-menu');}
  persist(){if(this.mode==='title')return false;return write(SAVE_KEY,saveRound(this.state));}
- clearInputs(){for(const stick of Object.values(this.touchSticks||{}))stick.clear();this.lastMovement={x:0,z:0};this.freeMousePoint=null;this.stopMouseFireCapture();this.renderer?.domElement.classList.remove('mouse-aiming');this.currentAimPreview=null;this.currentAimScreen=null;if(this.aimGuide)this.aimGuide.visible=false;if(this.aimReticle)this.aimReticle.visible=false;if(this.targetRing)this.targetRing.visible=false;this.keys.clear();this.actions={fire:false,kick:false,sabotage:false};this.aimStrength=0;this.mouse.valid=false;this.mouse.inside=false;this.move={x:0,z:0};this.pointers.clear();this.pointerTypes.clear();this.stopCameraDrag();if(this.ui){for(const el of this.ui.querySelectorAll('.stick-knob'))el.style.transform='translate(-50%,-50%)';this.$('aim-stick').classList.remove('firing');this.$('fire-button')?.classList.remove('firing');}}
+ clearInputs(){for(const stick of Object.values(this.touchSticks||{}))stick.clear();this.lastMovement={x:0,z:0};this.freeMousePoint=null;this.stopMouseFireCapture();this.renderer?.domElement.classList.remove('mouse-aiming');this.currentAimPreview=null;this.currentAimScreen=null;this.currentAimCursorScreen=null;this.currentAimPathScreen=[];if(this.aimGuide)this.aimGuide.visible=false;if(this.aimReticle)this.aimReticle.visible=false;if(this.targetRing)this.targetRing.visible=false;this.keys.clear();this.actions={fire:false,kick:false,sabotage:false};this.aimStrength=0;this.mouse.valid=false;this.mouse.inside=false;this.move={x:0,z:0};this.pointers.clear();this.pointerTypes.clear();this.stopCameraDrag();if(this.ui){for(const el of this.ui.querySelectorAll('.stick-knob'))el.style.transform='translate(-50%,-50%)';this.$('aim-stick').classList.remove('firing');this.$('fire-button')?.classList.remove('firing');}}
  pointerLocked(){return document.pointerLockElement===this.renderer.domElement;}
  requestMouseLook(){
   if(this.state.actors[0].catapultId)return;
@@ -222,8 +224,15 @@ export class ArcadeGame {
   const dx=muzzle.x-ray.origin.x,dy=muzzle.y-ray.origin.y,dz=muzzle.z-ray.origin.z;
   const solidFrom=Math.max(0,dx*ray.direction.x+dy*ray.direction.y+dz*ray.direction.z);
   const hit=traceWorldRay(this.state,ray.origin,ray.direction,Math.hypot(dx,dy,dz)+range,{ignoreId:p.id,solidFrom});
-  const aim=resolveMouseAim({rayOrigin:ray.origin,rayDirection:ray.direction,muzzle,range,hits:hit?[hit]:[]});
-  this.mouse.target=aim.target;this.mouse.direction=aim.direction;this.mouse.distance=aim.distance;this.mouse.targetId=hit?.targetId??null;
+  const options={rayOrigin:ray.origin,rayDirection:ray.direction,muzzle,range,hits:hit?[hit]:[],planeHeight:this.ground(p.x,p.z)+PROJECTILE.originHeight,fallback:this.aim};
+  let aim=this.viewMode==='overview'?resolveOverviewAim(options):resolveMouseAim(options);
+  this.mouse.target=aim.target;this.mouse.targetId=this.viewMode==='overview'?aim.targetId:aim.source==='hit'?hit?.targetId??null:null;
+  // Roofs/baskets can hide an actor without being projectile solids. A hidden
+  // body must not silently select a 3D target through its visible cover.
+  if(this.viewMode==='overview'&&this.mouse.targetId&&!this.autoFireTargetVisible(this.mouse.targetId)){
+   aim=resolveOverviewAim({...options,hits:[]});this.mouse.target=aim.target;this.mouse.targetId=null;
+  }
+  this.mouse.direction=aim.direction;this.mouse.distance=aim.distance;this.mouse.source=aim.source;
  }
  autoFireTargetVisible(targetId,options){return autoFireTargetVisible(this,targetId,options);}
  aimFromScreen(x,y){
@@ -238,7 +247,7 @@ export class ArcadeGame {
  }
  currentInput(){
   if(this.layoutEditing){this.autoFireTargetId=null;return {};}
-  const p=this.state.actors[0],stickAiming=this.pointers.has('aim'),touchAim=stickAiming&&this.aimStrength>.08,aiming=this.viewMode==='chase3d'||this.actions.fire||stickAiming||this.mouse.valid;
+  const p=this.state.actors[0],stickAiming=this.pointers.has('aim'),touchAim=stickAiming&&this.aimStrength>.08,aiming=this.viewMode==='chase3d'||this.viewMode==='overview'&&!p.catapultId||this.actions.fire||stickAiming||this.mouse.valid;
   if(stickAiming&&this.viewMode==='overview'){this.mouse.valid=false;if(touchAim||!p.catapultId)this.aim={...screenToWorld(this.stickAim.x,this.stickAim.z,this.camera.position,this.focus),distance:14};}
   this.updateMouseTarget();
   if(this.mouse.valid&&aiming&&this.mouse.target){if(!p.catapultId&&this.mouse.direction)this.aim={...this.mouse.direction,distance:this.mouse.distance};else{const dx=this.mouse.target.x-p.x,dz=this.mouse.target.z-p.z,d=Math.hypot(dx,dz);if(d>.1)this.aim={x:dx/d,z:dz/d,distance:d};}}
@@ -295,7 +304,7 @@ export class ArcadeGame {
   const enemyStore=sabotageTarget(this.state,p),channel=this.state.bases.find(b=>!b.destroyed&&b.attackerId===p.id),sabotageButton=this.$('sabotage-button');
   sabotageButton.hidden=!this.running||this.layoutEditing||this.state.phase!=='battle'||p.ko||p.catapultId||!enemyStore;
   sabotageButton.disabled=p.dizzyTime>0||p.knockUp>0||p.hit>0||p.sabotageRecovery>0;
-  sabotageButton.querySelector('span').textContent=channel?`${Math.max(0,RULES.sabotageSeconds-channel.progress).toFixed(1)}″`:this.touch?'ΚΡΑΤΑ · 10″':'ΚΡΑΤΑ E · 10″';
+  sabotageButton.querySelector('span').textContent=channel?`${Math.max(0,RULES.sabotageSeconds-channel.progress).toFixed(1)}″`:`${this.touch?'ΚΡΑΤΑ':'ΚΡΑΤΑ E'} · ${RULES.sabotageSeconds}″`;
   this.$('sabotage-status').hidden=!this.running||!channel;const progress=channel?channel.progress/RULES.sabotageSeconds:0;
   this.$('sabotage-copy').textContent='ΚΑΤΑΣΤΡΟΦΗ ΑΠΟΘΗΚΗΣ';this.$('sabotage-fill').style.transform=`scaleX(${progress})`;this.$('sabotage-track').setAttribute('aria-valuenow',String(Math.round(progress*100)));
   const mounted=this.state.catapults?.find(c=>c.id===p.catapultId),near=nearbyCatapult(this.state,p),useButton=this.$('catapult-button');
@@ -338,15 +347,16 @@ export class ArcadeGame {
    if(i===0&&this.viewMode==='chase3d'&&!a.ko&&Math.hypot(this.camera.position.x-x,this.camera.position.z-z)<1.35&&this.camera.position.y<y+1.3)m.group.visible=false;
   });
   const p=this.state.actors[0];this.playerRing.position.set(p.x,this.ground(p.x,p.z)+.07,p.z);this.playerRing.scale.setScalar(1);
-  const preview=traceAim(this.state,p),attr=this.aimGuide.geometry.attributes.position;
-  const origin=preview.origin||projectileOrigin(this.state,p);
-  attr.setXYZ(0,origin.x,origin.y,origin.z);attr.setXYZ(1,preview.x,preview.y,preview.z);attr.needsUpdate=true;this.aimGuide.computeLineDistances();this.aimGuide.geometry.computeBoundingSphere();
-  const showAim=this.running&&!this.layoutEditing&&!p.catapultId&&!p.ko&&p.dizzyTime<=0&&(p.aiming||p.shot>0);
+  const preview=traceAim(this.state,p),points=preview.path;
+  const attr=this.aimGuide.geometry.attributes.position,distances=this.aimGuide.geometry.attributes.lineDistance;let distance=0;
+  for(let i=0;i<points.length;i++){const point=points[i],previous=points[i-1];if(previous)distance+=Math.hypot(point.x-previous.x,point.y-previous.y,point.z-previous.z);attr.setXYZ(i,point.x,point.y,point.z);distances.setX(i,distance);}
+  attr.needsUpdate=distances.needsUpdate=true;this.aimGuide.geometry.setDrawRange(0,points.length);this.aimGuide.geometry.computeBoundingSphere();
+  const showAim=this.running&&!this.layoutEditing&&!p.catapultId&&!p.ko&&p.dizzyTime<=0&&(this.viewMode==='overview'||p.aiming||p.shot>0);
   this.renderer.domElement.classList.toggle('mouse-aiming',showAim&&(this.pointerLocked()||this.viewMode==='overview'&&this.mouse.valid));
-  this.currentAimPreview=showAim?preview:null;this.aimGuide.visible=showAim;this.aimGuide.material.color.set(this.autoFireTargetId?'#dfff85':preview.targetId?'#ffc09b':preview.blocked?'#b9c0b5':'#f4f7d5');
+  this.currentAimPreview=showAim?preview:null;this.currentAimColor=this.viewMode==='overview'?(preview.targetId?'#c4ff83':preview.blocked?'#ffbb73':'#f4ffdd'):(this.autoFireTargetId?'#dfff85':preview.targetId?'#ffc09b':preview.blocked?'#b9c0b5':'#f4f7d5');this.aimGuide.visible=showAim;this.aimGuide.material.color.set(this.currentAimColor);this.aimGuide.material.opacity=this.viewMode==='overview'?.3:.65;
   this.aimReticle.visible=showAim;this.aimReticle.position.set(preview.x,preview.y,preview.z);this.aimReticle.quaternion.copy(this.camera.quaternion);this.aimReticle.scale.setScalar(.5);this.aimReticle.material.color.copy(this.aimGuide.material.color);
   const target=this.state.actors.find(a=>a.id===preview.targetId);this.targetRing.visible=showAim&&!!target;
-  if(target){this.targetRing.position.set(target.x,this.ground(target.x,target.z)+.1,target.z);this.targetRing.scale.setScalar(1+target.load*.2);}
+  if(target){this.targetRing.position.set(target.x,this.ground(target.x,target.z)+.1,target.z);this.targetRing.scale.setScalar(1);this.targetRing.material.color.copy(this.aimGuide.material.color);}
 
  }
  renderFlies(){
@@ -360,16 +370,40 @@ export class ArcadeGame {
   for(const [id,t] of this.tongues){t.mesh.visible=id!=='player'||this.models[0].group.visible;const age=(this.elapsed-t.start)/.22;if(age>=1){t.mesh.removeFromParent();this.tongues.delete(id);continue;}const i=this.state.actors.findIndex(a=>a.id===id),m=this.models[i],start=m.mouthWorld(),end=new V(t.x,this.ground(t.x,t.z)+1,t.z),reach=Math.sin(age*Math.PI);end.lerpVectors(start,end,reach);const dir=end.clone().sub(start);t.mesh.position.copy(start).addScaledVector(dir,.5);t.mesh.quaternion.setFromUnitVectors(UP,dir.clone().normalize());t.mesh.scale.set(.07,Math.max(.001,dir.length()),.07);}
  }
  project(x,y,z){const p=new V(x,y,z).project(this.camera);return {x:(p.x+1)*this.w/2,y:(1-p.y)*this.h/2,visible:p.z>-1&&p.z<1};}
+ drawOverviewAim(c,aim){
+  const color=this.currentAimColor,path=aim.path.map(p=>this.project(p.x,p.y,p.z)),q=this.project(aim.x,aim.y,aim.z);
+  this.currentAimPathScreen=path;this.currentAimScreen={x:q.x,y:q.y};
+  c.save();c.lineCap='round';c.lineJoin='round';
+  // Pixel-sized contrast stays legible on the creek, in portrait and at either
+  // zoom limit. This polyline ends at the actual first collision, never cursor.
+  c.beginPath();let joined=false;
+  for(const p of path){if(!p.visible){joined=false;continue;}if(joined)c.lineTo(p.x,p.y);else c.moveTo(p.x,p.y);joined=true;}
+  c.strokeStyle='#173c35';c.lineWidth=5;c.globalAlpha=.82;c.stroke();c.strokeStyle=color;c.lineWidth=2;c.globalAlpha=.96;c.stroke();
+  if(q.visible){
+   const marker=()=>{c.beginPath();if(aim.blocked){c.moveTo(q.x-5,q.y-5);c.lineTo(q.x+5,q.y+5);c.moveTo(q.x+5,q.y-5);c.lineTo(q.x-5,q.y+5);}else if(aim.targetId)c.arc(q.x,q.y,7,0,Math.PI*2);else{c.moveTo(q.x,q.y-6);c.lineTo(q.x+6,q.y);c.lineTo(q.x,q.y+6);c.lineTo(q.x-6,q.y);c.closePath();}};
+   marker();c.strokeStyle='#173c35';c.lineWidth=5;c.stroke();c.strokeStyle=color;c.lineWidth=2.5;c.stroke();
+   if(aim.targetId){c.beginPath();c.arc(q.x,q.y,2,0,Math.PI*2);c.fillStyle=color;c.fill();}
+  }
+  if(this.mouse.valid){
+   const x=this.mouse.x,y=this.mouse.y;this.currentAimCursorScreen={x,y};
+   // This smaller, hollow pointer is a request. The solid trajectory and its
+   // differently shaped endpoint show where the fly can actually travel.
+   c.beginPath();for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){c.moveTo(x+dx*4,y+dy*4);c.lineTo(x+dx*8,y+dy*8);}
+   c.globalAlpha=.8;c.strokeStyle='#173c35';c.lineWidth=4;c.stroke();c.strokeStyle='#f4ffdd';c.lineWidth=1.5;c.stroke();
+  }
+  c.restore();
+ }
  drawLabels(){const c=this.labelCtx;c.clearRect(0,0,this.w,this.h);c.textAlign='center';c.lineJoin='round';c.font='800 18px sans-serif';if(this.running){drawFlyMarkers(this,c);drawRadar(this,this.$('minimap'));}
-  this.currentAimScreen=null;
-  if(this.currentAimPreview){const aim=this.currentAimPreview,q=this.mouse.valid?{x:this.mouse.x,y:this.mouse.y,visible:true}:this.project(aim.x,aim.y,aim.z);this.currentAimScreen={x:q.x,y:q.y};if(q.visible&&q.x>4&&q.x<this.w-4&&q.y>4&&q.y<this.h-4){c.save();c.lineWidth=4;c.strokeStyle='#173c35';c.beginPath();c.arc(q.x,q.y,7,0,Math.PI*2);c.stroke();c.lineWidth=2;c.strokeStyle=this.autoFireTargetId?'#dfff85':aim.targetId?'#ffc5a0':'#f4ffdd';c.beginPath();c.arc(q.x,q.y,7,0,Math.PI*2);for(const [x,y] of [[1,0],[-1,0],[0,1],[0,-1]]){c.moveTo(q.x+x*10,q.y+y*10);c.lineTo(q.x+x*16,q.y+y*16);}c.stroke();c.restore();}}
+  this.currentAimScreen=null;this.currentAimCursorScreen=null;this.currentAimPathScreen=[];
+  if(this.currentAimPreview){const aim=this.currentAimPreview;if(this.viewMode==='overview')this.drawOverviewAim(c,aim);else{const q=this.mouse.valid?{x:this.mouse.x,y:this.mouse.y,visible:true}:this.project(aim.x,aim.y,aim.z);this.currentAimScreen={x:q.x,y:q.y};if(q.visible&&q.x>4&&q.x<this.w-4&&q.y>4&&q.y<this.h-4){c.save();c.lineWidth=4;c.strokeStyle='#173c35';c.beginPath();c.arc(q.x,q.y,7,0,Math.PI*2);c.stroke();c.lineWidth=2;c.strokeStyle=this.autoFireTargetId?'#dfff85':aim.targetId?'#ffc5a0':'#f4ffdd';c.beginPath();c.arc(q.x,q.y,7,0,Math.PI*2);for(const [x,y] of [[1,0],[-1,0],[0,1],[0,-1]]){c.moveTo(q.x+x*10,q.y+y*10);c.lineTo(q.x+x*16,q.y+y*16);}c.stroke();c.restore();}}}
 
   if(this.hitConfirmUntil>this.elapsed&&this.lastPlayerHit){const h=this.lastPlayerHit,target=this.state.actors.find(a=>a.id===h.id),q=this.project(h.x,Number.isFinite(h.y)?h.y:this.ground(h.x,h.z)+(target?.height||0)+1.2,h.z);if(q.visible){c.save();c.strokeStyle='#143d35';c.lineWidth=6;c.beginPath();for(const [x,y] of [[1,1],[-1,1],[1,-1],[-1,-1]]){c.moveTo(q.x+x*6,q.y+y*6);c.lineTo(q.x+x*15,q.y+y*15);}c.stroke();c.strokeStyle='#fffce2';c.lineWidth=3;c.stroke();c.restore();}}
   this.state.actors.forEach((a,i)=>{if(a.eliminated)return;const p=this.project(a.x,this.ground(a.x,a.z)+a.height+2.4,a.z);if(!p.visible)return;const on=p.x>20&&p.x<this.w-20&&p.y>70&&p.y<this.h-40;
    if(!on&&i>0&&!a.ko&&this.running){const x=clamp(p.x,24,this.w-24),y=clamp(p.y,110,this.h-(this.touch?210:90));c.font='bold 24px sans-serif';c.fillStyle=i===1?'#ffbb8e':'#dfb5ff';c.fillText('▼',x,y);return;}
    if(a.ko){c.font='900 20px sans-serif';c.strokeStyle='#1e2e28';c.lineWidth=5;const text=`KO · ${Math.ceil(a.respawnTime||0)}″`;c.strokeText(text,p.x,p.y);c.fillStyle='#ffe374';c.fillText(text,p.x,p.y);return;}
+   if(a.spawnShield>0){c.save();c.translate(p.x,p.y-53);c.globalAlpha=.65+.3*Math.min(1,a.spawnShield);c.beginPath();c.moveTo(0,-11);c.lineTo(10,-7);c.lineTo(9,4);c.quadraticCurveTo(5,11,0,14);c.quadraticCurveTo(-5,11,-9,4);c.lineTo(-10,-7);c.closePath();c.fillStyle='#247e9d';c.fill();c.strokeStyle='#c4f5ff';c.lineWidth=2;c.stroke();c.restore();}
    if(a.dizzyTime>0){for(let j=0;j<3;j++){const r=this.elapsed*4+j*2.094;c.font='bold 25px sans-serif';c.fillStyle='#ffdf57';c.strokeStyle='#725c21';c.lineWidth=3;const x=p.x+Math.cos(r)*27,y=p.y+Math.sin(r)*7;c.strokeText('★',x,y);c.fillText('★',x,y);}c.font='bold 15px sans-serif';c.fillStyle='#fff4ad';c.fillText(a.dizzyTime.toFixed(1)+'″',p.x,p.y+24);for(let j=0;j<RULES.finishHits;j++){c.beginPath();c.arc(p.x+(j-(RULES.finishHits-1)/2)*11,p.y+36,4,0,Math.PI*2);c.fillStyle=j<a.finishHits?'#ffb58e':'#244438';c.fill();c.strokeStyle='#ffe6ac';c.lineWidth=1.5;c.stroke();}}
-   else if(i>0){if(a.aimWindup>0){c.font='900 22px sans-serif';c.fillStyle='#ffddaa';c.fillText('!',p.x,p.y-40);}const label=i===1?'ΚΟΚΚΙΝΟΣ':'ΜΩΒ';const fill=i===1?'#ff886a':'#dba1ff';c.fillStyle='#112b27dd';c.strokeStyle=fill;c.lineWidth=3;c.beginPath();if(c.roundRect){c.roundRect(p.x-52,p.y-28,104,24,10);}else{c.rect(p.x-52,p.y-28,104,24);}c.fill();c.stroke();c.font='bold 15px sans-serif';c.fillStyle=fill;c.fillText(label,p.x,p.y-11);for(let j=0;j<6;j++){c.beginPath();c.arc(p.x+(j-2.5)*9,p.y+6,3.8,0,Math.PI*2);c.fillStyle=j<a.dizzy?'#ffe16a':'#214036bb';c.fill();}}
+   else if(i>0){if(a.aimWindup>0){c.font='900 22px sans-serif';c.strokeStyle='#173c35';c.lineWidth=5;c.strokeText('!',p.x,p.y-40);c.fillStyle='#ffddaa';c.fillText('!',p.x,p.y-40);}const label=i===1?'ΚΟΚΚΙΝΟΣ':'ΜΩΒ';const fill=i===1?'#ff886a':'#dba1ff';c.fillStyle='#112b27dd';c.strokeStyle=fill;c.lineWidth=3;c.beginPath();if(c.roundRect){c.roundRect(p.x-52,p.y-28,104,24,10);}else{c.rect(p.x-52,p.y-28,104,24);}c.fill();c.stroke();c.font='bold 15px sans-serif';c.fillStyle=fill;c.fillText(label,p.x,p.y-11);for(let j=0;j<6;j++){c.beginPath();c.arc(p.x+(j-2.5)*9,p.y+6,3.8,0,Math.PI*2);c.fillStyle=j<a.dizzy?'#ffe16a':'#214036bb';c.fill();}}
   });
   if(this.running){const player=this.state.actors[0];for(const base of this.state.bases){const definition=BASES.find(b=>b.id===base.id),near=Math.hypot(player.x-definition.stock.x,player.z-definition.stock.z)<10;if(base.destroyed||(!near&&!base.attackerId))continue;const q=this.project(definition.stock.x,this.ground(definition.stock.x,definition.stock.z)+3.5,definition.stock.z);if(!q.visible||q.x<70||q.x>this.w-70||q.y<95||q.y>this.h-(this.touch?220:85))continue;const text=base.attackerId?`ΚΑΤΑΣΤΡΟΦΗ · ${Math.max(0,RULES.sabotageSeconds-base.progress).toFixed(1)}″`:base.owner==='player'?'Η ΑΠΟΘΗΚΗ ΣΟΥ · ∞':'ΕΧΘΡΙΚΗ ΑΠΟΘΗΚΗ';c.font='800 12px sans-serif';c.strokeStyle='#14342df2';c.lineWidth=5;c.strokeText(text,q.x,q.y);c.fillStyle=base.attackerId?'#ffd197':base.owner==='player'?'#dbff9d':'#ffbdad';c.fillText(text,q.x,q.y);}}
   this.fx=this.fx.filter(f=>this.elapsed-f.start<f.life);for(const f of this.fx){const t=(this.elapsed-f.start)/f.life,p=this.project(f.x,this.ground(f.x,f.z)+2+t*2,f.z);c.globalAlpha=1-t;c.font=`900 ${f.text==='ΝΟΚ ΑΟΥΤ!'?32:22}px sans-serif`;c.strokeStyle='#244136';c.lineWidth=6;c.strokeText(f.text,p.x,p.y);c.fillStyle=f.color;c.fillText(f.text,p.x,p.y);}c.globalAlpha=1;
@@ -404,5 +438,5 @@ export class ArcadeGame {
   if((this.running&&!this.layoutEditing)||this.mode==='finishing'||this.mode==='result'){this.particles=this.particles.filter(p=>{if(this.elapsed-p.start>.55){p.mesh.removeFromParent();return false;}p.v.y-=dt*16;p.mesh.position.addScaledVector(p.v,dt);return true;});}
   this.renderer.render(this.scene,this.camera);this.drawLabels();this.updateHUD();
  }
- inspect(){return {version:ARCADE_VERSION,viewMode:this.viewMode,cameraControl:'direct-look',touchFireMode:this.settings.touchFireMode,autoFireTargetId:this.autoFireTargetId,pointerLocked:this.pointerLocked(),cameraSensitivity:this.settings.cameraSensitivity,mouse:{x:this.mouse.x,y:this.mouse.y,valid:this.mouse.valid},aim:{...this.aim},aimScreen:this.currentAimScreen,cameraYaw:this.cameraYaw,cameraPitch:this.cameraPitch,cameraDragging:!!this.cameraDrag,phase:this.state.phase,intro:this.state.intro,mode:this.mode,status:this.state.status,ammo:this.state.actors[0].ammo,fillPercent:Math.round(this.state.actors[0].ammo/RULES.capacity*100),actors:this.state.actors.map(a=>({id:a.id,x:a.x,z:a.z,ammo:a.ammo,dizzy:a.dizzy,dizzyTime:a.dizzyTime,ko:a.ko,eliminated:a.eliminated,respawnTime:a.respawnTime,sabotageId:a.sabotageId,aiming:a.aiming,aimX:a.aimX,aimY:a.aimY,aimZ:a.aimZ,face:a.face,hop:a.hop,hopX:a.hopX,hopZ:a.hopZ,height:a.height,knockUp:a.knockUp,finishHits:a.finishHits,kickCooldown:a.kickCooldown,catapultId:a.catapultId})),bases:this.state.bases.map(b=>({...b})),layoutEditing:this.layoutEditing,touch:this.touch,catapults:this.state.catapults?.map(c=>({id:c.id,occupant:c.occupant,cooldown:c.cooldown})),shells:this.state.shells?.length,hitConfirmUntil:this.hitConfirmUntil,bullets:this.state.bullets.length,splats:this.splats.length,legacySavePreserved:true};}
+ inspect(){return {version:ARCADE_VERSION,viewMode:this.viewMode,cameraControl:'direct-look',touchFireMode:this.settings.touchFireMode,autoFireTargetId:this.autoFireTargetId,pointerLocked:this.pointerLocked(),cameraSensitivity:this.settings.cameraSensitivity,mouse:{x:this.mouse.x,y:this.mouse.y,valid:this.mouse.valid},aim:{...this.aim},aimScreen:this.currentAimScreen,cameraYaw:this.cameraYaw,cameraPitch:this.cameraPitch,cameraDragging:!!this.cameraDrag,phase:this.state.phase,intro:this.state.intro,mode:this.mode,status:this.state.status,ammo:this.state.actors[0].ammo,fillPercent:Math.round(this.state.actors[0].ammo/RULES.capacity*100),actors:this.state.actors.map(a=>({id:a.id,x:a.x,z:a.z,ammo:a.ammo,dizzy:a.dizzy,dizzyTime:a.dizzyTime,ko:a.ko,eliminated:a.eliminated,respawnTime:a.respawnTime,spawnShield:a.spawnShield,invuln:a.invuln,sabotageId:a.sabotageId,aiming:a.aiming,aimX:a.aimX,aimY:a.aimY,aimZ:a.aimZ,face:a.face,hop:a.hop,hopX:a.hopX,hopZ:a.hopZ,height:a.height,knockUp:a.knockUp,finishHits:a.finishHits,kickCooldown:a.kickCooldown,catapultId:a.catapultId})),bases:this.state.bases.map(b=>({...b})),layoutEditing:this.layoutEditing,touch:this.touch,catapults:this.state.catapults?.map(c=>({id:c.id,occupant:c.occupant,cooldown:c.cooldown})),shells:this.state.shells?.length,hitConfirmUntil:this.hitConfirmUntil,bullets:this.state.bullets.length,splats:this.splats.length,legacySavePreserved:true};}
 }
