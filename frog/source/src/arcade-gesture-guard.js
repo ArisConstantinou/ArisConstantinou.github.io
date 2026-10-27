@@ -8,7 +8,15 @@ export function installArcadeGestureGuard({document=globalThis.document,surfaces
  const roots=surfaces??[...document.querySelectorAll('#arcade-world,#arcade-labels,#arcade-ui')];
  const listeners=[],gameTouches=new Set();
  let gameGesture=false;
- const nativeControl=node=>(node?.nodeType===3?node.parentElement:node)?.closest?.(NATIVE_CONTROL);
+ const element=node=>node?.nodeType===3?node.parentElement:node;
+ const nativeControl=node=>element(node)?.closest?.(NATIVE_CONTROL);
+ const settingsPanel=node=>{
+  const panel=element(node)?.closest?.('#settings-panel');
+  if(!panel||panel.hidden||panel.closest('[hidden]'))return null;
+  if(panel.getClientRects&&panel.getClientRects().length===0)return null;
+  const style=document.defaultView?.getComputedStyle?.(panel);
+  return style?.display==='none'||style?.visibility==='hidden'||style?.visibility==='collapse'?null:panel;
+ };
  const gameNode=node=>!!node?.nodeType&&!nativeControl(node)&&roots.some(root=>root&&(root===node||root.contains?.(node)));
  const eventNodes=event=>{
   const path=event.composedPath?.()||[];
@@ -27,6 +35,7 @@ export function installArcadeGestureGuard({document=globalThis.document,surfaces
  const clear=()=>{gameTouches.clear();gameGesture=false;};
  const active=()=>{if(enabled())return true;clear();return false;};
  const gameTouch=event=>gameTouches.size>0||gameEvent(event)||Array.from(event.touches||[]).some(touch=>gameNode(touch.target));
+ const settingsScroll=event=>event.touches?.length===1&&gameTouches.size<=1&&!!settingsPanel(event.touches[0].target);
 
  listen('touchstart',event=>{
   if(!active())return;
@@ -35,7 +44,10 @@ export function installArcadeGestureGuard({document=globalThis.document,surfaces
   // menu buttons. Only a multi-touch start needs the additional pinch guard.
   if(event.touches?.length>1&&gameTouch(event))prevent(event);
  });
- listen('touchmove',event=>{if(active()&&gameTouch(event))prevent(event);});
+ // The menu panel is a bounded native scroller, not another game control.
+ // Keep its touch tracked above so a second finger still blocks pinch/mixed
+ // gestures; only a single finger that started in the visible panel may pan.
+ listen('touchmove',event=>{if(active()&&gameTouch(event)&&!settingsScroll(event))prevent(event);});
  const releaseTouches=event=>{
   for(const touch of event.changedTouches||[])gameTouches.delete(touch.identifier);
   if(!event.touches?.length)gameTouches.clear();
@@ -51,7 +63,12 @@ export function installArcadeGestureGuard({document=globalThis.document,surfaces
  });
  // Wheel includes trackpad pan and the Ctrl-wheel events used for pinch zoom.
  // Native form controls retain their normal editing and slider interactions.
- for(const type of ['wheel','dblclick','selectstart','contextmenu','dragstart'])listen(type,event=>{
+ listen('wheel',event=>{
+  if(!active()||!gameEvent(event))return;
+  if(!event.ctrlKey&&!event.metaKey&&eventNodes(event).some(settingsPanel))return;
+  prevent(event);
+ });
+ for(const type of ['dblclick','selectstart','contextmenu','dragstart'])listen(type,event=>{
   if(active()&&gameEvent(event))prevent(event);
  });
  listen('keydown',event=>{

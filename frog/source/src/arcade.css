@@ -36,12 +36,11 @@
 #touch-controls{--touch-safe-top:env(safe-area-inset-top,0px);--touch-safe-right:env(safe-area-inset-right,0px);--touch-safe-bottom:env(safe-area-inset-bottom,0px);--touch-safe-left:env(safe-area-inset-left,0px)}
 .fire-button{right:calc(var(--stick-size) + 36px);bottom:26px;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 35% 25%,#e4b548,#8c571d);border-color:#ffe1a0;box-shadow:0 5px 0 #593d21b8,0 0 16px #d99f3829}
 .fire-button svg{width:35px;height:35px}.fire-button span{font-size:12px;letter-spacing:1px}.fire-button.firing{background:#f9cd62;box-shadow:0 0 20px #ffd87a90;transform:scale(.97)}
-/* Normal mobile combat leaves the right thumb free to aim on the world. */
-#touch-aim-hint{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(32px,env(safe-area-inset-bottom));width:min(220px,calc(50vw - 38px));display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;color:#efffdfb8;text-shadow:0 2px 4px #092f28,0 0 10px #092f28;pointer-events:none;line-height:1.35}
-#touch-aim-hint .touch-aim-symbol{font-size:36px;line-height:1;font-weight:400;opacity:.75}
-#touch-aim-hint b{font-size:11px;letter-spacing:.6px}#auto-fire-status{font-size:10px;letter-spacing:.7px;color:#d9eea7}
-#touch-aim-hint.aiming{color:#f4ffe3}#touch-aim-hint.firing,#touch-aim-hint.firing #auto-fire-status{color:#dfff85}
-@media(max-height:500px) and (orientation:landscape){#touch-aim-hint{right:max(24px,env(safe-area-inset-right));width:190px;bottom:max(26px,env(safe-area-inset-bottom))}}
+/* The right stick remains available in both firing modes. */
+#touch-aim-hint{position:absolute;left:0;right:0;top:10%;text-align:center;color:#efffdf;pointer-events:none;line-height:1.2;text-shadow:0 2px 4px #092f28}
+#auto-fire-status{font-size:9px;font-weight:800;letter-spacing:.25px;color:#e3efbd}
+#touch-aim-hint.firing #auto-fire-status{color:#dfff85}
+#aim-stick.firing{border-color:#dfff85;box-shadow:inset 0 0 24px #96c24c35,0 0 12px #c5f67d55}
 .aim-zone .fire-ring,.aim-zone .ring-label{display:none}.aim-zone .stick-inner{inset:23%;border-style:dashed}.aim-zone .aim-center{font-size:27px}
 .layout-button{position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);width:52px;height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:1px solid #d0eab9a6;border-radius:15px;background:#173e35ed;color:#eff8dd;font-size:23px;font-weight:800;touch-action:none;box-shadow:0 3px 0 #09281f}
 .layout-button span{font-size:8px;letter-spacing:.4px}.layout-button[aria-pressed=true]{background:#5e762c;color:#fff6b8;border-color:#e7f6a4}
@@ -152,13 +151,16 @@ body{position:fixed;inset:0;-webkit-tap-highlight-color:transparent}
 
 /* Camera controls preview the world immediately while the round stays paused. */
 .menu.settings-open{background:#061f181f;backdrop-filter:none}
-.settings-panel{position:absolute;top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));width:min(390px,calc(100vw - 24px));max-height:calc(100dvh - 24px);display:grid;gap:10px;padding:16px;overflow:auto;border-radius:20px;background:#14382ff5}
+.settings-panel{position:absolute;top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));width:min(390px,calc(100vw - 24px));max-height:calc(100dvh - 24px);display:grid;gap:10px;padding:16px;overflow:auto;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-radius:20px;background:#14382ff5}
 .settings-panel h2{margin:0;font-size:22px;line-height:1.15}
 .settings-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
 .settings-panel label{min-width:0;margin:0;gap:6px;font-size:14px;line-height:1.2}
 .settings-panel label>span{display:flex;align-items:baseline;justify-content:space-between;gap:4px}
 .settings-panel input{width:100%;min-width:0;height:34px;margin:0;accent-color:#d0f170}
 .settings-panel select{width:100%;min-width:0;height:34px;padding:4px 6px;font-size:16px}
+.fire-settings{padding:10px;border:1px solid #9cbf8055;border-radius:12px;background:#0b2d2559}
+.fire-settings select{height:42px;margin-top:2px}
+#touch-fire-mode-help{margin:7px 0 0;font-size:12px;line-height:1.4;color:#d6e5bf}
 .camera-settings-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .camera-settings-heading h3{margin:0;font-size:16px}
 .camera-sensitivity-label{grid-column:1/-1}

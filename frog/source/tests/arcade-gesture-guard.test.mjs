@@ -3,9 +3,16 @@ import assert from 'node:assert/strict';
 import {installArcadeGestureGuard} from '../src/arcade-gesture-guard.js';
 
 class Element{
- constructor(tag,parent=null,{editable=false}={}){this.tag=tag;this.parentElement=parent;this.editable=editable;this.nodeType=1;}
+ constructor(tag,parent=null,{editable=false,id='',hidden=false}={}){this.tag=tag;this.parentElement=parent;this.editable=editable;this.id=id;this.hidden=hidden;this.nodeType=1;}
  contains(node){if(!node?.nodeType)throw new TypeError('contains requires a DOM Node');for(let current=node;current;current=current.parentElement)if(current===this)return true;return false;}
- closest(){for(let current=this;current;current=current.parentElement)if(['input','select','textarea'].includes(current.tag)||current.editable)return current;return null;}
+ closest(selector){
+  for(let current=this;current;current=current.parentElement){
+   if(selector.startsWith('#')&&current.id===selector.slice(1))return current;
+   if(selector==='[hidden]'&&current.hidden)return current;
+   if(selector.startsWith('input,select,textarea,')&&(['input','select','textarea'].includes(current.tag)||current.editable))return current;
+  }
+  return null;
+ }
 }
 function fixture(){
  const handlers=new Map(),body=new Element('body'),canvas=new Element('canvas',body),ui=new Element('div',body),button=new Element('button',ui),icon=new Element('svg',button),outside=new Element('p',body);
@@ -62,6 +69,56 @@ test('native settings sliders, selects and editable text retain their defaults',
    assert.equal(event.defaultPrevented,false,`${type} must preserve ${control.tag} interaction`);
   }
   f.emit('touchend',control,{touches:[],changedTouches:[a,b]});
+ }
+});
+
+test('one finger can scroll visible settings prose or buttons without changing game gesture behavior',()=>{
+ const f=fixture();installArcadeGestureGuard({document:f.document});
+ const panel=new Element('div',f.ui,{id:'settings-panel'}),prose=new Element('p',panel),back=new Element('button',panel),text={nodeType:3,parentElement:prose};
+ for(const target of [panel,prose,back,text]){
+  const finger=touch(1,target);
+  assert.equal(f.emit('touchstart',target,{touches:[finger],changedTouches:[finger]}).defaultPrevented,false);
+  const move=f.emit('touchmove',target,{touches:[finger],changedTouches:[finger]});
+  assert.equal(move.defaultPrevented,false);assert.equal(move.propagationStopped,false);
+  f.emit('touchend',target,{touches:[],changedTouches:[finger]});
+ }
+ const finger=touch(2,f.canvas);f.emit('touchstart',f.canvas,{touches:[finger],changedTouches:[finger]});
+ assert.equal(f.emit('touchmove',f.canvas,{touches:[finger]}).defaultPrevented,true,'world camera drags still cannot pan the page');
+});
+
+test('settings scrolling never exempts pinch or mixed game and panel touches',()=>{
+ const f=fixture();installArcadeGestureGuard({document:f.document});
+ const panel=new Element('div',f.ui,{id:'settings-panel'}),prose=new Element('p',panel);
+ for(const targets of [[panel,prose],[f.canvas,prose],[prose,f.canvas]]){
+  const a=touch(1,targets[0]),b=touch(2,targets[1]);
+  f.emit('touchstart',targets[0],{touches:[a],changedTouches:[a]});
+  assert.equal(f.emit('touchstart',targets[1],{touches:[a,b],changedTouches:[b]}).defaultPrevented,true);
+  assert.equal(f.emit('touchmove',targets[1],{touches:[a,b]}).defaultPrevented,true);
+  for(const type of ['gesturestart','gesturechange'])assert.equal(f.emit(type,f.document,{touches:[a,b]}).defaultPrevented,true);
+  f.emit('touchcancel',targets[1],{touches:[],changedTouches:[a,b]});
+  assert.equal(f.emit('gestureend',f.document).defaultPrevented,true);
+ }
+});
+
+test('settings allow ordinary wheel scrolling while zoom and non-scroll gestures stay guarded',()=>{
+ const f=fixture();installArcadeGestureGuard({document:f.document});
+ const panel=new Element('div',f.ui,{id:'settings-panel'}),button=new Element('button',panel),icon=new Element('svg',button);
+ assert.equal(f.emit('wheel',icon,{deltaY:120}).defaultPrevented,false);
+ assert.equal(f.emit('wheel',icon,{deltaY:-80}).defaultPrevented,false);
+ for(const modifier of ['ctrlKey','metaKey'])assert.equal(f.emit('wheel',icon,{deltaY:120,[modifier]:true}).defaultPrevented,true);
+ for(const type of ['selectstart','contextmenu','dragstart','dblclick','gesturestart'])assert.equal(f.emit(type,icon).defaultPrevented,true,`${type} is not a scrolling exemption`);
+ f.emit('gestureend',icon);
+ assert.equal(f.emit('wheel',f.canvas,{deltaY:120}).defaultPrevented,true);
+});
+
+test('hidden or non-rendered settings panels cannot claim a native scrolling exemption',()=>{
+ const f=fixture();installArcadeGestureGuard({document:f.document});
+ const menu=new Element('div',f.ui),panel=new Element('div',menu,{id:'settings-panel'}),prose=new Element('p',panel),finger=touch(1,prose);
+ for(const hide of [()=>{panel.hidden=true;},()=>{panel.hidden=false;menu.hidden=true;},()=>{menu.hidden=false;panel.getClientRects=()=>[];}]){
+  hide();f.emit('touchstart',prose,{touches:[finger],changedTouches:[finger]});
+  assert.equal(f.emit('touchmove',prose,{touches:[finger]}).defaultPrevented,true);
+  assert.equal(f.emit('wheel',prose,{deltaY:120}).defaultPrevented,true);
+  f.emit('touchend',prose,{touches:[],changedTouches:[finger]});
  }
 });
 
