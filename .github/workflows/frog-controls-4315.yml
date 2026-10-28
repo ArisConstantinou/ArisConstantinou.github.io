@@ -3,34 +3,122 @@ on:
   push:
     branches: [qa/frog-controls-4315]
 permissions:
-  contents: read
+  contents: write
 jobs:
-  prepare:
+  validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+        working-directory: release
     steps:
-      - uses: actions/checkout@v4
+      - name: Read isolated patch tools
+        uses: actions/checkout@v4
+        with:
+          path: tools
+          sparse-checkout: .frog-controls-4315
+          persist-credentials: false
+      - name: Read exact production source
+        uses: actions/checkout@v4
         with:
           ref: 42b90b5c3b96a2079bc152d37da757acdfa9f024
+          path: release
           sparse-checkout: frog/source
-          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install locked dependencies
-        working-directory: frog/source
-        run: npm ci --no-audit --no-fund
-      - name: Package exact source and build dependencies for verification
-        shell: bash
+      - name: Apply source-verified controls patch
         run: |
-          mkdir -p "$RUNNER_TEMP/frog-review"
-          git rev-parse HEAD > "$RUNNER_TEMP/frog-review/base-commit.txt"
-          git ls-tree -r HEAD frog/source > "$RUNNER_TEMP/frog-review/source-blobs.txt"
-          tar --exclude='qa/results' --exclude='qa/*.png' --exclude='qa/*.webm' -czf "$RUNNER_TEMP/frog-review/source.tgz" -C frog/source src tests qa package.json package-lock.json vite.config.js index.html public node_modules
-          ls -lh "$RUNNER_TEMP/frog-review/source.tgz"
-      - uses: actions/upload-artifact@v4
+          mkdir -p "$RUNNER_TEMP/frog-controls-review"
+          python3 ../tools/.frog-controls-4315/apply.py
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('frog/source')
+          text=(root/'qa/arcade-4314.mjs').read_text()
+          assert text.count("const version='4.3.14'")==1
+          text=text.replace("const version='4.3.14'","const version='4.3.15'")
+          text=text.replace('qa/results/arcade-4314','qa/results/arcade-4315')
+          extra=Path('../tools/.frog-controls-4315/controls-extra.mjs').read_text()
+          assert text.count('let context;')==1
+          text=text.replace('let context;',extra+'\nlet context;')
+          key="['high-quality visual review',highQualityReview]"
+          assert text.count(key)==1
+          text=text.replace(key,"['native control directions',nativeDirections],['fallback controls',fallbackControls],"+key)
+          (root/'qa/arcade-4315.mjs').write_text(text)
+          PY
+          git diff --check
+      - name: Install pinned dependencies
+        working-directory: release/frog/source
+        run: npm ci --no-audit --no-fund
+      - name: Run complete unit and geometry suite
+        working-directory: release/frog/source
+        run: |
+          node --test --test-concurrency=2 tests/*.test.mjs | tee "$RUNNER_TEMP/frog-controls-review/unit-tests.log"
+          grep -q '^# fail 0$' "$RUNNER_TEMP/frog-controls-review/unit-tests.log"
+          grep -q '^# tests 1251$' "$RUNNER_TEMP/frog-controls-review/unit-tests.log"
+      - name: Build production game
+        working-directory: release/frog/source
+        run: |
+          npm run build | tee "$RUNNER_TEMP/frog-controls-review/build.log"
+          test -f dist/assets/index-BewSEp3k.js
+      - name: Install isolated browser test runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/frog-browser" --no-audit --no-fund --package-lock=false playwright@1.57.0
+          "$RUNNER_TEMP/frog-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Exercise production WebGL with native keyboard and mouse
+        working-directory: release/frog/source
+        run: |
+          python3 -m http.server 4178 --bind 127.0.0.1 --directory dist > "$RUNNER_TEMP/frog-controls-review/server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" || true' EXIT
+          for i in $(seq 1 20); do curl -fsS http://127.0.0.1:4178/ > /dev/null && break || sleep 1; done
+          OUT_DIR="$RUNNER_TEMP/frog-controls-review/browser" BASE_URL=http://127.0.0.1:4178/ PLAYWRIGHT_MODULE="$RUNNER_TEMP/frog-browser/node_modules/playwright" node qa/arcade-4315.mjs | tee "$RUNNER_TEMP/frog-controls-review/browser.log"
+      - name: Assemble tested release without changing main
+        run: |
+          python3 - <<'PY'
+          import os,json,pathlib,shutil,hashlib,re
+          root=pathlib.Path.cwd();review=pathlib.Path(os.environ['RUNNER_TEMP'])/'frog-controls-review'
+          report=json.loads((review/'browser/report.json').read_text())
+          assert report['ok'] is True and not report['errors'] and not report['failures']
+          assert report['version']=='4.3.15'
+          source=root/'frog/source';dist=source/'dist'
+          shutil.copyfile(dist/'index.html',root/'frog/index.html')
+          assets=root/'frog/assets';assets.mkdir(exist_ok=True)
+          for p in (dist/'assets').iterdir():shutil.copyfile(p,assets/p.name)
+          evidence=root/'frog/qa/arcade-4315';evidence.mkdir(parents=True,exist_ok=True)
+          shutil.copyfile(review/'browser/report.json',evidence/'report.json')
+          for name in ['third-person-directional-hop-a','third-person-directional-hop-s','overview-facing-3.14-a','third-person-enemy-revealed']:
+            p=review/'browser'/(name+'.png');assert p.exists(),str(p);shutil.copyfile(p,evidence/p.name)
+          log=(review/'unit-tests.log').read_text()
+          unit={k:int(re.search(r'^# '+k+r' (\d+)$',log,re.M).group(1)) for k in ['tests','pass','fail','skipped']}
+          assert unit['tests']==unit['pass']==1251 and unit['fail']==unit['skipped']==0
+          bundle=dist/'assets/index-BewSEp3k.js';digest=hashlib.sha256(bundle.read_bytes()).hexdigest()
+          summary={'version':'4.3.15','base':'42b90b5c3b96a2079bc152d37da757acdfa9f024','unit':unit,'browserChecks':len(report['checks']),'browser':report['browser'],'bundle':bundle.name,'sha256':digest,'limitations':report['limitations']}
+          (evidence/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+          notes=f'''# FROG 4.3.15 — control correction\n\nBased on production 42b90b5.\n\n- Fixed north-up overview WASD, independent of old camera orbit, actor facing and shot stance.\n- Third-person mouse displacement owns camera rotation; the center ray owns aim even if pointer capture is denied or still pending. Locked mouse input is handled once, not by two event paths.\n- Third-person body follows the new aim; overview retains deliberate shot facing.\n- Four-limb hop animation follows actual local movement, including lateral and backward hops, without stretching limbs.\n- Existing campaign rigs, collision surfaces, saves, timers, ammunition and opt-in target locking are preserved.\n\n## Verification\n\n{unit['pass']} automated unit/geometry tests passed, 0 failed, 0 skipped. Production Vite build passed. {len(report['checks'])} browser checks passed using {report['browser']}, including native WASD after 90/180/270-degree turns, Resume and New Round; all four actor headings; continuous native mouse rotation beyond 360 degrees; both failed and pending pointer capture; directional movement and hopping; retained stance; Q; optional target lock; floors; and catapult transitions.\n\nThe browser runs use desktop Chromium software WebGL, frozen-opponent fixtures and deterministic frame batches. They do not establish real mobile-device performance. High-quality full-map and catapult review images use the explicitly documented review lenses; movement screenshots use the ordinary gameplay camera.\n\nBundle: `{bundle.name}`, SHA-256 `{digest}`.\n\nReproduce unit checks with `node --test --test-concurrency=2 tests/*.test.mjs`, then `npm run build`. Serve `dist` on port 4178 and run `qa/arcade-4315.mjs` with Playwright 1.57.0 supplied in `PLAYWRIGHT_MODULE`. See `frog/qa/arcade-4315/report.json` for individual results.\n'''
+          (source/'CONTROLS-4.3.15.md').write_text(notes)
+          shutil.copyfile(evidence/'summary.json',review/'summary.json')
+          PY
+          git add --sparse frog/source/src/arcade-control-policy.js frog/source/src/arcade.js frog/source/src/creatures.js frog/source/src/arcade-model.js frog/source/tests/arcade-control-policy.test.mjs frog/source/qa/arcade-4315.mjs frog/source/qa/arcade-controls-4315.py frog/source/CONTROLS-4.3.15.md frog/source/package.json frog/source/package-lock.json frog/source/index.html frog/index.html frog/assets/index-BewSEp3k.js frog/qa/arcade-4315
+          git diff --cached --check
+          git diff --cached --name-only | tee "$RUNNER_TEMP/frog-controls-review/changed-files.txt"
+          if git diff --cached --name-only | grep -v '^frog/'; then echo 'Unexpected changed path'; exit 1; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'FROG 4.3.15: consistent camera controls and directional hops' -m 'Keep overview movement screen-relative through view switches and round transitions. Unify third-person mouse look and center-ray aim, turn the body with deliberate view changes, and pose forward, backward and lateral hops with bounded directional limb IK. Preserve unrelated game systems. Include matching production build, complete unit checks and native-input WebGL verification.'
+          branch="verified/frog-controls-4315-$GITHUB_RUN_ID"
+          git push origin "HEAD:refs/heads/$branch"
+          git rev-parse HEAD > "$RUNNER_TEMP/frog-controls-review/release-commit.txt"
+          git rev-parse 'HEAD^{tree}' > "$RUNNER_TEMP/frog-controls-review/release-tree.txt"
+          printf '%s\n' "$branch" > "$RUNNER_TEMP/frog-controls-review/release-branch.txt"
+          git show --stat --oneline HEAD > "$RUNNER_TEMP/frog-controls-review/release-stat.txt"
+          echo "Verified release commit: $(git rev-parse HEAD) on $branch. Main remains unchanged." >> "$GITHUB_STEP_SUMMARY"
+      - name: Preserve review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: frog-controls-source
-          path: ${{ runner.temp }}/frog-review/
-          retention-days: 3
-          compression-level: 0
+          name: frog-controls-4315-review
+          path: ${{ runner.temp }}/frog-controls-review/
+          retention-days: 5
+          compression-level: 1
