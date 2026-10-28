@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 p=Path('frog/source/src/arcade.js');s=p.read_text()
 old="""  // Native locked mouse movement is owned by one document mouse listener.
   // Pointer events continue to own free-pointer, touch and catapult input.
@@ -41,5 +42,21 @@ s=s.replace(old,old+"await page.addInitScript(()=>{window.qaNativeEvents=[];for(
 old=" check(report.errors.length===0,'no browser runtime or harness errors',report.errors);"
 assert s.count(old)==1
 s=s.replace(old," report.nativeEvents=await page.evaluate(()=>window.qaNativeEvents);\n"+old)
+
+# CDP absolute mouse input produces zero deltas and synthetic window warps
+# under pointer capture. Run the same assertions in headed Chromium instead,
+# with XTest mouse input and calibrated viewport coordinates. Keep every
+# production path and all assertions; change only the physical input source.
+native=(Path(__file__).resolve().parent/'native-input.mjs').read_text()
+s=native+'\n'+s
+assert s.count('headless:true')==1
+s=s.replace('headless:true','headless:false').replace("args:['--no-sandbox'","args:['--window-position=0,0','--no-sandbox'")
+for context in ['context','ctx']:
+ old=f'const page=await {context}.newPage();'
+ assert s.count(old)==1
+ s=s.replace(old,old+'installNativeMouse(page);')
+s,count=re.subn(r"await page\.locator\(('[^']*')\)\.click\(\)",r'await clickNative(page,\1)',s)
+assert count>=10,count
+s=s.replace('Desktop Chromium with software WebGL; no claim about real mobile hardware.','Desktop Chromium under Xvfb with XTest mouse input and software WebGL; no claim about real mobile hardware.')
 p.write_text(s)
-print('Restored single native pointer owner and stabilized browser-fixture setup events.')
+print('Kept the production single pointer owner; browser QA now uses trusted XTest mouse input, not CDP pointer-lock warps.')
