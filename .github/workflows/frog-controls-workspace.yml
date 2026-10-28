@@ -1,0 +1,27 @@
+name: FROG controls diagnostic workspace
+on:
+  push:
+    branches: [frog-controls-4315]
+    paths: ['.github/workflows/frog-controls-workspace.yml']
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: frog/source
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+        working-directory: frog/source
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frog-controls-workspace
+          path: frog/source/
+          include-hidden-files: true
+          retention-days: 1
