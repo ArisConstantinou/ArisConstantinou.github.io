@@ -1,0 +1,11 @@
+{
+  "name": "draw-world-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A tactile 3D world builder for desktop and mobile",
+  "scripts": {
+    "check": "node --check app.js && node --check engine.js && node --check assets.js && node --check materials.js",
+    "test": "node --no-warnings --loader ./tests/three-loader.mjs ./tests/integration.mjs"
+  }
+}

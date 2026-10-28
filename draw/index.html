@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#f8f9f5" />
+  <meta name="description" content="Draw a place. Bring it to life. A hands-on 3D world studio for building homes, painting materials, sculpting landscapes and exploring your own living town." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>DRAW — World Studio</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <a class="brand" href="./" aria-label="DRAW World Studio home"><span class="brand-mark"><svg viewBox="0 0 30 30" fill="none"><path d="M7 22V12l8-5 8 5v10l-8 4-8-4Z" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="m7 12 8 5 8-5M15 17v9M15 7v7" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/></svg></span><span>draw<span class="brand-dot">.</span></span><span class="brand-divider"></span><small>WORLD STUDIO</small></a>
+      <button class="project-switch" id="project-menu-button" aria-label="Project menu" aria-expanded="false"><span class="project-symbol" data-icon="globe"></span><span id="project-name">Seaside village</span><span class="tiny-icon" data-icon="chevronDown"></span></button>
+      <div class="header-actions"><span class="save-status" id="save-status"><i></i>Opening world…</span><div class="history-actions"><button class="icon-button" id="undo" title="Undo (Ctrl / ⌘ Z)" aria-label="Undo" data-icon="undo" disabled></button><button class="icon-button" id="redo" title="Redo (Ctrl / ⌘ Shift Z)" aria-label="Redo" data-icon="redo" disabled></button></div><button class="icon-button help-button" id="help" aria-label="Help and controls" title="Help and controls (?)" data-icon="help"></button><button class="save-button" id="save" aria-label="Save world"><span data-icon="save"></span><span>Save world</span></button></div>
+    </header>
+
+    <div id="project-menu" class="dropdown" hidden>
+      <span class="dropdown-label">YOUR WORLD</span>
+      <button data-action="rename"><span data-icon="edit"></span>Rename world</button>
+      <button data-action="new"><span data-icon="plus"></span>New world</button>
+      <div class="menu-rule"></div>
+      <button data-action="export"><span data-icon="download"></span>Export project <small>.draw.json</small></button>
+      <button data-action="import"><span data-icon="upload"></span>Open project</button>
+      <button data-action="snapshot"><span data-icon="camera"></span>Capture a view <small>.png</small></button>
+      <div class="menu-rule"></div>
+      <button data-action="help"><span data-icon="help"></span>Help & controls</button>
+    </div>
+
+    <main class="workspace">
+      <aside class="library-panel" id="library-panel" aria-label="Asset and material library">
+        <div class="sheet-handle"></div>
+        <div class="panel-heading"><div><span class="eyebrow">A WORLD OF POSSIBILITIES</span><h1 id="library-title">Make it yours<span>.</span></h1></div><button class="icon-button close-sheet" aria-label="Close library" data-icon="x"></button></div>
+        <div class="library-tabs" role="tablist" aria-label="Library type"><button class="active" role="tab" aria-selected="true" data-library="assets"><span data-icon="box"></span>Assets <span class="tab-count" id="asset-total">—</span></button><button role="tab" aria-selected="false" data-library="materials"><span data-icon="layers"></span>Materials</button></div>
+        <label class="search-field"><span data-icon="search"></span><input id="asset-search" type="search" placeholder="Find something to create with…" autocomplete="off" aria-label="Search library"/><kbd>/</kbd></label>
+        <div class="category-list" id="categories" aria-label="Asset categories"></div>
+        <div class="collection-header"><span id="collection-title">Buildings</span><span id="collection-count"></span></div>
+        <div class="asset-scroll"><div class="asset-grid" id="asset-grid"></div><div class="empty-library" id="empty-library" hidden><span data-icon="search"></span><h3>No matches just yet</h3><p>Try a different name or choose another category.</p><button class="text-button" id="clear-search">Clear search</button></div></div>
+        <div class="library-footnote"><span class="footnote-icon" data-icon="sparkles"></span><div><strong>Little details. Endless possibilities.</strong><span id="library-note">Choose an asset, then place it in your world.</span></div></div>
+      </aside>
+
+      <section class="studio" aria-label="Interactive 3D world">
+        <div id="viewport" role="application" aria-label="3D world canvas. Drag to orbit. Choose a tool to build, paint or sculpt. Use two fingers to navigate on touch screens."></div>
+        <div class="loading-screen" id="loading"><div class="loading-mark">d<span>.</span></div><h2>A little world is taking shape.</h2><p>Preparing your landscape and materials</p><div class="loading-track"><i></i></div></div>
+        <div class="canvas-topbar"><div class="world-label"><span class="world-tag">YOUR CREATIVE SPACE</span><h2 id="canvas-project-name">Seaside village</h2><span class="world-caption"><i></i><span id="object-count">Building your world</span><span class="caption-dot">·</span>76 × 76 m</span></div><div class="view-switch" role="group" aria-label="Camera view"><button class="active" data-view="perspective" aria-pressed="true"><span data-icon="cube"></span>3D view</button><button data-view="top" aria-pressed="false"><span data-icon="plan"></span>Plan</button></div></div>
+        <div class="scene-controls"><button class="icon-button scene-trigger" id="scene-toggle" aria-label="Scene settings" aria-expanded="false" data-icon="sun"></button><div class="scene-popover" id="scene-settings"><div class="mini-heading"><span>ATMOSPHERE</span><span data-icon="sun"></span></div><div class="day-options" role="group" aria-label="Time of day"><button data-time="day" class="active" aria-pressed="true" title="Daylight"><span data-icon="sun"></span><small>Daylight</small></button><button data-time="sunset" aria-pressed="false" title="Golden hour"><span data-icon="sunset"></span><small>Golden hour</small></button><button data-time="night" aria-pressed="false" title="Night"><span data-icon="moon"></span><small>Night</small></button></div><label class="setting-row"><span><span data-icon="grid"></span>Ground grid</span><input type="checkbox" id="grid-toggle" role="switch"/><i class="switch"></i></label><label class="setting-row"><span><span data-icon="home"></span>Show roofs</span><input type="checkbox" id="roof-toggle" checked role="switch"/><i class="switch"></i></label><div class="living-row"><div><span class="living-dot"></span><strong>Bring to life</strong><small>A little movement. A living place.</small></div><input type="checkbox" id="living-toggle" checked role="switch" aria-label="Bring world to life"/><i class="switch"></i></div></div></div>
+        <div class="camera-controls"><button class="icon-button" id="camera-home" aria-label="Fit world in view" title="Fit world in view (H)" data-icon="focus"></button><span></span><button class="icon-button" id="zoom-in" aria-label="Zoom in" data-icon="plus"></button><button class="icon-button" id="zoom-out" aria-label="Zoom out" data-icon="minus"></button></div>
+
+        <section class="inspector" id="inspector" aria-label="Selected object properties" hidden><div class="inspector-header"><span class="eyebrow">SELECTED OBJECT</span><button class="icon-button" id="close-inspector" aria-label="Close object properties" data-icon="x"></button></div><h3 id="selected-name">Object</h3><p class="selected-meta" id="selected-meta"></p><div class="inspector-line"></div><div class="field-label">Position <span>metres</span></div><div class="position-fields"><label><span>X</span><input type="number" id="pos-x" step="0.5" min="-40" max="40" aria-label="Object X position"/></label><label><span>Y</span><input type="number" id="pos-y" step="0.25" min="-10" max="40" aria-label="Object elevation"/></label><label><span>Z</span><input type="number" id="pos-z" step="0.5" min="-40" max="40" aria-label="Object Z position"/></label></div><div class="transform-fields"><label>Rotation<div class="number-field"><input type="number" id="object-rotation" step="15" aria-label="Object rotation"/><span>°</span></div></label><label>Scale<div class="number-field"><input type="number" id="object-scale" step="0.1" min="0.2" max="5" aria-label="Object scale"/><span>×</span></div></label></div><button class="enter-button" id="enter-house" hidden><span data-icon="door"></span>Step inside<span data-icon="arrowRight"></span></button><button class="move-object-button" id="move-object"><span data-icon="move"></span>Move in the world</button><div class="object-actions"><button id="duplicate-object"><span data-icon="copy"></span>Duplicate</button><button id="rotate-object" title="Rotate 45 degrees"><span data-icon="rotate"></span>Rotate</button><button class="delete-action" id="delete-object" aria-label="Delete selected object"><span data-icon="trash"></span></button></div></section>
+
+        <div class="context-panel" id="context-panel" hidden>
+          <div class="context-title"><span id="context-icon" data-icon="box"></span><div><strong id="context-title">Build something beautiful</strong><small id="context-subtitle">Choose a piece, then make it your own.</small></div><button class="icon-button" id="context-close" aria-label="Close tool settings" data-icon="x"></button></div>
+          <div id="build-settings"><div class="build-tools"><button data-build="assets" class="active"><span data-icon="box"></span>Assets</button><button data-build="wall"><span data-icon="wall"></span>Wall</button><button data-build="floor"><span data-icon="floor"></span>Floor</button><button data-build="road"><span data-icon="road"></span>Road</button><button data-build="stairs"><span data-icon="stairs"></span>Stairs</button></div><div class="build-values"><label>Height <div class="number-field"><input id="build-height" type="number" value="3" min="0.2" max="15" step="0.25"/><span>m</span></div></label><label>Width <div class="number-field"><input id="build-width" type="number" value="0.3" min="0.15" max="10" step="0.1"/><span>m</span></div></label><label>Elevation <div class="number-field"><input id="build-elevation" type="number" value="0" min="-2" max="30" step="0.25"/><span>m</span></div></label><label class="snap-label"><input type="checkbox" id="snap-toggle" checked/><span data-icon="magnet"></span>Snap</label></div><div class="placement-strip"><span id="placing-label">Click to place · R to rotate</span><button id="rotate-placement"><span data-icon="rotate"></span><span id="placement-angle">0°</span></button></div></div>
+          <div id="brush-settings" hidden><div class="sculpt-modes" id="sculpt-modes"><button class="active" data-sculpt="raise"><span data-icon="mountain"></span>Raise</button><button data-sculpt="lower"><span data-icon="lower"></span>Lower</button><button data-sculpt="smooth"><span data-icon="waves"></span>Smooth</button><button data-sculpt="flatten"><span data-icon="floor"></span>Flatten</button></div><div class="slider-row"><label for="brush-size">Brush size</label><input type="range" id="brush-size" min="1" max="14" step="0.5" value="4"/><output id="brush-size-output">4 m</output></div><div class="slider-row"><label for="brush-strength">Strength</label><input type="range" id="brush-strength" min="0.1" max="2" step="0.1" value="0.6"/><output id="brush-strength-output">60%</output></div><div class="brush-tip" id="brush-tip"><span data-icon="info"></span>Press and move across the ground to shape it.</div></div>
+        </div>
+
+        <div class="tool-hint" id="tool-hint"><span data-icon="mouse"></span><span id="tool-hint-text">Drag to orbit. A whole world to make your own.</span><kbd id="tool-hint-key">SPACE</kbd></div>
+        <nav class="tool-dock" aria-label="Main tools"><button class="active" data-tool="select" aria-pressed="true" title="Select and orbit (V)"><span data-icon="cursor"></span><span>Select</span><kbd>V</kbd></button><span class="dock-divider"></span><button data-tool="build" aria-pressed="false" title="Build (B)"><span data-icon="box"></span><span>Build</span><kbd>B</kbd></button><button data-tool="paint" aria-pressed="false" title="Paint (P)"><span data-icon="brush"></span><span>Paint</span><kbd>P</kbd></button><button data-tool="sculpt" aria-pressed="false" title="Sculpt (S)"><span data-icon="mountain"></span><span>Sculpt</span><kbd>S</kbd></button><span class="dock-divider"></span><button data-tool="explore" aria-pressed="false" title="Explore your world (E)"><span data-icon="walk"></span><span>Explore</span><kbd>E</kbd></button></nav>
+        <button class="mobile-library-button" id="mobile-library-toggle"><span data-icon="box"></span><span>Assets</span></button>
+        <div class="explore-ui" id="explore-ui" hidden><div class="explore-banner"><span data-icon="walk"></span><div><strong>You're part of the world.</strong><small>WASD / arrows to walk · Drag to look around</small></div><button id="exit-explore"><span data-icon="x"></span>Exit</button></div><div class="walk-pad" aria-label="Walking controls"><button class="walk-up" data-walk="forward" aria-label="Walk forward" data-icon="chevronUp"></button><button class="walk-left" data-walk="left" aria-label="Walk left" data-icon="chevronLeft"></button><span class="walk-center" data-icon="walk"></span><button class="walk-right" data-walk="right" aria-label="Walk right" data-icon="chevronRight"></button><button class="walk-down" data-walk="back" aria-label="Walk backward" data-icon="chevronDown"></button></div><div class="crosshair"></div></div>
+        <footer class="canvas-footer"><span><span class="status-dot"></span>Everything starts with a little imagination.</span><div><span id="fps-counter">LIVE 3D</span><button id="capture" aria-label="Capture world image" title="Capture world image" data-icon="camera"></button><button id="fullscreen" aria-label="Full screen" title="Full screen" data-icon="expand"></button></div></footer>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden><span data-icon="check"></span><span id="toast-text"></span></div>
+    <div class="modal-backdrop" id="modal-backdrop" hidden><section class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button class="icon-button modal-close" id="modal-close" aria-label="Close dialog" data-icon="x"></button><div id="modal-content"></div></section></div>
+    <input type="file" id="import-file" accept=".json,.draw.json,application/json" hidden/>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+{
+  "generatedAt": "2026-10-28T17:27:36.834Z",
+  "method": "Node integration tests using real Three.js geometry, materials, CPU raycasts, scene graph and engine model methods; constructor replaced by explicit renderer/DOM infrastructure fixture.",
+  "limitations": [
+    "No WebGL context exists in the browser environment.",
+    "No shader compile, pixel rendering, frame rate, GPU memory, or mobile browser gesture claims are made.",
+    "Canvas draw and image decoding are infrastructure adapters; texture files were separately validated."
+  ],
+  "sourceHashes": {
+    "engine.js": "6e87ec458bdf21c8f01e50d70d318fdc405e65a8552c24949c214dab8e748b09",
+    "assets.js": "72cf0ae8e3bc7843f0b87cb68726225b6e74683d6b5021953c1967c36382f6bb",
+    "materials.js": "0ef6570f2369077f4ae752577836eb08975d728bb59037eefc8f948a358d2d53"
+  },
+  "results": [
+    {
+      "name": "Actual asset geometry: 12 rising stair treads, open houses, roof tags",
+      "status": "PASS",
+      "milliseconds": 504,
+      "detail": {
+        "stairTreadHeights": [
+          0.25,
+          0.5,
+          0.75,
+          1,
+          1.25,
+          1.5,
+          1.75,
+          2,
+          2.25,
+          2.5,
+          2.75,
+          3
+        ]
+      }
+    },
+    {
+      "name": "Placement transforms, enterable spawn, roof toggle and exit restoration",
+      "status": "PASS",
+      "milliseconds": 274
+    },
+    {
+      "name": "Sculpt modifies actual terrain and undo/redo restores heights",
+      "status": "PASS",
+      "milliseconds": 105,
+      "detail": {
+        "before": 0.2502712309360504,
+        "raised": 1.690271258354187
+      }
+    },
+    {
+      "name": "Terrain PBR layer painting survives save/load with normalized weights",
+      "status": "PASS",
+      "milliseconds": 114,
+      "detail": {
+        "centerBrickWeight": 1,
+        "layerCount": 4
+      }
+    },
+    {
+      "name": "Object surface painting and transform persist exactly through reload",
+      "status": "PASS",
+      "milliseconds": 165
+    },
+    {
+      "name": "Delete, undo and redo restore complete object records",
+      "status": "PASS",
+      "milliseconds": 78
+    },
+    {
+      "name": "Malformed imports are rejected before clearing the current world",
+      "status": "PASS",
+      "milliseconds": 200,
+      "detail": {
+        "rejectedCases": 6
+      }
+    },
+    {
+      "name": "Drawn walls and floors contain real subdivided relief geometry",
+      "status": "PASS",
+      "milliseconds": 51
+    },
+    {
+      "name": "Road winding faces up; traffic follows real transformed roads; empty worlds have no actors",
+      "status": "PASS",
+      "milliseconds": 124,
+      "detail": {
+        "minimumUpwardNormalY": 0.9975035190582275
+      }
+    },
+    {
+      "name": "Road surface paint survives terrain resettling and serialization",
+      "status": "PASS",
+      "milliseconds": 127
+    },
+    {
+      "name": "Walk mode actually ascends furnished-house stairs to the next floor",
+      "status": "PASS",
+      "milliseconds": 890,
+      "detail": [
+        {
+          "assetId": "townhouse",
+          "frames": 57,
+          "actual": [
+            -1.72,
+            5.447481631164621,
+            -1.8950000000000011
+          ],
+          "expectedEyeY": 5.450271230936051
+        },
+        {
+          "assetId": "apartment",
+          "frames": 57,
+          "actual": [
+            -2.2199999999999998,
+            5.447481631164621,
+            -1.8950000000000011
+          ],
+          "expectedEyeY": 5.450271230936051
+        }
+      ]
+    },
+    {
+      "name": "Apartment navigation crosses landings, climbs both flights and descends",
+      "status": "PASS",
+      "milliseconds": 2116,
+      "detail": {
+        "reachedFloor": 3,
+        "highestEyeY": 8.700271108721854,
+        "descendedEyeY": 5.450272836746878
+      }
+    },
+    {
+      "name": "Starter-world geometry inventory (not a measured GPU frame rate)",
+      "status": "PASS",
+      "milliseconds": 300,
+      "detail": {
+        "editableObjects": 56,
+        "actors": 8,
+        "meshes": 537,
+        "visibleMeshes": 536,
+        "triangles": 403766,
+        "terrainVertices": 12769,
+        "vertexMaterialWeights": 204304
+      }
+    }
+  ],
+  "passed": 13,
+  "failed": 0
+}
