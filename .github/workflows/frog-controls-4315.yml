@@ -19,9 +19,17 @@ jobs:
             frog/index.html
           sparse-checkout-cone-mode: false
           persist-credentials: false
-      - name: Export only the frog source for reproducible local debugging
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install locked build dependencies and browser driver
+        working-directory: frog/source
         run: |
-          tar --exclude=node_modules --exclude=dist -czf frog-controls-workspace.tar.gz frog/source frog/index.html
+          npm ci --no-audit --no-fund
+          npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1
+      - name: Export isolated source and dependencies for local controls testing
+        run: |
+          tar --exclude=dist -czf frog-controls-workspace.tar.gz frog/source frog/index.html
           ls -lh frog-controls-workspace.tar.gz
       - uses: actions/upload-artifact@v4
         with:
