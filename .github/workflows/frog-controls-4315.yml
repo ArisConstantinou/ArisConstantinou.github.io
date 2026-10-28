@@ -1,0 +1,112 @@
+name: FROG 4.3.15 controls verification
+on:
+  push:
+    branches: [frog-controls-4315]
+    paths:
+      - 'frog/source/**'
+      - '.github/workflows/frog-controls-4315.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: frog-controls-4315
+  cancel-in-progress: true
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: frog-controls-4315
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            frog/source
+            .github/workflows
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frog/source/package-lock.json
+      - name: Install pinned dependencies and Chromium
+        working-directory: frog/source
+        run: |
+          npm ci
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Record the previous release with native keyboard and mouse input
+        working-directory: frog/source
+        run: |
+          set -o pipefail
+          npm run build
+          python3 -m http.server 4178 --directory dist >/tmp/frog-controls-server.log 2>&1 &
+          BASELINE=1 node qa/controls-4315.mjs | tee /tmp/frog-controls-baseline.log
+      - name: Apply checked source repairs
+        working-directory: frog/source
+        run: python3 qa/repair-controls-4315.py
+      - name: Run all existing and new unit tests
+        working-directory: frog/source
+        run: |
+          set -o pipefail
+          npm test | tee /tmp/frog-controls-tests.log
+      - name: Build repaired production release
+        working-directory: frog/source
+        run: npm run build
+      - name: Exercise actual WASD, camera turns, view switches and saved resume
+        working-directory: frog/source
+        run: |
+          set -o pipefail
+          node qa/controls-4315.mjs | tee /tmp/frog-controls-native.log
+      - name: Recheck existing rendering and combat acceptance cases
+        working-directory: frog/source
+        run: |
+          set -o pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('qa/arcade-4314.mjs')
+          text=p.read_text()
+          assert "const version='4.3.14'" in text
+          Path('qa/.arcade-4315-compat.mjs').write_text(text.replace("const version='4.3.14'", "const version='4.3.15'", 1))
+          PY
+          OUT_DIR=qa/results/compat-4315 node qa/.arcade-4315-compat.mjs | tee /tmp/frog-controls-compat.log
+      - name: Stage verified source and production build on the test branch only
+        run: |
+          mkdir -p frog/assets frog/qa/controls-4315
+          cp frog/source/dist/index.html frog/index.html
+          cp -r frog/source/dist/assets/. frog/assets/
+          cp frog/source/qa/results/controls-4.3.15/report.json frog/qa/controls-4315/report.json
+          cp frog/source/qa/results/controls-4.3.14/report.json frog/qa/controls-4315/baseline.json
+          cp frog/source/qa/results/compat-4315/report.json frog/qa/controls-4315/compat.json
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re
+          report=json.loads(Path('frog/qa/controls-4315/report.json').read_text())
+          compat=json.loads(Path('frog/qa/controls-4315/compat.json').read_text())
+          assert report['ok'] and compat['ok']
+          log=Path('/tmp/frog-controls-tests.log').read_text()
+          count=re.findall(r'# pass (\d+)',log)[-1]
+          text='# FROG 4.3.15 — controls and directional hops\n\n'
+          text+='Overview uses fixed screen axes: W up, A left, S down, D right, independent of body facing or previous camera yaw. Third-person movement follows view yaw and the body follows the centre aim. Mouse-capture fallback no longer mixes a free-cursor aim with camera rotation. Directional hops use actual body-local travel for their feet instead of always playing a forward push. Saves, combat rules, map geometry and optional target-lock policy are unchanged.\n\n'
+          text+=f'Verification: {count} passing unit tests; {len(report["checks"])} native-input checks; {len(compat["checks"])} existing browser/rendering checks; production build succeeded.\n\n'
+          text+='The baseline report records which regressions reproduced in 4.3.14. Tests do not claim every reported reversal was independently reproduced.\n\n## Limitations\n\n'+'\n'.join('- '+s for s in report['limitations'])+'\n'
+          Path('frog/CONTROL-FIX-4.3.15.md').write_text(text)
+          Path('frog/source/CONTROL-FIX-4.3.15.md').write_text(text)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse frog/source/src frog/source/tests frog/source/package.json frog/source/package-lock.json frog/source/CONTROL-FIX-4.3.15.md frog/index.html frog/assets frog/qa/controls-4315 frog/CONTROL-FIX-4.3.15.md
+          git diff --cached --stat
+          git commit -m 'FROG 4.3.15: verify fixed WASD frames, chase aim and directional hops'
+          git push origin HEAD:refs/heads/frog-controls-4315
+      - name: Save evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frog-controls-4315-evidence
+          retention-days: 7
+          path: |
+            frog/source/qa/results/controls-4.3.14
+            frog/source/qa/results/controls-4.3.15
+            frog/source/qa/results/compat-4315
+            /tmp/frog-controls-*.log
