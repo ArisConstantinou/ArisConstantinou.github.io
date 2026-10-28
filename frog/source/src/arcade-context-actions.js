@@ -1,5 +1,5 @@
 import './arcade-context-actions.css';
-import {RULES,canKick,kickTarget,sabotageTarget} from './arcade-model.js';
+import {RULES,kickAvailability,kickTarget,sabotageTarget} from './arcade-model.js';
 import {BASES} from './arcade-bases.js';
 import {nearbyCatapult} from './arcade-artillery.js';
 import {FROG_BODY} from './arcade-actor-bounds.js';
@@ -61,12 +61,19 @@ export function placeContextAction({anchor,width,height,viewportWidth,viewportHe
 }
 
 export function contextualKickState(state,player,target){
- if(!player||!target||state?.status!=='playing'||state.phase!=='battle'||target.ko||target.eliminated||target.dizzyTime<=0||player.ko||player.eliminated||player.dizzyTime>0||player.hit>0||player.catapultId||player.knockUp>0)return {state:'unavailable',reason:'Δεν μπορείς τώρα',hint:'Περίμενε'};
- if(target.spawnShield>0||target.invuln>0)return {state:'unavailable',reason:'Ο αντίπαλος προστατεύεται προσωρινά',hint:'Προστασία'};
- if(player.kick>0||player.kickCooldown>0)return {state:'cooldown',reason:'Περίμενε να ετοιμαστεί η κλωτσιά',hint:`${Math.max(finite(player.kick),finite(player.kickCooldown)).toFixed(1)}″`};
- if(Math.hypot(target.x-player.x,target.z-player.z)>RULES.kickRange)return {state:'out-of-range',reason:'Πλησίασε τον αντίπαλο για κλωτσιά',hint:'Πλησίασε'};
- if(!kickTarget(state,player,target.id))return {state:'blocked',reason:'Εμπόδιο ή διαφορετικό ύψος εμποδίζει την κλωτσιά',hint:'Εμπόδιο / ύψος'};
- return canKick(state,player,target.id)?{state:'ready',reason:'Κλωτσιά στον συγκεκριμένο αντίπαλο',hint:''}:{state:'unavailable',reason:'Η κλωτσιά δεν είναι διαθέσιμη τώρα',hint:'Περίμενε'};
+ if(!player||!target||target.ko||target.eliminated||target.dizzyTime<=0)return {state:'unavailable',reason:'Δεν υπάρχει ζαλισμένος αντίπαλος εδώ',hint:'Περίμενε'};
+ const readiness=kickAvailability(state,player,target.id),copy={
+  ready:{reason:'Κλωτσιά στον συγκεκριμένο αντίπαλο από οποιαδήποτε κατεύθυνση',hint:''},
+  range:{reason:'Πλησίασε τον αντίπαλο για κλωτσιά',hint:'Πλησίασε'},
+  height:{reason:'Το διαφορετικό ύψος εμποδίζει την κλωτσιά',hint:'Άλλο ύψος'},
+  wall:{reason:'Υπάρχει εμπόδιο ανάμεσά σας',hint:'Εμπόδιο'},
+  protection:{reason:'Ο αντίπαλος προστατεύεται προσωρινά μετά την επιστροφή του',hint:'Προστασία'},
+  cooldown:{reason:'Περίμενε να ετοιμαστεί η κλωτσιά',hint:`${Math.max(finite(player.kick),finite(player.kickCooldown)).toFixed(1)}″`},
+  hit:{reason:'Περίμενε να τελειώσει το χτύπημα που δέχεσαι',hint:'Δέχεσαι χτύπημα'},
+  mounted:{reason:'Κατέβα από τον καταπέλτη για κλωτσιά',hint:'Κατέβα'},
+  incapacitated:{reason:'Περίμενε να ανακτήσεις τον έλεγχο του βατράχου',hint:'Περίμενε'},
+ };
+ return {state:readiness.state,...(copy[readiness.reason]||{reason:'Η κλωτσιά δεν είναι διαθέσιμη τώρα',hint:'Περίμενε'})};
 }
 
 export function installContextActions(game,{kickIcon=''}={}){

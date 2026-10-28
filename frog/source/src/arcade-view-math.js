@@ -12,10 +12,11 @@ export function actorHeading(actor) {
  return {x:Math.sin(yaw),z:Math.cos(yaw)};
 }
 
-// A modestly elevated rear view clears the frog's back while retaining the
-// route ahead. Orbit, distance and movement axes remain under the same controls.
+// The view sits over the right shoulder, leaving the frog below and left of
+// the centre aim ray even at the top of its running hop.
 export const CAMERA_ORBIT=Object.freeze({...CAMERA_LOOK,sensitivity:.005});
 export const CAMERA_ZOOM=Object.freeze({min:.7,max:1.5,default:1});
+export const CAMERA_CHASE=Object.freeze({height:2.2,forward:1.7,shoulder:1.8,distance:12.6});
 
 export function dragCamera(orbit,dx,dy){
  const yaw=(Number.isFinite(orbit?.yaw)?orbit.yaw:CAMERA_ORBIT.yaw)-(Number.isFinite(dx)?dx:0)*CAMERA_ORBIT.sensitivity;
@@ -31,15 +32,19 @@ export function cameraPose(p, ground, aspect=1.6, mode='chase3d',orbit=CAMERA_OR
   const scale=Math.max(.86,Math.min(1.6,Math.sqrt(1.2/safeAspect)));
   return {look:[p.x,ground+1.2,p.z],position:[p.x,ground+1.2+(26*scale-1.2)/zoom,p.z+19*scale/zoom]};
  }
- // The controller chooses the viewing direction from travel or deliberate
- // looking; this pose calculation must not feed actor aim back into rotation.
+ // Viewing direction comes from deliberate camera input, never body heading
+ // or hop animation. Translate eye and focus together so the shoulder offset
+ // does not introduce a hidden turn into the centre aiming ray.
  const yaw=Number.isFinite(orbit?.yaw)?orbit.yaw:CAMERA_ORBIT.yaw;
  const pitch=Math.max(CAMERA_ORBIT.minPitch,Math.min(CAMERA_ORBIT.maxPitch,Number.isFinite(orbit?.pitch)?orbit.pitch:CAMERA_ORBIT.pitch));
  const heading={x:Math.sin(yaw),z:Math.cos(yaw)},scale=Math.max(1,Math.min(1.42,.72/safeAspect));
- const distance=12.6*scale/zoom,horizontal=distance*Math.cos(pitch),lookX=p.x+heading.x*.9,lookZ=p.z+heading.z*.9;
+ const right={x:-heading.z,z:heading.x};
+ const distance=CAMERA_CHASE.distance*scale/zoom,horizontal=distance*Math.cos(pitch);
+ const lookX=p.x+heading.x*CAMERA_CHASE.forward+right.x*CAMERA_CHASE.shoulder;
+ const lookZ=p.z+heading.z*CAMERA_CHASE.forward+right.z*CAMERA_CHASE.shoulder;
  return {
-  look:[lookX,ground+1.2,lookZ],
-  position:[lookX-heading.x*horizontal,ground+1.2+distance*Math.sin(pitch),lookZ-heading.z*horizontal],
+  look:[lookX,ground+CAMERA_CHASE.height,lookZ],
+  position:[lookX-heading.x*horizontal,ground+CAMERA_CHASE.height+distance*Math.sin(pitch),lookZ-heading.z*horizontal],
  };
 }
 

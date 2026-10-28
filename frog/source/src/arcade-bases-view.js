@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {BASES,ENCLOSURES,WALLS,TREES,enclosingYard} from './arcade-bases.js';
+import {plankedFloorGeometry} from './arcade-floor-geometry.js';
 
 const COLORS=['#b5dc72','#ee8c72','#bd9ee3'];
 const clamp=(n,min=0,max=1)=>Math.max(min,Math.min(max,n));
@@ -159,13 +160,12 @@ export class ArcadeBasesView {
     const floor=this.game.houseFloors?.find(item=>item.baseId===base.id);
     const floorY=floor?.height??this.ground(base.x,base.z),halfWidth=base.halfWidth+.18,halfDepth=base.halfDepth+.18;
     const house=new THREE.Group();house.name=`${base.id}-actual-roofed-house`;house.position.set(base.x,floorY,base.z);this.group.add(house);
-    const deck=this.mesh(house,this.geometries.box,this.materials.darkWood,0,-.09,0,halfWidth*2,.18,halfDepth*2);deck.name='house-floor-at-actor-height';
-    const planks=[];for(let z=-halfDepth+.2;z<halfDepth;z+=.4)this.boxPart(planks,0,-.012,Math.min(z,halfDepth-.2),halfWidth*2-.06,.025,.355);
-    const plankGeometry=mergeGeometries(planks);for(const part of planks)part.dispose();this.ownedGeometries.push(plankGeometry);this.mesh(house,plankGeometry,this.materials.lightWood);
+    const floorThickness=.18,deckGeometry=plankedFloorGeometry(halfWidth,halfDepth,floorThickness);this.ownedGeometries.push(deckGeometry);
+    const deck=this.mesh(house,deckGeometry,[this.materials.darkWood,this.materials.lightWood]);deck.name='house-floor-at-actor-height';
     const supports=[];
     for(const x of [-base.halfWidth,base.halfWidth])for(const z of [-base.halfDepth,base.halfDepth]){
       const terrain=this.game.world?.getSurface(base.x+x,base.z+z).height??floor?.minimum??floorY-.2;
-      const height=Math.max(.18,floorY-terrain);this.boxPart(supports,x,-height*.5,z,.3,height,.3);
+      const height=Math.max(.05,floorY-floorThickness-terrain);this.boxPart(supports,x,-floorThickness-height*.5,z,.3,height,.3);
     }
     const supportGeometry=mergeGeometries(supports);for(const part of supports)part.dispose();this.ownedGeometries.push(supportGeometry);this.mesh(house,supportGeometry,this.materials.darkWood);
     // A full rectangular gabled roof covers the same solid house walls and

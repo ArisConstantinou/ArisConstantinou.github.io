@@ -1,10 +1,20 @@
-# FROG 4.3.13 battleground, guards, camera and aiming feedback
+# FROG 4.3.14 camera composition, deliberate facing and optional target lock
+
+## 4.3.14 changes
+
+The chase rig has a 1.8-unit right shoulder offset, a 2.2-unit grounded focus height and a 1.7-unit forward focus offset. Distance stays 12.6 units before the existing aspect and zoom scaling. The real animated frog is kept clear of the centre reticle throughout the normal hop. Only the ground-follow anchor is damped: applying damping to the rotating shoulder offset would move it back through the body during quick turns. Overview composition is unchanged. Mouse angular response is .004 radians per pixel at 100%; touch keeps its previous .004 swipe rate and analog rate remains unchanged.
+
+The player model remembers its last deliberate aim yaw, independently of movement. Active overview pointer/stick input, manual fire, kick and optional lock supply deliberate facing. Passive chase-camera orbit does not erase a stored pose yaw. Idle, strafing and the end of a shot no longer return the body to a stale movement heading. The stored yaw survives ordinary save/resume and resets on a fresh actor.
+
+Mouse target lock is explicitly opt-in (`settings.mouseTargetLock === true`), with OFF as the default. Each RMB hold can acquire one visible opponent near the pointer/centre and inside ordinary shot range. It never automatically fires or switches targets. The same scene trace, physical shot collision and visible roofs/baskets validate camera visibility and muzzle clearance separately. Release, pause, actor incapacity, mounting, changed round, target loss and occlusion clear the lock. While held, precise aim/reticle follow the actual target body and the camera tracks a grounded target anchor to avoid hop-induced bobbing. LMB is always required to fire.
+
+All five artillery preview objects are hidden immediately by `clearInputs()` on control/round transitions. They are visible only while actually operating the matching catapult. The animated beads reuse the exact physical stone path; the outside landing ring stays at the real blast radius and the decorative pulse remains inside it.
 
 ## Decision
 
 The rear 3D view uses direct shooter controls. Mouse movement changes the viewing and aiming direction together. Left click fires at the same time. WASD movement is relative to the current rendered view. The camera follows the player's position automatically and preserves the viewing direction until the player supplies look input.
 
-The old Automatic/Manual camera modes are retired. A/D and backward movement do not rotate the camera. Firing and aiming do not disable look input. Mobile controls support continuous turning from a held right-stick deflection and, after a deliberate horizontal world swipe, from holding the reached screen edge. These are intentional look inputs; movement and target acquisition do not introduce camera rotation.
+The old Automatic/Manual camera modes are retired. A/D and backward movement do not rotate the camera. Firing and aiming do not disable look input. Mobile controls support continuous turning from a held right-stick deflection and, after a deliberate horizontal world swipe, from holding the reached screen edge. Ordinary movement and target proximity do not rotate the camera. Explicitly enabling and holding mouse target lock is the separate, optional exception described above.
 
 ## Battleground expansion in 4.3.12
 

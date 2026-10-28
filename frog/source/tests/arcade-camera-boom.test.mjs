@@ -34,7 +34,7 @@ test('an unobstructed default rear view and overview retain their framing and ch
 });
 
 test('looking upward shortens the boom above the floor without changing aim yaw or pitch',()=>{
- for(const yaw of [Math.PI,-1.2,.4])for(const pitch of [-.65,-.3,-.1]){
+ for(const yaw of [Math.PI,-1.2,.4])for(const pitch of [-.65,-.3,-.2]){
   const pose=cameraPose({x:0,z:0},0,16/9,'chase3d',{yaw,pitch}),safe=resolveCameraBoom(pose,()=>0);
   assert.ok(length(safe)<length(pose),'the desired eye would be underground');
   assert.ok(safe.position[1]>=.35&&safe.position[1]<.35001,'the eye stops just above the floor');
@@ -45,7 +45,7 @@ test('looking upward shortens the boom above the floor without changing aim yaw 
 
 test('terrain halfway along the boom blocks the camera even when the final eye would be clear',()=>{
  const pose=cameraPose({x:0,z:0},0,16/9,'chase3d',{yaw:Math.PI,pitch:.44});
- const ground=(x,z)=>z>=3&&z<=4?4:0,safe=resolveCameraBoom(pose,ground);
+ const ground=(x,z)=>z>=3&&z<=4?5:0,safe=resolveCameraBoom(pose,ground);
  assert.ok(pose.position[1]>ground(pose.position[0],pose.position[2])+.35,'the uncorrected endpoint alone appears clear');
  assert.ok(safe.position[2]<3&&safe.position[2]>2.99,'the eye stays on the player side of the first ridge');
  assert.ok(direction(safe).distanceTo(direction(pose))<1e-12);

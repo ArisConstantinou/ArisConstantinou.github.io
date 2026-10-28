@@ -1,0 +1,2097 @@
+{
+  "version": "4.3.14",
+  "url": "http://127.0.0.1:4178/?test=1",
+  "checks": [
+    {
+      "name": "dynamic production bundles were fetched and hashed",
+      "detail": [
+        {
+          "url": "http://127.0.0.1:4178/assets/index-B3r2HBjC.js",
+          "status": 200,
+          "bytes": 895268,
+          "sha256": "8b7ced6d3869c675ceee510b3daba4f67963c9a29719ae4f7187f11ab72b54c6"
+        }
+      ]
+    },
+    {
+      "name": "the requested release is running",
+      "detail": "4.3.14"
+    },
+    {
+      "name": "mouse target lock is off by default",
+      "detail": false
+    },
+    {
+      "name": "new round has one on-foot crosshair and no catapult guide",
+      "detail": {
+        "version": "4.3.14",
+        "running": true,
+        "mode": "play",
+        "view": "chase3d",
+        "locked": true,
+        "mouse": {
+          "x": 640,
+          "y": 400,
+          "valid": true
+        },
+        "player": {
+          "x": 0,
+          "z": 19.65,
+          "height": 0,
+          "face": 3.141592653589793,
+          "poseAimYaw": null,
+          "aimX": 0.6119838519557455,
+          "aimY": 0.6101466110899507,
+          "aimZ": -0.5031867227191678,
+          "shot": 0,
+          "kick": 0,
+          "kickCooldown": 0,
+          "ammo": 90,
+          "catapultId": null
+        },
+        "visualYaw": 3.141592653589793,
+        "actors": [
+          {
+            "id": "player",
+            "x": 0,
+            "z": 19.65,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-1",
+            "x": -17.35,
+            "z": 1,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-2",
+            "x": 17.35,
+            "z": 1,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          }
+        ],
+        "shots": 0,
+        "hits": 0,
+        "shells": 0,
+        "reticle": {
+          "x": 640,
+          "y": 400,
+          "anchor": "center"
+        },
+        "legacyGuide": false,
+        "legacyReticle": false,
+        "legacyRing": false,
+        "pathLength": 0,
+        "artillery": {
+          "line": false,
+          "landing": false,
+          "pieces": [
+            {
+              "name": "catapult-trajectory-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-trajectory-flow",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-pulse",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-center",
+              "visible": false
+            }
+          ],
+          "aimActive": false,
+          "target": null
+        },
+        "mouseTargetLock": false,
+        "targetLock": {
+          "held": false,
+          "targetId": null,
+          "current": null
+        },
+        "kickBadges": []
+      }
+    },
+    {
+      "name": "resume restores one crosshair without a stale catapult guide",
+      "detail": {
+        "version": "4.3.14",
+        "running": true,
+        "mode": "play",
+        "view": "chase3d",
+        "locked": true,
+        "mouse": {
+          "x": 640,
+          "y": 400,
+          "valid": true
+        },
+        "player": {
+          "x": 0,
+          "z": 19.65,
+          "height": 0,
+          "face": 3.141592653589793,
+          "poseAimYaw": null,
+          "aimX": 0.6119838519557455,
+          "aimY": 0.6101466110899507,
+          "aimZ": -0.5031867227191678,
+          "shot": 0,
+          "kick": 0,
+          "kickCooldown": 0,
+          "ammo": 90,
+          "catapultId": null
+        },
+        "visualYaw": 3.141592653589793,
+        "actors": [
+          {
+            "id": "player",
+            "x": 0,
+            "z": 19.65,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-1",
+            "x": -17.35,
+            "z": 1,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-2",
+            "x": 17.35,
+            "z": 1,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          }
+        ],
+        "shots": 0,
+        "hits": 0,
+        "shells": 0,
+        "reticle": {
+          "x": 640,
+          "y": 400,
+          "anchor": "center"
+        },
+        "legacyGuide": false,
+        "legacyReticle": false,
+        "legacyRing": false,
+        "pathLength": 0,
+        "artillery": {
+          "line": false,
+          "landing": false,
+          "pieces": [
+            {
+              "name": "catapult-trajectory-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-trajectory-flow",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-pulse",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-center",
+              "visible": false
+            }
+          ],
+          "aimActive": false,
+          "target": null
+        },
+        "mouseTargetLock": false,
+        "targetLock": {
+          "held": false,
+          "targetId": null,
+          "current": null
+        },
+        "kickBadges": []
+      }
+    },
+    {
+      "name": "switching to top down keeps the single crosshair",
+      "detail": {
+        "version": "4.3.14",
+        "running": true,
+        "mode": "play",
+        "view": "overview",
+        "locked": false,
+        "mouse": {
+          "x": 640,
+          "y": 400,
+          "valid": false
+        },
+        "player": {
+          "x": 0,
+          "z": 19.65,
+          "height": 0,
+          "face": 3.141592653589793,
+          "poseAimYaw": null,
+          "aimX": 0.7724254859909585,
+          "aimY": 0,
+          "aimZ": -0.635105399592565,
+          "shot": 0,
+          "kick": 0,
+          "kickCooldown": 0,
+          "ammo": 90,
+          "catapultId": null
+        },
+        "visualYaw": 3.141592653589793,
+        "actors": [
+          {
+            "id": "player",
+            "x": 0,
+            "z": 19.65,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-1",
+            "x": -17.35,
+            "z": 1,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-2",
+            "x": 17.35,
+            "z": 1,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          }
+        ],
+        "shots": 0,
+        "hits": 0,
+        "shells": 0,
+        "reticle": {
+          "x": 640,
+          "y": 400,
+          "anchor": "pointer"
+        },
+        "legacyGuide": false,
+        "legacyReticle": false,
+        "legacyRing": false,
+        "pathLength": 0,
+        "artillery": {
+          "line": false,
+          "landing": false,
+          "pieces": [
+            {
+              "name": "catapult-trajectory-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-trajectory-flow",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-pulse",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-center",
+              "visible": false
+            }
+          ],
+          "aimActive": false,
+          "target": null
+        },
+        "mouseTargetLock": false,
+        "targetLock": {
+          "held": false,
+          "targetId": null,
+          "current": null
+        },
+        "kickBadges": []
+      }
+    },
+    {
+      "name": "native shot release retains the deliberate facing",
+      "detail": {
+        "version": "4.3.14",
+        "running": true,
+        "mode": "play",
+        "view": "overview",
+        "locked": false,
+        "mouse": {
+          "x": 846.7161254882812,
+          "y": 419.21746826171875,
+          "valid": true
+        },
+        "player": {
+          "x": 0,
+          "z": 6,
+          "height": 0,
+          "face": 0,
+          "poseAimYaw": 1.5372537073212695,
+          "aimX": 0.9994374990818825,
+          "aimY": 0,
+          "aimZ": 0.033536329986331506,
+          "shot": 0,
+          "kick": 0,
+          "kickCooldown": 0,
+          "ammo": 89,
+          "catapultId": null
+        },
+        "visualYaw": 1.5371766219076026,
+        "actors": [
+          {
+            "id": "player",
+            "x": 0,
+            "z": 6,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-1",
+            "x": -17.35,
+            "z": 1,
+            "ko": true,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-2",
+            "x": 17.35,
+            "z": 1,
+            "ko": true,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          }
+        ],
+        "shots": 1,
+        "hits": 0,
+        "shells": 0,
+        "reticle": {
+          "x": 846.7161254882812,
+          "y": 419.21746826171875,
+          "anchor": "pointer"
+        },
+        "legacyGuide": false,
+        "legacyReticle": false,
+        "legacyRing": false,
+        "pathLength": 0,
+        "artillery": {
+          "line": false,
+          "landing": false,
+          "pieces": [
+            {
+              "name": "catapult-trajectory-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-trajectory-flow",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-pulse",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-center",
+              "visible": false
+            }
+          ],
+          "aimActive": false,
+          "target": null
+        },
+        "mouseTargetLock": false,
+        "targetLock": {
+          "held": false,
+          "targetId": null,
+          "current": null
+        },
+        "kickBadges": [
+          {
+            "id": "rival-1",
+            "disabled": false,
+            "hidden": true,
+            "caption": "",
+            "qHidden": true
+          },
+          {
+            "id": "rival-2",
+            "disabled": false,
+            "hidden": true,
+            "caption": "",
+            "qHidden": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "native pointer leave ends deliberate pointer aiming"
+    },
+    {
+      "name": "strafe, hop and landing retain the last shot direction",
+      "detail": {
+        "yaw": 1.5372537073212695,
+        "first": {
+          "x": -0.14666666666666667,
+          "z": 6,
+          "height": 0.11634427903684337,
+          "face": -1.5707963267948966,
+          "poseAimYaw": 1.5372537073212695,
+          "poseAiming": false,
+          "visualYaw": 1.5372166844174922,
+          "aimYaw": 1.5372537073212695,
+          "body": null,
+          "bodyVisible": true,
+          "reticle": {
+            "x": 846.7161254882812,
+            "y": 419.21746826171875,
+            "anchor": "pointer"
+          },
+          "shots": 1
+        },
+        "last": {
+          "x": -3.373333333333332,
+          "z": 6,
+          "height": 0.43066769848998127,
+          "face": -1.5707963267948966,
+          "poseAimYaw": 1.5372537073212695,
+          "poseAiming": false,
+          "visualYaw": 1.5372537017436392,
+          "aimYaw": 1.5372537073212695,
+          "body": null,
+          "bodyVisible": true,
+          "reticle": {
+            "x": 846.7161254882812,
+            "y": 419.21746826171875,
+            "anchor": "pointer"
+          },
+          "shots": 1
+        },
+        "after": {
+          "version": "4.3.14",
+          "running": true,
+          "mode": "play",
+          "view": "overview",
+          "locked": false,
+          "mouse": {
+            "x": 846.7161254882812,
+            "y": 419.21746826171875,
+            "valid": false
+          },
+          "player": {
+            "x": -3.373333333333332,
+            "z": 6,
+            "height": 0,
+            "face": -1.5707963267948966,
+            "poseAimYaw": 1.5372537073212695,
+            "aimX": 0.9994374990818825,
+            "aimY": 0,
+            "aimZ": 0.033536329986331506,
+            "shot": 0,
+            "kick": 0,
+            "kickCooldown": 0,
+            "ammo": 89,
+            "catapultId": null
+          },
+          "visualYaw": 1.5372537073204293,
+          "actors": [
+            {
+              "id": "player",
+              "x": -3.373333333333332,
+              "z": 6,
+              "ko": false,
+              "dizzy": 0,
+              "dizzyTime": 0,
+              "finishHits": 0,
+              "invuln": 0
+            },
+            {
+              "id": "rival-1",
+              "x": -17.35,
+              "z": 1,
+              "ko": true,
+              "dizzy": 0,
+              "dizzyTime": 0,
+              "finishHits": 0,
+              "invuln": 0
+            },
+            {
+              "id": "rival-2",
+              "x": 17.35,
+              "z": 1,
+              "ko": true,
+              "dizzy": 0,
+              "dizzyTime": 0,
+              "finishHits": 0,
+              "invuln": 0
+            }
+          ],
+          "shots": 1,
+          "hits": 0,
+          "shells": 0,
+          "reticle": {
+            "x": 846.7161254882812,
+            "y": 419.21746826171875,
+            "anchor": "pointer"
+          },
+          "legacyGuide": false,
+          "legacyReticle": false,
+          "legacyRing": false,
+          "pathLength": 0,
+          "artillery": {
+            "line": false,
+            "landing": false,
+            "pieces": [
+              {
+                "name": "catapult-trajectory-preview",
+                "visible": false
+              },
+              {
+                "name": "catapult-trajectory-flow",
+                "visible": false
+              },
+              {
+                "name": "catapult-landing-preview",
+                "visible": false
+              },
+              {
+                "name": "catapult-landing-pulse",
+                "visible": false
+              },
+              {
+                "name": "catapult-landing-center",
+                "visible": false
+              }
+            ],
+            "aimActive": false,
+            "target": null
+          },
+          "mouseTargetLock": false,
+          "targetLock": {
+            "held": false,
+            "targetId": null,
+            "current": null
+          },
+          "kickBadges": [
+            {
+              "id": "rival-1",
+              "disabled": false,
+              "hidden": true,
+              "caption": "",
+              "qHidden": true
+            },
+            {
+              "id": "rival-2",
+              "disabled": false,
+              "hidden": true,
+              "caption": "",
+              "qHidden": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "stance check includes actual lateral displacement and running hops",
+      "detail": {
+        "released": {
+          "x": 0,
+          "z": 6,
+          "height": 0,
+          "face": 0,
+          "poseAimYaw": 1.5372537073212695,
+          "aimX": 0.9994374990818825,
+          "aimY": 0,
+          "aimZ": 0.033536329986331506,
+          "shot": 0,
+          "kick": 0,
+          "kickCooldown": 0,
+          "ammo": 89,
+          "catapultId": null
+        },
+        "after": {
+          "x": -3.373333333333332,
+          "z": 6,
+          "height": 0,
+          "face": -1.5707963267948966,
+          "poseAimYaw": 1.5372537073212695,
+          "aimX": 0.9994374990818825,
+          "aimY": 0,
+          "aimZ": 0.033536329986331506,
+          "shot": 0,
+          "kick": 0,
+          "kickCooldown": 0,
+          "ammo": 89,
+          "catapultId": null
+        },
+        "maxHop": 0.6699999999999999
+      }
+    },
+    {
+      "name": "new deliberate pointer aim changes stance without a new shot",
+      "detail": {
+        "version": "4.3.14",
+        "running": true,
+        "mode": "play",
+        "view": "overview",
+        "locked": false,
+        "mouse": {
+          "x": 491.9310607910156,
+          "y": 422.3309631347656,
+          "valid": true
+        },
+        "player": {
+          "x": -3.373333333333332,
+          "z": 6,
+          "height": 0,
+          "face": -1.5707963267948966,
+          "poseAimYaw": -1.4978592651098228,
+          "aimX": -0.9973412714919291,
+          "aimY": 0,
+          "aimZ": 0.07287241027207783,
+          "shot": 0,
+          "kick": 0,
+          "kickCooldown": 0,
+          "ammo": 89,
+          "catapultId": null
+        },
+        "visualYaw": -1.496909597410366,
+        "actors": [
+          {
+            "id": "player",
+            "x": -3.373333333333332,
+            "z": 6,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-1",
+            "x": -17.35,
+            "z": 1,
+            "ko": true,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-2",
+            "x": 17.35,
+            "z": 1,
+            "ko": true,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          }
+        ],
+        "shots": 1,
+        "hits": 0,
+        "shells": 0,
+        "reticle": {
+          "x": 491.9310607910156,
+          "y": 422.3309631347656,
+          "anchor": "pointer"
+        },
+        "legacyGuide": false,
+        "legacyReticle": false,
+        "legacyRing": false,
+        "pathLength": 0,
+        "artillery": {
+          "line": false,
+          "landing": false,
+          "pieces": [
+            {
+              "name": "catapult-trajectory-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-trajectory-flow",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-pulse",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-center",
+              "visible": false
+            }
+          ],
+          "aimActive": false,
+          "target": null
+        },
+        "mouseTargetLock": false,
+        "targetLock": {
+          "held": false,
+          "targetId": null,
+          "current": null
+        },
+        "kickBadges": [
+          {
+            "id": "rival-1",
+            "disabled": false,
+            "hidden": true,
+            "caption": "",
+            "qHidden": true
+          },
+          {
+            "id": "rival-2",
+            "disabled": false,
+            "hidden": true,
+            "caption": "",
+            "qHidden": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "native shot creates a freshly dizzy opponent in transient damage immunity",
+      "detail": {
+        "shots": 1,
+        "target": {
+          "id": "rival-1",
+          "x": 2.0614821136469774,
+          "z": 4.037296693942946,
+          "ko": false,
+          "dizzy": 6,
+          "dizzyTime": 4.433333333333334,
+          "finishHits": 0,
+          "invuln": 0.053333333333333344
+        }
+      }
+    },
+    {
+      "name": "Q and contextual badge are ready despite brief post-hit immunity",
+      "detail": {
+        "id": "rival-1",
+        "state": "ready",
+        "disabled": false,
+        "hidden": false,
+        "caption": "ΚΛΩΤΣΙΑ",
+        "qHidden": false
+      }
+    },
+    {
+      "name": "one native Q press deals one finishing hit and preserves the three-hit KO rule",
+      "detail": {
+        "target": {
+          "id": "rival-1",
+          "x": 3.6877616070412045,
+          "z": 4.113141777748597,
+          "ko": false,
+          "dizzy": 6,
+          "dizzyTime": 4.000000000000002,
+          "finishHits": 1,
+          "invuln": 0
+        },
+        "events": [
+          {
+            "type": "hit",
+            "id": "rival-1",
+            "owner": "player",
+            "x": 1.8,
+            "z": 4,
+            "y": 1.0536190678022084,
+            "dx": 0.9899801566195053,
+            "dz": 0.14120654906773916
+          },
+          {
+            "type": "kick",
+            "id": "player"
+          },
+          {
+            "type": "hit",
+            "id": "rival-1",
+            "owner": "player",
+            "x": 2.293273323202195,
+            "z": 4.070358403904178,
+            "dx": 0.9995296903818827,
+            "dz": 0.03066591014624829
+          }
+        ]
+      }
+    },
+    {
+      "name": "the subsequent gray state explains the real kick cooldown",
+      "detail": [
+        {
+          "id": "rival-1",
+          "state": "cooldown",
+          "disabled": true,
+          "hidden": false,
+          "caption": "0.7″",
+          "qHidden": true
+        },
+        {
+          "id": "rival-2",
+          "disabled": false,
+          "hidden": true,
+          "caption": "",
+          "qHidden": true
+        }
+      ]
+    },
+    {
+      "name": "default RMB does not acquire a target or fire",
+      "detail": {
+        "held": false,
+        "targetId": null,
+        "current": null
+      }
+    },
+    {
+      "name": "settings: target lock on is applied and persisted",
+      "detail": {
+        "setting": true,
+        "saved": true
+      }
+    },
+    {
+      "name": "optional held RMB acquires the visible nearby opponent",
+      "detail": {
+        "held": true,
+        "targetId": "rival-1",
+        "current": "rival-1"
+      }
+    },
+    {
+      "name": "holding RMB alone never fires",
+      "detail": 0
+    },
+    {
+      "name": "LMB fires exactly once while RMB retains the same target",
+      "detail": {
+        "shots": 1,
+        "hits": 1,
+        "lock": {
+          "held": true,
+          "targetId": "rival-1",
+          "current": "rival-1"
+        }
+      }
+    },
+    {
+      "name": "releasing RMB immediately clears the lock",
+      "detail": {
+        "held": false,
+        "targetId": null,
+        "current": null
+      }
+    },
+    {
+      "name": "KO of the held target releases it without an automatic replacement",
+      "detail": {
+        "held": true,
+        "targetId": null,
+        "current": null
+      }
+    },
+    {
+      "name": "moving behind a real house wall releases the held target",
+      "detail": {
+        "held": true,
+        "targetId": null,
+        "current": null
+      }
+    },
+    {
+      "name": "settings: target lock off is applied and persisted",
+      "detail": {
+        "setting": false,
+        "saved": false
+      }
+    },
+    {
+      "name": "third person keeps its crosshair at screen center during native mouse capture and movement"
+    },
+    {
+      "name": "the rendered frog body leaves the crosshair clear throughout running hops",
+      "detail": {
+        "first": {
+          "x": -0.10370899457402695,
+          "z": 7.896291005425973,
+          "height": 0.11634427903684337,
+          "face": -2.356194490192345,
+          "poseAimYaw": 3.0581259128145004,
+          "poseAiming": false,
+          "visualYaw": 3.058131952175334,
+          "aimYaw": 3.0581259128145004,
+          "body": {
+            "left": 422.0037433909233,
+            "right": 569.756327850035,
+            "top": 497.60110106940846,
+            "bottom": 592.3513346890215
+          },
+          "bodyVisible": true,
+          "reticle": {
+            "x": 640,
+            "y": 400,
+            "anchor": "center"
+          },
+          "shots": 1
+        },
+        "peak": {
+          "x": -2.9038518480727546,
+          "z": 5.096148151927249,
+          "height": 0.6699999999999999,
+          "face": -2.356194490192345,
+          "poseAimYaw": 3.0581259128145004,
+          "poseAiming": false,
+          "visualYaw": 3.058125912959951,
+          "aimYaw": 3.0275591336644756,
+          "body": {
+            "left": 383.67208395120315,
+            "right": 531.2355160844496,
+            "top": 448.34663635826075,
+            "bottom": 544.0909086897585
+          },
+          "bodyVisible": true,
+          "reticle": {
+            "x": 640,
+            "y": 400,
+            "anchor": "center"
+          },
+          "shots": 1
+        },
+        "blocked": []
+      }
+    },
+    {
+      "name": "third-person framing covers the peak of the actual hop animation"
+    },
+    {
+      "name": "a modest native mouse movement turns the view promptly",
+      "detail": {
+        "before": 3.141592653589793,
+        "after": 2.661592653589793,
+        "turn": -0.48
+      }
+    },
+    {
+      "name": "third-person mouse look keeps one reticle and no artillery guide"
+    },
+    {
+      "name": "all three house floors and catapult decks use the shared partitioned plank surface",
+      "detail": [
+        {
+          "name": "catapult-floor-at-operator-height",
+          "type": "BufferGeometry",
+          "groups": 2,
+          "vertices": 152
+        },
+        {
+          "name": "catapult-floor-at-operator-height",
+          "type": "BufferGeometry",
+          "groups": 2,
+          "vertices": 152
+        },
+        {
+          "name": "catapult-floor-at-operator-height",
+          "type": "BufferGeometry",
+          "groups": 2,
+          "vertices": 152
+        },
+        {
+          "name": "house-floor-at-actor-height",
+          "type": "BufferGeometry",
+          "groups": 2,
+          "vertices": 144
+        },
+        {
+          "name": "house-floor-at-actor-height",
+          "type": "BufferGeometry",
+          "groups": 2,
+          "vertices": 160
+        },
+        {
+          "name": "house-floor-at-actor-height",
+          "type": "BufferGeometry",
+          "groups": 2,
+          "vertices": 160
+        }
+      ]
+    },
+    {
+      "name": "native E mounts the nearby player catapult",
+      "detail": {
+        "x": -8.5,
+        "z": 16,
+        "height": 0,
+        "face": 3.141592653589793,
+        "poseAimYaw": null,
+        "aimX": 0,
+        "aimY": 0,
+        "aimZ": 1,
+        "shot": 0,
+        "kick": 0,
+        "kickCooldown": 0,
+        "ammo": 90,
+        "catapultId": "catapult-player"
+      }
+    },
+    {
+      "name": "mounted catapult shows its curved preview and landing marker without the fly crosshair",
+      "detail": {
+        "line": true,
+        "landing": true,
+        "pieces": [
+          {
+            "name": "catapult-trajectory-preview",
+            "visible": true
+          },
+          {
+            "name": "catapult-trajectory-flow",
+            "visible": true
+          },
+          {
+            "name": "catapult-landing-preview",
+            "visible": true
+          },
+          {
+            "name": "catapult-landing-pulse",
+            "visible": true
+          },
+          {
+            "name": "catapult-landing-center",
+            "visible": true
+          }
+        ],
+        "aimActive": true,
+        "target": {
+          "x": -8.5,
+          "z": 26.883512961505396,
+          "range": 10.883512961505396,
+          "valid": true
+        }
+      }
+    },
+    {
+      "name": "native mounted LMB launches a stone without consuming fly ammunition",
+      "detail": {
+        "shells": 1,
+        "ammo": 90
+      }
+    },
+    {
+      "name": "dismount clears every artillery preview piece and restores the on-foot reticle",
+      "detail": {
+        "version": "4.3.14",
+        "running": true,
+        "mode": "play",
+        "view": "overview",
+        "locked": false,
+        "mouse": {
+          "x": 640,
+          "y": 717.7822265625,
+          "valid": false
+        },
+        "player": {
+          "x": -8.5,
+          "z": 18.3,
+          "height": 0,
+          "face": 3.141592653589793,
+          "poseAimYaw": null,
+          "aimX": 0,
+          "aimY": 0,
+          "aimZ": 1,
+          "shot": 0,
+          "kick": 0,
+          "kickCooldown": 0,
+          "ammo": 90,
+          "catapultId": null
+        },
+        "visualYaw": 2.435432284645201,
+        "actors": [
+          {
+            "id": "player",
+            "x": -8.5,
+            "z": 18.3,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-1",
+            "x": -17.35,
+            "z": 1,
+            "ko": true,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-2",
+            "x": 17.35,
+            "z": 1,
+            "ko": true,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          }
+        ],
+        "shots": 0,
+        "hits": 0,
+        "shells": 1,
+        "reticle": {
+          "x": 640,
+          "y": 717.7822265625,
+          "anchor": "pointer"
+        },
+        "legacyGuide": false,
+        "legacyReticle": false,
+        "legacyRing": false,
+        "pathLength": 0,
+        "artillery": {
+          "line": false,
+          "landing": false,
+          "pieces": [
+            {
+              "name": "catapult-trajectory-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-trajectory-flow",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-pulse",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-center",
+              "visible": false
+            }
+          ],
+          "aimActive": false,
+          "target": null
+        },
+        "mouseTargetLock": false,
+        "targetLock": {
+          "held": false,
+          "targetId": null,
+          "current": null
+        },
+        "kickBadges": [
+          {
+            "id": "rival-1",
+            "state": "cooldown",
+            "disabled": true,
+            "hidden": true,
+            "caption": "0.7″",
+            "qHidden": true
+          },
+          {
+            "id": "rival-2",
+            "disabled": false,
+            "hidden": true,
+            "caption": "",
+            "qHidden": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "a fresh round after catapult use has no lingering trajectory or landing markers",
+      "detail": {
+        "version": "4.3.14",
+        "running": true,
+        "mode": "play",
+        "view": "overview",
+        "locked": false,
+        "mouse": {
+          "x": 640,
+          "y": 717.7822265625,
+          "valid": false
+        },
+        "player": {
+          "x": 0,
+          "z": 19.65,
+          "height": 0,
+          "face": 3.141592653589793,
+          "poseAimYaw": null,
+          "aimX": 1.2246467991473532e-16,
+          "aimY": 0,
+          "aimZ": -1,
+          "shot": 0,
+          "kick": 0,
+          "kickCooldown": 0,
+          "ammo": 90,
+          "catapultId": null
+        },
+        "visualYaw": 3.141592653589793,
+        "actors": [
+          {
+            "id": "player",
+            "x": 0,
+            "z": 19.65,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-1",
+            "x": -17.35,
+            "z": 1,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          },
+          {
+            "id": "rival-2",
+            "x": 17.35,
+            "z": 1,
+            "ko": false,
+            "dizzy": 0,
+            "dizzyTime": 0,
+            "finishHits": 0,
+            "invuln": 0
+          }
+        ],
+        "shots": 0,
+        "hits": 0,
+        "shells": 0,
+        "reticle": {
+          "x": 640,
+          "y": 717.7822265625,
+          "anchor": "pointer"
+        },
+        "legacyGuide": false,
+        "legacyReticle": false,
+        "legacyRing": false,
+        "pathLength": 0,
+        "artillery": {
+          "line": false,
+          "landing": false,
+          "pieces": [
+            {
+              "name": "catapult-trajectory-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-trajectory-flow",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-preview",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-pulse",
+              "visible": false
+            },
+            {
+              "name": "catapult-landing-center",
+              "visible": false
+            }
+          ],
+          "aimActive": false,
+          "target": null
+        },
+        "mouseTargetLock": false,
+        "targetLock": {
+          "held": false,
+          "targetId": null,
+          "current": null
+        },
+        "kickBadges": [
+          {
+            "id": "rival-1",
+            "state": "cooldown",
+            "disabled": true,
+            "hidden": true,
+            "caption": "0.7″",
+            "qHidden": true
+          },
+          {
+            "id": "rival-2",
+            "disabled": false,
+            "hidden": true,
+            "caption": "",
+            "qHidden": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "visual review selects and persists high graphics through the settings UI",
+      "detail": {
+        "active": "high",
+        "saved": "high"
+      }
+    },
+    {
+      "name": "high-quality native movement includes real travel and hopping with clear aim",
+      "detail": {
+        "start": {
+          "x": 0.103708994574027,
+          "z": 7.896291005425973,
+          "height": 0.11634427903684337,
+          "face": 2.356194490192345,
+          "poseAimYaw": 3.0581259128145004,
+          "poseAiming": false,
+          "visualYaw": 3.058131952175334,
+          "aimYaw": 3.0581259128145004,
+          "body": {
+            "left": 437.85229325219206,
+            "right": 583.6104626711734,
+            "top": 497.74791747632605,
+            "bottom": 593.0656506764426
+          },
+          "bodyVisible": true,
+          "reticle": {
+            "x": 640,
+            "y": 400,
+            "anchor": "center"
+          },
+          "shots": 1
+        },
+        "end": {
+          "x": 2.6964338589247014,
+          "z": 5.3035661410753026,
+          "height": 0.6295940559265585,
+          "face": 2.356194490192345,
+          "poseAimYaw": 3.0581259128145004,
+          "poseAiming": false,
+          "visualYaw": 3.0581259131173435,
+          "aimYaw": 3.0789589640970862,
+          "body": {
+            "left": 491.0025317933741,
+            "right": 625.4798875940326,
+            "top": 446.7643554551087,
+            "bottom": 553.6422685565183
+          },
+          "bodyVisible": true,
+          "reticle": {
+            "x": 640,
+            "y": 400,
+            "anchor": "center"
+          },
+          "shots": 1
+        },
+        "maxHop": 0.6699999999999999,
+        "blocked": []
+      }
+    },
+    {
+      "name": "high-quality full-map review fits the complete arena and its banks",
+      "detail": {
+        "quality": "high",
+        "radius": 38,
+        "width": 1600,
+        "height": 1100,
+        "camera": [
+          0,
+          104,
+          0.001
+        ],
+        "fov": 52,
+        "boundary": [
+          {
+            "x": 800,
+            "y": 988.6334962630955,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 884.4116014276451,
+            "y": 974.3658034335497,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 965.5792775882352,
+            "y": 949.7437635853518,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 1040.383770735874,
+            "y": 909.7597625203031,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 1109.9181227407644,
+            "y": 859.9180084477894,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 1166.408770420372,
+            "y": 794.8263392034643,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 1207.5838862571754,
+            "y": 718.8265873127813,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 1232.74776179937,
+            "y": 636.0786940899567,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 1242.0297561616162,
+            "y": 549.999792209104,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 1233.3408414430612,
+            "y": 463.80294453303037,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 1207.4680438426503,
+            "y": 381.22102694613193,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 1167.2030169106663,
+            "y": 304.64259047960525,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 1112.361654920233,
+            "y": 237.63814436611648,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 1044.9057528662486,
+            "y": 183.47246141878185,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 968.3012636074988,
+            "y": 143.6846549585735,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 885.1873096801104,
+            "y": 121.73440035684098,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 800,
+            "y": 117.32359342116688,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 715.5890094512081,
+            "y": 125.63731966640565,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 633.4518098977748,
+            "y": 147.91706331608307,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 555.4228198993179,
+            "y": 183.96422009859018,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 488.1458417955953,
+            "y": 238.14565902468638,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 433.2542806521767,
+            "y": 304.94816069196094,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 392.39147199562365,
+            "y": 381.16283269956944,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 366.1161073048324,
+            "y": 463.69491108060373,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 357.0474934781509,
+            "y": 549.9997691403448,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 363.83738833550643,
+            "y": 636.7578629171376,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 387.56389178769604,
+            "y": 720.8363121541531,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 429.2416293746914,
+            "y": 797.732518363534,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 485.5608733059797,
+            "y": 864.4388525596263,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 553.7223246424121,
+            "y": 918.5803489234677,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 630.7907635055655,
+            "y": 958.5070224694662,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 714.0270746343238,
+            "y": 982.2149088505141,
+            "visible": true,
+            "behind": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "high-quality third-person catapult review shows the ready arc, beads and entire landing circle on screen",
+      "detail": {
+        "state": "ready",
+        "quality": "high",
+        "view": "chase3d",
+        "catapult": "catapult-player",
+        "points": [
+          {
+            "x": 550.8982054020372,
+            "y": 437.6884722543137,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 552.6345043566355,
+            "y": 389.93315536859546,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 554.44608406689,
+            "y": 346.2501130790939,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 556.3235285942988,
+            "y": 306.6696865707777,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 558.2574185909162,
+            "y": 271.19007525541053,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 560.2383022570549,
+            "y": 239.77923096883424,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 562.2570349562035,
+            "y": 212.37724146255937,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 564.3046230032111,
+            "y": 188.8990046407796,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 566.3724490711433,
+            "y": 169.23711574550836,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 568.4523730850841,
+            "y": 153.26484250929374,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 570.5366482367194,
+            "y": 140.83921575989802,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 572.6181798845531,
+            "y": 131.80397912324642,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 574.6903182482472,
+            "y": 125.99253412311668,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 576.7470070645771,
+            "y": 123.23067179992657,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 578.7828015285127,
+            "y": 123.33908887369472,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 580.7928228425258,
+            "y": 126.13583894377803,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 582.7727661333827,
+            "y": 131.43816190830412,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 584.7188475242334,
+            "y": 139.06465160977044,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 586.627807930867,
+            "y": 148.83664493267176,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 588.4969154804085,
+            "y": 160.5795873866538,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 590.3238911814145,
+            "y": 174.12420656200732,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 592.1069015774794,
+            "y": 189.30733976674964,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 593.8444843808078,
+            "y": 205.97268248595108,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 595.53553661713,
+            "y": 223.97127726975253,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 597.1793493570045,
+            "y": 243.16186273506565,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 598.7754284160831,
+            "y": 263.41110272810846,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 600.3236269139129,
+            "y": 284.59366034946817,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 601.8239665519322,
+            "y": 306.5921943898597,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 603.2767025310195,
+            "y": 329.29725135876834,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 604.682282580434,
+            "y": 352.607111407385,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 606.0412895089607,
+            "y": 376.427521090685,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 607.3544453055025,
+            "y": 400.67147566295364,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 608.6225773970449,
+            "y": 425.2588824788391,
+            "visible": true,
+            "behind": false
+          }
+        ],
+        "edge": [
+          {
+            "x": 646.5646175286041,
+            "y": 445.31237738481144,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 668.9907582424139,
+            "y": 439.109850523423,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 680.0302561329603,
+            "y": 431.4675828626944,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 679.3417662229185,
+            "y": 423.8422129838047,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 668.6431137799029,
+            "y": 417.33179872863155,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 650.5334498827881,
+            "y": 412.61319490339446,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 627.7451580099696,
+            "y": 410.0378146143579,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 602.8828762464126,
+            "y": 409.751116274356,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 578.4735461375548,
+            "y": 411.7673427691746,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 557.1370363214846,
+            "y": 415.97807896651074,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 541.7081435265084,
+            "y": 422.09299801897623,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 535.1201403280452,
+            "y": 429.5274869727123,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 539.8349912904281,
+            "y": 437.2908882193015,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 556.7367714908779,
+            "y": 443.9949298565087,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 583.8839292930196,
+            "y": 448.1299069330663,
+            "visible": true,
+            "behind": false
+          },
+          {
+            "x": 616.140963135391,
+            "y": 448.61383974893806,
+            "visible": true,
+            "behind": false
+          }
+        ],
+        "pieces": [
+          {
+            "name": "catapult-trajectory-preview",
+            "visible": true
+          },
+          {
+            "name": "catapult-trajectory-flow",
+            "visible": true
+          },
+          {
+            "name": "catapult-landing-preview",
+            "visible": true
+          },
+          {
+            "name": "catapult-landing-pulse",
+            "visible": true
+          },
+          {
+            "name": "catapult-landing-center",
+            "visible": true
+          }
+        ],
+        "fov": 74,
+        "zoom": 1.15
+      }
+    },
+    {
+      "name": "no browser runtime or harness errors",
+      "detail": []
+    }
+  ],
+  "failures": [],
+  "errors": [],
+  "resourceFailures": [],
+  "screenshots": [
+    "startup-topdown-single-reticle.png",
+    "overview-retained-shot-stance.png",
+    "q-ready-immediately-after-shot.png",
+    "q-after-one-finishing-kick.png",
+    "optional-held-lock-before-firing.png",
+    "third-person-shoulder-running-hop.png",
+    "third-person-shoulder-idle.png",
+    "catapult-room-floor-before-moving.png",
+    "catapult-room-floor-mid-movement.png",
+    "catapult-room-floor-opposite-view.png",
+    "catapult-curved-trajectory-and-landing.png",
+    "catapult-fired-stone-reloading.png",
+    "new-round-no-stale-catapult-guide.png",
+    "high-quality-native-running-hop.png",
+    "high-quality-native-movement-followthrough.png",
+    "high-quality-full-map-topdown.png",
+    "high-quality-catapult-ready-complete-trajectory.png",
+    "high-quality-catapult-ready-flowing-beads.png"
+  ],
+  "bundles": [
+    {
+      "url": "http://127.0.0.1:4178/assets/index-B3r2HBjC.js",
+      "status": 200,
+      "bytes": 895268,
+      "sha256": "8b7ced6d3869c675ceee510b3daba4f67963c9a29719ae4f7187f11ab72b54c6"
+    }
+  ],
+  "stylesheets": [
+    {
+      "url": "http://127.0.0.1:4178/assets/index-C6AM5HRI.css",
+      "status": 200,
+      "bytes": 36999,
+      "sha256": "746462706048ff336c410ca0e59ea21040648f3ffcaf27f54676defca6164164"
+    }
+  ],
+  "reviewViews": [
+    {
+      "name": "high-quality-native-running-hop",
+      "quality": "high",
+      "camera": "ordinary gameplay third-person camera",
+      "nativeInput": "W+D"
+    },
+    {
+      "name": "high-quality-full-map-topdown",
+      "quality": "high",
+      "camera": "elevated full-map review camera",
+      "position": [
+        0,
+        104,
+        0.001
+      ],
+      "fov": 52,
+      "viewport": {
+        "width": 1600,
+        "height": 1100
+      }
+    },
+    {
+      "name": "high-quality-catapult-ready-complete-trajectory",
+      "quality": "high",
+      "camera": "production third-person rig with review lens and zoom",
+      "fov": 74,
+      "zoom": 1.15,
+      "yaw": 2.601173153319209,
+      "pitch": 0.22,
+      "nativeInput": "E mount and mouse aim",
+      "landingRequested": {
+        "x": 2,
+        "z": -1.5
+      }
+    }
+  ],
+  "limitations": [
+    "Desktop Chromium with software WebGL; no claim about real mobile hardware.",
+    "Fixtures position and freeze opponents; production native input, simulation, aiming, materials and rendering stay in use.",
+    "Intermediate WebGL renders are skipped during deterministic frame batches; the final frame and all sampled game logic are unchanged.",
+    "Floor screenshots require visual review; non-overlapping surface coverage is verified separately by geometry unit tests.",
+    "The full-map review screenshot uses an explicitly elevated camera to fit the complete arena. Close catapult review uses documented lens/zoom fixtures; movement captures use the ordinary gameplay camera.",
+    "Only the automatic root favicon request is fulfilled with HTTP 204 by the harness because the local static server has no icon. Game assets, HTTP failures, console errors and shader errors remain monitored."
+  ],
+  "browser": "141.0.7390.37",
+  "ok": true,
+  "publishedScreenshots": [
+    "startup-topdown-single-reticle.png",
+    "high-quality-catapult-ready-complete-trajectory.png"
+  ],
+  "verification": {
+    "unitTests": {
+      "passed": 1235,
+      "total": 1235,
+      "durationMs": 63300.100651
+    },
+    "finalArtChecks": {
+      "passed": 23,
+      "total": 23
+    },
+    "visualReview": {
+      "reviewed": true,
+      "notes": "Ordinary overview, native movement/hop, catapult and moving floor captures were reviewed. The elevated full-map camera retains the normal distance fog."
+    }
+  }
+}

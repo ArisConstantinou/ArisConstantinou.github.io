@@ -5,6 +5,8 @@ import {ENCLOSURES,ARENA_ROCKS} from './arcade-bases.js';
 import {ARENA_RADIUS,BATTLEGROUND_AREAS,BATTLEGROUND_ROUTES,routeSample} from './arcade-battleground.js';
 
 const TAU=Math.PI*2;
+const ROAD_EARTH='#ac885e',ROAD_VERGE='#72884e';
+const roadGrain=(x,z)=>.94+.045*Math.sin(x*1.23-z*.83)+.025*Math.cos(x*3.7+z*2.9);
 const randomFor=seed=>()=>{let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;};
 const sampleRoute=(route,spacing=.42)=>{
  const points=[];
@@ -129,11 +131,11 @@ function clipRoadFloors(positions,colors,uv,indices,ground,floors){
 export function battlegroundRoadGeometry(route,ground,options={},refinement=0){
  const spacing=.2/2**refinement,acrossSpacing=.18/2**refinement,samples=sampleRoute(route,spacing),positions=[],colors=[],uv=[],indices=[];
  let segments=Math.ceil(route.width*1.06/acrossSpacing);if(segments%2)segments++;
- const across=Array.from({length:segments+1},(_,i)=>i/segments*2-1),sand=new THREE.Color('#b39c6d'),edge=new THREE.Color('#65764d');
+ const across=Array.from({length:segments+1},(_,i)=>i/segments*2-1),sand=new THREE.Color(ROAD_EARTH),edge=new THREE.Color(ROAD_VERGE);
  for(const [row,point] of samples.entries())for(const side of across){
   const wear=1+.035*Math.sin(point.x*3.2+point.z*1.8),offset=side*route.width*.51*wear,x=point.x+point.nx*offset,z=point.z+point.nz*offset;
   positions.push(x,ground(x,z)+ROAD_CLEARANCE,z);uv.push(x*.8,z*.8);
-  const blend=Math.max(0,(Math.abs(side)-.48)/.52),grain=.95+.045*Math.sin(x*4.1-z*5.3),color=sand.clone().lerp(edge,blend*blend*(3-2*blend)).multiplyScalar(grain);colors.push(color.r,color.g,color.b);
+  const blend=Math.max(0,(Math.abs(side)-.48)/.52),color=sand.clone().lerp(edge,blend*blend*(3-2*blend)).multiplyScalar(roadGrain(x,z));colors.push(color.r,color.g,color.b);
   if(row<samples.length-1&&side!==across.at(-1)){
    const column=across.indexOf(side),a=row*across.length+column,b=a+1,c=a+across.length,d=c+1;indices.push(a,b,c,b,d,c);
   }
@@ -169,14 +171,14 @@ export function battlegroundRoadNetworkGeometry(routes,ground,options={},refinem
   }
   return {clearance,ratio};
  };
- const positions=[],colors=[],uv=[],indices=[],vertices=new Map(),samples=new Map(),sand=new THREE.Color('#b39c6d'),edge=new THREE.Color('#65764d');
+ const positions=[],colors=[],uv=[],indices=[],vertices=new Map(),samples=new Map(),sand=new THREE.Color(ROAD_EARTH),edge=new THREE.Color(ROAD_VERGE);
  const sample=(column,row)=>{
   const key=`${column}:${row}`;if(samples.has(key))return samples.get(key);
   const x=column*spacing,z=row*spacing,point={x,z,...field(x,z)};samples.set(key,point);return point;
  };
  const vertex=point=>{
   const key=`${point.x.toFixed(8)}:${point.z.toFixed(8)}`;if(vertices.has(key))return vertices.get(key);
-  const index=positions.length/3,ratio=point.ratio??field(point.x,point.z).ratio,blend=Math.max(0,Math.min(1,(ratio-.48)/.52)),grain=.95+.045*Math.sin(point.x*4.1-point.z*5.3);
+  const index=positions.length/3,ratio=point.ratio??field(point.x,point.z).ratio,blend=Math.max(0,Math.min(1,(ratio-.48)/.52)),grain=roadGrain(point.x,point.z);
   const color=sand.clone().lerp(edge,blend*blend*(3-2*blend)).multiplyScalar(grain);
   positions.push(point.x,ground(point.x,point.z)+ROAD_CLEARANCE,point.z);colors.push(color.r,color.g,color.b);uv.push(point.x*.8,point.z*.8);vertices.set(key,index);return index;
  };
@@ -213,9 +215,21 @@ function petalGeometry(){
 function bladeGeometry(){
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute([-.045,0,0,.045,0,0,-.03,.48,.04,.03,.48,.04,0,1,.18],3));geometry.setIndex([0,1,2,1,3,2,2,3,4]);geometry.computeVertexNormals();return geometry;
 }
+function fernGeometry(){
+ const positions=[],indices=[];
+ for(let i=0;i<7;i++){
+  const yaw=i/7*TAU,sin=Math.sin(yaw),cos=Math.cos(yaw),start=positions.length/3;
+  for(let j=0;j<=8;j++){
+   const t=j/8,width=Math.sin(t*Math.PI)*(.08+(j%2)*.05),length=t*(.57+(i%3)*.045),height=Math.sin(t*Math.PI*.8)*(.32+(i%3)*.035);
+   for(const side of [-1,1])positions.push(side*width*cos+length*sin,height,length*cos-side*width*sin);
+   if(j<8){const a=start+j*2;indices.push(a,a+2,a+1,a+1,a+2,a+3);}
+  }
+ }
+ const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setIndex(indices);geometry.computeVertexNormals();return geometry;
+}
 function sandTexture(){
  const side=64,data=new Uint8Array(side*side*4),random=randomFor(9301);
- for(let y=0;y<side;y++)for(let x=0;x<side;x++){const at=(y*side+x)*4,value=Math.min(255,Math.round(223+random()*30-7*Math.sin(x*.4+y*.8)));data[at]=data[at+1]=data[at+2]=value;data[at+3]=255;}
+ for(let y=0;y<side;y++)for(let x=0;x<side;x++){const at=(y*side+x)*4,grain=random(),value=Math.min(255,Math.round(227+grain*24-6*Math.sin(x*Math.PI/8+y*Math.PI/16)-(grain<.04?22:0)));data[at]=value;data[at+1]=Math.round(value*.98);data[at+2]=Math.round(value*.94);data[at+3]=255;}
  const texture=new THREE.DataTexture(data,side,side,THREE.RGBAFormat);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.magFilter=THREE.LinearFilter;texture.minFilter=THREE.LinearMipmapLinearFilter;texture.generateMipmaps=true;texture.colorSpace=THREE.SRGBColorSpace;texture.needsUpdate=true;return texture;
 }
 
@@ -227,12 +241,12 @@ export class BattlegroundView{
   this.routes=new Map();this.areas=new Map();this.geometries=new Set();this.materials=new Set();this.textures=new Set();this.dummy=new THREE.Object3D();this.color=new THREE.Color();this.wind={value:0};
   this.metrics={routes:BATTLEGROUND_ROUTES.length,areas:BATTLEGROUND_AREAS.length,instances:0,drawCalls:0};this.density=1;
   const owned=geometry=>{this.geometries.add(geometry);return geometry;},material=options=>{const value=new THREE.MeshStandardMaterial({roughness:.9,...options});this.materials.add(value);return value;};
-  this.geometry={pebble:owned(new THREE.DodecahedronGeometry(1,0)),slate:owned(new THREE.CylinderGeometry(1,1,1,6)),leaf:owned(leafGeometry(1,.87,.028)),petal:owned(petalGeometry()),blade:owned(bladeGeometry()),stem:owned(new THREE.CylinderGeometry(.5,.5,1,5)),center:owned(new THREE.SphereGeometry(1,7,4)),ripple:owned(new THREE.RingGeometry(.94,1,32))};
+  this.geometry={pebble:owned(new THREE.DodecahedronGeometry(1,0)),slate:owned(new THREE.CylinderGeometry(1,1,1,6)),leaf:owned(leafGeometry(1,.87,.028)),fern:owned(fernGeometry()),petal:owned(petalGeometry()),blade:owned(bladeGeometry()),stem:owned(new THREE.CylinderGeometry(.5,.5,1,5)),center:owned(new THREE.SphereGeometry(1,7,4)),ripple:owned(new THREE.RingGeometry(.94,1,32))};
   const grain=sandTexture();this.textures.add(grain);
-  this.material={road:material({color:'#c5c0ac',vertexColors:true,map:grain,roughness:1,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1,side:THREE.DoubleSide}),stone:material({color:'#ffffff',roughness:1}),leaf:material({color:'#ffffff',roughness:.82,side:THREE.DoubleSide}),petal:material({color:'#ffffff',roughness:.67,side:THREE.DoubleSide}),plant:material({color:'#ffffff',roughness:.91,side:THREE.DoubleSide}),bark:material({color:'#776346',roughness:1}),ripple:material({color:'#d5eee2',transparent:true,opacity:.28,depthWrite:false,side:THREE.DoubleSide})};
+  this.material={road:material({color:'#eee4d2',vertexColors:true,map:grain,roughness:1,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1,side:THREE.DoubleSide}),stone:material({color:'#ffffff',roughness:1}),leaf:material({color:'#ffffff',roughness:.86,side:THREE.DoubleSide}),petal:material({color:'#ffffff',roughness:.76,side:THREE.DoubleSide}),plant:material({color:'#ffffff',roughness:.96,side:THREE.DoubleSide}),bark:material({color:'#776346',roughness:1}),ripple:material({color:'#bddecd',transparent:true,opacity:.2,depthWrite:false,side:THREE.DoubleSide})};
   this.material.plant.onBeforeCompile=shader=>{shader.uniforms.uDistrictWind=this.wind;shader.vertexShader='uniform float uDistrictWind;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef USE_INSTANCING\ntransformed.x += sin(uDistrictWind * 1.3 + instanceMatrix[3].x * .8 + instanceMatrix[3].z * .6) * position.y * position.y * .035;\n#endif');};
   this.material.plant.customProgramCacheKey=()=> 'frog-district-reed-wind';
-  this.buildRoutes();for(const [index,area] of BATTLEGROUND_AREAS.entries())this.buildArea(area,index);this.setQuality(game.settings?.quality==='low');
+  this.buildRoutes();this.buildVerges();for(const [index,area] of BATTLEGROUND_AREAS.entries())this.buildArea(area,index);this.setQuality(game.settings?.quality==='low');
  }
  ground(x,z){return this.game.ground(x,z);}
  safeDecor(x,z,radius=.15){
@@ -265,6 +279,31 @@ export class BattlegroundView{
    }
   }
   this.instances(this.group,'Χαμηλά βότσαλα δίπλα στα μονοπάτια',this.geometry.pebble,this.material.stone,stones);
+ }
+ buildVerges(){
+  const random=randomFor(63751),blades=[],ferns=[],seen=new Set(),water=this.game.world?.waterLevel??-.035;
+  const clump=(x,z)=>{
+   const key=`${Math.round(x)}:${Math.round(z)}`;
+   if(seen.has(key)||!this.safeDecor(x,z,.66)||this.ground(x,z)<water+.035)return;
+   seen.add(key);
+   if(random()<.24){const size=.48+random()*.3;ferns.push({x,y:this.ground(x,z)+.025,z,yaw:random()*TAU,scale:[size,size,size],color:['#557f48','#71964c','#8eaa5c'][Math.floor(random()*3)]});}
+   for(let i=0;i<7;i++){
+    const angle=random()*TAU,r=Math.sqrt(random())*.33,px=x+Math.cos(angle)*r,pz=z+Math.sin(angle)*r;
+    if(!this.safeDecor(px,pz,.1))continue;
+    blades.push({x:px,y:this.ground(px,pz)+.012,z:pz,yaw:angle,scale:[.9,.28+random()*.34,.9],color:['#5f8a46','#8daa55','#a5b567','#6e9851'][i%4]});
+   }
+  };
+  for(const route of BATTLEGROUND_ROUTES){
+   const samples=sampleRoute(route,1.5);
+   for(let i=1;i<samples.length;i+=2)for(const side of [-1,1])if(random()<.74){
+    const point=samples[i],offset=side*(route.width/2+1.05+random()*.62);clump(point.x+point.nx*offset,point.z+point.nz*offset);
+   }
+  }
+  // A few irregular tufts connect the authored districts, without turning the
+  // open ground into a carpet of tall foliage or obscuring travel silhouettes.
+  for(let x=-34;x<35;x+=3.8)for(let z=-34;z<35;z+=3.8)if(random()<.2)clump(x+(random()-.5)*2,z+(random()-.5)*2);
+  this.instances(this.group,'Χορταριασμένες άκρες των μονοπατιών',this.geometry.blade,this.material.plant,blades);
+  this.instances(this.group,'Μικρές φτέρες στις όχθες',this.geometry.fern,this.material.leaf,ferns);
  }
  points(area,count,random,radius=.18){
   const points=[];

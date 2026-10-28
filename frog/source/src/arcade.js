@@ -32,6 +32,9 @@ import { desktopControlsMarkup, installDesktopControls } from './arcade-desktop-
 import { installContextActions } from './arcade-context-actions.js';
 import { ARENA_RADIUS, BATTLEGROUND_AREAS, BATTLEGROUND_PALETTE, battlegroundHeight, battlegroundTint, battlegroundAreaAt, routeSample } from './arcade-battleground.js';
 import { BattlegroundView } from './arcade-battleground-view.js';
+import { createTargetLock } from './arcade-target-lock.js';
+import { targetLockOrbit } from './arcade-lock-camera.js';
+import { installArcadeVisualUpgrade } from './arcade-visual-upgrade.js';
 
 const V=THREE.Vector3, UP=new V(0,1,0);
 const SHOT_RANGE=PROJECTILE.muzzleOffset+RULES.projectileSpeed*RULES.projectileLifetime;
@@ -59,16 +62,17 @@ export class ArcadeGame {
  constructor(){
   this.touch=matchMedia('(pointer: coarse)').matches||navigator.maxTouchPoints>0;this.mouseControl=!this.touch;
   this.settings={volume:.5,quality:this.touch?'low':'high'};try{Object.assign(this.settings,JSON.parse(read(SETTINGS_KEY)||'{}'));}catch{}
-  Object.assign(this.settings,normalizeCameraSettings(this.settings),normalizeFireSettings(this.settings));delete this.settings.cameraAutoRotate;this.storageAlertUntil=-Infinity;
+  Object.assign(this.settings,normalizeCameraSettings(this.settings),normalizeFireSettings(this.settings));this.settings.mouseTargetLock=this.settings.mouseTargetLock===true;delete this.settings.cameraAutoRotate;this.storageAlertUntil=-Infinity;
   this.settings.volume=clamp(Number(this.settings.volume)||0,0,1);
   if(!['low','high'].includes(this.settings.quality))this.settings.quality='low';
   const oldSave=read(SAVE_KEY);try{if(JSON.parse(oldSave)?.version===1&&!read(SAVE_KEY+'-before-bases'))write(SAVE_KEY+'-before-bases',oldSave);}catch{}
   this.state=newRound();this.saved=loadRound(oldSave);this.running=false;this.mode='title';this.keys=new Set();this.actions={fire:false,kick:false,sabotage:false};this.aimStrength=0;this.move={x:0,z:0};this.aim={x:0,z:-1};this.mouse={x:0,y:0,valid:false,inside:false};this.pointers=new Map();this.pointerTypes=new Map();this.layoutEditing=false;this.fx=[];this.particles=[];this.splats=[];this.tongues=new Map();this.bulletMeshes=new Map();this.koTimes=new Map();this.elapsed=0;this.shake=0;this.saveClock=0;this.accumulator=0;this.failures=[];this.hitConfirmUntil=0;this.lastPlayerHit=null;
   this.scene=new THREE.Scene();this.scene.background=new THREE.Color('#9fe4ff');this.scene.fog=new THREE.FogExp2('#baf0ea',.006);
   this.renderer=new THREE.WebGLRenderer({antialias:!this.touch,powerPreference:'high-performance'});this.renderer.domElement.id='arcade-world';this.renderer.domElement.setAttribute('aria-label','FROG — κωμική μάχη με μύγες');this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.3;document.body.append(this.renderer.domElement);
-  this.camera=new THREE.PerspectiveCamera(this.settings.cameraFov,innerWidth/innerHeight,.1,250);this.camera.position.set(0,8,15);this.focus=new V(0,2,3);this.cameraTarget=new V(0,8,15);this.viewMode='chase3d';this.cameraReady=false;
+  this.camera=new THREE.PerspectiveCamera(this.settings.cameraFov,innerWidth/innerHeight,.1,250);this.camera.position.set(0,8,15);this.focus=new V(0,2,3);this.cameraTarget=new V(0,8,15);this.cameraFollow=new V();this.viewMode='chase3d';this.cameraReady=false;
   this.cameraYaw=CAMERA_ORBIT.yaw;this.cameraPitch=CAMERA_ORBIT.pitch;this.cameraDrag=null;this.touchEdgeLook=createTouchEdgeLook();this.touchSticks={};this.autoFireTargetId=null;this.freeMousePoint=null;this.mouseFirePointer=null;this.lastMovement={x:0,z:0};this.stickAim={x:0,z:-1};
   this.mouseRay=new THREE.Raycaster();this.mousePoint=new V();this.mouseNdc=new THREE.Vector2();this.mousePlane=new THREE.Plane(UP,0);
+  this.targetLock=createTargetLock(this);this.currentTargetLock=null;
   this.scene.add(new THREE.HemisphereLight('#def8ff','#52733a',2.6));this.sun=new THREE.DirectionalLight('#fff1bf',3.2);this.sun.position.set(-16,36,12);this.scene.add(this.sun);
   this.world=createWorld(this.scene,this.renderer,{seed:731,natural:true,palette:BATTLEGROUND_PALETTE,terrainProfile:battlegroundHeight,terrainTint:battlegroundTint,discoveryDecor:false,
    keepGroundClear:(x,z,padding=0)=>{
@@ -85,7 +89,7 @@ export class ArcadeGame {
   this.sound=new ArcadeSound();this.sound.volume=this.settings.volume;
   this.shared={sphere:new THREE.SphereGeometry(1,10,7),wing:new THREE.SphereGeometry(1,6,4),cylinder:new THREE.CylinderGeometry(1,1,1,8),circle:new THREE.CircleGeometry(1,18)};
   this.materials={insect:new THREE.MeshStandardMaterial({color:'#263f42',roughness:.8,metalness:0}),wing:new THREE.MeshBasicMaterial({color:'#edfcff',transparent:true,opacity:.86,side:THREE.DoubleSide,depthWrite:false}),tongue:new THREE.MeshStandardMaterial({color:'#ff839c',roughness:.4}),shot:new THREE.MeshStandardMaterial({color:'#384b4d',emissive:'#a6c9bf',emissiveIntensity:.16}),ink:new THREE.MeshBasicMaterial({color:'#90e44c',transparent:true,opacity:.9,depthWrite:false,side:THREE.DoubleSide}),rock:new THREE.MeshStandardMaterial({color:'#617b70',roughness:.9}),rim:new THREE.MeshBasicMaterial({color:'#eaff9e',transparent:true,opacity:.6,depthWrite:false})};
-  this.createArena();this.models=[];this.buildActors();this.createFlies();this.artilleryView=new ArtilleryView(this);this.basesView=new ArcadeBasesView(this);this.battlegroundView=new BattlegroundView(this);this.guardsView=new ArcadeGuardsView(this);this.impactEffects=new ImpactEffects(this);this.createUI();this.bindInputs();this.applyQuality();this.resize();this.showTitle();
+  this.createArena();this.models=[];this.buildActors();this.createFlies();this.artilleryView=new ArtilleryView(this);this.basesView=new ArcadeBasesView(this);this.battlegroundView=new BattlegroundView(this);this.visualUpgrade=installArcadeVisualUpgrade(this);this.guardsView=new ArcadeGuardsView(this);this.impactEffects=new ImpactEffects(this);this.createUI();this.bindInputs();this.applyQuality();this.resize();this.showTitle();
   window.__FROG__={version:ARCADE_VERSION,mode:'arcade',inspect:()=>this.inspect(),save:()=>this.persist()};
   if(new URLSearchParams(location.search).has('test'))window.__FROG__.test={step:(input,n=1)=>{for(let i=0;i<n;i++){step(this.state,input,1/60);this.consumeEvents();}this.updateHUD();},state:()=>this.state,setState:(s)=>{this.state=s;this.buildActors();this.updateHUD();},input:()=>this.currentInput(),kickTarget:()=>kickTarget(this.state,this.state.actors[0])?.id};
   this.last=performance.now();installCameraSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});installFireSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});this.renderer.setAnimationLoop(now=>this.frame(now));document.getElementById('boot')?.remove();
@@ -122,6 +126,11 @@ export class ArcadeGame {
   <div id="touch-controls" hidden><div class="stick-zone move-zone"><div id="move-stick" class="stick" aria-label="Κίνηση"><div class="stick-inner"></div><div class="stick-knob"></div></div><span class="stick-caption">ΑΛΜΑΤΑ</span></div><button id="kick-button" class="touch-action kick-button" aria-label="Αμυντική κλωτσιά για απώθηση κοντινού αντιπάλου" hidden disabled>${kickIcon}<span>ΚΛΩΤΣΙΑ</span></button><div class="stick-zone aim-zone"><div id="aim-stick" class="stick" aria-label="Σύρε την περιφέρεια για στόχευση ή κράτα το κεντρικό ΠΥΡ για βολή και στόχευση"><div class="fire-ring"></div><div class="stick-inner"></div><div class="stick-knob aim-fire-knob"><button id="fire-button" type="button" class="touch-action fire-button" aria-label="Κράτα ΠΥΡ και σύρε για συνεχή βολή και περιστροφή">${flyIcon}<span>ΠΥΡ</span></button></div><div id="touch-aim-hint"><span id="auto-fire-status">ΧΕΙΡΟΚΙΝΗΤΗ</span></div></div><span id="touch-aim-copy" class="stick-caption">ΘΕΑ / ΣΤΟΧΕΥΣΗ</span></div><button id="layout-button" class="layout-button" aria-label="Μετακίνηση χειριστηρίων"><b aria-hidden="true">↔</b><span>ΘΕΣΕΙΣ</span></button><div id="layout-hint" hidden>Σύρε τα χειριστήρια στη θέση σου.</div></div>
   <section id="arcade-menu" class="menu"><div id="menu-main" class="menu-buttons"><div id="round-actions" class="round-actions" role="group" aria-label="Γύρος"><button id="new-round-button" class="round-action round-action-new" type="button">${newRoundIcon}<span>ΝΕΟΣ ΓΥΡΟΣ</span></button><button id="play-button" class="round-action round-action-resume" type="button" disabled>${playIcon}<span>ΣΥΝΕΧΕΙΑ</span></button></div><button id="settings-button" class="art-button settings-button">${settingsIcon}<span>ΡΥΘΜΙΣΕΙΣ</span></button></div><div id="settings-panel" class="settings-panel" hidden><h2>Ρυθμίσεις</h2><div class="settings-grid"><label>Ήχος <input id="volume" type="range" min="0" max="100" value="${Math.round(this.settings.volume*100)}"></label><label>Γραφικά <select id="quality"><option value="low">Ομαλή κίνηση</option><option value="high">Υψηλά</option></select></label></div><div class="fire-settings"><label for="touch-fire-mode">Βολή στο κινητό<select id="touch-fire-mode" aria-describedby="touch-fire-mode-help"><option value="manual">Χειροκίνητη · ΠΥΡ</option><option value="auto">Αυτόματη · στόχευση</option></select></label><p id="touch-fire-mode-help"></p></div><div class="camera-settings-heading"><h3>Κάμερα</h3><button id="camera-reset" type="button">ΕΠΑΝΑΦΟΡΑ</button></div><div class="settings-grid camera-settings-grid"><label for="camera-zoom"><span>Zoom <output id="camera-zoom-value" for="camera-zoom">100%</output></span><input id="camera-zoom" type="range" min="70" max="150" step="5" value="100"></label><label for="camera-fov"><span>Οπτικό πεδίο <output id="camera-fov-value" for="camera-fov">52°</output></span><input id="camera-fov" type="range" min="40" max="80" step="1" value="52" aria-label="Οπτικό πεδίο FOV σε μοίρες"></label><label class="camera-sensitivity-label" for="camera-sensitivity"><span>Ευαισθησία <output id="camera-sensitivity-value" for="camera-sensitivity">100%</output></span><input id="camera-sensitivity" type="range" min="25" max="200" step="5" value="100" aria-label="Ευαισθησία ποντικιού και θέας"></label></div><button id="settings-back" class="art-button compact">ΠΙΣΩ</button></div><div id="result-panel" class="result-panel" hidden><span class="result-kicker">FROG • FLY FRENZY</span><h1 id="result-title"></h1><p id="result-copy"></p><button id="replay-button" class="art-button play-button">${playIcon}<span>ΠΑΙΞΕ ΞΑΝΑ</span></button><button id="result-settings" class="plain-button">Ρυθμίσεις</button></div><span class="version">FROG ${ARCADE_VERSION}</span></section>`;
   document.body.append(this.ui);this.$=id=>this.ui.querySelector('#'+id);this.$('quality').value=this.settings.quality;this.desktopControls=installDesktopControls(this);this.contextActions=installContextActions(this,{kickIcon});
+  const lockSettings=document.createElement('div');lockSettings.className='fire-settings mouse-lock-settings';
+  lockSettings.innerHTML='<label for="mouse-target-lock">Βοήθεια στόχευσης με ποντίκι<select id="mouse-target-lock" aria-describedby="mouse-target-lock-help"><option value="off">Κλειστή</option><option value="on">Κλείδωμα με δεξί κλικ</option></select></label><p id="mouse-target-lock-help">Προαιρετικά: κράτα δεξί κλικ κοντά σε ορατό αντίπαλο για κλείδωμα και αριστερό για βολές. Άφησε το δεξί για ελεύθερη στόχευση.</p>';
+  const settingsPanel=this.$('settings-panel');settingsPanel.insertBefore(lockSettings,settingsPanel.querySelector('.camera-settings-heading'));
+  this.$('mouse-target-lock').value=this.settings.mouseTargetLock?'on':'off';
+  this.$('mouse-target-lock').onchange=e=>{this.settings.mouseTargetLock=e.target.value==='on';this.clearInputs();write(SETTINGS_KEY,JSON.stringify(this.settings));};
   this.$('view-button').onclick=e=>this.toggleView(e);installMenuAction(this.$('play-button'),e=>this.startOrResume(e));installMenuAction(this.$('pause-button'),()=>this.pause(),undefined,{allowSecondary:true});this.$('settings-button').onclick=()=>this.settingsMenu();this.$('result-settings').onclick=()=>this.settingsMenu();this.$('settings-back').onclick=()=>{this.$('arcade-menu').classList.remove('settings-open');this.$('settings-panel').hidden=true;if(this.mode==='result')this.$('result-panel').hidden=false;else this.$('menu-main').hidden=false;};installMenuAction(this.$('replay-button'),e=>this.startNew(e));installMenuAction(this.$('new-round-button'),e=>this.startNew(e));
   this.$('volume').oninput=e=>{this.settings.volume=Number(e.target.value)/100;this.sound.volume=this.settings.volume;write(SETTINGS_KEY,JSON.stringify(this.settings));};this.$('quality').onchange=e=>{this.settings.quality=e.target.value;this.applyQuality();write(SETTINGS_KEY,JSON.stringify(this.settings));};
   this.touchLayout=createTouchLayout({root:this.$('touch-controls'),movePad:this.ui.querySelector('.move-zone'),aimPad:this.ui.querySelector('.aim-zone'),fireButton:this.$('fire-button'),toggleButton:this.$('layout-button'),storageKey:'frog-touch-layout-v1',onEditingChange:editing=>{this.layoutEditing=editing;this.clearInputs();this.accumulator=0;this.contextLayout=null;this.updateHUD();if(editing)this.sound.pause();else if(this.running)this.sound.resume();},announce:text=>this.message(text,2)});
@@ -140,7 +149,7 @@ export class ArcadeGame {
  finish(){this.touchLayout?.setEditing(false);this.running=false;this.mode='finishing';this.resultAt=this.elapsed+.85;this.clearInputs();this.releaseMouseLook();this.persist();}
  showResult(){this.running=false;this.mode='result';this.clearInputs();this.persist();const won=this.state.status==='won';this.sound.play(won?'win':'lost');this.$('arcade-menu').hidden=false;this.$('menu-main').hidden=true;this.$('result-panel').hidden=false;this.$('result-title').textContent=won?'Η ΤΕΛΕΥΤΑΙΑ ΑΠΟΘΗΚΗ ΕΙΝΑΙ ΔΙΚΗ ΣΟΥ!':'Η ΑΠΟΘΗΚΗ ΣΟΥ ΚΑΤΑΣΤΡΑΦΗΚΕ';this.$('result-copy').textContent=won?`${this.state.stats.kos} νοκ άουτ · ${this.state.stats.shots} βολές · ${Math.floor(this.state.time)}″ μάχης`:'Κράτησε την είσοδο, διέκοψε τους εισβολείς με μία εύστοχη βολή και ανεφοδιάσου πριν ξαναβγείς.';this.ui.classList.add('in-menu');}
  persist(){if(this.mode==='title')return false;return write(SAVE_KEY,saveRound(this.state));}
- clearInputs(){for(const stick of Object.values(this.touchSticks||{}))stick.clear();this.lastMovement={x:0,z:0};this.freeMousePoint=null;this.stopMouseFireCapture();this.renderer?.domElement.classList.remove('mouse-aiming');this.currentAimPreview=null;this.currentAimReticle=null;this.currentAimScreen=null;this.currentAimCursorScreen=null;this.currentAimPathScreen=[];this.pendingKickTargetId=null;this.desktopControls?.clear();this.contextActions?.clear();this.keys.clear();this.actions={fire:false,kick:false,sabotage:false};this.aimStrength=0;this.mouse.valid=false;this.mouse.inside=false;this.move={x:0,z:0};this.pointers.clear();this.pointerTypes.clear();this.stopCameraDrag();if(this.ui){for(const el of this.ui.querySelectorAll('.stick-knob'))el.style.transform='translate(-50%,-50%)';this.$('aim-stick').classList.remove('firing');this.$('fire-button')?.classList.remove('firing');}}
+ clearInputs(){for(const stick of Object.values(this.touchSticks||{}))stick.clear();this.targetLock?.end();this.currentTargetLock=null;this.artilleryView?.hidePreview?.();this.lastMovement={x:0,z:0};this.freeMousePoint=null;this.stopMouseFireCapture();this.renderer?.domElement.classList.remove('mouse-aiming');this.currentAimPreview=null;this.currentAimReticle=null;this.currentAimScreen=null;this.currentAimCursorScreen=null;this.currentAimPathScreen=[];this.pendingKickTargetId=null;this.desktopControls?.clear();this.contextActions?.clear();this.keys.clear();this.actions={fire:false,kick:false,sabotage:false};this.aimStrength=0;this.mouse.valid=false;this.mouse.inside=false;this.move={x:0,z:0};this.pointers.clear();this.pointerTypes.clear();this.stopCameraDrag();if(this.ui){for(const el of this.ui.querySelectorAll('.stick-knob'))el.style.transform='translate(-50%,-50%)';this.$('aim-stick').classList.remove('firing');this.$('fire-button')?.classList.remove('firing');}}
  pointerLocked(){return document.pointerLockElement===this.renderer.domElement;}
  requestMouseLook(){
   if(this.state.actors[0].catapultId)return;
@@ -152,13 +161,20 @@ export class ArcadeGame {
  centerAim(){this.mouse.x=this.w/2;this.mouse.y=this.h/2;this.mouse.valid=true;}
  turnLook(dx,dy,touch=false){
   if(!this.running||this.layoutEditing||this.viewMode!=='chase3d')return;
-  const orbit=lookCamera({yaw:this.cameraYaw,pitch:this.cameraPitch},dx,dy,{sensitivity:CAMERA_LOOK.sensitivity*this.settings.cameraSensitivity*(touch?1.6:1)});
+  const orbit=lookCamera({yaw:this.cameraYaw,pitch:this.cameraPitch},dx,dy,{sensitivity:(touch?CAMERA_LOOK.touchSensitivity:CAMERA_LOOK.sensitivity)*this.settings.cameraSensitivity});
   this.cameraYaw=orbit.yaw;this.cameraPitch=orbit.pitch;this.centerAim();
  }
  bindInputs(){
   addEventListener('keydown',e=>{if(e.target.matches('input,select'))return;if(e.code==='Escape'){e.preventDefault();if(this.layoutEditing){this.touchLayout.setEditing(false);return;}if(this.running)this.pause();return;}if(!this.running||this.layoutEditing)return;if(e.code==='KeyC'&&!e.repeat){e.preventDefault();this.toggleView(e);return;}if(MOVE_KEYS.has(e.code)||['KeyQ','KeyE'].includes(e.code)){e.preventDefault();this.keys.add(e.code);}});
   addEventListener('keyup',e=>this.keys.delete(e.code));
   const canvas=this.renderer.domElement;
+  const beginMouseLock=e=>{
+   if(!this.running||this.layoutEditing||this.settings.mouseTargetLock!==true||this.state.actors[0].catapultId)return;
+   this.mouseControl=true;
+   const anchor=this.viewMode==='chase3d'&&this.pointerLocked()?{x:this.w/2,y:this.h/2}:pointerPixels({x:e.clientX,y:e.clientY},canvas.getBoundingClientRect(),this.w,this.h);
+   this.currentTargetLock=this.targetLock.start(anchor);
+  };
+  const releaseMouseLock=()=>{this.targetLock?.end();this.currentTargetLock=null;};
   this.mouseLookSession=createMouseLookSession({canvas,
    active:()=>this.running&&!this.layoutEditing&&this.viewMode==='chase3d'&&!this.state.actors[0].catapultId,
    onLock:()=>{this.stopMouseFireCapture();this.freeMousePoint=null;this.centerAim();},
@@ -170,6 +186,7 @@ export class ArcadeGame {
     // A second mouse button changes a chord through pointermove, not a new
     // pointerdown. Treat a deliberate left-button transition as a fresh shot.
     if(e.button===0&&(e.buttons&1))beginMouseFire(e);
+    if(e.button===2&&(e.buttons&2))beginMouseLock(e);
     if(this.state.actors[0].catapultId){this.captureCatapultMouse(e);return;}
     if(this.pointerLocked())this.turnLook(e.movementX,e.movementY);
     else if(this.viewMode==='overview')this.captureMouseAim(e);
@@ -199,7 +216,13 @@ export class ArcadeGame {
    if(!this.running||this.layoutEditing)return;e.preventDefault();
    if(e.pointerType==='touch'||e.pointerType==='pen'){this.beginCameraDrag(e);return;}
    if(e.button===0)beginMouseFire(e);
+   if(e.button===2)beginMouseLock(e);
   });
+  canvas.addEventListener('mousedown',e=>{if(e.button===2)beginMouseLock(e);});
+  addEventListener('pointerup',e=>{if(e.pointerType==='mouse'&&e.button===2)releaseMouseLock();});
+  addEventListener('mouseup',e=>{if(e.button===2)releaseMouseLock();});
+  addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&!(e.buttons&2)&&this.targetLock?.held)releaseMouseLock();});
+  addEventListener('pointercancel',e=>{if(e.pointerType==='mouse')releaseMouseLock();});
   addEventListener('pointerup',e=>{if(this.cameraDrag?.id===e.pointerId)this.stopCameraDrag();if(e.pointerType==='mouse'&&e.button===0){if(!this.touchSticks.aim?.firing)this.actions.fire=false;this.stopMouseFireCapture();}});
   const releaseMouseFire=e=>{if(e.buttons&1)return;if(!this.touchSticks.aim?.firing)this.actions.fire=false;this.stopMouseFireCapture();};
   addEventListener('pointermove',e=>{if(e.pointerType==='mouse')releaseMouseFire(e);});
@@ -273,8 +296,11 @@ export class ArcadeGame {
   if(stickAiming&&this.viewMode==='overview'){this.mouse.valid=false;if(touchAim||!p.catapultId)this.aim={...screenToWorld(this.stickAim.x,this.stickAim.z,this.camera.position,this.focus),distance:14};}
   this.updateMouseTarget();
   if(this.mouse.valid&&aiming&&this.mouse.target){if(!p.catapultId&&this.mouse.direction)this.aim={...this.mouse.direction,distance:this.mouse.distance};else{const dx=this.mouse.target.x-p.x,dz=this.mouse.target.z-p.z,d=Math.hypot(dx,dz);if(d>.1)this.aim={x:dx/d,z:dz/d,distance:d};}}
+  this.currentTargetLock=this.targetLock?.update()||null;
+  if(this.currentTargetLock)this.aim={...this.currentTargetLock.direction,distance:this.currentTargetLock.distance};
   const movement=this.movementInput(),kickTargetId=this.pendingKickTargetId;this.pendingKickTargetId=null;
-  return {mx:movement.x,mz:movement.z,ax:this.aim.x,ay:this.aim.y,az:this.aim.z,aiming,fire:kickTargetId?false:this.actions.fire,kick:!!kickTargetId||this.actions.kick||this.keys.has('KeyQ'),...(kickTargetId?{kickTargetId}:{}),sabotage:!p.catapultId&&(this.actions.sabotage||this.keys.has('KeyE'))};
+  const faceAim=!p.catapultId&&(!!this.currentTargetLock||this.viewMode==='overview'&&(this.mouse.valid||touchAim));
+  return {mx:movement.x,mz:movement.z,ax:this.aim.x,ay:this.aim.y,az:this.aim.z,aiming,faceAim,fire:kickTargetId?false:this.actions.fire,kick:!!kickTargetId||this.actions.kick||this.keys.has('KeyQ'),...(kickTargetId?{kickTargetId}:{}),sabotage:!p.catapultId&&(this.actions.sabotage||this.keys.has('KeyE'))};
  }
  installAutoFire(){
   // Resolve last, after tap buffering and catapult actions. Even a very short
@@ -403,11 +429,13 @@ export class ArcadeGame {
   for(const [id,t] of this.tongues){t.mesh.visible=id!=='player'||this.models[0].group.visible;const age=(this.elapsed-t.start)/.22;if(age>=1){t.mesh.removeFromParent();this.tongues.delete(id);continue;}const i=this.state.actors.findIndex(a=>a.id===id),m=this.models[i],start=m.mouthWorld(),end=new V(t.x,this.ground(t.x,t.z)+1,t.z),reach=Math.sin(age*Math.PI);end.lerpVectors(start,end,reach);const dir=end.clone().sub(start);t.mesh.position.copy(start).addScaledVector(dir,.5);t.mesh.quaternion.setFromUnitVectors(UP,dir.clone().normalize());t.mesh.scale.set(.07,Math.max(.001,dir.length()),.07);}
  }
  project(x,y,z){const point=new V(x,y,z),behind=point.clone().applyMatrix4(this.camera.matrixWorldInverse).z>=0,p=point.project(this.camera);return {x:(p.x+1)*this.w/2,y:(1-p.y)*this.h/2,visible:!behind&&p.z>-1&&p.z<1,behind};}
- drawLabels(){const c=this.labelCtx;c.clearRect(0,0,this.w,this.h);c.textAlign='center';c.lineJoin='round';c.font='800 18px sans-serif';if(this.running){drawFlyMarkers(this,c);drawRadar(this,this.$('minimap'));}
+ drawLabels(){this.currentTargetLock=this.running?this.targetLock?.update()||null:null;const c=this.labelCtx;c.clearRect(0,0,this.w,this.h);c.textAlign='center';c.lineJoin='round';c.font='800 18px sans-serif';if(this.running){drawFlyMarkers(this,c);drawRadar(this,this.$('minimap'));}
   this.currentAimScreen=null;this.currentAimCursorScreen=null;this.currentAimPathScreen=[];
-  const aimedPlayer=this.state.actors[0],reticleAnchor=this.viewMode==='chase3d'&&(this.pointerLocked()||!this.mouseControl)?{centered:true}:this.mouseControl?{pointer:{x:this.mouse.x,y:this.mouse.y}}:{origin:{x:aimedPlayer.x,y:this.ground(aimedPlayer.x,aimedPlayer.z)+PROJECTILE.originHeight,z:aimedPlayer.z},bearing:{x:aimedPlayer.aimX,z:aimedPlayer.aimZ}};
+  const aimedPlayer=this.state.actors[0],lockedTarget=this.currentTargetLock?.target,lockScreen=lockedTarget?this.project(lockedTarget.x,lockedTarget.y,lockedTarget.z):null;
+  const reticleAnchor=lockScreen?.visible?{pointer:lockScreen}:this.viewMode==='chase3d'&&(this.pointerLocked()||!this.mouseControl)?{centered:true}:this.mouseControl?{pointer:{x:this.mouse.x,y:this.mouse.y}}:{origin:{x:aimedPlayer.x,y:this.ground(aimedPlayer.x,aimedPlayer.z)+PROJECTILE.originHeight,z:aimedPlayer.z},bearing:{x:aimedPlayer.aimX,z:aimedPlayer.aimZ}};
   this.currentAimReticle=computeReticle(this.currentAimPreview,(x,y,z)=>this.project(x,y,z),this.w,this.h,reticleAnchor);
   if(this.currentAimReticle){const reticle=this.currentAimReticle;this.currentAimScreen={x:reticle.x,y:reticle.y};this.currentAimColor=reticle.color;drawReticle(c,reticle);}
+  if(lockScreen?.visible&&this.running){c.save();c.strokeStyle='#183f35';c.lineWidth=5;c.beginPath();c.arc(lockScreen.x,lockScreen.y-23,4,Math.PI,0);c.rect(lockScreen.x-6,lockScreen.y-23,12,9);c.stroke();c.strokeStyle='#e0ffa1';c.lineWidth=2;c.stroke();c.restore();}
 
   if(this.hitConfirmUntil>this.elapsed&&this.lastPlayerHit){const h=this.lastPlayerHit,target=this.state.actors.find(a=>a.id===h.id),q=this.project(h.x,Number.isFinite(h.y)?h.y:this.ground(h.x,h.z)+(target?.height||0)+1.2,h.z);if(q.visible){c.save();c.strokeStyle='#143d35';c.lineWidth=6;c.beginPath();for(const [x,y] of [[1,1],[-1,1],[1,-1],[-1,-1]]){c.moveTo(q.x+x*6,q.y+y*6);c.lineTo(q.x+x*15,q.y+y*15);}c.stroke();c.strokeStyle='#fffce2';c.lineWidth=3;c.stroke();c.restore();}}
   this.state.actors.forEach((a,i)=>{if(a.eliminated)return;const p=this.project(a.x,this.ground(a.x,a.z)+a.height+2.4,a.z);if(!p.visible)return;const on=p.x>20&&p.x<this.w-20&&p.y>70&&p.y<this.h-40;
@@ -422,9 +450,15 @@ export class ArcadeGame {
   this.fx=this.fx.filter(f=>this.elapsed-f.start<f.life);for(const f of this.fx){const t=(this.elapsed-f.start)/f.life,p=this.project(f.x,this.ground(f.x,f.z)+2+t*2,f.z);c.globalAlpha=1-t;c.font=`900 ${f.text==='ΝΟΚ ΑΟΥΤ!'?32:22}px sans-serif`;c.strokeStyle='#244136';c.lineWidth=6;c.strokeText(f.text,p.x,p.y);c.fillStyle=f.color;c.fillText(f.text,p.x,p.y);}c.globalAlpha=1;
  }
  updateCameraPose(dt){
-  const p=this.state.actors[0];
-  const pose=cameraPose(p,this.ground(p.x,p.z),this.w/this.h,this.viewMode,{yaw:this.cameraYaw,pitch:this.cameraPitch,zoom:this.settings.cameraZoom}),lookPoint=new V(...pose.look),camPoint=new V(...pose.position);
-  if(!this.cameraReady){this.focus.copy(lookPoint);this.cameraReady=true;}else this.focus.lerp(lookPoint,1-Math.exp(-dt*8));
+  const p=this.state.actors[0],ground=this.ground(p.x,p.z),anchor=new V(p.x,ground,p.z);
+  const lock=this.running?this.targetLock?.update():null;
+  if(lock&&this.viewMode==='chase3d'){const orbit=targetLockOrbit(p,ground,lock.cameraTarget,{yaw:this.cameraYaw,pitch:this.cameraPitch},dt);this.cameraYaw=orbit.yaw;this.cameraPitch=orbit.pitch;}
+  const pose=cameraPose(p,ground,this.w/this.h,this.viewMode,{yaw:this.cameraYaw,pitch:this.cameraPitch,zoom:this.settings.cameraZoom}),lookPoint=new V(...pose.look),camPoint=new V(...pose.position);
+  this.cameraFollow??=new V();
+  if(!this.cameraReady){this.cameraFollow.copy(anchor);this.cameraReady=true;}else this.cameraFollow.lerp(anchor,1-Math.exp(-dt*8));
+  // Dampen travel only. The shoulder offset turns immediately with the mouse
+  // and is never interpolated back through the jumping player's silhouette.
+  this.focus.copy(this.cameraFollow).add(lookPoint.clone().sub(anchor));
   // Position follows automatically; only deliberate look input changes angles.
   this.cameraTarget.copy(this.focus).add(camPoint.sub(lookPoint));
   const safe=resolveCameraBoom({look:this.focus.toArray(),position:this.cameraTarget.toArray()},(x,z)=>this.cameraGround(x,z));
@@ -447,7 +481,7 @@ export class ArcadeGame {
   else if(this.mode==='result'||this.mode==='finishing')this.elapsed+=dt;
   if(this.mode==='finishing'&&this.elapsed>=this.resultAt)this.showResult();
   if(!this.cameraReady)this.updateCameraPose(0);
-  if(this.running||this.mode==='title'||this.mode==='result'||this.mode==='finishing'){const animationDt=this.mode==='title'||this.layoutEditing?0:dt;this.renderActors(animationDt);this.renderFlies();this.updateCatapultAim?.();this.artilleryView.update(animationDt);this.basesView.update(animationDt);this.guardsView?.update(animationDt);this.battlegroundView?.update?.(animationDt);this.impactEffects.update(animationDt);this.world.update(this.running&&!this.layoutEditing?dt:0,this.elapsed,1,new V(p.x,this.ground(p.x,p.z),p.z));}
+  if(this.running||this.mode==='title'||this.mode==='result'||this.mode==='finishing'){const animationDt=this.mode==='title'||this.layoutEditing?0:dt;this.renderActors(animationDt);this.renderFlies();this.updateCatapultAim?.();this.artilleryView.update(animationDt);this.basesView.update(animationDt);this.guardsView?.update(animationDt);this.battlegroundView?.update?.(animationDt);this.impactEffects.update(animationDt);this.world.update(this.running&&!this.layoutEditing?dt:0,this.elapsed,1,new V(p.x,this.ground(p.x,p.z),p.z));this.visualUpgrade?.update(animationDt);}
   if((this.running&&!this.layoutEditing)||this.mode==='finishing'||this.mode==='result'){this.particles=this.particles.filter(p=>{if(this.elapsed-p.start>.55){p.mesh.removeFromParent();return false;}p.v.y-=dt*16;p.mesh.position.addScaledVector(p.v,dt);return true;});}
   this.renderer.render(this.scene,this.camera);this.drawLabels();this.updateHUD();
  }

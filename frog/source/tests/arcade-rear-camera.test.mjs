@@ -14,7 +14,7 @@ test('deliberate initial rear placement keeps every spawn heading visible across
   const actor={x:7,z:-5,face:yaw},heading=actorHeading(actor),{pose,camera}=cameraFor(actor,{yaw,pitch:CAMERA_ORBIT.pitch},aspect);
   assert.ok((pose.position[0]-actor.x)*heading.x+(pose.position[2]-actor.z)*heading.z<-8);
   const body=new Vector3(actor.x,3.2,actor.z).project(camera);
-  assert.ok(Math.abs(body.x)<.15&&Math.abs(body.y)<.15,'frog remains visible near the center');
+  assert.ok(body.x<-.08&&body.x>-.65&&body.y<-.08&&body.y>-.5,'frog remains visible below and left of the centre aiming ray');
  }
 });
 
@@ -36,7 +36,10 @@ test('W A S D retain their visible screen directions after actor turns and repea
     const move=screenToWorld(sx,sy,camera.position,focus),before=new Vector3(actor.x,3.2,actor.z).project(camera);
     const next=new Vector3(actor.x+move.x*.1,3.2,actor.z+move.z*.1).project(camera);
     if(sx)assert.ok((next.x-before.x)*sx>0,`${label} moves to the correct screen side`);
-    else assert.ok(Math.abs(next.x-before.x)<1e-10,`${label} has no lateral drift`);
+    else{
+     const right=screenToWorld(1,0,camera.position,focus);
+     assert.ok(Math.abs(move.x*right.x+move.z*right.z)<1e-10,`${label} has no sideways world movement; an off-centre perspective can still converge toward the vanishing point`);
+    }
     if(sy)assert.ok((next.y-before.y)*sy<0,`${label} moves vertically in the expected screen direction`);
     actor.x+=move.x/60;actor.z+=move.z/60;actor.face=Math.atan2(move.x,move.z);
    }

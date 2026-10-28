@@ -76,7 +76,7 @@ test('a kick checks height again at impact so an opponent can escape upward duri
 
 test('a respawn shield rejects both the damage and impulse of a close kick',()=>{
  const {state,player,opponent}=arena();Object.assign(opponent,{x:0,z:2.4,spawnShield:1});
- const position={x:opponent.x,z:opponent.z};assert.equal(kick(state,player),true);
+ const position={x:opponent.x,z:opponent.z};assert.equal(kick(state,player),false,'a respawn shield is unavailable before committing a kick');assert.equal(player.kickCooldown,0);
  let impacts=0;for(let i=0;i<14;i++){step(state,{});impacts+=state.events.filter(e=>e.type==='hit'&&e.id===opponent.id).length;}
  assert.equal(player.kickPending,false);assert.ok(opponent.spawnShield>0);
  assert.equal(impacts,0);assert.equal(opponent.dizzy,0);assert.equal(opponent.finishHits,0);

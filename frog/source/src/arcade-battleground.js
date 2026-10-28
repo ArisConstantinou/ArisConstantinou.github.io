@@ -2,15 +2,15 @@
 // frogs, houses and machines. No object or movement scale changes with the map.
 export const ARENA_RADIUS=38;
 export const ARENA_MOVE_RADIUS=ARENA_RADIUS-1;
-export const BATTLEGROUND_PALETTE=Object.freeze({sky:'#b7dbd8',fog:'#b9d2bb',earth:'#8c9d64',wet:'#466c54',deep:'#416c63',leaf:'#a5c474',rock:'#a7ad93',moss:'#82995c',bark:'#725a40',reed:'#b7b576',water:'#39877e',nightWater:'#153d43'});
+export const BATTLEGROUND_PALETTE=Object.freeze({sky:'#88bfc0',fog:'#b9d0b4',earth:'#93af67',wet:'#64885c',deep:'#386e61',leaf:'#acd47b',rock:'#a4af99',moss:'#86a35f',bark:'#715b42',reed:'#b8b56e',water:'#367d71',nightWater:'#153d43'});
 
 export const BATTLEGROUND_AREAS=Object.freeze([
- {id:'crossing',name:'Κεντρικό πέρασμα',x:0,z:3,rx:7,rz:7,height:.42,tint:'#78964d',kind:'crossing'},
- {id:'reeds',name:'Καλαμιώνας',x:-20,z:-24,rx:6.4,rz:5.8,height:.65,tint:'#a49b59',kind:'reeds'},
- {id:'pond',name:'Λίμνη νούφαρων',x:1,z:-29,rx:8,rz:5.8,height:-.48,tint:'#4e9283',kind:'pond'},
- {id:'roots',name:'Δάσος ριζών',x:-29,z:1,rx:6.3,rz:7.6,height:.88,tint:'#587b52',kind:'roots'},
- {id:'terraces',name:'Πέτρινες αναβαθμίδες',x:29,z:1,rx:6.3,rz:8,height:1.12,tint:'#9a9c7c',kind:'terraces'},
- {id:'flowers',name:'Ανθισμένη όχθη',x:8,z:29,rx:9,rz:5.8,height:.56,tint:'#8eaa63',kind:'flowers'},
+ {id:'crossing',name:'Κεντρικό πέρασμα',x:0,z:3,rx:7,rz:7,height:.42,tint:'#91ac5b',kind:'crossing'},
+ {id:'reeds',name:'Καλαμιώνας',x:-20,z:-24,rx:6.4,rz:5.8,height:.65,tint:'#b2ac66',kind:'reeds'},
+ {id:'pond',name:'Λίμνη νούφαρων',x:1,z:-29,rx:8,rz:5.8,height:-.48,tint:'#518b77',kind:'pond'},
+ {id:'roots',name:'Δάσος ριζών',x:-29,z:1,rx:6.3,rz:7.6,height:.88,tint:'#608052',kind:'roots'},
+ {id:'terraces',name:'Πέτρινες αναβαθμίδες',x:29,z:1,rx:6.3,rz:8,height:1.12,tint:'#a6ae87',kind:'terraces'},
+ {id:'flowers',name:'Ανθισμένη όχθη',x:8,z:29,rx:9,rz:5.8,height:.56,tint:'#a2b968',kind:'flowers'},
 ].map(Object.freeze));
 
 // Points are [x,z,height]. Broad blended banks support each route; the visible
@@ -73,7 +73,7 @@ export function battlegroundHeight(x,z,naturalHeight){
 export function battlegroundTint(x,z){
  if(Math.hypot(x,z)>ARENA_RADIUS+4)return null;
  const route=routeSample(x,z),pathWeight=1-smooth(route.width*.28,route.width*.62,route.distance);
- if(pathWeight>.05)return {color:'#b5a477',weight:pathWeight*.72};
+ if(pathWeight>.05)return {color:'#a68a60',weight:pathWeight*.72};
  const area=battlegroundAreaAt(x,z);
  if(!area)return null;
  const d=Math.hypot((x-area.x)/area.rx,(z-area.z)/area.rz);

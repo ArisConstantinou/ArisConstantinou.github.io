@@ -11,7 +11,7 @@ test('moving the mouse directly turns the view in both axes without a held camer
  const right=lookCamera(start,120,0),left=lookCamera(start,-120,0);
  assert.ok(delta(right.yaw,start.yaw)<0,'right mouse movement looks right');
  assert.ok(delta(left.yaw,start.yaw)>0,'left mouse movement looks left');
- close(Math.abs(delta(right.yaw,start.yaw)),.3);
+ close(Math.abs(delta(right.yaw,start.yaw)),.48);
  close(right.pitch,start.pitch);
  assert.ok(lookCamera(start,0,-120).pitch<start.pitch,'moving up looks up');
  assert.ok(lookCamera(start,0,120).pitch>start.pitch,'moving down looks down');
@@ -40,17 +40,24 @@ test('continuous mouse movement can turn through several revolutions without yaw
   const next=lookCamera(orbit,12,0);total+=delta(next.yaw,orbit.yaw);orbit=next;
   assert.ok(orbit.yaw>=-Math.PI&&orbit.yaw<=Math.PI);
  }
- close(total,-30);
+ close(total,-48);
  assert.ok(Math.abs(total)>Math.PI*2*4);
  close(orbit.pitch,.2);
 });
 
 test('sensitivity scales direct look and inversion changes only the vertical axis',()=>{
- const start={yaw:1,pitch:.2},normal=lookCamera(start,50,50),sensitive=lookCamera(start,50,50,{sensitivity:.005}),inverted=lookCamera(start,50,50,{invertY:true});
+ const start={yaw:1,pitch:.2},normal=lookCamera(start,50,50),sensitive=lookCamera(start,50,50,{sensitivity:.008}),inverted=lookCamera(start,50,50,{invertY:true});
  close(delta(sensitive.yaw,start.yaw),delta(normal.yaw,start.yaw)*2);
  close(sensitive.pitch-start.pitch,(normal.pitch-start.pitch)*2);
  close(delta(inverted.yaw,normal.yaw),0);
  close(inverted.pitch-start.pitch,-(normal.pitch-start.pitch));
+});
+
+test('the default mouse needs a modest swipe for a quarter-turn while touch retains its existing rate',()=>{
+ const pixels=(Math.PI/2)/CAMERA_LOOK.sensitivity;
+ assert.ok(pixels>350&&pixels<450,'a 90-degree turn no longer needs over 600 pixels at 100%');
+ close(lookCamera({yaw:0,pitch:0},pixels,0).yaw,-Math.PI/2);
+ close(lookCamera({yaw:0,pitch:0},100,0,{sensitivity:CAMERA_LOOK.touchSensitivity}).yaw,-.4);
 });
 
 test('stationary mouse input does not recenter a chosen direction',()=>{

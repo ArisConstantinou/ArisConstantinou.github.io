@@ -1,4 +1,6 @@
-export const CAMERA_LOOK=Object.freeze({sensitivity:.0025,minPitch:-.65,maxPitch:1.15,yaw:Math.PI,pitch:.12});
+// A quarter-turn takes about 393 mouse pixels at 100%. Keep touch swipes at
+// their previous .004 rate; both inputs still respect the saved multiplier.
+export const CAMERA_LOOK=Object.freeze({sensitivity:.004,touchSensitivity:.004,minPitch:-.65,maxPitch:1.15,yaw:Math.PI,pitch:.2});
 
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 const wrap=value=>Math.atan2(Math.sin(value),Math.cos(value));

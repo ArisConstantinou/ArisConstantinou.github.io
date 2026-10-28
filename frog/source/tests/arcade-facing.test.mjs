@@ -43,14 +43,14 @@ test('automatic fire bridges the shot cooldown without changing movement or aim'
  close(pose.yaw,Math.PI);assert.equal(pose.aiming,true);assert.deepEqual(actor,before);
 });
 
-test('the complete shot interval preserves combat facing then returns to travel heading',()=>{
- const actor=player({face:Math.PI/2});
+test('the complete shot interval preserves combat facing and keeps its remembered bearing on release',()=>{
+ const actor=player({face:Math.PI/2,poseAimYaw:Math.PI});
  for(const shot of [.14,.03,.015,Number.EPSILON]){
   actor.shot=shot;const pose=actorVisualFacing(actor);
   close(pose.yaw,Math.PI);assert.equal(pose.aiming,true);
  }
  actor.shot=0;const released=actorVisualFacing(actor);
- close(released.yaw,Math.PI/2);assert.equal(released.aiming,false);
+ close(released.yaw,Math.PI);assert.equal(released.aiming,false);
 });
 
 test('kicks and a mounted catapult retain deliberate aim-facing',()=>{

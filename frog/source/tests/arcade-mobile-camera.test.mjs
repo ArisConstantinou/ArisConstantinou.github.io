@@ -23,13 +23,13 @@ for(const [name,aspect] of [['portrait',390/844],['landscape',844/390],['desktop
  test(`rear camera keeps frog and outgoing shot region visible in ${name}`,()=>{
   const p={x:-3,z:9,face:Math.PI},ground=1,pose=cameraPose(p,ground,aspect,'chase3d');
   const body=projectPoint(pose,aspect,[p.x,ground+1.2,p.z]);
-  assert.ok(Math.abs(body.x)<.15&&Math.abs(body.y)<.15);
+  assert.ok(body.x<-.08&&body.x>-.65&&body.y<-.08&&body.y>-.5,'the frog stays visible below and left of the centre crosshair');
   for(const offset of [[-1.1,0,0],[1.1,0,0],[0,1.3,0],[0,0,-1.5]]){
    const edge=projectPoint(pose,aspect,[p.x+offset[0],ground+1.2+offset[1],p.z+offset[2]]);
    assert.ok(Math.abs(edge.x)<.8&&Math.abs(edge.y)<.8,'body/mouth region should not clip');
   }
   assert.ok(pose.position[2]>p.z+8,'the default view stays behind the north-facing frog');
-  assert.ok(Math.abs(pose.position[0]-p.x)<1.5,'shoulder offset must not turn this into a side camera');
+  assert.ok(Math.abs(pose.position[0]-p.x)<2.5,'the shoulder view remains predominantly behind the frog');
   const pitch=Math.atan2(pose.position[1]-pose.look[1],Math.hypot(pose.position[0]-pose.look[0],pose.position[2]-pose.look[2]))*180/Math.PI;
   assert.ok(pitch<30,'default remains a low third-person view');
  });
