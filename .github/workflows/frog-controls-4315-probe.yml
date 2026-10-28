@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 3
+          fetch-depth: 5
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /.github/frog-controls-4315/
@@ -32,8 +32,8 @@ jobs:
           npm run build
           npm install --prefix "$RUNNER_TEMP/browser" --no-package-lock playwright@1.56.1
           "$RUNNER_TEMP/browser/node_modules/.bin/playwright" install --with-deps chromium
+          sudo apt-get install -y xdotool
           mkdir -p "$RUNNER_TEMP/probe"
-          tar -czf "$RUNNER_TEMP/probe/runtime.tgz" dist node_modules src package.json package-lock.json index.html
       - name: Observe native events and camera changes
         working-directory: frog/source
         run: |
@@ -42,7 +42,7 @@ jobs:
           SERVER=$!
           trap 'kill "$SERVER" || true' EXIT
           sleep 1
-          PLAYWRIGHT_MODULE="$RUNNER_TEMP/browser/node_modules/playwright" node "$RUNNER_TEMP/mouse-probe.mjs" | tee "$RUNNER_TEMP/probe/trace.txt"
+          xvfb-run -a -s '-screen 0 1920x1080x24' env PLAYWRIGHT_MODULE="$RUNNER_TEMP/browser/node_modules/playwright" node "$RUNNER_TEMP/mouse-probe.mjs" | tee "$RUNNER_TEMP/probe/trace.txt"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
