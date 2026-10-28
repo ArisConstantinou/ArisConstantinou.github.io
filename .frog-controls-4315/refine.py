@@ -58,5 +58,12 @@ for context in ['context','ctx']:
 s,count=re.subn(r"await page\.locator\(('[^']*')\)\.click\(\)",r'await clickNative(page,\1)',s)
 assert count>=10,count
 s=s.replace('Desktop Chromium with software WebGL; no claim about real mobile hardware.','Desktop Chromium under Xvfb with XTest mouse input and software WebGL; no claim about real mobile hardware.')
+# X11 cannot address a negative screen coordinate. Leave the actual game
+# canvas for the pause HUD instead, without clicking or pausing. This produces
+# a trusted pointerleave within the window and retains the original assertion
+# that deliberate pointer aiming ended before the strafe/retained-stance test.
+old='await page.mouse.move(-10,-10);'
+assert s.count(old)==1
+s=s.replace(old,"const leaveHud=await page.locator('#pause-button').boundingBox();await page.mouse.move(leaveHud.x+leaveHud.width/2,leaveHud.y+leaveHud.height/2);")
 p.write_text(s)
-print('Kept the production single pointer owner; browser QA now uses trusted XTest mouse input, not CDP pointer-lock warps.')
+print('Kept production controls and all assertions; browser QA uses trusted XTest input and a real canvas-to-HUD pointerleave.')
