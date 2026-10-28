@@ -85,7 +85,9 @@ jobs:
           compat=json.loads(Path('frog/qa/controls-4315/compat.json').read_text())
           assert report['ok'] and compat['ok']
           log=Path('/tmp/frog-controls-tests.log').read_text()
-          count=re.findall(r'# pass (\d+)',log)[-1]
+          counts=re.findall(r'(?:#|ℹ)\s+pass\s+(\d+)',log)
+          assert counts, 'Missing unit-test pass count'
+          count=counts[-1]
           text='# FROG 4.3.15 — controls and directional hops\n\n'
           text+='Overview uses fixed screen axes: W up, A left, S down, D right, independent of body facing or previous camera yaw. Third-person movement follows view yaw and the body follows the centre aim. Mouse-capture fallback no longer mixes a free-cursor aim with camera rotation. Directional hops use actual body-local travel for their feet instead of always playing a forward push. Saves, combat rules, map geometry and optional target-lock policy are unchanged.\n\n'
           text+=f'Verification: {count} passing unit tests; {len(report["checks"])} native-input checks; {len(compat["checks"])} existing browser/rendering checks; production build succeeded.\n\n'

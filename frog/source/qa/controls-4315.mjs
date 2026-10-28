@@ -7,7 +7,7 @@ const url=new URL(process.env.BASE_URL||'http://127.0.0.1:4178/');url.searchPara
 const report={version,baseline,checks:[],failures:[],errors:[],samples:[],limitations:[
  'Desktop Chromium with software WebGL; no claim about physical mobile devices or every browser.',
  'Fixtures reset to a safe open location and freeze opponents. Keyboard and mouse events use Playwright native input; production physics, rendering, camera and input handlers are not replaced.',
- 'Screenspace travel is projected through a saved pre-movement camera, so camera following cannot hide an inverted axis.',
+ 'Actual world displacement must follow the requested axis. Screen direction uses a short differential through the pre-movement camera; projecting the complete path through a shortened old boom can cross its near plane and falsely reverse perspective.',
  'Intermediate rendering is skipped only inside deterministic frame batches; the final frame is rendered.'
 ]};
 const check=(ok,name,detail)=>{(ok?report.checks:report.failures).push({name,detail});console.log(`${ok?'PASS':'FAIL'} ${name}${ok?'':' '+JSON.stringify(detail)}`);};
@@ -22,7 +22,7 @@ async function frames(page,count=1){
 }
 async function snap(page){return page.evaluate(()=>{
  const g=window.frogArcade,p=g.state.actors[0],V=g.camera.position.constructor,f=g.camera.getWorldDirection(new V());
- return {mode:g.viewMode,position:{x:p.x,z:p.z},face:p.face,visual:g.models[0].group.rotation.y,aim:Math.atan2(p.aimX,p.aimZ),poseAiming:p.poseAiming,yaw:g.cameraYaw,cameraYaw:Math.atan2(f.x,f.z),locked:!!document.pointerLockElement,reticle:g.currentAimReticle&&{x:g.currentAimReticle.x,y:g.currentAimReticle.y},shots:g.state.stats.shots,keys:[...g.keys]};
+ return {mode:g.viewMode,position:{x:p.x,z:p.z},face:p.face,visual:g.models[0].group.rotation.y,aim:Math.atan2(p.aimX,p.aimZ),poseAiming:p.poseAiming,yaw:g.cameraYaw,pitch:g.cameraPitch,cameraYaw:Math.atan2(f.x,f.z),locked:!!document.pointerLockElement,reticle:g.currentAimReticle&&{x:g.currentAimReticle.x,y:g.currentAimReticle.y},shots:g.state.stats.shots,keys:[...g.keys]};
 });}
 async function capture(page,name){await page.screenshot({path:path.join(out,name+'.png')});}
 async function boot(context){
@@ -52,26 +52,43 @@ async function fixture(page,mode='overview',yaw=Math.PI){
 }
 async function travel(page,key,name){
  const before=await page.evaluate(()=>{
-  const g=window.frogArcade,p=g.state.actors[0];window.qaCamera=g.camera.clone();
-  return {x:p.x,z:p.z,y:g.ground(p.x,p.z)};
+  const g=window.frogArcade,p=g.state.actors[0],V=g.camera.position.constructor;
+  window.qaCamera=g.camera.clone();
+  const forward=g.camera.getWorldDirection(new V());
+  return {x:p.x,z:p.z,y:g.ground(p.x,p.z),mode:g.viewMode,yaw:Math.atan2(forward.x,forward.z),pitch:g.cameraPitch};
  });
  await page.keyboard.down(key);await frames(page,21);await page.keyboard.up(key);await frames(page,2);
  const sample=await page.evaluate(before=>{
   const g=window.frogArcade,p=g.state.actors[0],V=g.camera.position.constructor;
-  const a=new V(before.x,before.y,before.z).project(window.qaCamera),b=new V(p.x,before.y,p.z).project(window.qaCamera);
-  return {dx:p.x-before.x,dz:p.z-before.z,screenX:(b.x-a.x)*g.w/2,screenY:-(b.y-a.y)*g.h/2,face:p.face,aim:Math.atan2(p.aimX,p.aimZ),visual:g.models[0].group.rotation.y,keys:[...g.keys]};
+  const dx=p.x-before.x,dz=p.z-before.z,length=Math.hypot(dx,dz),scale=length>0?.05/length:0;
+  // Test the local screen direction, not a long extrapolation past the old eye.
+  // A following camera can legitimately pass where that saved eye used to be.
+  const start=new V(before.x,before.y,before.z),end=new V(before.x+dx*scale,before.y,before.z+dz*scale);
+  const depth=-start.clone().applyMatrix4(window.qaCamera.matrixWorldInverse).z;
+  const a=start.project(window.qaCamera),b=end.project(window.qaCamera);
+  return {dx,dz,length,depth,screenX:(b.x-a.x)*g.w/2,screenY:-(b.y-a.y)*g.h/2,face:p.face,aim:Math.atan2(p.aimX,p.aimZ),visual:g.models[0].group.rotation.y,keys:[...g.keys],before};
  },before);
  const right={w:[0,-1],a:[-1,0],s:[0,1],d:[1,0]}[key];
- const ok=(right[0]===0||sample.screenX*right[0]>1)&&(right[1]===0||sample.screenY*right[1]>1);
- check(ok,`${name}: ${key.toUpperCase()} follows the screen`,sample);report.samples.push({name,key,...sample});
+ const yaw=before.mode==='overview'?Math.PI:before.yaw;
+ const expected={x:-Math.cos(yaw)*right[0]-Math.sin(yaw)*right[1],z:Math.sin(yaw)*right[0]-Math.cos(yaw)*right[1]};
+ const along=sample.dx*expected.x+sample.dz*expected.z,cross=sample.dx*expected.z-sample.dz*expected.x;
+ check(along>.5&&Math.abs(cross)<.05,`${name}: ${key.toUpperCase()} has the correct physical direction`,{...sample,along,cross});
+ const ok=sample.depth>.1&&(right[0]===0||sample.screenX*right[0]>.02)&&(right[1]===0||sample.screenY*right[1]>.02);
+ check(ok,`${name}: ${key.toUpperCase()} follows the local screen direction`,sample);report.samples.push({name,key,...sample});
  check(!sample.keys.includes('Key'+key.toUpperCase()),`${name}: ${key.toUpperCase()} releases cleanly`);
 }
 async function enterCapture(page){
- await page.mouse.click(640,400);await page.waitForFunction(()=>!!document.pointerLockElement,{},{timeout:5000});await frames(page,20);
+ const orbit=await page.evaluate(()=>({yaw:window.frogArcade.cameraYaw,pitch:.24}));
+ await page.mouse.click(640,400);await page.waitForFunction(()=>!!document.pointerLockElement,{},{timeout:5000});
+ // Chromium headless may deliver its cursor-recentering move after lock grant.
+ // Let native capture settle before placing the documented gameplay fixture.
+ await page.waitForTimeout(100);await page.mouse.move(640,400);await page.waitForTimeout(100);
+ await page.evaluate(({yaw,pitch})=>{const g=window.frogArcade;g.cameraYaw=yaw;g.cameraPitch=pitch;g.cameraReady=false;},orbit);
+ await frames(page,25);
 }
 async function chase(page){
  await fixture(page,'chase3d');await enterCapture(page);
- const initial=await snap(page);await page.mouse.move(790,400);await frames(page,35);const turned=await snap(page);
+ const initial=await snap(page);await page.mouse.move(790,400);await page.waitForTimeout(60);await frames(page,35);const turned=await snap(page);
  check(Math.abs(angle(turned.cameraYaw,initial.cameraYaw))>.35,'native mouse movement turns the actual camera, not only the model',{initial,turned});
  check(Math.abs(angle(turned.visual,turned.aim))<.03&&turned.poseAiming,'chase body follows the new aim after the previous shot has ended',turned);
  check(turned.reticle&&Math.abs(turned.reticle.x-640)<.01&&Math.abs(turned.reticle.y-400)<.01,'captured third person retains one centered crosshair',turned);
@@ -79,7 +96,7 @@ async function chase(page){
  if(baseline)return;
  for(const key of ['w','a','s','d'])await travel(page,key,'rotated third person');
  for(const yaw of [0,Math.PI/2,-Math.PI/2]){
-  await fixture(page,'chase3d',yaw);await enterCapture(page);await page.mouse.move(700,400);await frames(page,6);
+  await fixture(page,'chase3d',yaw);await enterCapture(page);await page.mouse.move(700,400);await page.waitForTimeout(60);await frames(page,6);
   await page.keyboard.press('c');await frames(page,5);
   check((await snap(page)).mode==='overview','C changes the actual rendered mode');
   for(const key of ['w','a','s','d'])await travel(page,key,`overview after chase yaw ${yaw.toFixed(2)}`);
