@@ -1,0 +1,102 @@
+name: FROG 4.3.15 controls validation
+on:
+  push:
+    branches: [fix/frog-controls-4315-prepare]
+    paths:
+      - '.github/frog-controls-4315/**'
+      - '.github/workflows/frog-controls-4315-validate.yml'
+permissions:
+  contents: write
+concurrency:
+  group: frog-controls-4315-validation
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/frog-controls-4315/
+            /.github/workflows/
+            /frog/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Apply reviewed patch to exact clean base
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -a .github/frog-controls-4315 "$RUNNER_TEMP/frog-controls-4315"
+          mkdir -p "$RUNNER_TEMP/frog-qa"
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = 42b90b5c3b96a2079bc152d37da757acdfa9f024
+          git checkout --detach 42b90b5c3b96a2079bc152d37da757acdfa9f024
+          node "$RUNNER_TEMP/frog-controls-4315/apply.mjs" --repo "$GITHUB_WORKSPACE"
+          cp "$RUNNER_TEMP/frog-controls-4315/controls-4315.mjs" frog/source/qa/controls-4315.mjs
+          node --check frog/source/src/arcade.js
+          node --check frog/source/src/creatures.js
+      - name: Install pinned dependencies and run full test suite
+        working-directory: frog/source
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm test > "$RUNNER_TEMP/frog-qa/unit-tests.txt" 2>&1 || { grep -A 50 -B 3 '^not ok' "$RUNNER_TEMP/frog-qa/unit-tests.txt" || true; tail -80 "$RUNNER_TEMP/frog-qa/unit-tests.txt"; exit 1; }
+          tail -18 "$RUNNER_TEMP/frog-qa/unit-tests.txt"
+          npm run build | tee "$RUNNER_TEMP/frog-qa/build.txt"
+      - name: Install isolated browser test tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --prefix "$RUNNER_TEMP/frog-browser" --no-package-lock playwright@1.56.1
+          "$RUNNER_TEMP/frog-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Native keyboard and mouse QA against production build
+        working-directory: frog/source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4178 --bind 127.0.0.1 --directory dist > "$RUNNER_TEMP/frog-qa/server.txt" 2>&1 &
+          SERVER=$!
+          trap 'kill "$SERVER" || true' EXIT
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4178/ >/dev/null && break || sleep 1; done
+          export PLAYWRIGHT_MODULE="$RUNNER_TEMP/frog-browser/node_modules/playwright"
+          export BASE_URL=http://127.0.0.1:4178/
+          OUT_DIR="$RUNNER_TEMP/frog-qa/controls" node qa/controls-4315.mjs | tee "$RUNNER_TEMP/frog-qa/native-controls.txt"
+          node --input-type=module -e "import fs from 'node:fs'; fs.writeFileSync(process.env.RUNNER_TEMP+'/regression-4315.mjs',fs.readFileSync('qa/arcade-4314.mjs','utf8').replaceAll('4.3.14','4.3.15').replaceAll('arcade-4314','regression-4315'));"
+          OUT_DIR="$RUNNER_TEMP/frog-qa/regressions" node "$RUNNER_TEMP/regression-4315.mjs" | tee "$RUNNER_TEMP/frog-qa/regressions.txt"
+      - name: Commit validated source and matching build to review branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = 42b90b5c3b96a2079bc152d37da757acdfa9f024
+          cp -a frog/source/dist/. frog/
+          mkdir -p frog/qa/arcade-4315
+          cp "$RUNNER_TEMP/frog-qa/controls/report.json" frog/qa/arcade-4315/controls-report.json
+          cp "$RUNNER_TEMP/frog-qa/regressions/report.json" frog/qa/arcade-4315/regression-report.json
+          cp "$RUNNER_TEMP/frog-qa/unit-tests.txt" frog/qa/arcade-4315/unit-tests.txt
+          cp "$RUNNER_TEMP/frog-qa/controls/"*.png frog/qa/arcade-4315/
+          git add frog/source/src/arcade.js frog/source/src/creatures.js frog/source/src/arcade-control-policy.js frog/source/src/arcade-model.js frog/source/tests/arcade-control-policy.test.mjs frog/source/package.json frog/source/package-lock.json frog/source/qa/controls-4315.mjs frog/index.html frog/assets frog/qa/arcade-4315
+          git diff --cached --check
+          git diff --cached --stat
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'FROG 4.3.15: fix screen-relative WASD, chase aiming and directional hops'
+          git push origin HEAD:refs/heads/fix/frog-controls-4315-validated
+          git rev-parse HEAD | tee "$RUNNER_TEMP/frog-qa/validated-commit.txt"
+      - name: Collect compact source snapshot and validation evidence
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/frog-qa"
+          tar -czf "$RUNNER_TEMP/frog-qa/source-snapshot.tgz" frog/source/src frog/source/tests frog/source/package.json frog/source/package-lock.json frog/source/index.html .github/workflows frog/index.html
+          du -sh "$RUNNER_TEMP/frog-qa"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frog-controls-4315-validation
+          path: ${{ runner.temp }}/frog-qa/
+          retention-days: 7
+          if-no-files-found: error
