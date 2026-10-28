@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {hopDirection,solveDirectionalLimb} from './arcade-control-policy.js';
 
 // Original anatomical meshes. Every organic surface below is lofted from sculpt
 // profiles, weighted to a joint hierarchy and animated in local skeleton space.
@@ -471,7 +472,12 @@ function getTemplate(type, lod = 0) {
 }
 // Planar two-bone IK plants the anatomical wrist/ankle during the stance phase.
 // Rest vectors keep each species' original bend direction instead of flipping knees.
-function plantLimb(root, middle, end, firstRest, secondRest, dy, dz) {
+function plantLimb(root, middle, end, firstRest, secondRest, dy, dz, dx = 0) {
+  if (Math.abs(dx) > 1e-7) {
+    const pose = solveDirectionalLimb(firstRest, secondRest, {x: dx, y: dy, z: dz});
+    root.quaternion.fromArray(pose.root); middle.quaternion.fromArray(pose.middle); end.quaternion.fromArray(pose.end);
+    return;
+  }
   const l1 = Math.hypot(firstRest.y, firstRest.z), l2 = Math.hypot(secondRest.y, secondRest.z);
   const y = firstRest.y + secondRest.y + dy, z = firstRest.z + secondRest.z + dz;
   const d = Math.max(Math.abs(l1 - l2) + .00001, Math.min(l1 + l2 - .00001, Math.hypot(y, z)));
@@ -661,6 +667,7 @@ export function createCreature(type = 'frog', options = {}) {
         // Land poses use the actual physics phase. Both hind legs load and
         // extend together; there is no time-driven walk/crawl or extra bob.
         const pose=state.hop||(jump>0?{phase:'air',progress:1-jump}:{phase:'idle',progress:0});
+        const hopMove=hopDirection(state.locomotion);
         const progress=clamp(pose.progress||0),air=pose.phase==='air',gather=pose.phase==='gather'?progress:0;
         const landing=pose.phase==='land'?Math.sin(progress*Math.PI):0;
         const thrust=air?Math.sin(clamp(progress/.14)*Math.PI/2)*(1-clamp((progress-.16)/.48)):0;
@@ -668,7 +675,8 @@ export function createCreature(type = 'frog', options = {}) {
         const fold=air?clamp((progress-.25)/.45)*(1-settle):0,reach=air?clamp((progress-.60)/.35):0;
         const cycle=time*7.8,swimStroke=Math.sin(cycle)*lastMove;
         pivot.position.y = swim ? -.14 + .023 * Math.sin(time * 3) : -.085*(gather+launchRecover)-.075*landing;
-        pivot.rotation.x = swim ? -.12 : (gather+launchRecover)*.07-(air?Math.sin(progress*Math.PI)*.12:0)+reach*.08*(1-settle);
+        pivot.rotation.x = swim ? -.12 : ((gather+launchRecover)*.07-(air?Math.sin(progress*Math.PI)*.12:0)+reach*.08*(1-settle))*hopMove.z;
+        pivot.rotation.z = !swim&&air ? -Math.sin(progress*Math.PI)*.1*hopMove.x : 0;
         bones.spine.rotation.x = Math.sin(time * 2.6) * .009;
         bones.spine.scale.y = 1 + Math.sin(time * 2.6) * .018;
         bones.head.rotation.x = .02 * Math.sin(time * 1.7) - roar * .18 - (air?.04:0);
@@ -692,9 +700,10 @@ export function createCreature(type = 'frog', options = {}) {
             const hindZ=air?.035*launchRecover+(-.42*thrust+.11*fold)*(1-launchRecover):.035*gather;
             const foreY=air?.085*launchRecover+(.085*(1-reach)-.035*reach)*(1-settle)*(1-launchRecover):-pivot.position.y;
             const foreZ=air?(-.075*(1-reach)+.13*reach)*(1-settle)*(1-launchRecover):0;
-            plantLimb(bones[`hip${side}`],bones[`knee${side}`],bones[`ankle${side}`],restPositions[ids[`knee${side}`]],restPositions[ids[`ankle${side}`]],hindY,hindZ);
-            plantLimb(bones[`shoulder${side}`],bones[`elbow${side}`],bones[`wrist${side}`],restPositions[ids[`elbow${side}`]],restPositions[ids[`wrist${side}`]],foreY,foreZ);
-            bones[`foot${side}`].rotation.x=-thrust*.14;
+            plantLimb(bones[`hip${side}`],bones[`knee${side}`],bones[`ankle${side}`],restPositions[ids[`knee${side}`]],restPositions[ids[`ankle${side}`]],hindY,hindZ*hopMove.z,hindZ*hopMove.x);
+            plantLimb(bones[`shoulder${side}`],bones[`elbow${side}`],bones[`wrist${side}`],restPositions[ids[`elbow${side}`]],restPositions[ids[`wrist${side}`]],foreY,foreZ*hopMove.z,foreZ*hopMove.x);
+            bones[`foot${side}`].rotation.x=-thrust*.14*hopMove.z;
+            bones[`foot${side}`].rotation.z=thrust*.14*hopMove.x;
           }
 
         }

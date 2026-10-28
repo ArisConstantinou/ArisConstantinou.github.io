@@ -1,5 +1,4 @@
 node_modules/
-qa/
-.openai/
 dist/
-
+qa/results/
+.DS_Store

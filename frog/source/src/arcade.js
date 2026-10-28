@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {keyboardMovement,localHopDirection,shouldFaceView} from './arcade-control-policy.js';
 import { createWorld } from './world.js';
 import { createCreature } from './creatures.js';
 import { ARCADE_VERSION, SAVE_KEY, SETTINGS_KEY, RULES, OBSTACLES, SWARMS, newRound, step, saveRound, loadRound, kickTarget, canKick, sabotageTarget, ownBase, setProjectileWorld, projectileOrigin, traceWorldRay } from './arcade-model.js';
@@ -157,7 +158,7 @@ export class ArcadeGame {
  }
  releaseMouseLook(){this.mouseLookSession?.release();}
  stopMouseFireCapture(){const id=this.mouseFirePointer;this.mouseFirePointer=null;const canvas=this.renderer?.domElement;if(id!=null&&canvas?.hasPointerCapture?.(id))canvas.releasePointerCapture(id);}
- turnFreeMouse(event){const next={x:event.clientX,y:event.clientY};if(!Number.isFinite(next.x)||!Number.isFinite(next.y))return;const previous=this.freeMousePoint;this.freeMousePoint=next;if(previous)this.turnLook(next.x-previous.x,next.y-previous.y);}
+ turnFreeMouse(event){this.mouseControl=true;const next={x:event.clientX,y:event.clientY};if(!Number.isFinite(next.x)||!Number.isFinite(next.y))return;const previous=this.freeMousePoint;this.freeMousePoint=next;if(previous)this.turnLook(next.x-previous.x,next.y-previous.y);}
  centerAim(){this.mouse.x=this.w/2;this.mouse.y=this.h/2;this.mouse.valid=true;}
  turnLook(dx,dy,touch=false){
   if(!this.running||this.layoutEditing||this.viewMode!=='chase3d')return;
@@ -171,7 +172,7 @@ export class ArcadeGame {
   const beginMouseLock=e=>{
    if(!this.running||this.layoutEditing||this.settings.mouseTargetLock!==true||this.state.actors[0].catapultId)return;
    this.mouseControl=true;
-   const anchor=this.viewMode==='chase3d'&&this.pointerLocked()?{x:this.w/2,y:this.h/2}:pointerPixels({x:e.clientX,y:e.clientY},canvas.getBoundingClientRect(),this.w,this.h);
+   const anchor=this.viewMode==='chase3d'?{x:this.w/2,y:this.h/2}:pointerPixels({x:e.clientX,y:e.clientY},canvas.getBoundingClientRect(),this.w,this.h);
    this.currentTargetLock=this.targetLock.start(anchor);
   };
   const releaseMouseLock=()=>{this.targetLock?.end();this.currentTargetLock=null;};
@@ -180,6 +181,8 @@ export class ArcadeGame {
    onLock:()=>{this.stopMouseFireCapture();this.freeMousePoint=null;this.centerAim();},
    onUnexpectedUnlock:()=>{this.actions.fire=false;this.pause();},
   });
+  // Keep locked look on the native pointer stream which owns canvas input.
+  // Do not depend on separately generated compatibility mouse events.
   canvas.addEventListener('pointermove',e=>{
    if(!this.running||this.layoutEditing)return;
    if(e.pointerType==='mouse'){
@@ -247,14 +250,15 @@ export class ArcadeGame {
   this.mouse.x=pixels.x;this.mouse.y=pixels.y;this.mouse.valid=true;this.mouse.inside=true;this.updateMouseTarget();
  }
  movementInput(){
-  this.lastMovement=screenToWorld(this.move.x+(this.keys.has('KeyD')||this.keys.has('ArrowRight')?1:0)-(this.keys.has('KeyA')||this.keys.has('ArrowLeft')?1:0),this.move.z+(this.keys.has('KeyS')||this.keys.has('ArrowDown')?1:0)-(this.keys.has('KeyW')||this.keys.has('ArrowUp')?1:0),this.camera.position,this.focus);
+  this.lastMovement=keyboardMovement(this.keys,this.move,this.viewMode,this.cameraYaw);
   return this.lastMovement;
  }
  updateMouseTarget(){
   const p=this.state.actors[0];
   if(this.viewMode==='chase3d'&&(!p.catapultId||!this.mouseControl)){
-   const pixels=!p.catapultId&&this.mouseControl&&!this.pointerLocked()?pointerPixels(this.freeMousePoint,this.renderer.domElement.getBoundingClientRect(),this.w,this.h):null;
-   if(pixels){this.mouse.x=pixels.x;this.mouse.y=pixels.y;this.mouse.valid=true;}else this.centerAim();
+   // Mouse displacement turns the camera. Do not also aim through its old
+   // absolute screen position: this used to apply two different aim systems.
+   this.centerAim();
   }
   if(!this.mouse.valid){this.mouse.targetId=null;return;}
   this.mouseNdc.set(this.mouse.x/this.w*2-1,1-this.mouse.y/this.h*2);this.mouseRay.setFromCamera(this.mouseNdc,this.camera);
@@ -299,7 +303,7 @@ export class ArcadeGame {
   this.currentTargetLock=this.targetLock?.update()||null;
   if(this.currentTargetLock)this.aim={...this.currentTargetLock.direction,distance:this.currentTargetLock.distance};
   const movement=this.movementInput(),kickTargetId=this.pendingKickTargetId;this.pendingKickTargetId=null;
-  const faceAim=!p.catapultId&&(!!this.currentTargetLock||this.viewMode==='overview'&&(this.mouse.valid||touchAim));
+  const faceAim=shouldFaceView(this.viewMode,{mounted:!!p.catapultId,locked:!!this.currentTargetLock,pointerAiming:this.mouse.valid,touchAiming:touchAim});
   return {mx:movement.x,mz:movement.z,ax:this.aim.x,ay:this.aim.y,az:this.aim.z,aiming,faceAim,fire:kickTargetId?false:this.actions.fire,kick:!!kickTargetId||this.actions.kick||this.keys.has('KeyQ'),...(kickTargetId?{kickTargetId}:{}),sabotage:!p.catapultId&&(this.actions.sabotage||this.keys.has('KeyE'))};
  }
  installAutoFire(){
@@ -400,10 +404,11 @@ export class ArcadeGame {
   this.state.actors.forEach((a,i)=>{const m=this.models[i];m.group.visible=!a.eliminated;if(a.eliminated)return;const ground=this.ground(a.x,a.z);let x=a.x,z=a.z,y=ground+a.height+(a.catapultId?.45:0);
    const launch=this.koTimes.get(a.id),age=launch?this.elapsed-launch.time:99;if(age<.65){x+=launch.dx*age*5;z+=launch.dz*age*5;y+=Math.sin(age/.65*Math.PI)*2.5;}
    m.group.position.set(x,y,z);const facing=actorVisualFacing(a,{currentYaw:m.group.rotation.y,manualFire:i===0&&this.actions.fire,autoFire:i===0&&!!this.autoFireTargetId}),active=facing.aiming;const diff=Math.atan2(Math.sin(facing.yaw-m.group.rotation.y),Math.cos(facing.yaw-m.group.rotation.y));m.group.rotation.y+=diff*(1-Math.exp(-dt*22));
-   m.update(dt,{time:this.elapsed,speed:Math.hypot(a.hopX,a.hopZ),building:!!a.sabotageId,hop:a.knockUp>0?{phase:'air',progress:1-a.knockUp/a.knockUpDuration}:a.hop>0?{phase:'air',progress:1-a.hop/RULES.hopDuration}:a.idle>0?{phase:'land',progress:1-a.idle/RULES.landingDuration}:{phase:'idle',progress:0},dead:a.ko,attack:a.kick>0?{type:'kick',phase:1-a.kick/(RULES.kickDuration||.48)}:a.tongue>0||a.shot>0?{type:'tongue',phase:a.tongue>0?1-a.tongue/.22:1-a.shot/RULES.shotInterval}:null});
+   m.update(dt,{time:this.elapsed,speed:Math.hypot(a.hopX,a.hopZ),locomotion:localHopDirection(a.hopX,a.hopZ,m.group.rotation.y),building:!!a.sabotageId,hop:a.knockUp>0?{phase:'air',progress:1-a.knockUp/a.knockUpDuration}:a.hop>0?{phase:'air',progress:1-a.hop/RULES.hopDuration}:a.idle>0?{phase:'land',progress:1-a.idle/RULES.landingDuration}:{phase:'idle',progress:0},dead:a.ko,attack:a.kick>0?{type:'kick',phase:1-a.kick/(RULES.kickDuration||.48)}:a.tongue>0||a.shot>0?{type:'tongue',phase:a.tongue>0?1-a.tongue/.22:1-a.shot/RULES.shotInterval}:null});
    const load=a.load,spit=a.shot>0?Math.sin((1-a.shot/RULES.shotInterval)*Math.PI):0;applyArcadeAppearance(m,{load,spit});
    if(active&&!a.ko&&!a.catapultId){const pitch=clamp(Math.atan2(a.aimY||0,Math.hypot(a.aimX,a.aimZ)),-.5,1.1);m.bones.head.rotation.x-=pitch*.7;m.bones.spine.rotation.x-=pitch*.12;}
-   if(a.hop>0){const direction=Math.atan2(a.hopX,a.hopZ)-m.group.rotation.y,strength=Math.min(1,Math.hypot(a.hopX,a.hopZ)/8.8)*Math.sin((1-a.hop/RULES.hopDuration)*Math.PI);m.bones.spine.rotation.z-=Math.sin(direction)*strength*.1;for(const side of [-1,1])m.bones[`hip${side}`].rotation.z-=Math.sin(direction)*strength*.14;}
+   // The rig now poses all four limbs in the actual hop direction; do not
+   // add a second hip roll here (it would pull planted feet off their targets).
    if(a.dizzyTime>0){m.group.rotation.z=Math.sin(this.elapsed*7)*.17;m.bones.head.rotation.z+=Math.sin(this.elapsed*9)*.2;}else m.group.rotation.z=age<.65?age*6:0;
    m.group.rotation.x=0;if(a.knockUp>0){const progress=1-a.knockUp/a.knockUpDuration,tilt=Math.sin(progress*Math.PI)*.38,direction=Math.atan2(a.impulseX,a.impulseZ)-m.group.rotation.y;m.group.rotation.x=Math.cos(direction)*tilt;m.group.rotation.z-=Math.sin(direction)*tilt;}
    // At an upward limit terrain can bring the eye inside the local frog.
@@ -432,7 +437,7 @@ export class ArcadeGame {
  drawLabels(){this.currentTargetLock=this.running?this.targetLock?.update()||null:null;const c=this.labelCtx;c.clearRect(0,0,this.w,this.h);c.textAlign='center';c.lineJoin='round';c.font='800 18px sans-serif';if(this.running){drawFlyMarkers(this,c);drawRadar(this,this.$('minimap'));}
   this.currentAimScreen=null;this.currentAimCursorScreen=null;this.currentAimPathScreen=[];
   const aimedPlayer=this.state.actors[0],lockedTarget=this.currentTargetLock?.target,lockScreen=lockedTarget?this.project(lockedTarget.x,lockedTarget.y,lockedTarget.z):null;
-  const reticleAnchor=lockScreen?.visible?{pointer:lockScreen}:this.viewMode==='chase3d'&&(this.pointerLocked()||!this.mouseControl)?{centered:true}:this.mouseControl?{pointer:{x:this.mouse.x,y:this.mouse.y}}:{origin:{x:aimedPlayer.x,y:this.ground(aimedPlayer.x,aimedPlayer.z)+PROJECTILE.originHeight,z:aimedPlayer.z},bearing:{x:aimedPlayer.aimX,z:aimedPlayer.aimZ}};
+  const reticleAnchor=lockScreen?.visible?{pointer:lockScreen}:this.viewMode==='chase3d'?{centered:true}:this.mouseControl?{pointer:{x:this.mouse.x,y:this.mouse.y}}:{origin:{x:aimedPlayer.x,y:this.ground(aimedPlayer.x,aimedPlayer.z)+PROJECTILE.originHeight,z:aimedPlayer.z},bearing:{x:aimedPlayer.aimX,z:aimedPlayer.aimZ}};
   this.currentAimReticle=computeReticle(this.currentAimPreview,(x,y,z)=>this.project(x,y,z),this.w,this.h,reticleAnchor);
   if(this.currentAimReticle){const reticle=this.currentAimReticle;this.currentAimScreen={x:reticle.x,y:reticle.y};this.currentAimColor=reticle.color;drawReticle(c,reticle);}
   if(lockScreen?.visible&&this.running){c.save();c.strokeStyle='#183f35';c.lineWidth=5;c.beginPath();c.arc(lockScreen.x,lockScreen.y-23,4,Math.PI,0);c.rect(lockScreen.x-6,lockScreen.y-23,12,9);c.stroke();c.strokeStyle='#e0ffa1';c.lineWidth=2;c.stroke();c.restore();}

@@ -2,9 +2,8 @@ THIRD-PARTY NOTICES — FROG / Creek Dominion
 
 Three.js 0.180.0
 Runtime rendering library, including imported Three.js add-ons.
-Source package: node_modules/three
-The following license is reproduced verbatim from the installed package's LICENSE file.
-It applies to Three.js and does not assign a new license to this project's original source.
+The following license is reproduced from the installed Three.js LICENSE file.
+It applies to Three.js, not the original project source.
 
 The MIT License
 
@@ -28,15 +27,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-
 PROJECT-ORIGINAL MATERIALS
 
 public/art/creek.jpg is original concept artwork generated for this project.
-It is title-screen artwork, not a screenshot of the implemented game.
+It is concept/title artwork, not a screenshot of the implemented game.
 
 The animal meshes, rigging, animation code, procedural environment and synthesized
 sound effects were created for this project. No external animal model assets,
 stock animal animations or third-party audio recordings are included.
 
 No new license is selected here for the user's original project source or artwork.
-
