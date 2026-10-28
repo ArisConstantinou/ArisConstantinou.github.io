@@ -27,9 +27,9 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1
-      - name: Export isolated source and dependencies for local controls testing
+      - name: Export isolated source and complete dependencies for local testing
         run: |
-          tar --exclude=dist -czf frog-controls-workspace.tar.gz frog/source frog/index.html
+          tar -czf frog-controls-workspace.tar.gz frog/source frog/index.html
           ls -lh frog-controls-workspace.tar.gz
       - uses: actions/upload-artifact@v4
         with:
