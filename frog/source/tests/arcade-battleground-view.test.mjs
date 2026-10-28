@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {BattlegroundView,battlegroundRoadGeometry} from '../src/arcade-battleground-view.js';
+import {BattlegroundView,battlegroundRoadGeometry,battlegroundRoadNetworkGeometry} from '../src/arcade-battleground-view.js';
 import {BATTLEGROUND_AREAS,BATTLEGROUND_ROUTES,battlegroundHeight,routeSample} from '../src/arcade-battleground.js';
 import {ENCLOSURES,ARENA_ROCKS,createHouseFloors,createCatapultFloors} from '../src/arcade-bases.js';
 import {createWorld} from '../src/world.js';
@@ -69,16 +69,16 @@ test('all road triangle interiors clear the real coarse terrain mesh with bounde
  const previous=globalThis.document;globalThis.document={createElement(){return {width:0,height:0,getContext(){return paintContext}}}};let world;
  try{world=createWorld(new THREE.Scene(),{},{natural:true,seed:731,discoveryDecor:false,terrainProfile:battlegroundHeight});}finally{if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
  t.after(()=>world.dispose());const terrain=(x,z)=>world.getTerrainHeight(x,z),floors=[...createHouseFloors(terrain),...createCatapultFloors(terrain)];
- for(const route of BATTLEGROUND_ROUTES){
-  const geometry=battlegroundRoadGeometry(route,terrain,{floors}),position=geometry.getAttribute('position'),indices=geometry.index;
+ {
+  const geometry=battlegroundRoadNetworkGeometry(BATTLEGROUND_ROUTES,terrain,{floors}),position=geometry.getAttribute('position'),indices=geometry.index;
   for(let at=0;at<indices.count;at+=3){
    const a=indices.getX(at),b=indices.getX(at+1),c=indices.getX(at+2);
    for(const [u,v,w] of [[1/3,1/3,1/3],[.5,.5,0],[.5,0,.5],[0,.5,.5],[.2,.3,.5],[.3,.5,.2],[.5,.2,.3]]){
     const x=position.getX(a)*u+position.getX(b)*v+position.getX(c)*w,z=position.getZ(a)*u+position.getZ(b)*v+position.getZ(c)*w,y=position.getY(a)*u+position.getY(b)*v+position.getY(c)*w;
-    assert.ok(y-terrain(x,z)>.002,`${route.id}: real ground crosses a road triangle near ${x},${z}`);
+    assert.ok(y-terrain(x,z)>.002,`real ground crosses the unified road surface near ${x},${z}`);
    }
   }
-  assert.ok(geometry.userData.maxLift+.028<.12,`${route.id}: a large constant lift must not hide a topology error`);
+  assert.ok(geometry.userData.maxLift+.028<.12,'a large constant lift must not hide a topology error');
   geometry.dispose();
  }
 });

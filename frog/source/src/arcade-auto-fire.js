@@ -1,4 +1,5 @@
 import {traceShot} from './arcade-model.js';
+import {guardActive} from './arcade-guards.js';
 
 // Auto-fire is a held touch intent, not target tracking. The caller owns the
 // active gameplay/finger lifecycle; this helper never rotates or redirects aim.
@@ -15,8 +16,9 @@ export function resolveAutoFire({state,actor,input={},active=false,aiming=false}
  // and exact range/height/cover rules, including the muzzle offset.
  // Do not enlarge a target here: that would fire flies that actually miss.
  const trace=traceShot(state,{...actor,aimX:input.ax,aimY:ay,aimZ:input.az,aim3D:Number.isFinite(input.ay)});
- const target=trace.kind==='actor'?state.actors.find(candidate=>candidate.id===trace.targetId):null;
+ const target=trace.kind==='actor'?state.actors.find(candidate=>candidate.id===trace.targetId):trace.kind==='guard'?state.guards?.find(candidate=>candidate.id===trace.targetId):null;
  if(!target||target.id===actor.id||target.ko||target.eliminated||target.invuln>0||target.spawnShield>0)return {...off,trace};
+ if(trace.kind==='guard'&&(!guardActive(target)||target.owner===actor.id))return {...off,trace};
 
  // Keep this as fire intent during a shot cooldown. The simulation decrements
  // that timer before shoot(), preserving the same cadence as held manual fire.

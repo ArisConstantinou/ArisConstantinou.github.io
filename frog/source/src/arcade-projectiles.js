@@ -1,5 +1,6 @@
 import {WALLS} from './arcade-bases.js';
 import {FROG_BODY,FROG_HIT_VOLUMES,actorBodyBase,actorBodyYaw} from './arcade-actor-bounds.js';
+import {GUARD_BODY,guardActive} from './arcade-guards.js';
 
 export const PROJECTILE=Object.freeze({radius:.1,muzzleOffset:.8,originHeight:.45,bodyHeight:FROG_BODY.height,terrainStep:.12});
 const EPS=1e-9,contexts=new WeakMap();
@@ -104,7 +105,7 @@ export function traceWorldSegment(state,a,b,{obstacles=[],ignoreId,hitActors=tru
  let best=null;
  const consider=(contact,kind,extra={},offset=0)=>{
   if(!contact)return;const t=offset+contact.t*(1-offset);if(t< -EPS||t>1+EPS||best&&t>=best.t-EPS)return;
-  best={...contact,...extra,t,kind,targetId:extra.targetId??null,blocked:kind!=='actor'};
+  best={...contact,...extra,t,kind,targetId:extra.targetId??null,blocked:kind!=='actor'&&kind!=='guard'};
  };
  const geometry=solids(state,obstacles);
  if(solidFrom<=length){
@@ -116,6 +117,13 @@ export function traceWorldSegment(state,a,b,{obstacles=[],ignoreId,hitActors=tru
  if(hitActors)for(const actor of state.actors){
   if(actor.id===ignoreId||actor.ko||actor.eliminated)continue;
   consider(actorContact(state,a,b,actor),'actor',{targetId:actor.id});
+ }
+ if(hitActors)for(const guard of state.guards||[]){
+  // A storage beetle is friendly to its owner; it cannot absorb an owner's
+  // shot or become their camera/automatic-fire target.
+  if(!guardActive(guard)||guard.id===ignoreId||guard.owner===ignoreId)continue;
+  const padding=PROJECTILE.radius,center={x:guard.x,y:projectileGround(state,guard.x,guard.z)+GUARD_BODY.centerY,z:guard.z};
+  consider(ellipsoidContact(a,b,center,{x:GUARD_BODY.radius+padding,y:GUARD_BODY.height/2+padding,z:GUARD_BODY.radius+padding}),'guard',{targetId:guard.id});
  }
  if(terrain)consider(terrainContact(state,a,b),'terrain');
  consider(boundaryContact(a,b,arenaRadius),'boundary');

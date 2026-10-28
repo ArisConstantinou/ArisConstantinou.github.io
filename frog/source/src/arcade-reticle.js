@@ -1,20 +1,34 @@
-// One pixel-sized marker for the first real projectile contact, or its range
-// endpoint. An edge marker points toward an offscreen endpoint; it is not an
-// impact at the clamped screen position. No aim input is changed here.
+// The crosshair belongs to the input. Physical contact changes its feedback,
+// never its position: a stationary mouse must remain stationary while the
+// camera, frog and things under the pointer move.
 export const RETICLE_COLORS=Object.freeze({clear:'#f4ffdd',target:'#c4ff83',blocked:'#ffbb73'});
+export const RETICLE_BEARING_DISTANCE=8;
 const SOLID_KINDS=new Set(['wall','rock','terrain','boundary']);
 const finitePoint=point=>point&&Number.isFinite(point.x)&&Number.isFinite(point.y)&&Number.isFinite(point.z);
+const finitePixels=point=>point&&Number.isFinite(point.x)&&Number.isFinite(point.y);
 
-// project(x,y,z) returns pixel x/y, visible, and preferably behind. Explicit
-// camera-space behind information lets us undo perspective's mirrored X/Y.
-export function computeReticle(preview,project,width,height,{inset=22}={}){
- if(!finitePoint(preview)||typeof project!=='function'||!Number.isFinite(width)||!Number.isFinite(height)||width<=0||height<=0)return null;
- const projected=project(preview.x,preview.y,preview.z);
- if(!projected||!Number.isFinite(projected.x)||!Number.isFinite(projected.y))return null;
+// pointer is already in the label canvas's CSS-pixel coordinate space. Center
+// is used for locked mouse/touch chase. A directional stick supplies a standing
+// origin and bearing; its marker stays a fixed distance away, not at a wall or
+// target whose changing depth would make it jump. Only that bearing marker may
+// use an edge chevron. Mouse pixels are never clamped or smoothed.
+export function computeReticle(preview,project,width,height,{pointer,centered=false,origin,bearing,distance=RETICLE_BEARING_DISTANCE,inset=22}={}){
+ if(!finitePoint(preview)||!Number.isFinite(width)||!Number.isFinite(height)||width<=0||height<=0)return null;
+ const physical=typeof project==='function'?project(preview.x,preview.y,preview.z):null;
+ const projection=finitePixels(physical)?{x:physical.x,y:physical.y}:null;
+ let anchor='center',anchorWorld=null,projected={x:width/2,y:height/2,visible:true};
+ if(!centered&&finitePixels(pointer)){
+  anchor='pointer';projected={x:pointer.x,y:pointer.y,visible:true};
+ }else if(!centered&&finitePoint(origin)&&Number.isFinite(bearing?.x)&&Number.isFinite(bearing?.z)&&Math.hypot(bearing.x,bearing.z)>1e-8&&typeof project==='function'){
+  const length=Math.hypot(bearing.x,bearing.z),reach=Number.isFinite(distance)&&distance>0?distance:RETICLE_BEARING_DISTANCE;
+  anchor='bearing';anchorWorld={x:origin.x+bearing.x/length*reach,y:origin.y,z:origin.z+bearing.z/length*reach};
+  projected=project(anchorWorld.x,anchorWorld.y,anchorWorld.z);
+  if(!finitePixels(projected))return null;
+ }
  const margin=Math.max(0,Math.min(Number.isFinite(inset)?inset:22,Math.max(0,(Math.min(width,height)-2)/2)));
  const centerX=width/2,centerY=height/2,halfWidth=centerX-margin,halfHeight=centerY-margin;
- const behind=projected.behind===true;
- const offscreen=behind||projected.visible===false||projected.x<margin||projected.x>width-margin||projected.y<margin||projected.y>height-margin;
+ const behind=anchor==='bearing'&&projected.behind===true;
+ const offscreen=anchor==='bearing'&&(behind||projected.visible===false||projected.x<margin||projected.x>width-margin||projected.y<margin||projected.y>height-margin);
  let x=projected.x,y=projected.y,edgeAngle=null;
  if(offscreen){
   let dx=(projected.x-centerX)*(behind?-1:1),dy=(projected.y-centerY)*(behind?-1:1);
@@ -26,9 +40,9 @@ export function computeReticle(preview,project,width,height,{inset=22}={}){
  }
  const sourceKind=typeof preview.kind==='string'?preview.kind:null;
  const blocked=preview.blocked===true||SOLID_KINDS.has(sourceKind);
- const kind=blocked?'blocked':sourceKind==='actor'||preview.targetId!=null?'target':'clear';
+ const kind=blocked?'blocked':sourceKind==='actor'||sourceKind==='guard'||preview.targetId!=null?'target':'clear';
  return {x,y,color:RETICLE_COLORS[kind],kind,sourceKind,offscreen,edgeAngle,behind,
-  endpoint:{x:preview.x,y:preview.y,z:preview.z},projection:{x:projected.x,y:projected.y}};
+  anchor,anchorWorld,anchorProjection:{x:projected.x,y:projected.y},endpoint:{x:preview.x,y:preview.y,z:preview.z},projection};
 }
 
 export function drawReticle(context,reticle){

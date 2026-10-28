@@ -146,6 +146,65 @@ export function battlegroundRoadGeometry(route,ground,options={},refinement=0){
  return geometry;
 }
 
+// Build the union of every route on one shared triangulation. Separate road
+// ribbons have unrelated drape lifts and edge colors at a junction; even tiny
+// render offsets leave intersecting triangles and dark seams. Each grid face
+// below exists only once, regardless of how many routes meet there.
+export function battlegroundRoadNetworkGeometry(routes,ground,options={},refinement=0){
+ const spacing=(options.spacing||.18)/2**refinement,segments=[],cells=new Set();
+ for(const route of routes)for(let i=1;i<route.points.length;i++){
+  const a=route.points[i-1],b=route.points[i],dx=b[0]-a[0],dz=b[1]-a[1],lengthSq=dx*dx+dz*dz;
+  if(lengthSq<1e-12)continue;
+  const halfWidth=route.width*.51,padding=halfWidth*1.04+spacing;
+  segments.push({x:a[0],z:a[1],dx,dz,lengthSq,halfWidth});
+  for(let row=Math.floor((Math.min(a[1],b[1])-padding)/spacing);row<=Math.floor((Math.max(a[1],b[1])+padding)/spacing);row++)
+   for(let column=Math.floor((Math.min(a[0],b[0])-padding)/spacing);column<=Math.floor((Math.max(a[0],b[0])+padding)/spacing);column++)cells.add(`${column}:${row}`);
+ }
+ const field=(x,z)=>{
+  let clearance=-Infinity,ratio=Infinity;
+  for(const segment of segments){
+   const t=Math.max(0,Math.min(1,((x-segment.x)*segment.dx+(z-segment.z)*segment.dz)/segment.lengthSq)),cx=segment.x+segment.dx*t,cz=segment.z+segment.dz*t;
+   const distance=Math.hypot(x-cx,z-cz),width=segment.halfWidth*(1+.035*Math.sin(cx*3.2+cz*1.8));
+   clearance=Math.max(clearance,width-distance);ratio=Math.min(ratio,distance/width);
+  }
+  return {clearance,ratio};
+ };
+ const positions=[],colors=[],uv=[],indices=[],vertices=new Map(),samples=new Map(),sand=new THREE.Color('#b39c6d'),edge=new THREE.Color('#65764d');
+ const sample=(column,row)=>{
+  const key=`${column}:${row}`;if(samples.has(key))return samples.get(key);
+  const x=column*spacing,z=row*spacing,point={x,z,...field(x,z)};samples.set(key,point);return point;
+ };
+ const vertex=point=>{
+  const key=`${point.x.toFixed(8)}:${point.z.toFixed(8)}`;if(vertices.has(key))return vertices.get(key);
+  const index=positions.length/3,ratio=point.ratio??field(point.x,point.z).ratio,blend=Math.max(0,Math.min(1,(ratio-.48)/.52)),grain=.95+.045*Math.sin(point.x*4.1-point.z*5.3);
+  const color=sand.clone().lerp(edge,blend*blend*(3-2*blend)).multiplyScalar(grain);
+  positions.push(point.x,ground(point.x,point.z)+ROAD_CLEARANCE,point.z);colors.push(color.r,color.g,color.b);uv.push(point.x*.8,point.z*.8);vertices.set(key,index);return index;
+ };
+ const crossing=(a,b)=>{
+  const t=a.clearance/(a.clearance-b.clearance);
+  return {x:a.x+(b.x-a.x)*t,z:a.z+(b.z-a.z)*t,clearance:0};
+ };
+ const triangle=points=>{
+  const polygon=[];let previous=points.at(-1),before=previous.clearance>=0;
+  for(const current of points){const inside=current.clearance>=0;if(inside!==before)polygon.push(crossing(previous,current));if(inside)polygon.push(current);previous=current;before=inside;}
+  if(polygon.length<3)return;
+  const ids=polygon.map(vertex);
+  for(let i=1;i<ids.length-1;i++){
+   const a=polygon[0],b=polygon[i],c=polygon[i+1],area=(b.x-a.x)*(c.z-a.z)-(b.z-a.z)*(c.x-a.x);
+   if(Math.abs(area)>1e-10)indices.push(ids[0],ids[i],ids[i+1]);
+  }
+ };
+ for(const key of cells){
+  const [column,row]=key.split(':').map(Number),a=sample(column,row),b=sample(column,row+1),c=sample(column+1,row),d=sample(column+1,row+1);
+  if(Math.max(a.clearance,b.clearance,c.clearance,d.clearance)<0)continue;
+  triangle([a,b,c]);triangle([c,b,d]);
+ }
+ const visibleIndices=clipRoadFloors(positions,colors,uv,indices,ground,options.floors),maxLift=drapeRoad(positions,visibleIndices,ground);
+ if(maxLift>.082&&refinement<2)return battlegroundRoadNetworkGeometry(routes,ground,options,refinement+1);
+ const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.setIndex(visibleIndices);geometry.computeVertexNormals();geometry.computeBoundingSphere();
+ geometry.userData={network:true,routeCount:routes.length,maxLift,spacing};return geometry;
+}
+
 function petalGeometry(){
  const positions=[0,.055,.36,0,0,0,.16,.02,.1,.29,.06,.36,.22,.09,.64,0,.1,.8,-.22,.09,.64,-.29,.06,.36,-.16,.02,.1],indices=[];
  for(let i=1;i<=8;i++)indices.push(0,i===8?1:i+1,i);
@@ -193,11 +252,11 @@ export class BattlegroundView{
  }
  buildRoutes(){
   const random=randomFor(1412),stones=[],seen=new Set();
-  for(const [routeIndex,route] of BATTLEGROUND_ROUTES.entries()){
-   const terrain=(x,z)=>this.game.world?.getTerrainHeight?.(x,z)??this.ground(x,z),geometry=battlegroundRoadGeometry(route,terrain,{floors:this.game.houseFloors});this.geometries.add(geometry);
-   const mesh=new THREE.Mesh(geometry,this.material.road);mesh.name=`Μονοπάτι · ${route.id}`;mesh.receiveShadow=true;mesh.userData.routeId=route.id;mesh.userData.decorativeOnly=true;
-   // A sub-centimetre decal offset orders overlapping junctions without flicker.
-   mesh.position.y=routeIndex*.0005;this.group.add(mesh);this.routes.set(route.id,mesh);this.metrics.drawCalls++;
+  const terrain=(x,z)=>this.game.world?.getTerrainHeight?.(x,z)??this.ground(x,z),geometry=battlegroundRoadNetworkGeometry(BATTLEGROUND_ROUTES,terrain,{floors:this.game.houseFloors});this.geometries.add(geometry);
+  const mesh=new THREE.Mesh(geometry,this.material.road);mesh.name='Ενιαίο δίκτυο μονοπατιών';mesh.receiveShadow=true;mesh.userData.routeIds=BATTLEGROUND_ROUTES.map(route=>route.id);mesh.userData.decorativeOnly=true;
+  this.roadMesh=mesh;this.group.add(mesh);this.metrics.drawCalls++;
+  for(const route of BATTLEGROUND_ROUTES){
+   this.routes.set(route.id,mesh);
    const samples=sampleRoute(route);
    for(let i=2;i<samples.length-2;i+=6)for(const side of [-1,1]){
     if(random()>.78*this.density)continue;const point=samples[i],offset=side*(route.width/2+.56+random()*.22),x=point.x+point.nx*offset,z=point.z+point.nz*offset,key=`${Math.round(x*2)}:${Math.round(z*2)}`;

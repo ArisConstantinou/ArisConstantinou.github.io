@@ -1,5 +1,7 @@
 import {Ray,Vector3} from 'three';
 import {projectileOrigin,traceWorldRay} from './arcade-model.js';
+import {projectileGround} from './arcade-projectiles.js';
+import {guardActive,GUARD_BODY} from './arcade-guards.js';
 
 const contexts=new WeakMap();
 const finitePoint=point=>point&&['x','y','z'].every(axis=>Number.isFinite(point[axis]));
@@ -13,12 +15,13 @@ const scratchFor=game=>{
 // rotates the camera, redirects the shot, or replaces the player's stored aim.
 export function autoFireTargetVisible(game,targetId,{directional=false}={}){
  if(!game||!targetId)return false;
+ const player=game.state?.actors?.[0],body=game.state?.actors?.find(candidate=>candidate.id===targetId)||game.state?.guards?.find(candidate=>candidate.id===targetId);
+ if(!player||!body||body.id===player.id||body.ko||body.eliminated||body.kind==='guard'&&(!guardActive(body)||body.owner===player.id))return false;
  const scratch=scratchFor(game);
  let ray,target;
  if(directional){
-  const player=game.state?.actors?.[0],actor=game.state?.actors?.find(candidate=>candidate.id===targetId);
-  if(!player||!actor||actor.id===player.id||actor.ko||actor.eliminated||!finitePoint(game.camera?.position))return false;
-  target=projectileOrigin(game.state,actor);
+  if(!finitePoint(game.camera?.position))return false;
+  target=body.kind==='guard'?{x:body.x,y:projectileGround(game.state,body.x,body.z)+GUARD_BODY.centerY,z:body.z}:projectileOrigin(game.state,body);
   if(!finitePoint(target))return false;
   ray=scratch.ray;ray.origin.copy(game.camera.position);ray.direction.set(target.x,target.y,target.z).sub(ray.origin);
   const range=ray.direction.length();if(range<1e-8)return false;

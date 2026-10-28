@@ -4,6 +4,13 @@ const dot=(a,b)=>a.x*b.x+a.y*b.y+a.z*b.z;
 const subtract=(a,b)=>({x:a.x-b.x,y:a.y-b.y,z:a.z-b.z});
 const along=(origin,direction,distance)=>({x:origin.x+direction.x*distance,y:origin.y+direction.y*distance,z:origin.z+direction.z*distance});
 
+// DOM input and the label canvas must use one coordinate space. In particular,
+// device pixel ratio or an offset/scaled canvas must not offset the crosshair.
+export function pointerPixels(client,rect,width,height){
+ if(!client||!rect||![client.x,client.y,rect.left,rect.top,rect.width,rect.height,width,height].every(Number.isFinite)||rect.width<=0||rect.height<=0||width<=0||height<=0)return null;
+ return {x:(client.x-rect.left)*width/rect.width,y:(client.y-rect.top)*height/rect.height};
+}
+
 // Resolve depth along the actual perspective cursor ray, then aim from the
 // simulation's muzzle. Camera-to-muzzle parallax must not flatten shot pitch.
 // `hits` contains eligible collision hits, either {x,y,z} or {point:{x,y,z}}.
@@ -67,9 +74,9 @@ export function resolveOverviewAim({rayOrigin,rayDirection,muzzle,planeHeight,ra
   const depth=dot(subtract(target,camera),ray);
   if(depth>EPSILON&&depth<nearest){first=hit;nearest=depth;}
  }
- if(first?.kind==='actor'&&first.targetId!=null){
+ if((first?.kind==='actor'||first?.kind==='guard')&&first.targetId!=null){
   const result=resolveMouseAim({rayOrigin:camera,rayDirection:ray,muzzle:origin,range:reach,hits:[first]});
-  if(result.source==='hit')return {...result,source:'actor',targetId:first.targetId};
+  if(result.source==='hit')return {...result,source:first.kind,targetId:first.targetId};
  }
  const t=Math.abs(ray.y)>EPSILON?(height-camera.y)/ray.y:-1;
  const target=t>EPSILON?along(camera,ray,t):null;

@@ -14,6 +14,8 @@ function quietBattle(){
  // Keep unrelated combat out of timing fixtures. Every active attacker below
  // still uses the real model, navigation, hop cadence and objective updates.
  for(const actor of state.actors){actor.ko=true;actor.respawnTime=999;}
+ // The navigation/respawn timing comparison assumes storage guards were defeated.
+ for(const guard of state.guards)Object.assign(guard,{health:0,mode:'disabled',respawnTime:20});
  return state;
 }
 

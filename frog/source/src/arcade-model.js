@@ -5,12 +5,13 @@ import {PROJECTILE,normalizeAim,worldRay,projectileLaunch,projectilePoint,traceP
 import {FROG_BODY,actorBodiesOverlapHeight} from './arcade-actor-bounds.js';
 import {resetBotAim,planBotShot} from './arcade-bot-combat.js';
 import {ARENA_RADIUS,ARENA_MOVE_RADIUS,BATTLEGROUND_SWARMS} from './arcade-battleground.js';
+import {GUARD_BODY,createGuards,guardActive,guardOverlapsActorHeight,hitGuard,stepGuards,restoreGuards,removeBaseGuards} from './arcade-guards.js';
 export {setProjectileWorld,projectileOrigin} from './arcade-projectiles.js';
 
-export const ARCADE_VERSION = '4.3.12';
+export const ARCADE_VERSION = '4.3.13';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
-export const RULES = Object.freeze({radius:ARENA_RADIUS,capacity:60,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:1.95,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});
+export const RULES = Object.freeze({radius:ARENA_RADIUS,capacity:90,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:1.95,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});
 export const OBSTACLES = ARENA_ROCKS;
 const ORIGINAL_SWARM_POINTS=[[0,3.5],[-13,8],[13,1],[-12,-11],[10,-14],[2,17]];
 export const FLIES_PER_SWARM=12;
@@ -32,7 +33,7 @@ const baseGeometry=b=>BASES.find(g=>g.id===b?.id);
 export function moveBody(a,dx,dz){
  const next=resolveArenaMove(a,dx,dz,{arenaRadius:ARENA_MOVE_RADIUS});a.x=next.x;a.z=next.z;
 }
-const overlappingHeight=(s,a,b,padding=0)=>actorBodiesOverlapHeight(a,b,{groundA:projectileGround(s,a.x,a.z),groundB:projectileGround(s,b.x,b.z),padding});
+const overlappingHeight=(s,a,b,padding=0)=>b.kind==='guard'?guardOverlapsActorHeight(b,a,(x,z)=>projectileGround(s,x,z),padding):actorBodiesOverlapHeight(a,b,{groundA:projectileGround(s,a.x,a.z),groundB:projectileGround(s,b.x,b.z),padding});
 // Small symmetric body contacts keep active frogs distinct. Scenery still
 // constrains every correction; a neighbour can never push a frog through a wall.
 export function resolveActorContacts(s){
@@ -62,15 +63,19 @@ function placeFly(s,f){
  f.x=patch.x+Math.sin(angle)*r;f.z=patch.z+Math.cos(angle)*r;f.wait=0;f.phase=rng(s)*Math.PI*2;
 }
 export function newRound(seed=731){
- const s={version:2,swarmVersion:1,seed,time:0,status:'playing',phase:'countdown',intro:RULES.introSeconds,actors:BASES.map(b=>actor(b.owner,b.spawn.x,b.spawn.z,b.spawnHeading)),bases:BASES.map(b=>({id:b.id,owner:b.owner,x:b.x,z:b.z,destroyed:false,progress:0,attackerId:null})),flies:[],catapults:createCatapults(),shells:[],bullets:[],events:[],nextId:1,stats:{caught:0,shots:0,hits:0,kos:0,basesDestroyed:0}};
+ const s={version:2,swarmVersion:1,guardVersion:1,seed,time:0,status:'playing',phase:'countdown',intro:RULES.introSeconds,actors:BASES.map(b=>actor(b.owner,b.spawn.x,b.spawn.z,b.spawnHeading)),bases:BASES.map(b=>({id:b.id,owner:b.owner,x:b.x,z:b.z,destroyed:false,progress:0,attackerId:null})),guards:createGuards(),flies:[],catapults:createCatapults(),shells:[],bullets:[],events:[],nextId:1,stats:{caught:0,shots:0,hits:0,kos:0,basesDestroyed:0}};
  for(let i=0;i<FLY_COUNT;i++){const f={id:i,swarmId:'',x:0,z:0,wait:0,phase:0};placeFly(s,f);s.flies.push(f);}
  return s;
 }
 export function fireRing(x,y){const d=Math.hypot(x,y);return {x:d>.08?x/Math.max(1,d):0,z:d>.08?y/Math.max(1,d):0,fire:d>=.72};}
 export function kickTarget(s,a,targetId=undefined){
  if(!a||!Array.isArray(s?.actors))return null;
- // An explicit contextual target never falls back to a different nearby body.
- return s.actors.filter(b=>b.id!==a.id&&(targetId===undefined||b.id===targetId)&&!b.ko&&!b.eliminated&&distance(a,b)<=RULES.kickRange&&overlappingHeight(s,a,b,.1)&&clearPickupPath(a,b)).sort((b,c)=>distance(a,b)-distance(a,c))[0]||null;
+ // Preserve Q's ordinary frog priority, including the dizzy target badge.
+ // Guards are the close defensive fallback or an explicitly requested body.
+ const reachable=b=>(targetId===undefined||b.id===targetId)&&distance(a,b)<=RULES.kickRange&&overlappingHeight(s,a,b,.1)&&clearPickupPath(a,b);
+ const frog=s.actors.filter(b=>b.id!==a.id&&!b.ko&&!b.eliminated&&reachable(b)).sort((b,c)=>distance(a,b)-distance(a,c))[0];
+ if(frog)return frog;
+ return (s.guards||[]).filter(b=>guardActive(b)&&b.owner!==a.id&&reachable(b)).sort((b,c)=>distance(a,b)-distance(a,c))[0]||null;
 }
 export function canKick(s,a,targetId=undefined){
  if(s?.status!=='playing'||s.phase!=='battle'||!a||a.ko||a.eliminated||a.dizzyTime>0||a.hit>0||a.catapultId||a.knockUp>0||a.kick>0||a.kickCooldown>0)return false;
@@ -102,7 +107,7 @@ export function traceShot(s,a,range=RULES.projectileSpeed*RULES.projectileLifeti
 }
 function projectileImpact(s,bullet,contact){
  Object.assign(bullet,{x:contact.x,y:contact.y,z:contact.z,life:0});
- if(contact.kind==='actor'){const target=s.actors.find(a=>a.id===contact.targetId);if(target)hit(s,target,bullet);}
+ if(contact.kind==='actor'||contact.kind==='guard'){const target=contact.kind==='guard'?s.guards?.find(g=>g.id===contact.targetId):s.actors.find(a=>a.id===contact.targetId);if(target)hit(s,target,bullet);}
  s.events.push({type:'splat',x:bullet.x,y:bullet.y,z:bullet.z,wall:contact.kind==='wall'||contact.kind==='rock',kind:contact.kind,normal:contact.normal,dx:bullet.dx,dy:bullet.dy,dz:bullet.dz});
 }
 export function shoot(s,a){
@@ -125,6 +130,7 @@ function knockOut(s,a,b){
  s.events.push({type:'ko',id:a.id,by:b.owner,x:a.x,z:a.z,dx:b.dx,dz:b.dz});if(b.owner==='player'&&a.id!=='player')s.stats.kos++;
 }
 export function hit(s,a,b){
+ if(a?.kind==='guard')return hitGuard(s,a,b);
  if(a.ko||a.eliminated||a.invuln>0||a.spawnShield>0)return false;
  const startHeight=Math.max(0,a.height),direction=norm(finite(b.dx),finite(b.dz)),force=clamp(finite(b.force,5),0,30);let damage=clamp(Math.floor(finite(b.damage,1)),1,9);
  stopSabotage(s,a,'hit');a.sabotageRecovery=RULES.sabotageRecovery;resetBotAim(a);a.aiShotReady=Math.max(a.aiShotReady,.4);
@@ -141,8 +147,8 @@ export function kick(s,a,targetId=undefined){
  const d=norm(target.x-a.x,target.z-a.z);a.aimX=d.x;a.aimY=0;a.aimZ=d.z;a.aim3D=false;a.kick=RULES.kickDuration;a.kickCooldown=RULES.kickCooldown;a.kickPending=true;a.kickId=target.id;a.spawnShield=0;a.revealedTime=RULES.revealSeconds;s.events.push({type:'kick',id:a.id});return true;
 }
 function settleKick(s,a){
- a.kickPending=false;const t=s.actors.find(b=>b.id===a.kickId);
- if(!t||t.ko||t.eliminated||distance(a,t)>RULES.kickRange+.25||!overlappingHeight(s,a,t,.1)||!clearPickupPath(a,t))return;
+ a.kickPending=false;const t=s.actors.find(b=>b.id===a.kickId)||s.guards?.find(g=>g.id===a.kickId);
+ if(!t||t.ko||t.eliminated||t.kind==='guard'&&!guardActive(t)||distance(a,t)>RULES.kickRange+.25||!overlappingHeight(s,a,t,.1)||!clearPickupPath(a,t))return;
  const d=norm(t.x-a.x,t.z-a.z);hit(s,t,{owner:a.id,dx:d.x,dz:d.z,damage:1,force:14});
 }
 export function sabotageTarget(s,a){
@@ -151,6 +157,7 @@ export function sabotageTarget(s,a){
 }
 function destroyBase(s,b,attacker){
  b.destroyed=true;b.progress=RULES.sabotageSeconds;b.attackerId=null;attacker.sabotageId=null;
+ removeBaseGuards(s,b.id);
  const owner=s.actors.find(a=>a.id===b.owner);
  if(owner){stopSabotage(s,owner,'eliminated');releaseCatapult(s,owner);owner.eliminated=true;owner.ko=true;owner.respawnTime=0;owner.ammo=0;owner.dizzyTime=0;owner.hop=0;owner.height=0;owner.knockUp=0;}
  if(attacker.id==='player')s.stats.basesDestroyed++;
@@ -177,7 +184,7 @@ function navigateIntent(a,goal,extra={}){const move=navigateTo(a,goal);return {m
 const resetEnemyAim=resetBotAim;
 function combatIntent(s,a,target){
  const d=distance(a,target),to=norm(target.x-a.x,target.z-a.z);
- const source=projectileOrigin(s,a),body=projectileOrigin(s,target),vertical=(body.y-source.y)/Math.max(.01,d);
+ const source=projectileOrigin(s,a),body=target.kind==='guard'?{y:projectileGround(s,target.x,target.z)+GUARD_BODY.centerY}:projectileOrigin(s,target),vertical=(body.y-source.y)/Math.max(.01,d);
  if(a.brain<=0){a.brain=.7+rng(s)*.5;a.decision=rng(s)>.5?1:-1;}
  let fire=false;
  if(d<16&&a.ammo>0&&a.kick<=0&&clearPickupPath(a,target)){
@@ -190,13 +197,13 @@ function combatIntent(s,a,target){
  // A short physical kick needs planted feet; retreating throughout its windup
  // would make every newly corrected close-range strike miss its own target.
  if(a.kick>0||closeKick){mx=0;mz=0;}
- return {mx,mz,aiming:true,ax:a.aiCharging||fire?a.aiAimX:to.x,ay:a.aiCharging||fire?finite(a.aiAimY):vertical,az:a.aiCharging||fire?a.aiAimZ:to.z,fire,kick:closeKick};
+ return {mx,mz,aiming:true,ax:a.aiCharging||fire?a.aiAimX:to.x,ay:a.aiCharging||fire?finite(a.aiAimY):vertical,az:a.aiCharging||fire?a.aiAimZ:to.z,fire,kick:closeKick,...(closeKick&&target.kind==='guard'?{kickTargetId:target.id}:{})};
 }
 export function rivalIntent(s,a){
  if(s.phase!=='battle'||a.ko||a.eliminated||a.dizzyTime>0||a.knockUp>0){resetEnemyAim(a);return {};}
  if(a.hit>0){resetEnemyAim(a);const away=norm(a.impulseX,a.impulseZ);return {mx:away.x,mz:away.z,aiming:false};}
  const home=ownBase(s,a),homeGeometry=baseGeometry(home);
- const seen=s.actors.filter(b=>b!==a&&canDetect(a,b)).sort((b,c)=>distance(a,b)-distance(a,c));
+ const seen=[...s.actors.filter(b=>b!==a&&canDetect(a,b)),...(s.guards||[]).filter(g=>g.owner!==a.id&&guardActive(g)&&canDetect(a,g))].sort((b,c)=>distance(a,b)-distance(a,c));
  // Keep a visible opponent while fighting, instead of snapping between two
  // nearly equidistant frogs and reading a fresh perfect aim every frame.
  const target=seen.find(b=>b.id===a.aiTargetId&&distance(a,b)<16)||seen[0],d=target?distance(a,target):Infinity;
@@ -206,8 +213,8 @@ export function rivalIntent(s,a){
   const c=s.catapults.find(c=>c.id===a.catapultId),to=norm(target.x-a.x,target.z-a.z);
   return {aiming:true,ax:to.x,az:to.z,throwStone:c?.loaded&&a.catapultAim<=0?{x:target.x,z:target.z}:undefined};
  }
- if(a.ammo<6)a.refilling=true;
- if(a.ammo>=48)a.refilling=false;
+ if(a.ammo<RULES.capacity*.1)a.refilling=true;
+ if(a.ammo>=RULES.capacity*.8)a.refilling=false;
  if(a.refilling&&home&&!home.destroyed){
   if(distance(a,homeGeometry.stock)<=RULES.pickupRange-.35&&clearPickupPath(a,homeGeometry.stock)){
    if(target&&d<5&&a.ammo>0)return combatIntent(s,a,target);
@@ -230,6 +237,12 @@ export function rivalIntent(s,a){
   a.raidId=(enemyBases.find(b=>b.owner===preferred)||enemyBases[0])?.id||null;
  }
  const raid=s.bases.find(b=>b.id===a.raidId),raidStock=baseGeometry(raid)?.stock;
+ const defendingGuard=(s.guards||[]).find(g=>g.baseId===raid?.id&&guardActive(g));
+ if(defendingGuard&&distance(a,raidStock)<=RULES.sabotageRange+1){
+  a.machineSeeking=false;
+  if(clearPickupPath(a,defendingGuard))return combatIntent(s,a,defendingGuard);
+  resetEnemyAim(a);return navigateIntent(a,defendingGuard);
+ }
  if(raid&&distance(a,raidStock)<=RULES.sabotageRange-.2&&(a.sabotageId===raid.id||!target||d>6.5)){
   resetEnemyAim(a);a.machineSeeking=false;return {sabotage:true,aiming:false};
  }
@@ -315,6 +328,7 @@ export function step(s,input={},dt=1/60){
   if(contact)projectileImpact(s,b,contact);else Object.assign(b,projectilePoint(s,b,distance));
  }
  s.bullets=s.bullets.filter(b=>b.life>0);stepArtillery(s,dt,hit);
+ stepGuards(s,dt,{ground:(x,z)=>projectileGround(s,x,z),hitActor:hit});
  updateSabotage(s,sabotageRequests,dt);evaluateWinner(s);
 }
 export function saveRound(s){return JSON.stringify({...s,events:[],bullets:[],shells:[]});}
@@ -334,7 +348,7 @@ export function loadRound(raw){
    const old=v.actors[i],a=s.actors[i];if(old?.id!==a.id||!Number.isFinite(old.x)||!Number.isFinite(old.z))return null;
    for(const key of Object.keys(a))if(typeof a[key]==='number')a[key]=clamp(finite(old[key],a[key]),-1e4,1e4);
    const home=ownBase(s,a),eliminated=home.destroyed,ko=eliminated||old.ko===true;
-   Object.assign(a,{ko,eliminated,respawnTime:ko&&!eliminated?clamp(finite(old.respawnTime,RULES.respawnSeconds)||RULES.respawnSeconds,.01,RULES.respawnSeconds):0,aiming:false,catapultId:null,interactHeld:false,machineSeeking:false,aiCharging:false,aimWindup:0,aiTargetId:null,aiReaction:0,aiBurstShots:0,aiAimPoint:null,refilling:old.refilling===true||finite(old.ammo)<6,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0,ammo:eliminated?0:clamp(Math.floor(finite(old.ammo)),0,RULES.capacity),load:clamp(finite(old.load),0,1),dizzy:clamp(finite(old.dizzy),0,RULES.dizzyHits),finishHits:clamp(finite(old.finishHits),0,RULES.finishHits),dizzyTime:clamp(finite(old.dizzyTime),0,RULES.dizzySeconds),kickPending:false,kick:0,hop:0,hopX:0,hopZ:0,height:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,idle:0,impulseX:0,impulseZ:0});
+   Object.assign(a,{ko,eliminated,respawnTime:ko&&!eliminated?clamp(finite(old.respawnTime,RULES.respawnSeconds)||RULES.respawnSeconds,.01,RULES.respawnSeconds):0,aiming:false,catapultId:null,interactHeld:false,machineSeeking:false,aiCharging:false,aimWindup:0,aiTargetId:null,aiReaction:0,aiBurstShots:0,aiAimPoint:null,refilling:old.refilling===true||finite(old.ammo)<RULES.capacity*.1,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0,ammo:eliminated?0:clamp(Math.floor(finite(old.ammo)),0,RULES.capacity),load:clamp(finite(old.load),0,1),dizzy:clamp(finite(old.dizzy),0,RULES.dizzyHits),finishHits:clamp(finite(old.finishHits),0,RULES.finishHits),dizzyTime:clamp(finite(old.dizzyTime),0,RULES.dizzySeconds),kickPending:false,kick:0,hop:0,hopX:0,hopZ:0,height:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,idle:0,impulseX:0,impulseZ:0});
    for(const key of ['shot','tongue','invuln','hit','kickCooldown','aiShotReady'])a[key]=clamp(a[key],0,2);
    a.spawnShield=clamp(finite(old.spawnShield),0,RULES.respawnProtectionSeconds);
    a.machineTimer=clamp(a.machineTimer,0,30);a.face=finite(a.face,Math.PI);
@@ -356,6 +370,7 @@ export function loadRound(raw){
    const old=v.catapults.find(t=>t.id===c.id);if(old){c.cooldown=clamp(finite(old.cooldown),0,ARTILLERY.cooldown);c.loaded=c.cooldown===0;}
    const mounted=!legacy&&v.actors.find(a=>a.catapultId===c.id);if(mounted){const a=s.actors.find(a=>a.id===mounted.id);a.x=c.x;a.z=c.z+2.3;moveBody(a,0,0);}
   }
+  restoreGuards(s,v.guards);
   for(const k of Object.keys(s.stats))s.stats[k]=Math.max(0,Math.floor(finite(v.stats?.[k])));
   evaluateWinner(s);return s;
  }catch{return null;}

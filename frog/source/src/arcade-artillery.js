@@ -1,6 +1,7 @@
 // Stationary, automatically reloading machines; frog fly ammunition stays separate.
 import { CATAPULT_SITES, hasWallSight } from './arcade-bases.js';
 import { ARENA_MOVE_RADIUS } from './arcade-battleground.js';
+import {guardActive} from './arcade-guards.js';
 export const ARTILLERY = Object.freeze({delivery:'catapult',interactionRange:3,baseRadius:.95,minRange:5,maxRange:28,blastRadius:2.8,innerRadius:1.25,flightTime:1.25,arcHeight:8,cooldown:3,recoilDuration:.45,centerLift:.85,rimLift:.45,centerRecovery:.48,rimRecovery:.42});
 export const CATAPULTS = CATAPULT_SITES;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -44,7 +45,8 @@ export function stepArtillery(s,dt,hit){
   shell.age+=dt;if(shell.age<shell.duration)continue;
   s.events.push({type:'stoneImpact',id:shell.id,owner:shell.owner,x:shell.tx,z:shell.tz,radius:ARTILLERY.blastRadius});
   if(s.phase!=='battle')continue;
-  for(const a of s.actors){
+  for(const a of [...s.actors,...(s.guards||[])]){
+   if(a.kind==='guard'&&(!guardActive(a)||a.owner===shell.owner))continue;
    const dx=a.x-shell.tx,dz=a.z-shell.tz,d=Math.hypot(dx,dz);if(a.ko||d>ARTILLERY.blastRadius||!hasWallSight({x:shell.tx,z:shell.tz},a,0))continue;
    const travelX=shell.tx-shell.startX,travelZ=shell.tz-shell.startZ,travelLength=Math.hypot(travelX,travelZ)||1;
    const direction=d>1e-6?{dx:dx/d,dz:dz/d}:{dx:travelX/travelLength,dz:travelZ/travelLength};

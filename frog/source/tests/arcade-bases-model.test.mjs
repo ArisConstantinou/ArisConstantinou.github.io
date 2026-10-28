@@ -6,11 +6,14 @@ import {CATAPULTS,ARTILLERY} from '../src/arcade-artillery.js';
 import {FROG_BODY} from '../src/arcade-actor-bounds.js';
 import {rectangleClearance} from '../src/arcade-collision.js';
 const tick=(s,input={},seconds=1)=>{for(let i=0;i<Math.round(seconds*60);i++)step(s,input,1/60);};
-function sandbox(){const s=newRound();s.phase='battle';s.intro=0;for(const a of s.actors.slice(1)){a.dizzyTime=1000;a.impulseX=a.impulseZ=0;}return s;}
+// Storage timing fixtures start after the guards have been cleared; live defense
+// and the real 20-second recovery window are covered in arcade-guards.test.mjs.
+function clearGuards(s){for(const guard of s.guards)Object.assign(guard,{health:0,mode:'disabled',respawnTime:9999});return s;}
+function sandbox(){const s=clearGuards(newRound());s.phase='battle';s.intro=0;for(const a of s.actors.slice(1)){a.dizzyTime=1000;a.impulseX=a.impulseZ=0;}return s;}
 function atEnemyStore(s){const p=s.actors[0],g=BASES[1];Object.assign(p,{x:g.stock.x,z:g.stock.z,hop:0,idle:0,shot:0,tongue:0});return {p,g,b:s.bases[1]};}
 
-test('new round has three occupied homes, 60 carried flies each and a shared 20-second clock',()=>{
- const s=newRound();assert.equal(s.version,2);assert.equal(s.phase,'countdown');assert.equal(s.intro,20);assert.equal(RULES.capacity,60);
+test('new round has three occupied homes, 90 carried flies each and a shared 20-second clock',()=>{
+ const s=newRound();assert.equal(s.version,2);assert.equal(s.phase,'countdown');assert.equal(s.intro,20);assert.equal(RULES.capacity,90);
  assert.equal(s.bases.length,3);assert.ok(s.bases.every(b=>!b.destroyed));
  s.actors.forEach((a,i)=>{assert.equal(a.ammo,RULES.capacity);assert.equal(a.load,1);assert.equal(a.refilling,false);assert.deepEqual({x:a.x,z:a.z},BASES[i].spawn);assert.ok(Math.hypot(a.x-BASES[i].stock.x,a.z-BASES[i].stock.z)<RULES.pickupRange);assert.equal(ownBase(s,a).owner,a.id);});
  assert.equal(s.stats.caught,0);assert.deepEqual(s.events,[]);
@@ -72,17 +75,17 @@ test('a saved mounted frog resumes beside its current catapult site after a map 
 });
 test('warm-up counts down immediately inside the home and never waits for a first shot',()=>{
  const s=newRound(),positions=s.actors.map(a=>[a.x,a.z]);tick(s,{},19.9);
- assert.equal(s.phase,'countdown');assert.ok(s.intro>0&&s.intro<.11);assert.equal(s.stats.shots,0);assert.equal(s.stats.caught,0);assert.ok(s.actors.every(a=>a.ammo===60));assert.deepEqual(s.actors.map(a=>[a.x,a.z]),positions);
+ assert.equal(s.phase,'countdown');assert.ok(s.intro>0&&s.intro<.11);assert.equal(s.stats.shots,0);assert.equal(s.stats.caught,0);assert.ok(s.actors.every(a=>a.ammo===RULES.capacity));assert.deepEqual(s.actors.map(a=>[a.x,a.z]),positions);
  tick(s,{},.1);assert.equal(s.phase,'battle');assert.equal(s.intro,0);
 });
 test('moving out, firing, or finding no flies cannot reset or delay the shared clock',()=>{
  const s=newRound(),p=s.actors[0];Object.assign(p,{x:0,z:0,ammo:1,tongue:100});for(const f of s.flies)f.wait=100;shoot(s,p);tick(s,{},5);
  assert.equal(s.stats.shots,1);assert.ok(Math.abs(s.intro-15)<1e-8);tick(s,{},15);assert.equal(s.phase,'battle');
 });
-test('automatic home refill has unlimited reserve but enforces 60 carried flies',()=>{
- const s=newRound(),p=s.actors[0];p.ammo=0;p.load=0;s.flies.forEach(f=>f.wait=100);tick(s,{},14);assert.equal(p.ammo,60);assert.equal(collect(s,p),false);
- for(let i=0;i<100;i++){p.shot=0;p.hit=0;assert.equal(shoot(s,p),true);p.tongue=0;assert.equal(collect(s,p),true);assert.equal(p.ammo,60);}
- assert.equal(ownBase(s,p).destroyed,false);assert.equal(s.stats.caught,160);
+test('automatic home refill has unlimited reserve but enforces 90 carried flies',()=>{
+ const s=newRound(),p=s.actors[0];p.ammo=0;p.load=0;s.flies.forEach(f=>f.wait=100);tick(s,{},RULES.capacity*RULES.tongueInterval+1);assert.equal(p.ammo,RULES.capacity);assert.equal(collect(s,p),false);
+ for(let i=0;i<100;i++){p.shot=0;p.hit=0;assert.equal(shoot(s,p),true);p.tongue=0;assert.equal(collect(s,p),true);assert.equal(p.ammo,RULES.capacity);}
+ assert.equal(ownBase(s,p).destroyed,false);assert.equal(s.stats.caught,RULES.capacity+100);
 });
 test('an enemy store supplies no free ammunition and destroyed stores cannot refill',()=>{
  const s=sandbox(),{p}=atEnemyStore(s);p.ammo=0;s.flies.forEach(f=>f.wait=100);assert.equal(collect(s,p),false);assert.equal(p.ammo,0);
@@ -138,7 +141,7 @@ test('ordinary hit cancels enemy aim and visibly retreats instead of firing agai
 });
 test('empty rivals route to their own store and refill before resuming their raid',()=>{
  const s=sandbox(),a=s.actors[1];a.dizzyTime=0;Object.assign(a,{x:-10,z:8,ammo:0,refilling:false,machineTimer:99});const start=Math.hypot(a.x-BASES[1].stock.x,a.z-BASES[1].stock.z);
- const intent=rivalIntent(s,a);assert.equal(a.refilling,true);assert.equal(intent.fire,undefined);let refilledAtHome=false;for(let i=0;i<840;i++){step(s);refilledAtHome ||= a.ammo>=30&&Math.hypot(a.x-BASES[1].stock.x,a.z-BASES[1].stock.z)<start;}assert.ok(refilledAtHome);assert.equal(a.refilling,false);
+ const intent=rivalIntent(s,a);assert.equal(a.refilling,true);assert.equal(intent.fire,undefined);let refilledAtHome=false;const frames=Math.ceil((8+RULES.capacity*.8*RULES.tongueInterval)*60);for(let i=0;i<frames;i++){step(s);refilledAtHome ||= a.ammo>=RULES.capacity*.8&&Math.hypot(a.x-BASES[1].stock.x,a.z-BASES[1].stock.z)<start;if(refilledAtHome&&!a.refilling)break;}assert.ok(refilledAtHome);assert.equal(a.refilling,false);
 });
 test('returning and invading rivals use real entrances instead of crossing a home wall',()=>{
  const s=sandbox(),a=s.actors[1];a.dizzyTime=0;Object.assign(a,{x:-10,z:8,ammo:0,refilling:true});
@@ -164,8 +167,8 @@ test('trees slow actual hop distance without blocking free direction changes',()
  for(let i=0;i<8;i++){step(open,{mx:1,mz:0});step(hidden,{mx:1,mz:0});}
  assert.ok(Math.abs(hidden.actors[0].x/open.actors[0].x-.55)<1e-9);
 });
-test('an unopposed AI raid destroys a storage through the same full channel',()=>{
- const s=newRound();s.phase='battle';s.intro=0;const attacker=s.actors[1],victim=s.actors[2],stock=BASES[2].stock;
+test('an unopposed AI raid with the guard cleared destroys a storage through the same full channel',()=>{
+ const s=clearGuards(newRound());s.phase='battle';s.intro=0;const attacker=s.actors[1],victim=s.actors[2],stock=BASES[2].stock;
  for(const a of [s.actors[0],victim]){a.ko=true;a.respawnTime=99;}
  Object.assign(attacker,{x:stock.x,z:stock.z,ammo:60,refilling:false,raidId:s.bases[2].id});
  tick(s,{},RULES.sabotageSeconds-.1);assert.equal(s.bases[2].destroyed,false);assert.ok(s.bases[2].progress>RULES.sabotageSeconds-.11);tick(s,{},.1);
@@ -173,8 +176,8 @@ test('an unopposed AI raid destroys a storage through the same full channel',()=
 });
 
 
-test('a passive defender respawning nearby does not interrupt an already committed AI sabotage',()=>{
- const s=newRound();s.phase='battle';s.intro=0;const attacker=s.actors[2],p=s.actors[0],stock=BASES[0].stock;
+test('a passive defender respawning nearby does not interrupt an already committed AI sabotage after its guard is cleared',()=>{
+ const s=clearGuards(newRound());s.phase='battle';s.intro=0;const attacker=s.actors[2],p=s.actors[0],stock=BASES[0].stock;
  s.actors[1].ko=true;s.actors[1].respawnTime=99;p.ko=true;p.respawnTime=4;
  Object.assign(attacker,{x:stock.x-1,z:stock.z,ammo:60,refilling:false,raidId:s.bases[0].id});
  tick(s,{},4.5);assert.equal(p.ko,false);assert.ok(s.bases[0].progress>4.4);
@@ -182,7 +185,7 @@ test('a passive defender respawning nearby does not interrupt an already committ
 });
 
 
-test('knocking out a defender creates enough time to complete a full storage sabotage',()=>{
+test('knocking out a defender with its guard cleared creates enough time to complete a full storage sabotage',()=>{
  const s=sandbox(),{p,b}=atEnemyStore(s),defender=s.actors[1];defender.dizzyTime=0;
  hit(s,defender,{owner:p.id,dx:1,dz:0,damage:9});assert.equal(defender.ko,true);assert.equal(defender.respawnTime,RULES.respawnSeconds);
  tick(s,{sabotage:true},RULES.sabotageSeconds);
