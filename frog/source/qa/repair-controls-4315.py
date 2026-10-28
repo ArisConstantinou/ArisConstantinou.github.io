@@ -64,6 +64,7 @@ patch('src/creatures.js', [
     ("            bones[`foot${side}`].rotation.x=-thrust*.14;", "            bones[`foot${side}`].rotation.x=-thrust*.14*hz;\n            bones[`foot${side}`].rotation.z=thrust*.14*hx;"),
 ])
 patch('src/arcade-model.js', [("ARCADE_VERSION = '4.3.14'", "ARCADE_VERSION = '4.3.15'")])
+patch('index.html', [('content="4.3.14"','content="4.3.15"'), ('FROG · 4.3.14','FROG · 4.3.15')])
 for name in ['package.json','package-lock.json']:
     file=root/name;data=json.loads(file.read_text());data['version']='4.3.15'
     if '' in data.get('packages',{}): data['packages']['']['version']='4.3.15'
