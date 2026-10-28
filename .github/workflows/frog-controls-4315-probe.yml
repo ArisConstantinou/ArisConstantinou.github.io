@@ -1,0 +1,51 @@
+name: FROG mouse input diagnosis
+on:
+  push:
+    branches: [fix/frog-controls-4315-probe]
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/frog-controls-4315/
+            /.github/frog-mouse-probe.mjs
+            /frog/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build exact candidate and install diagnostic browser
+        run: |
+          set -euo pipefail
+          cp -a .github/frog-controls-4315 "$RUNNER_TEMP/frog-controls-4315"
+          cp .github/frog-mouse-probe.mjs "$RUNNER_TEMP/mouse-probe.mjs"
+          git checkout --detach 42b90b5c3b96a2079bc152d37da757acdfa9f024
+          node "$RUNNER_TEMP/frog-controls-4315/apply.mjs" --repo "$GITHUB_WORKSPACE"
+          cd frog/source
+          npm ci
+          npm run build
+          npm install --prefix "$RUNNER_TEMP/browser" --no-package-lock playwright@1.56.1
+          "$RUNNER_TEMP/browser/node_modules/.bin/playwright" install --with-deps chromium
+          mkdir -p "$RUNNER_TEMP/probe"
+          tar -czf "$RUNNER_TEMP/probe/runtime.tgz" dist node_modules src package.json package-lock.json index.html
+      - name: Observe native events and camera changes
+        working-directory: frog/source
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4178 --bind 127.0.0.1 --directory dist > "$RUNNER_TEMP/probe/server.txt" 2>&1 &
+          SERVER=$!
+          trap 'kill "$SERVER" || true' EXIT
+          sleep 1
+          PLAYWRIGHT_MODULE="$RUNNER_TEMP/browser/node_modules/playwright" node "$RUNNER_TEMP/mouse-probe.mjs" | tee "$RUNNER_TEMP/probe/trace.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frog-mouse-diagnosis
+          path: ${{ runner.temp }}/probe/
+          retention-days: 3
