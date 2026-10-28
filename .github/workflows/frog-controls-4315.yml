@@ -1,0 +1,36 @@
+name: FROG controls 4.3.15 validation
+on:
+  push:
+    branches: [qa/frog-controls-4315]
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 42b90b5c3b96a2079bc152d37da757acdfa9f024
+          sparse-checkout: frog/source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install locked dependencies
+        working-directory: frog/source
+        run: npm ci --no-audit --no-fund
+      - name: Package exact source and build dependencies for verification
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/frog-review"
+          git rev-parse HEAD > "$RUNNER_TEMP/frog-review/base-commit.txt"
+          git ls-tree -r HEAD frog/source > "$RUNNER_TEMP/frog-review/source-blobs.txt"
+          tar --exclude='qa/results' --exclude='qa/*.png' --exclude='qa/*.webm' -czf "$RUNNER_TEMP/frog-review/source.tgz" -C frog/source src tests qa package.json package-lock.json vite.config.js index.html public node_modules
+          ls -lh "$RUNNER_TEMP/frog-review/source.tgz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frog-controls-source
+          path: ${{ runner.temp }}/frog-review/
+          retention-days: 3
+          compression-level: 0
