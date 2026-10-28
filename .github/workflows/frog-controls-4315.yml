@@ -101,7 +101,9 @@ jobs:
           (source/'CONTROLS-4.3.15.md').write_text(notes)
           shutil.copyfile(evidence/'summary.json',review/'summary.json')
           PY
-          git add --sparse frog/source/src/arcade-control-policy.js frog/source/src/arcade.js frog/source/src/creatures.js frog/source/src/arcade-model.js frog/source/tests/arcade-control-policy.test.mjs frog/source/qa/arcade-4315.mjs frog/source/qa/arcade-controls-4315.py frog/source/CONTROLS-4.3.15.md frog/source/package.json frog/source/package-lock.json frog/source/index.html frog/index.html frog/assets/index-BVE6SbSc.js frog/qa/arcade-4315
+          git add --sparse frog/source/src/arcade-control-policy.js frog/source/src/arcade.js frog/source/src/creatures.js frog/source/src/arcade-model.js frog/source/tests/arcade-control-policy.test.mjs frog/source/CONTROLS-4.3.15.md frog/source/package.json frog/source/package-lock.json frog/source/index.html frog/index.html frog/assets/index-BVE6SbSc.js frog/qa/arcade-4315
+          # The source qa directory is ignored; intentionally track only these two new test sources.
+          git add --sparse --force -- frog/source/qa/arcade-4315.mjs frog/source/qa/arcade-controls-4315.py
           git diff --cached --check
           git diff --cached --name-only | tee "$RUNNER_TEMP/frog-controls-review/changed-files.txt"
           if git diff --cached --name-only | grep -v '^frog/'; then echo 'Unexpected changed path'; exit 1; fi
