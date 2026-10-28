@@ -1,4 +1,4 @@
-name: Frog controls workspace and QA
+name: Frog 4.3.15 controls regression and build
 on:
   push:
     branches: [fix/frog-4.3.15-controls]
@@ -6,33 +6,64 @@ on:
       - 'frog/**'
       - '.github/workflows/frog-controls-4315.yml'
 permissions:
-  contents: read
+  contents: write
 jobs:
-  workspace:
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: |
-            frog/source
-            frog/index.html
-          sparse-checkout-cone-mode: false
-          persist-credentials: false
+          ref: fix/frog-4.3.15-controls
+          sparse-checkout: frog
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-      - name: Install locked build dependencies and browser driver
+          node-version: '24'
+      - name: Apply exact source corrections
+        run: python3 frog/source/qa/apply-controls4315.py
+      - name: Install dependencies
         working-directory: frog/source
         run: |
           npm ci --no-audit --no-fund
           npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1
-      - name: Export isolated source and complete dependencies for local testing
+          npx playwright install --with-deps chromium
+      - name: All unit and simulation regressions
+        working-directory: frog/source
+        run: npm test > unit-tests-4315.txt 2>&1
+      - name: Build and verify exact locally tested bundle
+        working-directory: frog/source
         run: |
-          tar -czf frog-controls-workspace.tar.gz frog/source frog/index.html
-          ls -lh frog-controls-workspace.tar.gz
+          npm run build
+          echo 'defe45b1343a96fb23799095e92df8f5a5f85d411e1d792497514424389b4e93  dist/assets/index-ByHYmVad.js' | sha256sum -c -
+      - name: Native mouse keyboard and rendering regressions
+        working-directory: frog/source
+        run: |
+          python3 -m http.server 4178 --bind 127.0.0.1 --directory dist > /tmp/frog-http.log 2>&1 &
+          node qa/arcade-4315.mjs > browser-tests-4315.txt 2>&1
+      - name: Prepare verified release on the isolated branch only
+        working-directory: frog
+        run: |
+          cp source/dist/index.html index.html
+          cp source/dist/assets/index-ByHYmVad.js assets/
+          mkdir -p qa/arcade-4315
+          cp source/qa/results/arcade-4315/report.json qa/arcade-4315/
+          cp source/qa/results/arcade-4315/overview-left-hop-facing-down.png qa/arcade-4315/
+          cp source/qa/results/arcade-4315/chase-left-strafe-after-mouse-turn.png qa/arcade-4315/
+          cp source/docs/CONTROLS-4.3.15.md CONTROLS-4.3.15.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html assets/index-ByHYmVad.js CONTROLS-4.3.15.md qa/arcade-4315 source/index.html source/package.json source/package-lock.json source/src/arcade-model.js source/src/arcade.js source/src/creatures.js source/src/arcade-controls.js source/tests/arcade-controls-direction.test.mjs source/docs/CONTROLS-4.3.15.md
+          git add -f source/qa/arcade-4315.mjs
+          git commit -m 'FROG 4.3.15: verified screen-relative controls and directional hops'
+          git push origin HEAD:fix/frog-4.3.15-controls
+          git rev-parse HEAD > source/verified-commit-4315.txt
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: frog-controls-workspace
-          path: frog-controls-workspace.tar.gz
-          retention-days: 3
+          name: frog-4315-test-evidence
+          path: |
+            frog/source/qa/results/arcade-4315/
+            frog/source/unit-tests-4315.txt
+            frog/source/browser-tests-4315.txt
+            frog/source/verified-commit-4315.txt
+          retention-days: 7
