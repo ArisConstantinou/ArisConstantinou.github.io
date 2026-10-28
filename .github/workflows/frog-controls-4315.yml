@@ -1,0 +1,30 @@
+name: Frog controls workspace and QA
+on:
+  push:
+    branches: [fix/frog-4.3.15-controls]
+    paths:
+      - 'frog/**'
+      - '.github/workflows/frog-controls-4315.yml'
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            frog/source
+            frog/index.html
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - name: Export only the frog source for reproducible local debugging
+        run: |
+          tar --exclude=node_modules --exclude=dist -czf frog-controls-workspace.tar.gz frog/source frog/index.html
+          ls -lh frog-controls-workspace.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frog-controls-workspace
+          path: frog-controls-workspace.tar.gz
+          retention-days: 3
