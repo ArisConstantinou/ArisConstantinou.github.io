@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vite build --base=./",
+    "build": "node qa/check-update-hooks.mjs && vite build --base=./",
     "test": "node --test --test-isolation=none tests/*.test.mjs"
   },
   "dependencies": {
