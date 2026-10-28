@@ -178,7 +178,7 @@ function spatialBatch(geometry,material,records,name,{castShadow=false,receiveSh
 }
 
 export function createWorld(scene, renderer, options={}) {
-  const regionIndex=Math.max(0,Math.floor(Number(options.regionIndex)||0)),seed=options.seed??731+regionIndex*7919,layout=createRegionLayout(regionIndex,seed),palette=layout.palette,random=rng(seed),group=new THREE.Group();group.name='The living creek';scene.add(group);
+  const regionIndex=Math.max(0,Math.floor(Number(options.regionIndex)||0)),seed=options.seed??731+regionIndex*7919,layout=createRegionLayout(regionIndex,seed),palette={...layout.palette,...options.palette},random=rng(seed),group=new THREE.Group();group.name='The living creek';scene.add(group);
   const natural=options.natural===true,creekGeography=natural?createCreekGeography(layout):null;
   const creekLandmarks=creekGeography?.landmarks||[],creekNest=creekGeography?.nest||null,creekCover=creekGeography?.cover||[],creekGrips=[],creekRefuges=[];
   let waterLevel=CREEK_WATER_BASE,targetWaterLevel=CREEK_WATER_BASE,creekPhase={flow:.45},creekStateApplied=false,nestVisual=null;
@@ -249,7 +249,10 @@ export function createWorld(scene, renderer, options={}) {
   const naturalSourceSites=natural?campSites.map(site=>({...site,...layout.toSource(site.x,site.z)})):[];
   function bedHeight(x,z) {
     const source=layout.toSource(x,z),nx=source.x/WORLD_SCALE,nz=source.z/WORLD_SCALE;
-    if(natural)return creekBedHeight(source.x,source.z,noise(source.x+layout.noiseOffset.x,source.z+layout.noiseOffset.z),naturalSourceSites);
+    if(natural){
+      const height=creekBedHeight(source.x,source.z,noise(source.x+layout.noiseOffset.x,source.z+layout.noiseOffset.z),naturalSourceSites);
+      return typeof options.terrainProfile==='function'?options.terrainProfile(x,z,height):height;
+    }
     const channel=Math.sin(nz*.032)*15+Math.sin(nz*.073)*5,dist=Math.abs(nx-channel);
     let h=-2.2+noise(source.x+layout.noiseOffset.x,source.z+layout.noiseOffset.z)*.47+smooth(44,71,dist)*6;
     // Rolling bank ridges and island terraces create visible elevation. Their
@@ -275,7 +278,8 @@ export function createWorld(scene, renderer, options={}) {
   }
   const terrainGeo=new THREE.PlaneGeometry(270*WORLD_SCALE,270*WORLD_SCALE,216,216);terrainGeo.rotateX(-Math.PI/2);
   const tp=terrainGeo.attributes.position,tcolors=new Float32Array(tp.count*3),earth=color(palette.earth),wet=color(palette.wet),deep=color(palette.deep);
-  for(let i=0;i<tp.count;i++){const x=tp.getX(i),z=tp.getZ(i),h=bedHeight(x,z);tp.setY(i,h);const c=deep.clone().lerp(wet,smooth(-1.7,.05,h)).lerp(earth,smooth(.02,2,h));c.multiplyScalar(.88+noise(x*2,z*2)*.18);c.toArray(tcolors,i*3);}
+  const tintTerrain=(c,x,z)=>{const tint=options.terrainTint?.(x,z);if(tint)c.lerp(color(tint.color),clamp(tint.weight,0,1));return c;};
+  for(let i=0;i<tp.count;i++){const x=tp.getX(i),z=tp.getZ(i),h=bedHeight(x,z);tp.setY(i,h);const c=tintTerrain(deep.clone().lerp(wet,smooth(-1.7,.05,h)).lerp(earth,smooth(.02,2,h)),x,z);c.multiplyScalar(.88+noise(x*2,z*2)*.18);c.toArray(tcolors,i*3);}
   terrainGeo.setAttribute('color',new THREE.BufferAttribute(tcolors,3));terrainGeo.computeVertexNormals();
   mossMap.repeat.set(44*WORLD_SCALE,44*WORLD_SCALE);const terrain=new THREE.Mesh(terrainGeo,materials.terrain);terrain.receiveShadow=true;terrain.name='Creek bed and island banks';group.add(terrain);
   // Walk the actual triangles, including rebuilt banks. Sampling a separate
@@ -290,7 +294,7 @@ export function createWorld(scene, renderer, options={}) {
     const reach=CASTLE_GROUND_RADIUS+CASTLE_BANK_BLEND+terrainStep*2;
     for(let i=0;i<tp.count;i++){
       const x=tp.getX(i),z=tp.getZ(i);if(Math.abs(x-terrace.x)>reach||Math.abs(z-terrace.z)>reach)continue;
-      const h=bedHeight(x,z);tp.setY(i,h);const c=deep.clone().lerp(wet,smooth(-1.7,.05,h)).lerp(earth,smooth(.02,2,h));c.multiplyScalar(.88+noise(x*2,z*2)*.18);c.toArray(tcolors,i*3);
+      const h=bedHeight(x,z);tp.setY(i,h);const c=tintTerrain(deep.clone().lerp(wet,smooth(-1.7,.05,h)).lerp(earth,smooth(.02,2,h)),x,z);c.multiplyScalar(.88+noise(x*2,z*2)*.18);c.toArray(tcolors,i*3);
     }
     tp.needsUpdate=true;terrainGeo.attributes.color.needsUpdate=true;terrainGeo.computeVertexNormals();terrainGeo.computeBoundingBox();terrainGeo.computeBoundingSphere();renderStats.terrainUpdates++;
   }
@@ -332,7 +336,7 @@ export function createWorld(scene, renderer, options={}) {
   function insertPlatform(p){platforms.push(p);const x0=Math.floor((p.x-p.radius)/bucketSize),x1=Math.floor((p.x+p.radius)/bucketSize),z0=Math.floor((p.z-p.radius)/bucketSize),z1=Math.floor((p.z+p.radius)/bucketSize);for(let x=x0;x<=x1;x++)for(let z=z0;z<=z1;z++){const key=x+':'+z;if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(p);}return p;}
   const lilyData=[],rockData=[[],[],[]];
   function addLily(x,z,radius=1.35+random()*.9){const p=insertPlatform({id:'p'+platforms.length,type:'lily',x,z,y:.105,radius:radius*.91,visualRadius:radius,angle:random()*TAU,phase:random()*TAU});lilyData.push(p);return p;}
-  function addRock(x,z,radius=1.3+random()*1.3,height=.65+random()*.65){const variant=Math.floor(random()*3),p=insertPlatform({id:'p'+platforms.length,type:'rock',x,z,y:height*.76-.05,radius:radius*.72,visualRadius:radius,scaleY:height,angle:random()*TAU,variant});rockData[variant].push(p);return p;}
+  function addRock(x,z,radius=1.3+random()*1.3,height=.65+random()*.65){if(options.keepGroundClear?.(x,z,radius))return null;const variant=Math.floor(random()*3),p=insertPlatform({id:'p'+platforms.length,type:'rock',x,z,y:height*.76-.05,radius:radius*.72,visualRadius:radius,scaleY:height,angle:random()*TAU,variant});rockData[variant].push(p);return p;}
   const startLeaf=layout.toWorld(3.7,1),startRock=layout.toWorld(-3.9,2.2);
   addLily(0,0,3.1);addLily(startLeaf.x,startLeaf.z,2.3);addRock(startRock.x,startRock.z,2.5,.9);
   if(natural){const p=creekLandmarks.find(p=>p.id==='pond').findPoint;addLily(p.x,p.z,1.7);}
@@ -369,6 +373,7 @@ export function createWorld(scene, renderer, options={}) {
   const vegetation=[];
   for(let i=0;i<26000;i++){
     const x=(random()-.5)*254*WORLD_SCALE,z=(random()-.5)*254*WORLD_SCALE,h=bedHeight(x,z);if(h<-.52||h>3.2)continue;
+    if(options.keepGroundClear?.(x,z,.5))continue;
     if(campSites.some(s=>Math.hypot(s.x-x,s.z-z)<s.radius*.68))continue;
     if(Math.hypot(x,z)<8)continue;
     vegetation.push({x,z,y:h,scale:.65+random()*2.2,angle:random()*TAU});
@@ -412,7 +417,7 @@ export function createWorld(scene, renderer, options={}) {
   const flies=[];for(let j=0;j<hotspots.length;j++)for(let i=0;i<(hotspots[j].rich?65:30);i++)flies.push({spot:j,phase:random()*TAU,phase2:random()*TAU,r:.25+random()*(hotspots[j].rich?2.3:1.35),height:.45+random()*1.9,speed:.65+random()*1.7,rank:i});
   const fliesBySpot=hotspots.map(()=>[]);for(const fly of flies)fliesBySpot[fly.spot].push(fly);
   const flyMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.45,side:THREE.DoubleSide}),fliesMesh=new THREE.InstancedMesh(flyGeometry(),flyMat,flies.length);fliesMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);fliesMesh.frustumCulled=false;fliesMesh.name='Fly swarms';fliesMesh.count=0;group.add(fliesMesh);
-  const creekDecor=natural?createCreekDecor({group,layout,terrainHeight,surface,insertPlatform,materials,rockGeos,tube,leafGeometry,bladeGeometry,geography:creekGeography}):null;
+  const creekDecor=natural&&options.discoveryDecor!==false?createCreekDecor({group,layout,terrainHeight,surface,insertPlatform,materials,rockGeos,tube,leafGeometry,bladeGeometry,geography:creekGeography}):null;
   if(creekDecor)creekGrips.push(...creekDecor.grips);
 
   function currentAt(x,z){return natural&&surface(x,z).type==='water'?creekCurrent(layout,x,z,creekPhase.flow):{x:0,z:0,strength:0};}
@@ -432,7 +437,7 @@ export function createWorld(scene, renderer, options={}) {
       const data={id:'living-creek-nest',x:nest.x,z:nest.z,team:'ally',natural:true,nestLevel:nest.level??0,safe:nest.safe,hp:1,maxHp:1};
       if(!nestVisual)nestVisual=createShelter(data);else updateShelter(nestVisual,data);
     }
-    creekDecor.sync(snapshot,waterLevel);return true;
+    creekDecor?.sync(snapshot,waterLevel);return true;
   }
 
   // A single instanced ripple draw and one point cloud cover every splash.
@@ -825,7 +830,7 @@ export function createWorld(scene, renderer, options={}) {
       const alpha=water.material.uniforms.alpha,targetAlpha=creekWaterOpacity(playerPos?.y,waterLevel);
       alpha.value+=(targetAlpha-alpha.value)*(1-Math.exp(-Math.max(0,Math.min(.5,Number(dt)||0))*8));
       if(Math.abs(lastRenderedWaterLevel-waterLevel)>.008){for(let i=0;i<lilyData.length;i++){const p=lilyData[i];object.position.set(p.x,p.y,p.z);object.rotation.set(0,p.angle,0);object.scale.set(p.visualRadius,1,p.visualRadius);object.updateMatrix();lilyMesh.setMatrixAt(i,object.matrix);}lilyMesh.flush();lastRenderedWaterLevel=waterLevel;}
-      creekDecor.update(waterLevel,time);
+      creekDecor?.update(waterLevel,time);
     }
     water.material.uniforms.time.value=time*.45;water.material.uniforms.waterColor.value.copy(nightWater).lerp(dayWater,dayFactor);water.material.uniforms.sunColor.value.copy(nightSun).lerp(daySun,dayFactor);
     water.material.uniforms.sunDirection.value.set(.35+.25*Math.sin(time*.008),.45+dayFactor*.4,-.45).normalize();

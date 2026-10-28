@@ -4,10 +4,11 @@ import {FROG_BODY} from '../src/arcade-actor-bounds.js';
 import {sweepBody,rectangleClearance,clearBodySegment} from '../src/arcade-collision.js';
 import {BASES,WALLS,ARENA_ROCKS,CATAPULT_SITES,resolveArenaMove,navigateTo} from '../src/arcade-bases.js';
 import {ARTILLERY} from '../src/arcade-artillery.js';
+import {ARENA_MOVE_RADIUS} from '../src/arcade-battleground.js';
 
 const radius=FROG_BODY.movementRadius,distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 function clearArena(p){
- assert.ok(Math.hypot(p.x,p.z)<=24+.0001,'arena edge remains solid');
+ assert.ok(Math.hypot(p.x,p.z)<=ARENA_MOVE_RADIUS+.0001,'arena edge remains solid');
  for(const w of WALLS)assert.ok(rectangleClearance(p,w)>=radius-.0002,`clear of ${w.id}`);
  for(const c of [...ARENA_ROCKS,...CATAPULT_SITES.map(c=>({...c,r:ARTILLERY.baseRadius}))])if(c.id!==p.catapultId)assert.ok(distance(p,c)>=c.r+radius-.0002,'clear of circular solid');
 }
@@ -80,7 +81,7 @@ test('a valid surface contact is stable at rest and old embedded positions separ
 });
 
 test('a frog at the arena rim can keep turning along it and reverse without clipping outside',()=>{
- let p={x:24,z:0};
+ let p={x:ARENA_MOVE_RADIUS,z:0};
  for(let i=0;i<50;i++){p=resolveArenaMove(p,.04,.1);clearArena(p);}
  assert.ok(p.z>4,'sustained outward pressure must retain useful tangential motion');
  const back=resolveArenaMove(p,-.2,0);assert.ok(back.x<p.x-.19);clearArena(back);

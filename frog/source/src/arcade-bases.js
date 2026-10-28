@@ -2,6 +2,7 @@
 // exact footprints, so a visible gate is also the only physical way inside.
 import { FROG_BODY } from './arcade-actor-bounds.js';
 import { sweepBody, clearBodySegment, rectangleClearance } from './arcade-collision.js';
+import { ARENA_MOVE_RADIUS, BATTLEGROUND_ROCKS, BATTLEGROUND_COVER } from './arcade-battleground.js';
 const freezePoint = (x, z) => Object.freeze({x, z});
 const OWNER_IDS = ['player', 'rival-1', 'rival-2'];
 const ACTOR_RADIUS = FROG_BODY.movementRadius;
@@ -95,11 +96,13 @@ export const TREES=Object.freeze([
   {id:'grove-middle',x:0,z:-4.5,radius:3.4},
   {id:'grove-northwest',x:-7.2,z:-8.8,radius:2.5},
   {id:'grove-northeast',x:7.6,z:-9.2,radius:2.5},
+  ...BATTLEGROUND_COVER,
 ].map(Object.freeze));
 
 // One footprint source for movement, navigation and the rendered creek rocks.
 export const ARENA_ROCKS=Object.freeze([
   {x:-8,z:2,r:1.5},{x:8,z:-3,r:1.7},{x:-2,z:-12,r:1.4},{x:13,z:12,r:1.6},
+  ...BATTLEGROUND_ROCKS,
 ].map(Object.freeze));
 const NAV_CIRCLES=Object.freeze([
   ...ARENA_ROCKS,
@@ -136,7 +139,7 @@ export function resolveWallMove(actor,dx,dz,radius=ACTOR_RADIUS){
 }
 
 /** All solids participate in the same sweep; a rock correction cannot re-enter a wall. */
-export function resolveArenaMove(actor,dx,dz,{radius=ACTOR_RADIUS,arenaRadius=24}={}){
+export function resolveArenaMove(actor,dx,dz,{radius=ACTOR_RADIUS,arenaRadius=ARENA_MOVE_RADIUS}={}){
   const circles=actor.catapultId?NAV_CIRCLES.filter(c=>c.id!==actor.catapultId):NAV_CIRCLES;
   return sweepBody(actor,dx,dz,{walls:WALLS,circles,radius,arenaRadius});
 }
@@ -146,10 +149,10 @@ export function terrainSpeed(actor){return coverAt(actor) ? .55 : 1;}
 export function enclosingYard(actor){return ENCLOSURES.find(c=>Math.abs(actor.x-c.x)<c.halfWidth&&Math.abs(actor.z-c.z)<c.halfDepth)||null;}
 
 function navigationSight(a,b){
-  return clearBodySegment(a,b,{walls:WALLS,circles:NAV_CIRCLES,radius:NAV_RADIUS,arenaRadius:24});
+  return clearBodySegment(a,b,{walls:WALLS,circles:NAV_CIRCLES,radius:NAV_RADIUS,arenaRadius:ARENA_MOVE_RADIUS});
 }
 function freePoint(p){
-  return Math.hypot(p.x,p.z)<=23.85&&WALLS.every(w=>rectangleClearance(p,w)>NAV_RADIUS+EPSILON)&&NAV_CIRCLES.every(c=>Math.hypot(p.x-c.x,p.z-c.z)>c.r+NAV_RADIUS+EPSILON);
+  return Math.hypot(p.x,p.z)<=ARENA_MOVE_RADIUS-.15&&WALLS.every(w=>rectangleClearance(p,w)>NAV_RADIUS+EPSILON)&&NAV_CIRCLES.every(c=>Math.hypot(p.x-c.x,p.z-c.z)>c.r+NAV_RADIUS+EPSILON);
 }
 
 let graph=null;

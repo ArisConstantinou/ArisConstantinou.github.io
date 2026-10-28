@@ -44,7 +44,9 @@ test('automatic eligibility follows the exact fly lifetime range and arena bound
  fixture.target.z=fixture.actor.z-(RULES.projectileSpeed*RULES.projectileLifetime+PROJECTILE.muzzleOffset+front-.01);
  assert.equal(resolve(fixture).fire,true,'a body entering the last hundredth of fly range is reachable');
  fixture.target.z-=.02;noFire(resolve(fixture));
- Object.assign(fixture.actor,{x:22,z:6});Object.assign(fixture.target,{x:26.5,z:6});
+ // Put the body beyond the current rim, with a clear outward ray. The old
+ // 25-unit edge is now playable terrain and contains new outer scenery.
+ Object.assign(fixture.actor,{x:RULES.radius-3,z:0});Object.assign(fixture.target,{x:RULES.radius+1.5,z:0});
  const result=resolve(fixture,{input:{ax:1,ay:0,az:0,aiming:true}});noFire(result);assert.equal(result.trace.kind,'boundary');
 });
 

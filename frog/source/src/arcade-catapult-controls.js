@@ -83,7 +83,7 @@ export function installCatapultControls(game) {
   };
   const button = game.$('catapult-button');
   button.onpointerdown = event => {
-    if (!game.running || game.layoutEditing || button.disabled || (!mounted() && game.state.phase !== 'battle')) return;
+    if (!game.running || game.layoutEditing || button.disabled || event.pointerType === 'mouse' && event.button !== 0 || (!mounted() && game.state.phase !== 'battle')) return;
     event.preventDefault(); pendingInteract = true;
   };
   button.onclick = event => { if (event.detail === 0 && game.running && !game.layoutEditing && !button.disabled) pendingInteract = true; };

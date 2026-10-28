@@ -4,6 +4,7 @@ import {newRound,step,hit,shoot,saveRound,loadRound,moveBody,projectileOrigin,RU
 import {ARTILLERY,CATAPULTS,stoneTarget,nearbyCatapult,interactCatapult,throwStone,stepArtillery} from '../src/arcade-artillery.js';
 import {BASES,navigateTo,resolveWallMove,hasWallSight} from '../src/arcade-bases.js';
 import {FROG_BODY} from '../src/arcade-actor-bounds.js';
+import {ARENA_MOVE_RADIUS} from '../src/arcade-battleground.js';
 const frame=(s,input={},n=1)=>{for(let i=0;i<n;i++)step(s,input,1/60);};
 function mounted(){const s=newRound();s.phase='battle';const p=s.actors[0],machine=s.catapults[0];Object.assign(p,{x:machine.x,z:machine.z+2.05,ammo:17});assert.equal(interactCatapult(s,p),true);for(const a of s.actors.slice(1))Object.assign(a,{idle:99,shot:99,machineTimer:99,tongue:99});return {s,p,machine};}
 
@@ -48,7 +49,7 @@ test('older saves migrate without resetting fly ammunition, time or knockout pro
  const s=newRound();delete s.catapults;delete s.shells;s.time=81;s.actors[0].ammo=29;s.actors[1].ko=true;const r=loadRound(saveRound(s));assert.equal(r.time,81);assert.equal(r.actors[0].ammo,29);assert.equal(r.actors[1].ko,true);assert.equal(r.catapults.length,3);
 });
 test('catapult target range exceeds flies but remains inside the arena',()=>{
- const p={x:0,z:12},target=stoneTarget(p,0,-1,1);assert.equal(Math.hypot(target.x-p.x,target.z-p.z),ARTILLERY.maxRange);assert.ok(ARTILLERY.maxRange>RULES.projectileLifetime*RULES.projectileSpeed);const edge=stoneTarget({x:22,z:0},1,0,1);assert.ok(Math.hypot(edge.x,edge.z)<=24);
+ const p={x:0,z:12},target=stoneTarget(p,0,-1,1);assert.equal(Math.hypot(target.x-p.x,target.z-p.z),ARTILLERY.maxRange);assert.ok(ARTILLERY.maxRange>RULES.projectileLifetime*RULES.projectileSpeed);const edge=stoneTarget({x:ARENA_MOVE_RADIUS-2,z:0},1,0,1);assert.ok(Math.hypot(edge.x,edge.z)<=ARENA_MOVE_RADIUS);
 });
 test('approach stops outside machine base, mounting stays seated and exit clears the base',()=>{
  const s=newRound(),p=s.actors[0],c=s.catapults[0];Object.assign(p,{x:c.x,z:c.z+5.2});frame(s,{mx:0,mz:-1,aiming:false},60);
@@ -77,8 +78,8 @@ test('machine base collision does not shield its operator from ordinary fly proj
  assert.equal(shoot(s,a),true);frame(s,{},20);assert.equal(p.dizzy,1);assert.equal(p.catapultId,machine.id);
 });
 test('near-edge artillery preview preserves aimed direction and marks impossible short range invalid',()=>{
- const source={x:-14,z:-16},n=Math.hypot(source.x,source.z),target=stoneTarget(source,source.x/n,source.z/n,1);
- assert.equal(target.valid,false);assert.ok(target.range<ARTILLERY.minRange);assert.ok(Math.hypot(target.x,target.z)<=24+1e-8);assert.ok(Math.abs((target.x-source.x)*source.z-(target.z-source.z)*source.x)<1e-8);
+ const angle=-2.3,source={x:Math.cos(angle)*(ARENA_MOVE_RADIUS-2),z:Math.sin(angle)*(ARENA_MOVE_RADIUS-2)},n=Math.hypot(source.x,source.z),target=stoneTarget(source,source.x/n,source.z/n,1);
+ assert.equal(target.valid,false);assert.ok(target.range<ARTILLERY.minRange);assert.ok(Math.hypot(target.x,target.z)<=ARENA_MOVE_RADIUS+1e-8);assert.ok(Math.abs((target.x-source.x)*source.z-(target.z-source.z)*source.x)<1e-8);
  const {s,p,machine}=mounted();assert.equal(throwStone(s,p,target),false);assert.equal(machine.loaded,true);assert.equal(s.shells.length,0);
 });
 test('stone center and rim impacts lift actual actors, push them back and land once',()=>{

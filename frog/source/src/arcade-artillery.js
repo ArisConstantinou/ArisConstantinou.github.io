@@ -1,5 +1,6 @@
 // Stationary, automatically reloading machines; frog fly ammunition stays separate.
 import { CATAPULT_SITES, hasWallSight } from './arcade-bases.js';
+import { ARENA_MOVE_RADIUS } from './arcade-battleground.js';
 export const ARTILLERY = Object.freeze({delivery:'catapult',interactionRange:3,baseRadius:.95,minRange:5,maxRange:28,blastRadius:2.8,innerRadius:1.25,flightTime:1.25,arcHeight:8,cooldown:3,recoilDuration:.45,centerLift:.85,rimLift:.45,centerRecovery:.48,rimRecovery:.42});
 export const CATAPULTS = CATAPULT_SITES;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -7,14 +8,14 @@ export function stoneTarget(actor,aimX,aimZ,power=.6){
  const n=Math.hypot(aimX,aimZ),dx=n>1e-6?aimX/n:0,dz=n>1e-6?aimZ/n:-1;
  const range=ARTILLERY.minRange+(ARTILLERY.maxRange-ARTILLERY.minRange)*clamp(Number.isFinite(power)?power:.6,0,1);
  // Clip along the aimed ray so the marker never changes the player's direction.
- const dot=actor.x*dx+actor.z*dz,remaining=24*24-actor.x*actor.x-actor.z*actor.z;
+ const dot=actor.x*dx+actor.z*dz,remaining=ARENA_MOVE_RADIUS*ARENA_MOVE_RADIUS-actor.x*actor.x-actor.z*actor.z;
  const toEdge=Math.max(0,-dot+Math.sqrt(Math.max(0,dot*dot+remaining))),actualRange=Math.min(range,toEdge);
  return {x:actor.x+dx*actualRange,z:actor.z+dz*actualRange,range:actualRange,valid:actualRange>=ARTILLERY.minRange-1e-6};
 }
 export function createCatapults(){return CATAPULTS.map(c=>({...c,occupant:null,cooldown:0,loaded:true,aimX:0,aimZ:-1,recoil:0}));}
 export function nearbyCatapult(s,a){return s.catapults.filter(c=>(c.owner===a.id||!c.owner)&&(!c.occupant||c.occupant===a.id)&&Math.hypot(c.x-a.x,c.z-a.z)<=ARTILLERY.interactionRange&&hasWallSight(a,c,.1)).sort((c,d)=>Math.hypot(c.x-a.x,c.z-a.z)-Math.hypot(d.x-a.x,d.z-a.z))[0]||null;}
 export function releaseCatapult(s,a){
- const c=s.catapults.find(c=>c.id===a.catapultId);if(c?.occupant===a.id){c.occupant=null;a.x=c.x;a.z=c.z+2.3;const d=Math.hypot(a.x,a.z);if(d>24){a.x*=24/d;a.z*=24/d;}}
+ const c=s.catapults.find(c=>c.id===a.catapultId);if(c?.occupant===a.id){c.occupant=null;a.x=c.x;a.z=c.z+2.3;const d=Math.hypot(a.x,a.z);if(d>ARENA_MOVE_RADIUS){a.x*=ARENA_MOVE_RADIUS/d;a.z*=ARENA_MOVE_RADIUS/d;}}
  const mounted=!!a.catapultId;a.catapultId=null;a.catapultShots=0;a.interactHeld=false;return mounted;
 }
 export function interactCatapult(s,a){
@@ -27,7 +28,7 @@ export function interactCatapult(s,a){
 export function throwStone(s,a,target){
  const c=s.catapults.find(c=>c.id===a.catapultId);
  if(s.phase!=='battle'||a.ko||a.dizzyTime>0||a.hit>0||a.knockUp>0||!c||c.occupant!==a.id||!c.loaded||c.cooldown>0||target?.valid===false||!Number.isFinite(target?.x)||!Number.isFinite(target?.z))return false;
- let x=target.x,z=target.z;const edge=Math.hypot(x,z);if(edge>24){x*=24/edge;z*=24/edge;}
+ let x=target.x,z=target.z;const edge=Math.hypot(x,z);if(edge>ARENA_MOVE_RADIUS){x*=ARENA_MOVE_RADIUS/edge;z*=ARENA_MOVE_RADIUS/edge;}
  const dx=x-c.x,dz=z-c.z,range=Math.hypot(dx,dz);if(range<ARTILLERY.minRange-1e-6)return false;
  const ax=dx/range,az=dz/range;if(range>ARTILLERY.maxRange){x=c.x+ax*ARTILLERY.maxRange;z=c.z+az*ARTILLERY.maxRange;}
  const shell={id:s.nextId++,owner:a.id,catapultId:c.id,startX:c.x+ax,startZ:c.z+az,startHeight:1.6,tx:x,tz:z,age:0,duration:ARTILLERY.flightTime,arcHeight:ARTILLERY.arcHeight};

@@ -45,6 +45,23 @@ function fixture({touch=false}={}){
  return {game,player};
 }
 
+test('secondary mouse presses cannot mount or dismount, while primary, touch and keyboard activation remain usable',()=>{
+ for(const mounted of [false,true]){
+  const {game,player}=fixture();if(mounted){player.catapultId='catapult-player';game.updateHUD();}
+  const button=game.$('catapult-button');
+  for(const mouseButton of [1,2]){
+   button.onpointerdown({pointerType:'mouse',button:mouseButton,preventDefault(){}});
+   assert.equal(game.currentInput().interactCatapult,undefined,`${mounted?'dismount':'mount'} must ignore mouse button ${mouseButton}`);
+  }
+  for(const pointerType of ['mouse','touch','pen']){
+   button.onpointerdown({pointerType,button:0,preventDefault(){}});
+   assert.equal(game.currentInput().interactCatapult,true,`${pointerType} primary activation must remain available`);
+   assert.equal(game.currentInput().interactCatapult,undefined,'one activation queues one interaction');
+  }
+  button.onclick({detail:0});assert.equal(game.currentInput().interactCatapult,true,'keyboard activation remains available');
+ }
+});
+
 test('mounting intentionally unlocks once and clears old fire before choosing a landing target',()=>{
  const {game,player}=fixture();game.actions.fire=true;player.catapultId='catapult-player';
  game.updateHUD();

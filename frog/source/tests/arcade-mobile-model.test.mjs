@@ -4,8 +4,8 @@ import {newRound,step,collect,shoot,hit,kick,loadRound,saveRound,RULES,SWARMS,OB
 const tick=(s,input={},frames=1)=>{for(let i=0;i<frames;i++)step(s,input,1/60);};
 const noFlies=s=>s.flies.forEach(f=>f.wait=100);
 
-test('flies inhabit six distinct patches and replenish the same patch',()=>{
- const s=newRound();assert.equal(SWARMS.length,6);
+test('flies inhabit ten distinct patches and replenish the same patch',()=>{
+ const s=newRound();assert.equal(SWARMS.length,10);
  for(const patch of SWARMS){const flies=s.flies.filter(f=>f.swarmId===patch.id);assert.equal(flies.length,12);for(const f of flies){assert.ok(Math.hypot(f.x-patch.x,f.z-patch.z)<=patch.radius+.001);assert.ok(OBSTACLES.every(o=>Math.hypot(f.x-o.x,f.z-o.z)>o.r+.1));}}
  const f=s.flies[22],patch=SWARMS.find(p=>p.id===f.swarmId);f.wait=.01;tick(s);assert.equal(f.wait,0);assert.ok(Math.hypot(f.x-patch.x,f.z-patch.z)<=patch.radius);
 });

@@ -58,7 +58,12 @@ test('low shots stop on finite house walls while elevated shots genuinely pass a
  const low=arena(),p=low.actors[0];Object.assign(p,{x:BASES[0].x,z:BASES[0].z});aim(p,0,0,1);
  const preview=traceAim(low,p),blocked=flight(low);assert.equal(preview.kind,'wall');assert.equal(blocked.impact.kind,'wall');near(blocked.impact.z,preview.z);assert.equal(blocked.impact.normal.z,-1);
  const high=arena(),a=high.actors[0];Object.assign(a,{x:BASES[0].x,z:BASES[0].z});aim(a,0,.8,.6);
- const highPreview=traceAim(high,a),passed=flight(high);assert.equal(highPreview.kind,'boundary');assert.equal(passed.impact.kind,'boundary');assert.ok(passed.impact.z>BASES[0].z+BASES[0].halfDepth);assert.ok(passed.impact.y>3);
+ // The higher shot now expires before the expanded arena rim. It must clear
+ // the same finite wall and complete its full physical flight without impact.
+ const highPreview=traceAim(high,a),passed=flight(high);assert.equal(highPreview.kind,null);assert.equal(passed.impact,undefined);
+ assert.ok(passed.bullet.z>BASES[0].z+BASES[0].halfDepth);assert.ok(passed.bullet.y>3);
+ near(highPreview.distance,PROJECTILE.muzzleOffset+RULES.projectileSpeed*RULES.projectileLifetime);
+ near(passed.bullet.x,highPreview.x);near(passed.bullet.y,highPreview.y);near(passed.bullet.z,highPreview.z);
 });
 test('the source-to-muzzle sweep cannot create a projectile across a nearby wall',()=>{
  const s=arena(),p=s.actors[0],base=BASES[0];Object.assign(p,{x:base.x,z:base.z+base.halfDepth-.95});aim(p,0,0,1);

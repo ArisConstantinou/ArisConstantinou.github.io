@@ -1,10 +1,11 @@
 import {RULES,OBSTACLES,SWARMS} from './arcade-model.js';
 import {BASES,WALLS,TREES,CATAPULT_SITES,coverAt,hasWallSight} from './arcade-bases.js';
+import {BATTLEGROUND_AREAS,BATTLEGROUND_ROUTES,battlegroundAreaAt} from './arcade-battleground.js';
 const COLORS=['#d2ff70','#ff765d','#d7a0ff'];
 const SWARM_INDEX=new Map(SWARMS.map((swarm,i)=>[swarm.id,i]));
 const summaries=new WeakMap();
 
-// Reuse six small records. Both views inspect the same 72 flies without sorting
+// Reuse one small record per patch. Both views inspect the same flies without sorting
 // or allocating a per-fly screen label on every frame.
 function swarmStatus(state){
  let rows=summaries.get(state);
@@ -32,8 +33,22 @@ export function drawRadar(game,canvas){
  c.fillStyle='#153e3af2';c.strokeStyle='#9bd1be';c.lineWidth=4;c.beginPath();c.arc(0,0,r,0,Math.PI*2);c.fill();c.stroke();c.clip();
  const dx=game.focus.x-game.camera.position.x,dz=game.focus.z-game.camera.position.z,d=Math.hypot(dx,dz),fx=d>1e-6?dx/d:0,fz=d>1e-6?dz/d:-1;
  const point=(x,z)=>({x:(-fz*x+fx*z)*k,y:-(fx*x+fz*z)*k});
+ // Authored districts and routes sit under the functional markers, sharing
+ // the terrain's world coordinates and rotating with the same camera basis.
+ for(const area of BATTLEGROUND_AREAS){
+  c.fillStyle=area.tint;c.globalAlpha=.25;c.beginPath();
+  for(let i=0;i<=32;i++){const angle=i*Math.PI/16,q=point(area.x+Math.cos(angle)*area.rx,area.z+Math.sin(angle)*area.rz);if(i)c.lineTo(q.x,q.y);else c.moveTo(q.x,q.y);}
+  c.closePath();c.fill();
+ }
+ c.globalAlpha=1;c.strokeStyle='#cbbd8c99';c.lineCap='round';c.lineJoin='round';
+ for(const route of BATTLEGROUND_ROUTES){
+  c.lineWidth=Math.max(2,route.width*k);c.beginPath();
+  for(const [i,p] of route.points.entries()){const q=point(p[0],p[1]);if(i)c.lineTo(q.x,q.y);else c.moveTo(q.x,q.y);}
+  c.stroke();
+ }
  c.strokeStyle='#ffffff17';c.lineWidth=1;
- for(let a=-20;a<=20;a+=10){const u=point(a,-25),v=point(a,25),w=point(-25,a),t=point(25,a);c.beginPath();c.moveTo(u.x,u.y);c.lineTo(v.x,v.y);c.moveTo(w.x,w.y);c.lineTo(t.x,t.y);c.stroke();}
+ const gridExtent=Math.floor(RULES.radius/10)*10;
+ for(let a=-gridExtent;a<=gridExtent;a+=10){const u=point(a,-RULES.radius),v=point(a,RULES.radius),w=point(-RULES.radius,a),t=point(RULES.radius,a);c.beginPath();c.moveTo(u.x,u.y);c.lineTo(v.x,v.y);c.moveTo(w.x,w.y);c.lineTo(t.x,t.y);c.stroke();}
  for(const o of OBSTACLES){const q=point(o.x,o.z);c.fillStyle='#769084';c.beginPath();c.arc(q.x,q.y,o.r*k,0,Math.PI*2);c.fill();}
  for(const tree of TREES){const q=point(tree.x,tree.z);c.fillStyle='#517d4788';c.beginPath();c.arc(q.x,q.y,tree.radius*k,0,Math.PI*2);c.fill();}
  for(const wall of WALLS){const corners=[point(wall.x-wall.hw,wall.z-wall.hd),point(wall.x+wall.hw,wall.z-wall.hd),point(wall.x+wall.hw,wall.z+wall.hd),point(wall.x-wall.hw,wall.z+wall.hd)];c.fillStyle='#c4b492';c.beginPath();c.moveTo(corners[0].x,corners[0].y);for(const q of corners.slice(1))c.lineTo(q.x,q.y);c.closePath();c.fill();}
@@ -46,10 +61,11 @@ export function drawRadar(game,canvas){
   flyGlyph(c,q.x,q.y,6,available);
  }
  game.state.actors.forEach((a,i)=>{if(a.ko||a.eliminated)return;const player=game.state.actors[0];if(i>0&&coverAt(a)&&a.revealedTime<=0&&Math.hypot(a.x-player.x,a.z-player.z)>2.2)return;const q=point(a.x,a.z);c.fillStyle=COLORS[i];c.strokeStyle='#102923';c.lineWidth=3;c.beginPath();c.arc(q.x,q.y,i===0?9:8,0,Math.PI*2);c.fill();c.stroke();if(i===0){const aim=point(a.aimX*2.7,a.aimZ*2.7);c.strokeStyle=COLORS[0];c.lineWidth=4;c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q.x+aim.x,q.y+aim.y);c.stroke();}else{c.fillStyle='#102923';c.beginPath();c.arc(q.x-3,q.y-2,1.6,0,Math.PI*2);c.arc(q.x+3,q.y-2,1.6,0,Math.PI*2);c.fill();}});
- c.restore();c.fillStyle='#f2ffe1';c.font='bold 18px sans-serif';c.textAlign='center';c.fillText('ΒΑΣΕΙΣ • ΜΥΓΕΣ • ΚΑΛΥΨΗ',center,size-5);
+ const player=game.state.actors[0],district=battlegroundAreaAt(player.x,player.z)?.name;
+ c.restore();c.fillStyle='#f2ffe1';c.font='bold 18px sans-serif';c.textAlign='center';c.fillText(district||'ΒΑΣΕΙΣ • ΜΥΓΕΣ • ΚΑΛΥΨΗ',center,size-5);
 }
 
-// One restrained label on a nearby useful patch replaces 72 large yellow fly
+// One restrained label on a nearby useful patch replaces per-fly screen
 // overlays. Every other patch remains discoverable on the minimap.
 export function drawFlyMarkers(game,c){
  const player=game.state.actors[0];

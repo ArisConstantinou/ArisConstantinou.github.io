@@ -78,7 +78,7 @@ test('reaction, windup and strafe decisions use simulation seconds at 30, 60 and
 });
 
 test('a moving bot compensates for its own hop while keeping the original target point frozen',()=>{
- const {state,player,bot}=arena();Object.assign(bot,{idle:0,decision:1});until(state,()=>bot.aiCharging);
+ const {state,player,bot}=arena();Object.assign(player,{z:10});Object.assign(bot,{z:0,idle:0,decision:1});until(state,()=>bot.aiCharging);
  const held={...bot.aiAimPoint},direction=[bot.aiAimX,bot.aiAimY,bot.aiAimZ],startX=player.x,shooterStart={x:bot.x,z:bot.z};
  for(let frame=0;frame<8;frame++){
   step(state,{mx:1,mz:0,aiming:false});

@@ -84,7 +84,7 @@ function layoutFixture({integratedFire=false,blocks=[],hintRect=null,onEditingCh
   requestAnimationFrame:callback=>{frames.set(++frame,callback);return frame;},cancelAnimationFrame:id=>frames.delete(id),
   localStorage:{getItem:key=>storage.get(key),setItem:(key,value)=>storage.set(key,value)},
  });
- const hud=blocks.map(block=>{const el=new Element(block.width,block.height);el.style.left=`${block.left}px`;el.style.top=`${block.top}px`;el.selector=block.selector||`#${block.id}`;return el;});
+ const hud=blocks.map(block=>{const el=new Element(block.width,block.height);el.id=block.id||'';el.style.left=`${block.left}px`;el.style.top=`${block.top}px`;el.selector=block.selector||`#${block.id}`;for(const name of block.classes||[])el.classList.toggle(name,true);return el;});
  const doc={defaultView:view,querySelectorAll:selector=>hud.filter(el=>selector.split(',').map(s=>s.trim()).includes(el.selector)),createElement:()=>{const el=new Element(108,44);el.style.left='11px';el.style.top='48px';el.selector='#layout-hint .layout-reset';hud.push(el);return el;}},root=new Element(390,844),move=new Element(),aim=new Element(),fire=new Element(72,72),toggle=new Element(52,48);
  root.ownerDocument=doc;for(const el of [move,aim,fire,toggle])el.parentElement=root;
  let hint=null;if(hintRect){hint=new Element(hintRect.width,hintRect.height);hint.hidden=true;hint.style.left=`${hintRect.left}px`;hint.style.top=`${hintRect.top}px`;hint.parentElement=root;hint.textContent='Move controls';root.querySelector=selector=>selector==='#layout-hint'?hint:null;}
@@ -197,6 +197,38 @@ test('temporary contextual-button displacement does not replace an untouched sav
  f.send(f.move,'pointerdown',{clientX:start.x,clientY:start.y});f.send(f.move,'pointermove',{clientX:100,clientY:350});f.send(f.move,'pointerup');f.layout.setEditing(false);
  assert.deepEqual(f.stored().portrait.aim,f.initial.portrait.aim,'only the deliberately dragged movement pad is persisted');
  f.hud[0].hidden=true;f.layout.refresh();assert.deepEqual(f.center(f.aim),preferred);f.layout.destroy();
+});
+
+test('world-anchored catapult and storage prompts cannot displace or rewrite saved sticks',()=>{
+ const f=layoutFixture({integratedFire:true,blocks:['catapult-button','catapult-status','sabotage-button','sabotage-status'].map(id=>({id,classes:['world-context'],left:260,top:590,width:104,height:86}))});
+ const preferred={move:{x:78,y:633},aim:{x:312,y:633}};
+ const unchanged=()=>{assert.deepEqual(f.center(f.move),preferred.move);assert.deepEqual(f.center(f.aim),preferred.aim);assert.deepEqual(f.stored(),f.initial);};
+ unchanged();
+ for(const [left,hidden] of [[30,false],[260,true],[260,false],[30,true],[30,false]]){
+  for(const el of f.hud){el.style.left=`${left}px`;el.hidden=hidden;}
+  f.layout.refresh();unchanged();
+ }
+ // The same exclusion applies while dragging, not just during refresh.
+ for(const el of f.hud){el.style.left='240px';el.style.top='300px';el.hidden=false;}
+ f.layout.setEditing(true);const start=f.center(f.move),target={x:292,y:343};
+ f.send(f.move,'pointerdown',{clientX:start.x,clientY:start.y});f.send(f.move,'pointermove',{clientX:target.x,clientY:target.y});f.send(f.move,'pointerup');
+ assert.deepEqual(f.center(f.move),target);assert.deepEqual(f.stored().portrait.aim,f.initial.portrait.aim);f.layout.destroy();
+});
+
+test('ordinary fixed actions and header buttons still reserve their touch area',()=>{
+ for(const [id,classes] of [['catapult-button',[]],['sabotage-button',[]],['kick-button',['world-context']],['pause-button',['world-context']]]){
+  const f=layoutFixture({integratedFire:true,blocks:[{id,classes,left:260,top:590,width:104,height:86}]}),preferred={x:312,y:633};
+  assert.notDeepEqual(f.center(f.aim),preferred,`${id} must remain reachable`);
+  assert.deepEqual(f.stored(),f.initial,'temporary avoidance does not persist a new preference');
+  f.hud[0].hidden=true;f.layout.refresh();assert.deepEqual(f.center(f.aim),preferred);f.layout.destroy();
+ }
+});
+
+test('dynamic frog-action prompts never become joystick layout obstacles',()=>{
+ const f=layoutFixture({integratedFire:true,blocks:[{id:'kick-rival-1',selector:'.frog-action',classes:['frog-action'],left:260,top:590,width:104,height:86}]});
+ assert.deepEqual(f.center(f.aim),{x:312,y:633});
+ f.hud[0].style.left='30px';f.layout.refresh();assert.deepEqual(f.center(f.move),{x:78,y:633});
+ assert.deepEqual(f.stored(),f.initial);f.layout.destroy();
 });
 
 test('combined aim/fire preserves independent portrait and landscape positions and resets together',()=>{

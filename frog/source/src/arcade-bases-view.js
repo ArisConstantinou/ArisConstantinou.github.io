@@ -237,7 +237,8 @@ export class ArcadeBasesView {
 
   buildGrove(definition,index){
     const group=new THREE.Group();group.name=definition.id;this.group.add(group);
-    const material=this.material({color:['#487c47','#609147','#397553','#668349','#4d825a'][index],transparent:true,opacity:.94,depthWrite:true});
+    const foliageColors=['#487c47','#609147','#397553','#668349','#4d825a'];
+    const material=this.material({color:foliageColors[index%foliageColors.length],transparent:true,opacity:.94,depthWrite:true});
     const foliage=[],trunks=[],understory=[];
     const canopy=new THREE.Group();canopy.name='tree-cover-canopy';group.add(canopy);
     for(let i=0;i<3;i++){

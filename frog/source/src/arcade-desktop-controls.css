@@ -1,0 +1,17 @@
+#desktop-controls{pointer-events:none;user-select:none}
+#desktop-controls[hidden],.is-touch #desktop-controls,.in-menu #desktop-controls{display:none!important}
+#keyboard-display{position:fixed;left:max(24px,env(safe-area-inset-left));bottom:max(24px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:6px;filter:drop-shadow(0 3px 7px #082c2866)}
+#keyboard-display .control-key{display:grid;place-items:center;width:44px;height:44px;border:1.5px solid #9cc9a988;border-radius:11px;background:linear-gradient(160deg,#286150f2,#153f35f2);color:#e8f5d9;font:900 19px/1 Arial,Helvetica,sans-serif;box-shadow:0 4px 0 #0c2b24cc,inset 0 1px 0 #d9efd326;text-shadow:0 1px 2px #092a24;transition:background .06s,color .06s,transform .06s,box-shadow .06s}
+#keyboard-display [data-key="KeyW"]{grid-column:2;grid-row:1}
+#keyboard-display [data-key="KeyA"]{grid-column:1;grid-row:2}
+#keyboard-display [data-key="KeyS"]{grid-column:2;grid-row:2}
+#keyboard-display [data-key="KeyD"]{grid-column:3;grid-row:2}
+#keyboard-display .control-key.is-active{background:#c7f979;border-color:#efffd2;color:#174934;text-shadow:none;box-shadow:0 2px 0 #4d7430,0 0 13px #b8ef5c66,inset 0 1px 0 #f6ffe0;transform:translateY(2px)}
+#mouse-display{position:fixed;right:max(24px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));display:block;width:62px;height:92px;overflow:visible;filter:drop-shadow(0 4px 7px #082c2877)}
+#mouse-display .mouse-body{fill:#153f35ed;stroke:#a0cbae;stroke-width:1.5}
+#mouse-display .mouse-button{fill:#286150;stroke:#8cb99c;stroke-width:1;transition:fill .06s,stroke .06s}
+#mouse-display .mouse-button.is-active{fill:#c7f979;stroke:#efffd2}
+#mouse-display .mouse-wheel{fill:#0d3029;stroke:#c8dfb4;stroke-width:1.5}
+#mouse-display .mouse-seam{fill:none;stroke:#8cb99c77;stroke-width:1}
+@media(max-width:800px){#keyboard-display{left:max(16px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom))}#mouse-display{right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom))}}
+@media(prefers-reduced-motion:reduce){#keyboard-display .control-key,#mouse-display .mouse-button{transition:none}}

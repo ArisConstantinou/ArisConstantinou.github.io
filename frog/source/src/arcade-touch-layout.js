@@ -1,5 +1,6 @@
 const KEYS=['move','aim','fire'];
 const GAP=8;
+const WORLD_CONTEXT_IDS=new Set(['catapult-button','catapult-status','sabotage-button','sabotage-status']);
 const bounded=(v,min,max)=>Math.max(min,Math.min(max,v));
 const number=(v,fallback)=>Number.isFinite(v)?v:fallback;
 const rect=(p,size)=>({left:p.x-size.width/2,top:p.y-size.height/2,right:p.x+size.width/2,bottom:p.y+size.height/2,...(size.shape==='circle'?{shape:'circle'}:{})});
@@ -103,6 +104,9 @@ export function createTouchLayout({root,movePad,aimPad,fireButton,toggleButton,s
   // Passive HUD cards and map/status text do not claim whole forbidden regions.
   // Only the actual buttons must remain reachable around the movable pads.
   for(const el of doc.querySelectorAll('#pause-button, #view-button, #layout-button, #layout-hint .layout-reset, #kick-button, #catapult-button, #sabotage-button')){
+   // World prompts avoid the saved pads themselves. Their projected motion
+   // must never push the controls; dynamic .frog-action buttons are not queried.
+   if(WORLD_CONTEXT_IDS.has(el.id)&&el.classList.contains('world-context'))continue;
    if(!visible(el))continue;
    const r=el.getBoundingClientRect();if(r.width&&r.height)out.push({left:r.left,top:r.top,right:r.right,bottom:r.bottom});
   }

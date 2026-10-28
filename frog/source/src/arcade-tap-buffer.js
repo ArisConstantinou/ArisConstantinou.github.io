@@ -3,7 +3,15 @@ export function installTapBuffer(game){
  const pending={fire:false,kick:false};
  const mark=key=>{if(game.running&&!game.layoutEditing)pending[key]=true;};
  const originalInput=game.currentInput.bind(game),originalClear=game.clearInputs.bind(game);
- game.currentInput=()=>{const input=originalInput();for(const key of Object.keys(pending)){if(!game.layoutEditing)input[key] ||= pending[key];pending[key]=false;}if(!game.layoutEditing)input.aiming ||= input.fire;return input;};
+ game.currentInput=()=>{
+  const input=originalInput();
+  for(const key of Object.keys(pending)){if(!game.layoutEditing)input[key] ||= pending[key];pending[key]=false;}
+  // A contextual kick owns this frame. Consume an earlier fly tap without
+  // firing alongside the kick or deferring that shot to a later frame.
+  if(input.kickTargetId)input.fire=false;
+  if(!game.layoutEditing)input.aiming ||= input.fire;
+  return input;
+ };
  game.clearInputs=()=>{for(const key of Object.keys(pending))pending[key]=false;originalClear();};
  addEventListener('keydown',e=>{if(e.repeat||e.target.matches('input,select'))return;if(e.code==='KeyQ')mark('kick');},true);
  addEventListener('pointerdown',e=>{

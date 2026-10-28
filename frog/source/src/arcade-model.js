@@ -4,14 +4,18 @@ import {BASES,ARENA_ROCKS,resolveArenaMove,hasWallSight,coverAt,terrainSpeed,nav
 import {PROJECTILE,normalizeAim,worldRay,projectileLaunch,projectilePoint,traceProjectile,projectileOrigin,projectileGround} from './arcade-projectiles.js';
 import {FROG_BODY,actorBodiesOverlapHeight} from './arcade-actor-bounds.js';
 import {resetBotAim,planBotShot} from './arcade-bot-combat.js';
+import {ARENA_RADIUS,ARENA_MOVE_RADIUS,BATTLEGROUND_SWARMS} from './arcade-battleground.js';
 export {setProjectileWorld,projectileOrigin} from './arcade-projectiles.js';
 
-export const ARCADE_VERSION = '4.3.11';
+export const ARCADE_VERSION = '4.3.12';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
-export const RULES = Object.freeze({radius:25,capacity:60,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:1.95,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});
+export const RULES = Object.freeze({radius:ARENA_RADIUS,capacity:60,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:1.95,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});
 export const OBSTACLES = ARENA_ROCKS;
-export const SWARMS = Object.freeze([[0,3.5],[-13,8],[13,1],[-12,-11],[10,-14],[2,17]].map(([x,z],i)=>Object.freeze({id:`swarm-${i}`,x,z,radius:2.1})));
+const ORIGINAL_SWARM_POINTS=[[0,3.5],[-13,8],[13,1],[-12,-11],[10,-14],[2,17]];
+export const FLIES_PER_SWARM=12;
+export const SWARMS = Object.freeze([...ORIGINAL_SWARM_POINTS,...BATTLEGROUND_SWARMS].map(([x,z],i)=>Object.freeze({id:`swarm-${i}`,x,z,radius:2.1})));
+const LEGACY_FLY_COUNT=ORIGINAL_SWARM_POINTS.length*FLIES_PER_SWARM,FLY_COUNT=SWARMS.length*FLIES_PER_SWARM;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const norm=(x,z)=>{const n=Math.hypot(x,z);return n>1e-6?{x:x/n,z:z/n}:{x:0,z:1};};
@@ -26,7 +30,7 @@ const baseGeometry=b=>BASES.find(g=>g.id===b?.id);
 // Resolve every scenery contact together, so sliding past a corner or rock
 // cannot put the frog back inside a different solid.
 export function moveBody(a,dx,dz){
- const next=resolveArenaMove(a,dx,dz,{arenaRadius:RULES.radius-1});a.x=next.x;a.z=next.z;
+ const next=resolveArenaMove(a,dx,dz,{arenaRadius:ARENA_MOVE_RADIUS});a.x=next.x;a.z=next.z;
 }
 const overlappingHeight=(s,a,b,padding=0)=>actorBodiesOverlapHeight(a,b,{groundA:projectileGround(s,a.x,a.z),groundB:projectileGround(s,b.x,b.z),padding});
 // Small symmetric body contacts keep active frogs distinct. Scenery still
@@ -53,17 +57,27 @@ function segmentCircle(x,z,nx,nz,c,r){const dx=nx-x,dz=nz-z,ox=x-c.x,oz=z-c.z,A=
 export function clearPickupPath(a,f){return hasWallSight(a,f,.1)&&OBSTACLES.every(o=>segmentCircle(a.x,a.z,f.x,f.z,o,o.r+.1)===null);}
 export function canDetect(observer,target){return !target.ko&&!target.eliminated&&distance(observer,target)<=23&&clearPickupPath(observer,target)&&(!coverAt(target)||target.revealedTime>0||distance(observer,target)<2.2);}
 function placeFly(s,f){
- const patch=SWARMS[Math.floor(f.id/12)];f.swarmId=patch.id;
+ const patch=SWARMS[Math.floor(f.id/FLIES_PER_SWARM)];f.swarmId=patch.id;
  const angle=rng(s)*Math.PI*2,r=Math.sqrt(rng(s))*patch.radius;
  f.x=patch.x+Math.sin(angle)*r;f.z=patch.z+Math.cos(angle)*r;f.wait=0;f.phase=rng(s)*Math.PI*2;
 }
 export function newRound(seed=731){
  const s={version:2,swarmVersion:1,seed,time:0,status:'playing',phase:'countdown',intro:RULES.introSeconds,actors:BASES.map(b=>actor(b.owner,b.spawn.x,b.spawn.z,b.spawnHeading)),bases:BASES.map(b=>({id:b.id,owner:b.owner,x:b.x,z:b.z,destroyed:false,progress:0,attackerId:null})),flies:[],catapults:createCatapults(),shells:[],bullets:[],events:[],nextId:1,stats:{caught:0,shots:0,hits:0,kos:0,basesDestroyed:0}};
- for(let i=0;i<72;i++){const f={id:i,swarmId:'',x:0,z:0,wait:0,phase:0};placeFly(s,f);s.flies.push(f);}
+ for(let i=0;i<FLY_COUNT;i++){const f={id:i,swarmId:'',x:0,z:0,wait:0,phase:0};placeFly(s,f);s.flies.push(f);}
  return s;
 }
 export function fireRing(x,y){const d=Math.hypot(x,y);return {x:d>.08?x/Math.max(1,d):0,z:d>.08?y/Math.max(1,d):0,fire:d>=.72};}
-export function kickTarget(s,a){return s.actors.filter(b=>b!==a&&!b.ko&&!b.eliminated&&distance(a,b)<=RULES.kickRange&&overlappingHeight(s,a,b,.1)&&clearPickupPath(a,b)).sort((b,c)=>distance(a,b)-distance(a,c))[0]||null;}
+export function kickTarget(s,a,targetId=undefined){
+ if(!a||!Array.isArray(s?.actors))return null;
+ // An explicit contextual target never falls back to a different nearby body.
+ return s.actors.filter(b=>b.id!==a.id&&(targetId===undefined||b.id===targetId)&&!b.ko&&!b.eliminated&&distance(a,b)<=RULES.kickRange&&overlappingHeight(s,a,b,.1)&&clearPickupPath(a,b)).sort((b,c)=>distance(a,b)-distance(a,c))[0]||null;
+}
+export function canKick(s,a,targetId=undefined){
+ if(s?.status!=='playing'||s.phase!=='battle'||!a||a.ko||a.eliminated||a.dizzyTime>0||a.hit>0||a.catapultId||a.knockUp>0||a.kick>0||a.kickCooldown>0)return false;
+ // Protection can expire or begin during the windup; hit() remains the final
+ // authority for damage and impulse when this ordinary one-hit kick lands.
+ return !!kickTarget(s,a,targetId);
+}
 export function collect(s,a){
  if(a.ko||a.eliminated||a.dizzyTime>0||a.catapultId||a.tongue>0||a.ammo>=RULES.capacity)return false;
  const home=ownBase(s,a),stock=baseGeometry(home)?.stock;
@@ -121,14 +135,14 @@ export function hit(s,a,b){
  s.events.push({type:'hit',id:a.id,owner:b.owner,x:a.x,z:a.z,...(Number.isFinite(b.y)?{y:b.y}:{}),dx:direction.x,dz:direction.z});if(b.owner==='player'&&a.id!=='player')s.stats.hits++;
  if(a.finishHits>=RULES.finishHits)knockOut(s,a,{...b,dx:direction.x,dz:direction.z});return true;
 }
-export function kick(s,a){
- if(s.phase!=='battle'||a.ko||a.eliminated||a.dizzyTime>0||a.hit>0||a.catapultId||a.knockUp>0||a.kick>0||a.kickCooldown>0)return false;
- const target=kickTarget(s,a);if(!target)return false;
+export function kick(s,a,targetId=undefined){
+ if(!canKick(s,a,targetId))return false;
+ const target=kickTarget(s,a,targetId);
  const d=norm(target.x-a.x,target.z-a.z);a.aimX=d.x;a.aimY=0;a.aimZ=d.z;a.aim3D=false;a.kick=RULES.kickDuration;a.kickCooldown=RULES.kickCooldown;a.kickPending=true;a.kickId=target.id;a.spawnShield=0;a.revealedTime=RULES.revealSeconds;s.events.push({type:'kick',id:a.id});return true;
 }
 function settleKick(s,a){
  a.kickPending=false;const t=s.actors.find(b=>b.id===a.kickId);
- if(!t||t.ko||distance(a,t)>RULES.kickRange+.25||!overlappingHeight(s,a,t,.1)||!clearPickupPath(a,t))return;
+ if(!t||t.ko||t.eliminated||distance(a,t)>RULES.kickRange+.25||!overlappingHeight(s,a,t,.1)||!clearPickupPath(a,t))return;
  const d=norm(t.x-a.x,t.z-a.z);hit(s,t,{owner:a.id,dx:d.x,dz:d.z,damage:1,force:14});
 }
 export function sabotageTarget(s,a){
@@ -240,7 +254,7 @@ function respawn(s,a){
  for(const x of [0,-.8,.8,-1.6,1.6])for(const z of [0,-.8,.8,-1.6,1.6]){
   const p={x:geometry.spawn.x+x,z:geometry.spawn.z+z};
   if(!insideHome(geometry,p,FROG_BODY.movementRadius))continue;
-  const valid=resolveArenaMove(p,0,0,{arenaRadius:RULES.radius-1});if(distance(p,valid)>.01)continue;
+  const valid=resolveArenaMove(p,0,0,{arenaRadius:ARENA_MOVE_RADIUS});if(distance(p,valid)>.01)continue;
   if(others.some(b=>distance(p,b)<FROG_BODY.movementRadius*2+.03))continue;
   candidates.push({...p,cost:x*x+z*z});
  }
@@ -276,7 +290,7 @@ export function step(s,input={},dt=1/60){
   if(s.phase==='battle'&&c.sabotage&&!moving&&!c.fire&&!c.kick&&!c.throwStone){const target=sabotageTarget(s,a);if(target)sabotageRequests.set(a.id,target.id);}
   if(a.dizzyTime<=0){
    collect(s,a);
-   if(c.fire)shoot(s,a);if(c.kick)kick(s,a);if(c.throwStone)throwStone(s,a,c.throwStone);
+   if(c.fire)shoot(s,a);if(c.kick)kick(s,a,c.kickTargetId);if(c.throwStone)throwStone(s,a,c.throwStone);
    if(a.catapultId){const machine=s.catapults.find(c=>c.id===a.catapultId);if(machine){machine.aimX=a.aimX;machine.aimZ=a.aimZ;a.x=machine.x;a.z=machine.z;a.impulseX=a.impulseZ=0;}}
    if(a.knockUp<=0&&a.hop<=0&&a.idle<=0&&moving){a.hop=RULES.hopDuration;a.hopSpeed=clamp(len,0,1);}
    if(a.knockUp<=0&&a.hop>0){
@@ -306,7 +320,7 @@ export function step(s,input={},dt=1/60){
 export function saveRound(s){return JSON.stringify({...s,events:[],bullets:[],shells:[]});}
 export function loadRound(raw){
  try{
-  const v=JSON.parse(raw);if(![1,2].includes(v?.version)||!Array.isArray(v.actors)||v.actors.length!==3||!Array.isArray(v.flies)||v.flies.length!==72)return null;
+  const v=JSON.parse(raw);if(![1,2].includes(v?.version)||!Array.isArray(v.actors)||v.actors.length!==3||!Array.isArray(v.flies)||![LEGACY_FLY_COUNT,FLY_COUNT].includes(v.flies.length))return null;
   if(!['playing','won','lost'].includes(v.status))return null;
   const legacy=v.version===1,s=newRound(finite(v.seed,731));
   s.time=clamp(finite(v.time),0,1e7);s.nextId=clamp(Math.floor(finite(v.nextId,1)),1,1e9);
@@ -331,8 +345,10 @@ export function loadRound(raw){
    if(legacy){const g=baseGeometry(home);Object.assign(a,{x:g.spawn.x,z:g.spawn.z,face:g.spawnHeading,aimX:Math.sin(g.spawnHeading),aimY:0,aimZ:Math.cos(g.spawnHeading),aim3D:false});}
    moveBody(a,0,0);
   }
-  for(let i=0;i<72;i++){
-   const f=v.flies[i],patch=SWARMS[Math.floor(i/12)];if(!f)continue;
+  // Existing patch IDs and their first 72 flies keep their saved positions and
+  // depletion. Old saves receive only the four freshly initialized outer patches.
+  for(let i=0;i<v.flies.length;i++){
+   const f=v.flies[i],patch=SWARMS[Math.floor(i/FLIES_PER_SWARM)];if(!f)continue;
    if(v.swarmVersion===1&&f.swarmId===patch.id&&Number.isFinite(f.x)&&Number.isFinite(f.z)&&distance(f,patch)<=patch.radius+.001)Object.assign(s.flies[i],{x:f.x,z:f.z,phase:finite(f.phase)});
    s.flies[i].wait=clamp(finite(f.wait),0,12);
   }

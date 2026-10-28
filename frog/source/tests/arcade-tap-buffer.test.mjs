@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {installTapBuffer} from '../src/arcade-tap-buffer.js';
+import {newRound,step,RULES} from '../src/arcade-model.js';
 
 function fixture(){
  const listeners=new Map(),canvas={closest:()=>null},controls={'fire-button':{disabled:false},'kick-button':{disabled:false}};
- const game={running:true,layoutEditing:false,viewMode:'chase3d',locked:false,held:false,cameraDrag:null,renderer:{domElement:canvas},$:id=>controls[id],pointerLocked(){return this.locked;},currentInput(){return {fire:this.held,kick:false,aiming:false};},clearInputs(){this.held=false;}};
+ const game={running:true,layoutEditing:false,viewMode:'chase3d',locked:false,held:false,extraInput:{},cameraDrag:null,renderer:{domElement:canvas},$:id=>controls[id],pointerLocked(){return this.locked;},currentInput(){return {fire:this.held,kick:false,aiming:false,...this.extraInput};},clearInputs(){this.held=false;}};
  const original=globalThis.addEventListener;
  globalThis.addEventListener=(type,listener)=>{const bucket=listeners.get(type)||[];bucket.push(listener);listeners.set(type,bucket);};
  try{installTapBuffer(game);}finally{if(original===undefined)delete globalThis.addEventListener;else globalThis.addEventListener=original;}
@@ -29,6 +30,20 @@ test('a short world click fires while native mouse capture is pending or unavail
  assert.equal(tap.fire,true);assert.equal(tap.aiming,true);
  assert.equal(game.currentInput().fire,false,'a short click is delivered once rather than becoming held fire');
  game.locked=true;press();assert.equal(game.currentInput().fire,true);
+});
+
+test('a targeted contextual kick consumes a buffered fly tap without spending ammo or firing later',()=>{
+ const f=fixture(),state=newRound(),[player,target,other]=state.actors;
+ state.phase='battle';state.intro=0;
+ Object.assign(player,{x:0,z:1.7});Object.assign(target,{x:0,z:0,dizzy:RULES.dizzyHits,dizzyTime:4,ammo:0});Object.assign(other,{ko:true,respawnTime:100});
+ f.press();
+ f.game.extraInput={kick:true,kickTargetId:target.id,aiming:true,ax:0,ay:0,az:-1};
+ const input=f.game.currentInput();assert.equal(input.fire,false);assert.equal(input.kickTargetId,target.id);
+ const ammo=player.ammo;step(state,input,1/60);
+ assert.ok(player.kick>0,'the selected physical kick still starts');assert.equal(state.stats.shots,0);assert.equal(player.ammo,ammo);assert.equal(state.bullets.length,0);
+ f.game.extraInput={};
+ for(let i=0;i<3;i++)assert.equal(f.game.currentInput().fire,false,'the consumed tap cannot become a delayed shot');
+ f.press();assert.equal(f.game.currentInput().fire,true,'a later deliberate click still fires');
 });
 
 test('held fire continues while a touch finger moves the camera',()=>{
