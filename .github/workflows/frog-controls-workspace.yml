@@ -1,4 +1,4 @@
-name: FROG controls diagnostic workspace
+name: FROG controls pointer diagnosis
 on:
   push:
     branches: [frog-controls-4315]
@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 jobs:
-  workspace:
+  pointer-probe:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -17,11 +17,36 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: npm ci
+      - name: Prepare browser and exact repaired build
         working-directory: frog/source
+        run: |
+          npm ci
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+          python3 qa/repair-controls-4315.py
+          npm run build
+      - name: Record native pointer and mouse streams
+        working-directory: frog/source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('qa/controls-4315.mjs').read_text()
+          s=s.replace("const page=await context.newPage();page.setDefaultTimeout(20000);", "const page=await context.newPage();page.setDefaultTimeout(20000);await page.addInitScript(()=>{window.probeEvents=[];for(const type of ['pointermove','mousemove','pointerlockchange'])document.addEventListener(type,e=>{if(window.probeEvents.length>300)window.probeEvents.shift();window.probeEvents.push({type:e.type,x:e.clientX,y:e.clientY,mx:e.movementX,my:e.movementY,buttons:e.buttons,target:e.target?.id,locked:!!document.pointerLockElement,yaw:window.frogArcade?.cameraYaw,pitch:window.frogArcade?.cameraPitch,t:performance.now()});},true);});")
+          s=s.replace("await capture(page,'third-person-after-turn');", "report.events=await page.evaluate(()=>window.probeEvents);console.log('EVENTS '+JSON.stringify(report.events));await capture(page,'third-person-after-turn');")
+          s=s.replace('if(baseline)return;', 'return;')
+          s=s.replace("[['chase',chase],['overview',overview],...(!baseline?[['transitions',transitions]]:[])]", "[['chase',chase]]")
+          s=s.replace('await context.close();await fallback();', 'await context.close();')
+          Path('qa/.pointer-probe.mjs').write_text(s)
+          PY
+          python3 -m http.server 4178 --directory dist >/tmp/frog-probe-server.log 2>&1 &
+          OUT_DIR=qa/results/pointer-probe node qa/.pointer-probe.mjs >qa/results-probe.log 2>&1 || true
+          cat qa/results-probe.log
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: frog-controls-workspace
-          path: frog/source/
-          include-hidden-files: true
+          name: frog-controls-pointer-probe
+          path: |
+            frog/source/qa/results/pointer-probe
+            frog/source/qa/results-probe.log
+            frog/source/dist
           retention-days: 1
