@@ -18,3 +18,10 @@
 #arcade-ui #frog-actions .frog-action{width:88px;height:103px}#arcade-ui #frog-actions .frog-action-caption{font-size:12px;height:14px}#arcade-ui #frog-actions .frog-action-stars{font-size:12px}
 #arcade-ui #kick-button{opacity:1;background:#285c46;border-color:#cdeba3}#arcade-ui #kick-button:disabled{opacity:.78;filter:grayscale(.2)}#arcade-ui #kick-button>span{font-size:12px}
 @media(max-width:600px){.frog-colour-grid{gap:7px}.settings-panel .frog-colour-grid label{font-size:12px}}
+
+/* COD-style mobile look leaves the right side free; fire is independently movable. */
+#arcade-ui #touch-controls > #fire-button{width:82px;height:82px;min-width:82px;min-height:82px;touch-action:none;pointer-events:auto;gap:2px;z-index:3}
+#arcade-ui #touch-controls > #fire-button svg{width:34px;height:34px}
+#arcade-ui #touch-controls > #fire-button span{font-size:14px;line-height:1.15}
+#arcade-ui .touch-look-guide{position:absolute;right:16px;top:48%;padding:5px 9px;border-radius:10px;background:#143e3266;color:#f2ffdc;font:700 12px system-ui;letter-spacing:.4px;pointer-events:none;text-shadow:0 1px 3px #123b2c}
+#arcade-ui .layout-editing .touch-look-guide{display:none}
