@@ -9,7 +9,7 @@ import {ARENA_RADIUS,ARENA_MOVE_RADIUS,BATTLEGROUND_SWARMS} from './arcade-battl
 import {GUARD_BODY,createGuards,guardActive,guardOverlapsActorHeight,hitGuard,stepGuards,restoreGuards,removeBaseGuards} from './arcade-guards.js';
 export {setProjectileWorld,projectileOrigin} from './arcade-projectiles.js';
 
-export const ARCADE_VERSION = '4.3.18';
+export const ARCADE_VERSION = '4.3.19';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
 export const RULES = Object.freeze({radius:ARENA_RADIUS,capacity:90,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:2.4,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});

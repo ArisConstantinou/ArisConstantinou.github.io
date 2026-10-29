@@ -5,13 +5,13 @@ const clock=seconds=>`${Math.floor(seconds/60)}:${String(Math.floor(seconds%60))
 export function installRoundUI(game){
  const doc=game.ui.ownerDocument,el=(tag,text,className)=>{const node=doc.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
  const overlay=el('div',undefined,'battle-countdown');overlay.id='battle-countdown';overlay.hidden=true;overlay.setAttribute('role','status');overlay.setAttribute('aria-live','polite');overlay.setAttribute('aria-atomic','true');
- const heading=el('span','Η ΜΑΧΗ ΞΕΚΙΝΑ ΣΕ'),number=el('strong','5');overlay.append(heading,number);game.ui.append(overlay);
+ const number=el('strong','5');overlay.append(number);game.ui.append(overlay);
  const results=el('div',undefined,'results-leaderboard');game.$('result-copy').after(results);
  const historyButton=el('button','ΡΕΚΟΡ ΣΥΣΚΕΥΗΣ','small-result-button');historyButton.type='button';const actions=el('div',undefined,'results-actions');actions.append(game.$('replay-button'),historyButton,game.$('result-settings'));game.$('result-panel').append(actions);
  const panel=el('section',undefined,'leaderboard-panel');panel.id='leaderboard-panel';panel.hidden=true;panel.setAttribute('aria-label','Πίνακες κατάταξης');
  const title=el('h2','Κατάταξη'),tabs=el('div',undefined,'leaderboard-tabs'),matchTab=el('button','ΑΓΩΝΑΣ'),recordsTab=el('button','ΡΕΚΟΡ ΣΥΣΚΕΥΗΣ'),content=el('div',undefined,'leaderboard-content'),back=el('button','ΠΙΣΩ','leaderboard-back');
  for(const button of [matchTab,recordsTab,back])button.type='button';tabs.append(matchTab,recordsTab);panel.append(title,tabs,content,back);game.$('arcade-menu').append(panel);
- let round=null,last=null,battleUntil=-Infinity,tab='match';
+ let round=null,last=null,tab='match';
  function makeTable(rows,historical=false){
   const wrapper=el('div',undefined,'leaderboard-table-wrap'),table=el('table',undefined,'leaderboard-table'),thead=el('thead'),tr=el('tr');table.setAttribute('aria-label',historical?'Καλύτεροι ολοκληρωμένοι γύροι στη συσκευή':'Κατάταξη αγώνα');
   for(const [label,css] of [['#'],['Βάτραχος'],['Πόντοι'],['KO','wide-stat'],['Θάνατοι','wide-stat'],['Ακρίβεια']])tr.append(el('th',label,css));thead.append(tr);table.append(thead);const body=el('tbody');
@@ -40,14 +40,15 @@ export function installRoundUI(game){
  function close(){panel.hidden=true;if(game.mode==='result')game.$('result-panel').hidden=false;else game.$('menu-main').hidden=false;}
  matchTab.onclick=()=>{tab='match';paint();};recordsTab.onclick=()=>{tab='records';paint();};back.onclick=close;historyButton.onclick=()=>{open();tab='records';paint();};
  function update(){
-  if(round!==game.state){round=game.state;last=null;battleUntil=-Infinity;}
-  const visible=game.running&&!game.layoutEditing,value=visible?(countdownValue(game.state)||(game.elapsed<battleUntil?'ΜΑΧΗ!':null)):null;overlay.hidden=!value;
+  if(round!==game.state){round=game.state;last=null;}
+  const visible=game.running&&!game.layoutEditing,value=visible?countdownValue(game.state):null;overlay.hidden=!value;
+  const plainWarmup=!game.state.training&&game.state.phase==='countdown'&&!game.state.actors[0].ko&&!game.layoutEditing,status=game.$('round-status');status.classList.toggle('plain-warmup',plainWarmup);
+  if(plainWarmup){status.hidden=!game.running||!!value;if(!value)game.$('round-time').textContent=String(Math.max(1,Math.ceil(game.state.intro-1e-8)));}
   if(value===last)return;last=value;if(!value)return;
-  const fight=value==='ΜΑΧΗ!';heading.textContent=fight?'ΟΛΟΙ ΕΝΑΝΤΙΟΝ ΟΛΩΝ':'Η ΜΑΧΗ ΞΕΚΙΝΑ ΣΕ';number.textContent=value;overlay.classList.toggle('fight',fight);
-  if(!fight)game.sound.play('countdown');
-  if(!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches)number.animate?.([{transform:'scale(1.55)',opacity:0},{transform:'scale(.94)',opacity:1,offset:.7},{transform:'scale(1)',opacity:1}],{duration:350,easing:'cubic-bezier(.2,.8,.2,1)'});
+  number.textContent=value;overlay.setAttribute('aria-label',`Η μάχη ξεκινά σε ${value}`);game.sound.play('countdown');
+  if(!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches)number.animate?.([{transform:'scale(1.35)',opacity:1},{transform:'scale(.94)',opacity:1,offset:.7},{transform:'scale(1)',opacity:1}],{duration:350,easing:'cubic-bezier(.2,.8,.2,1)'});
  }
- function battle(){round=game.state;battleUntil=game.elapsed+.85;last=null;game.sound.play('battle');update();}
+ function battle(){round=game.state;last=null;game.sound.play('battle');update();}
  function showResults(){
   game.sound.stopMusic?.();paintMatch(results);const rows=matchStandings(game.state,game.settings.playerName),you=rows.find(row=>row.id==='player');
   game.$('result-title').textContent=game.state.status==='won'?'ΝΙΚΗ!':'ΤΕΛΟΣ ΓΥΡΟΥ';game.$('result-copy').textContent=`${you?.rank??'—'}η θέση · ${you?.points??0} πόντοι · ${clock(game.state.time)} γύρου`;

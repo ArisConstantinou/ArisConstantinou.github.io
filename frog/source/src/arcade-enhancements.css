@@ -48,3 +48,10 @@
 @media(max-height:500px) and (orientation:landscape){#arcade-ui #result-panel .result-kicker{display:none}#arcade-ui #result-panel h1{font-size:28px;margin:0}#arcade-ui #result-copy{font-size:14px;margin:3px 0 6px}.results-actions{grid-template-columns:1fr 1.1fr .8fr;margin-top:3px}.results-actions #replay-button{grid-column:auto}#arcade-ui #result-panel .art-button{min-height:44px;font-size:17px;padding:6px 10px;gap:5px}.results-actions .small-result-button{font-size:12px;padding:6px}.results-leaderboard .leaderboard-table th{padding:5px 8px}.results-leaderboard .leaderboard-table td{padding:5px 8px}.results-leaderboard .leaderboard-table td strong{font-size:14px}.results-leaderboard .leaderboard-table td small{line-height:1.15}.results-leaderboard .score-rule{margin:4px 0;font-size:12px}.results-leaderboard .leaderboard-table-wrap{margin:6px 0}}
 
 @media(max-height:500px) and (orientation:landscape){.results-leaderboard .leaderboard-table td strong{display:inline}.results-leaderboard .leaderboard-table td small:not(.entry-status){display:inline;margin-left:6px}}
+
+/* Start countdown: visible numerals only, directly over the arena. */
+#arcade-ui .battle-countdown{min-width:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;gap:0}
+#arcade-ui .battle-countdown>strong{font-size:clamp(96px,24vh,142px);color:#f6ffd7;text-shadow:0 4px 2px #193d28,0 0 15px #102f2bb3;-webkit-text-stroke:1px #21462a}
+
+#arcade-ui #round-status.plain-warmup{padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;color:#f6ffd7;text-shadow:0 2px 4px #173b2c}
+#arcade-ui #round-status.plain-warmup #round-copy{display:none}
