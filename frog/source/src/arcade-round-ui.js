@@ -11,7 +11,14 @@ export function installRoundUI(game){
  const panel=el('section',undefined,'leaderboard-panel');panel.id='leaderboard-panel';panel.hidden=true;panel.setAttribute('aria-label','Πίνακες κατάταξης');
  const title=el('h2','Κατάταξη'),tabs=el('div',undefined,'leaderboard-tabs'),matchTab=el('button','ΑΓΩΝΑΣ'),recordsTab=el('button','ΡΕΚΟΡ ΣΥΣΚΕΥΗΣ'),content=el('div',undefined,'leaderboard-content'),back=el('button','ΠΙΣΩ','leaderboard-back');
  for(const button of [matchTab,recordsTab,back])button.type='button';tabs.append(matchTab,recordsTab);panel.append(title,tabs,content,back);game.$('arcade-menu').append(panel);
- let round=null,last=null,tab='match';
+ let round=null,last=null,tab='match',anchorKey='';
+ function anchorTimer(){
+  const key=`${game.w}:${game.h}:${game.touch}`;if(key===anchorKey)return;
+  const map=game.$('minimap')?.getBoundingClientRect();if(!map?.width)return;
+  const bottoms=['ammo-card','base-status','pause-button'].map(id=>game.$(id)?.getBoundingClientRect().bottom||0);
+  game.ui.style.setProperty('--start-timer-right',`${Math.max(12,game.w-map.left+8)}px`);
+  game.ui.style.setProperty('--start-timer-top',`${Math.max(70,...bottoms)+8}px`);anchorKey=key;
+ }
  function makeTable(rows,historical=false){
   const wrapper=el('div',undefined,'leaderboard-table-wrap'),table=el('table',undefined,'leaderboard-table'),thead=el('thead'),tr=el('tr');table.setAttribute('aria-label',historical?'Καλύτεροι ολοκληρωμένοι γύροι στη συσκευή':'Κατάταξη αγώνα');
   for(const [label,css] of [['#'],['Βάτραχος'],['Πόντοι'],['KO','wide-stat'],['Θάνατοι','wide-stat'],['Ακρίβεια']])tr.append(el('th',label,css));thead.append(tr);table.append(thead);const body=el('tbody');
@@ -43,6 +50,7 @@ export function installRoundUI(game){
   if(round!==game.state){round=game.state;last=null;}
   const visible=game.running&&!game.layoutEditing,value=visible?countdownValue(game.state):null;overlay.hidden=!value;
   const plainWarmup=!game.state.training&&game.state.phase==='countdown'&&!game.state.actors[0].ko&&!game.layoutEditing,status=game.$('round-status');status.classList.toggle('plain-warmup',plainWarmup);
+  if(plainWarmup&&visible)anchorTimer();
   if(plainWarmup){status.hidden=!game.running||!!value;if(!value)game.$('round-time').textContent=String(Math.max(1,Math.ceil(game.state.intro-1e-8)));}
   if(value===last)return;last=value;if(!value)return;
   number.textContent=value;overlay.setAttribute('aria-label',`Η μάχη ξεκινά σε ${value}`);game.sound.play('countdown');

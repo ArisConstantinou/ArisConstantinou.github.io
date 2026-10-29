@@ -1,10 +1,17 @@
 // Older saves have no fire-mode preference. Restore player-controlled shots
 // unless the player has explicitly selected automatic mobile fire.
 export function normalizeFireSettings(settings={}){
- return {touchFireMode:settings?.touchFireMode==='auto'?'auto':'manual'};
+ return {touchFireMode:['manual','tap','auto'].includes(settings?.touchFireMode)?settings.touchFireMode:'manual'};
+}
+
+// Apply the requested mobile trial once; later explicit choices survive reload.
+export function applyMobileFireTrial(settings,touch){
+ if(!touch||settings.touchControlVersion===1)return false;
+ settings.touchFireMode='tap';settings.touchControlVersion=1;return true;
 }
 
 const HELP={
+ tap:'Σύρε δεξιά για στόχευση και περιστροφή. Άφησε χωρίς βολή. Πάτα σύντομα στην ελεύθερη δεξιά περιοχή για μία βολή. Κράτα το ΠΥΡ για συνεχόμενες βολές. Το αριστερό χειριστήριο κινεί τον βάτραχο με άλματα.', 
  manual:'Σύρε στη δεξιά πλευρά για θέα και στόχευση. Κράτα το ξεχωριστό ΠΥΡ για βολή· σύρε πάνω του για στόχευση ενώ πυροβολείς. Ελεύθερη εξάσκηση και στην προετοιμασία.',
  auto:'Στόχευσε αντίπαλο ή εχθρικό σκαθάρι με σύρσιμο στη δεξιά πλευρά για αυτόματη βολή. Το ξεχωριστό ΠΥΡ παραμένει διαθέσιμο για ελεύθερη εξάσκηση.',
 };

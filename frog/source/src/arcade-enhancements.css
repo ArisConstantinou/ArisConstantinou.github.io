@@ -55,3 +55,9 @@
 
 #arcade-ui #round-status.plain-warmup{padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;color:#f6ffd7;text-shadow:0 2px 4px #173b2c}
 #arcade-ui #round-status.plain-warmup #round-copy{display:none}
+
+/* Compact preparation numbers beside the radar leave the play view clear. */
+#arcade-ui .battle-countdown,#arcade-ui #round-status.plain-warmup{position:fixed;left:auto;right:var(--start-timer-right,126px);top:var(--start-timer-top,78px);transform:none;width:52px;height:56px;min-width:0;margin:0;align-items:center;justify-content:center;pointer-events:none}
+#arcade-ui .battle-countdown>strong{font-size:46px;line-height:1}
+#arcade-ui #round-status.plain-warmup #round-time{font-size:32px;line-height:1}
+#arcade-ui .touch-look-guide{max-width:148px;text-align:center;line-height:1.5;white-space:normal}
