@@ -1,3 +1,4 @@
+import {freshStats,cleanStats} from './arcade-leaderboard.js';
 // FROG arcade rules. Rendering-free and deterministic for repeatable tests.
 import {ARTILLERY,CATAPULTS,createCatapults,interactCatapult,releaseCatapult,throwStone,stepArtillery} from './arcade-artillery.js';
 import {BASES,ARENA_ROCKS,resolveArenaMove,hasWallSight,coverAt,terrainSpeed,navigateTo,insideHome} from './arcade-bases.js';
@@ -8,7 +9,7 @@ import {ARENA_RADIUS,ARENA_MOVE_RADIUS,BATTLEGROUND_SWARMS} from './arcade-battl
 import {GUARD_BODY,createGuards,guardActive,guardOverlapsActorHeight,hitGuard,stepGuards,restoreGuards,removeBaseGuards} from './arcade-guards.js';
 export {setProjectileWorld,projectileOrigin} from './arcade-projectiles.js';
 
-export const ARCADE_VERSION = '4.3.17';
+export const ARCADE_VERSION = '4.3.18';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
 export const RULES = Object.freeze({radius:ARENA_RADIUS,capacity:90,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:2.4,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});
@@ -66,7 +67,8 @@ function placeFly(s,f){
  f.x=patch.x+Math.sin(angle)*r;f.z=patch.z+Math.cos(angle)*r;f.wait=0;f.phase=rng(s)*Math.PI*2;
 }
 export function newRound(seed=731){
- const s={version:2,swarmVersion:1,guardVersion:1,seed,time:0,status:'playing',phase:'countdown',intro:RULES.introSeconds,actors:BASES.map(b=>actor(b.owner,b.spawn.x,b.spawn.z,b.spawnHeading)),bases:BASES.map(b=>({id:b.id,owner:b.owner,x:b.x,z:b.z,destroyed:false,progress:0,attackerId:null})),guards:createGuards(),flies:[],catapults:createCatapults(),shells:[],bullets:[],events:[],nextId:1,stats:{caught:0,shots:0,hits:0,kos:0,basesDestroyed:0}};
+ const s={version:2,swarmVersion:1,guardVersion:1,seed,time:0,status:'playing',phase:'countdown',intro:RULES.introSeconds,actors:BASES.map(b=>actor(b.owner,b.spawn.x,b.spawn.z,b.spawnHeading)),bases:BASES.map(b=>({id:b.id,owner:b.owner,x:b.x,z:b.z,destroyed:false,destroyedAt:null,progress:0,attackerId:null})),guards:createGuards(),flies:[],catapults:createCatapults(),shells:[],bullets:[],events:[],nextId:1,stats:{caught:0,shots:0,hits:0,kos:0,basesDestroyed:0}};
+ s.scoreboard=Object.fromEntries(s.actors.map(a=>[a.id,freshStats()]));s.scoreboardSince=0;
  for(let i=0;i<FLY_COUNT;i++){const f={id:i,swarmId:'',x:0,z:0,wait:0,phase:0};placeFly(s,f);s.flies.push(f);}
  return s;
 }
@@ -106,13 +108,13 @@ export function collect(s,a){
  if(home&&!home.destroyed&&stock&&distance(a,stock)<=RULES.pickupRange&&clearPickupPath(a,stock)){
   a.tongue=RULES.tongueInterval;a.ammo++;
   s.events.push({type:'tongue',id:a.id,x:stock.x,z:stock.z,baseId:home.id});
-  if(a.id==='player')s.stats.caught++;
+  if(a.id==='player')s.stats.caught++;if(s.scoreboard?.[a.id])s.scoreboard[a.id].caught++;
   return true;
  }
  const f=s.flies.filter(f=>f.wait<=0&&distance(a,f)<=RULES.pickupRange&&clearPickupPath(a,f)).sort((f,g)=>distance(a,f)-distance(a,g))[0];
  if(!f)return false;
  a.tongue=RULES.tongueInterval;a.ammo++;f.wait=7+rng(s)*4;
- s.events.push({type:'tongue',id:a.id,x:f.x,z:f.z,swarmId:f.swarmId});if(a.id==='player')s.stats.caught++;return true;
+ s.events.push({type:'tongue',id:a.id,x:f.x,z:f.z,swarmId:f.swarmId});if(a.id==='player')s.stats.caught++;if(s.scoreboard?.[a.id])s.scoreboard[a.id].caught++;return true;
 }
 // Camera rays see the same solid geometry as shots. The context lives outside
 // serialized state; attach it after a fresh game, resume or QA replacement.
@@ -124,27 +126,28 @@ export function traceShot(s,a,range=RULES.projectileSpeed*RULES.projectileLifeti
 }
 function projectileImpact(s,bullet,contact){
  Object.assign(bullet,{x:contact.x,y:contact.y,z:contact.z,life:0});
- if(contact.kind==='actor'||contact.kind==='guard'){const target=contact.kind==='guard'?s.guards?.find(g=>g.id===contact.targetId):s.actors.find(a=>a.id===contact.targetId);if(target)hit(s,target,bullet);}
+ if(contact.kind==='actor'||contact.kind==='guard'){const target=contact.kind==='guard'?s.guards?.find(g=>g.id===contact.targetId):s.actors.find(a=>a.id===contact.targetId);if(target&&hit(s,target,bullet)&&bullet.scoredShot&&s.scoreboard?.[bullet.owner])s.scoreboard[bullet.owner].shotHits++;}
  s.events.push({type:'splat',x:bullet.x,y:bullet.y,z:bullet.z,wall:contact.kind==='wall'||contact.kind==='rock',kind:contact.kind,normal:contact.normal,dx:bullet.dx,dy:bullet.dy,dz:bullet.dz});
 }
 export function shoot(s,a){
- if(a.ko||a.eliminated||a.dizzyTime>0||a.hit>0||a.catapultId||a.knockUp>0||a.kick>0||a.shot>0||a.ammo<=0||(a.id!=='player'&&s.phase!=='battle'))return false;
- a.shot=RULES.shotInterval;a.ammo--;a.spawnShield=0;a.revealedTime=RULES.revealSeconds;
+ if(a.ko||a.eliminated||a.dizzyTime>0||a.hit>0||a.catapultId||a.knockUp>0||a.kick>0||a.shot>0||(a.ammo<=0&&!(s.training&&a.id==='player'))||(a.id!=='player'&&s.phase!=='battle'))return false;
+ a.shot=RULES.shotInterval;if(s.training&&a.id==='player')a.ammo=RULES.capacity;else a.ammo--;a.spawnShield=0;a.revealedTime=RULES.revealSeconds;
  rememberAimFacing(a);
- const launch=projectileLaunch(s,a),bullet={id:s.nextId++,owner:a.id,...launch,life:RULES.projectileLifetime};
+ const launch=projectileLaunch(s,a),bullet={id:s.nextId++,owner:a.id,scoredShot:s.phase==='battle',...launch,life:RULES.projectileLifetime};
  // Sweep source to muzzle so nearby solids cannot be skipped by its offset.
  const contact=traceProjectile(s,bullet,PROJECTILE.muzzleOffset,{obstacles:OBSTACLES,ignoreId:a.id,hitActors:s.phase==='battle',arenaRadius:RULES.radius-.2});
  if(contact)projectileImpact(s,bullet,contact);
  else{Object.assign(bullet,projectilePoint(s,bullet,PROJECTILE.muzzleOffset));s.bullets.push(bullet);}
- s.events.push({type:'shot',id:a.id});if(a.id==='player')s.stats.shots++;return true;
+ s.events.push({type:'shot',id:a.id});if(a.id==='player')s.stats.shots++;if(s.phase==='battle'&&s.scoreboard?.[a.id])s.scoreboard[a.id].shots++;return true;
 }
 function stopSabotage(s,a,reason='interrupted'){
  for(const b of s.bases||[]){if(b.attackerId!==a.id||b.destroyed)continue;if(b.progress>0)s.events.push({type:'sabotageInterrupted',baseId:b.id,id:b.owner,by:a.id,reason});b.progress=0;b.attackerId=null;}
  a.sabotageId=null;
 }
 function knockOut(s,a,b){
+ if(s.scoreboard?.[a.id])s.scoreboard[a.id].deaths++;if(b.owner!==a.id&&s.scoreboard?.[b.owner])s.scoreboard[b.owner].kos++;
  stopSabotage(s,a,'knockout');releaseCatapult(s,a);resetBotAim(a);a.ko=true;a.dizzyTime=0;a.hop=0;a.knockUp=0;a.knockUpStart=0;a.height=.9;a.impulseX=b.dx*17;a.impulseZ=b.dz*17;a.ammo=0;
- a.respawnTime=ownBase(s,a)?.destroyed?0:RULES.respawnSeconds;
+ a.respawnTime=s.training?1.5:ownBase(s,a)?.destroyed?0:RULES.respawnSeconds;
  s.events.push({type:'ko',id:a.id,by:b.owner,x:a.x,z:a.z,dx:b.dx,dz:b.dz});if(b.owner==='player'&&a.id!=='player')s.stats.kos++;
 }
 export function hit(s,a,b){
@@ -178,7 +181,7 @@ export function sabotageTarget(s,a){
  return (s.bases||[]).filter(b=>!b.destroyed&&b.owner!==a.id&&distance(a,baseGeometry(b).stock)<=RULES.sabotageRange&&clearPickupPath(a,baseGeometry(b).stock)).sort((b,c)=>distance(a,baseGeometry(b).stock)-distance(a,baseGeometry(c).stock))[0]||null;
 }
 function destroyBase(s,b,attacker){
- b.destroyed=true;b.progress=RULES.sabotageSeconds;b.attackerId=null;attacker.sabotageId=null;
+ b.destroyed=true;b.destroyedAt=s.time;if(s.scoreboard?.[attacker.id])s.scoreboard[attacker.id].bases++;b.progress=RULES.sabotageSeconds;b.attackerId=null;attacker.sabotageId=null;
  removeBaseGuards(s,b.id);
  const owner=s.actors.find(a=>a.id===b.owner);
  if(owner){stopSabotage(s,owner,'eliminated');releaseCatapult(s,owner);owner.eliminated=true;owner.ko=true;owner.respawnTime=0;owner.ammo=0;owner.dizzyTime=0;owner.hop=0;owner.height=0;owner.knockUp=0;}
@@ -222,6 +225,13 @@ function combatIntent(s,a,target){
  return {mx,mz,aiming:true,ax:a.aiCharging||fire?a.aiAimX:to.x,ay:a.aiCharging||fire?finite(a.aiAimY):vertical,az:a.aiCharging||fire?a.aiAimZ:to.z,fire,kick:closeKick,...(closeKick&&target.kind==='guard'?{kickTargetId:target.id}:{})};
 }
 export function rivalIntent(s,a){
+ if(s.training){
+  if(a.ko||a.eliminated||a.dizzyTime>0||a.knockUp>0)return {};
+  const first=a.id==='rival-1',tx=first?Math.sin(s.time*.6)*4:Math.cos(s.time*.45)*4.5,tz=first?-3:-8+Math.sin(s.time*.7)*1.2;
+  const dx=tx-a.x,dz=tz-a.z,d=Math.hypot(dx,dz),speed=Math.min(.5,d*1.2);
+  return d>.12?{mx:dx/d*speed,mz:dz/d*speed,aiming:false}:{};
+ }
+
  if(s.phase!=='battle'||a.ko||a.eliminated||a.dizzyTime>0||a.knockUp>0){resetEnemyAim(a);return {};}
  if(a.hit>0){resetEnemyAim(a);const away=norm(a.impulseX,a.impulseZ);return {mx:away.x,mz:away.z,aiming:false};}
  const home=ownBase(s,a),homeGeometry=baseGeometry(home);
@@ -282,6 +292,8 @@ export function rivalIntent(s,a){
  return {};
 }
 function respawn(s,a){
+ if(s.training){const p=TRAINING_SPAWNS[a.id];Object.assign(a,actor(a.id,p.x,p.z,a.id==='player'?Math.PI:0));s.events.push({type:'respawn',id:a.id,x:a.x,z:a.z});return;}
+
  const home=ownBase(s,a),geometry=baseGeometry(home);if(!home||home.destroyed||!geometry)return;
  // Appear at the nearest clear place inside the same home. A defender must
  // never materialize inside an invader and cancel a channel by pushing it away.
@@ -329,7 +341,7 @@ export function step(s,input={},dt=1/60){
    collect(s,a);
    if(c.kick)kick(s,a,c.kickTargetId);if(c.fire)shoot(s,a);if(c.throwStone)throwStone(s,a,c.throwStone);
    if(a.catapultId){const machine=s.catapults.find(c=>c.id===a.catapultId);if(machine){machine.aimX=a.aimX;machine.aimZ=a.aimZ;a.x=machine.x;a.z=machine.z;a.impulseX=a.impulseZ=0;}}
-   if(a.knockUp<=0&&a.hop<=0&&a.idle<=0&&moving){a.hop=RULES.hopDuration;a.hopSpeed=clamp(len,0,1);}
+   if(a.knockUp<=0&&a.hop<=0&&a.idle<=0&&moving){a.hop=RULES.hopDuration;a.hopSpeed=clamp(len,0,1);s.events.push({type:'hop',id:a.id,x:a.x,z:a.z,strength:a.hopSpeed});}
    if(a.knockUp<=0&&a.hop>0){
     a.hop=Math.max(0,a.hop-dt);const speed=(a.id==='player'?8.8:6.2)*terrainSpeed(a),scale=moving?speed/Math.max(1,len):0;
     a.hopX=mx*scale;a.hopZ=mz*scale;moveBody(a,a.hopX*dt,a.hopZ*dt);
@@ -353,12 +365,12 @@ export function step(s,input={},dt=1/60){
  }
  s.bullets=s.bullets.filter(b=>b.life>0);stepArtillery(s,dt,hit);
  stepGuards(s,dt,{ground:(x,z)=>projectileGround(s,x,z),hitActor:hit});
- updateSabotage(s,sabotageRequests,dt);evaluateWinner(s);
+ if(!s.training){updateSabotage(s,sabotageRequests,dt);evaluateWinner(s);}
 }
 export function saveRound(s){return JSON.stringify({...s,events:[],bullets:[],shells:[]});}
 export function loadRound(raw){
  try{
-  const v=JSON.parse(raw);if(![1,2].includes(v?.version)||!Array.isArray(v.actors)||v.actors.length!==3||!Array.isArray(v.flies)||![LEGACY_FLY_COUNT,FLY_COUNT].includes(v.flies.length))return null;
+  const v=JSON.parse(raw);if(v?.training)return null;if(![1,2].includes(v?.version)||!Array.isArray(v.actors)||v.actors.length!==3||!Array.isArray(v.flies)||![LEGACY_FLY_COUNT,FLY_COUNT].includes(v.flies.length))return null;
   if(!['playing','won','lost'].includes(v.status))return null;
   const legacy=v.version===1,s=newRound(finite(v.seed,731));
   s.time=clamp(finite(v.time),0,1e7);s.nextId=clamp(Math.floor(finite(v.nextId,1)),1,1e9);
@@ -366,7 +378,7 @@ export function loadRound(raw){
   s.phase=!legacy&&(v.phase==='battle'||s.intro===0)?'battle':'countdown';
   if(!legacy){
    if(!Array.isArray(v.bases)||v.bases.length!==BASES.length)return null;
-   for(const b of s.bases){const old=v.bases.find(base=>base?.id===b.id&&base?.owner===b.owner);if(!old)return null;b.destroyed=old.destroyed===true;b.progress=b.destroyed?RULES.sabotageSeconds:0;}
+   for(const b of s.bases){const old=v.bases.find(base=>base?.id===b.id&&base?.owner===b.owner);if(!old)return null;b.destroyed=old.destroyed===true;b.destroyedAt=b.destroyed&&Number.isFinite(old.destroyedAt)&&old.destroyedAt>=0&&old.destroyedAt<=s.time?old.destroyedAt:null;b.progress=b.destroyed?RULES.sabotageSeconds:0;}
   }
   for(let i=0;i<3;i++){
    const old=v.actors[i],a=s.actors[i];if(old?.id!==a.id||!Number.isFinite(old.x)||!Number.isFinite(old.z))return null;
@@ -397,6 +409,16 @@ export function loadRound(raw){
   }
   restoreGuards(s,v.guards);
   for(const k of Object.keys(s.stats))s.stats[k]=Math.max(0,Math.floor(finite(v.stats?.[k])));
+  s.scoreboard=Object.fromEntries(s.actors.map(a=>[a.id,cleanStats(v.scoreboard?.[a.id])]));
+  s.scoreboardSince=v.scoreboard?clamp(finite(v.scoreboardSince),0,s.time):s.phase==='countdown'?0:s.time;
+  if(typeof v.recordId==='string'&&/^[a-zA-Z0-9-]{1,90}$/.test(v.recordId))s.recordId=v.recordId;
   evaluateWinner(s);return s;
  }catch{return null;}
+}
+
+const TRAINING_SPAWNS=Object.freeze({player:{x:0,z:4},'rival-1':{x:-3,z:-3},'rival-2':{x:3,z:-8}});
+export function newTrainingRound(seed=731){
+ const s=newRound(seed);Object.assign(s,{training:true,phase:'battle',intro:0,guards:[]});
+ for(const a of s.actors){const p=TRAINING_SPAWNS[a.id];Object.assign(a,actor(a.id,p.x,p.z,a.id==='player'?Math.PI:0));}
+ return s;
 }
