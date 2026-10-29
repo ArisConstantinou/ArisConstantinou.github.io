@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {createFrameMeter} from '../src/arcade-frame-meter.js';
+test('live FPS measures actual frame intervals at60Hz and120Hz',()=>{for(const hz of [60,120]){const m=createFrameMeter();for(let i=0;i<=hz*2;i++)m.sample(i*1000/hz);assert.ok(Math.abs(m.inspect().fps-hz)<.001);}});
+test('slow frames lower FPS and remain visible in p95 instead of using the simulation dt clamp',()=>{const m=createFrameMeter();for(let i=0;i<=40;i++)m.sample(i*100);const s=m.inspect();assert.equal(s.fps,10);assert.equal(s.p95Ms,100);});
+test('hidden tabs and long suspension reset stale samples',()=>{const m=createFrameMeter();for(let i=0;i<40;i++)m.sample(i*16);m.sample(800,false);assert.equal(m.inspect(),null);m.sample(10000);m.sample(12000);assert.equal(m.inspect(),null);for(let i=1;i<40;i++)m.sample(12000+i*20);assert.equal(m.inspect().fps,50);});
+test('duplicate and backwards timestamps do not count as rendered frames',()=>{const m=createFrameMeter();m.sample(100);m.sample(100);m.sample(90);for(let i=1;i<40;i++)m.sample(100+i*20);assert.equal(m.inspect().fps,50);});

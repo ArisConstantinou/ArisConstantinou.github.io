@@ -100,3 +100,7 @@ test('missing and invalid aim values fall back to finite movement or current yaw
  assert.deepEqual(actorVisualFacing(null,{currentYaw:NaN}),{yaw:0,aiming:false});
  assert.deepEqual(actorVisualFacing(undefined,{currentYaw:Infinity}),{yaw:0,aiming:false});
 });
+
+test('actual travel bearing wins over the passive chase pose in all eight jump directions',()=>{for(const [x,z] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]){const a=player({poseAiming:true,poseAimYaw:0,flight:{kind:'jump'},hopX:x*11,hopZ:z*11});const pose=actorVisualFacing(a,{motionYaw:Math.atan2(x,z)});close(pose.yaw,Math.atan2(x,z));assert.equal(pose.aiming,false);}});
+test('travel heading survives landing and stopped input without swinging back to the reticle',()=>{const a=player({poseAiming:true,poseAimYaw:0,hop:0,idle:0});close(actorVisualFacing(a,{motionYaw:-Math.PI/2}).yaw,-Math.PI/2);});
+test('real firing and a queued downward volley retain aiming priority over travel',()=>{for(const state of [{shot:.1},{kick:.1},{airSpit:.1},{flight:{queued:true}}]){const a=player({poseAiming:true,...state});close(actorVisualFacing(a,{motionYaw:Math.PI/2}).yaw,Math.PI);}for(const options of [{manualFire:true},{autoFire:true}])close(actorVisualFacing(player({poseAiming:true}),{motionYaw:Math.PI/2,...options}).yaw,Math.PI);});
