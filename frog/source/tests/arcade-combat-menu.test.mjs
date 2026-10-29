@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {KickBuffer} from '../src/arcade-kick-buffer.js';
+import {normalizeColours,DEFAULT_COLOURS,actorColour} from '../src/arcade-colours.js';
+import {COMBAT_SOUNDS} from '../src/arcade-sound.js';
+import {newRound,kickTarget,kick,step} from '../src/arcade-model.js';
+test('kick input survives a rejected simulation tick and is cleared after acceptance',()=>{const q=new KickBuffer(),actor={};q.request(1,'rival-1');assert.equal(q.read(1.01,actor).targetId,'rival-1');assert.equal(q.read(1.10,{hit:.1}).targetId,'rival-1');assert.equal(q.read(1.11,{kick:.48}),null);});
+test('kick buffer expires and cannot carry a press through incapacitation',()=>{const q=new KickBuffer();q.request(0);assert.equal(q.read(.3,{}),null);q.request(1);assert.equal(q.read(1.01,{dizzyTime:2}),null);});
+test('a nearer protected rival does not mask a valid kick target',()=>{const s=newRound();s.phase='battle';s.guards=[];const[p,a,b]=s.actors;Object.assign(p,{x:0,z:8});Object.assign(a,{x:1.9,z:8,spawnShield:1});Object.assign(b,{x:-2,z:8,spawnShield:0});assert.equal(kickTarget(s,p).id,b.id);assert.equal(kick(s,p),true);assert.equal(p.kickId,b.id);});
+test('colour settings validate untrusted stored values and keep independent actor colours',()=>{assert.deepEqual(normalizeColours({playerColour:'red',enemy1Colour:'#123456',enemy2Colour:null}),{...DEFAULT_COLOURS,enemy1Colour:'#123456'});assert.equal(actorColour({enemy2Colour:'#ABCDEF'},'rival-2'),'#abcdef');});
+test('shots, hits and kick impacts have distinct bounded sound envelopes',()=>{assert.notDeepEqual(COMBAT_SOUNDS.shot,COMBAT_SOUNDS.hit);assert.notDeepEqual(COMBAT_SOUNDS.hit,COMBAT_SOUNDS.hitConfirm);for(const p of Object.values(COMBAT_SOUNDS)){assert.ok(p.gain<=.3);assert.ok(p.duration<.25);assert.ok(p.noise<p.duration);}});

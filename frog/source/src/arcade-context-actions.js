@@ -24,9 +24,10 @@ export function projectedActorRect(game,actor){
 
 // Find free space near the world anchor; the existing HUD/stick rectangles are
 // obstacles, never objects that this layout is allowed to move.
-export function placeContextAction({anchor,width,height,viewportWidth,viewportHeight,blocked=[],margin=8}){
+export function placeContextAction({anchor,width,height,viewportWidth,viewportHeight,blocked=[],margin=8,previous=null}){
  const maxX=Math.max(margin,viewportWidth-width-margin),maxY=Math.max(margin,viewportHeight-height-margin);
  const clipped=p=>box(clamp(p.x,margin,maxX),clamp(p.y,margin,maxY),width,height);
+ if(previous){const stable=clipped({x:previous.left+anchor.x-(previous.anchorX??anchor.x),y:previous.top+anchor.y-(previous.anchorY??anchor.y)});if(Math.hypot(stable.left+width/2-anchor.x,stable.top+height/2-anchor.y)<190&&!blocked.some(other=>overlaps(stable,other)))return stable;}
  const gap=24,candidates=[
   {x:anchor.x+gap,y:anchor.y-height/2},
   {x:anchor.x-gap-width,y:anchor.y-height/2},
@@ -111,15 +112,17 @@ export function installContextActions(game,{kickIcon=''}={}){
   const button=doc.createElement('button');button.type='button';button.className='frog-action world-context';button.dataset.targetId=id;button.hidden=true;
   button.innerHTML=`<span class="frog-action-stars" aria-hidden="true">✦ ✦</span><span class="frog-action-icon" aria-hidden="true">${kickIcon}</span><span class="frog-action-pips" aria-hidden="true">${Array.from({length:RULES.finishHits},()=>'<i class="finish-pip"></i>').join('')}</span><span class="frog-action-caption"></span><kbd class="frog-action-key" hidden>Q</kbd>`;
   const caption=button.querySelector('.frog-action-caption'),badge=button.querySelector('.frog-action-key'),pips=[...button.querySelectorAll('.finish-pip')];
+  const timer=doc.createElement('span');timer.className='frog-action-time';button.append(timer);
   const activate=event=>{
    event.stopPropagation();if(event.type==='pointerdown')event.preventDefault();
    if(event.type==='click'&&event.detail!==0||event.type==='pointerdown'&&event.pointerType==='mouse'&&event.button!==0)return;
    const target=game.state.actors.find(actor=>actor.id===id),player=game.state.actors[0];
    if(!active()||button.hidden||button.disabled||contextualKickState(game.state,player,target).state!=='ready')return;
    game.pendingKickTargetId=id;
+   game.queueKick?.(id);
   };
   button.addEventListener('pointerdown',activate);button.addEventListener('click',activate);root.append(button);
-  const entry={button,caption,badge,pips,remove(){button.removeEventListener('pointerdown',activate);button.removeEventListener('click',activate);button.remove();}};
+  const entry={button,caption,badge,pips,timer,rect:null,remove(){button.removeEventListener('pointerdown',activate);button.removeEventListener('click',activate);button.remove();}};
   entries.set(id,entry);return entry;
  };
  const clear=()=>{
@@ -132,15 +135,16 @@ export function installContextActions(game,{kickIcon=''}={}){
   for(const actor of state.actors){
    if(actor.id===player.id)continue;live.add(actor.id);const entry=entries.get(actor.id)||makeEntry(actor.id),button=entry.button;
    const anchor=actor.dizzyTime>0&&!actor.ko&&!actor.eliminated?screenPoint({x:actor.x,z:actor.z},finite(actor.height)+.7):null;
-   if(!anchor){button.hidden=true;continue;}
+    if(!anchor){button.hidden=true;entry.rect=null;continue;}
    const progress=clamp(Math.floor(finite(actor.finishHits)),0,RULES.finishHits),remaining=Math.max(1,RULES.finishHits-progress),readiness=contextualKickState(state,player,actor),ready=readiness.state==='ready';
    button.dataset.remaining=String(remaining);button.dataset.state=readiness.state;button.disabled=!ready;button.hidden=false;
+    const timerText=`ΖΑΛΗ ${Math.max(0,actor.dizzyTime).toFixed(1)}″`;if(entry.timer.textContent!==timerText)entry.timer.textContent=timerText;
    const progressText=remaining===1?'Απομένει 1 χτύπημα για KO':`Απομένουν ${remaining} χτυπήματα για KO`,label=`${readiness.reason}. ${progressText}.`;
    button.setAttribute('aria-label',label);button.title=label;entry.caption.textContent=ready?(remaining===1?'KO':'ΚΛΩΤΣΙΑ'):readiness.hint;
    entry.badge.hidden=game.touch||!ready||nearest?.id!==actor.id;
    entry.pips.forEach((pip,index)=>pip.classList.toggle('is-filled',index<progress));
-   const dimensions=size(button,68,82),rect=placeContextAction({anchor,...dimensions,viewportWidth:game.w,viewportHeight:game.h,blocked});
-   if(!rect){button.hidden=true;continue;}position(button,rect);blocked.push(rect);
+    const dimensions=size(button,88,103),rect=placeContextAction({anchor,...dimensions,viewportWidth:game.w,viewportHeight:game.h,blocked,previous:entry.rect});
+    if(!rect){button.hidden=true;continue;}entry.rect={...rect,anchorX:anchor.x,anchorY:anchor.y};position(button,rect);blocked.push(rect);
   }
   for(const [id,entry] of entries)if(!live.has(id)){entry.remove();entries.delete(id);}
   for(const pair of existing){

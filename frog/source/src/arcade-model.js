@@ -8,7 +8,7 @@ import {ARENA_RADIUS,ARENA_MOVE_RADIUS,BATTLEGROUND_SWARMS} from './arcade-battl
 import {GUARD_BODY,createGuards,guardActive,guardOverlapsActorHeight,hitGuard,stepGuards,restoreGuards,removeBaseGuards} from './arcade-guards.js';
 export {setProjectileWorld,projectileOrigin} from './arcade-projectiles.js';
 
-export const ARCADE_VERSION = '4.3.15';
+export const ARCADE_VERSION = '4.3.16';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
 export const RULES = Object.freeze({radius:ARENA_RADIUS,capacity:90,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:2.4,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});
@@ -76,7 +76,7 @@ export function kickTarget(s,a,targetId=undefined){
  // Preserve Q's ordinary frog priority, including the dizzy target badge.
  // Guards are the close defensive fallback or an explicitly requested body.
  const reachable=b=>(targetId===undefined||b.id===targetId)&&distance(a,b)<=RULES.kickRange&&overlappingHeight(s,a,b,.1)&&clearPickupPath(a,b);
- const frog=s.actors.filter(b=>b.id!==a.id&&!b.ko&&!b.eliminated&&reachable(b)).sort((b,c)=>distance(a,b)-distance(a,c))[0];
+  const frog=s.actors.filter(b=>b.id!==a.id&&!b.ko&&!b.eliminated&&(targetId!==undefined||!(b.spawnShield>0))&&reachable(b)).sort((b,c)=>distance(a,b)-distance(a,c))[0];
  if(frog)return frog;
  return (s.guards||[]).filter(b=>guardActive(b)&&b.owner!==a.id&&reachable(b)).sort((b,c)=>distance(a,b)-distance(a,c))[0]||null;
 }

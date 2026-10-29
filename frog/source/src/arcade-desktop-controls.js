@@ -2,11 +2,13 @@ import './arcade-desktop-controls.css';
 
 // These are input indicators, not additional clickable controls.
 export const desktopControlsMarkup=`
- <div id="keyboard-display" role="img" aria-label="Κίνηση με W, A, S, D ή τα βέλη">
+ <div id="keyboard-display" role="img" aria-label="Κίνηση W A S D, κλωτσιά Q, αλλαγή κάμερας C">
+  <kbd class="control-key has-icon" data-key="KeyQ" aria-label="Q: κλωτσιά"><svg viewBox="0 0 32 24" aria-hidden="true"><path d="m7 3 7 2-2 10 13 3 2 4H9l-5-7Z"/><path d="m22 3 1 5m6-2-4 4"/></svg><span>Q</span></kbd>
   <kbd class="control-key" data-key="KeyW">W</kbd>
   <kbd class="control-key" data-key="KeyA">A</kbd>
   <kbd class="control-key" data-key="KeyS">S</kbd>
   <kbd class="control-key" data-key="KeyD">D</kbd>
+  <kbd class="control-key has-icon" data-key="KeyC" aria-label="C: αλλαγή κάμερας"><svg viewBox="0 0 32 24" aria-hidden="true"><rect x="3" y="5" width="20" height="15" rx="4"/><path d="m23 10 6-3v11l-6-3M7 2h9"/><circle cx="13" cy="12" r="4"/></svg><span>C</span></kbd>
  </div>
  <svg id="mouse-display" viewBox="0 0 62 92" role="img" aria-label="Ποντίκι: φωτίζεται το κουμπί που κρατάς">
   <rect class="mouse-body" x="3" y="3" width="56" height="86" rx="27"/>

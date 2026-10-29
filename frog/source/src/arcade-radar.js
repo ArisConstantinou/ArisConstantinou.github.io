@@ -1,3 +1,4 @@
+import {actorColour} from './arcade-colours.js';
 import {RULES,OBSTACLES,SWARMS} from './arcade-model.js';
 import {BASES,WALLS,TREES,CATAPULT_SITES,coverAt,hasWallSight} from './arcade-bases.js';
 import {BATTLEGROUND_AREAS,BATTLEGROUND_ROUTES,battlegroundAreaAt} from './arcade-battleground.js';
@@ -26,6 +27,7 @@ function flyGlyph(c,x,y,size,available){
 }
 
 export function drawRadar(game,canvas){
+ const actorColors=game.state.actors.map((actor,i)=>game.settings?.[i===0?'playerColour':i===1?'enemy1Colour':'enemy2Colour']?actorColour(game.settings,actor.id):COLORS[i]);
  if(!canvas)return;
  const c=canvas.getContext('2d');if(!c)return;
  const size=canvas.width,center=size/2,r=size*.43,k=r/RULES.radius;
@@ -53,14 +55,14 @@ export function drawRadar(game,canvas){
  for(const tree of TREES){const q=point(tree.x,tree.z);c.fillStyle='#517d4788';c.beginPath();c.arc(q.x,q.y,tree.radius*k,0,Math.PI*2);c.fill();}
  for(const wall of WALLS){const corners=[point(wall.x-wall.hw,wall.z-wall.hd),point(wall.x+wall.hw,wall.z-wall.hd),point(wall.x+wall.hw,wall.z+wall.hd),point(wall.x-wall.hw,wall.z+wall.hd)];c.fillStyle='#c4b492';c.beginPath();c.moveTo(corners[0].x,corners[0].y);for(const q of corners.slice(1))c.lineTo(q.x,q.y);c.closePath();c.fill();}
  for(const machine of CATAPULT_SITES){const q=point(machine.x,machine.z);c.strokeStyle='#bfd6d0';c.lineWidth=2;c.beginPath();c.moveTo(q.x-3,q.y+3);c.lineTo(q.x,q.y-4);c.lineTo(q.x+4,q.y+3);c.moveTo(q.x,q.y-1);c.lineTo(q.x+4,q.y-6);c.stroke();}
- for(const [i,base] of BASES.entries()){const status=game.state.bases?.find(b=>b.id===base.id),q=point(base.stock.x,base.stock.z);if(base.owner==='player'&&status?.attackerId&&!status.destroyed){const pulse=.5+.5*Math.sin((game.elapsed||0)*4);c.strokeStyle='#ff9a6a';c.lineWidth=3+pulse;c.beginPath();c.arc(q.x,q.y,13+pulse*3,0,Math.PI*2);c.stroke();}c.fillStyle=status?.destroyed?'#4f6258':status?.attackerId?'#ffce77':COLORS[i];c.strokeStyle='#092b22';c.lineWidth=2;c.beginPath();c.moveTo(q.x-7,q.y-2);c.lineTo(q.x,q.y-8);c.lineTo(q.x+7,q.y-2);c.lineTo(q.x+7,q.y+7);c.lineTo(q.x-7,q.y+7);c.closePath();c.fill();c.stroke();if(status?.destroyed){c.strokeStyle='#b7c7ba';c.beginPath();c.moveTo(q.x-5,q.y-5);c.lineTo(q.x+5,q.y+5);c.moveTo(q.x+5,q.y-5);c.lineTo(q.x-5,q.y+5);c.stroke();}}
+ for(const [i,base] of BASES.entries()){const status=game.state.bases?.find(b=>b.id===base.id),q=point(base.stock.x,base.stock.z);if(base.owner==='player'&&status?.attackerId&&!status.destroyed){const pulse=.5+.5*Math.sin((game.elapsed||0)*4);c.strokeStyle='#ff9a6a';c.lineWidth=3+pulse;c.beginPath();c.arc(q.x,q.y,13+pulse*3,0,Math.PI*2);c.stroke();}c.fillStyle=status?.destroyed?'#4f6258':status?.attackerId?'#ffce77':actorColors[i];c.strokeStyle='#092b22';c.lineWidth=2;c.beginPath();c.moveTo(q.x-7,q.y-2);c.lineTo(q.x,q.y-8);c.lineTo(q.x+7,q.y-2);c.lineTo(q.x+7,q.y+7);c.lineTo(q.x-7,q.y+7);c.closePath();c.fill();c.stroke();if(status?.destroyed){c.strokeStyle='#b7c7ba';c.beginPath();c.moveTo(q.x-5,q.y-5);c.lineTo(q.x+5,q.y+5);c.moveTo(q.x+5,q.y-5);c.lineTo(q.x-5,q.y+5);c.stroke();}}
  for(const row of swarmStatus(game.state)){
   const q=point(row.swarm.x,row.swarm.z),available=row.available>0;
   c.strokeStyle=available?'#b8daa7':'#6a827b';c.lineWidth=available?1.8:1.2;
   c.beginPath();c.arc(q.x,q.y,9,0,Math.PI*2);c.stroke();
   flyGlyph(c,q.x,q.y,6,available);
  }
- game.state.actors.forEach((a,i)=>{if(a.ko||a.eliminated)return;const player=game.state.actors[0];if(i>0&&coverAt(a)&&a.revealedTime<=0&&Math.hypot(a.x-player.x,a.z-player.z)>2.2)return;const q=point(a.x,a.z);c.fillStyle=COLORS[i];c.strokeStyle='#102923';c.lineWidth=3;c.beginPath();c.arc(q.x,q.y,i===0?9:8,0,Math.PI*2);c.fill();c.stroke();if(i===0){const aim=point(a.aimX*2.7,a.aimZ*2.7);c.strokeStyle=COLORS[0];c.lineWidth=4;c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q.x+aim.x,q.y+aim.y);c.stroke();}else{c.fillStyle='#102923';c.beginPath();c.arc(q.x-3,q.y-2,1.6,0,Math.PI*2);c.arc(q.x+3,q.y-2,1.6,0,Math.PI*2);c.fill();}});
+ game.state.actors.forEach((a,i)=>{if(a.ko||a.eliminated)return;const player=game.state.actors[0];if(i>0&&coverAt(a)&&a.revealedTime<=0&&Math.hypot(a.x-player.x,a.z-player.z)>2.2)return;const q=point(a.x,a.z);c.fillStyle=actorColors[i];c.strokeStyle='#102923';c.lineWidth=3;c.beginPath();c.arc(q.x,q.y,i===0?9:8,0,Math.PI*2);c.fill();c.stroke();if(i===0){const aim=point(a.aimX*2.7,a.aimZ*2.7);c.strokeStyle=actorColors[0];c.lineWidth=4;c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q.x+aim.x,q.y+aim.y);c.stroke();}else{c.fillStyle='#102923';c.beginPath();c.arc(q.x-3,q.y-2,1.6,0,Math.PI*2);c.arc(q.x+3,q.y-2,1.6,0,Math.PI*2);c.fill();}});
  const player=game.state.actors[0],district=battlegroundAreaAt(player.x,player.z)?.name;
  c.restore();c.fillStyle='#f2ffe1';c.font='bold 18px sans-serif';c.textAlign='center';c.fillText(district||'ΒΑΣΕΙΣ • ΜΥΓΕΣ • ΚΑΛΥΨΗ',center,size-5);
 }

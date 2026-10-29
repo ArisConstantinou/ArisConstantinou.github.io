@@ -1,0 +1,16 @@
+{
+  "reference": "Final user attachment codex-clipboard-e71e66e7-c815-4e17-b6ba-6b5a5b962bfe.png",
+  "direction": "Two frogs hang from the round-button row; a third catches a fly from Settings. This final supplied image supersedes the earlier numeric concept selection.",
+  "method": "OpenAI built-in image_gen, transparent background extraction; unmodified generated RGBA files",
+  "assets": [
+    {
+      "path": "public/art/menu-frogs-top.png",
+      "prompt": "Extract only the two top frogs from the approved menu mockup on actual transparent background. Preserve green left and coral right, crouching poses, glossy speckled 3D game style, golden eyes, hands gripping one imaginary horizontal button edge, and outer legs hanging down. Remove all buttons, rims, background, text, icons, lower purple frog and fly. Exactly two frogs, full toes, no platform or lettering. Tight landscape frame, common contact line around middle."
+    },
+    {
+      "path": "public/art/menu-frog-settings.png",
+      "prompt": "Extract only the lower purple frog, its long pink tongue and one fly from the approved reference on actual transparent background. Preserve its exact pose facing right, broad speckled golden-eyed game style, both hands gripping an imaginary button edge and long left leg hanging down. Tongue reaches diagonally up-right. Remove all buttons, rims, other frogs, background, text and icons. Exactly one frog and one fly; complete toes and tongue, no platform or new limbs."
+    }
+  ],
+  "integration": "Separate non-interactive overlays anchored to the actual HTML round and settings buttons. CSS aligns gripping fingers over each rim and retains real keyboard/touch menu actions."
+}
