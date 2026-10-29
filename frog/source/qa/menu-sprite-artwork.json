@@ -1,0 +1,175 @@
+{
+  "method": "OpenAI built-in image_gen authored six complete facial poses per character; original generated RGBA bytes preserved. Alpha-component masks and outer-toe registration extract complete sprites even across nominal grid boundaries.",
+  "reference": [
+    "public/art/menu-frogs-top.png",
+    "public/art/menu-frog-settings.png"
+  ],
+  "states": [
+    "eyes open/mouth closed",
+    "half blink",
+    "eyes closed",
+    "half open mouth",
+    "full open mouth",
+    "eyes closed/half open mouth"
+  ],
+  "cycle_seconds": 14,
+  "quiet_tail_seconds": 3.8,
+  "assets": {
+    "green": {
+      "file": "public/art/menu-green-frames-74f5675f9b.png",
+      "sha256": "74f5675f9b71b18928352bf4ace7a04abfad83116b7555ccf9d7cbf24c0e051e",
+      "bytes": 2251200,
+      "frames": 6,
+      "frame_bounds": [
+        [
+          16,
+          75,
+          530,
+          552
+        ],
+        [
+          511,
+          74,
+          1022,
+          552
+        ],
+        [
+          1002,
+          75,
+          1524,
+          553
+        ],
+        [
+          16,
+          536,
+          530,
+          1017
+        ],
+        [
+          511,
+          538,
+          1023,
+          1017
+        ],
+        [
+          1003,
+          541,
+          1532,
+          1018
+        ]
+      ],
+      "outer_toe_anchor_preserved": true,
+      "full_cavity_area": 3577,
+      "mouth": [
+        682.6,
+        359.6
+      ]
+    },
+    "orange": {
+      "file": "public/art/menu-orange-frames-ce1cb3e9b1.png",
+      "sha256": "ce1cb3e9b1f94c9fca64a9dfeb5b30da107c50553de982eee9d77ef77c248796",
+      "bytes": 2172357,
+      "frames": 6,
+      "frame_bounds": [
+        [
+          26,
+          54,
+          518,
+          491
+        ],
+        [
+          537,
+          54,
+          1028,
+          490
+        ],
+        [
+          1048,
+          53,
+          1530,
+          488
+        ],
+        [
+          24,
+          540,
+          518,
+          981
+        ],
+        [
+          534,
+          540,
+          1028,
+          981
+        ],
+        [
+          1047,
+          541,
+          1533,
+          983
+        ]
+      ],
+      "outer_toe_anchor_preserved": true,
+      "full_cavity_area": 2617,
+      "mouth": [
+        1094.75,
+        310.25
+      ]
+    },
+    "purple": {
+      "file": "public/art/menu-purple-frames-35cfca7ba3.png",
+      "sha256": "35cfca7ba313f27f99214b1bbfe5f2d2ee094705f94eccc5e7b514705c14852a",
+      "bytes": 2354469,
+      "frames": 6,
+      "frame_bounds": [
+        [
+          14,
+          85,
+          505,
+          500
+        ],
+        [
+          524,
+          85,
+          1016,
+          500
+        ],
+        [
+          1035,
+          85,
+          1527,
+          500
+        ],
+        [
+          14,
+          560,
+          506,
+          979
+        ],
+        [
+          524,
+          560,
+          1016,
+          979
+        ],
+        [
+          1035,
+          563,
+          1527,
+          979
+        ]
+      ],
+      "outer_toe_anchor_preserved": true,
+      "full_cavity_area": 4186,
+      "mouth": [
+        812.0,
+        473.4
+      ]
+    }
+  },
+  "generation_prompt_set": {
+    "shared": "Production3-column by2-row full-character sprite atlas. Same glossy speckled frog identity, stationary full body, planted fingertips, dangling outer leg, camera, lighting and skin spots. Six states: eyes open/mouth closed; half blink; closed eyes; eyes open/mouth half open; eyes open/mouth fully open with connected jaw and dark red cavity; eyes closed/mouth half open. No tongue, flies, text, buttons or background; actual alpha transparency and complete toes.",
+    "purple": "Preserve the purple frog body/pose from approved menu-frog-settings.png and six genuine eyelid/mouth states from an authored head pose reference; no body bobbing or camera movement.",
+    "green": "Select only the green left frog from approved menu-frogs-top.png. Bright lime green with olive speckles, golden eyes, face right, dangling left outer leg; purple sheet supplies expression/layout only, never purple color.",
+    "orange": "Select only the orange right frog from approved menu-frogs-top.png. Coral orange and dark russet speckles, golden eyes, face left, dangling right outer leg. Corrected final atlas adds transparent margin and repairs complete rightmost toes while retaining all six facial states."
+  }
+}

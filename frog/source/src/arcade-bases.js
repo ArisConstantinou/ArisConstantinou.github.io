@@ -139,9 +139,21 @@ export function resolveWallMove(actor,dx,dz,radius=ACTOR_RADIUS){
 }
 
 /** All solids participate in the same sweep; a rock correction cannot re-enter a wall. */
-export function resolveArenaMove(actor,dx,dz,{radius=ACTOR_RADIUS,arenaRadius=ARENA_MOVE_RADIUS}={}){
-  const circles=actor.catapultId?NAV_CIRCLES.filter(c=>c.id!==actor.catapultId):NAV_CIRCLES;
-  return sweepBody(actor,dx,dz,{walls:WALLS,circles,radius,arenaRadius});
+export function resolveArenaMove(actor,dx,dz,{radius=ACTOR_RADIUS,arenaRadius=ARENA_MOVE_RADIUS,ground=()=>0}={}){
+ let circles=actor.catapultId?NAV_CIRCLES.filter(c=>c.id!==actor.catapultId):NAV_CIRCLES,walls=WALLS;
+ if(actor.flight||actor.support){
+  const bottom=Number.isFinite(actor.flight?.y)?actor.flight.y:ground(actor.x,actor.z)+(actor.height||0),source=actor.support?.id||actor.flight?.sourceSupport;
+  walls=WALLS.filter(w=>bottom<ground(w.x,w.z)+w.height+.135-.015);
+  circles=circles.filter(c=>{
+   if(c.machine)return source!=='machine:'+c.id&&bottom<ground(c.x,c.z)+.45-.015;
+   const index=ARENA_ROCKS.indexOf(c);if(source==='rock:'+index)return false;
+   const q=((actor.x-c.x)**2+(actor.z-c.z)**2)/(c.r*c.r),base=ground(c.x,c.z),top=base+c.r*.9+c.r*1.7;
+   if(bottom>=top-.015)return false;
+   if(q<=1&&bottom>=base+c.r*.9+c.r*1.7*Math.sqrt(1-q)-.015)return false;
+   return true;
+  });
+ }
+ return sweepBody(actor,dx,dz,{walls,circles,radius,arenaRadius});
 }
 
 export function coverAt(actor){return TREES.find(tree=>Math.hypot(actor.x-tree.x,actor.z-tree.z)<=tree.radius)||null;}

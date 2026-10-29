@@ -54,12 +54,14 @@ test('downward flight hits the ground at the shared preview point with an upward
  const steep=arena(),a=steep.actors[0];aim(a,0,-1,0);const count=a.ammo;assert.equal(shoot(steep,a),true);
  assert.equal(steep.bullets.length,0);assert.equal(a.ammo,count-1);near(steep.events.find(e=>e.type==='splat').y,PROJECTILE.radius);
 });
-test('low shots stop on finite house walls while elevated shots genuinely pass above them',()=>{
+test('house walls and roofs block shots while a truly elevated source clears both',()=>{
  const low=arena(),p=low.actors[0];Object.assign(p,{x:BASES[0].x,z:BASES[0].z});aim(p,0,0,1);
  const preview=traceAim(low,p),blocked=flight(low);assert.equal(preview.kind,'wall');assert.equal(blocked.impact.kind,'wall');near(blocked.impact.z,preview.z);assert.equal(blocked.impact.normal.z,-1);
- const high=arena(),a=high.actors[0];Object.assign(a,{x:BASES[0].x,z:BASES[0].z});aim(a,0,.8,.6);
- // The higher shot now expires before the expanded arena rim. It must clear
- // the same finite wall and complete its full physical flight without impact.
+ const roof=arena(),underRoof=roof.actors[0];Object.assign(underRoof,{x:BASES[0].x,z:BASES[0].z});aim(underRoof,0,.8,.6);
+ const roofPreview=traceAim(roof,underRoof),roofFlight=flight(roof);assert.equal(roofPreview.kind,'roof');assert.equal(roofFlight.impact.kind,'roof');near(roofFlight.impact.y,roofPreview.y);
+ const high=arena(),a=high.actors[0];Object.assign(a,{x:BASES[0].x,z:BASES[0].z,height:4.5});aim(a,0,.8,.6);
+ // A truly elevated source clears both the finite wall and the real roof.
+ // The upward shot then completes its full lifetime before the expanded rim.
  const highPreview=traceAim(high,a),passed=flight(high);assert.equal(highPreview.kind,null);assert.equal(passed.impact,undefined);
  assert.ok(passed.bullet.z>BASES[0].z+BASES[0].halfDepth);assert.ok(passed.bullet.y>3);
  near(highPreview.distance,PROJECTILE.muzzleOffset+RULES.projectileSpeed*RULES.projectileLifetime);

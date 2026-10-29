@@ -1,4 +1,4 @@
-import {WALLS} from './arcade-bases.js';
+import {WALLS,BASES} from './arcade-bases.js';
 import {FROG_BODY,FROG_HIT_VOLUMES,actorBodyBase,actorBodyYaw} from './arcade-actor-bounds.js';
 import {GUARD_BODY,guardActive} from './arcade-guards.js';
 
@@ -8,11 +8,11 @@ const flat={ground:()=>0,solids:new Map()};
 const finite=(value,fallback=0)=>Number.isFinite(value)?value:fallback;
 const clamp=(value,low,high)=>Math.max(low,Math.min(high,value));
 const context=state=>contexts.get(state)||flat;
-export function setProjectileWorld(state,{ground,actorYaw}={}){
+export function setProjectileWorld(state,{ground,actorYaw,actorMouth}={}){
  if(typeof ground!=='function'){contexts.delete(state);return state;}
  const previous=contexts.get(state);
- if(previous?.ground!==ground)contexts.set(state,{ground,actorYaw,solids:new Map()});
- else previous.actorYaw=actorYaw;
+ if(previous?.ground!==ground)contexts.set(state,{ground,actorYaw,actorMouth,solids:new Map()});
+ else {previous.actorYaw=actorYaw;previous.actorMouth=actorMouth;}
  return state;
 }
 export function projectileGround(state,x,z){return finite(context(state).ground(x,z));}
@@ -23,6 +23,13 @@ export function normalizeAim(x,y,z,fallback={x:0,y:0,z:1}){
 export function projectileOrigin(state,actor){
  return {x:actor.x,y:actorBodyBase(actor,projectileGround(state,actor.x,actor.z))+PROJECTILE.originHeight,z:actor.z};
 }
+export function projectileMouth(state,actor){
+ const supplied=context(state).actorMouth?.(actor);
+ if(supplied&&[supplied.x,supplied.y,supplied.z].every(Number.isFinite))return {x:supplied.x,y:supplied.y,z:supplied.z};
+ const yaw=actorBodyYaw(actor),origin=projectileOrigin(state,actor);
+ return {x:origin.x+Math.sin(yaw)*.5,y:origin.y-.12,z:origin.z+Math.cos(yaw)*.5};
+}
+
 export function projectileDirection(actor){return normalizeAim(actor.aimX,actor.aimY,actor.aimZ);}
 export function projectileFollowsGround(actor){return !actor.aim3D&&Math.abs(finite(actor.aimY))<EPS;}
 const point=(origin,direction,distance)=>({x:origin.x+direction.x*distance,y:origin.y+direction.y*distance,z:origin.z+direction.z*distance});
@@ -61,13 +68,27 @@ function actorContact(state,a,b,actor){
  if(!best)return null;
  const n=best.normal;return {...best,normal:{x:c*n.x+s*n.z,y:n.y,z:-s*n.x+c*n.z}};
 }
+function triangleContact(a,b,triangle){
+ const [v0,v1,v2]=triangle,dx=b.x-a.x,dy=b.y-a.y,dz=b.z-a.z,e1x=v1.x-v0.x,e1y=v1.y-v0.y,e1z=v1.z-v0.z,e2x=v2.x-v0.x,e2y=v2.y-v0.y,e2z=v2.z-v0.z;
+ const px=dy*e2z-dz*e2y,py=dz*e2x-dx*e2z,pz=dx*e2y-dy*e2x,det=e1x*px+e1y*py+e1z*pz;
+ if(Math.abs(det)<EPS)return null;const inv=1/det,tx=a.x-v0.x,ty=a.y-v0.y,tz=a.z-v0.z,u=(tx*px+ty*py+tz*pz)*inv;if(u< -EPS||u>1+EPS)return null;
+ const qx=ty*e1z-tz*e1y,qy=tz*e1x-tx*e1z,qz=tx*e1y-ty*e1x,v=(dx*qx+dy*qy+dz*qz)*inv;if(v< -EPS||u+v>1+EPS)return null;
+ const t=(e2x*qx+e2y*qy+e2z*qz)*inv;if(t<0||t>1)return null;
+ const normal=normalizeAim(e1y*e2z-e1z*e2y,e1z*e2x-e1x*e2z,e1x*e2y-e1y*e2x);if(normal.x*dx+normal.y*dy+normal.z*dz>0){normal.x*=-1;normal.y*=-1;normal.z*=-1;}return {t,normal};
+}
+function roofGeometry(state){
+ return BASES.map(base=>{const sideways=base.side==='east'||base.side==='west',w=(sideways?base.halfDepth:base.halfWidth)+.32,d=(sideways?base.halfWidth:base.halfDepth)+.32,floor=projectileGround(state,base.x,base.z);
+ const vertices=[[-w,2.62,-d],[0,4.05,-d],[w,2.62,-d],[-w,2.62,d],[0,4.05,d],[w,2.62,d]].map(([x,y,z])=>({x:base.x+(sideways?z:x),y:floor+y,z:base.z+(sideways?-x:z)}));
+ return {id:base.id,triangles:[[0,3,4],[0,4,1],[1,4,5],[1,5,2],[0,1,2],[3,5,4]].map(t=>t.map(i=>vertices[i]))};});
+}
+
 function solids(state,obstacles){
  const c=context(state);let cached=c.solids.get(obstacles);if(cached)return cached;
  const padding=PROJECTILE.radius;
  cached={walls:WALLS.map(w=>{
   const ground=projectileGround(state,w.x,w.z);
   return {id:w.id,min:{x:w.x-w.hw-padding,y:ground-padding,z:w.z-w.hd-padding},max:{x:w.x+w.hw+padding,y:ground+w.height+.135+padding,z:w.z+w.hd+padding}};
- }),rocks:obstacles.map(o=>({...o,ground:projectileGround(state,o.x,o.z)}))};
+ }),rocks:obstacles.map(o=>({...o,ground:projectileGround(state,o.x,o.z)})),roofs:roofGeometry(state)};
  c.solids.set(obstacles,cached);return cached;
 }
 function terrainContact(state,a,b){
@@ -109,6 +130,7 @@ export function traceWorldSegment(state,a,b,{obstacles=[],ignoreId,hitActors=tru
  };
  const geometry=solids(state,obstacles);
  if(solidFrom<=length){
+  for(const roof of geometry.roofs){if(state.bases?.find(b=>b.id===roof.id)?.destroyed)continue;for(const triangle of roof.triangles)consider(triangleContact(start,b,triangle),'roof',{baseId:roof.id},from);}
   for(const wall of geometry.walls)consider(boxContact(start,b,wall),'wall',{wallId:wall.id},from);
   for(const rock of geometry.rocks)consider(ellipsoidContact(start,b,{x:rock.x,y:rock.ground+rock.r*.9,z:rock.z},{x:rock.r+PROJECTILE.radius,y:rock.r*1.7+PROJECTILE.radius,z:rock.r+PROJECTILE.radius}),'rock',{},from);
  }

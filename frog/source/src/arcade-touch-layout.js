@@ -1,4 +1,4 @@
-const KEYS=['move','aim','fire'];
+const KEYS=['move','aim','fire','jump','dash','volley'];
 const GAP=8;
 const WORLD_CONTEXT_IDS=new Set(['catapult-button','catapult-status','sabotage-button','sabotage-status']);
 const bounded=(v,min,max)=>Math.max(min,Math.min(max,v));
@@ -55,6 +55,9 @@ export function defaultTouchPositions(width,height,controls,activeKeys=KEYS){
   ?{x:width-14-aim.width/2,y:height-26-aim.height-20-fire.height/2}
   :{x:width-14-aim.width-22-fire.width/2,y:height-26-fire.height/2})
   :{x:width-14-fire.width/2,y:height-26-fire.height/2};
+ if(active.has('jump')&&controls.jump)positions.jump={x:width-14-controls.jump.width/2,y:height-26-(fire?fire.height:82)-14-controls.jump.height/2};
+ if(active.has('dash')&&controls.dash)positions.dash={x:width-14-(fire?fire.width:82)-14-controls.dash.width/2,y:height-26-controls.dash.height/2};
+ if(active.has('volley')&&controls.volley)positions.volley=portrait?{x:width-14-controls.volley.width/2,y:height-26-(fire?fire.height:82)-28-(controls.jump?.height||64)-controls.volley.height/2}:{x:width-14-(fire?fire.width:82)-14-controls.volley.width/2,y:height-26-(fire?fire.height:82)-14-controls.volley.height/2};
  return positions;
 }
 
@@ -72,8 +75,8 @@ export function solveTouchLayout({width,height,controls={},activeKeys=KEYS,prefe
  return {positions,bounds};
 }
 
-export function createTouchLayout({root,movePad,aimPad,fireButton,toggleButton,storageKey='frog.touch-layout.v1',onEditingChange=()=>{},announce=()=>{}}){
- const doc=root.ownerDocument,view=doc.defaultView,controls={move:movePad,aim:aimPad,fire:fireButton};
+export function createTouchLayout({root,movePad,aimPad,fireButton,jumpButton,dashButton,volleyButton,toggleButton,storageKey='frog.touch-layout.v1',onEditingChange=()=>{},announce=()=>{}}){
+ const doc=root.ownerDocument,view=doc.defaultView,controls={move:movePad,aim:aimPad,fire:fireButton,jump:jumpButton,dash:dashButton,volley:volleyButton};
  const hint=root.querySelector('#layout-hint');
  let editing=false,drag=null,positions={},sizes={},bounds={},activeKeys=[],saved={portrait:{},landscape:{}},frame=0,destroyed=false;
  let viewport={width:view.innerWidth,height:view.innerHeight,mode:view.innerHeight>=view.innerWidth?'portrait':'landscape'};
@@ -139,7 +142,7 @@ export function createTouchLayout({root,movePad,aimPad,fireButton,toggleButton,s
   // Reserve the real Reset button only while it is visible. Any temporary
   // displacement is restored on exit without overwriting a saved preference.
   refresh();
-  for(const key of KEYS){const el=controls[key];if(!el)continue;el.setAttribute('data-layout-label',{move:'ΚΙΝΗΣΗ',aim:integratedFire()?'ΣΤΟΧΕΥΣΗ + ΠΥΡ':'ΣΤΟΧΕΥΣΗ',fire:'ΒΟΛΗ'}[key]);el.classList.toggle('layout-draggable',editing&&activeKeys.includes(key));}
+  for(const key of KEYS){const el=controls[key];if(!el)continue;el.setAttribute('data-layout-label',{move:'ΚΙΝΗΣΗ',aim:integratedFire()?'ΣΤΟΧΕΥΣΗ + ΠΥΡ':'ΣΤΟΧΕΥΣΗ',fire:'ΒΟΛΗ',jump:'ΑΛΜΑ ×2',dash:'DASH',volley:'3 ΚΑΤΩ'}[key]);el.classList.toggle('layout-draggable',editing&&activeKeys.includes(key));}
   announce(editing?'Σύρε τα χειριστήρια σε όλη την οθόνη. Πάτησε ΤΕΛΟΣ για να συνεχίσεις.':'Οι θέσεις των χειριστηρίων αποθηκεύτηκαν.');
  };
  const reset=()=>{for(const key of activeKeys)delete saved[orientation()][key];refresh();persist();announce('Επαναφέρθηκαν οι αρχικές θέσεις χειριστηρίων.');};

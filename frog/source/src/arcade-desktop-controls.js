@@ -9,6 +9,8 @@ export const desktopControlsMarkup=`
   <kbd class="control-key" data-key="KeyS">S</kbd>
   <kbd class="control-key" data-key="KeyD">D</kbd>
   <kbd class="control-key has-icon" data-key="KeyC" aria-label="C: αλλαγή κάμερας"><svg viewBox="0 0 32 24" aria-hidden="true"><rect x="3" y="5" width="20" height="15" rx="4"/><path d="m23 10 6-3v11l-6-3M7 2h9"/><circle cx="13" cy="12" r="4"/></svg><span>C</span></kbd>
+  <kbd class="control-key" data-key="ShiftLeft" aria-label="Shift: δυνατό κατευθυντικό άλμα αποφυγής">Shift</kbd>
+  <kbd class="control-key" data-key="Space" aria-label="Space: άλμα, δεύτερο πάτημα για double jump">Space ×2</kbd>
  </div>
  <svg id="mouse-display" viewBox="0 0 62 92" role="img" aria-label="Ποντίκι: φωτίζεται το κουμπί που κρατάς">
   <rect class="mouse-body" x="3" y="3" width="56" height="86" rx="27"/>
@@ -18,7 +20,7 @@ export const desktopControlsMarkup=`
   <path class="mouse-seam" d="M7 44h48"/>
  </svg>`;
 
-const arrowAlias={KeyW:'ArrowUp',KeyA:'ArrowLeft',KeyS:'ArrowDown',KeyD:'ArrowRight'};
+const arrowAlias={ShiftLeft:'ShiftRight',KeyW:'ArrowUp',KeyA:'ArrowLeft',KeyS:'ArrowDown',KeyD:'ArrowRight'};
 const mouseBit=button=>button===0?1:button===2?2:0;
 
 export function installDesktopControls(game){

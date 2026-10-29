@@ -15,3 +15,18 @@
 #mouse-display .mouse-seam{fill:none;stroke:#8cb99c77;stroke-width:1}
 @media(max-width:800px){#keyboard-display{left:max(16px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom))}#mouse-display{right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom))}}
 @media(prefers-reduced-motion:reduce){#keyboard-display .control-key,#mouse-display .mouse-button{transition:none}}
+
+/* Strong leaps share existing art, rigs and the saved touch layout. */
+#keyboard-display{grid-template-rows:repeat(3,44px)}
+#keyboard-display [data-key="ShiftLeft"]{grid-column:1;grid-row:3;font-size:12px}
+#keyboard-display [data-key="Space"]{grid-column:2 / span 2;grid-row:3;width:94px;font-size:14px}
+#keyboard-display .air-ready{border-color:#ffe591;box-shadow:0 0 12px #ffe59188}
+#air-volley-hint{position:fixed;left:max(24px,env(safe-area-inset-left));bottom:190px;max-width:255px;padding:9px 12px;border:1px solid #e1f5b7;border-radius:12px;background:#153f35ed;color:#f4ffd8;font:800 14px/1.35 system-ui;pointer-events:none}
+#air-volley-hint[hidden],#arcade-ui #touch-controls .air-action[hidden]{display:none!important}
+#arcade-ui #touch-controls .air-action{position:fixed;width:64px;height:64px;min-width:64px;min-height:64px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:4px;border:2px solid #d2e9b1;background:#245746e8;color:#efffce;touch-action:none;pointer-events:auto;z-index:4}
+#arcade-ui #touch-controls .air-action svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#arcade-ui #touch-controls .air-action span{font:800 12px/14px system-ui;white-space:nowrap}
+#arcade-ui #touch-controls .air-action:disabled{opacity:.5}
+#arcade-ui #touch-controls #air-volley-button{border-color:#ffe79a;color:#fff3bb}
+
+#arcade-ui #touch-controls.airborne-actions .touch-look-guide{display:none!important}
