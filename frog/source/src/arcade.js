@@ -377,8 +377,9 @@ export class ArcadeGame {
    if(e.type==='baseDestroyed'){const base=BASES.find(b=>b.id===e.baseId);if(base)this.addText('ΑΠΟΘΗΚΗ ΚΑΤΑΣΤΡΑΦΗΚΕ',base.stock.x,base.stock.z,'#ffc689',2);this.sound.play('stoneImpact');this.shake=.2;}
    if(e.type==='splat')this.makeSplat(e);
    if(e.type==='classAttack'&&a){this.sound.play(e.kind==='airKick'?'kick':'hop',a.id==='player'?.8:.3);}
-   if(e.type==='classSlam'&&a){this.impactEffects.stone({x:e.x,z:e.z,radius:2.8});this.sound.play('land',a.id==='player'?1:.4);if(Math.hypot(e.x-this.state.actors[0].x,e.z-this.state.actors[0].z)<7)this.shake=Math.max(this.shake,.13);}
+   if(e.type==='classSlam'&&a){if(!this.state.events.some(q=>q.type==='land'&&q.id===e.id&&q.heavy))this.impactEffects.heavyLanding({x:e.x,z:e.z,y:this.ground(e.x,e.z)+a.height,impactSpeed:18,surface:a.support?.id});this.sound.play('land',a.id==='player'?1:.4);if(Math.hypot(e.x-this.state.actors[0].x,e.z-this.state.actors[0].z)<7)this.shake=Math.max(this.shake,.13);}
    if(e.type==='stoneShot')this.sound.play('stoneShot');
+   if(e.type==='land'&&e.heavy){this.impactEffects.heavyLanding(e);if(!this.state.events.some(q=>q.type==='classSlam'&&q.id===e.id))this.sound.play('land',a?.id==='player'?1:.4);}
    if(e.type==='land'&&e.stone){this.impactEffects.landing(e);if(Math.hypot(e.x-this.state.actors[0].x,e.z-this.state.actors[0].z)<10)this.sound.play('land');}
    if(e.type==='stoneImpact'){this.sound.play('stoneImpact');this.impactEffects.stone(e);if(Math.hypot(e.x-this.state.actors[0].x,e.z-this.state.actors[0].z)<7)this.shake=Math.max(this.shake,.16);}
    if(e.type==='battle')this.roundUI.battle();

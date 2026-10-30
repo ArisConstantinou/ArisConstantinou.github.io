@@ -38,3 +38,11 @@ body #arcade-ui .settings-panel{top:calc(max(12px,env(safe-area-inset-top)) + va
 
 /* Keep fixed camera controls in the viewport, outside a translated containing block. */
 #arcade-ui #arcade-hud{translate:none;margin-top:var(--creator-clearance)}
+
+/* Wide desktop: reserve only the creator's left corner, never a blank row. */
+@media(min-width:1000px) and (min-height:501px){
+ body #arcade-ui #arcade-hud{margin-top:0;padding-left:var(--creator-width)}
+ body #fps-counter,body #arcade-ui #match-clock,body #arcade-ui #minimap,body #arcade-ui #view-button,body #arcade-ui #callout,body #arcade-ui #dizzy-banner,body #arcade-ui .objectives-dock{translate:none}
+}
+
+@media(min-width:1000px) and (max-width:1199px) and (min-height:501px){body #arcade-ui .ammo-card{width:270px;min-width:270px;max-width:270px}}

@@ -46,7 +46,7 @@ export function installObjectiveReader(game,panel){
  return {open,minimize:minimizeReader,inspect:()=>({readerOpen:expanded,readerPaused:game.mode==='objectives',readerTransition:transition}),update(pose){
   if(round!==game.state){cancel();round=game.state;shown=false;expanded=false;transition=null;panel.hidden=true;shade.hidden=true;game.ui.classList.remove('reading-objectives');}
   const available=(game.running||game.mode==='objectives')&&!game.layoutEditing;dock.hidden=!available;
-  if(game.running&&pose.goals&&!shown&&!game.layoutEditing)open();
+  // Instructions open only through U or the visible objectives button.
   const visible=game.mode==='objectives'&&!game.layoutEditing;panel.hidden=!visible;shade.hidden=!visible;game.ui.classList.toggle('reading-objectives',visible);dock.setAttribute('aria-expanded',String(expanded&&visible));
  }};
 }

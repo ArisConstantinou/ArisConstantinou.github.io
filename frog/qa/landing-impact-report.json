@@ -1,0 +1,147 @@
+{
+  "version": "4.4.9",
+  "tests": 1464,
+  "realWorldTraversalCases": 6,
+  "surfaceMatrixCases": 192,
+  "instructionsOptIn": true,
+  "heavyImpactBurst": {
+    "mobile": 64,
+    "desktop": 96
+  },
+  "performance": [
+    {
+      "name": "desktop",
+      "samples": [
+        {
+          "peak": false,
+          "cpuMs": {
+            "mean": 2.23333332935969,
+            "p95": 3.0999999046325684
+          },
+          "gpuMs": {
+            "mean": 1.5910966857142854,
+            "p95": 2.468992
+          },
+          "calls": {
+            "mean": 283,
+            "p95": 380
+          },
+          "triangles": {
+            "mean": 2995867,
+            "p95": 3958379
+          },
+          "drops": 0
+        },
+        {
+          "peak": true,
+          "cpuMs": {
+            "mean": 2.113888872994317,
+            "p95": 2.9000000953674316
+          },
+          "gpuMs": {
+            "mean": 1.6129234285714282,
+            "p95": 2.245984
+          },
+          "calls": {
+            "mean": 287.5,
+            "p95": 386
+          },
+          "triangles": {
+            "mean": 3004315,
+            "p95": 3969643
+          },
+          "drops": 96
+        },
+        {
+          "peak": false,
+          "cpuMs": {
+            "mean": 2.288888884915246,
+            "p95": 3.200000047683716
+          },
+          "gpuMs": {
+            "mean": 1.7525430857142859,
+            "p95": 2.473856
+          },
+          "calls": {
+            "mean": 283,
+            "p95": 380
+          },
+          "triangles": {
+            "mean": 2995867,
+            "p95": 3958379
+          },
+          "drops": 0
+        }
+      ]
+    },
+    {
+      "name": "mobile",
+      "samples": [
+        {
+          "peak": false,
+          "cpuMs": {
+            "mean": 2.2000000013245478,
+            "p95": 3.299999952316284
+          },
+          "gpuMs": {
+            "mean": 1.3026285714285715,
+            "p95": 2.252608
+          },
+          "calls": {
+            "mean": 231.5,
+            "p95": 310
+          },
+          "triangles": {
+            "mean": 2221358.5,
+            "p95": 2979216
+          },
+          "drops": 0
+        },
+        {
+          "peak": true,
+          "cpuMs": {
+            "mean": 2.1305555635028415,
+            "p95": 3
+          },
+          "gpuMs": {
+            "mean": 1.2810761142857139,
+            "p95": 1.908064
+          },
+          "calls": {
+            "mean": 236,
+            "p95": 316
+          },
+          "triangles": {
+            "mean": 2227118.5,
+            "p95": 2986896
+          },
+          "drops": 64
+        },
+        {
+          "peak": false,
+          "cpuMs": {
+            "mean": 2.080555544959174,
+            "p95": 3.200000047683716
+          },
+          "gpuMs": {
+            "mean": 1.3495003428571426,
+            "p95": 1.998784
+          },
+          "calls": {
+            "mean": 231.5,
+            "p95": 310
+          },
+          "triangles": {
+            "mean": 2221358.5,
+            "p95": 2979216
+          },
+          "drops": 0
+        }
+      ]
+    }
+  ],
+  "physicalPhone": false,
+  "rawAssetsChanged": false,
+  "desktopHUDTopRestored": true,
+  "hudViewports": 5
+}

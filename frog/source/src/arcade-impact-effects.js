@@ -1,9 +1,10 @@
 import * as THREE from 'three';
+import {landingSurfaces} from './arcade-air-movement.js';
 
 const TAU=Math.PI*2,UP=new THREE.Vector3(0,1,0);
 const clamp=(value,min=0,max=1)=>Math.max(min,Math.min(max,value));
 const validPoint=point=>Number.isFinite(point?.x)&&Number.isFinite(point?.z);
-const TINTS=['#c4e4de','#83bcb4','#eaf4e4'].map(color=>new THREE.Color(color));
+const TINTS=['#c4e4de','#83bcb4','#eaf4e4','#c9ae7a','#9d8357','#efdbb4'].map(color=>new THREE.Color(color));
 export const IMPACT_LIMITS=Object.freeze({mobileDrops:96,desktopDrops:144,mobileRipples:6,desktopRipples:8});
 
 const vertexShader=`
@@ -75,24 +76,24 @@ export class ImpactEffects {
  }
  ground(x,z){const height=this.game.ground(x,z);return Number.isFinite(height)?height:0;}
  random(){this.seed=(Math.imul(this.seed,1664525)+1013904223)>>>0;return this.seed/4294967296;}
- ripple(x,z,radius,duration,opacity=.75){
+ ripple(x,z,radius,duration,opacity=.75,surface=null,dry=false){
   const entry=this.ripples[this.rippleCursor++%this.ripples.length],position=entry.mesh.geometry.attributes.position;
   // Conform the complete disc once at spawn; the shader travels across that
   // surface, so the expanding ring does not float above slopes or cut into them.
   for(let i=0;i<position.count;i++){
    const px=x+entry.reference[i*3]*radius,pz=z+entry.reference[i*3+2]*radius;
-   position.setXYZ(i,px,this.ground(px,pz)+.035,pz);
+   const support=surface?landingSurfaces(this.game.state,px,pz,(x,z)=>this.ground(x,z)).find(q=>q.id===surface):null;position.setXYZ(i,px,(support?.y??this.ground(px,pz))+.035,pz);
   }
-  position.needsUpdate=true;entry.mesh.geometry.computeVertexNormals();entry.mesh.material.uniforms.uAge.value=0;entry.mesh.material.uniforms.uOpacity.value=opacity;
+  entry.mesh.material.uniforms.uWater.value.set(dry?'#8d7344':'#6aaba4');entry.mesh.material.uniforms.uFoam.value.set(dry?'#e6d1a0':'#e8f2df');position.needsUpdate=true;entry.mesh.geometry.computeVertexNormals();entry.mesh.material.uniforms.uAge.value=0;entry.mesh.material.uniforms.uOpacity.value=opacity;
   entry.age=0;entry.duration=duration;entry.active=true;entry.mesh.visible=true;
  }
- emit({x,y,z,count,power,spread=.12,dx=0,dz=0,lifetime=.55}){
+ emit({x,y,z,count,power,spread=.12,dx=0,dz=0,lifetime=.55,tint=0,radial=false}){
   const directionLength=Math.hypot(dx,dz);if(directionLength>0){dx/=directionLength;dz/=directionLength;}
   for(let i=0;i<count;i++){
    const particle=this.particles[this.cursor++%this.capacity],angle=this.random()*TAU,speed=(.8+this.random()*1.7)*power;
-   particle.x=x+(this.random()-.5)*spread;particle.y=y+this.random()*.07;particle.z=z+(this.random()-.5)*spread;
+   particle.x=x+(radial?Math.sin(angle)*spread*.5:(this.random()-.5)*spread);particle.y=y+this.random()*.07;particle.z=z+(radial?Math.cos(angle)*spread*.5:(this.random()-.5)*spread);
    particle.vx=Math.sin(angle)*speed+dx*power*.65;particle.vz=Math.cos(angle)*speed+dz*power*.65;particle.vy=(1.8+this.random()*2.2)*power;
-   particle.total=lifetime*(.82+this.random()*.3);particle.life=particle.total;particle.size=(.045+this.random()*.045)*Math.sqrt(power);particle.color=i%3;
+   particle.total=lifetime*(.82+this.random()*.3);particle.life=particle.total;particle.size=(.045+this.random()*.045)*Math.sqrt(power);particle.color=tint+i%3;
   }
   this.drawDrops();
  }
@@ -113,6 +114,13 @@ export class ImpactEffects {
   const power=clamp(Number.isFinite(strength)?strength:1,.35,1.8);
   this.ripple(x,z,.75+power*.42,.48,.68);
   this.emit({x,y:this.ground(x,z)+.08,z,count:Math.round(6+power*5),power:.6+power*.28,spread:.25,lifetime:.48});
+ }
+ heavyLanding({x,z,y,impactSpeed=12,surface=null}={}){
+  if(!validPoint({x,z}))return;
+  const water=!surface&&this.game.world?.getSurface(x,z)?.type==='water',strength=clamp(impactSpeed/12,.8,1.6),radius=(water?5.4:4.6)*Math.sqrt(strength),floor=Number.isFinite(y)?y:this.ground(x,z),count=this.game.touch?64:96;
+  this.ripple(x,z,radius,1.05,.98,surface,!water);this.ripple(x,z,radius*.67,.78,.86,surface,!water);
+  this.emit({x,y:floor+.12,z,count,power:(water?2.6:1.75)*Math.sqrt(strength),spread:water?2.1:2.7,lifetime:water?1.22:1.05,tint:water?0:3,radial:true});
+  this.lastLanding={x,z,y:floor,water,radius,count,impactSpeed,surface};
  }
  drawDrops(){
   let count=0;

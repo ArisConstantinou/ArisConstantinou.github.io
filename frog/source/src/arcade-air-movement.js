@@ -37,7 +37,7 @@ function begin(s,a,kind,direction,ground){
  const old=a.flight,manual=kind==='jump'||kind==='double',profile=characterProfile(a),velocity=(kind==='double'?AIR_RULES.doubleVelocity:kind==='dash'?AIR_RULES.dashVelocity:kind==='surfaceHop'?6:AIR_RULES.jumpVelocity)*profile.jump;
  const speed=(kind==='double'?AIR_RULES.doubleSpeed:kind==='dash'?AIR_RULES.dashSpeed:kind==='surfaceHop'?8.8:AIR_RULES.jumpSpeed)*profile.move;
  const y=old?.y??ground(a.x,a.z)+a.height;
- a.flight={kind,y,vy:velocity,vx:direction.x*speed,vz:direction.z*speed,jumps:kind==='double'?2:manual?1:old?.jumps||0,launchVelocity:velocity,time:0,queued:a.characterClass==='medium'&&manual||old?.queued||false,fired:a.characterClass==='medium'&&manual?false:old?.fired||false,sourceSupport:a.support?.id??old?.sourceSupport??null,dashed:kind==='dash'||old?.dashed||false};
+ a.flight={kind,y,vy:velocity,vx:direction.x*speed,vz:direction.z*speed,jumps:kind==='double'?2:manual?1:old?.jumps||0,launchVelocity:velocity,time:0,queued:a.characterClass==='medium'&&manual||old?.queued||false,fired:a.characterClass==='medium'&&manual?false:old?.fired||false,sourceSupport:a.support?.id??old?.sourceSupport??null,surfaceY:kind==='surfaceHop'?a.support?.y:null,dashed:kind==='dash'||old?.dashed||false};
  a.support=null;a.hop=0;a.hopSpeed=1;a.hopX=a.flight.vx;a.hopZ=a.flight.vz;
  if(kind==='dash')a.dashCooldown=AIR_RULES.dashCooldown;
  s.events.push({type:'hop',id:a.id,x:a.x,z:a.z,strength:1,kind});
@@ -65,9 +65,11 @@ export function stepFlight(s,a,c,dt,{ground,move,volley,mount}){
  // Substeps prevent a fast leap from tunnelling across a roof edge or thin wall.
  while(remaining>1e-8&&a.flight){
   const h=Math.min(remaining,1/120);remaining-=h;
-  const oldY=f.y,oldVy=f.vy;f.time+=h;f.vy-=gravity*h;
+  const oldX=a.x,oldZ=a.z;let oldY=f.y;const oldVy=f.vy;f.time+=h;f.vy-=gravity*h;
   let nextY=oldY+oldVy*h-gravity*h*h/2;
   a.height=Math.max(0,oldY-ground(a.x,a.z));move(f.vx*h,f.vz*h);
+  // Walking hops follow their supporting slope instead of tunnelling under it.
+  if(f.kind==='surfaceHop'&&f.sourceSupport&&Number.isFinite(f.surfaceY)){const top=landingSurfaces(s,a.x,a.z,ground,a).find(p=>p.id===f.sourceSupport);if(top){const rise=top.y-f.surfaceY;oldY+=rise;nextY+=rise;f.surfaceY=top.y;}}
   // A real roof also stops a jump from punching through it from underneath.
   if(f.vy>0)for(const roof of roofSurfaces(s,a.x,a.z,ground)){
    if(oldY+frogBody(a).height<roof.y-.01&&nextY+frogBody(a).height>=roof.y){nextY=roof.y-frogBody(a).height-.015;f.vy=0;break;}
@@ -78,11 +80,11 @@ export function stepFlight(s,a,c,dt,{ground,move,volley,mount}){
   }
   if(f.vy<=0){
    const surfaces=landingSurfaces(s,a.x,a.z,ground,a);let support=null,below=null;
-   for(const p of surfaces){if(p.kind!=='ground'&&oldY<p.y-.08)continue;if(!below||p.y>below.y)below=p;if(nextY<=p.y+.001&&(!support||p.y>support.y))support=p;}
+   for(const p of surfaces){if(p.kind!=='ground'&&oldY<p.y-.08){const previous=landingSurfaces(s,oldX,oldZ,ground,a).find(q=>q.id===p.id);if(!previous||oldY<previous.y-.08)continue;}if(!below||p.y>below.y)below=p;if(nextY<=p.y+.001&&(!support||p.y>support.y))support=p;}
    if(below){const distance=Math.max(0,f.y-below.y),timeToLand=(f.vy+Math.sqrt(f.vy*f.vy+2*gravity*distance))/gravity;f.poseProgress=Math.max(.5-f.vy/(2*Math.max(1,f.launchVelocity)),timeToLand<.18?.73+.27*(1-timeToLand/.18):0);}
    if(support){
     a.flight=null;a.support=support.id?support:null;a.height=Math.max(0,support.y-ground(a.x,a.z));a.hopX=a.hopZ=0;a.idle=.035;
-    s.events.push({type:'land',id:a.id,x:a.x,z:a.z,surface:support.id});
+    s.events.push({type:'land',id:a.id,x:a.x,z:a.z,y:support.y,surface:support.id,impactSpeed:Math.abs(oldVy),heavy:a.characterClass==='heavy'&&!['surfaceHop','dash'].includes(f.kind)&&Math.abs(oldVy)>7});
     if(support.kind==='machine'){const machine=s.catapults?.find(v=>v.id===support.catapultId);if(machine&&(!machine.owner||machine.owner===a.id)&&!machine.occupant&&mount()){a.support=null;a.height=0;}}
    }
   }

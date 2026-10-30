@@ -50,9 +50,10 @@ export function startWallJump(s,a,plan){
 }
 export function stepWallHold(s,a,c,ground,surfaces,dt=1/60){
  const f=a.flight;if(!f)return false;if(c.dash){if(f.kind==='wallHold')a.flight={...f,kind:'fall',vy:0};return false;}if(a.dizzyTime>0){if(f.kind==='wallHold')a.flight={...f,kind:'fall',vy:0};return false;}
+ if(f.kind==='wallHold'&&((c.mx||0)*f.wall.nx+(c.mz||0)*f.wall.nz)>.25){a.flight={...f,kind:'fall',vy:0,vx:(c.mx||0)*6,vz:(c.mz||0)*6};return false;}
  if(f.kind!=='wallHold'){
-  if(!c.wallMode||f.kind==='wallJump'&&f.time<.25)return false;
-  const contact=wallContact(s,a,ground);if(!contact||(f.vx||0)*contact.nx+(f.vz||0)*contact.nz>.15)return false;
+  if(!c.wallMode||['surfaceHop','fall'].includes(f.kind)||a.classAction?.kind==='bodySlam'||f.kind==='wallJump'&&f.time<.25)return false;
+  const contact=wallContact(s,a,ground);if(!contact||(f.vx||0)*contact.nx+(f.vz||0)*contact.nz>=-.15)return false;
   if(a.height<.12)return false;
   a.flight={kind:'wallHold',y:f.y,vy:0,vx:0,vz:0,jumps:f.jumps||1,launchVelocity:16,time:0,wall:contact,fired:f.fired||false,dashed:f.dashed||false};a.hop=0;a.hopX=a.hopZ=0;s.events.push({type:'wallCling',id:a.id,wallId:contact.id});
  }
