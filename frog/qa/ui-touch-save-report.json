@@ -1,0 +1,59 @@
+{
+  "ok": true,
+  "version": "4.4.11",
+  "sourceTests": 1474,
+  "localViewports": 6,
+  "localInteractionCases": 22,
+  "nativeCDPTouchEditorSurfaces": 2,
+  "before": "4.4.10 pointerdown/up without click; Save did not activate within3seconds",
+  "after": "Existing installMenuAction activates directly once on touch/pen release; mouse/keyboard preserved",
+  "exactRoundPreserved": true,
+  "approvedSignatureUnchanged": true,
+  "modelsUnchanged": true,
+  "physicalPhoneTested": false,
+  "physicalFPSAcceptancePending": true,
+  "touch": [
+    {
+      "name": "landscape",
+      "from": {
+        "x": 806,
+        "y": 305
+      },
+      "to": {
+        "x": 872,
+        "y": 205.89999999999998
+      },
+      "pos": {
+        "x": 842,
+        "y": 175.89999389648438,
+        "width": 60,
+        "height": 60
+      },
+      "nativeCDPTouchDrag": true,
+      "tapSave": true,
+      "saveConfirmedMs": 68,
+      "stateUnchanged": true
+    },
+    {
+      "name": "portrait",
+      "from": {
+        "x": 386,
+        "y": 601
+      },
+      "to": {
+        "x": 370,
+        "y": 432.09999999999997
+      },
+      "pos": {
+        "x": 338,
+        "y": 400.1000061035156,
+        "width": 64,
+        "height": 64
+      },
+      "nativeCDPTouchDrag": true,
+      "tapSave": true,
+      "saveConfirmedMs": 87,
+      "stateUnchanged": true
+    }
+  ]
+}

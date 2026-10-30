@@ -1,3 +1,4 @@
+import {installMenuAction} from './arcade-menu-actions.js';
 // Viewport profiles keep movement controls stable when class abilities appear.
 export const UI_LAYOUT_KEY='frog-ui-layout-v2';
 export const UI_ITEMS={move:['.move-zone','Κίνηση'],aim:['.aim-zone','Στόχευση'],fire:['#fire-button','Πυρ'],jump:['#jump-button','Άλμα ×2'],dash:['#dash-button','Dash'],kick:['#kick-button','Κλωτσιά'],volley:['#air-volley-button','Επίθεση αέρα'],ammo:['.ammo-card','Μύγες'],bases:['.base-card','Αποθήκες'],pause:['#pause-button','Παύση'],clock:['#match-clock','Χρόνος'],map:['#minimap','Χάρτης'],camera:['#view-button','Κάμερα'],goals:['#objectives-toggle','Στόχοι'],fps:['#fps-counter','FPS'],status:['#base-status','Κατάσταση'],notice:['#callout','Ειδοποιήσεις'],round:['#round-status','Προετοιμασία / KO'],dizzy:['#dizzy-banner','Ζάλη'],keyboard:['#keyboard-display','Πλήκτρα'],mouse:['#mouse-display','Ποντίκι'],interact:['#catapult-button','Είσοδος / έξοδος'],sabotage:['#sabotage-button','Καταστροφή'],catapultStatus:['#catapult-status','Κατάσταση καταπέλτη'],sabotageStatus:['#sabotage-status','Πρόοδος καταστροφής']};
@@ -108,9 +109,9 @@ export function installUILayout(game){
   game.ui.classList.toggle('in-menu',snapshot.inMenu);game.last=performance.now();game.accumulator=0;signature='';apply();settings.scrollTop=snapshot.scroll;entry.focus({preventScroll:true});game.renderer.setAnimationLoop(now=>game.frame(now));if(game.running)game.sound.resume();snapshot=null;
  }
  listen(doc,'focusin',e=>{if(editing&&!editor.contains(e.target))select.focus({preventScroll:true});});
- listen(entry,'click',open);listen(select,'change',()=>choose(select.value));listen(editor.querySelector('#ui-layout-save'),'click',()=>close(true));listen(editor.querySelector('#ui-layout-cancel'),'click',()=>close(false));
+ removers.push(installMenuAction(entry,open));listen(select,'change',()=>choose(select.value));removers.push(installMenuAction(editor.querySelector('#ui-layout-save'),()=>close(true)));removers.push(installMenuAction(editor.querySelector('#ui-layout-cancel'),()=>close(false)));
  function reset(){if(!editing)return;draft[mode()]={};refresh();feedback.textContent='Επαναφορά μόνο της τρέχουσας διάταξης. Πάτησε Αποθήκευση.';}
- listen(editor.querySelector('#ui-layout-reset'),'click',reset);
+ removers.push(installMenuAction(editor.querySelector('#ui-layout-reset'),reset));
  listen(view,'keydown',e=>{if(!editing)return;if(e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();close(false);return;}if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code)||e.target===select)return;e.preventDefault();e.stopImmediatePropagation();const p=positions[selected],n=e.shiftKey?10:2;move(selected,p.x+(e.code==='ArrowLeft'?-n:e.code==='ArrowRight'?n:0),p.y+(e.code==='ArrowUp'?-n:e.code==='ArrowDown'?n:0));},true);
  // Toolbar can be moved away from any control the user wants to edit.
  const grip=editor.querySelector('.ui-layout-grip');let panelDrag=null;

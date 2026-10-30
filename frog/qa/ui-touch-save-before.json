@@ -1,0 +1,37 @@
+{
+  "ok": false,
+  "physicalPhone": false,
+  "cases": [],
+  "errors": [],
+  "saveFailure": {
+    "editing": true,
+    "feedback": "",
+    "events": [
+      {
+        "type": "pointerdown",
+        "target": "ui-layout-handle selected",
+        "time": 53196.299999952316,
+        "pointer": "touch"
+      },
+      {
+        "type": "pointerup",
+        "target": "ui-layout-handle selected",
+        "time": 53525,
+        "pointer": "touch"
+      },
+      {
+        "type": "pointerdown",
+        "target": "ui-layout-save",
+        "time": 53618.90000009537,
+        "pointer": "touch"
+      },
+      {
+        "type": "pointerup",
+        "target": "ui-layout-save",
+        "time": 53619.09999990463,
+        "pointer": "touch"
+      }
+    ],
+    "storage": null
+  }
+}
