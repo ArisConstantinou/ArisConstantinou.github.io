@@ -1,10 +1,11 @@
 import {Vector3,Matrix4} from 'three';
 import {createLimbChain,solveLimbChain} from './arcade-leap-pose.js';
-const cache=new WeakMap();
+const cache=new WeakMap(),vertexCache=new WeakMap();
 function pointsFor(mesh,boneName){
+ let byName=vertexCache.get(mesh.geometry);if(!byName){byName=new Map();vertexCache.set(mesh.geometry,byName);}if(byName.has(boneName))return byName.get(boneName);
  const bone=mesh.skeleton.bones.find(b=>b.name===boneName),ids=new Set();bone?.traverse(b=>{const id=mesh.skeleton.bones.indexOf(b);if(id>=0)ids.add(id);});const id=bone?mesh.skeleton.bones.indexOf(bone):-1,g=mesh.geometry,p=g.attributes.position,w=g.attributes.skinWeight,j=g.attributes.skinIndex;
  if(id<0||!w||!j)return [];
- const selected=new Set();for(let axis=0;axis<3;axis++)for(const sign of [-1,1]){let best=-Infinity,index=-1;for(let i=0;i<p.count;i++){let weight=0;for(let k=0;k<4;k++)if(ids.has(j.getComponent(i,k)))weight+=w.getComponent(i,k);if(weight<.35)continue;const value=p.getComponent(i,axis)*sign;if(value>best){best=value;index=i;}}if(index>=0)selected.add(index);}return [...selected];
+ const selected=new Set();for(let axis=0;axis<3;axis++)for(const sign of [-1,1]){let best=-Infinity,index=-1;for(let i=0;i<p.count;i++){let weight=0;for(let k=0;k<4;k++)if(ids.has(j.getComponent(i,k)))weight+=w.getComponent(i,k);if(weight<.35)continue;const value=p.getComponent(i,axis)*sign;if(value>best){best=value;index=i;}}if(index>=0)selected.add(index);}const result=[...selected];byName.set(boneName,result);return result;
 }
 function closest(model,indices,wall,v){
  let best=null;for(const i of indices){model.mesh.getVertexPosition(i,v).applyMatrix4(model.mesh.matrixWorld);const gap=(v.x-wall.x)*wall.nx+(v.z-wall.z)*wall.nz;if(!best||gap<best.gap)best={gap,point:v.clone()};}return best;
@@ -34,3 +35,5 @@ export function prewarmWallFeet(model){
  if(!model.mesh?.isSkinnedMesh)return;
  if(!cache.has(model))cache.set(model,{feet:[-1,1].map(side=>({side,chain:createLimbChain(model,['hip'+side,'knee'+side,'ankle'+side,'foot'+side]),indices:pointsFor(model.mesh,'foot'+side)})),v:new Vector3(),ankle:new Vector3(),target:new Vector3(),pole:new Vector3(),direction:new Vector3(),inverse:new Matrix4()});
 }
+
+export {pointsFor as contactVertexIndices};

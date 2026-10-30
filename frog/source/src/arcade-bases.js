@@ -1,8 +1,9 @@
+import {sceneContactsEnabled,sceneryPolygons,sceneryNavigationCircles} from './arcade-scenery-contact.js';
 // Shared arena geometry. The simulation, radar and Three.js scene use these
 // exact footprints, so a visible gate is also the only physical way inside.
 import {machineFootprints,machineDetour} from './arcade-cartoon-machine-bounds.js';
 import { FROG_BODY, frogBody } from './arcade-actor-bounds.js';
-import { sweepBody, clearBodySegment, rectangleClearance } from './arcade-collision.js';
+import { sweepBody, separateBody, clearBodySegment, rectangleClearance } from './arcade-collision.js';
 import { ARENA_MOVE_RADIUS, BATTLEGROUND_ROCKS, BATTLEGROUND_COVER } from './arcade-battleground.js';
 const freezePoint = (x, z) => Object.freeze({x, z});
 const OWNER_IDS = ['player', 'rival-1', 'rival-2'];
@@ -162,47 +163,49 @@ export function resolveArenaMove(actor,dx,dz,{radius=frogBody(actor).movementRad
    return bottom<ground(b.station.x,b.station.z)+support-.015;
   });walls=[...walls,...machines];
  }
- return sweepBody(actor,dx,dz,{walls,circles,radius,arenaRadius});
+ const polygons=sceneContactsEnabled(actor)?sceneryPolygons(actor,ground):[];if(sceneContactsEnabled(actor))circles=circles.filter(c=>c.machine);return sweepBody(actor,dx,dz,{walls,circles,polygons,radius,arenaRadius});
 }
 
 export function coverAt(actor){return TREES.find(tree=>Math.hypot(actor.x-tree.x,actor.z-tree.z)<=tree.radius)||null;}
 export function terrainSpeed(actor){return coverAt(actor) ? .55 : 1;}
 export function enclosingYard(actor){return ENCLOSURES.find(c=>Math.abs(actor.x-c.x)<c.halfWidth&&Math.abs(actor.z-c.z)<c.halfDepth)||null;}
 
-function navigationSight(a,b){
-  return clearBodySegment(a,b,{walls:WALLS,circles:NAV_CIRCLES,radius:NAV_RADIUS,arenaRadius:ARENA_MOVE_RADIUS});
+let sceneNavCircles;
+const navCircles=mode=>mode?(sceneNavCircles??=[...sceneryNavigationCircles(),...NAV_CIRCLES.filter(c=>c.machine)]):NAV_CIRCLES;
+function navigationSight(a,b,mode=false){
+  return clearBodySegment(a,b,{walls:WALLS,circles:navCircles(mode),radius:NAV_RADIUS,arenaRadius:ARENA_MOVE_RADIUS});
 }
-function freePoint(p){
-  return Math.hypot(p.x,p.z)<=ARENA_MOVE_RADIUS-.15&&WALLS.every(w=>rectangleClearance(p,w)>NAV_RADIUS+EPSILON)&&NAV_CIRCLES.every(c=>Math.hypot(p.x-c.x,p.z-c.z)>c.r+NAV_RADIUS+EPSILON);
+function freePoint(p,mode=false){
+  return Math.hypot(p.x,p.z)<=ARENA_MOVE_RADIUS-.15&&WALLS.every(w=>rectangleClearance(p,w)>NAV_RADIUS+EPSILON)&&navCircles(mode).every(c=>Math.hypot(p.x-c.x,p.z-c.z)>c.r+NAV_RADIUS+EPSILON);
 }
 
-let graph=null;
+const graphs=new Map();
 const routes=new WeakMap();
-function makeGraph(){
-  if(graph)return graph;
+function makeGraph(mode=false){
+  if(graphs.has(mode))return graphs.get(mode);
   const nodes=[];
-  const add=(x,z)=>{const p={x,z};if(freePoint(p)&&!nodes.some(n=>Math.hypot(n.x-x,n.z-z)<.1))nodes.push(p);};
+  const add=(x,z)=>{const p={x,z};if(freePoint(p,mode)&&!nodes.some(n=>Math.hypot(n.x-x,n.z-z)<.1))nodes.push(p);};
   for(const wall of WALLS){const b=bounds(wall,NAV_RADIUS+.06);for(const x of [b.minX,b.maxX])for(const z of [b.minZ,b.maxZ])add(x,z);}
-  for(const circle of NAV_CIRCLES){for(let i=0;i<12;i++){const angle=i*Math.PI/6,r=(circle.r+NAV_RADIUS+.08)/Math.cos(Math.PI/12);add(circle.x+Math.cos(angle)*r,circle.z+Math.sin(angle)*r);}}
+  for(const circle of navCircles(mode)){const count=circle.tree?4:mode?8:12;for(let i=0;i<count;i++){const angle=i*Math.PI*2/count,r=(circle.r+NAV_RADIUS+.08)/Math.cos(Math.PI/count);add(circle.x+Math.cos(angle)*r,circle.z+Math.sin(angle)*r);}}
   for(const c of ENCLOSURES){add(c.gate.x,c.gate.z);add(c.approach.x,c.approach.z);add(c.gate.x+(c.x-c.gate.x)*.4,c.gate.z+(c.z-c.gate.z)*.4);}
   const edges=nodes.map(()=>[]);
-  for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++)if(navigationSight(nodes[i],nodes[j])){const cost=Math.hypot(nodes[i].x-nodes[j].x,nodes[i].z-nodes[j].z);edges[i].push([j,cost]);edges[j].push([i,cost]);}
-  graph={nodes,edges};return graph;
+  for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++)if(navigationSight(nodes[i],nodes[j],mode)){const cost=Math.hypot(nodes[i].x-nodes[j].x,nodes[i].z-nodes[j].z);edges[i].push([j,cost]);edges[j].push([i,cost]);}
+  const graph={nodes,edges};graphs.set(mode,graph);return graph;
 }
 
 function goalPoint(actor,goal){
   let point={x:goal.x,z:goal.z};
   const machine=NAV_CIRCLES.find(c=>c.machine&&Math.hypot(point.x-c.x,point.z-c.z)<c.r+NAV_RADIUS);
   if(machine)point={x:machine.x,z:machine.z+2.05};
-  return resolveArenaMove(point,0,0,{radius:NAV_RADIUS});
+  return sceneContactsEnabled(actor)?separateBody(point,{walls:WALLS,circles:navCircles(true),radius:NAV_RADIUS+.002,arenaRadius:ARENA_MOVE_RADIUS}):resolveArenaMove(point,0,0,{radius:NAV_RADIUS});
 }
-function findRoute(actor,goal){
-  const {nodes,edges}=makeGraph(),count=nodes.length,dist=new Float64Array(count),previous=new Int32Array(count),used=new Uint8Array(count);
+function findRoute(actor,goal,mode=false){
+  const {nodes,edges}=makeGraph(mode),count=nodes.length,dist=new Float64Array(count),previous=new Int32Array(count),used=new Uint8Array(count);
   dist.fill(Infinity);previous.fill(-1);
   const goalEdges=new Map();
   for(let i=0;i<count;i++){
-    if(navigationSight(actor,nodes[i]))dist[i]=Math.hypot(actor.x-nodes[i].x,actor.z-nodes[i].z);
-    if(navigationSight(nodes[i],goal))goalEdges.set(i,Math.hypot(goal.x-nodes[i].x,goal.z-nodes[i].z));
+    if(navigationSight(actor,nodes[i],mode))dist[i]=Math.hypot(actor.x-nodes[i].x,actor.z-nodes[i].z);
+    if(navigationSight(nodes[i],goal,mode))goalEdges.set(i,Math.hypot(goal.x-nodes[i].x,goal.z-nodes[i].z));
   }
   let best=-1,bestCost=Infinity;
   for(let pass=0;pass<count;pass++){
@@ -218,21 +221,21 @@ function findRoute(actor,goal){
 
 /** Direction to a target through real gates, with a cached static visibility graph. */
 export function navigateTo(actor,target,{catapults=[]}={}){
-  target=machineDetour(actor,target,catapults);
+  const mode=sceneContactsEnabled(actor);target=machineDetour(actor,target,catapults);
   if(!Number.isFinite(target?.x)||!Number.isFinite(target?.z))return {x:0,z:0};
   // A shove can leave the actor touching the physical wall. Step clear of the
   // small navigation margin before searching; otherwise every ray starts blocked.
-  const clearance=resolveArenaMove(actor,0,0,{radius:NAV_RADIUS,catapults}),correction=Math.hypot(clearance.x-actor.x,clearance.z-actor.z);
+  const physical=resolveArenaMove(actor,0,0,{radius:NAV_RADIUS,catapults}),clearance=mode?separateBody(physical,{circles:sceneryNavigationCircles(),radius:NAV_RADIUS+.002,arenaRadius:ARENA_MOVE_RADIUS}):physical,correction=Math.hypot(clearance.x-actor.x,clearance.z-actor.z);
   if(correction>.005){routes.delete(actor);return {x:(clearance.x-actor.x)/correction,z:(clearance.z-actor.z)/correction};}
   const goal=goalPoint(actor,target),distance=Math.hypot(goal.x-actor.x,goal.z-actor.z);
   if(distance<.18){routes.delete(actor);return {x:0,z:0};}
-  if(navigationSight(actor,goal)){routes.delete(actor);return {x:(goal.x-actor.x)/distance,z:(goal.z-actor.z)/distance};}
+  if(navigationSight(actor,goal,mode)){routes.delete(actor);return {x:(goal.x-actor.x)/distance,z:(goal.z-actor.z)/distance};}
   let route=routes.get(actor);
-  if(!route||!route.path.length||!navigationSight(actor,route.path[0])||Math.hypot(route.goal.x-goal.x,route.goal.z-goal.z)>.35||Math.hypot(route.lastX-actor.x,route.lastZ-actor.z)>3){route={goal,path:findRoute(actor,goal),lastX:actor.x,lastZ:actor.z};routes.set(actor,route);}
+  if(!route||!route.path.length||!navigationSight(actor,route.path[0],mode)||Math.hypot(route.goal.x-goal.x,route.goal.z-goal.z)>.35||Math.hypot(route.lastX-actor.x,route.lastZ-actor.z)>3){route={goal,path:findRoute(actor,goal,mode),lastX:actor.x,lastZ:actor.z};routes.set(actor,route);}
   route.lastX=actor.x;route.lastZ=actor.z;
-  while(route.path.length&&Math.hypot(route.path[0].x-actor.x,route.path[0].z-actor.z)<.18&&(route.path.length===1||navigationSight(actor,route.path[1])))route.path.shift();
+  while(route.path.length&&Math.hypot(route.path[0].x-actor.x,route.path[0].z-actor.z)<.18&&(route.path.length===1||navigationSight(actor,route.path[1],mode)))route.path.shift();
   // Skip waypoints as soon as a clear route opens; this avoids corner wobble.
-  for(let i=route.path.length-1;i>0;i--)if(navigationSight(actor,route.path[i])){route.path.splice(0,i);break;}
+  for(let i=route.path.length-1;i>0;i--)if(navigationSight(actor,route.path[i],mode)){route.path.splice(0,i);break;}
   const next=route.path[0];if(!next)return {x:0,z:0};
   const length=Math.hypot(next.x-actor.x,next.z-actor.z);
   return length?{x:(next.x-actor.x)/length,z:(next.z-actor.z)/length}:{x:0,z:0};

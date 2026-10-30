@@ -10,11 +10,12 @@ export function actorVisualFacing(actor,{manualFire=false,autoFire=false,current
  if(actor.flight?.kind==='wallHold')return {yaw:Math.atan2(actor.flight.wall.nx,actor.flight.wall.nz),aiming:false};
  if(actor.flight?.kind==='wallJump')return {yaw:Math.atan2(actor.flight.vx,actor.flight.vz),aiming:false};
  if(actor.sabotageId)return {yaw:face,aiming:false};
- const firing=manualFire||autoFire||actor.shot>0||actor.kick>0||!!actor.catapultId||actor.airSpit>0||actor.flight?.queued;
+ const shotFacing=actor.shot>0&&!(actor.airSpit>0&&!actor.poseAiming);
+ const firing=manualFire||autoFire||shotFacing||actor.kick>0||!!actor.catapultId||actor.poseAiming&&(actor.airSpit>0||actor.flight?.queued);
  if(actor.id==='player'&&Number.isFinite(motionYaw)&&!firing)return {yaw:wrap(motionYaw),aiming:false};
  const deliberate=actor.id==='player'?
-  actor.poseAiming||manualFire||autoFire||actor.shot>0||actor.kick>0||!!actor.catapultId:
-  actor.aiming||actor.aiCharging||actor.shot>0||actor.kick>0||!!actor.catapultId;
+  actor.poseAiming||manualFire||autoFire||shotFacing||actor.kick>0||!!actor.catapultId:
+  actor.aiming||actor.aiCharging||shotFacing||actor.kick>0||!!actor.catapultId||actor.poseAiming&&(actor.airSpit>0||actor.flight?.queued);
  const validAim=Number.isFinite(actor.aimX)&&Number.isFinite(actor.aimZ)&&Math.hypot(actor.aimX,actor.aimZ)>.001;
  if(deliberate&&validAim)return {yaw:Math.atan2(actor.aimX,actor.aimZ),aiming:true};
  const retained=actor.id==='player'&&Number.isFinite(actor.poseAimYaw)?wrap(actor.poseAimYaw):face;

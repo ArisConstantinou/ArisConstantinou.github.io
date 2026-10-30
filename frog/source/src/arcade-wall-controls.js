@@ -38,7 +38,8 @@ function applyCartoonFlightAttitude(model,flight,dt){
  const kind=flight?.kind,held=kind==='wallHold',flying=['wallJump','jump','double','surfaceHop'].includes(kind),speed=flight?Math.hypot(flight.vx||0,flight.vz||0):0;
  const target=held?-.2:flying&&speed>.2?Math.max(-.75,Math.min(.95,(model.stats?.restAxisPitch??model.leapPitch??0)-Math.atan2(flight.vy,speed))):(model.leapPitch||0);
  model.flightPitch=(model.flightPitch||0)+(target-(model.flightPitch||0))*(1-Math.exp(-Math.max(0,dt)*18));
- model.flightPivot.rotation.x=model.flightPitch;
+ if(!flight){model.flightPitch=0;model.flightPivot.rotation.set(0,0,0);return;}
+ const direction=Math.atan2(flight.vx||0,flight.vz||0)-model.group.rotation.y;model.flightPivot.rotation.x=model.flightPitch*(held?1:Math.cos(direction));model.flightPivot.rotation.z=held?0:-model.flightPitch*Math.sin(direction);
 }
 
 

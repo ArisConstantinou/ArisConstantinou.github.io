@@ -1,0 +1,672 @@
+{
+  "ok": true,
+  "inputs": [
+    {
+      "mobile": false,
+      "cls": "heavy",
+      "name": "left",
+      "version": "4.4.12",
+      "input": {
+        "mx": -1,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 2.925999999999995,
+      "yaw": 4.711362634662757,
+      "expectedYaw": -1.5707963267948966,
+      "speed": 8.36,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.000711299275551159,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": false,
+      "cls": "heavy",
+      "name": "right",
+      "version": "4.4.12",
+      "input": {
+        "mx": 1,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 2.925999999999995,
+      "yaw": 1.5718226725168294,
+      "expectedYaw": 1.5707963267948966,
+      "speed": 8.36,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0007112992755513582,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": false,
+      "cls": "heavy",
+      "name": "back",
+      "version": "4.4.12",
+      "input": {
+        "mx": 0,
+        "mz": 1,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 2.925999999999995,
+      "yaw": 0.0020526914438658526,
+      "expectedYaw": 0,
+      "speed": 8.36,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0014225985511029235,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": false,
+      "cls": "skinny",
+      "name": "left",
+      "version": "4.4.12",
+      "input": {
+        "mx": -1,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 4.773999999999998,
+      "yaw": 4.711362634662757,
+      "expectedYaw": -1.5707963267948966,
+      "speed": 13.64,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.000711299275551159,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": false,
+      "cls": "skinny",
+      "name": "right",
+      "version": "4.4.12",
+      "input": {
+        "mx": 1,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 4.774000000000015,
+      "yaw": 1.5718226725168294,
+      "expectedYaw": 1.5707963267948966,
+      "speed": 13.64,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0007112992755513582,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": false,
+      "cls": "skinny",
+      "name": "back",
+      "version": "4.4.12",
+      "input": {
+        "mx": 0,
+        "mz": 1,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 4.774000000000015,
+      "yaw": 0.0020526914438658526,
+      "expectedYaw": 0,
+      "speed": 13.64,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0014225985511029235,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": false,
+      "cls": "medium",
+      "name": "left",
+      "version": "4.4.12",
+      "input": {
+        "mx": -1,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 3.8500000000000014,
+      "yaw": 4.711362634662757,
+      "expectedYaw": -1.5707963267948966,
+      "speed": 11,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.000711299275551159,
+        "spitFrames": 15
+      }
+    },
+    {
+      "mobile": false,
+      "cls": "medium",
+      "name": "right",
+      "version": "4.4.12",
+      "input": {
+        "mx": 1,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 3.850000000000005,
+      "yaw": 1.5718226725168294,
+      "expectedYaw": 1.5707963267948966,
+      "speed": 11,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0007112992755513582,
+        "spitFrames": 15
+      }
+    },
+    {
+      "mobile": false,
+      "cls": "medium",
+      "name": "back",
+      "version": "4.4.12",
+      "input": {
+        "mx": 0,
+        "mz": 1,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 3.850000000000005,
+      "yaw": 0.0020526914438658526,
+      "expectedYaw": 0,
+      "speed": 11,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0014225985511029235,
+        "spitFrames": 15
+      }
+    },
+    {
+      "mobile": true,
+      "cls": "heavy",
+      "name": "left",
+      "version": "4.4.12",
+      "input": {
+        "mx": -0.8275862068965517,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 2.925999999999995,
+      "yaw": 4.711362634662757,
+      "expectedYaw": -1.5707963267948966,
+      "speed": 8.36,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.000711299275551159,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": true,
+      "cls": "heavy",
+      "name": "right",
+      "version": "4.4.12",
+      "input": {
+        "mx": 0.8275862068965517,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 2.925999999999995,
+      "yaw": 1.5718226725168294,
+      "expectedYaw": 1.5707963267948966,
+      "speed": 8.36,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0007112992755513582,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": true,
+      "cls": "heavy",
+      "name": "back",
+      "version": "4.4.12",
+      "input": {
+        "mx": 0,
+        "mz": 0.8275862068965517,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 2.925999999999995,
+      "yaw": 0.0020526914438658526,
+      "expectedYaw": 0,
+      "speed": 8.36,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0014225985511029235,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": true,
+      "cls": "skinny",
+      "name": "left",
+      "version": "4.4.12",
+      "input": {
+        "mx": -0.8275862068965517,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 4.773999999999998,
+      "yaw": 4.711362634662757,
+      "expectedYaw": -1.5707963267948966,
+      "speed": 13.64,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.000711299275551159,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": true,
+      "cls": "skinny",
+      "name": "right",
+      "version": "4.4.12",
+      "input": {
+        "mx": 0.8275862068965517,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 4.774000000000015,
+      "yaw": 1.5718226725168294,
+      "expectedYaw": 1.5707963267948966,
+      "speed": 13.64,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0007112992755513582,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": true,
+      "cls": "skinny",
+      "name": "back",
+      "version": "4.4.12",
+      "input": {
+        "mx": 0,
+        "mz": 0.8275862068965517,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 4.774000000000015,
+      "yaw": 0.0020526914438658526,
+      "expectedYaw": 0,
+      "speed": 13.64,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0014225985511029235,
+        "spitFrames": 0
+      }
+    },
+    {
+      "mobile": true,
+      "cls": "medium",
+      "name": "left",
+      "version": "4.4.12",
+      "input": {
+        "mx": -0.8275862068965517,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 3.8500000000000014,
+      "yaw": 4.711362634662757,
+      "expectedYaw": -1.5707963267948966,
+      "speed": 11,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.000711299275551159,
+        "spitFrames": 15
+      }
+    },
+    {
+      "mobile": true,
+      "cls": "medium",
+      "name": "right",
+      "version": "4.4.12",
+      "input": {
+        "mx": 0.8275862068965517,
+        "mz": 0,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 3.850000000000005,
+      "yaw": 1.5718226725168294,
+      "expectedYaw": 1.5707963267948966,
+      "speed": 11,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0007112992755513582,
+        "spitFrames": 15
+      }
+    },
+    {
+      "mobile": true,
+      "cls": "medium",
+      "name": "back",
+      "version": "4.4.12",
+      "input": {
+        "mx": 0,
+        "mz": 0.8275862068965517,
+        "ax": 1.2246467991473532e-16,
+        "az": -1,
+        "aiming": true,
+        "faceAim": false,
+        "fire": false,
+        "kick": false,
+        "sabotage": false,
+        "jump": true,
+        "dash": false,
+        "airVolley": false,
+        "wallMode": "manual"
+      },
+      "displacement": 3.850000000000005,
+      "yaw": 0.0020526914438658526,
+      "expectedYaw": 0,
+      "speed": 11,
+      "flight": "jump",
+      "limbScales": true,
+      "trajectory": {
+        "maxYawError": 0.0014225985511029235,
+        "spitFrames": 15
+      }
+    }
+  ],
+  "performance": [
+    {
+      "label": "before",
+      "mobile": false,
+      "version": "4.4.11",
+      "ground": {
+        "cpuP50": 4.5,
+        "cpuP95": 6,
+        "frameP50": 5.1000001430511475,
+        "frameP95": 6.799999952316284,
+        "drawCalls": 257,
+        "triangles": 2301484,
+        "geometry": 103,
+        "textures": 35
+      },
+      "rock": {
+        "cpuP50": 3.6000001430511475,
+        "cpuP95": 5.099999904632568,
+        "frameP50": 4.200000047683716,
+        "frameP95": 5.700000047683716,
+        "drawCalls": 210,
+        "triangles": 1770636,
+        "geometry": 112,
+        "textures": 35
+      },
+      "renderer": "WebKit WebGL"
+    },
+    {
+      "label": "before",
+      "mobile": true,
+      "version": "4.4.11",
+      "ground": {
+        "cpuP50": 5.099999904632568,
+        "cpuP95": 7.299999952316284,
+        "frameP50": 5.5,
+        "frameP95": 8.100000143051147,
+        "drawCalls": 280,
+        "triangles": 2840207,
+        "geometry": 106,
+        "textures": 35
+      },
+      "rock": {
+        "cpuP50": 4.1000001430511475,
+        "cpuP95": 5.799999952316284,
+        "frameP50": 4.400000095367432,
+        "frameP95": 6.199999809265137,
+        "drawCalls": 241,
+        "triangles": 1966692,
+        "geometry": 114,
+        "textures": 35
+      },
+      "renderer": "WebKit WebGL"
+    },
+    {
+      "label": "after",
+      "mobile": false,
+      "version": "4.4.12",
+      "ground": {
+        "cpuP50": 4,
+        "cpuP95": 5.400000095367432,
+        "frameP50": 4.5,
+        "frameP95": 6,
+        "drawCalls": 257,
+        "triangles": 2301484,
+        "geometry": 103,
+        "textures": 35
+      },
+      "rock": {
+        "cpuP50": 3.6000001430511475,
+        "cpuP95": 5.200000047683716,
+        "frameP50": 4.299999952316284,
+        "frameP95": 5.799999952316284,
+        "drawCalls": 200,
+        "triangles": 1770436,
+        "geometry": 107,
+        "textures": 35
+      },
+      "renderer": "WebKit WebGL"
+    },
+    {
+      "label": "after",
+      "mobile": true,
+      "version": "4.4.12",
+      "ground": {
+        "cpuP50": 4.5,
+        "cpuP95": 6.299999952316284,
+        "frameP50": 4.799999952316284,
+        "frameP95": 6.799999952316284,
+        "drawCalls": 280,
+        "triangles": 2840207,
+        "geometry": 106,
+        "textures": 35
+      },
+      "rock": {
+        "cpuP50": 4.200000047683716,
+        "cpuP95": 5.400000095367432,
+        "frameP50": 4.699999809265137,
+        "frameP95": 6,
+        "drawCalls": 232,
+        "triangles": 1916532,
+        "geometry": 109,
+        "textures": 35
+      },
+      "renderer": "WebKit WebGL"
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false,
+  "comparison": "Same fixed seed731, viewports1280x800/932x430 DPR1, 30 warmup +150 sampled animation frames per ground/rock phase; before public4.4.11, after canonical4.4.12. Same host, headless Chromium, not physical mobile FPS. AI paths legitimately diverge after new solids."
+}

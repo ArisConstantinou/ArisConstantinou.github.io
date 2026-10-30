@@ -61,8 +61,11 @@ function boxPush(point,box,radius){
  sides.sort((a,b)=>a.depth-b.depth);return {x:sides[0].x*(sides[0].depth+SKIN),z:sides[0].z*(sides[0].depth+SKIN)};
 }
 
+function polygonPush(p,poly,radius){let inside=true,nearest=null,distance=Infinity;const ps=poly.points;for(let i=0;i<ps.length;i++){const a=ps[i],b=ps[(i+1)%ps.length],ex=b.x-a.x,ez=b.z-a.z,l2=ex*ex+ez*ez;if(l2<1e-12)continue;if(ex*(p.z-a.z)-ez*(p.x-a.x)<-EPS)inside=false;const u=clamp(((p.x-a.x)*ex+(p.z-a.z)*ez)/l2,0,1),x=a.x+u*ex,z=a.z+u*ez,d=Math.hypot(p.x-x,p.z-z);if(d<distance){distance=d;nearest={x,z,nx:ez/Math.sqrt(l2),nz:-ex/Math.sqrt(l2)};}}if(!nearest||!inside&&distance>=radius-SKIN*.1)return null;if(inside)return{x:nearest.nx*(distance+radius+SKIN),z:nearest.nz*(distance+radius+SKIN)};return{x:(p.x-nearest.x)/Math.max(EPS,distance)*(radius-distance+SKIN),z:(p.z-nearest.z)/Math.max(EPS,distance)*(radius-distance+SKIN)};}
+function polygonSweep(p,d,poly,radius){let best=null;for(let i=0;i<poly.points.length;i++){const a=poly.points[i],b=poly.points[(i+1)%poly.points.length],ex=b.x-a.x,ez=b.z-a.z,l=Math.hypot(ex,ez);if(l<1e-8)continue;const hit=roundedRectangleSweep(p,d,{x:(a.x+b.x)/2,z:(a.z+b.z)/2,hw:l/2,hd:0,yaw:-Math.atan2(ez,ex)},radius);if(hit&&(!best||hit.t<best.t))best=hit;}return best;}
+
 /** Closest local separation for old saves or an external placement in a solid. */
-export function separateBody(point,{walls=[],circles=[],radius=0,arenaRadius=Infinity}={}){
+export function separateBody(point,{walls=[],circles=[],polygons=[],radius=0,arenaRadius=Infinity}={}){
  const p={x:point.x,z:point.z};
  for(let pass=0;pass<12;pass++){
   let changed=false;
@@ -72,6 +75,7 @@ export function separateBody(point,{walls=[],circles=[],radius=0,arenaRadius=Inf
    if(d>=limit-SKIN*.1)continue;
    p.x=circle.x+(d>EPS?dx/d:0)*(limit+SKIN);p.z=circle.z+(d>EPS?dz/d:1)*(limit+SKIN);changed=true;
   }
+  for(const poly of polygons){const push=polygonPush(p,poly,radius);if(push){p.x+=push.x;p.z+=push.z;changed=true;}}
   const d=Math.hypot(p.x,p.z);
   if(d>arenaRadius){p.x*=(arenaRadius-SKIN)/d;p.z*=(arenaRadius-SKIN)/d;changed=true;}
   if(!changed)break;
@@ -80,14 +84,15 @@ export function separateBody(point,{walls=[],circles=[],radius=0,arenaRadius=Inf
 }
 
 /** One sweep handles walls and round solids together, then keeps tangent travel. */
-export function sweepBody(point,dx,dz,{walls=[],circles=[],radius=0,arenaRadius=Infinity}={}){
- const geometry={walls,circles,radius,arenaRadius},p=separateBody(point,geometry);
+export function sweepBody(point,dx,dz,{walls=[],circles=[],polygons=[],radius=0,arenaRadius=Infinity}={}){
+ const geometry={walls,circles,polygons,radius,arenaRadius},p=separateBody(point,geometry);
  let delta={x:Number.isFinite(dx)?dx:0,z:Number.isFinite(dz)?dz:0};
  for(let iteration=0;iteration<8&&Math.hypot(delta.x,delta.z)>EPS;iteration++){
   let closest=null;
   const consider=hit=>{if(hit&&(hit.boundary||delta.x*hit.nx+delta.z*hit.nz< -EPS)&&(!closest||hit.t<closest.t))closest=hit;};
   for(const wall of walls)consider(roundedRectangleSweep(p,delta,wall,radius));
   for(const circle of circles)consider(circleSweep(p,delta,circle,circle.r+radius));
+  for(const poly of polygons)consider(polygonSweep(p,delta,poly,radius));
   consider(boundarySweep(p,delta,arenaRadius));
   if(!closest){p.x+=delta.x;p.z+=delta.z;break;}
   const backoff=SKIN/Math.max(EPS,Math.hypot(delta.x,delta.z)),travel=Math.max(0,closest.t-backoff);
@@ -106,10 +111,10 @@ export function sweepBody(point,dx,dz,{walls=[],circles=[],radius=0,arenaRadius=
  return p;
 }
 
-export function clearBodySegment(a,b,{walls=[],circles=[],radius=0,arenaRadius=Infinity}={}){
+export function clearBodySegment(a,b,{walls=[],circles=[],polygons=[],radius=0,arenaRadius=Infinity}={}){
  if(Math.hypot(a.x,a.z)>arenaRadius+EPS||Math.hypot(b.x,b.z)>arenaRadius+EPS)return false;
  if(walls.some(w=>rectangleClearance(a,w)<radius-SKIN||rectangleClearance(b,w)<radius-SKIN))return false;
  if(circles.some(c=>Math.hypot(a.x-c.x,a.z-c.z)<c.r+radius-SKIN||Math.hypot(b.x-c.x,b.z-c.z)<c.r+radius-SKIN))return false;
  const delta={x:b.x-a.x,z:b.z-a.z};
- return !walls.some(w=>roundedRectangleSweep(a,delta,w,radius))&&!circles.some(c=>circleSweep(a,delta,c,c.r+radius));
+ return !polygons.some(p=>polygonPush(a,p,radius)||polygonPush(b,p,radius)||polygonSweep(a,delta,p,radius))&&!walls.some(w=>roundedRectangleSweep(a,delta,w,radius))&&!circles.some(c=>circleSweep(a,delta,c,c.r+radius));
 }

@@ -1,0 +1,11 @@
+# Βαλτομαχίες 4.4.12
+
+Landing and horizontal contact now follow the existing imported rocks, trees and house roofs. The previous analytical rock surface was about 0.40 m below the real first rock; trees had cover logic but no solid trunk contact. Models and textures retain their exact original bytes.
+
+129×129 upper-surface fields and 32 convex height slices are baked from the decoded approved meshes and their real transforms. Runtime uses bounded convex sweeps and interpolated fields, with no triangle raycasting, added render objects or new dependencies. These are collision approximations: tiny leaves, gaps and rough straw are not individually simulated. Hash provenance is in qa/scenery-contact-source.json.
+
+Supported hind feet receive rest-aware joint rotation on uneven surfaces, without scaling limbs or changing their lengths. Authored raised forehands remain raised. Walking hops, knock-up, deliberate class attacks and airborne jumps retain their animation. The flight pivot resets on landing and tilts in the travel direction. Automatic aerial volleys no longer hold the medium frog facing forward during sideways/backward jumps; deliberate aiming still takes priority.
+
+AI navigation includes the new solids, caches its static margins and projects inaccessible goals to reachable edges, so a target inside a trunk does not freeze a bot. Actors inside the conservative navigation margin step clear before searching; this prevents an impossible graph search every frame. The focused pre-fix case returned zero direction at about2.9 ms per call. Existing wall jump controls, houses, class abilities, camera choice, optional help, full UI editor, creator signature and save/update behavior are preserved.
+
+Validation: full source suite; every scenery object centre for all three bodies; roof/rock/tree landing and launch in eight directions; continuous rounded collisions and departure; trunk approach/navigation; actual keyboard A/D/S+Space and native CDP two-finger joystick+Jump for each body; real mesh contact screenshots and limb scale checks; standard game client. Comparable browser CPU/render measurements and public commit/Pages/update/hash checks are saved in qa/contact-runtime-report.json and release evidence. Mobile browser emulation does not certify physical iPhone FPS or 2× performance.

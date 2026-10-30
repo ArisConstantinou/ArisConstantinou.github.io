@@ -1,3 +1,4 @@
+import {sceneContactsEnabled,scenerySurfaces} from './arcade-scenery-contact.js';
 import {aerialAttack,characterProfile} from './arcade-character-classes.js';
 import {stepWallHold} from './arcade-wall-jump.js';
 // Frog leaps on keyboard and touch use world-space height; the ordinary movement hop remains unchanged.
@@ -16,6 +17,7 @@ export function flightPose(a){
  return {phase:'air',progress:Math.max(.02,Math.min(.98,Number.isFinite(f.poseProgress)?f.poseProgress:.5-f.vy/(2*Math.max(1,f.launchVelocity))))};
 }
 export function roofSurfaces(s,x,z,ground){
+ if(sceneContactsEnabled(s))return scenerySurfaces(s,x,z,ground,{roofOnly:true});
  const surfaces=[];
  for(const b of BASES){
   if(s.bases?.find(v=>v.id===b.id)?.destroyed)continue;
@@ -27,7 +29,8 @@ export function roofSurfaces(s,x,z,ground){
 }
 export function landingSurfaces(s,x,z,ground,actor=null){
  const result=[{id:null,y:ground(x,z),kind:'ground'},...roofSurfaces(s,x,z,ground)];
- for(let i=0;i<ARENA_ROCKS.length;i++){const r=ARENA_ROCKS[i],q=((x-r.x)**2+(z-r.z)**2)/(r.r*r.r);if(q<=1)result.push({id:'rock:'+i,y:ground(r.x,r.z)+r.r*.9+r.r*1.7*Math.sqrt(1-q),kind:'rock'});}
+ if(sceneContactsEnabled(s))result.push(...scenerySurfaces(s,x,z,ground));
+ else for(let i=0;i<ARENA_ROCKS.length;i++){const r=ARENA_ROCKS[i],q=((x-r.x)**2+(z-r.z)**2)/(r.r*r.r);if(q<=1)result.push({id:'rock:'+i,y:ground(r.x,r.z)+r.r*.9+r.r*1.7*Math.sqrt(1-q),kind:'rock'});}
  for(const w of WALLS)if(Math.abs(x-w.x)<=w.hw+.04&&Math.abs(z-w.z)<=w.hd+.04)result.push({id:'wall:'+w.id,y:ground(w.x,w.z)+w.height+.135,kind:'wall'});
  for(const c of CATAPULT_SITES)if(Math.hypot(x-c.x,z-c.z)<=.63)result.push({id:'machine:'+c.id,y:ground(c.x,c.z)+(actor?.characterClass?frogBody(actor).mountedOffset:.45),kind:'machine',catapultId:c.id});
  return result;

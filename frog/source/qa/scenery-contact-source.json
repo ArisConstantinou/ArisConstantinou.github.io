@@ -1,0 +1,11 @@
+{
+  "method": "Baked129x129 upper-surface samples +32 convex height slices from actual decoded meshes. Root transforms/scales match imported-assets and house-alignment. No runtime triangle rays.",
+  "files": {
+    "public/art/nature/glTF/CommonTree_2.gltf": "67160975f0ac991b4a2ffb2add4ab4037b5e9c1bef9f66dac5235fcf0ba9bd52",
+    "public/art/nature/glTF/CommonTree_2.bin": "a273d69de31a675a9d7e3eb3c43f804aef2d1b031692111b9e76eb3b0b686d0c",
+    "public/art/nature/glTF/Rock_Medium_1.gltf": "5d1ab1fa03218f4a908728ed0eabe6486344a7e4f510b0d3d6f837fd1d011bd8",
+    "public/art/nature/glTF/Rock_Medium_1.bin": "ea79527d4c2b3bdb7a28bf589bf0c1fd96d192a4d0738636753911dd58681e99",
+    "public/art/meshy/house-game.glb": "fbe3e5903143dbb2d6e7f359d40c1aa7c48a314aae4ce4b87db02d17df294323"
+  },
+  "data_sha256": "dc3b876cf7846f0c72f3ac3dcec6f595a311eb347d99fb81754b642a55b0cdc1"
+}
