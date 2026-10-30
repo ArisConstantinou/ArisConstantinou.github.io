@@ -1,3 +1,4 @@
+import './arcade-brand-placement.css';
 import './arcade-asset-loading.css';
 import { ArcadeGame } from './arcade.js';
 import { installTapBuffer } from './arcade-tap-buffer.js';
