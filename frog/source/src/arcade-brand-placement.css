@@ -35,3 +35,6 @@ body #arcade-ui .warmup-goals.objective-reader{max-height:calc(100dvh - 64px)}
 
 #arcade-ui .game-title-crop .game-title-art{clip-path:polygon(28.54512% 15.19337%,100% 15.19337%,100% 91.16022%,28.54512% 91.16022%,28.54512% 60.77348%,29.37385% 60.77348%,29.37385% 25.55249%,28.54512% 25.55249%)}
 body #arcade-ui .settings-panel{top:calc(max(12px,env(safe-area-inset-top)) + var(--creator-clearance));max-height:calc(100dvh - max(12px,env(safe-area-inset-top)) - var(--creator-clearance) - 12px)}
+
+/* Keep fixed camera controls in the viewport, outside a translated containing block. */
+#arcade-ui #arcade-hud{translate:none;margin-top:var(--creator-clearance)}

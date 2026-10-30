@@ -1,0 +1,7 @@
+# Βαλτομαχίες 4.4.8
+
+Cold startup prioritizes the same three animated menu frogs before downloading the large 3D assets. Preload the animations from the document head and wait for the real menu decode before starting the model loader. This removes model-download contention from the blocking initial screen; model preparation continues visibly in the menu. The 4.4.7 failure/retry screen and modern artwork stay intact. Original image/model bytes, quality and persistent model cache keys are unchanged.
+
+Wall contact and launch now retain the selected 3D or overhead camera and its orbit. The previous manual-wall preview silently forced a separate overhead pose and launch reset yaw/pitch. Destination planning, manual confirmation and automatic launch remain available; choose overhead explicitly with C or the camera button. The HUD uses layout spacing instead of a parent translation so the fixed camera button is reachable beside the mobile objectives dock.
+
+Validation:1451 source tests and production build; six selection/startup viewports, blocked-menu network-order test and retry; eight wall contact/manual/auto cases across desktop, portrait and two landscape sizes; 12 seconds of simulated idle per camera/view; camera button hit testing and explicit C/button changes; standard game client without browser errors. Actual public cold4.4.7 baseline:42.86 seconds until menu,1.11 seconds cached on the test PC/network. Public4.4.8 timings are recorded separately after deployment. No physical iPhone frame-rate claim.

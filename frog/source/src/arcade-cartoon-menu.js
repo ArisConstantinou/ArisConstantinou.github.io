@@ -2,7 +2,7 @@ const CLASSES=['heavy','medium','skinny'];
 // Never expose the obsolete artwork while the actual character performances decode.
 export function installCartoonMenu(game){
  const doc=game.ui.ownerDocument,top=game.ui.querySelector('.menu-frogs-top'),bottom=game.ui.querySelector('.menu-frogs-settings'),boot=doc.getElementById('boot');top.hidden=true;bottom.hidden=true;
- const imgs=CLASSES.map((id,i)=>{const image=doc.createElement('img');image.alt='';image.draggable=false;image.className='cartoon-menu-frog cartoon-menu-'+id;image.dataset.character=id;image.hidden=true;(i===2?bottom:top).before(image);return image;});
+ const imgs=CLASSES.map((id,i)=>{const image=doc.createElement('img');image.alt='';image.draggable=false;image.fetchPriority='high';image.className='cartoon-menu-frog cartoon-menu-'+id;image.dataset.character=id;image.hidden=true;(i===2?bottom:top).before(image);return image;});
  let ready=false,failed=false,visible=false;const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  function motion(){for(const [i,image]of imgs.entries())image.src=`./art/cartoon/${CLASSES[i]}-${reduced.matches?'card.png':'menu.webp'}`;}
  reduced.addEventListener('change',motion);motion();

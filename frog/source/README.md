@@ -1,4 +1,4 @@
-# Βαλτομαχίες 4.4.7 — complete game source
+# Βαλτομαχίες 4.4.8 — complete game source
 
 4.4.7 clarifies double-tap/click continuation, keeps selection actions visible, enables native card scrolling and prevents obsolete startup models. See RELEASE-4.4.7.md for validation.
 

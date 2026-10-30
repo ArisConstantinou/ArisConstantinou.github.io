@@ -6,7 +6,7 @@ import {installCartoonMenu} from './arcade-cartoon-menu.js';
 import './arcade-character-selection.css';
 import {frogBody} from './arcade-actor-bounds.js';
 import {plantWallFeet,prewarmWallFeet} from './arcade-wall-contact-pose.js';
-import {installWallJumpControls,applyFlightAttitude,wallAimPose} from './arcade-wall-controls.js';
+import {installWallJumpControls,applyFlightAttitude} from './arcade-wall-controls.js';
 import {runRenderBenchmark} from './arcade-render-benchmark.js';
 import {installGraphicsSample} from './arcade-graphics-sample.js';
 import {installFrameMeter} from './arcade-frame-meter.js';
@@ -119,7 +119,7 @@ export class ArcadeGame {
   window.__FROG__={version:ARCADE_VERSION,mode:'arcade',inspect:()=>this.inspect(),save:()=>this.persist()};
   if(new URLSearchParams(location.search).has('test'))window.advanceTime=ms=>{this.renderer.setAnimationLoop(null);for(let i=0;i<Math.max(1,Math.round(ms/(1000/60)));i++)this.frame(this.last+1000/60);};
   if(new URLSearchParams(location.search).has('test'))window.__FROG__.test={step:(input,n=1)=>{for(let i=0;i<n;i++){step(this.state,input,1/60);this.consumeEvents();}this.updateHUD();},state:()=>this.state,setState:(s)=>{this.state=s;this.buildActors();this.updateHUD();},input:()=>this.currentInput(),kickTarget:()=>kickTarget(this.state,this.state.actors[0])?.id};
-  this.performanceMeter=installFrameMeter(this);this.last=performance.now();installCameraSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});installFireSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});this.waterReflections=installWaterReflectionSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});this.renderer.setAnimationLoop(now=>this.frame(now));if(new URLSearchParams(location.search).get('benchmark')==='1')queueMicrotask(()=>runRenderBenchmark(this));if(this.importedGraphics)this.assetReady=import('./arcade-imported-assets.js').then(m=>m.installImportedAssets(this)).catch(e=>{this.failures.push(e.message);});if(['assets','original'].includes(new URLSearchParams(location.search).get('scene')))queueMicrotask(()=>import('./arcade-asset-showcase.js').then(m=>m.startAssetShowcase(this)).catch(e=>console.error(e)));
+  this.performanceMeter=installFrameMeter(this);this.last=performance.now();installCameraSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});installFireSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});this.waterReflections=installWaterReflectionSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});this.renderer.setAnimationLoop(now=>this.frame(now));if(new URLSearchParams(location.search).get('benchmark')==='1')queueMicrotask(()=>runRenderBenchmark(this));if(this.importedGraphics)this.assetReady=this.menuAnimation.ready.then(ready=>{if(!ready)throw Error('Menu images not ready');return import('./arcade-imported-assets.js');}).then(m=>m.installImportedAssets(this)).catch(e=>{this.failures.push(e.message);});if(['assets','original'].includes(new URLSearchParams(location.search).get('scene')))queueMicrotask(()=>import('./arcade-asset-showcase.js').then(m=>m.startAssetShowcase(this)).catch(e=>console.error(e)));
  }
  ground(x,z){return houseFloorAt(x,z,this.houseFloors)??this.world.getSurface(x,z).height;}
  cameraGround(x,z){return Math.max(this.ground(x,z),this.world.cameraSurfaceHeight(x,z));}
@@ -508,7 +508,7 @@ export class ArcadeGame {
   const p=this.state.actors[0],ground=this.ground(p.x,p.z)+(p.flight||p.support?p.height:0),anchor=new V(p.x,ground,p.z);
   const lock=this.running?this.targetLock?.update():null;
   if(lock&&this.viewMode==='chase3d'){const orbit=targetLockOrbit(p,ground,lock.cameraTarget,{yaw:this.cameraYaw,pitch:this.cameraPitch},dt);this.cameraYaw=orbit.yaw;this.cameraPitch=orbit.pitch;}
-  const pose=this.wallAiming?.()?wallAimPose(p,ground,this.w/this.h):cameraPose(p,ground,this.w/this.h,this.viewMode,{yaw:this.cameraYaw,pitch:this.cameraPitch,zoom:this.settings.cameraZoom}),lookPoint=new V(...pose.look),camPoint=new V(...pose.position);
+  const pose=cameraPose(p,ground,this.w/this.h,this.viewMode,{yaw:this.cameraYaw,pitch:this.cameraPitch,zoom:this.settings.cameraZoom}),lookPoint=new V(...pose.look),camPoint=new V(...pose.position);
   this.cameraFollow??=new V();
   if(!this.cameraReady){this.cameraFollow.copy(anchor);this.cameraReady=true;}else this.cameraFollow.lerp(anchor,1-Math.exp(-dt*8));
   // Dampen travel only. The shoulder offset turns immediately with the mouse

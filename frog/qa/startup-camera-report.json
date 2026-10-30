@@ -1,0 +1,12 @@
+{
+  "version": "4.4.8",
+  "sourceTests": 1451,
+  "startupViewports": 6,
+  "wallCameraCases": 8,
+  "cameraControlsViewports": 4,
+  "modelRequestsWaitForVisibleMenu": true,
+  "originalAssetBytesUnchanged": true,
+  "physicalPhone": false,
+  "baselineColdMenuSeconds": 42.86,
+  "baselineWarmMenuSeconds": 1.11
+}
