@@ -1,0 +1,47 @@
+/* All positions share viewport coordinates; no translated HUD parent. */
+body #arcade-ui.has-ui-layout #arcade-hud{margin:0;translate:none;transform:none;position:static;padding:0}
+body #arcade-ui.has-ui-layout .ui-positioned,body #fps-counter.ui-positioned{position:fixed!important;left:var(--ui-x)!important;top:var(--ui-y)!important;right:auto!important;bottom:auto!important;width:var(--ui-width)!important;height:var(--ui-height)!important;min-width:0!important;max-width:none!important;min-height:0!important;max-height:none!important;margin:0!important;translate:none!important;transform:none!important;flex:none!important}
+body #arcade-ui.has-ui-layout #touch-controls .touch-look-guide,body #arcade-ui.has-ui-layout #touch-controls .stick-caption{display:none}
+body #arcade-ui.has-ui-layout .ui-context-replaced{display:none!important}
+body #arcade-ui.has-ui-layout.is-touch .ammo-card{padding:6px 9px;gap:6px}
+body #arcade-ui.has-ui-layout.is-touch .ammo-numbers{gap:5px}
+body #arcade-ui.has-ui-layout.is-touch .ammo-numbers strong{font-size:20px;white-space:nowrap}
+body #arcade-ui.has-ui-layout.is-touch .ammo-numbers b,body #arcade-ui.has-ui-layout.is-touch #ammo-state{display:none}
+body #arcade-ui.has-ui-layout.is-touch #ammo-track{height:6px;margin:5px 0 0}
+body #arcade-ui.has-ui-layout.is-touch .base-card{padding:4px;gap:2px;justify-content:center}
+body #arcade-ui.has-ui-layout.is-touch .base-card>span{font-size:12px;letter-spacing:0}
+body #arcade-ui.has-ui-layout.is-touch .base-card strong{font-size:21px;line-height:1}
+body #arcade-ui.has-ui-layout.is-touch .base-dot{width:10px;height:10px}
+body #arcade-ui.has-ui-layout.is-touch .base-dots{gap:5px}
+body #arcade-ui.has-ui-layout.is-touch .match-clock{padding:5px 7px;gap:5px;grid-template-columns:24px 1fr}
+body #arcade-ui.has-ui-layout.is-touch .match-clock-label{font-size:12px;letter-spacing:0;white-space:nowrap}
+body #arcade-ui.has-ui-layout.is-touch .match-clock-digits{font-size:24px;line-height:1}
+body #arcade-ui.has-ui-layout.is-touch #view-button,body #arcade-ui.has-ui-layout.is-touch .objectives-dock{font-size:12px;padding:5px;gap:4px;border-radius:13px}
+body #arcade-ui.has-ui-layout.is-touch .objectives-dock kbd{display:none}
+body #arcade-ui.has-ui-layout.is-touch #base-status{font-size:12px;padding:6px 8px;line-height:1.3}
+body #arcade-ui.has-ui-layout.is-touch .touch-action span{font-size:12px;line-height:14px;letter-spacing:0}
+body #arcade-ui.has-ui-layout.is-touch .touch-action svg{width:30px;height:30px}
+body #arcade-ui.has-ui-layout.is-touch #jump-button:disabled{opacity:.7}
+body #arcade-ui.has-ui-layout.is-touch #jump-button{z-index:5}
+body #fps-counter.ui-positioned{display:flex;flex-direction:column;justify-content:center;padding:4px 7px;line-height:17px}
+body #fps-counter.ui-positioned b{font-size:16px}
+body #fps-counter.ui-positioned span{font-size:12px;white-space:nowrap}
+body:has(#arcade-ui.in-menu) #fps-counter.ui-positioned{width:auto!important;height:18px!important;left:auto!important;right:12px!important;top:6px!important}
+body #arcade-ui.has-ui-layout .ui-layout-settings{margin:20px 0;padding:16px 0;border-top:1px solid #a4c99855}
+.ui-layout-settings h3{font-size:20px;margin:0 0 8px}.ui-layout-settings p{font-size:16px;line-height:1.4;margin:0 0 12px;color:#d5e6c5}
+body #arcade-ui .ui-layout-entry{display:flex;align-items:center;justify-content:center;gap:12px;position:static;width:100%;min-height:52px;padding:12px;border:2px solid #bddb89;border-radius:14px;background:#244d3c;color:#f0ffd1;font-size:16px;font-weight:800;touch-action:manipulation}
+#ui-layout-editor{position:fixed;inset:0;z-index:3000;pointer-events:auto;touch-action:none}
+.ui-layout-toolbar{position:absolute;left:50%;top:max(70px,env(safe-area-inset-top));transform:translateX(-50%);width:min(380px,calc(100vw - 24px));max-height:calc(100dvh - 20px);overflow:auto;background:#12372ff5;border:2px solid #d4ef9c;border-radius:18px;padding:12px;color:#f4ffdf;box-shadow:0 8px 25px #001e2199;z-index:3;pointer-events:auto;font:14px/1.35 Arial,sans-serif}
+.ui-layout-grip{display:block;cursor:move;touch-action:none;min-height:36px;font-size:18px}
+.ui-layout-toolbar label{display:flex;align-items:center;gap:8px;font-size:14px}.ui-layout-toolbar select{flex:1;min-width:0;min-height:44px;padding:6px;border:1px solid #b9d49c;border-radius:9px;background:#254e40;color:#fff;font-size:16px;pointer-events:auto}
+.ui-layout-toolbar p{margin:8px 0;font-size:14px}.ui-layout-actions{display:flex;gap:6px}.ui-layout-actions button{flex:1;min-height:44px;padding:6px;border:1px solid #cce299;border-radius:9px;background:#28513d;color:#fff;font-size:14px;pointer-events:auto}.ui-layout-actions #ui-layout-save{background:#e0f2a3;color:#183525;font-weight:800}
+#ui-layout-feedback:empty{display:none}#ui-layout-feedback{display:block;padding-top:8px;font-size:14px}
+.ui-layout-handles{position:absolute;inset:0;pointer-events:none}.ui-layout-handle{position:absolute;pointer-events:auto;touch-action:none;display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px dashed #edffa6;border-radius:12px;background:#163e2940;color:#fff;font:800 14px/1.1 Arial,sans-serif;text-shadow:0 1px 4px #001b11;cursor:move;padding:4px}.ui-layout-handle.selected{z-index:2;border:3px solid #ffdb72;background:#6d5c2555;box-shadow:0 0 0 3px #092e23}
+body.editing-game-ui #arcade-ui button,body.editing-game-ui #arcade-ui .stick{pointer-events:none!important}
+body.editing-game-ui #arcade-ui [data-layout-preview]{visibility:visible!important;opacity:.8}
+body.editing-game-ui #arcade-ui #desktop-controls[data-layout-preview]{display:block!important}
+@media(max-width:359px) and (orientation:portrait){body #arcade-ui.has-ui-layout.is-touch .ammo-card>svg{width:18px;height:18px}body #arcade-ui.has-ui-layout.is-touch .ammo-numbers strong{font-size:17px}body #arcade-ui.has-ui-layout.is-touch .match-clock{grid-template-columns:1fr}body #arcade-ui.has-ui-layout.is-touch .clock-face{display:none}}
+@media(max-height:500px) and (orientation:landscape){.ui-layout-toolbar{top:74px;width:340px;padding:8px}.ui-layout-grip{min-height:28px;font-size:16px}.ui-layout-toolbar p{margin:5px 0}}
+
+body.editing-game-ui #arcade-ui #desktop-controls:not([hidden]){display:block!important;visibility:visible!important}
+body.editing-game-ui #arcade-ui .ui-context-replaced[data-layout-preview]{display:flex!important}

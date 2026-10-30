@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {defaultUILayout,positionUILayout,layoutMode,readUILayout,migrateTouchLayout} from '../src/arcade-ui-layout.js';
+const overlaps=(a,b)=>a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;
+for(const [w,h,touch]of [[1118,490,true],[932,355,true],[430,745,true],[320,568,true],[640,360,true],[1280,800,false],[1000,700,false]])test(`default controls clear HUD ${w}x${h}`,()=>{
+ const p=positionUILayout(defaultUILayout(w,h,touch),{},w,h),keys=touch?['move','fire','jump','dash','kick','ammo','bases','pause','clock','map','camera','goals','fps','status']:['ammo','bases','pause','clock','map','camera','goals','fps','status','keyboard','mouse'];
+ for(const k of keys){assert(p[k].x>=0&&p[k].y>=0&&p[k].x+p[k].width<=w&&p[k].y+p[k].height<=h,k);for(const other of keys)if(k!==other)assert(!overlaps(p[k],p[other]),k+' overlaps '+other);}
+});
+test('profiles sanitize bad data and remain separate',()=>{assert.equal(layoutMode(430,745,true),'portrait');assert.equal(layoutMode(932,355,true),'landscape');assert.equal(layoutMode(430,745,false),'desktop');assert.deepEqual(readUILayout('nope'),readUILayout(null));const p=readUILayout(JSON.stringify({version:2,portrait:{jump:{x:2,y:-1},fire:{x:'bad',y:0}},landscape:{jump:{x:.8,y:.7}}}));assert.deepEqual(p.portrait.jump,{x:1,y:0});assert.equal(p.portrait.fire,undefined);assert.deepEqual(p.landscape.jump,{x:.8,y:.7});});
+test('legacy jump over map is repaired without mutating old saved controls',()=>{const old=JSON.stringify({version:1,landscape:{jump:{x:.95,y:.2},move:{x:.1,y:.8}}}),saved=readUILayout(null),p=migrateTouchLayout(old,saved,932,355,true);assert.equal(p.landscape.jump,undefined);assert(p.landscape.move);assert.deepEqual(saved.landscape,{});assert.equal(JSON.parse(old).landscape.jump.y,.2);});
+test('free user placements are clamped at safe edges and are never repacked',()=>{const defaults=defaultUILayout(430,745,true),preferred={jump:{x:.5,y:.5},fire:{x:.5,y:.5}},p=positionUILayout(defaults,preferred,430,745,{top:20,left:30});assert.equal(p.jump.x+p.jump.width/2,215);assert.equal(p.fire.y+p.fire.height/2,372.5);const edge=positionUILayout(defaults,{jump:{x:0,y:0}},430,745,{top:20,left:30});assert.equal(edge.jump.x,34);assert.equal(edge.jump.y,24);});

@@ -23,15 +23,15 @@ body:has(#arcade-ui.in-menu) #fps-counter span{display:none}
 body #arcade-ui .warmup-goals.objective-reader{max-height:calc(100dvh - 64px)}
 
 .creator-credit{width:var(--creator-width);height:auto;line-height:0;text-shadow:none}
-.creator-credit-art{position:relative;display:block;width:100%;aspect-ratio:638/435;overflow:hidden;filter:drop-shadow(0 1px 2px #061d1680)}
-.creator-credit-art img{position:absolute;left:0;top:-42.5287%;width:340.4389%;height:166.4368%;max-width:none;object-fit:fill;user-select:none;pointer-events:none}
+.creator-credit-art{position:relative;display:block;width:100%;aspect-ratio:3/2;overflow:hidden;filter:drop-shadow(0 1px 2px #061d1680)}
+
 .creator-credit-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(pointer:coarse),(max-width:600px){:root{--creator-width:88px;--creator-clearance:64px}}
 @media(max-width:600px) and (orientation:portrait){body #arcade-ui #menu-main.with-game-brand .game-brand{top:8px}}
 @media(max-width:600px) and (max-height:700px) and (orientation:portrait){body #arcade-ui #menu-main.with-game-brand .game-brand{top:40px}}
 @media(max-height:680px) and (orientation:landscape){:root{--creator-width:72px;--creator-clearance:52px}}
 
-.creator-credit-art{clip-path:inset(0 2.8213% 0 0)}
+.creator-credit-art{clip-path:none;overflow:visible}.creator-credit-art img{position:static;display:block;width:100%;height:auto;max-width:100%;object-fit:contain}
 
 #arcade-ui .game-title-crop .game-title-art{clip-path:polygon(28.54512% 15.19337%,100% 15.19337%,100% 91.16022%,28.54512% 91.16022%,28.54512% 60.77348%,29.37385% 60.77348%,29.37385% 25.55249%,28.54512% 25.55249%)}
 body #arcade-ui .settings-panel{top:calc(max(12px,env(safe-area-inset-top)) + var(--creator-clearance));max-height:calc(100dvh - max(12px,env(safe-area-inset-top)) - var(--creator-clearance) - 12px)}

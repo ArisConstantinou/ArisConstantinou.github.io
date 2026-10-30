@@ -1,0 +1,37 @@
+{
+  "ok": true,
+  "version": "4.4.10",
+  "sourceTests": 1474,
+  "viewports": 6,
+  "allClassDoubleJumps": true,
+  "editorAndSettings": true,
+  "orientationPersistenceReload": true,
+  "exactRoundSaveCameraPreserved": true,
+  "creatorOriginalPNGUnchanged": true,
+  "approvedStandaloneSignature": true,
+  "noNew3DAssets": true,
+  "physicalPhoneTested": false,
+  "physicalFPSAcceptancePending": true,
+  "performance": [
+    {
+      "name": "before",
+      "version": "4.4.9",
+      "medianMs": 0.20000004768371582,
+      "p95Ms": 0.39999985694885254,
+      "meanMs": 0.25166666666666665,
+      "layoutCount": 301,
+      "styleRecalcCount": 302,
+      "scope": "300 HUD-only calls, isolated desktop Chromium with mobile viewport; not physical-phone FPS"
+    },
+    {
+      "name": "after",
+      "version": "4.4.10",
+      "medianMs": 0.20000004768371582,
+      "p95Ms": 0.3000001907348633,
+      "meanMs": 0.22199999968210857,
+      "layoutCount": 300,
+      "styleRecalcCount": 602,
+      "scope": "300 HUD-only calls, isolated desktop Chromium with mobile viewport; not physical-phone FPS"
+    }
+  ]
+}

@@ -55,3 +55,8 @@ Validated4.4.8:1451 units/build; six startup/selection viewports, no model reque
 
 
 HUD correction: remove the unnecessary80px top reservation on wide desktop. Only the ammo card shifts horizontally around the unchanged illustrated top-left signature; clock, map and right controls return to their original top positions. Verify1280x800,1440x900,1000x700 and unchanged portrait/landscape mobile layouts, real control hits and renewed impact frames.
+
+
+4.4.10 requested: unclutter mobile UI, make every frog jump button reachable, move positions into Settings and open real frozen game UI for full position editing. Added version2 portrait/landscape/desktop profiles, whole HUD/control handles with save/cancel/reset and state preservation, mounted visibility, class-independent defaults and optional context actions. User also reported cropped original signature; replaced rectangular extraction with original-letter/source-leaf SVG composition, original PNG unchanged. See RELEASE-4.4.10.md and tests/ui-layout. Local validation and scoped public release proof recorded separately; no physical iPhone performance claim.
+
+Creator correction: user rejected both cropped rectangle and SVG leaf composition as broken. One built-in image_gen edit produced a standalone transparent signature; user explicitly approved the exact output (“look ok now”). Integrated full image without crops; retained source PNG/prompt/provenance and delivered a384px lossless WebP. Rejected composition is not published. Original title and model files preserved.

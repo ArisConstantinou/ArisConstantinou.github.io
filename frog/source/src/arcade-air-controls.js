@@ -40,7 +40,7 @@ export function installAirControls(game){
   game.$('touch-controls').classList.toggle('airborne-actions',!!p.flight);
   const mounted=!!p.catapultId,blocked=p.ko||p.eliminated||p.dizzyTime>0||p.knockUp>0;
   const jump=game.$('jump-button'),dash=game.$('dash-button'),volley=game.$('air-volley-button');
-  jump.hidden=dash.hidden=mounted&&!game.layoutEditing;
+  jump.hidden=false;dash.hidden=mounted&&!game.layoutEditing;
   jump.disabled=!game.layoutEditing&&(blocked||mounted||p.flight?.jumps>=2);
   dash.disabled=!game.layoutEditing&&(blocked||mounted||p.dashCooldown>0||p.flight?.dashed===true);
   volley.hidden=!game.layoutEditing&&(!game.touch||(!ready&&!queued));

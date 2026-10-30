@@ -1,4 +1,6 @@
-# Βαλτομαχίες 4.4.9 — complete game source
+# Βαλτομαχίες 4.4.10 — complete game source
+
+4.4.10 adds a paused full HUD/control layout editor in Settings, stable mobile jumps for all three classes and uncluttered default positions. The approved standalone creator signature has complete edges and loads as a small lossless WebP. See RELEASE-4.4.10.md.
 
 4.4.7 clarifies double-tap/click continuation, keeps selection actions visible, enables native card scrolling and prevents obsolete startup models. See RELEASE-4.4.7.md for validation.
 

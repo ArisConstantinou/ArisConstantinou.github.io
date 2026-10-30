@@ -1,3 +1,5 @@
+import './arcade-ui-layout.css';
+import {installUILayout} from './arcade-ui-layout.js';
 import './arcade-brand-placement.css';
 import './arcade-asset-loading.css';
 import { ArcadeGame } from './arcade.js';
@@ -15,4 +17,4 @@ function report(error){
 }
 addEventListener('error',e=>report(e.error||e.message));
 addEventListener('unhandledrejection',e=>report(e.reason));
-requestAnimationFrame(()=>{try{const game=window.frogArcade=new ArcadeGame();installTapBuffer(game);installCameraButton(game);installCatapultControls(game);game.installAutoFire();installArcadeGestureGuard({surfaces:[game.renderer.domElement,game.labels,game.ui]});}catch(error){report(error);}});
+requestAnimationFrame(()=>{try{const game=window.frogArcade=new ArcadeGame();installTapBuffer(game);installCameraButton(game);installCatapultControls(game);game.installAutoFire();installUILayout(game);installArcadeGestureGuard({surfaces:[game.renderer.domElement,game.labels,game.ui]});}catch(error){report(error);}});

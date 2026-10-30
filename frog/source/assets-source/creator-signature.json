@@ -1,0 +1,18 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-30",
+  "approved": true,
+  "approval": "User: look ok now, with the generated image attached",
+  "reference": "public/art/menu-title-cartoon.png",
+  "reference_sha256": "850d6eeec2c66f701e545545e087c92dfbd5e58aff8700fd996a78586c3396bd",
+  "source": "creator-signature.png",
+  "source_sha256": "0be4874645d3122a577e18c497120649e27ffdd51b29fda9de60c39bfe702546",
+  "source_bytes": 2081272,
+  "runtime": "public/art/creator-signature.webp",
+  "runtime_sha256": "683d5c98935641f48b2ebdf37773cd5916c8c80652153101d90a455e57855b31",
+  "runtime_bytes": 103214,
+  "runtime_width": 384,
+  "alpha": true,
+  "transform": "Full-canvas proportional resize and lossless WebP encoding only; no crop, compositing or recoloring. Original generated PNG retained.",
+  "prompt": "creator-signature.prompt.txt"
+}
