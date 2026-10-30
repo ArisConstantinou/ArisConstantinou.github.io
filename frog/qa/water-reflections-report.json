@@ -1,0 +1,76 @@
+{
+  "version": "4.4.6",
+  "tests": 1441,
+  "physicalPhoneTested": false,
+  "defaultReflections": true,
+  "runtimeShadowsEnabled": false,
+  "hardware": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "method": "Same frozen world/camera,High1398x645, interleaved on/off/on/off full frame with GPU completion and WebGL timer. These are PC engineering measurements, not iPhone FPS.",
+  "reflectionTexture": [
+    512,
+    512
+  ],
+  "enabledCadence": "Every second frame, unchanged",
+  "on": {
+    "frameWorkMs": 3.243749985471368,
+    "gpuMs": 1.9200111746031743,
+    "triangles": 2438002
+  },
+  "off": {
+    "frameWorkMs": 2.515624988824129,
+    "gpuMs": 1.2816492698412696,
+    "triangles": 1677764,
+    "mirrorPasses": 0
+  },
+  "frameWorkReductionPercent": 22.447013484654576,
+  "gpuReductionPercent": 33.24782236717141,
+  "views": [
+    {
+      "name": "landscape",
+      "width": 932,
+      "height": 430,
+      "persisted": true,
+      "temporaryOnOffLinks": true,
+      "movementJumpPauseResume": true,
+      "select": {
+        "x": 25,
+        "y": 257.171875,
+        "width": 152,
+        "height": 44
+      }
+    },
+    {
+      "name": "portrait",
+      "width": 430,
+      "height": 745,
+      "persisted": true,
+      "temporaryOnOffLinks": true,
+      "movementJumpPauseResume": true,
+      "select": {
+        "x": 29,
+        "y": 292.6875,
+        "width": 171,
+        "height": 44
+      }
+    },
+    {
+      "name": "desktop",
+      "width": 1280,
+      "height": 800,
+      "persisted": true,
+      "temporaryOnOffLinks": true,
+      "movementJumpPauseResume": true,
+      "select": {
+        "x": 29,
+        "y": 308.6875,
+        "width": 171,
+        "height": 44
+      }
+    }
+  ],
+  "images": {
+    "on": "water-reflections-on.png",
+    "off": "water-reflections-off.png"
+  },
+  "imageMethod": "Actual compiled3Dcanvas, identical camera/actors/wave time. No HUD/FPS overlay; performance measured separately."
+}

@@ -40,3 +40,5 @@ Performance regression follow-up: user reports29FPS after imported3D assets. Nat
 
 
 Brand placement 4.4.5: user clarified the signature must retain its original title-matching illustrated green/gold style. Reused the exact original PNG with CSS crops; no generated/replaced art. Six viewport checks and eight UI states per viewport pass, as do boot, control hit testing, title/frog separation and settings/HUD clearance. Standard game client passes without browser errors. Physical-phone FPS acceptance remains separate.
+
+4.4.6: optional persisted water reflections with temporary on/off comparison links. Original enabled material/cadence retained; disabled mode keeps lit animated water and skips the mirror scene.1441source tests and three built-game viewports passed, including persistence and standard client. PC GPU engineering work reduced in the matched scene; physical iPhone battle FPS remains unverified.

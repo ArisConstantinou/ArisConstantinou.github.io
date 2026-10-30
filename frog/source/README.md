@@ -1,4 +1,6 @@
-# Βαλτομαχίες 4.4.5 — complete game source
+# Βαλτομαχίες 4.4.6 — complete game source
+
+4.4.6 adds optional water reflections and temporary comparison links; On preserves the original appearance. See RELEASE-4.4.6.md for PC measurements and the remaining physical-phone check.
 
 4.4.2 adds actual distant indices and pose-safe culling for the existing frogs and houses. Close/KO/wall-held models remain original; see RELEASE-4.4.2.md for validation and physical-device limits.
 
