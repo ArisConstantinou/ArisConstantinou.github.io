@@ -1,4 +1,4 @@
-# Βαλτομαχίες 4.4.12 — complete game source
+# Βαλτομαχίες 4.4.13 — complete game source
 
 4.4.12 aligns collisions and landing support with the real rocks, trees and roofs, plants supported hind feet and fixes sideways/backward jump facing. See RELEASE-4.4.12.md.
 

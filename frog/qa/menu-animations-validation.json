@@ -1,0 +1,36 @@
+{
+  "version": "4.4.13",
+  "scope": "Menu-only complete class actions, independent menu limb weights and content-revision preload/runtime URLs. Gameplay and original game model bytes remain public4.4.12.",
+  "actions": {
+    "heavy": "anticipation/belly slap/recoil/recovery",
+    "skinny": "weight shift/chamber/kick/recovery",
+    "medium": "inhale/three-fly burst/recoil/recovery"
+  },
+  "validation": {
+    "raw_frames": 300,
+    "crop_decode_duration_loop_pass": true,
+    "menu_viewports": [
+      [
+        1280,
+        800
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        844,
+        390
+      ]
+    ],
+    "menu_controls_and_class_selection": true,
+    "start_pause": true,
+    "original_reduced_motion_cards": true,
+    "old_tab_upgrade": "4.4.13",
+    "save_preservation": true,
+    "compiled_source_matches_public_base_except_menu_and_version": true
+  },
+  "animation_bytes": 2265300,
+  "reduction_percent": 23.5,
+  "physical_iPhone_FPS_verified": false
+}
