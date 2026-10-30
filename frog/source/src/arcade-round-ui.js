@@ -51,13 +51,13 @@ export function installRoundUI(game){
  function update(){
   presentation.update();
   if(round!==game.state){round=game.state;last=null;}
-  const visible=game.running&&!game.layoutEditing,value=visible?countdownValue(game.state):null;overlay.hidden=!value;
+  const visible=game.running&&!game.layoutEditing,value=visible?countdownValue(game.state):null;overlay.hidden=true;
   const plainWarmup=!game.state.training&&game.state.phase==='countdown'&&!game.state.actors[0].ko&&!game.layoutEditing,status=game.$('round-status');status.classList.toggle('plain-warmup',plainWarmup);
-  if(plainWarmup&&visible)anchorTimer();
-  if(plainWarmup){status.hidden=!game.running||!!value;if(!value)game.$('round-time').textContent=String(Math.max(1,Math.ceil(game.state.intro-1e-8)));}
+  
+  if(plainWarmup){status.hidden=true;if(!value)game.$('round-time').textContent=String(Math.max(1,Math.ceil(game.state.intro-1e-8)));}
   if(value===last)return;last=value;if(!value)return;
   number.textContent=value;overlay.setAttribute('aria-label',`Η μάχη ξεκινά σε ${value}`);game.sound.play('countdown');
-  if(!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches)number.animate?.([{transform:'scale(1.35)',opacity:1},{transform:'scale(.94)',opacity:1,offset:.7},{transform:'scale(1)',opacity:1}],{duration:350,easing:'cubic-bezier(.2,.8,.2,1)'});
+  if(!overlay.hidden&&!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches)number.animate?.([{transform:'scale(1.35)',opacity:1},{transform:'scale(.94)',opacity:1,offset:.7},{transform:'scale(1)',opacity:1}],{duration:350,easing:'cubic-bezier(.2,.8,.2,1)'});
  }
  function battle(){round=game.state;last=null;game.sound.play('battle');update();}
  function showResults(){

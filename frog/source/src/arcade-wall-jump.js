@@ -1,3 +1,5 @@
+import {jumpCeiling} from './arcade-jump-balance.js';
+import {inheritSceneContacts} from './arcade-scenery-contact.js';
 import {BASES,WALLS,ARENA_ROCKS,CATAPULT_SITES,resolveArenaMove} from './arcade-bases.js';
 import {FROG_BODY,frogBody} from './arcade-actor-bounds.js';
 import {ARENA_MOVE_RADIUS} from './arcade-battleground.js';
@@ -24,11 +26,12 @@ export function planWallJump(s,a,target,ground,surfaces){
  const start={x:a.x,y:a.flight.y,z:a.z},dx=target.x-start.x,dz=target.z-start.z,distance=Math.hypot(dx,dz),surface=wallLanding(s,target.x,target.z,ground,surfaces,Number.isFinite(target.y)?target.y:Infinity),end={x:target.x,y:surface.y,z:target.z,kind:surface.kind,id:surface.id};
  const base={start,target:end,valid:false,reason:'range'};if(distance<WALL_JUMP.minRange||distance>WALL_JUMP.maxRange||Math.hypot(end.x,end.z)>ARENA_MOVE_RADIUS-.7)return base;
  if((dx*wall.nx+dz*wall.nz)/distance<.22)return {...base,reason:'wall'};
- const apex=Math.max(start.y,end.y)+1.6+distance*.12,vy=Math.sqrt(2*WALL_JUMP.gravity*(apex-start.y)),duration=vy/WALL_JUMP.gravity+Math.sqrt(2*(apex-end.y)/WALL_JUMP.gravity),vx=dx/duration,vz=dz/duration,plan={...base,reason:null,vx,vy,vz,duration,gravity:WALL_JUMP.gravity};
+ const launchBase=a.flight.launchBase??ground(a.x,a.z),ceiling=a.flight.ceiling??jumpCeiling(a,launchBase);if(end.y>=ceiling-.08)return {...base,reason:'height'};
+ const apex=Math.min(Math.max(start.y,end.y)+1.6+distance*.12,ceiling),vy=Math.sqrt(2*WALL_JUMP.gravity*(apex-start.y)),duration=vy/WALL_JUMP.gravity+Math.sqrt(2*(apex-end.y)/WALL_JUMP.gravity),vx=dx/duration,vz=dz/duration,plan={...base,reason:null,launchBase,ceiling,vx,vy,vz,duration,gravity:WALL_JUMP.gravity};
  if(Math.hypot(vx,vz)>WALL_JUMP.maxSpeed)return {...plan,reason:'speed'};
  let previous=start;const count=Math.ceil(duration*90);
  for(let i=1;i<=count;i++){
-  const p=wallPoint(plan,duration*i/count),probe={...a,x:previous.x,z:previous.z,height:Math.max(0,Math.min(previous.y,p.y)-ground(previous.x,previous.z)),flight:{kind:'wallJump'},support:null};
+  const p=wallPoint(plan,duration*i/count),probe=inheritSceneContacts(a,{...a,x:previous.x,z:previous.z,height:Math.max(0,Math.min(previous.y,p.y)-ground(previous.x,previous.z)),flight:{kind:'wallJump'},support:null});
   const moved=resolveArenaMove(probe,p.x-previous.x,p.z-previous.z,{ground});
   if(Math.hypot(moved.x-p.x,moved.z-p.z)>.055)return {...plan,reason:'blocked'};
   if(i<count-1&&p.y<ground(p.x,p.z)-.035)return {...plan,reason:'terrain'};
@@ -46,7 +49,7 @@ export function automaticWallTarget(s,a,ground,surfaces){
  return null;
 }
 export function startWallJump(s,a,plan){
- if(!plan?.valid)return false;const old=a.flight;a.flight={kind:'wallJump',y:old.y,vy:plan.vy,vx:plan.vx,vz:plan.vz,jumps:1,launchVelocity:plan.vy,time:0,queued:false,fired:old.fired||false,dashed:old.dashed||false,wall:old.wall,wallLaunchTarget:plan.target,wallLaunchDuration:plan.duration};a.support=null;a.hop=0;a.face=Math.atan2(plan.vx,plan.vz);a.poseAimYaw=a.face;a.hopX=plan.vx;a.hopZ=plan.vz;s.events.push({type:'hop',id:a.id,x:a.x,z:a.z,strength:1,kind:'wallJump'});return true;
+ if(!plan?.valid)return false;const old=a.flight;a.flight={kind:'wallJump',y:old.y,launchBase:plan.launchBase,ceiling:plan.ceiling,vy:plan.vy,vx:plan.vx,vz:plan.vz,jumps:1,launchVelocity:plan.vy,time:0,queued:false,fired:old.fired||false,dashed:old.dashed||false,wall:old.wall,wallLaunchTarget:plan.target,wallLaunchDuration:plan.duration};a.support=null;a.hop=0;a.face=Math.atan2(plan.vx,plan.vz);a.poseAimYaw=a.face;a.hopX=plan.vx;a.hopZ=plan.vz;s.events.push({type:'hop',id:a.id,x:a.x,z:a.z,strength:1,kind:'wallJump'});return true;
 }
 export function stepWallHold(s,a,c,ground,surfaces,dt=1/60){
  const f=a.flight;if(!f)return false;if(c.dash){if(f.kind==='wallHold')a.flight={...f,kind:'fall',vy:0};return false;}if(a.dizzyTime>0){if(f.kind==='wallHold')a.flight={...f,kind:'fall',vy:0};return false;}
@@ -55,7 +58,7 @@ export function stepWallHold(s,a,c,ground,surfaces,dt=1/60){
   if(!c.wallMode||['surfaceHop','fall'].includes(f.kind)||a.classAction?.kind==='bodySlam'||f.kind==='wallJump'&&f.time<.25)return false;
   const contact=wallContact(s,a,ground);if(!contact||(f.vx||0)*contact.nx+(f.vz||0)*contact.nz>=-.15)return false;
   if(a.height<.12)return false;
-  a.flight={kind:'wallHold',y:f.y,vy:0,vx:0,vz:0,jumps:f.jumps||1,launchVelocity:16,time:0,wall:contact,fired:f.fired||false,dashed:f.dashed||false};a.hop=0;a.hopX=a.hopZ=0;s.events.push({type:'wallCling',id:a.id,wallId:contact.id});
+  a.flight={kind:'wallHold',y:f.y,launchBase:f.y,ceiling:jumpCeiling(a,f.y),vy:0,vx:0,vz:0,jumps:f.jumps||1,launchVelocity:16,time:0,wall:contact,fired:f.fired||false,dashed:f.dashed||false};a.hop=0;a.hopX=a.hopZ=0;s.events.push({type:'wallCling',id:a.id,wallId:contact.id});
  }
  const contact=wallContact(s,a,ground);
  if(!contact||contact.id!==a.flight.wall.id){a.flight={...a.flight,kind:'fall',vy:0};return false;}

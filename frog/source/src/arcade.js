@@ -205,7 +205,7 @@ export class ArcadeGame {
   addEventListener('keyup',e=>this.keys.delete(e.code));
   const canvas=this.renderer.domElement;
   const beginMouseLock=e=>{
-   if(!this.running||this.layoutEditing||this.settings.mouseTargetLock!==true||this.state.actors[0].catapultId)return;
+   if(!this.running||this.layoutEditing||this.settings.mouseTargetLock!==true||this.state.actors[0].catapultId||this.wallHeld?.())return;
    this.mouseControl=true;
    const anchor=this.viewMode==='chase3d'?{x:this.w/2,y:this.h/2}:pointerPixels({x:e.clientX,y:e.clientY},canvas.getBoundingClientRect(),this.w,this.h);
    this.currentTargetLock=this.targetLock.start(anchor);
@@ -417,7 +417,7 @@ export class ArcadeGame {
   useButton.disabled=!mounted&&(p.dizzyTime>0||p.knockUp>0||p.kick>0);
   useButton.querySelector('span').textContent=mounted?'ΕΞΟΔΟΣ':'ΕΙΣΟΔΟΣ';useButton.setAttribute('aria-label',`${this.touch?'':'E: '}${mounted?'Έξοδος από τον καταπέλτη':'Είσοδος στον κοντινό καταπέλτη'}`);useButton.classList.toggle('ready',!!mounted);
   this.setHUDHidden(this.$('catapult-status'),!mounted||!this.running||this.layoutEditing);this.setHUDText(this.$('catapult-status'),mounted?(mounted.cooldown>0?`ΦΟΡΤΩΝΕΙ · ${mounted.cooldown.toFixed(1)}″`:'ΠΕΤΡΑ ΕΤΟΙΜΗ'):'');
-  this.renderer.domElement.classList.toggle('catapult-aiming',!!mounted&&this.mouseControl&&this.running&&!this.layoutEditing);this.$('aim-stick').classList.toggle('catapult',!!mounted);this.$('aim-stick').setAttribute('aria-label',mounted?'Κατεύθυνση και ισχύς καταπέλτη':'Στόχευση με σύρσιμο δεξιά');this.ui.querySelector('.move-zone').classList.toggle('mounted',!!mounted);
+  this.renderer.domElement.classList.toggle('catapult-aiming',(!!mounted||this.wallHeld?.())&&this.mouseControl&&this.running&&!this.layoutEditing);this.$('aim-stick').classList.toggle('catapult',!!mounted);this.$('aim-stick').setAttribute('aria-label',mounted?'Κατεύθυνση και ισχύς καταπέλτη':'Στόχευση με σύρσιμο δεξιά');this.ui.querySelector('.move-zone').classList.toggle('mounted',!!mounted);
   if(this.lastMounted!==!!mounted){this.lastMounted=!!mounted;this.touchFire?.clear();this.stopCameraDrag();this.touchSticks?.aim?.clear();this.actions.fire=false;this.pointers.delete('aim');this.pointerTypes.delete('aim');this.aimStrength=0;this.$('aim-stick').querySelector('.stick-knob').style.transform='translate(-50%,-50%)';this.$('fire-button').innerHTML=(mounted?catapultIcon:flyIcon)+`<span>${mounted?'ΠΕΤΡΑ':'ΠΥΡ'}</span>`;this.$('fire-button').setAttribute('aria-label',mounted?'Πάτησε για βολή πέτρας από τον καταπέλτη':'Κράτα ΠΥΡ και σύρε για συνεχή βολή και περιστροφή');}
   this.ui.querySelector('.aim-zone').hidden=!mounted&&!this.wallAiming?.();this.setHUDHidden(this.$('fire-button'),false);
   this.$('fire-button').disabled=!this.layoutEditing&&(p.ko||p.dizzyTime>0||p.knockUp>0);if(this.$('fire-button').disabled)this.touchFire?.clear();this.$('fire-button').classList.toggle('firing',this.actions.fire);this.$('fire-button').classList.toggle('empty',mounted?mounted.cooldown>0:p.ammo===0);
@@ -492,7 +492,7 @@ export class ArcadeGame {
   const aimedPlayer=this.state.actors[0],lockedTarget=this.currentTargetLock?.target,lockScreen=lockedTarget?this.project(lockedTarget.x,lockedTarget.y,lockedTarget.z):null;
   const reticleAnchor=lockScreen?.visible?{pointer:lockScreen}:this.viewMode==='chase3d'?{centered:true}:this.mouseControl?{pointer:{x:this.mouse.x,y:this.mouse.y}}:{origin:{x:aimedPlayer.x,y:this.ground(aimedPlayer.x,aimedPlayer.z)+PROJECTILE.originHeight,z:aimedPlayer.z},bearing:{x:aimedPlayer.aimX,z:aimedPlayer.aimZ}};
   this.currentAimReticle=computeReticle(this.currentAimPreview,(x,y,z)=>this.project(x,y,z),this.w,this.h,reticleAnchor);
-  if(this.currentAimReticle){const reticle=this.currentAimReticle;this.currentAimScreen={x:reticle.x,y:reticle.y};this.currentAimColor=reticle.color;drawReticle(c,reticle);}
+  if(this.currentAimReticle&&!this.wallAiming?.()){const reticle=this.currentAimReticle;this.currentAimScreen={x:reticle.x,y:reticle.y};this.currentAimColor=reticle.color;drawReticle(c,reticle);}
   if(lockScreen?.visible&&this.running){c.save();c.strokeStyle='#183f35';c.lineWidth=5;c.beginPath();c.arc(lockScreen.x,lockScreen.y-23,4,Math.PI,0);c.rect(lockScreen.x-6,lockScreen.y-23,12,9);c.stroke();c.strokeStyle='#e0ffa1';c.lineWidth=2;c.stroke();c.restore();}
 
   if(this.hitConfirmUntil>this.elapsed&&this.lastPlayerHit){const h=this.lastPlayerHit,target=this.state.actors.find(a=>a.id===h.id),q=this.project(h.x,Number.isFinite(h.y)?h.y:this.ground(h.x,h.z)+(target?.height||0)+1.2,h.z);if(q.visible){c.save();c.strokeStyle='#143d35';c.lineWidth=6;c.beginPath();for(const [x,y] of [[1,1],[-1,1],[1,-1],[-1,-1]]){c.moveTo(q.x+x*6,q.y+y*6);c.lineTo(q.x+x*15,q.y+y*15);}c.stroke();c.strokeStyle='#fffce2';c.lineWidth=3;c.stroke();c.restore();}}

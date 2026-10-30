@@ -1,7 +1,7 @@
 // Preserve short taps between simulation frames, without making held inputs sticky.
 export function installTapBuffer(game){
  const pending={fire:false,kick:false};
- const mark=key=>{if(game.running&&!game.layoutEditing)pending[key]=true;};
+ const mark=key=>{if(!game.running||game.layoutEditing)return;if(key==='fire'&&game.wallHeld?.()){game.wallControls?.queueLaunch?.();return;}pending[key]=true;};
  const originalInput=game.currentInput.bind(game),originalClear=game.clearInputs.bind(game);
  game.currentInput=()=>{
   const input=originalInput();

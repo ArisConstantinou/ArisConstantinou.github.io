@@ -4,6 +4,7 @@ import {frogBody} from './arcade-actor-bounds.js';
 const enabled=new WeakSet(),states=new WeakSet(),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export const sceneContactsEnabled=value=>!!value&&(enabled.has(value)||states.has(value));
 export function enableSceneContacts(state,value=true){value?states.add(state):states.delete(state);for(const a of [...state.actors,...(state.guards||[])])value?enabled.add(a):enabled.delete(a);}
+export function inheritSceneContacts(source,target){if(sceneContactsEnabled(source))enabled.add(target);return target;}
 function hull(points){const ps=[...points].sort((a,b)=>a[0]-b[0]||a[1]-b[1]),cross=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);const half=a=>{const h=[];for(const p of a){while(h.length>1&&cross(h.at(-2),h.at(-1),p)<=1e-9)h.pop();h.push(p)}h.pop();return h};return [...half(ps),...half([...ps].reverse())];}
 function object(kind,id,x,z,sx,sy=sx,sz=sx,yaw=0){const p=profiles[kind],c=Math.cos(yaw),s=Math.sin(yaw);return{kind,id,x,z,sx,sy,sz,c,s,p,cache:new Map(),radius:Math.hypot(Math.max(Math.abs(p.min[0]),Math.abs(p.max[0]))*sx,Math.max(Math.abs(p.min[2]),Math.abs(p.max[2]))*sz)};}
 let props,roofs,nav;

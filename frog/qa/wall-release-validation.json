@@ -1,0 +1,197 @@
+{
+  "ok": true,
+  "version": "4.4.14",
+  "sourceTests": 1513,
+  "build": true,
+  "nativeMouseShortClickNoFly": true,
+  "nativeCDPTouchWallLaunch": true,
+  "automaticWallLaunchNoFly": true,
+  "manualAutoThreeViewportControls": true,
+  "nativeDirectionalJumps": 18,
+  "standardClient": true,
+  "quietWarmup": true,
+  "constantScreenWidthGuide": {
+    "inkPixels": 4.5,
+    "borderPixels": 9
+  },
+  "jumpRiseMetres": {
+    "heavy": 1.9,
+    "medium": 2.3,
+    "skinny": 2.6,
+    "combinedCeiling": 3.1
+  },
+  "performance": [
+    {
+      "label": "before",
+      "mobile": false,
+      "version": "4.4.13",
+      "ground": {
+        "cpuP50": 4.700000047683716,
+        "cpuP95": 7.700000047683716,
+        "frameP50": 5.5,
+        "frameP95": 8.600000143051147,
+        "drawCalls": 257,
+        "triangles": 2301484,
+        "geometry": 103,
+        "textures": 35
+      },
+      "rock": {
+        "cpuP50": 4.700000047683716,
+        "cpuP95": 7.200000047683716,
+        "frameP50": 5.5,
+        "frameP95": 8.5,
+        "drawCalls": 200,
+        "triangles": 1770436,
+        "geometry": 107,
+        "textures": 35
+      },
+      "renderer": "WebKit WebGL"
+    },
+    {
+      "label": "after",
+      "mobile": false,
+      "version": "4.4.14",
+      "ground": {
+        "cpuP50": 4.5,
+        "cpuP95": 8.099999904632568,
+        "frameP50": 5.1000001430511475,
+        "frameP95": 9,
+        "drawCalls": 257,
+        "triangles": 2301484,
+        "geometry": 103,
+        "textures": 35
+      },
+      "rock": {
+        "cpuP50": 4.200000047683716,
+        "cpuP95": 7,
+        "frameP50": 4.900000095367432,
+        "frameP95": 7.900000095367432,
+        "drawCalls": 200,
+        "triangles": 1770436,
+        "geometry": 107,
+        "textures": 35
+      },
+      "renderer": "WebKit WebGL"
+    },
+    {
+      "label": "before",
+      "mobile": true,
+      "version": "4.4.13",
+      "ground": {
+        "cpuP50": 4.5,
+        "cpuP95": 6.299999952316284,
+        "frameP50": 4.8999998569488525,
+        "frameP95": 6.700000047683716,
+        "drawCalls": 280,
+        "triangles": 2840207,
+        "geometry": 106,
+        "textures": 35
+      },
+      "rock": {
+        "cpuP50": 4.199999809265137,
+        "cpuP95": 5.799999952316284,
+        "frameP50": 4.599999904632568,
+        "frameP95": 6.099999904632568,
+        "drawCalls": 232,
+        "triangles": 1916532,
+        "geometry": 109,
+        "textures": 35
+      },
+      "renderer": "WebKit WebGL"
+    },
+    {
+      "label": "after",
+      "mobile": true,
+      "version": "4.4.14",
+      "ground": {
+        "cpuP50": 5.5,
+        "cpuP95": 8.700000047683716,
+        "frameP50": 5.900000095367432,
+        "frameP95": 9.200000047683716,
+        "drawCalls": 280,
+        "triangles": 2840207,
+        "geometry": 106,
+        "textures": 35
+      },
+      "rock": {
+        "cpuP50": 4.700000047683716,
+        "cpuP95": 8.200000047683716,
+        "frameP50": 5.200000047683716,
+        "frameP95": 8.700000047683716,
+        "drawCalls": 232,
+        "triangles": 1916532,
+        "geometry": 109,
+        "textures": 35
+      },
+      "renderer": "WebKit WebGL"
+    }
+  ],
+  "reverseOrderPerformance": [
+    {
+      "label": "after",
+      "mobile": true,
+      "version": "4.4.14",
+      "hardware": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "ground": {
+        "labelP95": 0.6000001430511475,
+        "cpuP50": 5.099999904632568,
+        "cpuP95": 8.400000095367432,
+        "frameP50": 5.5,
+        "frameP95": 9.099999904632568,
+        "drawCalls": 280,
+        "triangles": 2840207,
+        "geometry": 106,
+        "textures": 35
+      },
+      "rock": {
+        "labelP95": 0.7000000476837158,
+        "cpuP50": 5.400000095367432,
+        "cpuP95": 8.200000047683716,
+        "frameP50": 6,
+        "frameP95": 8.900000095367432,
+        "drawCalls": 232,
+        "triangles": 1916532,
+        "geometry": 109,
+        "textures": 35
+      },
+      "renderer": "WebKit WebGL"
+    },
+    {
+      "label": "before",
+      "mobile": true,
+      "version": "4.4.13",
+      "hardware": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "ground": {
+        "labelP95": 0.5999999046325684,
+        "cpuP50": 4.5,
+        "cpuP95": 7.099999904632568,
+        "frameP50": 5,
+        "frameP95": 7.5,
+        "drawCalls": 280,
+        "triangles": 2840207,
+        "geometry": 106,
+        "textures": 35
+      },
+      "rock": {
+        "labelP95": 0.5,
+        "cpuP50": 4.299999952316284,
+        "cpuP95": 7,
+        "frameP50": 4.6000001430511475,
+        "frameP95": 7.6000001430511475,
+        "drawCalls": 232,
+        "triangles": 1916532,
+        "geometry": 109,
+        "textures": 35
+      },
+      "renderer": "WebKit WebGL"
+    }
+  ],
+  "performanceAssessment": "RTX5080 desktop GPU only, including mobile viewport emulation. All sampled p95 CPU frames below16.7ms, inactive-guide draw/triangle counts unchanged. Reverse mobile p95 CPU7.1ms before versus8.4ms after on ground;7.0ms versus8.2ms on rock. No speedup or physical-phone performance certification.",
+  "physicalPhone": false,
+  "twoTimesPerformanceClaim": false,
+  "originalModelsAndMenuClipsUnchanged": true,
+  "unfinishedExcluded": [
+    "heavy ledge pull-up",
+    "skinny menu knee/ankle correction"
+  ]
+}

@@ -1,3 +1,4 @@
+import {jumpRise,jumpCeiling} from './arcade-jump-balance.js';
 import {sceneContactsEnabled,scenerySurfaces} from './arcade-scenery-contact.js';
 import {aerialAttack,characterProfile} from './arcade-character-classes.js';
 import {stepWallHold} from './arcade-wall-jump.js';
@@ -37,10 +38,11 @@ export function landingSurfaces(s,x,z,ground,actor=null){
 }
 export function clearFlight(a){a.flight=null;a.support=null;a.airSpit=0;a.height=0;a.hop=0;a.hopX=a.hopZ=0;}
 function begin(s,a,kind,direction,ground){
- const old=a.flight,manual=kind==='jump'||kind==='double',profile=characterProfile(a),velocity=(kind==='double'?AIR_RULES.doubleVelocity:kind==='dash'?AIR_RULES.dashVelocity:kind==='surfaceHop'?6:AIR_RULES.jumpVelocity)*profile.jump;
+ const old=a.flight,manual=kind==='jump'||kind==='double',profile=characterProfile(a),desiredVelocity=(kind==='double'?AIR_RULES.doubleVelocity:kind==='dash'?AIR_RULES.dashVelocity:kind==='surfaceHop'?6:AIR_RULES.jumpVelocity)*profile.jump;
  const speed=(kind==='double'?AIR_RULES.doubleSpeed:kind==='dash'?AIR_RULES.dashSpeed:kind==='surfaceHop'?8.8:AIR_RULES.jumpSpeed)*profile.move;
- const y=old?.y??ground(a.x,a.z)+a.height;
- a.flight={kind,y,vy:velocity,vx:direction.x*speed,vz:direction.z*speed,jumps:kind==='double'?2:manual?1:old?.jumps||0,launchVelocity:velocity,time:0,queued:a.characterClass==='medium'&&manual||old?.queued||false,fired:a.characterClass==='medium'&&manual?false:old?.fired||false,sourceSupport:a.support?.id??old?.sourceSupport??null,surfaceY:kind==='surfaceHop'?a.support?.y:null,dashed:kind==='dash'||old?.dashed||false};
+ const y=old?.y??ground(a.x,a.z)+a.height,launchBase=old?.launchBase??a.support?.y??(old?.kind==='fall'?y:ground(a.x,a.z)+a.height),ceiling=old?.ceiling??jumpCeiling(a,launchBase);
+ const rise=kind==='jump'?Math.min(jumpRise(a),Math.max(0,ceiling-y)):Math.max(0,ceiling-y),velocity=Math.min(desiredVelocity,Math.sqrt(2*AIR_RULES.gravity*rise));
+ a.flight={kind,y,launchBase,ceiling,vy:velocity,vx:direction.x*speed,vz:direction.z*speed,jumps:kind==='double'?2:manual?1:old?.jumps||0,launchVelocity:velocity,time:0,queued:a.characterClass==='medium'&&manual||old?.queued||false,fired:a.characterClass==='medium'&&manual?false:old?.fired||false,sourceSupport:a.support?.id??old?.sourceSupport??null,surfaceY:kind==='surfaceHop'?a.support?.y:null,dashed:kind==='dash'||old?.dashed||false};
  a.support=null;a.hop=0;a.hopSpeed=1;a.hopX=a.flight.vx;a.hopZ=a.flight.vz;
  if(kind==='dash')a.dashCooldown=AIR_RULES.dashCooldown;
  s.events.push({type:'hop',id:a.id,x:a.x,z:a.z,strength:1,kind});
@@ -58,7 +60,7 @@ export function stepFlight(s,a,c,dt,{ground,move,volley,mount}){
  if(!a.flight&&a.support){
   const current=landingSurfaces(s,a.x,a.z,ground,a).find(p=>p.id===a.support.id);
   if(current){a.support=current;a.height=Math.max(0,current.y-ground(a.x,a.z));if(direction&&a.idle<=0)begin(s,a,'surfaceHop',direction,ground);else return true;}
-  else{a.flight={kind:'fall',y:a.support.y,vy:0,vx:0,vz:0,jumps:1,launchVelocity:AIR_RULES.jumpVelocity,time:0,queued:false,fired:false,sourceSupport:a.support.id};a.support=null;}
+  else{a.flight={kind:'fall',y:a.support.y,launchBase:a.support.y,ceiling:jumpCeiling(a,a.support.y),vy:0,vx:0,vz:0,jumps:1,launchVelocity:AIR_RULES.jumpVelocity,time:0,queued:false,fired:false,sourceSupport:a.support.id};a.support=null;}
  }
  const f=a.flight;if(!f)return false;
  if(!['dash','surfaceHop','wallJump'].includes(f.kind)&&(Number.isFinite(c.mx)||Number.isFinite(c.mz))){const speed=(f.jumps>=2?AIR_RULES.doubleSpeed:AIR_RULES.jumpSpeed)*characterProfile(a).move,blend=1-Math.exp(-dt*12*characterProfile(a).agility);f.vx+=((direction?.x||0)*speed-f.vx)*blend;f.vz+=((direction?.z||0)*speed-f.vz)*blend;}

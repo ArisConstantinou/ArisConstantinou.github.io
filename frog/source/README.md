@@ -1,6 +1,6 @@
-# Βαλτομαχίες 4.4.13 — complete game source
+# Βαλτομαχίες 4.4.14 — complete game source
 
-4.4.12 aligns collisions and landing support with the real rocks, trees and roofs, plants supported hind feet and fixes sideways/backward jump facing. See RELEASE-4.4.12.md.
+4.4.14 makes wall destinations follow mouse/touch input, adds readable constant-width trajectory guides, limits normal/double-jump height and uses the compact match clock for warmup. Existing scenery contacts and low rock access are retained. See RELEASE-4.4.14.md.
 
 4.4.11 makes editor actions work directly on touch release after dragging, even when the browser suppresses click synthesis. See RELEASE-4.4.11.md.
 

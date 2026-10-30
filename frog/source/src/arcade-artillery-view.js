@@ -1,3 +1,4 @@
+import {createWideTrajectory} from './arcade-trajectory-guide.js';
 import {CENTERED_RELEASE_SOCKET} from './arcade-catapult-alignment.js';
 import {installCartoonCatapults} from './arcade-cartoon-catapult.js';
 import {CATAPULT_MECHANISM} from './arcade-cartoon-bodies.js';
@@ -38,7 +39,7 @@ export class ArtilleryView {
  constructor(game){
   this.game=game;this.scene=game.scene;this.clock=0;this.previewClock=0;this.previewState=null;this.machines=new Map();this.platforms=new Map();this.shellMeshes=new Map();
   this.dummy=new THREE.Object3D();this._vector=new THREE.Vector3();this._direction=new THREE.Vector3();
-  this.geometry={box:new THREE.BoxGeometry(1,1,1),cylinder:new THREE.CylinderGeometry(.5,.5,1,8),rock:new THREE.DodecahedronGeometry(.4,0),leaf:new THREE.SphereGeometry(1,10,5),cup:new THREE.SphereGeometry(.38,10,6,0,TAU,Math.PI/2,Math.PI/2),ring:new THREE.RingGeometry(.94,1,48),disc:new THREE.CircleGeometry(1,32),rope:new THREE.TorusGeometry(.14,.027,5,10)};
+  this.geometry={box:new THREE.BoxGeometry(1,1,1),cylinder:new THREE.CylinderGeometry(.5,.5,1,8),rock:new THREE.DodecahedronGeometry(.4,0),leaf:new THREE.SphereGeometry(1,10,5),cup:new THREE.SphereGeometry(.38,10,6,0,TAU,Math.PI/2,Math.PI/2),ring:new THREE.RingGeometry(.86,1,48),disc:new THREE.CircleGeometry(1,32),rope:new THREE.TorusGeometry(.14,.027,5,10)};
   this.geometry.winchRope=windlassRopeGeometry();this.geometry.cupRim=new THREE.TorusGeometry(.38,.035,5,18);
   const rockPositions=this.geometry.rock.attributes.position,rockColors=new Float32Array(rockPositions.count*3);
   for(let i=0;i<rockPositions.count;i++){
@@ -56,7 +57,7 @@ export class ArtilleryView {
   const points=new Float32Array(33*3),colors=new Float32Array(33*3),geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(points,3));
   for(let i=0;i<33;i++){const brightness=.5+.5*Math.sin(Math.PI*i/32);colors.set([brightness,brightness,brightness],i*3);}
   geometry.setAttribute('color',new THREE.BufferAttribute(colors,3));
-  this.previewLine=new THREE.Line(geometry,this.material.preview);this.previewLine.name='catapult-trajectory-preview';this.previewLine.frustumCulled=false;this.previewLine.visible=false;this.scene.add(this.previewLine);
+  this.previewLine=createWideTrajectory(geometry,this.material.preview);this.game.trajectoryGuides??=[];this.game.trajectoryGuides.push(this.previewLine);this.previewLine.name='catapult-trajectory-preview';this.previewLine.frustumCulled=false;this.previewLine.visible=false;this.scene.add(this.previewLine);
   this.landingMarker=new THREE.Mesh(this.geometry.ring,this.material.landing);this.landingMarker.name='catapult-landing-preview';this.landingMarker.rotation.x=-Math.PI/2;this.landingMarker.scale.setScalar(ARTILLERY.blastRadius);this.landingMarker.visible=false;this.scene.add(this.landingMarker);
   this.geometry.previewBead=new THREE.SphereGeometry(1,8,5);
   this.material.previewBeads=new THREE.MeshBasicMaterial({color:'#fff0be',transparent:true,opacity:.78,depthWrite:false});

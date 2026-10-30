@@ -7,7 +7,7 @@ export function roundPresentation(state){
  const training=state.training===true,warmup=!training&&state.phase==='countdown',remaining=warmup?Math.max(0,Math.ceil((Number(state.intro)||0)-1e-8)):0;
  const age=warmup?Math.max(0,WARMUP_SECONDS-(Number(state.intro)||0)):0;
  const seconds=warmup?remaining:Math.max(0,(Number(state.time)||0)-(training?0:WARMUP_SECONDS));
- return {training,warmup,remaining,seconds,clock:formatRoundClock(seconds),label:training?'ΕΞΑΣΚΗΣΗ':warmup?'ΠΡΟΘΕΡΜΑΝΣΗ':'ΧΡΟΝΟΣ ΑΓΩΝΑ',notice:warmup&&age<3.5,goals:warmup&&age>=3.5&&remaining>5,countdown:warmup&&remaining>0&&remaining<=5};
+ return {training,warmup,remaining,seconds,clock:formatRoundClock(seconds),label:training?'ΕΞΑΣΚΗΣΗ':warmup?'ΜΑΧΗ ΣΕ':'ΧΡΟΝΟΣ ΑΓΩΝΑ',notice:false,goals:false,countdown:warmup&&remaining>0&&remaining<=5};
 }
 const OBJECTIVES=[
  {id:'collect',title:'Γέμισε με μύγες',copy:'Πλησίασε σμήνη ή την αποθήκη σου.',alt:'Πράσινος βάτραχος πιάνει μύγα με τη γλώσσα του',position:'0% 0%'},
@@ -36,7 +36,7 @@ export function installRoundPresentation(game){
  let lastKey='',pose=roundPresentation(game.state);
  function update(){
   pose=roundPresentation(game.state);reader.update(pose);const visible=(game.running||game.mode==='objectives')&&!game.layoutEditing;clock.hidden=!visible;notice.hidden=!game.running||!visible||!pose.notice;
-  const key=`${pose.clock}|${pose.label}|${visible}`;if(lastKey!==key){label.textContent=pose.label;digits.textContent=pose.clock;clock.dataset.phase=pose.warmup?'warmup':pose.training?'training':'battle';clock.setAttribute('aria-label',`${pose.label} ${pose.clock}`);duration.textContent=`${pose.remaining}″`;lastKey=key;}
+  const key=`${pose.clock}|${pose.label}|${visible}`;if(lastKey!==key){label.textContent=pose.label;digits.textContent=pose.warmup?`${pose.remaining}″`:pose.clock;clock.dataset.phase=pose.warmup?'warmup':pose.training?'training':'battle';clock.setAttribute('aria-label',`${pose.label} ${pose.warmup?pose.remaining+" δευτερόλεπτα":pose.clock}`);duration.textContent=`${pose.remaining}″`;lastKey=key;}
   // CSS animations are suspended while the menu is hidden, in Settings or in a background tab.
   const brandActive=!doc.hidden&&!menu.hidden&&!game.$('arcade-menu').hidden;brand.classList.toggle('is-alive',brandActive);
  }

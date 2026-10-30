@@ -8,7 +8,8 @@ export function installCatapultControls(game) {
   let pendingInteract = false, fireWasHeld = false, savedPower = .5, aimedCatapult = null;
   const mounted = () => !!game.state.actors[0].catapultId;
   let pointerCatapult=null,mousePoint=null;
-  game.usesCatapultMouse=()=>mounted()&&game.mouseControl;
+  const previousMouse=game.captureCatapultMouse?.bind(game),previousUses=game.usesCatapultMouse?.bind(game);
+  game.usesCatapultMouse=()=>mounted()&&game.mouseControl||!!previousUses?.();
   game.syncCatapultPointer=()=>{
     const id=game.state.actors[0].catapultId||null;
     if(id!==pointerCatapult){
@@ -30,7 +31,8 @@ export function installCatapultControls(game) {
     }
   };
   game.captureCatapultMouse=event=>{
-    if(!mounted()||!game.running||game.layoutEditing||event?.pointerType!=='mouse')return false;
+    if(!mounted())return previousMouse?.(event)??false;
+    if(!game.running||game.layoutEditing||event?.pointerType!=='mouse')return false;
     game.syncCatapultPointer();
     const point=catapultPointerPoint(mousePoint,event,{width:game.w,height:game.h,locked:game.pointerLocked()});
     if(!point)return false;

@@ -65,3 +65,8 @@ Creator correction: user rejected both cropped rectangle and SVG leaf compositio
 
 
 4.4.12 contact audit: reproduced 0.40 m rock penetration and non-solid trees in public4.4.11. Added baked actual mesh collision/support fields, height-sliced rounded sweeps, supported foot rotations, direction-relative flight tilt and automatic-volley facing fix. Before screenshots, all-object/eight-direction tests and real keyboard/multitouch evidence retained. Navigation goals inside new solids reproduce zero movement; project to reachable margin and reuse static navigation circles. Preserve airborne walking pose and limb scale. Final runtime/public verification follows.
+
+
+Menu action task: user reported Fat moving a hand and dragging a leg; explicitly clarified MENU ONLY and approved all three full actions. Authored anticipation/action/recovery for heavy belly slap, skinny kick and medium three-fly burst from existing Blender characters. Menu-only arm/leg skin isolation fixes measured cross deformation. Original character.blend, raw assets, game GLBs, static reduced-motion cards, gameplay and other pending source preserved. Work/menu-performances contains editable menu scenes and scripts; tests/menu-performances contains actual before/after menu videos, frame sequences, deformation and alpha/loop reports. Exact-content query revisions match preload/runtime URLs. No publication; return writer to wall/jump chat after local verification.
+
+4.4.14 authorized push: wall pointer/touch confirmation, readable shared trajectory guides, bounded jumps and quiet warmup. Heavy ledge prototype is inactive/unpublished; skinny menu correction is separately pending. Release verification stored in tests/wall-aim-balance/release.
