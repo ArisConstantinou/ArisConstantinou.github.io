@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {createCharacterRepeat} from '../src/arcade-character-selection.js';
+function fixture(){let time=0;const repeat=createCharacterRepeat({now:()=>time});return {repeat,set time(value){time=value},tap:(id='heavy')=>repeat.activate(id,{pointerType:'touch',type:'pointerup',detail:0})};}
+test('One tap only selects; a second completed tap on the same card continues',()=>{const f=fixture();assert.equal(f.tap(),false);f.time=160;assert.equal(f.tap(),true);f.time=220;assert.equal(f.tap(),false);});
+test('Tapping another character cannot accidentally continue',()=>{const f=fixture();assert.equal(f.tap('heavy'),false);f.time=100;assert.equal(f.tap('medium'),false);f.time=180;assert.equal(f.tap('medium'),true);});
+test('Slow separate taps remain selections',()=>{const f=fixture();f.tap();f.time=650;assert.equal(f.tap(),false);f.time=780;assert.equal(f.tap(),true);});
+test('Scroll/cancel and reopening reset an armed first tap',()=>{const f=fixture();f.tap();f.time=100;f.repeat.reset();assert.equal(f.tap(),false);});
+test('Keyboard detail-zero activation does not arm a pointer double tap',()=>{const f=fixture();assert.equal(f.repeat.activate('heavy',{type:'click',detail:0}),false);f.time=100;assert.equal(f.tap(),false);});
+test('Native mouse double click respects the browser double-click interval',()=>{const f=fixture();assert.equal(f.repeat.activate('skinny',{type:'click',pointerType:'mouse',detail:1}),false);f.time=700;assert.equal(f.repeat.activate('skinny',{type:'click',pointerType:'mouse',detail:2}),true);});
+test('Clock discontinuity cannot confirm a character',()=>{const f=fixture();f.time=200;f.tap();f.time=100;assert.equal(f.tap(),false);});
+test('Pen uses the same deliberate two-release gesture',()=>{const f=fixture();assert.equal(f.repeat.activate('medium',{type:'pointerup',pointerType:'pen'}),false);f.time=180;assert.equal(f.repeat.activate('medium',{type:'pointerup',pointerType:'pen'}),true);});

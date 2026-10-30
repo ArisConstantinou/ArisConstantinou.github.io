@@ -10,8 +10,8 @@ export function installArcadeGestureGuard({document=globalThis.document,surfaces
  let gameGesture=false;
  const element=node=>node?.nodeType===3?node.parentElement:node;
  const nativeControl=node=>element(node)?.closest?.(NATIVE_CONTROL);
- const settingsPanel=node=>{
-  const panel=element(node)?.closest?.('#settings-panel');
+ const scrollPanel=node=>{
+  const panel=element(node)?.closest?.('#settings-panel')||element(node)?.closest?.('#character-choices');
   if(!panel||panel.hidden||panel.closest('[hidden]'))return null;
   if(panel.getClientRects&&panel.getClientRects().length===0)return null;
   const style=document.defaultView?.getComputedStyle?.(panel);
@@ -35,7 +35,7 @@ export function installArcadeGestureGuard({document=globalThis.document,surfaces
  const clear=()=>{gameTouches.clear();gameGesture=false;};
  const active=()=>{if(enabled())return true;clear();return false;};
  const gameTouch=event=>gameTouches.size>0||gameEvent(event)||Array.from(event.touches||[]).some(touch=>gameNode(touch.target));
- const settingsScroll=event=>event.touches?.length===1&&gameTouches.size<=1&&!!settingsPanel(event.touches[0].target);
+ const panelScroll=event=>event.touches?.length===1&&gameTouches.size<=1&&!!scrollPanel(event.touches[0].target);
 
  listen('touchstart',event=>{
   if(!active())return;
@@ -47,7 +47,7 @@ export function installArcadeGestureGuard({document=globalThis.document,surfaces
  // The menu panel is a bounded native scroller, not another game control.
  // Keep its touch tracked above so a second finger still blocks pinch/mixed
  // gestures; only a single finger that started in the visible panel may pan.
- listen('touchmove',event=>{if(active()&&gameTouch(event)&&!settingsScroll(event))prevent(event);});
+ listen('touchmove',event=>{if(active()&&gameTouch(event)&&!panelScroll(event))prevent(event);});
  const releaseTouches=event=>{
   for(const touch of event.changedTouches||[])gameTouches.delete(touch.identifier);
   if(!event.touches?.length)gameTouches.clear();
@@ -65,7 +65,7 @@ export function installArcadeGestureGuard({document=globalThis.document,surfaces
  // Native form controls retain their normal editing and slider interactions.
  listen('wheel',event=>{
   if(!active()||!gameEvent(event))return;
-  if(!event.ctrlKey&&!event.metaKey&&eventNodes(event).some(settingsPanel))return;
+  if(!event.ctrlKey&&!event.metaKey&&eventNodes(event).some(scrollPanel))return;
   prevent(event);
  });
  for(const type of ['dblclick','selectstart','contextmenu','dragstart'])listen(type,event=>{

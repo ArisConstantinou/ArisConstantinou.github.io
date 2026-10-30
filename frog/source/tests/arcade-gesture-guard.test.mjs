@@ -179,3 +179,10 @@ test('non-cancelable events are left alone instead of attempting an ineffective 
  const f=fixture();installArcadeGestureGuard({document:f.document});
  for(const type of ['touchmove','wheel','gesturestart','selectstart'])assert.equal(f.emit(type,f.canvas,{cancelable:false}).preventCalls,0);
 });
+
+test('character cards allow one-finger pan and ordinary wheel while keeping zoom guarded',()=>{
+ const f=fixture();installArcadeGestureGuard({document:f.document});const panel=new Element('div',f.ui,{id:'character-choices'}),card=new Element('button',panel),finger=touch(1,card);f.emit('touchstart',card,{touches:[finger],changedTouches:[finger]});assert.equal(f.emit('touchmove',card,{touches:[finger]}).defaultPrevented,false);assert.equal(f.emit('wheel',card,{deltaY:80}).defaultPrevented,false);assert.equal(f.emit('wheel',card,{deltaY:80,ctrlKey:true}).defaultPrevented,true);f.emit('touchcancel',card,{touches:[],changedTouches:[finger]});
+});
+test('hidden character lists and two-finger character gestures cannot bypass the game guard',()=>{
+ const f=fixture();installArcadeGestureGuard({document:f.document});const dialog=new Element('section',f.ui),panel=new Element('div',dialog,{id:'character-choices'}),card=new Element('button',panel),a=touch(1,card),b=touch(2,card);f.emit('touchstart',card,{touches:[a],changedTouches:[a]});assert.equal(f.emit('touchstart',card,{touches:[a,b],changedTouches:[b]}).defaultPrevented,true);assert.equal(f.emit('touchmove',card,{touches:[a,b]}).defaultPrevented,true);f.emit('touchcancel',card,{touches:[],changedTouches:[a,b]});dialog.hidden=true;f.emit('touchstart',card,{touches:[a],changedTouches:[a]});assert.equal(f.emit('touchmove',card,{touches:[a]}).defaultPrevented,true);assert.equal(f.emit('wheel',card,{deltaY:80}).defaultPrevented,true);
+});

@@ -68,3 +68,16 @@ body:has(#character-selection:not([hidden])) #fps-counter{visibility:hidden}
  .character-portrait{height:80px}.character-portrait img{height:180%;max-height:none;top:-40%}
  .character-selection-actions{margin-top:8px}
 }
+
+/* Only the cards scroll. Heading/instructions and the forward actions stay visible. */
+body #character-selection{box-sizing:border-box;height:100dvh;max-height:100dvh;overflow:hidden}
+body #character-selection .character-selection-shell{display:flex;flex-direction:column;flex:0 1 auto;min-height:0;max-height:100%;margin:auto}
+.character-selection-heading,.character-loading{flex-shrink:0}
+.character-selection-help{margin:8px 0 0;color:#ffe5a9;font:600 14px/1.4 system-ui,sans-serif;letter-spacing:normal}
+body #character-selection .character-choices{flex:0 1 auto;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;align-content:start;padding:4px 6px 10px;margin:0 -6px}
+body #character-selection .character-selection-actions{flex-shrink:0;margin-top:10px;padding:10px 0 6px;border-top:1px solid #bca76c66;background:linear-gradient(#173322e6,#10261df5)}
+body #character-selection .character-selection-actions button{font-size:16px;min-height:48px}
+@media(max-width:650px){body #character-selection{padding-top:max(70px,calc(env(safe-area-inset-top) + 64px))}}
+@media(max-height:520px) and (min-width:651px){body #character-selection .character-selection-actions{margin-top:6px;padding-top:7px}body #character-selection .character-selection-actions button{min-height:44px}}
+
+#character-choices{touch-action:pan-y}

@@ -1,0 +1,88 @@
+{
+  "version": "4.4.7",
+  "sourceTests": 1451,
+  "physicalPhoneTested": false,
+  "viewports": [
+    {
+      "name": "landscape",
+      "width": 932,
+      "height": 355,
+      "buttonsInsideViewport": true,
+      "singleTapSelects": true,
+      "doubleActivationStartsOnce": true,
+      "cancelPreservesRound": true
+    },
+    {
+      "name": "portrait",
+      "width": 430,
+      "height": 745,
+      "buttonsInsideViewport": true,
+      "singleTapSelects": true,
+      "doubleActivationStartsOnce": true,
+      "cancelPreservesRound": true
+    },
+    {
+      "name": "short-portrait",
+      "width": 430,
+      "height": 600,
+      "buttonsInsideViewport": true,
+      "singleTapSelects": true,
+      "doubleActivationStartsOnce": true,
+      "cancelPreservesRound": true
+    },
+    {
+      "name": "small-phone",
+      "width": 320,
+      "height": 568,
+      "buttonsInsideViewport": true,
+      "singleTapSelects": true,
+      "doubleActivationStartsOnce": true,
+      "cancelPreservesRound": true
+    },
+    {
+      "name": "short-landscape",
+      "width": 780,
+      "height": 360,
+      "buttonsInsideViewport": true,
+      "singleTapSelects": true,
+      "doubleActivationStartsOnce": true,
+      "cancelPreservesRound": true
+    },
+    {
+      "name": "desktop",
+      "width": 1280,
+      "height": 800,
+      "buttonsInsideViewport": true,
+      "singleTapSelects": true,
+      "doubleActivationStartsOnce": true,
+      "cancelPreservesRound": true
+    }
+  ],
+  "nativeFingerScroll": {
+    "beforePx": [
+      0,
+      0
+    ],
+    "afterPx": [
+      57,
+      57
+    ],
+    "noSelectionOrStartOnPan": true
+  },
+  "startup": {
+    "obsoleteActorsCreated": 0,
+    "legacyArtVisible": false,
+    "loadingCurtainUntilModernImagesDecode": true,
+    "retryAfterImageFailure": true
+  },
+  "waterReflectionControlPreserved": true,
+  "browserErrors": [],
+  "images": {
+    "beforeLandscape": "start-flow-before-landscape.png",
+    "landscape": "start-flow-landscape.png",
+    "portrait": "start-flow-portrait.png",
+    "loading": "startup-loading.png",
+    "menu": "startup-menu.png"
+  },
+  "method": "Compiled canonical build; real Chromium touchscreen input and CDP finger swipe at mobile viewports, desktop mouse/keyboard, blocked asset loads and deliberate image failure. These checks are not physical iPhone or mobile FPS measurements."
+}
