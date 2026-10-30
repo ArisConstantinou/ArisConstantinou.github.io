@@ -1,0 +1,14 @@
+{
+  "frames": 97,
+  "vertices": 24511,
+  "bind_hash": "a6c7e4abc64e3286de0bdf962be41ff2255b5555afc54c24038a0252eef20b0b",
+  "max_foot_strain": 1.0213794521210604,
+  "max_foot_p99": 1.007245879837739,
+  "max_limb_p99": 1.1331488017086375,
+  "minimum_knee_z": 0.19228944182395935,
+  "rest_knee_error_m": 1.519626234052415e-07,
+  "wrap_error_m": 0.0,
+  "regression_pass": true,
+  "before_max_foot_strain": 4.730254035215792,
+  "before_rest_knee_error_m": 0.1120403929790092
+}
