@@ -1,4 +1,6 @@
-# Βαλτομαχίες 4.4.1 — complete game source
+# Βαλτομαχίες 4.4.2 — complete game source
+
+4.4.2 adds actual distant indices and pose-safe culling for the existing frogs and houses. Close/KO/wall-held models remain original; see RELEASE-4.4.2.md for validation and physical-device limits.
 
 4.4.1 reuses the unchanged paused canvas while preserving menu animation and normal live play. See RELEASE-4.4.1.md; live-game/mobile performance work remains ongoing.
 
