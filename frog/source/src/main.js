@@ -1,3 +1,4 @@
+import './arcade-asset-loading.css';
 import { ArcadeGame } from './arcade.js';
 import { installTapBuffer } from './arcade-tap-buffer.js';
 import { installCameraButton } from './arcade-camera-button.js';
