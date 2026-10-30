@@ -1,4 +1,6 @@
-# Βαλτομαχίες 4.4.0 — complete game source
+# Βαλτομαχίες 4.4.1 — complete game source
+
+4.4.1 reuses the unchanged paused canvas while preserving menu animation and normal live play. See RELEASE-4.4.1.md; live-game/mobile performance work remains ongoing.
 
 Joint release of the three coordinated game workstreams.
 
