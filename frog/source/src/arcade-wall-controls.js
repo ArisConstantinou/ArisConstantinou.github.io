@@ -36,7 +36,7 @@ export function applyFlightAttitude(model,flight,dt){
 function applyCartoonFlightAttitude(model,flight,dt){
  if(!model.flightPivot)throw Error('New cartoon rig requires a flight pivot below its yaw group');
  const kind=flight?.kind,held=kind==='wallHold',flying=['wallJump','jump','double','surfaceHop'].includes(kind),speed=flight?Math.hypot(flight.vx||0,flight.vz||0):0;
- const target=held?-.2:flying&&speed>.2?Math.max(-.75,Math.min(.95,(model.stats?.restAxisPitch??0)-Math.atan2(flight.vy,speed))):0;
+ const target=held?-.2:flying&&speed>.2?Math.max(-.75,Math.min(.95,(model.stats?.restAxisPitch??model.leapPitch??0)-Math.atan2(flight.vy,speed))):(model.leapPitch||0);
  model.flightPitch=(model.flightPitch||0)+(target-(model.flightPitch||0))*(1-Math.exp(-Math.max(0,dt)*18));
  model.flightPivot.rotation.x=model.flightPitch;
 }

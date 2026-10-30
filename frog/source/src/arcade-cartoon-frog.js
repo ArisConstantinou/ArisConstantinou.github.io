@@ -1,3 +1,4 @@
+import {createCartoonLeapPose} from './arcade-cartoon-leap.js';
 import {createSkinnedBounds} from './arcade-skin-bounds.js';
 import {createMeshLOD} from './arcade-render-lod.js';
 import * as THREE from 'three';
@@ -21,7 +22,7 @@ export function cartoonFrogFactory(assets,{distanceGeometries}={}){
   const restPose=Object.fromEntries(Object.entries(bones).map(([n,b])=>[n,{position:b.position.clone(),quaternion:b.quaternion.clone(),scale:b.scale.clone()}]));
   const mixer=new THREE.AnimationMixer(root),clips=Object.fromEntries(gltf.animations.map(c=>[c.name,c])),actions=Object.fromEntries(gltf.animations.map(c=>[c.name,mixer.clipAction(c)]));
   const restHeadWorld=bones.head.getWorldQuaternion(new THREE.Quaternion()),headAxis=new THREE.Vector3(1,0,0).applyQuaternion(restHeadWorld.invert()),offset=new THREE.Quaternion();
-  let chosen='',clock=0,koClock=0,actor=options.actor,disposed=false,impactUntil=0,impactStrength=0,transition=null;
+  let leapPose;let chosen='',clock=0,koClock=0,actor=options.actor,disposed=false,impactUntil=0,impactStrength=0,transition=null;
   const model={group,flightPivot,mesh,bones,skeleton,restPose,stats:{type:'frog',imported:true,cartoon:true,characterClass:id,vertices:skins.reduce((n,m)=>n+m.geometry.attributes.position.count,0),triangles:skins.reduce((n,m)=>n+m.geometry.index.count/3,0),bones:49,renderLOD:0},
    setEquipment(){},setCrowned(){},setRenderLOD(level){model.stats.qualityLOD=level;},setOutline(){},
    prepareRender(camera,width,height,enabled=true,mainView=true,{distance=true,culling=true}={}){let level=0,triangles=0;const forced=model.currentClip==='KO'||actor?.flight?.kind==='wallHold',keepOriginal=enabled&&renderParts.find(p=>p.skin===mesh).lod.keepOriginal(camera,width,height,forced);for(const p of renderParts){if(enabled&&!keepOriginal)p.bounds.update();p.skin.frustumCulled=enabled&&culling&&!keepOriginal;const selected=p.lod.apply(camera,width,height,{enabled:enabled&&distance&&!keepOriginal,box:p.bounds.box,forceOriginal:model.currentClip==='KO'||actor?.flight?.kind==='wallHold'});level=Math.max(level,selected);triangles+=p.skin.geometry.index.count/3;}if(mainView){model.stats.renderLOD=level;model.stats.drawnTriangles=triangles;}else{model.stats.reflectionLOD=level;model.stats.reflectionTriangles=triangles;}},
@@ -51,10 +52,10 @@ export function cartoonFrogFactory(assets,{distanceGeometries}={}){
     for(const [key,action] of Object.entries(actions)){const weight=transition?(transition.weights[key]||0)*(1-blend)+(key===name?blend:0):key===name?1:0;if(weight>1e-5){action.enabled=true;action.paused=true;action.setEffectiveWeight(weight);action.play();}else if(action.isScheduled())action.stop();}
     if(blend>=1)transition=null;mixer.update(0);model.animationWeights=Object.fromEntries(Object.entries(actions).filter(([,action])=>action.isScheduled()).map(([key,action])=>[key,action.getEffectiveWeight()]));
     for(const material of materials){material.emissive.set('#ffdba3');material.emissiveIntensity=clock<impactUntil?Math.min(.38,impactStrength*.38):0;}
-    model.ownsLimbPose=!!actor?.classAction?.remaining;model.currentClip=name;
+    model.ownsLimbPose=!!actor?.classAction?.remaining;model.currentClip=name;leapPose?.(state,actor,name);
    },
    dispose(){if(disposed)return;disposed=true;mixer.stopAllAction();mixer.uncacheRoot(root);for(const sk of new Set(skins.map(s=>s.skeleton)))sk.dispose();for(const material of materials)material.dispose();group.removeFromParent();},
   };
-  model.update(0);return model;
+  leapPose=createCartoonLeapPose(model);model.update(0);return model;
  };
 }

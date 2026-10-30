@@ -1,3 +1,4 @@
+import {CENTERED_RELEASE_SOCKET} from './arcade-catapult-alignment.js';
 import {installCartoonCatapults} from './arcade-cartoon-catapult.js';
 import {CATAPULT_MECHANISM} from './arcade-cartoon-bodies.js';
 import * as THREE from 'three';
@@ -167,6 +168,7 @@ export class ArtilleryView {
  operatorPose(id){
   const machine=this.machines.get(typeof id==='string'?id:id?.id);if(!machine)return null;
   const state=this.game.state.catapults?.find(item=>item.id===machine.definition.id);
+  if(machine.cartoon){machine.group.updateMatrixWorld(true);const marker=machine.cartoon.getObjectByName('OperatorSeat');if(marker){const point=marker.getWorldPosition(new THREE.Vector3());return {x:point.x,y:point.y,z:point.z,yaw:state?Math.atan2(state.aimX,state.aimZ):machine.yaw};}}
   return {x:machine.definition.x,y:this.ground(machine.definition.x,machine.definition.z)+SEAT_HEIGHT,z:machine.definition.z,yaw:state?Math.atan2(state.aimX,state.aimZ):machine.yaw};
  }
 
@@ -200,7 +202,7 @@ export class ArtilleryView {
   for(const piece of this.previewPieces)piece.visible=true;
   this.previewClock+=Math.max(0,Math.min(.1,dt));
   const dx=target.x-station.x,dz=target.z-station.z,length=Math.hypot(dx,dz)||1;
-  const release=this.cartoon?CATAPULT_MECHANISM.releaseSocket:null,forward=release?.z??1,right=release?.x??0;const shell={startX:station.x+dx/length*forward+dz/length*right,startZ:station.z+dz/length*forward-dx/length*right,startHeight:release?.y??1.6,tx:target.x,tz:target.z,arcHeight:ARTILLERY.arcHeight};
+  const release=this.cartoon?CENTERED_RELEASE_SOCKET:null,forward=release?.z??1,right=release?.x??0;const shell={startX:station.x+dx/length*forward+dz/length*right,startZ:station.z+dz/length*forward-dx/length*right,startHeight:release?.y??1.6,tx:target.x,tz:target.z,arcHeight:ARTILLERY.arcHeight};
   const positions=this.previewLine.geometry.attributes.position;
   for(let i=0;i<positions.count;i++){const point=this.shellPoint(shell,i/(positions.count-1));positions.setXYZ(i,point.x,point.y,point.z);}
   positions.needsUpdate=true;this.previewLine.computeLineDistances();

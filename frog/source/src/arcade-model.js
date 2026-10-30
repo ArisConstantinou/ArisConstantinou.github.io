@@ -2,7 +2,7 @@ import {ammunitionCapacity,characterProfile,aerialAttack,CHARACTER_IDS} from './
 import {freshStats,cleanStats} from './arcade-leaderboard.js';
 import {AIR_RULES,stepFlight,canAirVolley,landingSurfaces} from './arcade-air-movement.js';
 // FROG arcade rules. Rendering-free and deterministic for repeatable tests.
-import {ARTILLERY,CATAPULTS,createCatapults,interactCatapult,catapultSeatPoint,releaseCatapult,throwStone,stepArtillery} from './arcade-artillery.js';
+import {ARTILLERY,CATAPULTS,createCatapults,nearbyCatapult,interactCatapult,catapultSeatPoint,releaseCatapult,throwStone,stepArtillery} from './arcade-artillery.js';
 import {BASES,ARENA_ROCKS,resolveArenaMove,hasWallSight,coverAt,terrainSpeed,navigateTo,insideHome} from './arcade-bases.js';
 import {PROJECTILE,normalizeAim,worldRay,projectileLaunch,projectilePoint,traceProjectile,projectileOrigin,projectileGround,projectileMouth} from './arcade-projectiles.js';
 import {FROG_BODY,frogBody,actorBodiesOverlapHeight} from './arcade-actor-bounds.js';
@@ -11,7 +11,7 @@ import {ARENA_RADIUS,ARENA_MOVE_RADIUS,BATTLEGROUND_SWARMS} from './arcade-battl
 import {GUARD_BODY,createGuards,guardActive,guardOverlapsActorHeight,hitGuard,stepGuards,restoreGuards,removeBaseGuards} from './arcade-guards.js';
 export {setProjectileWorld,projectileOrigin} from './arcade-projectiles.js';
 
-export const ARCADE_VERSION = '4.4.3';
+export const ARCADE_VERSION = '4.4.4';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
 export const RULES = Object.freeze({radius:ARENA_RADIUS,capacity:90,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:2.4,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});
@@ -321,7 +321,7 @@ export function rivalIntent(s,a){
   if(a.machineTimer<=0&&!a.machineSeeking){a.machineSeeking=!!machine&&d>11&&rng(s)<.35;a.machineTimer=8;}
   if(a.machineSeeking&&machine){
    if(d<7){a.machineSeeking=false;a.machineTimer=12;}
-   else{resetEnemyAim(a);return navigateIntent(s,a,{x:machine.x,z:machine.z+2.2},{interactCatapult:distance(a,machine)<=ARTILLERY.interactionRange&&hasWallSight(a,machine)});}
+   else{resetEnemyAim(a);return navigateIntent(s,a,{x:machine.x,z:machine.z+2.2},{interactCatapult:nearbyCatapult(s,a)?.id===machine.id});}
   }
   return combatIntent(s,a,target);
  }

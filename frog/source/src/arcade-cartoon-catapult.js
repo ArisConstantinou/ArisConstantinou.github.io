@@ -1,3 +1,4 @@
+import {CATAPULT_CENTER_OFFSET} from './arcade-catapult-alignment.js';
 import * as THREE from 'three';
 import {createLimbChain,solveLimbChain} from './arcade-leap-pose.js';
 import {CATAPULT_MECHANISM} from './arcade-cartoon-bodies.js';
@@ -8,7 +9,7 @@ export function installCartoonCatapults(view,gltf){
  const chains=new WeakMap(),target=new THREE.Vector3(),pole=new THREE.Vector3(),q=new THREE.Quaternion(),grip=new THREE.Vector3();
  for(const machine of view.machines.values()){
   for(const old of machine.turret.children)old.visible=false;
-  const model=gltf.scene.clone(true);model.name='Meshy woodland rock catapult';model.traverse(o=>{if(o.isMesh)o.castShadow=o.receiveShadow=true;});machine.turret.add(model);
+  const model=gltf.scene.clone(true);model.name='Meshy woodland rock catapult';model.position.x+=CATAPULT_CENTER_OFFSET.x;model.position.z+=CATAPULT_CENTER_OFFSET.z;model.traverse(o=>{if(o.isMesh)o.castShadow=o.receiveShadow=true;});machine.turret.add(model);
   machine.cartoon=model;machine.arm=model.getObjectByName('ThrowingArm');machine.winch=model.getObjectByName('ReloadWinch');machine.loadedRock=model.getObjectByName('Catapult_payload');machine.grips=[model.getObjectByName('GripRight'),model.getObjectByName('GripLeft')];
   if(!machine.arm||!machine.winch||machine.grips.some(o=>!o))throw Error('Λείπει άρθρωση ή χειριστήριο καταπέλτη.');
  }

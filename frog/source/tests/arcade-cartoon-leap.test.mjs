@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {leapEnvelope} from '../src/arcade-cartoon-leap.js';
+test('frog legs extend during takeoff and remain extended beyond the apex',()=>{for(const t of [.075,.1,.3,.5,.65])assert.ok(leapEnvelope(t).extension>.99)});
+test('hindlegs recover while forelimbs reach for landing',()=>{assert.equal(leapEnvelope(0).extension,0);assert.equal(leapEnvelope(1).extension,0);assert.ok(leapEnvelope(.9).extension<.25);assert.ok(leapEnvelope(.9).landing>.8)});
+test('leap envelope is bounded and continuous throughout flight',()=>{let last=leapEnvelope(0);for(let i=1;i<=1000;i++){const next=leapEnvelope(i/1000);for(const key of ['extension','landing']){assert.ok(next[key]>=0&&next[key]<=1);assert.ok(Math.abs(next[key]-last[key])<.03)}last=next}});
