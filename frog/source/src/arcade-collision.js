@@ -3,7 +3,10 @@
 const EPS=1e-6, SKIN=1e-4;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
+const boxLocal=(point,box)=>{const c=Math.cos(box.yaw),s=Math.sin(box.yaw),x=point.x-box.x,z=point.z-box.z;return {x:c*x-s*z,z:s*x+c*z};};
+const boxVector=(vector,box)=>{const c=Math.cos(box.yaw),s=Math.sin(box.yaw);return {x:c*vector.x+s*vector.z,z:-s*vector.x+c*vector.z};};
 export function rectangleClearance(point,box){
+ if(box.yaw)return rectangleClearance(boxLocal(point,box),{x:0,z:0,hw:box.hw,hd:box.hd});
  return Math.hypot(Math.max(0,Math.abs(point.x-box.x)-box.hw),Math.max(0,Math.abs(point.z-box.z)-box.hd));
 }
 
@@ -21,6 +24,7 @@ function circleSweep(point,delta,circle,radius){
 }
 
 export function roundedRectangleSweep(point,delta,box,radius){
+ if(box.yaw){const p=boxLocal(point,box),d=boxLocal({x:box.x+delta.x,z:box.z+delta.z},box),hit=roundedRectangleSweep(p,d,{x:0,z:0,hw:box.hw,hd:box.hd},radius);if(!hit)return null;const n=boxVector({x:hit.nx,z:hit.nz},box);return {...hit,nx:n.x,nz:n.z};}
  const minX=box.x-box.hw,maxX=box.x+box.hw,minZ=box.z-box.hd,maxZ=box.z+box.hd;
  let best=null;
  const consider=hit=>{if(hit&&(!best||hit.t<best.t))best=hit;};
@@ -48,6 +52,7 @@ function boundarySweep(point,delta,radius){
 }
 
 function boxPush(point,box,radius){
+ if(box.yaw){const push=boxPush(boxLocal(point,box),{x:0,z:0,hw:box.hw,hd:box.hd},radius);return push?boxVector(push,box):null;}
  const minX=box.x-box.hw,maxX=box.x+box.hw,minZ=box.z-box.hd,maxZ=box.z+box.hd;
  const qx=clamp(point.x,minX,maxX),qz=clamp(point.z,minZ,maxZ),dx=point.x-qx,dz=point.z-qz,d=Math.hypot(dx,dz);
  if(d>=radius-SKIN*.1)return null;

@@ -1,0 +1,129 @@
+/* A living pond wordmark. Local squashes, eyelids and forming droplets;
+   the title and existing frogs keep their planted positions. */
+#arcade-ui #menu-main.with-game-brand{position:relative;padding-top:150px;gap:0;transform:translateY(38px)}
+#arcade-ui .game-brand{position:absolute;left:-3%;top:-110px;width:106%;height:150px;margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:url('/art/menu-plaque-v1.png') center/100% 100% no-repeat;filter:drop-shadow(0 9px 9px #071e2270);text-align:center;isolation:isolate;pointer-events:none;font-family:Arial,Helvetica,sans-serif;font-weight:900;line-height:1.05}
+#arcade-ui .brand-line{display:block;font-size:clamp(32px,6.2vw,54px);color:#d9f990;text-shadow:0 3px 0 #3e5a24,0 5px 0 #092e24;letter-spacing:-2px;white-space:nowrap}
+#arcade-ui .brand-small{font-size:.62em;letter-spacing:-1px}.brand-word{display:inline-block}.brand-word>span{display:inline-block;transform-origin:50% 100%;animation:letter-breathe 7s ease-in-out infinite;animation-delay:calc(var(--letter)*-.18s)}
+#arcade-ui .brand-author{font-size:clamp(24px,4.7vw,36px);color:#ffdb78;text-shadow:0 3px 0 #684b24;letter-spacing:1px}
+#arcade-ui .brand-eyes{position:absolute;right:11%;top:-4px;display:flex;gap:3px}.brand-eyes>i{position:relative;display:block;width:28px;height:32px;border:4px solid #547f27;border-radius:52% 52% 45% 45%;background:radial-gradient(circle at 32% 30%,#fffbd0 0 13%,#ffcf54 28%,#c78323 80%);box-shadow:0 3px 0 #123c28;overflow:hidden;animation:brand-blink 8.3s infinite}.brand-eyes>i:nth-child(2){animation-delay:.04s}.brand-eyes b{position:absolute;left:9px;top:5px;width:7px;height:15px;background:#15301f;border-radius:50%;box-shadow:-3px -2px 0 -1px #fff5ca}.brand-eyes i:after{content:'';position:absolute;inset:0;background:#7eae37;transform:scaleY(0);transform-origin:top;animation:brand-lid 8.3s infinite}
+.brand-dew{position:absolute;inset:0;z-index:-1}.brand-dew i{position:absolute;width:10px;height:13px;border-radius:60% 40% 65% 35%;background:radial-gradient(circle at 30% 30%,#efffff,#81cdbcaa 35%,#63ac9055 70%);box-shadow:inset 0 0 2px #eaffee;left:7%;top:40%;transform-origin:center;animation:dew-form 9s ease-in-out infinite}.brand-dew i:nth-child(2){left:91%;top:32%;animation-delay:-3s}.brand-dew i:nth-child(3){left:80%;top:76%;animation-delay:-6s}
+.game-brand:not(.is-alive) *,.game-brand:not(.is-alive) *:after{animation-play-state:paused!important}
+@keyframes letter-breathe{0%,60%,100%{transform:scale(1)}66%{transform:scale(1.015,.965)}72%{transform:scale(.99,1.025)}80%{transform:scale(1)}}
+@keyframes brand-blink{0%,47%,51%,100%{border-radius:52% 52% 45% 45%}49%{border-radius:70% 70% 30% 30%}}
+@keyframes brand-lid{0%,47%,51%,100%{transform:scaleY(0)}49%{transform:scaleY(1)}}
+@keyframes dew-form{0%,5%{transform:scale(.1);opacity:0}28%,68%{transform:scale(1);opacity:1}78%,100%{transform:scale(1.6,.12);opacity:0}}
+#arcade-ui .objectives-button{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:12px;min-height:46px;font-size:14px;background:linear-gradient(110deg,#365a35,#244a38);border-color:#e0c17b99}
+#arcade-ui .objectives-button .objective-art{width:44px;height:30px;flex:none;border-radius:7px}
+.objective-art{display:block;background-image:url('/art/round-objectives.png');background-size:200% 200%;background-repeat:no-repeat;aspect-ratio:1;overflow:hidden}
+#arcade-ui .objectives-panel{width:min(900px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:24px;border:2px solid #c1d399;border-radius:28px;background:linear-gradient(140deg,#20483dfc,#102f2bfc);box-shadow:0 18px 80px #071f1a99;text-align:center;pointer-events:auto}
+.presentation-kicker{display:block;color:#e7c47a;font-size:12px;font-weight:900;letter-spacing:2px}.objectives-panel h2{font-size:26px;line-height:1.18;margin:8px 0 20px;color:#edffd4}
+.objective-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.objective-card{min-width:0;border:1px solid #c8d49770;border-radius:17px;overflow:hidden;background:#163a30;box-shadow:0 4px 0 #08291d55;text-align:center}.objective-card .objective-art{width:100%}.objective-card h3{margin:9px 6px 6px;font-size:16px;line-height:1.18;color:#f0ffd0}.objective-card p{font-size:14px;line-height:1.35;color:#d1e4cb;margin:0 9px 12px}.objectives-back{display:block;margin:20px auto 0;min-height:46px;padding:10px 28px;border:1px solid #d6ea9f;border-radius:13px;background:#466e35;color:#f1ffd4;font-size:16px;font-weight:900}
+#arcade-ui .match-clock{position:fixed;left:50%;top:max(14px,env(safe-area-inset-top));transform:translateX(-50%);display:grid;grid-template-columns:26px auto;grid-template-rows:auto auto;column-gap:9px;align-items:center;min-width:156px;min-height:68px;padding:9px 17px;border:1px solid #b7cba879;border-radius:10px 10px 22px 22px;background:linear-gradient(#183b33ee,#102f2aea);box-shadow:0 5px 0 #0b211c5c;color:#edffd9;text-align:center;pointer-events:none;z-index:5}
+.match-clock-label{font-size:12px;font-weight:900;letter-spacing:.8px;white-space:nowrap}.match-clock-digits{font-size:29px;line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:1px}.clock-face{position:relative;width:25px;height:25px;border:2px solid #d9e9ad;border-radius:50%;grid-row:1/3}.clock-face:before{content:'';position:absolute;left:7px;top:-6px;width:7px;height:3px;border-radius:2px;background:#e2edac}.clock-face:after{content:'';position:absolute;left:10px;top:4px;width:2px;height:9px;background:#e2edac;transform-origin:50% 100%;transform:rotate(25deg)}.clock-face i{position:absolute;left:10px;top:11px;width:6px;height:2px;background:#e2edac}
+#arcade-ui .match-clock[data-phase=warmup]{border-color:#e1c27c;color:#ffdf98}.match-clock[data-phase=warmup] .match-clock-label{letter-spacing:0}
+#arcade-ui.has-round-presentation #round-status.plain-warmup{display:none}
+#arcade-ui.has-round-presentation .battle-countdown{left:50%;right:auto;top:44%;width:auto;height:auto;transform:translate(-50%,-50%);min-width:170px;gap:9px;padding:18px 26px;border-radius:28px;background:radial-gradient(ellipse,#123d30dc,transparent 75%)}
+#arcade-ui.has-round-presentation .battle-countdown>strong{font-size:clamp(88px,22vh,140px);line-height:1;color:#efffbf}
+#arcade-ui.has-round-presentation .battle-countdown>span{font-size:14px;letter-spacing:1px;color:#e3efc9;white-space:nowrap;text-shadow:0 2px 3px #102d22}
+#arcade-ui .warmup-notice{position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);width:min(720px,calc(100vw - 32px));display:flex;align-items:center;gap:18px;padding:22px 24px;border:2px solid #d8d69b;border-radius:30px;background:linear-gradient(120deg,#214b3af2,#153931ed);box-shadow:0 12px 60px #092a2877,inset 0 1px 0 #f3ffbc33;pointer-events:none;z-index:6}
+#arcade-ui .warmup-hero{width:124px;flex:none;border-radius:50%;border:3px solid #e2c581;box-shadow:0 5px 0 #0b2e27}.warmup-notice-copy{flex:1;min-width:0}.warmup-notice h2{font-size:clamp(22px,3vw,31px);margin:7px 0;color:#edffa9;letter-spacing:-.6px}.warmup-notice p{font-size:16px;line-height:1.4;color:#d8e9ca;margin:0}.warmup-duration{font-size:64px;line-height:1;font-variant-numeric:tabular-nums;color:#ffe196;text-shadow:0 4px 0 #566731}
+#arcade-ui .warmup-goals{position:fixed;left:50%;top:47%;transform:translate(-50%,-50%);width:min(850px,calc(100vw - 32px));pointer-events:none;z-index:5}.warmup-goals>h2{text-align:center;margin:0 0 13px;color:#f0ffd0;font-size:26px;text-shadow:0 2px 4px #082e23}.warmup-goals .objective-card{background:#11372df5;box-shadow:0 5px 20px #07291f55;animation:objective-reveal .55s both}.warmup-goals .objective-card:nth-child(2){animation-delay:.08s}.warmup-goals .objective-card:nth-child(3){animation-delay:.16s}.warmup-goals .objective-card:nth-child(4){animation-delay:.24s}.warmup-goals .objective-art{aspect-ratio:auto;height:150px}
+.warmup-notice{animation:notice-reveal .6s both}@keyframes notice-reveal{from{opacity:0;clip-path:inset(25% 20% round 50px)}to{opacity:1;clip-path:inset(0 round 30px)}}@keyframes objective-reveal{from{opacity:0;clip-path:inset(15% 0 round 20px)}to{opacity:1;clip-path:inset(0 round 17px)}}
+@media(max-width:600px) and (orientation:portrait){
+ #arcade-ui #menu-main.with-game-brand{padding-top:116px;transform:translateY(40px)}
+ #arcade-ui .game-brand{height:125px;top:-99px;width:112%;left:-6%}.brand-eyes{right:13%!important;top:0!important;scale:.85}
+ #arcade-ui .brand-line{font-size:37px;letter-spacing:-1.5px}#arcade-ui .brand-author{font-size:29px}
+ #arcade-ui .objectives-panel{padding:18px 14px}.objectives-panel h2{font-size:23px;margin-bottom:14px}.objective-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.objective-card h3{font-size:14px}.objective-card p{font-size:14px;margin:0 6px 9px}.objectives-panel .objective-art{aspect-ratio:auto;height:128px}
+ #arcade-ui .match-clock{top:max(89px,calc(env(safe-area-inset-top) + 77px));min-width:154px;min-height:57px;padding:7px 12px}.match-clock-digits{font-size:26px}
+ #arcade-ui .warmup-notice{top:43%;display:grid;grid-template-columns:82px 1fr;gap:12px;padding:20px 17px}.warmup-notice-copy{grid-column:1/3;grid-row:2;text-align:center}#arcade-ui .warmup-hero{width:82px;grid-row:1}.warmup-duration{grid-column:2;grid-row:1;justify-self:center;font-size:70px}.warmup-notice h2{font-size:25px}.warmup-notice p{font-size:16px}
+ #arcade-ui .warmup-goals{top:49%;width:calc(100vw - 28px)}.warmup-goals .objective-art{height:100px}.warmup-goals>h2{font-size:22px;margin:0 110px 10px 6px;text-align:left}.warmup-goals .objective-card h3{margin-top:7px}
+}
+@media(min-width:601px) and (min-height:681px) and (max-height:760px){#arcade-ui .game-brand{height:120px;top:-80px}#arcade-ui .brand-line{font-size:46px}#arcade-ui .brand-author{font-size:32px}}
+@media(max-height:680px) and (orientation:landscape){
+ #arcade-ui #menu-main.with-game-brand{width:300px;padding-top:155px;transform:none}
+ #arcade-ui .game-brand{height:78px;top:-4px;left:0;width:100%}#arcade-ui .brand-line{font-size:29px;letter-spacing:-1px}#arcade-ui .brand-author{font-size:23px}#arcade-ui .brand-eyes{scale:.6;top:-4px;right:10%}
+ #arcade-ui #menu-main.with-game-brand .round-action{min-height:62px;padding:6px;font-size:16px;gap:3px}#arcade-ui #menu-main.with-game-brand .round-action svg{width:24px;height:24px}
+ #arcade-ui #menu-main.with-game-brand .menu-settings-shell{margin-top:50px}#arcade-ui #menu-main.with-game-brand .settings-button{min-height:50px;padding:6px 14px;font-size:18px}#arcade-ui #menu-main.with-game-brand .settings-button svg{width:28px;height:28px}
+ #arcade-ui #menu-main.with-game-brand .menu-utility-row{margin-top:10px}#arcade-ui #menu-main.with-game-brand .menu-utility-button{min-height:44px;font-size:14px}
+ #arcade-ui #menu-main.with-game-brand .objectives-button{position:absolute;left:calc(100% + 15px);bottom:0;width:150px;min-height:48px;padding:7px;gap:6px;line-height:1.2}
+ #arcade-ui .match-clock{top:8px;min-height:55px;padding:6px 12px;min-width:150px}.match-clock-digits{font-size:26px}
+ #arcade-ui .warmup-notice{padding:16px 20px;width:620px;max-width:calc(100vw - 100px)}#arcade-ui .warmup-hero{width:94px}.warmup-notice h2{font-size:26px}.warmup-duration{font-size:60px}
+ #arcade-ui .warmup-goals{top:49%;width:calc(100vw - 120px)}.warmup-goals .objective-art{height:94px}.warmup-goals .objective-card h3{font-size:14px}.warmup-goals .objective-card p{font-size:14px;margin:0 7px 8px}.warmup-goals>h2{font-size:22px;margin-bottom:8px}
+ #arcade-ui .objectives-panel{padding:12px 16px;max-height:calc(100dvh - 16px)}.objectives-panel h2{font-size:21px;margin:5px 0 10px}.objectives-panel .objective-art{aspect-ratio:auto;height:110px}.objectives-back{margin-top:12px;min-height:44px;font-size:14px}.objective-card h3{font-size:14px}.objective-card p{font-size:14px}
+}
+@media(max-width:600px) and (max-height:550px) and (orientation:landscape){#arcade-ui #menu-main.with-game-brand{width:260px}#arcade-ui #menu-main.with-game-brand .objectives-button{width:110px;flex-direction:column;font-size:12px}#arcade-ui .brand-line{font-size:26px}}
+@media(prefers-reduced-motion:reduce){.brand-word>span,.brand-eyes>i,.brand-eyes i:after,.brand-dew i{animation:none!important}.brand-dew i{opacity:.8;transform:none}}
+
+/* Reading is a modal simulation pause; only the reader animates toward its dock. */
+#arcade-ui .objectives-shade{position:fixed;inset:0;z-index:80;background:#071c19b3;pointer-events:auto;opacity:1;transition:opacity 280ms ease}
+#arcade-ui .objectives-shade.is-closing{opacity:0}
+#arcade-ui .warmup-goals.objective-reader{top:50%;width:min(900px,calc(100vw - 28px));max-height:calc(100dvh - 28px);overflow:auto;overscroll-behavior:contain;padding:20px;border:2px solid #c7dda2;border-radius:24px;background:linear-gradient(140deg,#20483d,#102f2b);box-shadow:0 20px 80px #041912aa;pointer-events:auto;z-index:82;transform-origin:center;will-change:auto}
+#arcade-ui .objective-reader>h2{text-align:center;margin:0 0 6px;font-size:26px}
+#arcade-ui .objectives-reading-status{text-align:center;margin:0 0 16px;color:#ffe29a;font-size:16px;line-height:1.4}
+#arcade-ui .objectives-dock{position:fixed;right:max(16px,env(safe-area-inset-right));top:260px;z-index:81;display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:9px 14px;border:1px solid #d1dfa5;border-radius:12px;background:#173d32;color:#efffd2;box-shadow:0 4px 14px #05281e66;pointer-events:auto;font-size:14px;font-weight:800;cursor:pointer}
+#arcade-ui .objectives-minimize{display:flex;align-items:center;justify-content:center;gap:10px;margin:16px auto 0;padding:10px 18px;min-height:48px;max-width:100%;border:1px solid #e1d59d;border-radius:12px;background:#476e35;color:#f6ffda;font-size:16px;font-weight:800;cursor:pointer}
+#arcade-ui .objectives-minimize kbd,#arcade-ui .objectives-dock kbd{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 4px;border:1px solid #e1e9b9;border-radius:5px;background:#0f2c23;color:#f7ffd6;font-family:inherit;font-size:16px;line-height:1}
+#arcade-ui .objectives-minimize .minimize-symbol{font-size:24px;line-height:1}
+#arcade-ui .objectives-minimize:focus-visible,#arcade-ui .objectives-dock:focus-visible{outline:3px solid #ffe29a;outline-offset:3px}
+@media(max-width:600px) and (orientation:portrait){
+ #arcade-ui .warmup-goals.objective-reader{padding:16px 12px}
+ #arcade-ui .objective-reader>h2{font-size:23px;margin:0 0 6px;text-align:center}
+ #arcade-ui .objectives-reading-status{font-size:14px;margin-bottom:12px}
+ #arcade-ui .objectives-dock{top:205px;right:14px}
+ #arcade-ui .objectives-minimize{font-size:14px;padding:9px 12px;gap:8px}
+}
+@media(max-height:680px) and (orientation:landscape){
+ #arcade-ui .warmup-goals.objective-reader{padding:12px 16px}
+ #arcade-ui .objective-reader>h2{font-size:22px;margin:0 0 4px}
+ #arcade-ui .objectives-reading-status{font-size:14px;margin-bottom:10px}
+ #arcade-ui .objectives-minimize{font-size:14px;min-height:44px;margin-top:10px;padding:7px 14px}
+ #arcade-ui .objectives-dock{top:86px;right:180px}
+}
+@media(prefers-reduced-motion:reduce){#arcade-ui .objectives-shade{transition:none}}
+
+/* User correction: a freestanding cartoon wordmark, with no sign or button plate. */
+#arcade-ui .game-brand{background:none;border:0;border-radius:0;box-shadow:none;filter:none;font-family:"Comic Sans MS","Arial Rounded MT Bold",Arial,sans-serif;font-weight:700;gap:0}
+#arcade-ui .brand-line{font-size:clamp(36px,6vw,54px);letter-spacing:-3px;color:#dbff79;text-shadow:0 1px 0 #a6d844,0 2px 0 #78ae30,0 3px 0 #50822c,0 5px 0 #254b2a,0 8px 6px #06271bb0}
+#arcade-ui .brand-small{display:inline-block;transform:rotate(-8deg);font-size:.56em;color:#f2ffb5;letter-spacing:-1px}
+#arcade-ui .brand-word>span{background:linear-gradient(#f6ffbb 8%,#c6f56a 38%,#91d73d 72%,#b1eb54);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none;filter:drop-shadow(0 1px 0 #a7cd47) drop-shadow(0 2px 0 #507d28) drop-shadow(0 2px 0 #28572a) drop-shadow(0 4px 3px #082f1b90);border-radius:0}
+#arcade-ui .brand-word>span:nth-child(3n+1){rotate:-5deg;translate:0 -2px}#arcade-ui .brand-word>span:nth-child(3n+2){rotate:4deg;translate:0 1px}
+#arcade-ui .brand-author{font-family:inherit;font-weight:700;font-size:clamp(26px,4.5vw,36px);letter-spacing:-1px;rotate:-3deg;color:#ffde76;text-shadow:0 1px 0 #f1bd4e,0 2px 0 #c08b34,0 4px 0 #77532a,0 7px 5px #06271b99}
+#arcade-ui .brand-eyes{right:9%;top:0;rotate:10deg;scale:.8;filter:drop-shadow(0 3px 2px #102e2780)}
+#arcade-ui .brand-dew{display:none}
+@media(max-width:600px) and (orientation:portrait){#arcade-ui .brand-line{font-size:39px;letter-spacing:-2.5px}#arcade-ui .brand-author{font-size:30px}#arcade-ui .brand-eyes{right:10%!important;top:1px!important;scale:.65}}
+@media(max-height:680px) and (orientation:landscape){#arcade-ui .brand-line{font-size:31px;letter-spacing:-2px}#arcade-ui .brand-author{font-size:24px}#arcade-ui .brand-eyes{scale:.45;top:-5px;right:8%}}
+/* Keep the persistent U control below the existing camera switch on every layout. */
+@media(max-width:600px) and (orientation:portrait){#arcade-ui .objectives-dock{top:236px}}
+
+/* Let the letters carry the title; no detached sign ornament remains. */
+#arcade-ui .game-brand .brand-eyes{display:none!important}
+
+/* Approved illustrated title: actual 3D cartoon art, no backing plate. */
+#arcade-ui #menu-main.with-game-brand{padding-top:0;transform:none;gap:0}
+#arcade-ui .game-brand{position:relative;left:0;top:0;width:100%;height:auto;aspect-ratio:2.5;margin:0 0 140px;display:block;flex:none;background:none;border:0;box-shadow:none;filter:drop-shadow(0 4px 3px #0c2b2945);line-height:0}
+#arcade-ui .game-title-art{display:block;width:100%;height:auto;aspect-ratio:2.5;object-fit:contain;pointer-events:none;user-select:none}
+#arcade-ui #menu-main.with-game-brand .round-action{min-height:88px;padding:12px 10px;gap:6px;font-size:21px}
+#arcade-ui #menu-main.with-game-brand .round-action svg{width:32px;height:32px}
+#arcade-ui #menu-main.with-game-brand .menu-settings-shell{margin-top:90px}
+#arcade-ui #menu-main.with-game-brand .settings-button{min-height:67px;padding:10px 18px;font-size:24px}
+#arcade-ui #menu-main.with-game-brand .settings-button svg{width:32px;height:32px}
+@media(max-width:600px) and (orientation:portrait){
+ #arcade-ui .game-brand{margin-bottom:100px}
+ #arcade-ui #menu-main.with-game-brand .round-action{min-height:100px;font-size:20px}
+ #arcade-ui #menu-main.with-game-brand .menu-settings-shell{margin-top:86px}
+}
+@media(min-height:800px) and (min-width:601px){
+ #arcade-ui #menu-main.with-game-brand{width:560px}
+ #arcade-ui .game-brand{margin-bottom:155px}
+ #arcade-ui #menu-main.with-game-brand .round-action{min-height:100px;font-size:24px}
+ #arcade-ui #menu-main.with-game-brand .menu-settings-shell{margin-top:105px}
+}
+@media(max-height:680px) and (orientation:landscape){
+ #arcade-ui #menu-main.with-game-brand{width:300px;padding-top:155px}
+ #arcade-ui .game-brand{position:fixed;left:14px;top:155px;width:min(290px,calc((100vw - 320px)/2 - 28px));height:auto;margin:0;aspect-ratio:2.5}
+ #arcade-ui #menu-main.with-game-brand .round-action{min-height:62px;padding:6px;gap:3px;font-size:16px}
+ #arcade-ui #menu-main.with-game-brand .round-action svg{width:24px;height:24px}
+ #arcade-ui #menu-main.with-game-brand .menu-settings-shell{margin-top:50px}
+ #arcade-ui #menu-main.with-game-brand .settings-button{min-height:50px;padding:6px 14px;font-size:18px}
+ #arcade-ui #menu-main.with-game-brand .settings-button svg{width:28px;height:28px}
+}

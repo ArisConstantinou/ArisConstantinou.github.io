@@ -1,11 +1,13 @@
 import {accuracy,matchStandings,readLeaderboard,saveLeaderboardRound,SCORE_RULE} from './arcade-leaderboard.js';
 import {actorColour} from './arcade-colours.js';
+import {installRoundPresentation} from './arcade-round-presentation.js';
 export function countdownValue(state){return !state.training&&state.phase==='countdown'&&state.intro>0&&state.intro<=5?String(Math.max(1,Math.ceil(state.intro-1e-8))):null;}
 const clock=seconds=>`${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;
 export function installRoundUI(game){
  const doc=game.ui.ownerDocument,el=(tag,text,className)=>{const node=doc.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
  const overlay=el('div',undefined,'battle-countdown');overlay.id='battle-countdown';overlay.hidden=true;overlay.setAttribute('role','status');overlay.setAttribute('aria-live','polite');overlay.setAttribute('aria-atomic','true');
- const number=el('strong','5');overlay.append(number);game.ui.append(overlay);
+ const number=el('strong','5');overlay.append(el('span','Η ΜΑΧΗ ΞΕΚΙΝΑ'),number);game.ui.append(overlay);
+ const presentation=installRoundPresentation(game);
  const results=el('div',undefined,'results-leaderboard');game.$('result-copy').after(results);
  const historyButton=el('button','ΡΕΚΟΡ ΣΥΣΚΕΥΗΣ','small-result-button');historyButton.type='button';const actions=el('div',undefined,'results-actions');actions.append(game.$('replay-button'),historyButton,game.$('result-settings'));game.$('result-panel').append(actions);
  const panel=el('section',undefined,'leaderboard-panel');panel.id='leaderboard-panel';panel.hidden=true;panel.setAttribute('aria-label','Πίνακες κατάταξης');
@@ -47,6 +49,7 @@ export function installRoundUI(game){
  function close(){panel.hidden=true;if(game.mode==='result')game.$('result-panel').hidden=false;else game.$('menu-main').hidden=false;}
  matchTab.onclick=()=>{tab='match';paint();};recordsTab.onclick=()=>{tab='records';paint();};back.onclick=close;historyButton.onclick=()=>{open();tab='records';paint();};
  function update(){
+  presentation.update();
   if(round!==game.state){round=game.state;last=null;}
   const visible=game.running&&!game.layoutEditing,value=visible?countdownValue(game.state):null;overlay.hidden=!value;
   const plainWarmup=!game.state.training&&game.state.phase==='countdown'&&!game.state.actors[0].ko&&!game.layoutEditing,status=game.$('round-status');status.classList.toggle('plain-warmup',plainWarmup);
@@ -62,5 +65,5 @@ export function installRoundUI(game){
   game.$('result-title').textContent=game.state.status==='won'?'ΝΙΚΗ!':'ΤΕΛΟΣ ΓΥΡΟΥ';game.$('result-copy').textContent=`${you?.rank??'—'}η θέση · ${you?.points??0} πόντοι · ${clock(game.state.time)} γύρου`;
   try{const saved=saveLeaderboardRound(globalThis.localStorage,game.state,game.settings.playerName);if(saved.reason==='storage')results.append(el('p','Το ρεκόρ δεν αποθηκεύτηκε στη συσκευή.','leaderboard-note'));}catch{}
  }
- return {update,battle,showResults,open,close,panel};
+ return {update,battle,showResults,open,close,panel,presentation};
 }

@@ -147,3 +147,12 @@ test('the approved automatic shot remains a physical projectile that can be dodg
  for(let i=0;i<45;i++)step(fixture.state,{},1/60);
  assert.equal(fixture.state.stats.hits,0);assert.equal(fixture.state.bullets.length,0);
 });
+
+
+test('wall destination selection never inherits automatic shooting intent, while ordinary airborne fire remains available',()=>{
+ const f=arena();f.actor.height=f.target.height=1.2;
+ f.actor.flight={kind:'wallHold',y:1.2,wall:{id:'test-wall',nx:1,nz:0}};
+ noFire(resolve(f));
+ f.actor.flight={kind:'jump',y:1.2,vy:2,vx:0,vz:-2};
+ assert.equal(resolve(f).fire,true,'leaving the held wall restores normal airborne automatic fire');
+});

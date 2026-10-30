@@ -7,6 +7,8 @@ const wrap=yaw=>Math.atan2(Math.sin(yaw),Math.cos(yaw));
 export function actorVisualFacing(actor,{manualFire=false,autoFire=false,currentYaw=0,motionYaw=null}={}){
  const current=wrap(finite(currentYaw)),face=wrap(finite(actor?.face,current));
  if(!actor||actor.ko||actor.eliminated||actor.dizzyTime>0||actor.knockUp>0)return {yaw:current,aiming:false};
+ if(actor.flight?.kind==='wallHold')return {yaw:Math.atan2(actor.flight.wall.nx,actor.flight.wall.nz),aiming:false};
+ if(actor.flight?.kind==='wallJump')return {yaw:Math.atan2(actor.flight.vx,actor.flight.vz),aiming:false};
  if(actor.sabotageId)return {yaw:face,aiming:false};
  const firing=manualFire||autoFire||actor.shot>0||actor.kick>0||!!actor.catapultId||actor.airSpit>0||actor.flight?.queued;
  if(actor.id==='player'&&Number.isFinite(motionYaw)&&!firing)return {yaw:wrap(motionYaw),aiming:false};

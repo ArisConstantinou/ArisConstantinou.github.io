@@ -1,3 +1,4 @@
+@import './arcade-round-presentation.css';
 /* The frog grips align with each real button rim; the images never intercept input. */
 #arcade-ui #menu-main{padding-top:clamp(100px,28vw,145px);gap:clamp(86px,23vw,115px);width:min(500px,calc(100vw - 48px))}
 .menu-round-shell,.menu-settings-shell{position:relative;width:100%;isolation:isolate}

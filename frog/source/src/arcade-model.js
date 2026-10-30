@@ -1,16 +1,17 @@
+import {ammunitionCapacity,characterProfile,aerialAttack,CHARACTER_IDS} from './arcade-character-classes.js';
 import {freshStats,cleanStats} from './arcade-leaderboard.js';
 import {AIR_RULES,stepFlight,canAirVolley,landingSurfaces} from './arcade-air-movement.js';
 // FROG arcade rules. Rendering-free and deterministic for repeatable tests.
-import {ARTILLERY,CATAPULTS,createCatapults,interactCatapult,releaseCatapult,throwStone,stepArtillery} from './arcade-artillery.js';
+import {ARTILLERY,CATAPULTS,createCatapults,interactCatapult,catapultSeatPoint,releaseCatapult,throwStone,stepArtillery} from './arcade-artillery.js';
 import {BASES,ARENA_ROCKS,resolveArenaMove,hasWallSight,coverAt,terrainSpeed,navigateTo,insideHome} from './arcade-bases.js';
 import {PROJECTILE,normalizeAim,worldRay,projectileLaunch,projectilePoint,traceProjectile,projectileOrigin,projectileGround,projectileMouth} from './arcade-projectiles.js';
-import {FROG_BODY,actorBodiesOverlapHeight} from './arcade-actor-bounds.js';
+import {FROG_BODY,frogBody,actorBodiesOverlapHeight} from './arcade-actor-bounds.js';
 import {resetBotAim,planBotShot} from './arcade-bot-combat.js';
 import {ARENA_RADIUS,ARENA_MOVE_RADIUS,BATTLEGROUND_SWARMS} from './arcade-battleground.js';
 import {GUARD_BODY,createGuards,guardActive,guardOverlapsActorHeight,hitGuard,stepGuards,restoreGuards,removeBaseGuards} from './arcade-guards.js';
 export {setProjectileWorld,projectileOrigin} from './arcade-projectiles.js';
 
-export const ARCADE_VERSION = '4.3.23';
+export const ARCADE_VERSION = '4.4.0';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
 export const RULES = Object.freeze({radius:ARENA_RADIUS,capacity:90,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:2.4,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});
@@ -36,15 +37,15 @@ const baseGeometry=b=>BASES.find(g=>g.id===b?.id);
 // Resolve every scenery contact together, so sliding past a corner or rock
 // cannot put the frog back inside a different solid.
 export function moveBody(a,dx,dz,s=null){
- const next=resolveArenaMove(a,dx,dz,{arenaRadius:ARENA_MOVE_RADIUS,ground:(x,z)=>s?projectileGround(s,x,z):0});a.x=next.x;a.z=next.z;
+ const next=resolveArenaMove(a,dx,dz,{arenaRadius:ARENA_MOVE_RADIUS,ground:(x,z)=>s?projectileGround(s,x,z):0,catapults:s?.catapults});a.x=next.x;a.z=next.z;
 }
 const overlappingHeight=(s,a,b,padding=0)=>b.kind==='guard'?guardOverlapsActorHeight(b,a,(x,z)=>projectileGround(s,x,z),padding):actorBodiesOverlapHeight(a,b,{groundA:projectileGround(s,a.x,a.z),groundB:projectileGround(s,b.x,b.z),padding});
 // Small symmetric body contacts keep active frogs distinct. Scenery still
 // constrains every correction; a neighbour can never push a frog through a wall.
 export function resolveActorContacts(s){
- const actors=s.actors.filter(a=>!a.ko&&!a.eliminated),minimum=FROG_BODY.movementRadius*2;
+ const actors=s.actors.filter(a=>!a.ko&&!a.eliminated);
  for(let pass=0;pass<3;pass++)for(let i=0;i<actors.length;i++)for(let j=i+1;j<actors.length;j++){
-  const a=actors[i],b=actors[j],dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz);
+  const a=actors[i],b=actors[j],minimum=frogBody(a).movementRadius+frogBody(b).movementRadius,dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz);
   if(d>=minimum-1e-5||!overlappingHeight(s,a,b))continue;
   const movableA=!a.catapultId,movableB=!b.catapultId,total=Number(movableA)+Number(movableB);if(!total)continue;
   const nx=d>1e-7?dx/d:1,nz=d>1e-7?dz/d:0,share=(minimum-d+1e-4)/total;
@@ -104,7 +105,7 @@ export function canKick(s,a,targetId=undefined){
  return kickAvailability(s,a,targetId).state==='ready';
 }
 export function collect(s,a){
- if(a.ko||a.eliminated||a.dizzyTime>0||a.catapultId||a.tongue>0||a.ammo>=RULES.capacity||a.height>RULES.pickupRange)return false;
+ if(a.ko||a.eliminated||a.dizzyTime>0||a.catapultId||a.tongue>0||a.ammo>=ammunitionCapacity(a)||a.height>RULES.pickupRange)return false;
  const home=ownBase(s,a),stock=baseGeometry(home)?.stock;
  if(home&&!home.destroyed&&stock&&distance(a,stock)<=RULES.pickupRange&&clearPickupPath(a,stock)){
   a.tongue=RULES.tongueInterval;a.ammo++;
@@ -132,7 +133,7 @@ function projectileImpact(s,bullet,contact){
 }
 export function shoot(s,a){
  if(a.ko||a.eliminated||a.dizzyTime>0||a.hit>0||a.catapultId||a.knockUp>0||a.kick>0||a.shot>0||(a.ammo<=0&&!(s.training&&a.id==='player'))||(a.id!=='player'&&s.phase!=='battle'))return false;
- a.shot=RULES.shotInterval;if(s.training&&a.id==='player')a.ammo=RULES.capacity;else a.ammo--;a.spawnShield=0;a.revealedTime=RULES.revealSeconds;
+ a.shot=RULES.shotInterval;if(s.training&&a.id==='player')a.ammo=ammunitionCapacity(a);else a.ammo--;a.spawnShield=0;a.revealedTime=RULES.revealSeconds;
  rememberAimFacing(a);
  const launch=projectileLaunch(s,a),bullet={id:s.nextId++,owner:a.id,scoredShot:s.phase==='battle',...launch,life:RULES.projectileLifetime};
  // Sweep source to muzzle so nearby solids cannot be skipped by its offset.
@@ -143,19 +144,40 @@ export function shoot(s,a){
 }
 export function shootAirVolley(s,a){
  if(!canAirVolley(s,a)||a.hit>0||a.kick>0)return false;
+ const ability=aerialAttack(a);
+ if(ability&&['bodySlam','airKick'].includes(ability.kind)){
+  a.flight.fired=true;a.flight.queued=false;a.spawnShield=0;a.revealedTime=RULES.revealSeconds;
+  const duration=ability.kind==='bodySlam'?2/3:ability.double?.6:8/15;
+  a.classAction={kind:ability.kind,clip:ability.kind==='bodySlam'?'BodySlam':ability.double?'DoubleKick':'AirKick',duration,remaining:duration,damage:ability.damage,settled:false};
+  if(ability.kind==='bodySlam'){a.flight.vy=-24;a.flight.vx*=.55;a.flight.vz*=.55;}else a.flight.vy=Math.min(a.flight.vy,-14);
+  s.events.push({type:'classAttack',id:a.id,kind:ability.kind,double:ability.double});return true;
+ }
  a.flight.fired=true;a.flight.queued=false;
- const origin=projectileMouth(s,a),yaw=Number.isFinite(a.poseAimYaw)?a.poseAimYaw:a.face||0,right={x:Math.cos(yaw),z:-Math.sin(yaw)};
- if(s.training&&a.id==='player')a.ammo=RULES.capacity;else a.ammo-=3;
+ const origin=projectileMouth(s,a),plan=aerialAttack(a),count=plan?.count||3,yaw=Number.isFinite(a.poseAimYaw)?a.poseAimYaw:a.face||0,right={x:Math.cos(yaw),z:-Math.sin(yaw)};
+ if(s.training&&a.id==='player')a.ammo=ammunitionCapacity(a);else a.ammo-=count;a.lastVolleyDouble=a.characterClass==='medium'&&a.flight.jumps>=2;
  a.shot=RULES.shotInterval;a.spawnShield=0;a.revealedTime=RULES.revealSeconds;
- for(const side of [-1,0,1]){
-  const direction=normalizeAim(right.x*AIR_RULES.spread*side,-1,right.z*AIR_RULES.spread*side);
+ const directions=count===8?Array.from({length:8},(_,i)=>normalizeAim(Math.sin(i*Math.PI/4)*.85,-1,Math.cos(i*Math.PI/4)*.85)):[-1,0,1].map(side=>normalizeAim(right.x*AIR_RULES.spread*side,-1,right.z*AIR_RULES.spread*side));
+ for(const direction of directions){
   const bullet={id:s.nextId++,owner:a.id,scoredShot:s.phase==='battle',...origin,dx:direction.x,dy:direction.y,dz:direction.z,followGround:false,life:RULES.projectileLifetime,airVolley:true};
   const contact=traceProjectile(s,bullet,.16,{obstacles:OBSTACLES,ignoreId:a.id,hitActors:s.phase==='battle',arenaRadius:RULES.radius-.2});
   if(contact)projectileImpact(s,bullet,contact);else{Object.assign(bullet,projectilePoint(s,bullet,.16));s.bullets.push(bullet);}
  }
- s.events.push({type:'shot',id:a.id,count:3,airVolley:true});if(a.id==='player')s.stats.shots+=3;if(s.phase==='battle'&&s.scoreboard?.[a.id])s.scoreboard[a.id].shots+=3;return true;
+ s.events.push({type:'shot',id:a.id,count,airVolley:true});if(a.id==='player')s.stats.shots+=count;if(s.phase==='battle'&&s.scoreboard?.[a.id])s.scoreboard[a.id].shots+=count;return true;
 }
 
+function settleClassAttack(s,a,slam=false){
+ const action=a.classAction;if(!action||action.settled||s.phase!=='battle')return;if(slam){action.settled=true;action.impactRemaining=action.remaining;}
+ const candidates=[...s.actors,...(s.guards||[])].filter(t=>t.id!==a.id&&!t.ko&&!t.eliminated&&(t.kind!=='guard'||guardActive(t)&&t.owner!==a.id));
+ for(const t of candidates){
+  const dx=t.x-a.x,dz=t.z-a.z,d=Math.hypot(dx,dz),reach=slam?2.8:2.65;
+  if(d>reach||!clearPickupPath(a,t))continue;
+  const dy=projectileGround(s,t.x,t.z)+t.height-projectileGround(s,a.x,a.z)-a.height;
+  if(Math.abs(dy)>(slam?1:1.6))continue;
+  if(!slam&&d>.01&&(dx*a.aimX+dz*a.aimZ)/d<.15)continue;
+  const direction=norm(dx,dz),contact=hit(s,t,{owner:a.id,dx:direction.x,dz:direction.z,damage:action.damage,force:slam?17:15});if(contact&&!slam){action.settled=true;break;}
+ }
+ if(slam)s.events.push({type:'classSlam',id:a.id,x:a.x,z:a.z,strength:action.damage});
+}
 function stopSabotage(s,a,reason='interrupted'){
  for(const b of s.bases||[]){if(b.attackerId!==a.id||b.destroyed)continue;if(b.progress>0)s.events.push({type:'sabotageInterrupted',baseId:b.id,id:b.owner,by:a.id,reason});b.progress=0;b.attackerId=null;}
  a.sabotageId=null;
@@ -170,7 +192,7 @@ export function hit(s,a,b){
  if(a?.kind==='guard')return hitGuard(s,a,b);
  if(a.ko||a.eliminated||a.invuln>0||a.spawnShield>0)return false;
  const startHeight=Math.max(0,a.height),startFloor=Math.min(startHeight,Math.max(0,finite(a.support?.y,projectileGround(s,a.x,a.z))-projectileGround(s,a.x,a.z))),direction=norm(finite(b.dx),finite(b.dz)),force=clamp(finite(b.force,5),0,30);let damage=clamp(Math.floor(finite(b.damage,1)),1,9);
- stopSabotage(s,a,'hit');a.sabotageRecovery=RULES.sabotageRecovery;resetBotAim(a);a.aiShotReady=Math.max(a.aiShotReady,.4);
+ a.classAction=null;stopSabotage(s,a,'hit');a.sabotageRecovery=RULES.sabotageRecovery;resetBotAim(a);a.aiShotReady=Math.max(a.aiShotReady,.4);
  a.hit=.23;a.invuln=.12;a.impulseX=direction.x*force;a.impulseZ=direction.z*force;a.revealedTime=RULES.revealSeconds;
  if(a.dizzyTime<=0){const hits=Math.min(damage,RULES.dizzyHits-a.dizzy);a.dizzy+=hits;damage-=hits;if(a.dizzy>=RULES.dizzyHits){a.dizzy=RULES.dizzyHits;a.dizzyTime=RULES.dizzySeconds;a.finishHits=0;a.hop=0;if(a.knockUp<=0&&!a.flight&&!a.support)a.height=0;releaseCatapult(s,a);s.events.push({type:'dizzy',id:a.id});}}
  if(a.dizzyTime>0&&damage>0)a.finishHits=Math.min(RULES.finishHits,a.finishHits+damage);
@@ -190,7 +212,7 @@ function settleKick(s,a){
  // Recheck geometry while waiting, then apply exactly one ordinary hit.
  if(t.invuln>0&&a.kick>0)return;
  a.kickPending=false;
- const d=norm(t.x-a.x,t.z-a.z);hit(s,t,{owner:a.id,dx:d.x,dz:d.z,damage:1,force:14});
+ const d=norm(t.x-a.x,t.z-a.z);hit(s,t,{owner:a.id,dx:d.x,dz:d.z,damage:a.characterClass==='heavy'?2:1,force:a.characterClass==='heavy'?17:14});
 }
 export function sabotageTarget(s,a){
  if(a.ko||a.eliminated||a.catapultId)return null;
@@ -221,7 +243,7 @@ function updateSabotage(s,requests,dt){
   if(b.progress>=RULES.sabotageSeconds-1e-8)destroyBase(s,b,holder);
  }
 }
-function navigateIntent(a,goal,extra={}){const move=navigateTo(a,goal);return {mx:move.x,mz:move.z,aiming:false,...extra};}
+function navigateIntent(s,a,goal,extra={}){const move=navigateTo(a,goal,{catapults:s.catapults});return {mx:move.x,mz:move.z,aiming:false,...extra};}
 const resetEnemyAim=resetBotAim;
 function combatIntent(s,a,target){
  const d=distance(a,target),to=norm(target.x-a.x,target.z-a.z);
@@ -232,7 +254,7 @@ function combatIntent(s,a,target){
   fire=planBotShot(a,{targetId:target.id,x:to.x,z:to.z,vertical,distance:d,moving:Math.hypot(a.hopX,a.hopZ)>.1,origin:source,random:()=>rng(s)});
  }else resetEnemyAim(a);
  let mx=0,mz=0;
- if(d>11){const move=navigateTo(a,target);mx=move.x;mz=move.z;}
+ if(d>11){const move=navigateTo(a,target,{catapults:s.catapults});mx=move.x;mz=move.z;}
  else{const chase=d<6?-1:0;mx=to.x*chase+to.z*a.decision*.45;mz=to.z*chase-to.x*a.decision*.45;}
  const closeKick=d<RULES.kickRange&&a.kickCooldown<=0&&overlappingHeight(s,a,target,.1);
  // A short physical kick needs planted feet; retreating throughout its windup
@@ -261,8 +283,8 @@ export function rivalIntent(s,a){
   const c=s.catapults.find(c=>c.id===a.catapultId),to=norm(target.x-a.x,target.z-a.z);
   return {aiming:true,ax:to.x,az:to.z,throwStone:c?.loaded&&a.catapultAim<=0?{x:target.x,z:target.z}:undefined};
  }
- if(a.ammo<RULES.capacity*.1)a.refilling=true;
- if(a.ammo>=RULES.capacity*.8)a.refilling=false;
+ if(a.ammo<ammunitionCapacity(a)*.1)a.refilling=true;
+ if(a.ammo>=ammunitionCapacity(a)*.8)a.refilling=false;
  if(a.refilling&&home&&!home.destroyed){
   if(distance(a,homeGeometry.stock)<=RULES.pickupRange-.35&&clearPickupPath(a,homeGeometry.stock)){
    if(target&&d<5&&a.ammo>0)return combatIntent(s,a,target);
@@ -270,13 +292,13 @@ export function rivalIntent(s,a){
    return {};
   }
   resetEnemyAim(a);
-  return navigateIntent(a,homeGeometry.stock);
+  return navigateIntent(s,a,homeGeometry.stock);
  }
  // A public storage alarm gives a reason to return home, without revealing hidden frogs.
  if(home?.attackerId&&home.attackerId!==a.id){
   const invader=seen.find(b=>b.id===home.attackerId);
   if(invader)return combatIntent(s,a,invader);
-  resetEnemyAim(a);return navigateIntent(a,homeGeometry.stock);
+  resetEnemyAim(a);return navigateIntent(s,a,homeGeometry.stock);
  }
  const candidate=s.bases.find(b=>b.id===a.raidId&&!b.destroyed&&b.owner!==a.id);
  if(!candidate){
@@ -289,7 +311,7 @@ export function rivalIntent(s,a){
  if(defendingGuard&&distance(a,raidStock)<=RULES.sabotageRange+1){
   a.machineSeeking=false;
   if(clearPickupPath(a,defendingGuard))return combatIntent(s,a,defendingGuard);
-  resetEnemyAim(a);return navigateIntent(a,defendingGuard);
+  resetEnemyAim(a);return navigateIntent(s,a,defendingGuard);
  }
  if(raid&&distance(a,raidStock)<=RULES.sabotageRange-.2&&(a.sabotageId===raid.id||!target||d>6.5)){
   resetEnemyAim(a);a.machineSeeking=false;return {sabotage:true,aiming:false};
@@ -299,12 +321,12 @@ export function rivalIntent(s,a){
   if(a.machineTimer<=0&&!a.machineSeeking){a.machineSeeking=!!machine&&d>11&&rng(s)<.35;a.machineTimer=8;}
   if(a.machineSeeking&&machine){
    if(d<7){a.machineSeeking=false;a.machineTimer=12;}
-   else{resetEnemyAim(a);return navigateIntent(a,{x:machine.x,z:machine.z+2.2},{interactCatapult:distance(a,machine)<=ARTILLERY.interactionRange&&hasWallSight(a,machine)});}
+   else{resetEnemyAim(a);return navigateIntent(s,a,{x:machine.x,z:machine.z+2.2},{interactCatapult:distance(a,machine)<=ARTILLERY.interactionRange&&hasWallSight(a,machine)});}
   }
   return combatIntent(s,a,target);
  }
  resetEnemyAim(a);
- if(raidStock)return navigateIntent(a,raidStock);
+ if(raidStock)return navigateIntent(s,a,raidStock);
  return {};
 }
 function respawn(s,a){
@@ -315,14 +337,14 @@ function respawn(s,a){
  // never materialize inside an invader and cancel a channel by pushing it away.
  const others=s.actors.filter(b=>b!==a&&!b.ko&&!b.eliminated),candidates=[];
  for(const x of [0,-.8,.8,-1.6,1.6])for(const z of [0,-.8,.8,-1.6,1.6]){
-  const p={x:geometry.spawn.x+x,z:geometry.spawn.z+z};
-  if(!insideHome(geometry,p,FROG_BODY.movementRadius))continue;
-  const valid=resolveArenaMove(p,0,0,{arenaRadius:ARENA_MOVE_RADIUS});if(distance(p,valid)>.01)continue;
-  if(others.some(b=>distance(p,b)<FROG_BODY.movementRadius*2+.03))continue;
+  const p={x:geometry.spawn.x+x,z:geometry.spawn.z+z,characterClass:a.characterClass};
+  if(!insideHome(geometry,p,frogBody(a).movementRadius))continue;
+  const valid=resolveArenaMove(p,0,0,{arenaRadius:ARENA_MOVE_RADIUS,catapults:s.catapults,ground:(x,z)=>projectileGround(s,x,z)});if(distance(p,valid)>.01)continue;
+  if(others.some(b=>distance(p,b)<frogBody(a).movementRadius+frogBody(b).movementRadius+.03))continue;
   candidates.push({...p,cost:x*x+z*z});
  }
  const position=candidates.sort((b,c)=>b.cost-c.cost)[0]||geometry.spawn;
- const fresh=actor(a.id,position.x,position.z,geometry.spawnHeading);Object.assign(a,fresh,{spawnShield:RULES.respawnProtectionSeconds});
+ const fresh=actor(a.id,position.x,position.z,geometry.spawnHeading);fresh.ammo=ammunitionCapacity(a);Object.assign(a,fresh,{classAction:null,spawnShield:RULES.respawnProtectionSeconds});
  s.events.push({type:'respawn',id:a.id,x:a.x,z:a.z});
 }
 function evaluateWinner(s){
@@ -341,6 +363,8 @@ export function step(s,input={},dt=1/60){
    releaseCatapult(s,a);moveBody(a,a.impulseX*dt,a.impulseZ*dt,s);a.impulseX*=Math.exp(-dt*3);a.impulseZ*=Math.exp(-dt*3);a.height=Math.max(0,a.height-dt*1.6);
    if(!a.eliminated&&!ownBase(s,a)?.destroyed){a.respawnTime=Math.max(0,a.respawnTime-dt);if(a.respawnTime<1e-8)respawn(s,a);}continue;
   }
+  if(a.classAction){a.classAction.remaining=Math.max(0,a.classAction.remaining-dt);if(a.classAction.kind==='airKick'&&a.classAction.remaining<=a.classAction.duration-.18)settleClassAttack(s,a);if(a.classAction.remaining===0&&a.classAction.kind!=='bodySlam')a.classAction=null;}
+  a.catapultAction=Math.max(0,(a.catapultAction||0)-dt);
   if(a.kick>0){a.kick=Math.max(0,a.kick-dt);if(a.kickPending&&a.kick<.30)settleKick(s,a);}
   if(a.dizzyTime>0){a.dizzyTime=Math.max(0,a.dizzyTime-dt);if(a.dizzyTime===0){a.dizzy=0;a.finishHits=0;a.invuln=.55;s.events.push({type:'recover',id:a.id});}}
   const c=a.id==='player'?input:rivalIntent(s,a);
@@ -353,16 +377,18 @@ export function step(s,input={},dt=1/60){
   if(a.poseAiming)rememberAimFacing(a);
   if(moving){a.face=Math.atan2(mx,mz);if(!a.aiming&&a.kick<=0){const n=norm(mx,mz);a.aimX=n.x;a.aimY=0;a.aimZ=n.z;a.aim3D=false;}}
   const flightHandled=stepFlight(s,a,c,dt,{ground:(x,z)=>projectileGround(s,x,z),move:(dx,dz)=>moveBody(a,dx,dz,s),volley:()=>shootAirVolley(s,a),mount:()=>interactCatapult(s,a)});
+  if(!a.flight&&a.classAction?.kind==='bodySlam'&&!a.classAction.settled){settleClassAttack(s,a,true);a.idle=Math.max(a.idle,.18);}
+  if(a.classAction?.remaining===0)a.classAction=null;
   if(!a.flight&&a.height<1&&s.phase==='battle'&&c.sabotage&&!moving&&!c.fire&&!c.kick&&!c.throwStone){const target=sabotageTarget(s,a);if(target)sabotageRequests.set(a.id,target.id);}
   if(a.dizzyTime<=0){
    collect(s,a);
    if(c.kick&&!flightHandled)kick(s,a,c.kickTargetId);if(c.fire&&!a.flight?.queued&&!c.airVolley)shoot(s,a);if(c.throwStone)throwStone(s,a,c.throwStone);
-   if(a.catapultId){const machine=s.catapults.find(c=>c.id===a.catapultId);if(machine){machine.aimX=a.aimX;machine.aimZ=a.aimZ;a.x=machine.x;a.z=machine.z;a.impulseX=a.impulseZ=0;}}
+   if(a.catapultId){const machine=s.catapults.find(c=>c.id===a.catapultId);if(machine){machine.aimX=a.aimX;machine.aimZ=a.aimZ;Object.assign(a,catapultSeatPoint(machine,a));a.impulseX=a.impulseZ=0;}}
    if(!flightHandled&&a.knockUp<=0&&a.hop<=0&&a.idle<=0&&moving){a.hop=RULES.hopDuration;a.hopSpeed=clamp(len,0,1);s.events.push({type:'hop',id:a.id,x:a.x,z:a.z,strength:a.hopSpeed});}
    if(!flightHandled&&a.knockUp<=0&&a.hop>0){
-    a.hop=Math.max(0,a.hop-dt);const speed=(a.id==='player'?8.8:6.2)*terrainSpeed(a),scale=moving?speed/Math.max(1,len):0;
+    a.hop=Math.max(0,a.hop-dt);const speed=(a.id==='player'?8.8:6.2)*terrainSpeed(a)*characterProfile(a).move,scale=moving?speed/Math.max(1,len):0;
     a.hopX=mx*scale;a.hopZ=mz*scale;moveBody(a,a.hopX*dt,a.hopZ*dt,s);
-    a.height=Math.sin((1-a.hop/RULES.hopDuration)*Math.PI)*(.35+.32*a.hopSpeed);
+    a.height=Math.sin((1-a.hop/RULES.hopDuration)*Math.PI)*(.35+.32*a.hopSpeed)*characterProfile(a).jump;
     if(a.hop===0){a.height=0;a.hopX=0;a.hopZ=0;a.idle=RULES.landingDuration;s.events.push({type:'land',id:a.id,x:a.x,z:a.z});}
    }
   }
@@ -372,10 +398,10 @@ export function step(s,input={},dt=1/60){
    a.knockUp=Math.max(0,a.knockUp-dt);const progress=1-a.knockUp/a.knockUpDuration;
    a.height=finite(a.knockUpFloor)+(a.knockUpStart-finite(a.knockUpFloor))*(1-progress)+Math.sin(progress*Math.PI)*a.knockUpPeak;
    let landing=null;
-   if(projectileGround(s,a.x,a.z)+a.height<=beforeY){landing=landingSurfaces(s,a.x,a.z,(x,z)=>projectileGround(s,x,z)).filter(p=>beforeY>=p.y-.02&&projectileGround(s,a.x,a.z)+a.height<=p.y+.001).sort((p,q)=>q.y-p.y)[0];if(landing){a.knockUp=0;a.support=landing.id?landing:null;a.height=Math.max(0,landing.y-projectileGround(s,a.x,a.z));}}
+   if(projectileGround(s,a.x,a.z)+a.height<=beforeY){landing=landingSurfaces(s,a.x,a.z,(x,z)=>projectileGround(s,x,z),a).filter(p=>beforeY>=p.y-.02&&projectileGround(s,a.x,a.z)+a.height<=p.y+.001).sort((p,q)=>q.y-p.y)[0];if(landing){a.knockUp=0;a.support=landing.id?landing:null;a.height=Math.max(0,landing.y-projectileGround(s,a.x,a.z));}}
    if(a.knockUp===0){if(!landing&&a.height>.03)a.flight={kind:'fall',y:projectileGround(s,a.x,a.z)+a.height,vy:-1,vx:a.impulseX,vz:a.impulseZ,jumps:1,launchVelocity:16,time:0,queued:false,fired:false};else if(!landing)a.height=0;a.knockUpStart=0;a.knockUpFloor=0;a.idle=RULES.landingDuration;s.events.push({type:'land',id:a.id,x:a.x,z:a.z,stone:true,strength:a.knockUpPeak});}
   }
-  a.load+=(a.ammo/RULES.capacity-a.load)*(1-Math.exp(-dt*12));
+  a.load+=(a.ammo/ammunitionCapacity(a)-a.load)*(1-Math.exp(-dt*12));
  }
  resolveActorContacts(s);
  for(const b of s.bullets){
@@ -403,8 +429,9 @@ export function loadRound(raw){
   for(let i=0;i<3;i++){
    const old=v.actors[i],a=s.actors[i];if(old?.id!==a.id||!Number.isFinite(old.x)||!Number.isFinite(old.z))return null;
    for(const key of Object.keys(a))if(typeof a[key]==='number')a[key]=clamp(finite(old[key],a[key]),-1e4,1e4);
+   if(CHARACTER_IDS.includes(old.characterClass))a.characterClass=old.characterClass;
    const home=ownBase(s,a),eliminated=home.destroyed,ko=eliminated||old.ko===true;
-   Object.assign(a,{ko,eliminated,respawnTime:ko&&!eliminated?clamp(finite(old.respawnTime,RULES.respawnSeconds)||RULES.respawnSeconds,.01,RULES.respawnSeconds):0,aiming:false,catapultId:null,interactHeld:false,machineSeeking:false,aiCharging:false,aimWindup:0,aiTargetId:null,aiReaction:0,aiBurstShots:0,aiAimPoint:null,refilling:old.refilling===true||finite(old.ammo)<RULES.capacity*.1,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0,ammo:eliminated?0:clamp(Math.floor(finite(old.ammo)),0,RULES.capacity),load:clamp(finite(old.load),0,1),dizzy:clamp(finite(old.dizzy),0,RULES.dizzyHits),finishHits:clamp(finite(old.finishHits),0,RULES.finishHits),dizzyTime:clamp(finite(old.dizzyTime),0,RULES.dizzySeconds),kickPending:false,kick:0,hop:0,hopX:0,hopZ:0,height:0,flight:null,support:null,dashCooldown:0,airSpit:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,knockUpFloor:0,idle:0,impulseX:0,impulseZ:0});
+   Object.assign(a,{ko,eliminated,respawnTime:ko&&!eliminated?clamp(finite(old.respawnTime,RULES.respawnSeconds)||RULES.respawnSeconds,.01,RULES.respawnSeconds):0,aiming:false,catapultId:null,interactHeld:false,machineSeeking:false,aiCharging:false,aimWindup:0,aiTargetId:null,aiReaction:0,aiBurstShots:0,aiAimPoint:null,refilling:old.refilling===true||finite(old.ammo)<ammunitionCapacity(a)*.1,raidId:null,sabotageId:null,sabotageRecovery:0,revealedTime:0,ammo:eliminated?0:clamp(Math.floor(finite(old.ammo)),0,ammunitionCapacity(a)),load:clamp(finite(old.load),0,1),dizzy:clamp(finite(old.dizzy),0,RULES.dizzyHits),finishHits:clamp(finite(old.finishHits),0,RULES.finishHits),dizzyTime:clamp(finite(old.dizzyTime),0,RULES.dizzySeconds),kickPending:false,kick:0,hop:0,hopX:0,hopZ:0,height:0,flight:null,support:null,dashCooldown:0,airSpit:0,knockUp:0,knockUpDuration:0,knockUpPeak:0,knockUpStart:0,knockUpFloor:0,idle:0,impulseX:0,impulseZ:0});
    for(const key of ['shot','tongue','invuln','hit','kickCooldown','aiShotReady'])a[key]=clamp(a[key],0,2);
    a.spawnShield=clamp(finite(old.spawnShield),0,RULES.respawnProtectionSeconds);
    a.machineTimer=clamp(a.machineTimer,0,30);a.face=finite(a.face,Math.PI);
@@ -414,7 +441,7 @@ export function loadRound(raw){
    // Version 1 starts a new shared warm-up. Place each frog inside its new home
    // for that transition; ordinary version 2 resumes keep their travel position.
    if(legacy){const g=baseGeometry(home);Object.assign(a,{x:g.spawn.x,z:g.spawn.z,face:g.spawnHeading,aimX:Math.sin(g.spawnHeading),aimY:0,aimZ:Math.cos(g.spawnHeading),aim3D:false});}
-   if(!legacy&&!ko&&typeof old.support?.id==='string'&&finite(old.height)>0&&finite(old.height)<32){const support=landingSurfaces(s,a.x,a.z,()=>0).find(p=>p.id===old.support.id);if(support){a.support={...support,y:finite(old.support.y,support.y)};a.height=old.height;}}
+   if(!legacy&&!ko&&typeof old.support?.id==='string'&&finite(old.height)>0&&finite(old.height)<32){const support=landingSurfaces(s,a.x,a.z,()=>0,a).find(p=>p.id===old.support.id);if(support){a.support={...support,y:finite(old.support.y,support.y)};a.height=old.height;}}
    moveBody(a,0,0,s);
   }
   // Existing patch IDs and their first 72 flies keep their saved positions and

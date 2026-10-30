@@ -140,7 +140,19 @@ function frogLimbPaint(p, t=0, a=0) {
   const shade=.79-.36*spot;
   return paintResult([lerp(shade,.70,underside),lerp(shade,.66,underside),lerp(shade,.43,underside)],1-underside*.92);
 }
-function frogTemplate(detail = 1) {
+function frogReferencePaint(p,t=0,a=0,limb=false){
+ const belly=limb?(1-smooth(-.55,.1,Math.sin(a)))*.36:1-smooth(.29,.46,p.y),cell=V(Math.floor(p.x*19),Math.floor(p.y*19),Math.floor(p.z*19));
+ let spot=0;
+ for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
+  const cx=cell.x+x,cy=cell.y+y,cz=cell.z+z,n=hash(cx,cy,cz);if(n<.63)continue;
+  const d=Math.hypot(p.x*19-cx-hash(cx+21,cy,cz),p.y*19-cy-hash(cx,cy+39,cz),p.z*19-cz-hash(cx,cy,cz+7));
+  spot=Math.max(spot,(1-smooth(.19,.36,d))*.72);
+ }
+ const shade=.88-spot;
+ return paintResult([lerp(shade,.86,belly),lerp(shade,.78,belly),lerp(shade,.48,belly)],1-belly*.98);
+}
+function frogTemplate(detail = 1, reference = false) {
+ const bodyPaint=reference?frogReferencePaint:frogPaint,limbPaint=reference?((p,t,a)=>frogReferencePaint(p,t,a,true)):frogLimbPaint;
   const rig = buildRig(), S = new Surface(detail), E = new Surface(detail), A = new Surface(detail), C = new Surface(detail), Q = new Surface(detail), B = new Surface(detail);
   const pelvis = rig.bone('pelvis', [0, .36, -.35]);
   const spine = rig.bone('spine', [0, .43, -.07], pelvis);
@@ -149,19 +161,20 @@ function frogTemplate(detail = 1) {
   const throat = rig.bone('throat', [0, .29, .36], jaw);
   const eyeL = rig.bone('eyeL', [-.292, .685, .530], head), eyeR = rig.bone('eyeR', [.292, .685, .530], head);
   const mouth = rig.bone('mouth', [0, .405, .755], jaw);
-  S.tube([[0, .35, -.72], [0, .42, -.48], [0, .43, -.08], [0, .47, .30], [0, .46, .58], [0, .43, .75]], [.012, .32, .435, .43, .34, .018], [.012, .245, .27, .235, .145, .025], {
+  S.tube([[0, .35, -.72], [0, .42, -.48], [0, .43, -.08], [0, .47, .30], [0, .46, .58], [0, .43, .75]], [.012, .32, .435, reference?.46:.43, reference?.39:.34, .018], [.012, .245, .27, .235, .145, .025], {
     segments: 42, radial: 36,
-    bones: (t) => skinAlong([pelvis, pelvis, spine, head, head], t), paint: frogPaint,
+    bones: (t) => skinAlong([pelvis, pelvis, spine, head, head], t), paint: bodyPaint,
     distort(p, t, a) { const upper = Math.max(0, Math.sin(a)); p.y += upper * .008 * Math.sin(p.x * 70 + p.z * 50); const ridge = Math.exp(-Math.pow((Math.abs(p.x) - .22) / .035, 2)); p.y += ridge * upper * .023 * Math.sin(t * Math.PI); }
   });
   // Orbital ridges are part of the skin mesh, with independent blinking eye bones.
   for (const side of [-1, 1]) {
     const eyeBone = side < 0 ? eyeL : eyeR, center = [side * .292, .685, .530];
-    S.ellipsoid([side * .292, .605, .405], [.150, .145, .165], { bone: head, rings: 14, radial: 24, paint: p => frogPaint(p.clone().add(V(side * .292, .605, .405))) });
-    E.ellipsoid(center, [.106, .103, .113], {
+    S.ellipsoid([side * .292, .605, .405], [.150, .145, .165], { bone: head, rings: 14, radial: 24, paint: p => bodyPaint(p.clone().add(V(side * .292, .605, .405))) });
+    E.ellipsoid(center, reference?[.140,.146,.137]:[.106,.103,.113], {
       bone: eyeBone, radial: 40, rings: 22, rotationY: side * .32,
       paint(p, u, v) {
-        const front = p.z / .113, pupil = Math.pow(p.x / .084, 2) + Math.pow(p.y / .029, 2);
+        const front = p.z / (reference?.137:.113), pupil = Math.pow(p.x / (reference?.069:.084), 2) + Math.pow(p.y / (reference?.083:.029), 2);
+        if(reference && front>.65 && (Math.pow((p.x+.030)/.019,2)+Math.pow((p.y-.046)/.023,2)<1))return paintResult([1,1,.91]);
         if (front < .12) return paintResult([.065, .14, .018]);
         if (front < .34) return paintResult([.04, .065, .012]);
         if (front > .52 && pupil < 1) return paintResult([.008, .012, .006]);
@@ -173,16 +186,16 @@ function frogTemplate(detail = 1) {
     const knee = rig.bone(`knee${side}`, [side * .64, .24, .025], hip);
     const ankle = rig.bone(`ankle${side}`, [side * .46, .09, -.61], knee);
     const foot = rig.bone(`foot${side}`, [side * .64, .045, -.49], ankle);
-    S.ellipsoid([side*.64,.24,.025],[.143,.128,.148],{bone:knee,rings:12,radial:18,paint:(p,u,v)=>frogLimbPaint(p.clone().add(V(side*.64,.24,.025)),u,Math.PI*(.5-v)),sculpt(p){p.x*=1+.06*Math.sin(p.z*30);}});
-    S.ellipsoid([side*.46,.09,-.61],[.069,.052,.071],{bone:ankle,rings:8,radial:12,paint:(p,u,v)=>frogLimbPaint(p.clone().add(V(side*.46,.09,-.61)),u,Math.PI*(.5-v))});
-    S.tube([[side * .30, .33, -.35], [side * .50, .30, -.21], [side * .64, .24, .025]], [.13, .223, .14], [.13, .173, .12], { segments: 20, radial: 22, bones: [hip, hip, knee], paint: frogLimbPaint });
-    S.tube([[side * .64, .24, .025], [side * .57, .15, -.27], [side * .46, .09, -.61]], [.12, .105, .065], [.11, .09, .05], { segments: 20, radial: 18, bones: [knee, knee, ankle], paint: frogLimbPaint });
-    S.tube([[side * .46, .09, -.61], [side * .57, .06, -.55], [side * .72, .035, -.35]], [.06, .07, .047], [.047, .04, .025], { segments: 12, radial: 14, bones: [ankle, foot, foot], paint: frogLimbPaint });
+    S.ellipsoid([side*.64,.24,.025],[.143,.128,.148],{bone:knee,rings:12,radial:18,paint:(p,u,v)=>limbPaint(p.clone().add(V(side*.64,.24,.025)),u,Math.PI*(.5-v)),sculpt(p){p.x*=1+.06*Math.sin(p.z*30);}});
+    S.ellipsoid([side*.46,.09,-.61],[.069,.052,.071],{bone:ankle,rings:8,radial:12,paint:(p,u,v)=>limbPaint(p.clone().add(V(side*.46,.09,-.61)),u,Math.PI*(.5-v))});
+    S.tube([[side * .30, .33, -.35], [side * .50, .30, -.21], [side * .64, .24, .025]], [.13, .223, .14], [.13, .173, .12], { segments: 20, radial: 22, bones: [hip, hip, knee], paint: limbPaint });
+    S.tube([[side * .64, .24, .025], [side * .57, .15, -.27], [side * .46, .09, -.61]], [.12, .105, .065], [.11, .09, .05], { segments: 20, radial: 18, bones: [knee, knee, ankle], paint: limbPaint });
+    S.tube([[side * .46, .09, -.61], [side * .57, .06, -.55], [side * .72, .035, -.35]], [.06, .07, .047], [.047, .04, .025], { segments: 12, radial: 14, bones: [ankle, foot, foot], paint: limbPaint });
     const hindEnds = [];
     for (let k = 0; k < 4; k++) {
       const x = side * (.70 + (k - 1.5) * .075), z = -.34 + .36 * (1 - Math.abs(k - 1.5) * .16);
       const start = [side * (.67 + (k - 1.5) * .028), .036, -.37], mid = [lerp(start[0], x, .53), .037, -.18];
-      S.tube([start, mid, [x, .035, z]], [.032, .024, .007], [.020, .014, .006], { segments: 10, radial: 8, bones: [foot], paint: frogLimbPaint });
+      S.tube([start, mid, [x, .035, z]], [.032, .024, .007], [.020, .014, .006], { segments: 10, radial: 8, bones: [foot], paint: limbPaint });
       hindEnds.push([x, .034, z * .66 - .12]);
     }
     for (let k = 0; k < 3; k++) {
@@ -194,13 +207,13 @@ function frogTemplate(detail = 1) {
     const shoulder = rig.bone(`shoulder${side}`, [side * .30, .43, .31], spine);
     const elbow = rig.bone(`elbow${side}`, [side * .48, .235, .40], shoulder);
     const wrist = rig.bone(`wrist${side}`, [side * .46, .058, .62], elbow);
-    S.ellipsoid([side*.48,.235,.40],[.064,.066,.064],{bone:elbow,rings:8,radial:12,paint:(p,u,v)=>frogLimbPaint(p.clone().add(V(side*.48,.235,.4)),u,Math.PI*(.5-v))});
-    S.tube([[side * .30, .43, .31], [side * .43, .33, .335], [side * .48, .235, .40]], [.092, .085, .061], [.09, .077, .059], { segments: 14, radial: 16, bones: [shoulder, shoulder, elbow], paint: frogLimbPaint });
-    S.tube([[side * .48, .235, .40], [side * .48, .14, .48], [side * .46, .058, .62]], [.062, .07, .039], [.058, .057, .03], { segments: 12, radial: 14, bones: [elbow, elbow, wrist], paint: frogLimbPaint });
+    S.ellipsoid([side*.48,.235,.40],[.064,.066,.064],{bone:elbow,rings:8,radial:12,paint:(p,u,v)=>limbPaint(p.clone().add(V(side*.48,.235,.4)),u,Math.PI*(.5-v))});
+    S.tube([[side * .30, .43, .31], [side * .43, .33, .335], [side * .48, .235, .40]], [.092, .085, .061], [.09, .077, .059], { segments: 14, radial: 16, bones: [shoulder, shoulder, elbow], paint: limbPaint });
+    S.tube([[side * .48, .235, .40], [side * .48, .14, .48], [side * .46, .058, .62]], [.062, .07, .039], [.058, .057, .03], { segments: 12, radial: 14, bones: [elbow, elbow, wrist], paint: limbPaint });
     for (let k = 0; k < 4; k++) {
       const x = side * (.44 + (k - 1.5) * .075), z = .81 + .04 * (1.5 - Math.abs(k - 1.5));
-      S.tube([[side * .46, .055, .61], [lerp(side * .46, x, .6), .031, .74], [x, .025, z]], [.025, .017, .009], [.021, .014, .006], { segments: 9, radial: 8, bones: [wrist], paint: frogLimbPaint });
-      S.ellipsoid([x, .025, z], [.017, .01, .021], { bone: wrist, rings: 6, radial: 10, paint: () => paintResult([.71, .65, .40], .4) });
+      S.tube([[side * .46, .055, .61], [lerp(side * .46, x, .6), .031, .74], [x, .025, z]], [.025, .017, .009], [.021, .014, .006], { segments: 9, radial: 8, bones: [wrist], paint: limbPaint });
+      S.ellipsoid([x, .025, z], reference?[.030,.014,.031]:[.017,.01,.021], { bone: wrist, rings: 6, radial: 10, paint: () => paintResult([.71, .65, .40], .4) });
     }
     // Woven reed identification band, modelled into the forearm, follows its rig.
     for (let band = 0; band < 3; band++) {
@@ -461,10 +474,10 @@ function makeRoyalCrown() {
   gem.name = 'royal-crown-ruby'; gem.position.set(0, .042, .195); crown.add(gem);
   return crown;
 }
-function getTemplate(type, lod = 0) {
-  const key = type === 'frog' && lod ? `${type}:${lod}` : type;
+function getTemplate(type, lod = 0, style = 'classic') {
+  const key = type === 'frog' ? `${type}:${lod}:${style}` : type;
   if (!templateCache.has(key)) {
-    const t = type === 'frog' ? frogTemplate([1, .36, .18][lod]) : ({ heron: heronTemplate, snake: snakeTemplate, fish: fishTemplate }[type] || frogTemplate)();
+    const t = type === 'frog' ? frogTemplate([1, .36, .18][lod],style==='reference') : ({ heron: heronTemplate, snake: snakeTemplate, fish: fishTemplate }[type] || frogTemplate)();
     for (const key of ['skin','eyes','armor','shell','bracers','crest','tongue']) if (t[key]?.boundingSphere) t[key].boundingSphere.radius *= 1.9;
     templateCache.set(key, t);
   }
@@ -519,7 +532,8 @@ function sampleSnakeRoute(pose,distance,out){
  */
 export function createCreature(type = 'frog', options = {}) {
   if (!['frog', 'heron', 'snake', 'fish'].includes(type)) type = 'frog';
-  const template = getTemplate(type), group = new THREE.Group(), pivot = new THREE.Group();
+  const visualStyle=options.visualStyle==='reference'?'reference':'classic';
+  const template = getTemplate(type,0,visualStyle), group = new THREE.Group(), pivot = new THREE.Group();
   group.name = `creature-${type}`; pivot.name = 'anatomical-animation-pivot'; group.add(pivot);
   const defaultColor = type === 'frog' ? 0x70982d : type === 'snake' ? 0x667746 : type === 'fish' ? 0x839b64 : 0xffffff;
   const skin = skinMaterial(type, options.color ?? defaultColor);
@@ -600,7 +614,7 @@ export function createCreature(type = 'frog', options = {}) {
       const level = type === 'frog' ? clamp(Math.round(Number(value) || 0), 0, 2) : 0;
       if (level === renderLOD) return;
       renderLOD = level;
-      const next = getTemplate(type, level);
+      const next = getTemplate(type, level, visualStyle);
       for (const mesh of [body, eyes, outline, ...extras]) {
         mesh.geometry = next[mesh === body || mesh === outline ? 'skin' : mesh === eyes ? 'eyes' : mesh.name];
         // SkinnedMesh caches bounds independently of geometry. Clear these when

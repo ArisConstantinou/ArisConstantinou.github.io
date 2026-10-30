@@ -1,5 +1,5 @@
 import {WALLS,BASES} from './arcade-bases.js';
-import {FROG_BODY,FROG_HIT_VOLUMES,actorBodyBase,actorBodyYaw} from './arcade-actor-bounds.js';
+import {FROG_BODY,FROG_HIT_VOLUMES,frogBody,actorHitVolumes,actorBodyBase,actorBodyYaw} from './arcade-actor-bounds.js';
 import {GUARD_BODY,guardActive} from './arcade-guards.js';
 
 export const PROJECTILE=Object.freeze({radius:.1,muzzleOffset:.8,originHeight:.45,bodyHeight:FROG_BODY.height,terrainStep:.12});
@@ -21,11 +21,17 @@ export function normalizeAim(x,y,z,fallback={x:0,y:0,z:1}){
  return length>EPS?{x:x/length,y:y/length,z:z/length}:{...fallback};
 }
 export function projectileOrigin(state,actor){
+ if(actor.characterClass){
+  const supplied=context(state).actorMouth?.(actor);if(supplied&&[supplied.x,supplied.y,supplied.z].every(Number.isFinite))return {x:supplied.x,y:supplied.y,z:supplied.z};
+  const body=frogBody(actor),yaw=actorBodyYaw(actor),x=body.mouthX||0,z=body.mouthForward||0;
+  return {x:actor.x+Math.cos(yaw)*x+Math.sin(yaw)*z,y:actorBodyBase(actor,projectileGround(state,actor.x,actor.z))+(body.mouthHeight??PROJECTILE.originHeight),z:actor.z-Math.sin(yaw)*x+Math.cos(yaw)*z};
+ }
  return {x:actor.x,y:actorBodyBase(actor,projectileGround(state,actor.x,actor.z))+PROJECTILE.originHeight,z:actor.z};
 }
 export function projectileMouth(state,actor){
  const supplied=context(state).actorMouth?.(actor);
  if(supplied&&[supplied.x,supplied.y,supplied.z].every(Number.isFinite))return {x:supplied.x,y:supplied.y,z:supplied.z};
+ if(actor.characterClass)return projectileOrigin(state,actor);
  const yaw=actorBodyYaw(actor),origin=projectileOrigin(state,actor);
  return {x:origin.x+Math.sin(yaw)*.5,y:origin.y-.12,z:origin.z+Math.cos(yaw)*.5};
 }
@@ -59,7 +65,7 @@ function actorContact(state,a,b,actor){
  const local=p=>{const x=p.x-actor.x,z=p.z-actor.z;return {x:c*x-s*z,y:p.y-floor,z:s*x+c*z};};
  const start=local(a),end=local(b),padding=PROJECTILE.radius;
  let best=null;
- for(const body of FROG_HIT_VOLUMES){
+ for(const body of actorHitVolumes(actor)){
   // The only expansion is the fly's physical radius, not magazine size or
   // aiming assistance. Actual flight and the preview share this exact sweep.
   const hit=ellipsoidContact(start,end,body.center,{x:body.radii.x+padding,y:body.radii.y+padding,z:body.radii.z+padding});
@@ -158,7 +164,11 @@ export function worldRay(state,origin,direction,range,options={}){
 }
 export function projectilePoint(state,projectile,distance){
  const p={x:projectile.x+projectile.dx*distance,y:finite(projectile.y,projectileGround(state,projectile.x,projectile.z)+PROJECTILE.originHeight)+finite(projectile.dy)*distance,z:projectile.z+projectile.dz*distance};
- if(projectile.followGround)p.y=projectileGround(state,p.x,p.z)+finite(projectile.heightOffset,PROJECTILE.originHeight);
+ if(projectile.followGround){
+  let height=finite(projectile.heightOffset,PROJECTILE.originHeight);
+  if(projectile.groundBlendDistance){p.travelled=finite(projectile.travelled)+distance;const t=clamp(p.travelled/projectile.groundBlendDistance,0,1),blend=t*t*(3-2*t);height+=(finite(projectile.heightBlendFrom,height)-height)*(1-blend);}
+  p.y=projectileGround(state,p.x,p.z)+height;
+ }
  return p;
 }
 export function traceProjectile(state,projectile,distance,options={}){
@@ -178,6 +188,7 @@ export function projectileLaunch(state,actor){
  const origin=projectileOrigin(state,actor),direction=projectileDirection(actor),followGround=projectileFollowsGround(actor);
  // Preserve surface-level directional shots while the frog hops. Explicit 3D
  // shots use the real elevated body origin and never follow terrain afterward.
+ if(actor.characterClass)return {...origin,dx:direction.x,dy:direction.y,dz:direction.z,followGround,heightOffset:frogBody(actor).mouthHeight,heightBlendFrom:origin.y-projectileGround(state,actor.x,actor.z),groundBlendDistance:followGround?1.8:0,travelled:0};
  if(followGround)origin.y=projectileGround(state,actor.x,actor.z)+PROJECTILE.originHeight;
  return {...origin,dx:direction.x,dy:direction.y,dz:direction.z,followGround,heightOffset:origin.y-projectileGround(state,actor.x,actor.z)};
 }

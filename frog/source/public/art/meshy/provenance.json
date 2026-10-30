@@ -1,0 +1,23 @@
+[
+  {
+    "asset": "frog",
+    "author": "jnj.stu",
+    "source": "https://www.meshy.ai/posts/019e9380-33bf-78cd-804c-5b711d10912f",
+    "license": "CC0-1.0",
+    "changes": "Offline LOD, scale normalization and web PBR packaging; no rig or animations included yet"
+  },
+  {
+    "asset": "house",
+    "author": "Omotobs",
+    "source": "https://www.meshy.ai/posts/019c4ca0-282f-7060-832c-2384c848e06d",
+    "license": "CC0-1.0",
+    "changes": "Offline LOD, scale normalization and web PBR packaging; no rig or animations included yet"
+  },
+  {
+    "asset": "reeds",
+    "author": "UltrasombrA",
+    "source": "https://www.meshy.ai/posts/01976bf0-1b37-7575-99b2-5f7ab612cde2",
+    "license": "CC0-1.0",
+    "changes": "Offline LOD, scale normalization and web PBR packaging; no rig or animations included yet"
+  }
+]

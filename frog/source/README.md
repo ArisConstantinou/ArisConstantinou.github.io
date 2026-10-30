@@ -1,52 +1,25 @@
-# FROG 4.3.15 — complete source
+# Βαλτομαχίες 4.4.0 — complete game source
 
-This is the complete functional source corresponding to the bundled production
-release, not an unapplied patch. All runtime source modules, procedural models,
-public assets, tests and the dependency lockfile are included.
+Joint release of the three coordinated game workstreams.
 
-## Build
+- Three new selectable, articulated characters, distinct capacities/speeds and ground/air attacks; native menu and gameplay animation.
+- New rigged rock catapult, real operator grips, delayed physical projectile release and chassis collision.
+- Imported house and nature assets. House facade, floor, doorway and roof match gameplay surfaces. Actual weighted toe pads plant against the wall.
+- Settings: manual wall hold, touch destination/range and confirmation; automatic closest reachable object. Strong ballistic push, local body pitch follows ascent/descent without a flip.
+- Illustrated title Βαλτομαχίες / Μια ιδέα του Άρη, pausable objective reader and mobile layouts.
+- GPU-compressed model textures, pooled/shared rendering data and live FPS/frame-time counter. Versioned model requests, existing automatic updater and save/settings keys retained.
 
-Use Node.js 22. Dependencies are pinned in `package-lock.json`.
+Validation: 12 real new-body wall/contact/cardinal-flight cases; 6 live DOM touch manual/auto approach/contact/launch/landing recordings, all three classes; full source suite, updater/build, desktop and both mobile viewports. The original phone baseline was human-reported60FPS/p9518ms on iPhone14ProMax/Chrome. New performance comparisons use an RTX5080 desktop with mobile viewport emulation, not a physical phone. A2x frame-rate improvement is not established.
 
-```sh
-npm ci
-node --test --test-concurrency=2 tests/*.test.mjs
-npm run build
-npm run dev
-```
+Editable Blender/source assets and original receipts remain in the canonical local assets-source folders. Public source includes runtime assets/provenance/decoder licenses; caches, credentials, test videos and huge raw Blender/original downloads are excluded.
 
-The first command downloads development dependencies; the already-built game
-in `../frog/` and `../PLAY-OFFLINE.html` needs neither Node nor npm installation.
 
-Build output is `dist/` with relative asset URLs. Copy its contents to the
-hosting folder, not the source tree. No GitHub automation is required.
+## Build and preview
 
-## Changes in 4.3.15
-
-`arcade-control-policy.js` owns screen-relative overview movement and yaw-relative
-third-person movement, deliberate body facing, and the directional hop helpers.
-`arcade.js` uses one native pointer input stream and one centered aiming ray in
-third person. `creatures.js` poses limbs along actual local travel rather than
-playing the same forward hop for every movement direction.
-
-Third-person and overview are the current arcade views. Existing timing,
-collision geometry, guards, catapults and optional target lock are retained.
-
-## Provenance and verification
-
-Base runtime: `42b90b5c3b96a2079bc152d37da757acdfa9f024` (4.3.14).
-Controls and final input refinement: QA branch commit
-`330ce1a855a1ef7fb9dc1e8f59ca38e2faea09dc`.
-The production bundle is byte-identical to the tested
-`index-BVE6SbSc.js` with SHA-256
-`8fad5991101c11b6275fd9c7a1d633c0f734f63952054c67c8eb86be80488180`.
-
-The full test suite was rerun for this package: 1251 passed, none failed/skipped.
-See `../verification/` for build logs, exact reports and test limitations.
-Files in `qa/` from earlier versions remain historical regression fixtures;
-their hard-coded version checks are not claims about the current package.
-`tests/arcade-control-policy.test.mjs` contains the additional movement tests.
-No failed GitHub publication workflow is included in this distribution.
-
-See `THIRD_PARTY_NOTICES.txt`. No new license is assigned to the user's original
-project code or artwork by this package.
+Pinned dependencies: Three.js0.180.0 and Vite6.3.6, package-lock.json included.
+Use npm ci, npm test, npm run build. The project uses its fixed port4175
+with strictPort. Canonical local builds/tests must run through StorageGuard.
+The standalone built game uses relative URLs and needs an HTTP server.
+Source tests under tests/ and older qa fixtures retain historical version strings;
+these are not the current release version. See THIRD_PARTY_NOTICES.txt and
+public/art/cartoon/assets.json for imported/generated model provenance.

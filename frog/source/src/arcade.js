@@ -1,3 +1,12 @@
+import {ammunitionCapacity,assignRoundCharacters,ensureRoundCharacters} from './arcade-character-classes.js';
+import {installCharacterSelection} from './arcade-character-selection.js';
+import {installCartoonMenu} from './arcade-cartoon-menu.js';
+import './arcade-character-selection.css';
+import {frogBody} from './arcade-actor-bounds.js';
+import {plantWallFeet,prewarmWallFeet} from './arcade-wall-contact-pose.js';
+import {installWallJumpControls,applyFlightAttitude,wallAimPose} from './arcade-wall-controls.js';
+import {runRenderBenchmark} from './arcade-render-benchmark.js';
+import {installGraphicsSample} from './arcade-graphics-sample.js';
 import {installFrameMeter} from './arcade-frame-meter.js';
 import './arcade-performance.css';
 import {freezeOverviewTouchAim} from './arcade-touch-overview-aim.js';
@@ -71,6 +80,7 @@ const storageIcon=svg('<path d="M8 29 32 9l24 20M14 27v29h36V27" stroke="#f4dfad
 
 export class ArcadeGame {
  constructor(){
+  const graphicsMode=new URLSearchParams(location.search).get('graphics');this.graphicsSample=graphicsMode==='sample';this.importedGraphics=!['original','sample'].includes(graphicsMode)&&!new URLSearchParams(location.search).has('scene');this.assetsLoading=this.importedGraphics;this.graphicsOptimized=this.importedGraphics||this.graphicsSample||graphicsMode==='optimized';
   this.touch=matchMedia('(pointer: coarse)').matches||navigator.maxTouchPoints>0;this.mouseControl=!this.touch;
   this.settings={volume:.5,musicVolume:.35,playerName:'Παίκτης',quality:this.touch?'low':'high'};try{Object.assign(this.settings,JSON.parse(read(SETTINGS_KEY)||'{}'));}catch{}
   Object.assign(this.settings,normalizeCameraSettings(this.settings),normalizeFireSettings(this.settings));this.settings.mouseTargetLock=this.settings.mouseTargetLock===true;delete this.settings.cameraAutoRotate;this.storageAlertUntil=-Infinity;
@@ -87,7 +97,7 @@ export class ArcadeGame {
   this.mouseRay=new THREE.Raycaster();this.mousePoint=new V();this.mouseNdc=new THREE.Vector2();this.mousePlane=new THREE.Plane(UP,0);
   this.targetLock=createTargetLock(this);this.currentTargetLock=null;
   this.scene.add(new THREE.HemisphereLight('#def8ff','#52733a',2.6));this.sun=new THREE.DirectionalLight('#fff1bf',3.2);this.sun.position.set(-16,36,12);this.scene.add(this.sun);
-  this.world=createWorld(this.scene,this.renderer,{seed:731,natural:true,palette:BATTLEGROUND_PALETTE,terrainProfile:battlegroundHeight,terrainTint:battlegroundTint,discoveryDecor:false,
+  this.world=createWorld(this.scene,this.renderer,{seed:731,natural:true,spatialSpan:this.graphicsOptimized?64:128,palette:BATTLEGROUND_PALETTE,terrainProfile:battlegroundHeight,terrainTint:battlegroundTint,discoveryDecor:false,
    keepGroundClear:(x,z,padding=0)=>{
     if(Math.hypot(x,z)>ARENA_RADIUS+5)return false;
     const path=routeSample(x,z);
@@ -102,12 +112,12 @@ export class ArcadeGame {
   this.sound=new ArcadeSound();this.sound.volume=this.settings.volume;this.sound.musicVolume=this.settings.musicVolume;
   this.shared={sphere:new THREE.SphereGeometry(1,10,7),wing:new THREE.SphereGeometry(1,6,4),cylinder:new THREE.CylinderGeometry(1,1,1,8),circle:new THREE.CircleGeometry(1,18)};
   this.materials={insect:new THREE.MeshStandardMaterial({color:'#263f42',roughness:.8,metalness:0}),wing:new THREE.MeshBasicMaterial({color:'#edfcff',transparent:true,opacity:.86,side:THREE.DoubleSide,depthWrite:false}),tongue:new THREE.MeshStandardMaterial({color:'#ff839c',roughness:.4}),shot:new THREE.MeshStandardMaterial({color:'#384b4d',emissive:'#a6c9bf',emissiveIntensity:.16}),ink:new THREE.MeshBasicMaterial({color:'#90e44c',transparent:true,opacity:.9,depthWrite:false,side:THREE.DoubleSide}),rock:new THREE.MeshStandardMaterial({color:'#617b70',roughness:.9}),rim:new THREE.MeshBasicMaterial({color:'#eaff9e',transparent:true,opacity:.6,depthWrite:false})};
-  this.createArena();this.models=[];this.buildActors();this.createFlies();this.artilleryView=new ArtilleryView(this);this.basesView=new ArcadeBasesView(this);this.battlegroundView=new BattlegroundView(this);this.visualUpgrade=installArcadeVisualUpgrade(this);this.guardsView=new ArcadeGuardsView(this);this.impactEffects=new ImpactEffects(this);this.createUI();this.menuAnimation=installMenuAnimation(this);this.bindInputs();this.airControls=installAirControls(this);this.applyQuality();this.resize();this.showTitle();
-  window.render_game_to_text=()=>JSON.stringify({coordinates:'x right/east, z south; metres',mode:this.mode,view:this.viewMode,actors:this.state.actors.map(a=>({id:a.id,x:a.x,z:a.z,ammo:a.ammo,dizzyTime:a.dizzyTime,kick:a.kick,ko:a.ko,height:a.height,flight:a.flight?.kind||null,jumps:a.flight?.jumps||0,vy:a.flight?.vy||0,support:a.support?.id||null})),phase:this.state.phase});
+  this.createArena();this.models=[];this.buildActors();this.createFlies();this.artilleryView=new ArtilleryView(this);this.basesView=new ArcadeBasesView(this);this.battlegroundView=new BattlegroundView(this);this.visualUpgrade=installArcadeVisualUpgrade(this);this.surfaceSample=this.graphicsSample?installGraphicsSample(this):null;this.guardsView=new ArcadeGuardsView(this);this.impactEffects=new ImpactEffects(this);this.createUI();this.menuAnimation=installCartoonMenu(this);this.characterSelection=installCharacterSelection(this,{ready:Promise.resolve().then(()=>this.assetReady).then(()=>{if(this.importedGraphics&&!this.assetStatus?.ready)throw Error('Models not ready');}),onConfirm:(id,event)=>this.beginNewCharacterRound(id,event)});this.bindInputs();this.airControls=installAirControls(this);this.wallControls=installWallJumpControls(this,()=>write(SETTINGS_KEY,JSON.stringify(this.settings)));this.applyQuality();this.resize();this.showTitle();
+  window.render_game_to_text=()=>JSON.stringify({coordinates:'x right/east, z south; metres',mode:this.mode,view:this.viewMode,actors:this.state.actors.map(a=>({id:a.id,characterClass:a.characterClass,x:a.x,z:a.z,ammo:a.ammo,dizzyTime:a.dizzyTime,kick:a.kick,ko:a.ko,height:a.height,flight:a.flight?.kind||null,jumps:a.flight?.jumps||0,vy:a.flight?.vy||0,support:a.support?.id||null})),phase:this.state.phase});
   window.__FROG__={version:ARCADE_VERSION,mode:'arcade',inspect:()=>this.inspect(),save:()=>this.persist()};
   if(new URLSearchParams(location.search).has('test'))window.advanceTime=ms=>{this.renderer.setAnimationLoop(null);for(let i=0;i<Math.max(1,Math.round(ms/(1000/60)));i++)this.frame(this.last+1000/60);};
   if(new URLSearchParams(location.search).has('test'))window.__FROG__.test={step:(input,n=1)=>{for(let i=0;i<n;i++){step(this.state,input,1/60);this.consumeEvents();}this.updateHUD();},state:()=>this.state,setState:(s)=>{this.state=s;this.buildActors();this.updateHUD();},input:()=>this.currentInput(),kickTarget:()=>kickTarget(this.state,this.state.actors[0])?.id};
-  this.performanceMeter=installFrameMeter(this);this.last=performance.now();installCameraSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});installFireSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});this.renderer.setAnimationLoop(now=>this.frame(now));document.getElementById('boot')?.remove();
+  this.performanceMeter=installFrameMeter(this);this.last=performance.now();installCameraSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});installFireSettings(this,{onChange:()=>write(SETTINGS_KEY,JSON.stringify(this.settings))});this.renderer.setAnimationLoop(now=>this.frame(now));document.getElementById('boot')?.remove();if(new URLSearchParams(location.search).get('benchmark')==='1')queueMicrotask(()=>runRenderBenchmark(this));if(this.importedGraphics)this.assetReady=import('./arcade-imported-assets.js').then(m=>m.installImportedAssets(this)).catch(e=>{this.failures.push(e.message);});if(['assets','original'].includes(new URLSearchParams(location.search).get('scene')))queueMicrotask(()=>import('./arcade-asset-showcase.js').then(m=>m.startAssetShowcase(this)).catch(e=>console.error(e)));
  }
  ground(x,z){return houseFloorAt(x,z,this.houseFloors)??this.world.getSurface(x,z).height;}
  cameraGround(x,z){return Math.max(this.ground(x,z),this.world.cameraSurfaceHeight(x,z));}
@@ -119,8 +129,9 @@ export class ArcadeGame {
   this.swarmRings=SWARMS.map(zone=>{const ring=new THREE.Mesh(new THREE.RingGeometry(zone.radius-.08,zone.radius+.03,40),new THREE.MeshBasicMaterial({color:'#c8e0a3',side:THREE.DoubleSide,transparent:true,opacity:.22,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.set(zone.x,this.ground(zone.x,zone.z)+.08,zone.z);this.scene.add(ring);return ring;});
  }
  buildActors(){
+  if(this.assetFactory)ensureRoundCharacters(this.state);
   setProjectileWorld(this.state,{ground:(x,z)=>this.ground(x,z),actorYaw:a=>this.models?.[this.state.actors.indexOf(a)]?.group.rotation.y,actorMouth:a=>{const m=this.models?.[this.state.actors.indexOf(a)];if(!m?.bones?.mouth)return null;const p=m.bones.mouth.getWorldPosition(this.airMouthScratch??=new V());return {x:p.x+a.x-m.group.position.x,y:p.y+this.ground(a.x,a.z)+a.height-m.group.position.y,z:p.z+a.z-m.group.position.z};}});
-  for(const m of this.models||[])m.dispose();this.models=this.state.actors.map((a,i)=>{const m=createCreature('frog',{seed:7+i*39,team:i===0?'player':`enemy${i}`,role:i===2?'bruiser':'hunter',tier:1,level:1});m.setEquipment({});m.setOutline(i===0?'#e7fca7':i===1?'#ffae88':'#d3a8ff',true);if(this.settings.quality==='low')m.setRenderLOD(1);if(m.mesh?.material){const mat=m.mesh.material;mat.bumpScale=0;mat.roughness=.85;mat.userData?.tint?.set(actorColour(this.settings,a.id));}m.setOutline(actorColour(this.settings,a.id),true);configureArcadeAppearance(m);m.group.rotation.y=actorVisualFacing(a,{currentYaw:a.face}).yaw;this.scene.add(m.group);return m;});
+  for(const m of this.models||[])m.dispose();this.models=this.state.actors.map((a,i)=>{const m=(this.assetFactory||((options)=>createCreature('frog',options)))({actor:a,characterClass:a.characterClass,visualStyle:this.graphicsSample?'reference':'classic',seed:7+i*39,team:i===0?'player':`enemy${i}`,role:i===2?'bruiser':'hunter',tier:1,level:1});m.setEquipment({});m.setOutline(i===0?'#e7fca7':i===1?'#ffae88':'#d3a8ff',true);if(this.settings.quality==='low')m.setRenderLOD(1);if(m.mesh?.material&&!m.stats.cartoon){const mat=m.mesh.material;mat.bumpScale=0;mat.roughness=.85;mat.userData?.tint?.set(actorColour(this.settings,a.id));}m.setOutline(actorColour(this.settings,a.id),true);configureArcadeAppearance(m);if(m.stats.cartoon)prewarmWallFeet(m);this.surfaceSample?.configureActor(m);m.group.rotation.y=actorVisualFacing(a,{currentYaw:a.face}).yaw;this.scene.add(m.group);return m;});
  }
  createFlies(){
   const count=this.state.flies.length;
@@ -158,12 +169,13 @@ export class ArcadeGame {
  toggleView(event){this.clearInputs();this.viewMode=this.viewMode==='chase3d'?'overview':'chase3d';this.$('view-button').innerHTML=cameraSwitchIcon+'<span>'+(this.viewMode==='chase3d'?'ΠΙΣΩ 3D · C':'ΚΑΤΟΨΗ · C')+'</span>';this.$('view-button').setAttribute('aria-label',this.viewMode==='chase3d'?'Αλλαγή σε κεντραρισμένη κάτοψη':'Αλλαγή σε κάμερα πίσω από τον βάτραχο');this.cameraReady=false;if(this.viewMode==='overview'){const heading=actorHeading(this.state.actors[0]);this.aim={...heading};this.stickAim={x:heading.x,z:heading.z};this.releaseMouseLook();}else{if(!this.state.actors[0].catapultId||!this.mouseControl)this.centerAim();if(this.running&&(event?.pointerType==='mouse'||(this.mouseControl||event?.type==='keydown')&&!['touch','pen'].includes(event?.pointerType)))this.requestMouseLook();}}
  startTraining(event){if(this.running)return;this.saved=loadRound(read(SAVE_KEY));this.state=newTrainingRound();this.resetCamera();this.clearEffects();this.buildActors();this.go(event);this.message('Κινούμενοι στόχοι · άπειρες μύγες',2.5);}
  exitTraining(){if(this.running)this.pause();this.saved=loadRound(read(SAVE_KEY));this.state=this.saved||newRound();this.clearInputs();this.clearEffects();this.buildActors();this.resetCamera();this.showTitle();this.$('arcade-menu').hidden=false;this.$('menu-main').hidden=false;this.$('settings-panel').hidden=true;this.$('result-panel').hidden=true;this.roundUI.panel.hidden=true;this.updateHUD();}
- startNew(event){if(this.running)return;this.storageAlertUntil=-Infinity;this.saved=null;this.state=newRound(731+Math.floor(Math.random()*100000));this.resetCamera();this.clearEffects();this.buildActors();this.go(event);this.message(`${RULES.capacity} μύγες έτοιμες!`,1.6);}
+ startNew(event){if(this.running)return;this.characterSelection.open();}
+ beginNewCharacterRound(characterClass,event){if(this.running)return;this.storageAlertUntil=-Infinity;this.saved=null;this.state=assignRoundCharacters(newRound(731+Math.floor(Math.random()*100000)),characterClass);this.resetCamera();this.clearEffects();this.buildActors();this.go(event);this.message(`${ammunitionCapacity(this.state.actors[0])} μύγες έτοιμες!`,1.6);}
  resetCamera(){const p=this.state.actors[0],heading=actorHeading(p);this.cameraYaw=Math.atan2(heading.x,heading.z);this.cameraPitch=CAMERA_ORBIT.pitch;this.cameraReady=false;this.mouse.valid=false;this.aim={x:p.aimX,z:p.aimZ};this.stopCameraDrag();}
  beginCameraDrag(e){if(this.cameraDrag||this.pointers.has('aim')||e.clientX<this.w*.4)return;this.mouseControl=false;if(this.viewMode==='overview')this.captureMouseAim(e);else this.centerAim();this.tapShot.clear();this.cameraDrag={id:e.pointerId,type:e.pointerType,x:e.clientX,y:e.clientY,tap:beginTap(e)};this.touchEdgeLook.begin(e);const canvas=this.renderer.domElement;canvas.setPointerCapture(e.pointerId);canvas.classList.add('camera-dragging');}
  endCameraDrag(e){const drag=this.cameraDrag;if(drag?.id!==e.pointerId)return;const shoot=this.settings.touchFireMode==='tap'&&this.running&&!this.layoutEditing&&!this.state.actors[0].catapultId&&!this.touchFire?.firing&&isTap(drag.tap,e);this.stopCameraDrag();if(shoot)this.tapShot.request(this.elapsed);}
  stopCameraDrag(){const drag=this.cameraDrag;this.cameraDrag=null;if(drag&&['touch','pen'].includes(drag.type))freezeOverviewTouchAim(this);this.touchEdgeLook?.clear();this.autoFireTargetId=null;const canvas=this.renderer?.domElement;if(drag&&canvas?.hasPointerCapture?.(drag.id))canvas.releasePointerCapture(drag.id);canvas?.classList.remove('camera-dragging');}
- go(event){this.roundUI.panel.hidden=true;if(event?.pointerType==='touch'||event?.pointerType==='pen')this.mouseControl=false;else if(event?.pointerType==='mouse')this.mouseControl=true;this.$('arcade-menu').classList.remove('settings-open');this.clearInputs();if(this.mouseControl&&Number.isFinite(event?.clientX)&&Number.isFinite(event?.clientY))this.freeMousePoint={x:event.clientX,y:event.clientY};this.accumulator=0;this.last=performance.now();this.running=true;this.mode='play';this.$('arcade-menu').hidden=true;this.$('settings-panel').hidden=true;this.$('result-panel').hidden=true;this.$('menu-main').hidden=false;this.$('arcade-hud').hidden=false;this.$('desktop-controls').hidden=this.touch;this.$('touch-controls').hidden=!this.touch;this.ui.classList.remove('in-menu');this.sound.resume();this.updateHUD();this.touchLayout?.refresh();this.persist();if(this.viewMode==='chase3d'){if(!this.state.actors[0].catapultId||!this.mouseControl)this.centerAim();if(this.mouseControl)this.requestMouseLook();}}
+ go(event){if(this.assetsLoading)return;this.roundUI.panel.hidden=true;if(event?.pointerType==='touch'||event?.pointerType==='pen')this.mouseControl=false;else if(event?.pointerType==='mouse')this.mouseControl=true;this.$('arcade-menu').classList.remove('settings-open');this.clearInputs();if(this.mouseControl&&Number.isFinite(event?.clientX)&&Number.isFinite(event?.clientY))this.freeMousePoint={x:event.clientX,y:event.clientY};this.accumulator=0;this.last=performance.now();this.running=true;this.mode='play';this.$('arcade-menu').hidden=true;this.$('settings-panel').hidden=true;this.$('result-panel').hidden=true;this.$('menu-main').hidden=false;this.$('arcade-hud').hidden=false;this.$('desktop-controls').hidden=this.touch;this.$('touch-controls').hidden=!this.touch;this.ui.classList.remove('in-menu');this.sound.resume();this.updateHUD();this.touchLayout?.refresh();this.persist();if(this.viewMode==='chase3d'){if(!this.state.actors[0].catapultId||!this.mouseControl)this.centerAim();if(this.mouseControl)this.requestMouseLook();}}
  pause(){if(!this.running)return;this.touchLayout?.setEditing(false);this.running=false;this.mode='pause';this.roundUI?.update();this.clearInputs();this.releaseMouseLook();this.persist();this.sound.pause();this.$('arcade-menu').hidden=false;this.$('menu-main').hidden=false;this.$('settings-panel').hidden=true;this.updateRoundActions();this.ui.classList.add('in-menu');}
  finish(){this.touchLayout?.setEditing(false);this.running=false;this.mode='finishing';this.resultAt=this.elapsed+.85;this.clearInputs();this.releaseMouseLook();this.persist();}
  showResult(){this.running=false;this.mode='result';this.clearInputs();this.persist();const won=this.state.status==='won';this.sound.play(won?'win':'lost');this.$('arcade-menu').hidden=false;this.$('menu-main').hidden=true;this.$('result-panel').hidden=false;this.$('result-title').textContent=won?'Η ΤΕΛΕΥΤΑΙΑ ΑΠΟΘΗΚΗ ΕΙΝΑΙ ΔΙΚΗ ΣΟΥ!':'Η ΑΠΟΘΗΚΗ ΣΟΥ ΚΑΤΑΣΤΡΑΦΗΚΕ';this.$('result-copy').textContent=won?`${this.state.stats.kos} νοκ άουτ · ${this.state.stats.shots} βολές · ${Math.floor(this.state.time)}″ μάχης`:'Κράτησε την είσοδο, διέκοψε τους εισβολείς με μία εύστοχη βολή και ανεφοδιάσου πριν ξαναβγείς.';this.ui.classList.add('in-menu');this.roundUI.showResults();}
@@ -196,7 +208,7 @@ export class ArcadeGame {
   };
   const releaseMouseLock=()=>{this.targetLock?.end();this.currentTargetLock=null;};
   this.mouseLookSession=createMouseLookSession({canvas,
-   active:()=>this.running&&!this.layoutEditing&&this.viewMode==='chase3d'&&!this.state.actors[0].catapultId,
+   active:()=>this.running&&!this.layoutEditing&&this.viewMode==='chase3d'&&!this.state.actors[0].catapultId&&!this.wallHeld?.(),
    onLock:()=>{this.stopMouseFireCapture();this.freeMousePoint=null;this.centerAim();},
    onUnexpectedUnlock:()=>{this.actions.fire=false;this.pause();},
   });
@@ -209,7 +221,7 @@ export class ArcadeGame {
     // pointerdown. Treat a deliberate left-button transition as a fresh shot.
     if(e.button===0&&(e.buttons&1))beginMouseFire(e);
     if(e.button===2&&(e.buttons&2))beginMouseLock(e);
-    if(this.state.actors[0].catapultId){this.captureCatapultMouse(e);return;}
+    if(this.state.actors[0].catapultId||this.wallHeld?.()){this.captureCatapultMouse(e);return;}
     if(this.pointerLocked())this.turnLook(e.movementX,e.movementY);
     else if(this.viewMode==='overview')this.captureMouseAim(e);
     else this.turnFreeMouse(e);
@@ -219,7 +231,7 @@ export class ArcadeGame {
   });
   const beginMouseFire=e=>{
     if(!this.running||this.layoutEditing)return;
-    if(this.state.actors[0].catapultId){
+    if(this.state.actors[0].catapultId||this.wallHeld?.()){
      this.captureCatapultMouse(e);
      if(!this.pointerLocked()){this.mouseFirePointer=e.pointerId;canvas.setPointerCapture(e.pointerId);}
      this.actions.fire=true;return;
@@ -274,13 +286,18 @@ export class ArcadeGame {
  }
  updateMouseTarget(){
   const p=this.state.actors[0];
-  if(this.viewMode==='chase3d'&&(!p.catapultId||!this.mouseControl)){
+  if(this.viewMode==='chase3d'&&(!(p.catapultId||this.wallHeld?.())||!this.mouseControl)){
    // Mouse displacement turns the camera. Do not also aim through its old
    // absolute screen position: this used to apply two different aim systems.
    this.centerAim();
   }
   if(!this.mouse.valid){this.mouse.targetId=null;return;}
   this.mouseNdc.set(this.mouse.x/this.w*2-1,1-this.mouse.y/this.h*2);this.mouseRay.setFromCamera(this.mouseNdc,this.camera);
+  if(this.wallHeld?.()){
+   const hit=traceWorldRay(this.state,this.mouseRay.ray.origin,this.mouseRay.ray.direction,150,{ignoreId:p.id,hitActors:false});
+   if(hit)this.mouse.target={x:hit.x,y:hit.y,z:hit.z};else if(this.mouseRay.ray.intersectPlane(this.mousePlane,this.mousePoint))this.mouse.target={x:this.mousePoint.x,y:this.mousePoint.y,z:this.mousePoint.z};
+   this.mouse.direction=null;this.mouse.targetId=null;return;
+  }
   if(p.catapultId){
    // A catapult still selects a landing point; its separate ballistic arc stays intact.
    this.mousePlane.constant=-this.ground(p.x,p.z)-.9;
@@ -352,11 +369,13 @@ export class ArcadeGame {
    if(e.type==='guardDown'){const guard=this.state.guards?.find(item=>item.id===e.id);if(e.owner==='player')this.message(`Φύλακας εκτός · ${GUARD_RULES.respawnSeconds}″ για επίθεση στην αποθήκη`,2.2);else if(guard?.owner==='player')this.message('Ο φύλακάς σου έπεσε! Προστάτεψε την αποθήκη.',2.2);}
    if(e.type==='dizzy'){this.addText('ΖΑΛΗ!',a.x,a.z,'#ffe375',1);this.sound.play('dizzy');if(a.id!=='player')this.message('ΖΑΛΗ! Πλησίασε για κλωτσιά ή συνέχισε τις βολές.',2);}
    if(e.type==='ko'){this.koTimes.set(a.id,{time:this.elapsed,dx:e.dx,dz:e.dz});this.addText('ΝΟΚ ΑΟΥΤ!',a.x,a.z,'#ffe791',1.4);this.sound.play('ko');this.shake=.32;this.makeSplat({...e,wall:false});}
-   if(e.type==='respawn'){this.koTimes.delete(e.id);if(e.id==='player'){this.clearInputs();this.resetCamera();this.message(`Επέστρεψες με ${RULES.capacity} μύγες!`,2);}}
+   if(e.type==='respawn'){this.koTimes.delete(e.id);if(e.id==='player'){this.clearInputs();this.resetCamera();this.message(`Επέστρεψες με ${ammunitionCapacity(a)} μύγες!`,2);}}
    if(e.type==='sabotageStart'){if(e.id==='player'){if(this.elapsed>=this.storageAlertUntil){this.sound.play('storageAlert');this.storageAlertUntil=this.elapsed+3;}}else if(e.by==='player')this.message('Κράτα μέχρι το τέλος · οι βολές εναντίον σου διακόπτουν.',2);}
    if(e.type==='sabotageInterrupted'&&e.by==='player')this.message(e.reason==='hit'?'Σε χτύπησαν! Η καταστροφή διακόπηκε.':'Η καταστροφή διακόπηκε.',1.5);
    if(e.type==='baseDestroyed'){const base=BASES.find(b=>b.id===e.baseId);if(base)this.addText('ΑΠΟΘΗΚΗ ΚΑΤΑΣΤΡΑΦΗΚΕ',base.stock.x,base.stock.z,'#ffc689',2);this.sound.play('stoneImpact');this.shake=.2;}
    if(e.type==='splat')this.makeSplat(e);
+   if(e.type==='classAttack'&&a){this.sound.play(e.kind==='airKick'?'kick':'hop',a.id==='player'?.8:.3);}
+   if(e.type==='classSlam'&&a){this.impactEffects.stone({x:e.x,z:e.z,radius:2.8});this.sound.play('land',a.id==='player'?1:.4);if(Math.hypot(e.x-this.state.actors[0].x,e.z-this.state.actors[0].z)<7)this.shake=Math.max(this.shake,.13);}
    if(e.type==='stoneShot')this.sound.play('stoneShot');
    if(e.type==='land'&&e.stone){this.impactEffects.landing(e);if(Math.hypot(e.x-this.state.actors[0].x,e.z-this.state.actors[0].z)<10)this.sound.play('land');}
    if(e.type==='stoneImpact'){this.sound.play('stoneImpact');this.impactEffects.stone(e);if(Math.hypot(e.x-this.state.actors[0].x,e.z-this.state.actors[0].z)<7)this.shake=Math.max(this.shake,.16);}
@@ -373,8 +392,10 @@ export class ArcadeGame {
   this.scene.add(mesh);this.splats.push({mesh,start:this.elapsed});if(this.splats.length>90){const old=this.splats.shift();old.mesh.removeFromParent();old.mesh.geometry.dispose();old.mesh.material.dispose();}
  }
  clearEffects(){this.impactEffects?.clear();for(const p of this.particles)p.mesh.removeFromParent();this.particles=[];for(const s of this.splats){s.mesh.removeFromParent();s.mesh.geometry.dispose();s.mesh.material.dispose();}this.splats=[];for(const b of this.bulletMeshes.values())b.removeFromParent();this.bulletMeshes.clear();for(const t of this.tongues.values())t.mesh.removeFromParent();this.tongues.clear();this.fx=[];this.koTimes.clear();}
+ setHUDText(node,value){if(!this.graphicsOptimized||node.textContent!==String(value))node.textContent=value;}
+ setHUDHidden(node,value){const hidden=!!value;if(!this.graphicsOptimized||node.hidden!==hidden)node.hidden=hidden;}
  updateHUD(){
-  const p=this.state.actors[0],pct=Math.round(p.ammo/RULES.capacity*100),target=kickTarget(this.state,p),home=ownBase(this.state,p),activeBases=this.state.bases.filter(b=>!b.destroyed).length;
+  const p=this.state.actors[0],pct=Math.round(p.ammo/ammunitionCapacity(p)*100),target=kickTarget(this.state,p),home=ownBase(this.state,p),activeBases=this.state.bases.filter(b=>!b.destroyed).length;
   const homeSpot=BASES.find(b=>b.owner===p.id)?.stock,refilling=home&&!home.destroyed&&homeSpot&&Math.hypot(p.x-homeSpot.x,p.z-homeSpot.z)<=RULES.pickupRange&&hasWallSight(p,homeSpot),hidden=coverAt(p)&&p.revealedTime<=0;
   const enemyStore=sabotageTarget(this.state,p),channel=this.state.bases.find(b=>!b.destroyed&&b.attackerId===p.id),sabotageButton=this.$('sabotage-button');
   this.currentSabotageContext=enemyStore?BASES.find(base=>base.id===enemyStore.id)?.stock:null;
@@ -383,60 +404,61 @@ export class ArcadeGame {
   sabotageButton.querySelector('span').textContent='ΚΑΤΑΣΤΡΟΦΗ';
   sabotageButton.querySelector('small').textContent=channel?`Απομένουν ${Math.max(0,RULES.sabotageSeconds-channel.progress).toFixed(1)}″`:`Κράτα ${RULES.sabotageSeconds}″`;
   sabotageButton.setAttribute('aria-label',`Κράτησε ${this.touch?'το κουμπί':'E'} για ${RULES.sabotageSeconds} δευτερόλεπτα για να καταστρέψεις την εχθρική αποθήκη`);
-  this.$('sabotage-status').hidden=!this.running||this.layoutEditing||!channel;const progress=channel?channel.progress/RULES.sabotageSeconds:0;
-  this.$('sabotage-copy').textContent='ΚΑΤΑΣΤΡΟΦΗ ΑΠΟΘΗΚΗΣ';this.$('sabotage-fill').style.transform=`scaleX(${progress})`;this.$('sabotage-track').setAttribute('aria-valuenow',String(Math.round(progress*100)));
+  this.setHUDHidden(this.$('sabotage-status'),!this.running||this.layoutEditing||!channel);const progress=channel?channel.progress/RULES.sabotageSeconds:0;
+  this.setHUDText(this.$('sabotage-copy'),'ΚΑΤΑΣΤΡΟΦΗ ΑΠΟΘΗΚΗΣ');this.$('sabotage-fill').style.transform=`scaleX(${progress})`;this.$('sabotage-track').setAttribute('aria-valuenow',String(Math.round(progress*100)));
   const mounted=this.state.catapults?.find(c=>c.id===p.catapultId),near=nearbyCatapult(this.state,p),useButton=this.$('catapult-button');
   this.currentCatapultContext=mounted||near;
   useButton.hidden=!this.running||this.layoutEditing||p.ko||(!mounted&&(!near||this.state.phase!=='battle'));
   useButton.disabled=!mounted&&(p.dizzyTime>0||p.knockUp>0||p.kick>0);
   useButton.querySelector('span').textContent=mounted?'ΕΞΟΔΟΣ':'ΕΙΣΟΔΟΣ';useButton.setAttribute('aria-label',`${this.touch?'':'E: '}${mounted?'Έξοδος από τον καταπέλτη':'Είσοδος στον κοντινό καταπέλτη'}`);useButton.classList.toggle('ready',!!mounted);
-  this.$('catapult-status').hidden=!mounted||!this.running||this.layoutEditing;this.$('catapult-status').textContent=mounted?(mounted.cooldown>0?`ΦΟΡΤΩΝΕΙ · ${mounted.cooldown.toFixed(1)}″`:'ΠΕΤΡΑ ΕΤΟΙΜΗ'):'';
+  this.setHUDHidden(this.$('catapult-status'),!mounted||!this.running||this.layoutEditing);this.setHUDText(this.$('catapult-status'),mounted?(mounted.cooldown>0?`ΦΟΡΤΩΝΕΙ · ${mounted.cooldown.toFixed(1)}″`:'ΠΕΤΡΑ ΕΤΟΙΜΗ'):'');
   this.renderer.domElement.classList.toggle('catapult-aiming',!!mounted&&this.mouseControl&&this.running&&!this.layoutEditing);this.$('aim-stick').classList.toggle('catapult',!!mounted);this.$('aim-stick').setAttribute('aria-label',mounted?'Κατεύθυνση και ισχύς καταπέλτη':'Στόχευση με σύρσιμο δεξιά');this.ui.querySelector('.move-zone').classList.toggle('mounted',!!mounted);
   if(this.lastMounted!==!!mounted){this.lastMounted=!!mounted;this.touchFire?.clear();this.stopCameraDrag();this.touchSticks?.aim?.clear();this.actions.fire=false;this.pointers.delete('aim');this.pointerTypes.delete('aim');this.aimStrength=0;this.$('aim-stick').querySelector('.stick-knob').style.transform='translate(-50%,-50%)';this.$('fire-button').innerHTML=(mounted?catapultIcon:flyIcon)+`<span>${mounted?'ΠΕΤΡΑ':'ΠΥΡ'}</span>`;this.$('fire-button').setAttribute('aria-label',mounted?'Πάτησε για βολή πέτρας από τον καταπέλτη':'Κράτα ΠΥΡ και σύρε για συνεχή βολή και περιστροφή');}
-  this.ui.querySelector('.aim-zone').hidden=!mounted;this.$('fire-button').hidden=false;
+  this.ui.querySelector('.aim-zone').hidden=!mounted&&!this.wallAiming?.();this.setHUDHidden(this.$('fire-button'),false);
   this.$('fire-button').disabled=!this.layoutEditing&&(p.ko||p.dizzyTime>0||p.knockUp>0);if(this.$('fire-button').disabled)this.touchFire?.clear();this.$('fire-button').classList.toggle('firing',this.actions.fire);this.$('fire-button').classList.toggle('empty',mounted?mounted.cooldown>0:p.ammo===0);
   const aimHint=this.$('touch-aim-hint');aimHint.hidden=!this.running||this.layoutEditing||!!mounted;aimHint.classList.toggle('firing',!!this.autoFireTargetId);this.$('aim-stick').classList.toggle('firing',!!this.autoFireTargetId);
-  this.$('touch-aim-copy').textContent=mounted?'ΚΑΤΕΥΘΥΝΣΗ · ΙΣΧΥΣ':this.viewMode==='overview'?'ΣΤΟΧΕΥΣΗ + ΠΥΡ':'ΘΕΑ + ΠΥΡ';
+  this.setHUDText(this.$('touch-aim-copy'),mounted?'ΚΑΤΕΥΘΥΝΣΗ · ΙΣΧΥΣ':this.viewMode==='overview'?'ΣΤΟΧΕΥΣΗ + ΠΥΡ':'ΘΕΑ + ΠΥΡ');
   this.ui.querySelector('.touch-look-guide').textContent=this.settings.touchFireMode==='tap'?'ΣΥΡΕ: ΣΤΟΧΕΥΣΗ · ΠΑΤΑ: ΒΟΛΗ':'ΣΥΡΕ ΔΕΞΙΑ ΓΙΑ ΘΕΑ';
-  this.$('auto-fire-status').textContent=this.settings.touchFireMode!=='auto'?'ΧΕΙΡΟΚΙΝΗΤΗ':this.autoFireTargetId?'ΑΥΤΟΜΑΤΗ · ΒΟΛΗ':'ΑΥΤΟΜΑΤΗ';
-  this.$('ammo-count').textContent=`${p.ammo} / ${RULES.capacity}`;this.$('ammo-percent').textContent=pct+'%';this.$('ammo-fill').style.transform=`scaleX(${pct/100})`;this.$('ammo-track').setAttribute('aria-valuenow',String(pct));this.$('ammo-state').textContent=p.ko?'Επιστρέφεις στην αποθήκη':p.ammo===RULES.capacity?'ΓΕΜΑΤΟΣ!':refilling?'ΑΠΟΘΗΚΗ ∞ · ΓΕΜΙΖΕΙ…':p.tongue>0?'ΜΑΖΕΥΕΙ ΜΥΓΕΣ…':p.ammo===0?'Γύρνα στην αποθήκη ή βρες σμήνος':'Μύγες για τις επόμενες βολές';this.$('ko-count').textContent=`${activeBases} / 3`;
+  this.setHUDText(this.$('auto-fire-status'),this.settings.touchFireMode!=='auto'?'ΧΕΙΡΟΚΙΝΗΤΗ':this.autoFireTargetId?'ΑΥΤΟΜΑΤΗ · ΒΟΛΗ':'ΑΥΤΟΜΑΤΗ');
+  this.setHUDText(this.$('ammo-count'),`${p.ammo} / ${ammunitionCapacity(p)}`);this.setHUDText(this.$('ammo-percent'),pct+'%');this.$('ammo-fill').style.transform=`scaleX(${pct/100})`;this.$('ammo-track').setAttribute('aria-valuenow',String(pct));this.setHUDText(this.$('ammo-state'),p.ko?'Επιστρέφεις στην αποθήκη':p.ammo===ammunitionCapacity(p)?'ΓΕΜΑΤΟΣ!':refilling?'ΑΠΟΘΗΚΗ ∞ · ΓΕΜΙΖΕΙ…':p.tongue>0?'ΜΑΖΕΥΕΙ ΜΥΓΕΣ…':p.ammo===0?'Γύρνα στην αποθήκη ή βρες σμήνος':'Μύγες για τις επόμενες βολές');this.setHUDText(this.$('ko-count'),`${activeBases} / 3`);
   for(const dot of this.$('base-dots').children){const b=this.state.bases.find(b=>b.owner===dot.dataset.owner);dot.classList.toggle('destroyed',!!b?.destroyed);dot.classList.toggle('attacked',!!b?.attackerId);dot.title=(dot.dataset.owner==='player'?'Η αποθήκη σου':dot.dataset.owner==='rival-1'?'Αποθήκη αντιπάλου 1':'Αποθήκη αντιπάλου 2')+(b?.destroyed?' · κατεστραμμένη':b?.attackerId?' · υπό επίθεση':' · άθικτη');}
-  this.$('round-status').hidden=!this.running||(!this.layoutEditing&&!p.ko&&this.state.phase==='battle');this.$('round-status').classList.toggle('warmup',this.state.phase!=='battle');
-  this.$('round-time').textContent=this.layoutEditing?'↔':p.ko?`${Math.ceil(p.respawnTime||0)}″`:this.state.phase!=='battle'?`${Math.ceil(this.state.intro)}″`:`${activeBases}`;
-  this.$('round-copy').textContent=this.layoutEditing?(this.touch?'ΡΥΘΜΙΣΗ ΘΕΣΕΩΝ':'ΡΥΘΜΙΣΗ ΘΕΣΕΩΝ · Το παιχνίδι περιμένει'):p.ko?(this.touch?'ΕΠΙΣΤΡΟΦΗ':'ΕΠΙΣΤΡΟΦΗ ΣΤΗ ΒΑΣΗ'):this.state.phase!=='battle'?(this.touch?'ΠΡΟΕΤΟΙΜΑΣΙΑ':'ΠΡΟΕΤΟΙΜΑΣΙΑ · Προστάτεψε την αποθήκη σου'):'';
+  this.setHUDHidden(this.$('round-status'),!this.running||(!this.layoutEditing&&!p.ko&&this.state.phase==='battle'));this.$('round-status').classList.toggle('warmup',this.state.phase!=='battle');
+  this.setHUDText(this.$('round-time'),this.layoutEditing?'↔':p.ko?`${Math.ceil(p.respawnTime||0)}″`:this.state.phase!=='battle'?`${Math.ceil(this.state.intro)}″`:`${activeBases}`);
+  this.setHUDText(this.$('round-copy'),this.layoutEditing?(this.touch?'ΡΥΘΜΙΣΗ ΘΕΣΕΩΝ':'ΡΥΘΜΙΣΗ ΘΕΣΕΩΝ · Το παιχνίδι περιμένει'):p.ko?(this.touch?'ΕΠΙΣΤΡΟΦΗ':'ΕΠΙΣΤΡΟΦΗ ΣΤΗ ΒΑΣΗ'):this.state.phase!=='battle'?(this.touch?'ΠΡΟΕΤΟΙΜΑΣΙΑ':'ΠΡΟΕΤΟΙΜΑΣΙΑ · Προστάτεψε την αποθήκη σου'):'');
   const storageAttacked=!!home?.attackerId&&!home.destroyed,warningVisible=this.running&&!this.layoutEditing&&storageAttacked;
-  this.ui.classList.toggle('storage-threat',warningVisible);this.$('base-status').hidden=!this.running||this.layoutEditing||(!storageAttacked&&!hidden);this.$('base-status').classList.toggle('threat',storageAttacked);
+  this.ui.classList.toggle('storage-threat',warningVisible);this.setHUDHidden(this.$('base-status'),!this.running||this.layoutEditing||(!storageAttacked&&!hidden));this.$('base-status').classList.toggle('threat',storageAttacked);
   const warningTitle=storageAttacked?'ΕΠΙΘΕΣΗ ΣΤΗΝ ΑΠΟΘΗΚΗ ΣΟΥ':hidden?'ΚΡΥΜΜΕΝΟΣ ΣΤΑ ΔΕΝΤΡΑ':'';
-  if(this.$('base-warning-title').textContent!==warningTitle)this.$('base-warning-title').textContent=warningTitle;
-  this.$('base-warning-detail').textContent=storageAttacked?`${Math.max(0,RULES.sabotageSeconds-home.progress).toFixed(1)}″ μέχρι καταστροφή · Χτύπησέ τον!`:hidden?'Πιο αργά άλματα':'';
+  if(this.$('base-warning-title').textContent!==warningTitle)this.setHUDText(this.$('base-warning-title'),warningTitle);
+  this.setHUDText(this.$('base-warning-detail'),storageAttacked?`${Math.max(0,RULES.sabotageSeconds-home.progress).toFixed(1)}″ μέχρι καταστροφή · Χτύπησέ τον!`:hidden?'Πιο αργά άλματα':'');
   const kickReady=canKick(this.state,p);
   // A dizzy rival owns its contextual button. The old touch kick remains only
   // for an ordinary defensive kick against a standing nearby rival.
-  this.$('kick-button').hidden=!this.running||this.layoutEditing||p.ko||this.state.phase!=='battle'||!!p.catapultId;
+  this.setHUDHidden(this.$('kick-button'),!this.running||this.layoutEditing||p.ko||this.state.phase!=='battle'||!!p.catapultId);
   this.$('kick-button').disabled=!kickReady;this.$('kick-button').classList.toggle('ready',kickReady);
-  this.$('dizzy-banner').hidden=!this.running||p.dizzyTime<=0;this.$('dizzy-time').textContent=p.dizzyTime.toFixed(1)+'″';this.$('aim-stick').classList.toggle('empty',mounted?mounted.cooldown>0:p.ammo===0);
+  this.setHUDHidden(this.$('dizzy-banner'),!this.running||p.dizzyTime<=0);this.setHUDText(this.$('dizzy-time'),p.dizzyTime.toFixed(1)+'″');this.$('aim-stick').classList.toggle('empty',mounted?mounted.cooldown>0:p.ammo===0);
 
-  if(this.calloutUntil<this.elapsed)this.$('callout').textContent='';
+  if(this.calloutUntil<this.elapsed)this.setHUDText(this.$('callout'),'');
   const contextLayout=['round-status','base-status','kick-button','fire-button'].map(id=>this.$(id).hidden?0:1).join('');
   if(this.touch&&!this.layoutEditing&&this.running&&this.pointers.size===0&&!this.cameraDrag&&!this.actions.fire&&!this.actions.sabotage&&contextLayout!==this.contextLayout){this.contextLayout=contextLayout;this.touchLayout?.refresh();}
   this.desktopControls?.update();this.contextActions?.update();
-  const training=!!this.state.training;this.$('training-button').textContent=training?'ΕΞΟΔΟΣ ΕΞΑΣΚΗΣΗΣ':'◎ ΕΞΑΣΚΗΣΗ';this.$('round-status').classList.toggle('training-status',training);
-  if(training){const stats=this.state.scoreboard?.player,percent=accuracy(stats);this.$('ammo-count').textContent='∞';this.$('ammo-percent').textContent='ΑΠΕΙΡΕΣ';this.$('ammo-state').textContent='ΕΞΑΣΚΗΣΗ · Κανονικά χειριστήρια';this.$('round-status').hidden=!this.running||this.layoutEditing;this.$('round-status').querySelector('b').textContent='ΚΙΝΟΥΜΕΝΟΙ ΣΤΟΧΟΙ';this.$('round-copy').textContent=`${stats?.shotHits||0}/${stats?.shots||0} εύστοχες · Ακρίβεια ${percent===null?'—':percent+'%'}`;this.$('base-status').hidden=true;this.$('sabotage-button').hidden=true;this.$('ko-count').textContent='2';this.ui.querySelector('.base-card>span').textContent='ΣΤΟΧΟΙ';this.$('base-dots').hidden=true;}
-  else{this.ui.querySelector('.base-card>span').textContent='ΑΠΟΘΗΚΕΣ';this.$('base-dots').hidden=false;}
+  const training=!!this.state.training;this.setHUDText(this.$('training-button'),training?'ΕΞΟΔΟΣ ΕΞΑΣΚΗΣΗΣ':'◎ ΕΞΑΣΚΗΣΗ');this.$('round-status').classList.toggle('training-status',training);
+  if(training){const stats=this.state.scoreboard?.player,percent=accuracy(stats);this.setHUDText(this.$('ammo-count'),'∞');this.setHUDText(this.$('ammo-percent'),'ΑΠΕΙΡΕΣ');this.setHUDText(this.$('ammo-state'),'ΕΞΑΣΚΗΣΗ · Κανονικά χειριστήρια');this.setHUDHidden(this.$('round-status'),!this.running||this.layoutEditing);this.$('round-status').querySelector('b').textContent='ΚΙΝΟΥΜΕΝΟΙ ΣΤΟΧΟΙ';this.setHUDText(this.$('round-copy'),`${stats?.shotHits||0}/${stats?.shots||0} εύστοχες · Ακρίβεια ${percent===null?'—':percent+'%'}`);this.setHUDHidden(this.$('base-status'),true);this.setHUDHidden(this.$('sabotage-button'),true);this.setHUDText(this.$('ko-count'),'2');this.ui.querySelector('.base-card>span').textContent='ΣΤΟΧΟΙ';this.setHUDHidden(this.$('base-dots'),true);}
+  else{this.ui.querySelector('.base-card>span').textContent='ΑΠΟΘΗΚΕΣ';this.setHUDHidden(this.$('base-dots'),false);}
   this.roundUI?.update();
  }
  renderActors(dt){
-  this.state.actors.forEach((a,i)=>{const m=this.models[i];m.group.visible=!a.eliminated;if(a.eliminated)return;const ground=this.ground(a.x,a.z);let x=a.x,z=a.z,y=ground+a.height+(a.catapultId?.45:0);
+  this.state.actors.forEach((a,i)=>{const m=this.models[i];m.group.visible=!a.eliminated;if(a.eliminated)return;const ground=this.ground(a.x,a.z);let x=a.x,z=a.z,y=ground+a.height+(a.catapultId?frogBody(a).mountedOffset:0);
    const launch=this.koTimes.get(a.id),age=launch?this.elapsed-launch.time:99;if(age<.65){x+=launch.dx*age*5;z+=launch.dz*age*5;y+=Math.sin(age/.65*Math.PI)*2.5;}
-   m.group.position.set(x,y,z);if(i===0){const firing=this.actions.fire||this.autoFireTargetId||a.shot>0||a.kick>0||a.catapultId||a.airSpit>0||a.flight?.queued;if(firing)m.motionYaw=null;else if(Math.hypot(a.hopX,a.hopZ)>.08)m.motionYaw=Math.atan2(a.hopX,a.hopZ);}const facing=actorVisualFacing(a,{currentYaw:m.group.rotation.y,manualFire:i===0&&this.actions.fire,autoFire:i===0&&!!this.autoFireTargetId,motionYaw:i===0?m.motionYaw:null}),active=facing.aiming;const diff=Math.atan2(Math.sin(facing.yaw-m.group.rotation.y),Math.cos(facing.yaw-m.group.rotation.y));m.group.rotation.y+=diff*(1-Math.exp(-dt*22));
+   m.group.position.set(x,y,z);if(i===0){const firing=this.actions.fire||this.autoFireTargetId||a.shot>0||a.kick>0||a.catapultId||a.airSpit>0||a.flight?.queued;if(firing)m.motionYaw=null;else if(Math.hypot(a.hopX,a.hopZ)>.08)m.motionYaw=Math.atan2(a.hopX,a.hopZ);}const facing=actorVisualFacing(a,{currentYaw:m.group.rotation.y,manualFire:i===0&&this.actions.fire,autoFire:i===0&&!!this.autoFireTargetId,motionYaw:i===0?m.motionYaw:null}),active=facing.aiming;const diff=Math.atan2(Math.sin(facing.yaw-m.group.rotation.y),Math.cos(facing.yaw-m.group.rotation.y));if(a.catapultId)m.group.rotation.y=facing.yaw;else m.group.rotation.y+=diff*(1-Math.exp(-dt*22));
    m.update(dt,{time:this.elapsed,speed:Math.hypot(a.hopX,a.hopZ),locomotion:localHopDirection(a.hopX,a.hopZ,m.group.rotation.y),building:!!a.sabotageId,hop:flightPose(a)||(a.knockUp>0?{phase:'air',progress:1-a.knockUp/a.knockUpDuration}:a.hop>0?{phase:'air',progress:1-a.hop/RULES.hopDuration}:a.idle>0?{phase:'land',progress:1-a.idle/RULES.landingDuration}:{phase:'idle',progress:0}),dead:a.ko,attack:a.kick>0?{type:'kick',phase:1-a.kick/(RULES.kickDuration||.48)}:a.tongue>0||a.shot>0?{type:'tongue',phase:a.tongue>0?1-a.tongue/.22:1-a.shot/RULES.shotInterval}:null});
-   applyLeapPose(m,a.flight,dt,a.hop>0?1-a.hop/RULES.hopDuration:null);
+   if(!m.ownsLimbPose&&(!m.stats.cartoon||a.flight?.kind==='wallHold'))applyLeapPose(m,a.flight,dt,a.hop>0?1-a.hop/RULES.hopDuration:null);
    const load=a.load,spit=a.airSpit>0?Math.sin((1-a.airSpit/AIR_RULES.spitDuration)*Math.PI):a.shot>0?Math.sin((1-a.shot/RULES.shotInterval)*Math.PI):0;applyArcadeAppearance(m,{load,spit});
-   if(active&&!a.airSpit&&!a.flight?.queued&&!a.ko&&!a.catapultId){const pitch=clamp(Math.atan2(a.aimY||0,Math.hypot(a.aimX,a.aimZ)),-.5,1.1);m.bones.head.rotation.x-=pitch*.7;m.bones.spine.rotation.x-=pitch*.12;}
+   if(active&&!a.airSpit&&!a.flight?.queued&&!a.ko&&!a.catapultId){const pitch=clamp(Math.atan2(a.aimY||0,Math.hypot(a.aimX,a.aimZ)),-.5,1.1);if(m.stats.cartoon)m.aimPitch(pitch);else {m.bones.head.rotation.x-=pitch*.7;m.bones.spine.rotation.x-=pitch*.12;}}
    // The rig now poses all four limbs in the actual hop direction; do not
    // add a second hip roll here (it would pull planted feet off their targets).
    if(a.dizzyTime>0){m.group.rotation.z=Math.sin(this.elapsed*7)*.17;m.bones.head.rotation.z+=Math.sin(this.elapsed*9)*.2;}else m.group.rotation.z=age<.65?age*6:0;
-   m.group.rotation.x=0;const diveTarget=a.airSpit>0||a.flight?.queued?1:0;m.airDivePitch=(m.airDivePitch||0)+(diveTarget-(m.airDivePitch||0))*(1-Math.exp(-dt*18));if(m.airDivePitch>.001){m.bones.head.rotation.x+=1.15*m.airDivePitch;m.bones.spine.rotation.x+=.2*m.airDivePitch;if(a.airSpit>0)m.bones.jaw.rotation.x-=.18;}if(a.flight?.kind==='dash'){const direction=Math.atan2(a.flight.vx,a.flight.vz)-m.group.rotation.y;m.group.rotation.x+=Math.cos(direction)*.28;m.group.rotation.z-=Math.sin(direction)*.28;}if(a.knockUp>0){const progress=1-a.knockUp/a.knockUpDuration,tilt=Math.sin(progress*Math.PI)*.38,direction=Math.atan2(a.impulseX,a.impulseZ)-m.group.rotation.y;m.group.rotation.x=Math.cos(direction)*tilt;m.group.rotation.z-=Math.sin(direction)*tilt;}
+   m.group.rotation.x=0;const diveTarget=a.airSpit>0||a.flight?.queued?1:0;m.airDivePitch=(m.airDivePitch||0)+(diveTarget-(m.airDivePitch||0))*(1-Math.exp(-dt*18));if(m.airDivePitch>.001&&!m.stats.cartoon){m.bones.head.rotation.x+=1.15*m.airDivePitch;m.bones.spine.rotation.x+=.2*m.airDivePitch;if(a.airSpit>0)m.bones.jaw.rotation.x-=.18;}if(a.flight?.kind==='dash'){const direction=Math.atan2(a.flight.vx,a.flight.vz)-m.group.rotation.y;m.group.rotation.x+=Math.cos(direction)*.28;m.group.rotation.z-=Math.sin(direction)*.28;}if(a.knockUp>0){const progress=1-a.knockUp/a.knockUpDuration,tilt=Math.sin(progress*Math.PI)*.38,direction=Math.atan2(a.impulseX,a.impulseZ)-m.group.rotation.y;m.group.rotation.x=Math.cos(direction)*tilt;m.group.rotation.z-=Math.sin(direction)*tilt;}
+   applyFlightAttitude(m,a.flight,dt);plantWallFeet(m,a.flight);
    // At an upward limit terrain can bring the eye inside the local frog.
    // Hide only that nearby body so it cannot cover the view or crosshair.
    if(i===0&&this.viewMode==='chase3d'&&!a.ko&&Math.hypot(this.camera.position.x-x,this.camera.position.z-z)<1.35&&this.camera.position.y<y+1.3)m.group.visible=false;
@@ -484,7 +506,7 @@ export class ArcadeGame {
   const p=this.state.actors[0],ground=this.ground(p.x,p.z)+(p.flight||p.support?p.height:0),anchor=new V(p.x,ground,p.z);
   const lock=this.running?this.targetLock?.update():null;
   if(lock&&this.viewMode==='chase3d'){const orbit=targetLockOrbit(p,ground,lock.cameraTarget,{yaw:this.cameraYaw,pitch:this.cameraPitch},dt);this.cameraYaw=orbit.yaw;this.cameraPitch=orbit.pitch;}
-  const pose=cameraPose(p,ground,this.w/this.h,this.viewMode,{yaw:this.cameraYaw,pitch:this.cameraPitch,zoom:this.settings.cameraZoom}),lookPoint=new V(...pose.look),camPoint=new V(...pose.position);
+  const pose=this.wallAiming?.()?wallAimPose(p,ground,this.w/this.h):cameraPose(p,ground,this.w/this.h,this.viewMode,{yaw:this.cameraYaw,pitch:this.cameraPitch,zoom:this.settings.cameraZoom}),lookPoint=new V(...pose.look),camPoint=new V(...pose.position);
   this.cameraFollow??=new V();
   if(!this.cameraReady){this.cameraFollow.copy(anchor);this.cameraReady=true;}else this.cameraFollow.lerp(anchor,1-Math.exp(-dt*8));
   // Dampen travel only. The shoulder offset turns immediately with the mouse
@@ -500,7 +522,7 @@ export class ArcadeGame {
   this.performanceMeter?.begin(now);
   const dt=Math.min(.05,Math.max(0,(now-this.last)/1000));this.last=now;
   const p=this.state.actors[0],active=this.running&&!this.layoutEditing;
-  if(active&&this.viewMode==='chase3d'){
+  if(active&&this.viewMode==='chase3d'&&!this.wallHeld?.()){
    const stick=this.pointers.has('aim'),edge=0;
    const x=stick?this.stickAim.x*this.aimStrength:edge,y=stick?this.stickAim.z*this.aimStrength:0;
    const orbit=lookCameraRate({yaw:this.cameraYaw,pitch:this.cameraPitch},x,y,dt,{sensitivity:this.settings.cameraSensitivity,deadzone:stick ? .08 : 0});
@@ -513,9 +535,9 @@ export class ArcadeGame {
   else if(this.mode==='result'||this.mode==='finishing')this.elapsed+=dt;
   if(this.mode==='finishing'&&this.elapsed>=this.resultAt)this.showResult();
   if(!this.cameraReady)this.updateCameraPose(0);
-  if(this.running||this.mode==='title'||this.mode==='result'||this.mode==='finishing'){const animationDt=this.mode==='title'||this.layoutEditing?0:dt;this.renderActors(animationDt);this.renderFlies();this.updateCatapultAim?.();this.artilleryView.update(animationDt);this.basesView.update(animationDt);this.guardsView?.update(animationDt);this.battlegroundView?.update?.(animationDt);this.impactEffects.update(animationDt);this.world.update(this.running&&!this.layoutEditing?dt:0,this.elapsed,1,new V(p.x,this.ground(p.x,p.z),p.z));this.visualUpgrade?.update(animationDt);}
+  if(this.running||this.mode==='title'||this.mode==='result'||this.mode==='finishing'){const animationDt=this.mode==='title'||this.layoutEditing?0:dt;this.renderActors(animationDt);this.renderFlies();this.updateCatapultAim?.();this.updateWallJumpAim?.();this.artilleryView.update(animationDt);this.basesView.update(animationDt);this.guardsView?.update(animationDt);this.battlegroundView?.update?.(animationDt);this.impactEffects.update(animationDt);this.world.update(this.running&&!this.layoutEditing?dt:0,this.elapsed,1,new V(p.x,this.ground(p.x,p.z),p.z));this.visualUpgrade?.update(animationDt);this.importedAssets?.update(animationDt);}
   if((this.running&&!this.layoutEditing)||this.mode==='finishing'||this.mode==='result'){this.particles=this.particles.filter(p=>{if(this.elapsed-p.start>.55){p.mesh.removeFromParent();return false;}p.v.y-=dt*16;p.mesh.position.addScaledVector(p.v,dt);return true;});}
   this.menuAnimation?.update(dt);this.renderer.render(this.scene,this.camera);this.drawLabels();this.updateHUD();this.performanceMeter?.end(performance.now());
  }
- inspect(){return {version:ARCADE_VERSION,performance:this.performanceMeter?.inspect(),training:!!this.state.training,scoreboard:this.state.scoreboard,music:{volume:this.sound.musicVolume,playing:!!this.sound.music?.source,renderCount:this.sound.music?.renderCount||0},battleground:{radius:RULES.radius,area:battlegroundAreaAt(this.state.actors[0].x,this.state.actors[0].z)?.id||null,areas:BATTLEGROUND_AREAS.map(area=>({id:area.id,name:area.name,x:area.x,z:area.z})),swarmPatches:SWARMS.length},viewMode:this.viewMode,cameraControl:this.touch?'swipe-look':'direct-look',touchFireMode:this.settings.touchFireMode,autoFireTargetId:this.autoFireTargetId,pointerLocked:this.pointerLocked(),cameraSensitivity:this.settings.cameraSensitivity,mouse:{x:this.mouse.x,y:this.mouse.y,valid:this.mouse.valid},aim:{...this.aim},aimScreen:this.currentAimScreen,cameraYaw:this.cameraYaw,cameraPitch:this.cameraPitch,cameraDragging:!!this.cameraDrag,phase:this.state.phase,intro:this.state.intro,mode:this.mode,status:this.state.status,ammo:this.state.actors[0].ammo,fillPercent:Math.round(this.state.actors[0].ammo/RULES.capacity*100),actors:this.state.actors.map(a=>({id:a.id,x:a.x,z:a.z,ammo:a.ammo,dizzy:a.dizzy,dizzyTime:a.dizzyTime,ko:a.ko,eliminated:a.eliminated,respawnTime:a.respawnTime,spawnShield:a.spawnShield,invuln:a.invuln,sabotageId:a.sabotageId,aiming:a.aiming,aimX:a.aimX,aimY:a.aimY,aimZ:a.aimZ,face:a.face,hop:a.hop,hopX:a.hopX,hopZ:a.hopZ,height:a.height,flight:a.flight?{...a.flight}:null,support:a.support,dashCooldown:a.dashCooldown,knockUp:a.knockUp,finishHits:a.finishHits,kickCooldown:a.kickCooldown,catapultId:a.catapultId})),bases:this.state.bases.map(b=>({...b})),capacity:RULES.capacity,guards:this.state.guards?.map(guard=>({...guard})),layoutEditing:this.layoutEditing,touch:this.touch,catapults:this.state.catapults?.map(c=>({id:c.id,occupant:c.occupant,cooldown:c.cooldown})),shells:this.state.shells?.length,hitConfirmUntil:this.hitConfirmUntil,bullets:this.state.bullets.length,splats:this.splats.length,legacySavePreserved:true};}
+ inspect(){return {version:ARCADE_VERSION,performance:this.performanceMeter?.inspect(),graphics:this.surfaceSample?.inspect()||{mode:this.graphicsOptimized?'optimized-baseline':'original'},training:!!this.state.training,scoreboard:this.state.scoreboard,music:{volume:this.sound.musicVolume,playing:!!this.sound.music?.source,renderCount:this.sound.music?.renderCount||0},battleground:{radius:RULES.radius,area:battlegroundAreaAt(this.state.actors[0].x,this.state.actors[0].z)?.id||null,areas:BATTLEGROUND_AREAS.map(area=>({id:area.id,name:area.name,x:area.x,z:area.z})),swarmPatches:SWARMS.length},viewMode:this.viewMode,cameraControl:this.touch?'swipe-look':'direct-look',touchFireMode:this.settings.touchFireMode,autoFireTargetId:this.autoFireTargetId,pointerLocked:this.pointerLocked(),cameraSensitivity:this.settings.cameraSensitivity,mouse:{x:this.mouse.x,y:this.mouse.y,valid:this.mouse.valid},aim:{...this.aim},aimScreen:this.currentAimScreen,cameraYaw:this.cameraYaw,cameraPitch:this.cameraPitch,cameraDragging:!!this.cameraDrag,phase:this.state.phase,intro:this.state.intro,mode:this.mode,status:this.state.status,ammo:this.state.actors[0].ammo,fillPercent:Math.round(this.state.actors[0].ammo/ammunitionCapacity(this.state.actors[0])*100),actors:this.state.actors.map(a=>({id:a.id,characterClass:a.characterClass,x:a.x,z:a.z,ammo:a.ammo,dizzy:a.dizzy,dizzyTime:a.dizzyTime,ko:a.ko,eliminated:a.eliminated,respawnTime:a.respawnTime,spawnShield:a.spawnShield,invuln:a.invuln,sabotageId:a.sabotageId,aiming:a.aiming,aimX:a.aimX,aimY:a.aimY,aimZ:a.aimZ,face:a.face,hop:a.hop,hopX:a.hopX,hopZ:a.hopZ,height:a.height,flight:a.flight?{...a.flight}:null,support:a.support,dashCooldown:a.dashCooldown,knockUp:a.knockUp,finishHits:a.finishHits,kickCooldown:a.kickCooldown,catapultId:a.catapultId})),bases:this.state.bases.map(b=>({...b})),capacity:ammunitionCapacity(this.state.actors[0]),characterSelection:this.characterSelection?.inspect(),guards:this.state.guards?.map(guard=>({...guard})),layoutEditing:this.layoutEditing,touch:this.touch,catapults:this.state.catapults?.map(c=>({id:c.id,occupant:c.occupant,cooldown:c.cooldown})),shells:this.state.shells?.length,hitConfirmUntil:this.hitConfirmUntil,bullets:this.state.bullets.length,splats:this.splats.length,legacySavePreserved:true};}
 }

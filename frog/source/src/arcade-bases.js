@@ -1,6 +1,7 @@
 // Shared arena geometry. The simulation, radar and Three.js scene use these
 // exact footprints, so a visible gate is also the only physical way inside.
-import { FROG_BODY } from './arcade-actor-bounds.js';
+import {machineFootprints,machineDetour} from './arcade-cartoon-machine-bounds.js';
+import { FROG_BODY, frogBody } from './arcade-actor-bounds.js';
 import { sweepBody, clearBodySegment, rectangleClearance } from './arcade-collision.js';
 import { ARENA_MOVE_RADIUS, BATTLEGROUND_ROCKS, BATTLEGROUND_COVER } from './arcade-battleground.js';
 const freezePoint = (x, z) => Object.freeze({x, z});
@@ -134,12 +135,12 @@ export function wallContact(x,z,nx,nz,padding=0){
 export function hasWallSight(a,b,padding=.1){return wallContact(a.x,a.z,b.x,b.z,padding)===null;}
 
 /** Rounded clearance preserves sliding and lets a touching frog turn away. */
-export function resolveWallMove(actor,dx,dz,radius=ACTOR_RADIUS){
+export function resolveWallMove(actor,dx,dz,radius=frogBody(actor).movementRadius){
   return sweepBody(actor,dx,dz,{walls:WALLS,radius});
 }
 
 /** All solids participate in the same sweep; a rock correction cannot re-enter a wall. */
-export function resolveArenaMove(actor,dx,dz,{radius=ACTOR_RADIUS,arenaRadius=ARENA_MOVE_RADIUS,ground=()=>0}={}){
+export function resolveArenaMove(actor,dx,dz,{radius=frogBody(actor).movementRadius,arenaRadius=ARENA_MOVE_RADIUS,ground=()=>0,catapults=null}={}){
  let circles=actor.catapultId?NAV_CIRCLES.filter(c=>c.id!==actor.catapultId):NAV_CIRCLES,walls=WALLS;
  if(actor.flight||actor.support){
   const bottom=Number.isFinite(actor.flight?.y)?actor.flight.y:ground(actor.x,actor.z)+(actor.height||0),source=actor.support?.id||actor.flight?.sourceSupport;
@@ -152,6 +153,14 @@ export function resolveArenaMove(actor,dx,dz,{radius=ACTOR_RADIUS,arenaRadius=AR
    if(q<=1&&bottom>=base+c.r*.9+c.r*1.7*Math.sqrt(1-q)-.015)return false;
    return true;
   });
+ }
+ if(actor.characterClass&&catapults?.length){
+  circles=circles.filter(c=>!c.machine);const source=actor.support?.id||actor.flight?.sourceSupport,bottom=Number.isFinite(actor.flight?.y)?actor.flight.y:ground(actor.x,actor.z)+(actor.height||0);
+  const machines=machineFootprints(catapults).filter(b=>{
+   if(b.id===actor.catapultId||source==='machine:'+b.id)return false;
+   const seat=Math.hypot(actor.x-b.station.x,actor.z-b.station.z)<.63,support=seat&&actor.flight?.vy<=0?frogBody(actor).mountedOffset:b.top;
+   return bottom<ground(b.station.x,b.station.z)+support-.015;
+  });walls=[...walls,...machines];
  }
  return sweepBody(actor,dx,dz,{walls,circles,radius,arenaRadius});
 }
@@ -208,11 +217,12 @@ function findRoute(actor,goal){
 }
 
 /** Direction to a target through real gates, with a cached static visibility graph. */
-export function navigateTo(actor,target){
+export function navigateTo(actor,target,{catapults=[]}={}){
+  target=machineDetour(actor,target,catapults);
   if(!Number.isFinite(target?.x)||!Number.isFinite(target?.z))return {x:0,z:0};
   // A shove can leave the actor touching the physical wall. Step clear of the
   // small navigation margin before searching; otherwise every ray starts blocked.
-  const clearance=resolveArenaMove(actor,0,0,{radius:NAV_RADIUS}),correction=Math.hypot(clearance.x-actor.x,clearance.z-actor.z);
+  const clearance=resolveArenaMove(actor,0,0,{radius:NAV_RADIUS,catapults}),correction=Math.hypot(clearance.x-actor.x,clearance.z-actor.z);
   if(correction>.005){routes.delete(actor);return {x:(clearance.x-actor.x)/correction,z:(clearance.z-actor.z)/correction};}
   const goal=goalPoint(actor,target),distance=Math.hypot(goal.x-actor.x,goal.z-actor.z);
   if(distance<.18){routes.delete(actor);return {x:0,z:0};}

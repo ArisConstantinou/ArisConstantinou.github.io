@@ -1,3 +1,5 @@
+import {installCartoonCatapults} from './arcade-cartoon-catapult.js';
+import {CATAPULT_MECHANISM} from './arcade-cartoon-bodies.js';
 import * as THREE from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {plankedFloorGeometry} from './arcade-floor-geometry.js';
@@ -64,6 +66,7 @@ export class ArtilleryView {
   this.previewPieces=[this.previewLine,this.previewBeads,this.landingMarker,this.landingPulse,this.landingCore];this.hidePreview();
  }
 
+ installCartoon(gltf){this.cartoon=installCartoonCatapults(this,gltf);}
  ground(x,z){return this.game.ground(x,z);}
  mesh(parent,geometry,material,position=[0,0,0],scale=[1,1,1]){
   const mesh=new THREE.Mesh(geometry,material);mesh.position.fromArray(position);mesh.scale.fromArray(scale);parent.add(mesh);return mesh;
@@ -169,7 +172,7 @@ export class ArtilleryView {
 
  consumeEvent(event){
   if(event.type==='stoneShot'){
-   const station=this.machines.get(event.catapultId);if(station){station.launchAge=0;station.arm.rotation.x=0;station.loadedRock.visible=false;}
+   const station=this.machines.get(event.catapultId);if(station){station.launchAge=0;station.arm.rotation.x=0;station.loadedRock.visible=!!station.cartoon;}
   }
  }
 
@@ -179,7 +182,7 @@ export class ArtilleryView {
   return out.set(x,lerp(startY,endY,t)+4*shell.arcHeight*t*(1-t),z);
  }
  createShell(shell){
-  const stone=this.mesh(this.scene,this.geometry.rock,this.material.stone,undefined,[1.05,.95,1.14]);stone.name=`catapult-stone-${shell.id}`;
+  const stone=this.mesh(this.scene,this.cartoon?.rockGeometry||this.geometry.rock,this.cartoon?.rockMaterial||this.material.stone,undefined,this.cartoon?[1,1,1]:[1.05,.95,1.14]);stone.name=`catapult-stone-${shell.id}`;
   const material=new THREE.MeshBasicMaterial({color:shell.owner==='player'?'#e4c36e':'#f17e62',transparent:true,opacity:.45,side:THREE.DoubleSide,depthWrite:false});
   const ring=this.mesh(this.scene,this.geometry.ring,material,[shell.tx,this.ground(shell.tx,shell.tz)+.055,shell.tz],[ARTILLERY.blastRadius,ARTILLERY.blastRadius,ARTILLERY.blastRadius]);ring.rotation.x=-Math.PI/2;ring.name=`catapult-danger-${shell.id}`;
   const core=this.mesh(this.scene,this.geometry.disc,material,[shell.tx,this.ground(shell.tx,shell.tz)+.05,shell.tz],[.13,.13,.13]);core.rotation.x=-Math.PI/2;
@@ -197,7 +200,7 @@ export class ArtilleryView {
   for(const piece of this.previewPieces)piece.visible=true;
   this.previewClock+=Math.max(0,Math.min(.1,dt));
   const dx=target.x-station.x,dz=target.z-station.z,length=Math.hypot(dx,dz)||1;
-  const shell={startX:station.x+dx/length,startZ:station.z+dz/length,startHeight:1.6,tx:target.x,tz:target.z,arcHeight:ARTILLERY.arcHeight};
+  const release=this.cartoon?CATAPULT_MECHANISM.releaseSocket:null,forward=release?.z??1,right=release?.x??0;const shell={startX:station.x+dx/length*forward+dz/length*right,startZ:station.z+dz/length*forward-dx/length*right,startHeight:release?.y??1.6,tx:target.x,tz:target.z,arcHeight:ARTILLERY.arcHeight};
   const positions=this.previewLine.geometry.attributes.position;
   for(let i=0;i<positions.count;i++){const point=this.shellPoint(shell,i/(positions.count-1));positions.setXYZ(i,point.x,point.y,point.z);}
   positions.needsUpdate=true;this.previewLine.computeLineDistances();
@@ -249,6 +252,7 @@ export class ArtilleryView {
    machine.group.position.y=this.ground(station.x,station.z);
    const yaw=Math.atan2(station.aimX,station.aimZ);machine.yaw=yaw;machine.turret.rotation.y=yaw;
    if(Number.isFinite(machine.launchAge))machine.launchAge+=advancing;
+   if(machine.cartoon){this.cartoon.updateStation(machine,station);continue;}
    const aim=this.game.catapultAim,playerUsing=station.occupant==='player'&&aim?.active;
    let wanted=playerUsing?-.74:-.45;
    if(station.cooldown>0){
@@ -263,7 +267,7 @@ export class ArtilleryView {
   }
   for(const shell of state.shells||[]){
    let visual=this.shellMeshes.get(shell.id);if(!visual){visual=this.createShell(shell);this.shellMeshes.set(shell.id,visual);}
-   const t=clamp(shell.age/shell.duration);this.shellPoint(shell,t,visual.stone.position);
+   const delay=shell.releaseDelay||0,t=clamp((shell.age-delay)/(shell.duration-delay));visual.stone.visible=shell.age>=delay;this.shellPoint(shell,t,visual.stone.position);
    visual.stone.rotation.set(shell.age*4,shell.age*3,shell.age*1.5);visual.material.opacity=.35+.22*t+.08*Math.sin(this.clock*13);
   }
   for(const [id,visual] of this.shellMeshes)if(!(state.shells||[]).some(shell=>shell.id===id)){visual.stone.removeFromParent();visual.ring.removeFromParent();visual.core.removeFromParent();visual.material.dispose();this.shellMeshes.delete(id);}
@@ -271,6 +275,7 @@ export class ArtilleryView {
  }
 
  dispose(){
+  this.cartoon?.dispose();
   for(const platform of this.platforms.values()){platform.group.removeFromParent();platform.group.traverse(item=>{if(item.userData.ownedGeometry)item.geometry.dispose();});}
   for(const machine of this.machines.values()){machine.group.removeFromParent();machine.group.traverse(item=>{if(item.userData.ownedGeometry)item.geometry.dispose();});machine.factionMaterial.dispose();machine.ringMaterial.dispose();}
   for(const visual of this.shellMeshes.values()){visual.stone.removeFromParent();visual.ring.removeFromParent();visual.core.removeFromParent();visual.material.dispose();}

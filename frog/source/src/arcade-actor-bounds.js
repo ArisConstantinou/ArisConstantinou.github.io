@@ -1,3 +1,4 @@
+import {CARTOON_BODIES} from './arcade-cartoon-bodies.js';
 import {actorVisualFacing} from './arcade-facing.js';
 
 // The arcade appearance keeps every team at the same anatomical scale. Ammo
@@ -19,12 +20,15 @@ export const FROG_HIT_VOLUMES=Object.freeze([
  volume(.46,.16,.58,.12,.15,.28),
 ]);
 
+export const frogBody=actor=>CARTOON_BODIES[actor?.characterClass]||FROG_BODY;
+export const actorHitVolumes=actor=>CARTOON_BODIES[actor?.characterClass]?.hitVolumes||FROG_HIT_VOLUMES;
+
 const finite=(value,fallback=0)=>Number.isFinite(value)?value:fallback;
 export function actorBodyBase(actor,ground=0){
- return finite(ground)+Math.max(0,finite(actor?.height))+(actor?.catapultId?FROG_BODY.mountedOffset:0);
+ return finite(ground)+Math.max(0,finite(actor?.height))+(actor?.catapultId?frogBody(actor).mountedOffset:0);
 }
 export function actorVerticalBounds(actor,ground=0){
- const bottom=actorBodyBase(actor,ground);return {bottom,top:bottom+FROG_BODY.height};
+ const bottom=actorBodyBase(actor,ground);return {bottom,top:bottom+frogBody(actor).height};
 }
 export function actorBodiesOverlapHeight(a,b,{groundA=0,groundB=0,padding=0}={}){
  const first=actorVerticalBounds(a,groundA),second=actorVerticalBounds(b,groundB),reach=Math.max(0,finite(padding));

@@ -1,3 +1,4 @@
+import {mergeStaticInstanceGroups,setPackedDensity} from './arcade-instance-batches.js';
 import * as THREE from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {leafGeometry} from './world.js';
@@ -246,7 +247,7 @@ export class BattlegroundView{
   this.material={road:material({color:'#eee4d2',vertexColors:true,map:grain,roughness:1,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1,side:THREE.DoubleSide}),stone:material({color:'#ffffff',roughness:1}),leaf:material({color:'#ffffff',roughness:.86,side:THREE.DoubleSide}),petal:material({color:'#ffffff',roughness:.76,side:THREE.DoubleSide}),plant:material({color:'#ffffff',roughness:.96,side:THREE.DoubleSide}),bark:material({color:'#776346',roughness:1}),ripple:material({color:'#bddecd',transparent:true,opacity:.2,depthWrite:false,side:THREE.DoubleSide})};
   this.material.plant.onBeforeCompile=shader=>{shader.uniforms.uDistrictWind=this.wind;shader.vertexShader='uniform float uDistrictWind;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef USE_INSTANCING\ntransformed.x += sin(uDistrictWind * 1.3 + instanceMatrix[3].x * .8 + instanceMatrix[3].z * .6) * position.y * position.y * .035;\n#endif');};
   this.material.plant.customProgramCacheKey=()=> 'frog-district-reed-wind';
-  this.buildRoutes();this.buildVerges();for(const [index,area] of BATTLEGROUND_AREAS.entries())this.buildArea(area,index);this.setQuality(game.settings?.quality==='low');
+  this.buildRoutes();this.buildVerges();for(const [index,area] of BATTLEGROUND_AREAS.entries())this.buildArea(area,index);if(game.graphicsOptimized){this.instanceBatching=mergeStaticInstanceGroups(this.group);this.metrics.drawCalls-=this.instanceBatching.reduction;}this.setQuality(game.settings?.quality==='low');
  }
  ground(x,z){return this.game.ground(x,z);}
  safeDecor(x,z,radius=.15){
@@ -372,7 +373,7 @@ export class BattlegroundView{
  update(dt=0){this.wind.value+=Math.max(0,Math.min(.1,Number.isFinite(dt)?dt:0));}
  setQuality(low){
   const density=(low===true||low==='low')?.58:1;this.quality=density<1?'low':'high';let visible=0;
-  this.group.traverse(object=>{if(!object.isInstancedMesh)return;const group=object.userData.groupSize||1;object.count=Math.floor(object.userData.fullCount*density/group)*group;visible+=object.count;});
+  this.group.traverse(object=>{if(!object.isInstancedMesh)return;if(setPackedDensity(object,density)){visible+=object.count;return;}const group=object.userData.groupSize||1;object.count=Math.floor(object.userData.fullCount*density/group)*group;visible+=object.count;});
   this.metrics.visibleInstances=visible;
  }
  dispose(){

@@ -7,7 +7,7 @@ import {guardActive} from './arcade-guards.js';
 export function resolveAutoFire({state,actor,input={},active=false,aiming=false}={}){
  const off={fire:false,targetId:null,trace:null};
  if(!active||!aiming||state?.status!=='playing'||state.phase!=='battle'||!actor||!Array.isArray(state.actors))return off;
- if(actor.ko||actor.eliminated||actor.dizzyTime>0||actor.hit>0||actor.knockUp>0||actor.kick>0||actor.catapultId||actor.sabotageId||!Number.isFinite(actor.ammo)||actor.ammo<=0)return off;
+ if(actor.ko||actor.eliminated||actor.dizzyTime>0||actor.hit>0||actor.knockUp>0||actor.kick>0||actor.catapultId||actor.flight?.kind==='wallHold'||actor.sabotageId||!Number.isFinite(actor.ammo)||actor.ammo<=0)return off;
  if(!input||input.aiming===false||input.sabotage||input.kick||input.throwStone||input.interactCatapult||input.interact)return off;
  const ay=input.ay===undefined?0:input.ay;
  if(!Number.isFinite(actor.x)||!Number.isFinite(actor.z)||!Number.isFinite(input.ax)||!Number.isFinite(ay)||!Number.isFinite(input.az)||Math.hypot(input.ax,ay,input.az)<=.05)return off;

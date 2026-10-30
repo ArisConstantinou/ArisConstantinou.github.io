@@ -4,7 +4,7 @@
 #frog-actions .frog-action{width:68px;height:82px;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px 3px 4px;border:2px solid #d7f5a5;border-radius:18px;background:#214f3bf2;color:#f4ffdc;box-shadow:0 4px 0 #113a2caa,0 3px 12px #082e2855;pointer-events:auto;touch-action:none;user-select:none}
 #frog-actions .frog-action-stars{position:absolute;top:3px;left:0;right:0;text-align:center;color:#ffe17a;font-size:10px;letter-spacing:8px;padding-left:8px;line-height:1}
 #frog-actions .frog-action-icon{display:block;width:33px;height:33px;margin-top:5px}
-#frog-actions .frog-action-icon svg{display:block;width:100%;height:100%}
+#frog-actions .frog-action-icon svg,#frog-actions .frog-action-icon img{display:block;width:100%;height:100%}
 #frog-actions .frog-action-pips{display:flex;gap:4px;align-items:center;justify-content:center;height:8px}
 #frog-actions .finish-pip{display:block;width:7px;height:7px;border:1px solid #efffca;border-radius:50%;background:#153c31}
 #frog-actions .finish-pip.is-filled{background:#d8fa86;box-shadow:0 0 4px #d4fb8370}

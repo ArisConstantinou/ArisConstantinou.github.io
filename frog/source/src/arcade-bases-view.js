@@ -45,7 +45,7 @@ export class ArcadeBasesView {
         if(wall.enclosureId!==yard.id)continue;
         const ground=this.ground(wall.x,wall.z);
         this.boxPart(stone,wall.x,ground+.25,wall.z,wall.hw*2+.08,.5,wall.hd*2+.08);
-        this.boxPart(wood,wall.x,ground+wall.height*.5,wall.z,wall.hw*2,wall.height,wall.hd*2);
+        if(this.game.graphicsSample){const rows=Math.ceil(wall.height/.29),h=wall.height/rows;for(let row=0;row<rows;row++)this.boxPart(wood,wall.x,ground+(row+.5)*h,wall.z,wall.hw*2,h-.018,wall.hd*2);}else this.boxPart(wood,wall.x,ground+wall.height*.5,wall.z,wall.hw*2,wall.height,wall.hd*2);
         this.boxPart(caps,wall.x,ground+wall.height+.055,wall.z,wall.hw*2+.05,.16,wall.hd*2+.05);
         const horizontal=wall.hw>wall.hd,length=horizontal?wall.hw*2:wall.hd*2,steps=Math.max(1,Math.floor(length/.65));
         for(let i=0;i<=steps;i++){

@@ -1,3 +1,4 @@
+import {aerialAttack} from './arcade-character-classes.js';
 import {canAirVolley} from './arcade-air-movement.js';
 const icon=paths=>'<svg viewBox="0 0 32 32" aria-hidden="true">'+paths+'</svg>';
 export const airControlsMarkup='<button id="jump-button" type="button" class="touch-action air-action" aria-label="Άλμα, δεύτερο πάτημα στον αέρα για διπλό άλμα">'+icon('<path d="M5 25Q16 2 27 25M11 10l5-6 5 6"/><path d="M7 28h18"/>')+'<span>ΑΛΜΑ ×2</span></button><button id="dash-button" type="button" class="touch-action air-action" aria-label="Dash προς τον μοχλό κίνησης, ή μπροστά αν είναι ελεύθερος">'+icon('<path d="M3 13h12M1 19h11M12 7h9l8 9-8 9h-9l8-9Z"/>')+'<span>DASH</span></button><button id="air-volley-button" type="button" class="touch-action air-action" aria-label="Τρεις μύγες προς τα κάτω στην κάθοδο" hidden>'+icon('<path d="M16 3v25m-4-4 4 4 4-4M12 7 3 24m0-6v6h6M20 7l9 17m-6 0h6v-6"/>')+'<span>3 ΚΑΤΩ</span></button>';
@@ -44,11 +45,12 @@ export function installAirControls(game){
   dash.disabled=!game.layoutEditing&&(blocked||mounted||p.dashCooldown>0||p.flight?.dashed===true);
   volley.hidden=!game.layoutEditing&&(!game.touch||(!ready&&!queued));
   volley.disabled=!game.layoutEditing&&(!ready||queued);
-  volley.querySelector('span').textContent=queued?'ΚΑΘΟΔΟΣ':'3 ΚΑΤΩ';
+  const plan=aerialAttack(p),label=plan?.kind==='bodySlam'?'ΒΟΥΤΙΑ':plan?.kind==='airKick'?'ΚΛΩΤΣΙΑ':plan?.count===8?'ΑΣΤΕΡΙ ×8':'3 ΚΑΤΩ';
+  volley.querySelector('span').textContent=queued?'ΕΤΟΙΜΟ':label;volley.setAttribute('aria-label',plan?.kind==='bodySlam'?'Χτύπημα με το σώμα στην προσγείωση':plan?.kind==='airKick'?'Εναέρια κλωτσιά':plan?.count===8?'Ακτινωτή ριπή οκτώ μυγών':'Τρεις μύγες προς τα κάτω');
   const next=[jump.hidden,dash.hidden,volley.hidden].join();if(next!==visibility){visibility=next;game.touchLayout?.refresh();}
   hint.hidden=!game.running||game.layoutEditing||game.touch||(!ready&&!queued);
-  if(!hint.hidden)hint.textContent=queued?'Q · ΕΤΟΙΜΗ ΒΟΛΗ ΣΤΗΝ ΚΑΘΟΔΟ':'Q · 3 ΜΥΓΕΣ ΠΡΟΣ ΤΑ ΚΑΤΩ';
-  const q=root?.querySelector('[data-key="KeyQ"]');if(q){q.classList.toggle('air-ready',ready);q.setAttribute('aria-label',ready?'Q: τριπλή καθοδική βολή':'Q: κλωτσιά');}
+  if(!hint.hidden)hint.textContent='Q · '+(queued?'ΕΤΟΙΜΟ ΣΤΗΝ ΚΑΘΟΔΟ':label);
+  const q=root?.querySelector('[data-key="KeyQ"]');if(q){q.classList.toggle('air-ready',ready);q.setAttribute('aria-label',ready?'Q: '+label:p.characterClass==='heavy'?'Q: χτύπημα κοιλιάς':'Q: κλωτσιά');}
  };
  return {reset,destroy(){removeEventListener('keydown',down,true);removeEventListener('keyup',up,true);hint.remove();}};
 }

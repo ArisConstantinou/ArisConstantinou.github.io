@@ -1,0 +1,14 @@
+# Βαλτομαχίες 4.4.0
+
+Joint release of the three coordinated game workstreams.
+
+- Three new selectable, articulated characters, distinct capacities/speeds and ground/air attacks; native menu and gameplay animation.
+- New rigged rock catapult, real operator grips, delayed physical projectile release and chassis collision.
+- Imported house and nature assets. House facade, floor, doorway and roof match gameplay surfaces. Actual weighted toe pads plant against the wall.
+- Settings: manual wall hold, touch destination/range and confirmation; automatic closest reachable object. Strong ballistic push, local body pitch follows ascent/descent without a flip.
+- Illustrated title Βαλτομαχίες / Μια ιδέα του Άρη, pausable objective reader and mobile layouts.
+- GPU-compressed model textures, pooled/shared rendering data and live FPS/frame-time counter. Versioned model requests, existing automatic updater and save/settings keys retained.
+
+Validation: 12 real new-body wall/contact/cardinal-flight cases; 6 live DOM touch manual/auto approach/contact/launch/landing recordings, all three classes; full source suite, updater/build, desktop and both mobile viewports. The original phone baseline was human-reported60FPS/p9518ms on iPhone14ProMax/Chrome. New performance comparisons use an RTX5080 desktop with mobile viewport emulation, not a physical phone. A2x frame-rate improvement is not established.
+
+Editable Blender/source assets and original receipts remain in the canonical local assets-source folders. Public source includes runtime assets/provenance/decoder licenses; caches, credentials, test videos and huge raw Blender/original downloads are excluded.

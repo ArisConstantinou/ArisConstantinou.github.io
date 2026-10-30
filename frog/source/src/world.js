@@ -160,9 +160,9 @@ function flyGeometry() {
 }
 
 /** Keep every authored instance, but give the renderer local bounds to cull. */
-function spatialBatch(geometry,material,records,name,{castShadow=false,receiveShadow=false,dynamic=false}={}){
+function spatialBatch(geometry,material,records,name,{castShadow=false,receiveShadow=false,dynamic=false,span=128}={}){
   // Coarse cells avoid turning vegetation culling into hundreds of tiny draws.
-  const group=new THREE.Group();group.name=name;const cells=new Map(),slots=[],meshes=[],dirty=new Set(),span=128;
+  const group=new THREE.Group();group.name=name;const cells=new Map(),slots=[],meshes=[],dirty=new Set();
   records.forEach((record,index)=>{const key=Math.floor(record.x/span)+':'+Math.floor(record.z/span);if(!cells.has(key))cells.set(key,[]);cells.get(key).push(index);});
   for(const [key,indices] of cells){
     const mesh=new THREE.InstancedMesh(geometry,material,indices.length);mesh.name=name+' · '+key;mesh.castShadow=castShadow;mesh.receiveShadow=receiveShadow;
@@ -378,7 +378,7 @@ export function createWorld(scene, renderer, options={}) {
     if(Math.hypot(x,z)<8)continue;
     vegetation.push({x,z,y:h,scale:.65+random()*2.2,angle:random()*TAU});
   }
-  const reedGeo=bladeGeometry(44),reedMesh=spatialBatch(reedGeo,materials.plant,vegetation,'Curved river reeds',{receiveShadow:true});
+  const reedGeo=bladeGeometry(44),reedMesh=spatialBatch(reedGeo,materials.plant,vegetation,'Curved river reeds',{receiveShadow:true,span:options.spatialSpan??128});
   vegetation.forEach((p,i)=>{object.position.set(p.x,p.y,p.z);object.rotation.set(0,p.angle,0);object.scale.set(.65+p.scale*.25,p.scale,.65+p.scale*.25);object.updateMatrix();reedMesh.setMatrixAt(i,object.matrix);reedMesh.setColorAt(i,color('#ffffff').multiplyScalar(.75+random()*.5));});reedMesh.finish();group.add(reedMesh.group);renderStats.spatialChunks+=reedMesh.meshes.length;
   const cattails=vegetation.filter((p,i)=>p.y<.5&&i%5===0),catGeo=cattailGeometry(),catMesh=spatialBatch(catGeo,materials.plant,cattails,'Cattail patches');
   cattails.forEach((p,i)=>{object.position.set(p.x+.12,p.y,p.z);object.rotation.set(0,p.angle,0);object.scale.setScalar(.7+p.scale*.4);object.updateMatrix();catMesh.setMatrixAt(i,object.matrix);});catMesh.finish();group.add(catMesh.group);renderStats.spatialChunks+=catMesh.meshes.length;

@@ -32,8 +32,45 @@ PROJECT-ORIGINAL MATERIALS
 public/art/creek.jpg is original concept artwork generated for this project.
 It is concept/title artwork, not a screenshot of the implemented game.
 
-The animal meshes, rigging, animation code, procedural environment and synthesized
-sound effects were created for this project. No external animal model assets,
-stock animal animations or third-party audio recordings are included.
+The procedural assets, custom rigging/animation code and synthesized sound effects
+were created for this project. Imported/generated models are identified below.
+No third-party audio recordings are included.
 
 No new license is selected here for the user's original project source or artwork.
+
+IMPORTED ENVIRONMENT
+
+House: Omotobs, Meshy community CC0-1.0
+https://www.meshy.ai/posts/019c4ca0-282f-7060-832c-2384c848e06d
+Reeds: UltrasombrA, Meshy community CC0-1.0
+https://www.meshy.ai/posts/01976bf0-1b37-7575-99b2-5f7ab612cde2
+Legacy test frog: jnj.stu, Meshy community CC0-1.0
+https://www.meshy.ai/posts/019e9380-33bf-78cd-804c-5b711d10912f
+Derived models have offline mesh/material processing, scaling and custom rigs.
+The playable house also has facade/floor/roof alignment and an open doorway.
+
+Stylized Nature MegaKit Standard FREE: Quaternius, CC0-1.0.
+https://quaternius.com/
+The included License_Standard.txt is retained with the runtime nature models.
+
+NEW CHARACTERS AND ROCK CATAPULT
+
+Original character and rock-catapult models generated specifically for Βαλτομαχίες
+through the user-authorized Meshy account from approved project concept images;
+subsequently edited, rigged and animated for this project. Generated with Meshy:
+https://www.meshy.ai/ . These are not the CC0 community stock models above.
+Runtime hashes are in art/cartoon/assets.json. Original GLBs, approved concept
+images and editable Blender sources are preserved locally with their task receipts.
+This notice does not assert an exclusive-ownership or account-plan certificate.
+
+DECODERS
+
+Three.js DRACO loader and KTX2 loader: MIT, as above.
+Bundled Draco decoder and Basis Universal transcoder retain their respective
+LICENSE.txt / BASIS-LICENSE.txt and THREE-LICENSE.txt in art/draco and art/basis.
+
+Meshy attribution retained for generated models regardless of account tier.
+If generated under a free plan, the applicable model license is CC BY4.0:
+https://creativecommons.org/licenses/by/4.0/ . Paid-plan output terms differ.
+Official licensing reference checked2026-10-30:
+https://help.meshy.ai/en/articles/10137554-what-is-the-ownership-of-the-generated-models

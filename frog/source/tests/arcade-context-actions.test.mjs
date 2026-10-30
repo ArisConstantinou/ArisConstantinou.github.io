@@ -128,3 +128,8 @@ test('destroy removes dynamic actions, their handlers and any queued contextual 
  for(const handlers of button.listeners.values())assert.equal(handlers.size,0);
  button.emit('click');f.actions.update();assert.equal(f.game.pendingKickTargetId,null);assert.equal(f.root.children.length,0);
 });
+
+
+test('heavy contextual action describes belly slap while other classes retain kicks and KO',()=>{
+ const f=fixture();for(const characterClass of ['heavy','skinny','medium',undefined]){f.player.characterClass=characterClass;f.player.kickCooldown=0;f.target.finishHits=0;f.target.x=1.7;f.actions.update();const button=f.button(f.target.id),heavy=characterClass==='heavy';assert.equal(button.querySelector('.frog-action-caption').textContent,heavy?'ΚΟΙΛΙΑ':'ΚΛΩΤΣΙΑ');assert.match(button.attrs['aria-label'],heavy?/Χτύπημα κοιλιάς/:/Κλωτσιά/);f.target.x=5;assert.match(contextualKickState(f.state,f.player,f.target).reason,heavy?/χτύπημα κοιλιάς/:/κλωτσιά/);f.target.x=1.7;f.player.kickCooldown=.4;assert.match(contextualKickState(f.state,f.player,f.target).reason,heavy?/χτύπημα κοιλιάς/:/κλωτσιά/);f.player.kickCooldown=0;f.target.finishHits=2;f.actions.update();assert.equal(button.querySelector('.frog-action-caption').textContent,'KO');}
+});

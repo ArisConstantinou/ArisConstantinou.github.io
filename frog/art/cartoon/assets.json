@@ -1,0 +1,32 @@
+{
+  "assets": [
+    {
+      "id": "heavy",
+      "file": "heavy-game.glb",
+      "sha256": "dc42430e64abe9c7ff5a815097479073e7f75f705ea6fcfd9a1228013ff5ae1f",
+      "textureCodec": "UASTC 4x4 KTX2",
+      "sourceResolutionUnchanged": true
+    },
+    {
+      "id": "skinny",
+      "file": "skinny-game.glb",
+      "sha256": "d6dc142e116088c94bc0827802f417b78809d1463301ea836cb004cbd8a4f787",
+      "textureCodec": "UASTC 4x4 KTX2",
+      "sourceResolutionUnchanged": true
+    },
+    {
+      "id": "medium",
+      "file": "medium-game.glb",
+      "sha256": "4b5acc926d3675b341367889da92d7ce85e61bc13714de0c24cd57dcdef4c3f9",
+      "textureCodec": "UASTC 4x4 KTX2",
+      "sourceResolutionUnchanged": true
+    },
+    {
+      "id": "rock-catapult",
+      "file": "catapult-game.glb",
+      "sha256": "f2cfb61ba6a70390a39d22a0c310edfe1b7dfbdd259b01ef6859a38cfd6e21be",
+      "textureCodec": "UASTC 4x4 KTX2",
+      "sourceResolutionUnchanged": true
+    }
+  ]
+}

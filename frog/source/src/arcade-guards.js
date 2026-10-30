@@ -1,7 +1,7 @@
 // One local defender per storage. This module owns no frog combat rules and
 // receives the shared ground/hit callbacks from the model to avoid a cycle.
 import {BASES,ARENA_ROCKS,resolveArenaMove,hasWallSight} from './arcade-bases.js';
-import {FROG_BODY,actorVerticalBounds} from './arcade-actor-bounds.js';
+import {FROG_BODY,frogBody,actorVerticalBounds} from './arcade-actor-bounds.js';
 
 export const GUARD_BODY=Object.freeze({radius:.46,height:.62,centerY:.31});
 export const GUARD_RULES=Object.freeze({maxHealth:4,bodyRadius:GUARD_BODY.radius,bodyHeight:GUARD_BODY.height,attackRadius:GUARD_BODY.radius,detectionRange:4.2,leashRadius:5.1,patrolRadius:.45,patrolSpeed:.65,windupSeconds:.95,chargeSpeed:8,chargeSeconds:.4,recoverySeconds:1.15,cooldownSeconds:1.65,respawnSeconds:20,hitSeconds:.18,hitInvulnerability:.1,damage:1,force:7});
@@ -87,7 +87,7 @@ function moveCharge(state,guard,dt,ground,hitActor){
   const from={x:guard.x,z:guard.z},length=Math.min(.08,remaining),next=chargeSegment(guard,length),contacts=[];
   for(const actor of state.actors){
    if(!hostileActor(guard,actor))continue;
-   const t=firstBodyContact(from,next.point,actor,GUARD_RULES.attackRadius+FROG_BODY.movementRadius);if(t===null)continue;
+   const t=firstBodyContact(from,next.point,actor,GUARD_RULES.attackRadius+frogBody(actor).movementRadius);if(t===null)continue;
    const at={...guard,x:from.x+(next.point.x-from.x)*t,z:from.z+(next.point.z-from.z)*t};
    if(canStrike(at,actor,ground))contacts.push({actor,t,at});
   }

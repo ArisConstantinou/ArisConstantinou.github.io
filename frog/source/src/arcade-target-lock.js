@@ -1,6 +1,6 @@
 import {RULES,projectileOrigin,traceShot} from './arcade-model.js';
 import {PROJECTILE,projectileGround} from './arcade-projectiles.js';
-import {FROG_BODY} from './arcade-actor-bounds.js';
+import {FROG_BODY,frogBody} from './arcade-actor-bounds.js';
 import {GUARD_BODY,guardActive} from './arcade-guards.js';
 import {autoFireTargetVisible} from './arcade-auto-fire-visibility.js';
 
@@ -34,7 +34,7 @@ export function targetLockAim(game,targetId){
  if(trace.targetId!==body.id||trace.kind!==kind||!autoFireTargetVisible(game,body.id,{directional:true}))return null;
  // A camera may follow this standing-height point without bobbing at each hop;
  // the shot itself still uses the target's actual current airborne body center.
- const cameraTarget={x:body.x,y:ground+(kind==='guard'?GUARD_BODY.centerY:PROJECTILE.originHeight+(body.catapultId?FROG_BODY.mountedOffset:0)),z:body.z};
+ const cameraTarget={x:body.x,y:ground+(kind==='guard'?GUARD_BODY.centerY:(frogBody(body).mouthHeight??PROJECTILE.originHeight)+(body.catapultId?frogBody(body).mountedOffset:0)),z:body.z};
  return {targetId:body.id,kind,target,direction,distance,screen:{x:screen.x,y:screen.y},cameraTarget};
 }
 

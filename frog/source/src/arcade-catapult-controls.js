@@ -42,11 +42,11 @@ export function installCatapultControls(game) {
   game.updateHUD=()=>{game.syncCatapultPointer();originalHUD();};
   game.updateCatapultAim = () => {
     if (!mounted()) { game.catapultAim = { active: false, target: null }; aimedCatapult=null;return; }
-    const p = game.state.actors[0];
+    const p = game.state.actors[0],station=game.state.catapults?.find(c=>c.id===p.catapultId),origin=station||p;
     if(aimedCatapult!==p.catapultId){aimedCatapult=p.catapultId;savedPower=.5;}
     // Pointer aiming also works when a touch-capable laptop has a mouse.
     if (game.mouse.valid && game.mouse.target) {
-      const dx=game.mouse.target.x-p.x,dz=game.mouse.target.z-p.z,distance=Math.hypot(dx,dz);
+      const dx=game.mouse.target.x-origin.x,dz=game.mouse.target.z-origin.z,distance=Math.hypot(dx,dz);
       if(distance>.01)game.aim={x:dx/distance,z:dz/distance,distance};
     }
     const direction = game.aim || { x: p.aimX, z: p.aimZ };
@@ -56,7 +56,7 @@ export function installCatapultControls(game) {
       if(game.pointers.has('aim')&&game.aimStrength>.08)savedPower=Math.max(0,Math.min(1,(game.aimStrength-.08)/.92));
     }else savedPower=Math.max(0,Math.min(1,((direction.distance||17)-ARTILLERY.minRange)/(ARTILLERY.maxRange-ARTILLERY.minRange)));
     const power=savedPower;
-    game.catapultAim = { active: true, target: stoneTarget(p, direction.x, direction.z, power) };
+    game.catapultAim = { active: true, target: stoneTarget(origin, direction.x, direction.z, power) };
   };
   const originalInput = game.currentInput.bind(game), originalClear = game.clearInputs.bind(game);
   game.currentInput = () => {

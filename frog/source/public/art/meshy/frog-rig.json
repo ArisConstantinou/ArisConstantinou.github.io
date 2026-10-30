@@ -1,0 +1,238 @@
+{
+  "coordinate_system": "Y up, +Z forward, metres",
+  "bones": [
+    {
+      "name": "pelvis",
+      "parent": null,
+      "position": [
+        0,
+        0.29,
+        -0.28
+      ]
+    },
+    {
+      "name": "spine",
+      "parent": "pelvis",
+      "position": [
+        0,
+        0.42,
+        -0.04
+      ]
+    },
+    {
+      "name": "head",
+      "parent": "spine",
+      "position": [
+        0,
+        0.58,
+        0.22
+      ]
+    },
+    {
+      "name": "jaw",
+      "parent": "head",
+      "position": [
+        0,
+        0.48,
+        0.3
+      ]
+    },
+    {
+      "name": "throat",
+      "parent": "jaw",
+      "position": [
+        0,
+        0.32,
+        0.32
+      ]
+    },
+    {
+      "name": "eyeL",
+      "parent": "head",
+      "position": [
+        -0.25,
+        0.79,
+        0.38
+      ]
+    },
+    {
+      "name": "eyeR",
+      "parent": "head",
+      "position": [
+        0.25,
+        0.79,
+        0.38
+      ]
+    },
+    {
+      "name": "mouth",
+      "parent": "jaw",
+      "position": [
+        0,
+        0.57,
+        0.62
+      ]
+    },
+    {
+      "name": "hip-1",
+      "parent": "pelvis",
+      "position": [
+        -0.3,
+        0.28,
+        -0.25
+      ]
+    },
+    {
+      "name": "knee-1",
+      "parent": "hip-1",
+      "position": [
+        -0.48,
+        0.2,
+        -0.55
+      ]
+    },
+    {
+      "name": "ankle-1",
+      "parent": "knee-1",
+      "position": [
+        -0.49,
+        0.075,
+        -0.13
+      ]
+    },
+    {
+      "name": "foot-1",
+      "parent": "ankle-1",
+      "position": [
+        -0.56,
+        0.045,
+        -0.04
+      ]
+    },
+    {
+      "name": "shoulder-1",
+      "parent": "spine",
+      "position": [
+        -0.25,
+        0.48,
+        0.22
+      ]
+    },
+    {
+      "name": "elbow-1",
+      "parent": "shoulder-1",
+      "position": [
+        -0.38,
+        0.25,
+        0.3
+      ]
+    },
+    {
+      "name": "wrist-1",
+      "parent": "elbow-1",
+      "position": [
+        -0.44,
+        0.06,
+        0.44
+      ]
+    },
+    {
+      "name": "hip1",
+      "parent": "pelvis",
+      "position": [
+        0.3,
+        0.28,
+        -0.25
+      ]
+    },
+    {
+      "name": "knee1",
+      "parent": "hip1",
+      "position": [
+        0.48,
+        0.2,
+        -0.55
+      ]
+    },
+    {
+      "name": "ankle1",
+      "parent": "knee1",
+      "position": [
+        0.49,
+        0.075,
+        -0.13
+      ]
+    },
+    {
+      "name": "foot1",
+      "parent": "ankle1",
+      "position": [
+        0.56,
+        0.045,
+        -0.04
+      ]
+    },
+    {
+      "name": "shoulder1",
+      "parent": "spine",
+      "position": [
+        0.25,
+        0.48,
+        0.22
+      ]
+    },
+    {
+      "name": "elbow1",
+      "parent": "shoulder1",
+      "position": [
+        0.38,
+        0.25,
+        0.3
+      ]
+    },
+    {
+      "name": "wrist1",
+      "parent": "elbow1",
+      "position": [
+        0.44,
+        0.06,
+        0.44
+      ]
+    }
+  ],
+  "weighted_vertices": {
+    "pelvis": 4149,
+    "spine": 4465,
+    "head": 4229,
+    "jaw": 1501,
+    "throat": 1127,
+    "eyeL": 208,
+    "eyeR": 200,
+    "mouth": 0,
+    "hip-1": 790,
+    "knee-1": 1061,
+    "ankle-1": 565,
+    "foot-1": 143,
+    "shoulder-1": 423,
+    "elbow-1": 413,
+    "wrist-1": 124,
+    "hip1": 779,
+    "knee1": 1053,
+    "ankle1": 571,
+    "foot1": 142,
+    "shoulder1": 417,
+    "elbow1": 407,
+    "wrist1": 125
+  },
+  "weight_sums": [
+    0.9999999999999999,
+    1.0000000000000002
+  ],
+  "runtime_bytes": 3087724,
+  "animations": "runtime anatomy IK; no baked clips",
+  "source_high_preserved": true,
+  "visual_verified": false,
+  "weight_method": "Surface-geodesic weights from anatomical anchors, UV seam positions welded for distance propagation only",
+  "fallback_vertices": 3,
+  "vertex_count": 9001
+}

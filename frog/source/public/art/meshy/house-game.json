@@ -1,0 +1,25 @@
+{
+  "alignmentVersion": 2,
+  "source_facades": {
+    "left": -2.1267,
+    "right": 2.0249,
+    "front": -0.951,
+    "back": 2.1798
+  },
+  "floor_source": 1.8245,
+  "eave_source": 3.73,
+  "roof_source_ridge": -0.55,
+  "roof_source_across_axis": "negative BlenderY",
+  "physical_roof_across_axis": "localX",
+  "roof_envelope_cell": 0.065,
+  "runtime_front_door_clear_width": 3.2,
+  "original_high_preserved": true,
+  "source_runtime_vertices": 851927,
+  "counts": {
+    "roof": 170595,
+    "walls": 79953,
+    "front-left": 4168,
+    "front-right": 3912
+  },
+  "bytes": 4700944
+}

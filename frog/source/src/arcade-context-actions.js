@@ -2,7 +2,7 @@ import './arcade-context-actions.css';
 import {RULES,kickAvailability,kickTarget,sabotageTarget} from './arcade-model.js';
 import {BASES} from './arcade-bases.js';
 import {nearbyCatapult} from './arcade-artillery.js';
-import {FROG_BODY} from './arcade-actor-bounds.js';
+import {FROG_BODY,frogBody} from './arcade-actor-bounds.js';
 
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 const finite=(value,fallback=0)=>Number.isFinite(value)?value:fallback;
@@ -13,8 +13,8 @@ const finitePoint=p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y);
 // Reserve the visible body, including its low spread legs. A nearby button
 // must never hide the frog it acts on, or the player's own body.
 export function projectedActorRect(game,actor){
- const floor=game.ground(actor.x,actor.z)+finite(actor.height)+(actor.catapultId?FROG_BODY.mountedOffset:0),points=[];
- for(const dx of [-.95,.95])for(const dz of [-.95,.95])for(const dy of [-.05,FROG_BODY.height+.18]){
+ const floor=game.ground(actor.x,actor.z)+finite(actor.height)+(actor.catapultId?frogBody(actor).mountedOffset:0),points=[];
+ for(const dx of [-.95,.95])for(const dz of [-.95,.95])for(const dy of [-.05,frogBody(actor).height+.18]){
   const p=game.project(actor.x+dx,floor+dy,actor.z+dz);if(finitePoint(p)&&p.visible&&!p.behind)points.push(p);
  }
  if(!points.length)return null;
@@ -63,18 +63,18 @@ export function placeContextAction({anchor,width,height,viewportWidth,viewportHe
 
 export function contextualKickState(state,player,target){
  if(!player||!target||target.ko||target.eliminated||target.dizzyTime<=0)return {state:'unavailable',reason:'Δεν υπάρχει ζαλισμένος αντίπαλος εδώ',hint:'Περίμενε'};
- const readiness=kickAvailability(state,player,target.id),copy={
-  ready:{reason:'Κλωτσιά στον συγκεκριμένο αντίπαλο από οποιαδήποτε κατεύθυνση',hint:''},
-  range:{reason:'Πλησίασε τον αντίπαλο για κλωτσιά',hint:'Πλησίασε'},
-  height:{reason:'Το διαφορετικό ύψος εμποδίζει την κλωτσιά',hint:'Άλλο ύψος'},
+ const heavy=player.characterClass==='heavy',action=heavy?'χτύπημα κοιλιάς':'κλωτσιά',readiness=kickAvailability(state,player,target.id),copy={
+  ready:{reason:`${heavy?'Χτύπημα κοιλιάς':'Κλωτσιά'} στον συγκεκριμένο αντίπαλο από οποιαδήποτε κατεύθυνση`,hint:''},
+  range:{reason:`Πλησίασε τον αντίπαλο για ${action}`,hint:'Πλησίασε'},
+  height:{reason:heavy?'Το διαφορετικό ύψος εμποδίζει το χτύπημα κοιλιάς':'Το διαφορετικό ύψος εμποδίζει την κλωτσιά',hint:'Άλλο ύψος'},
   wall:{reason:'Υπάρχει εμπόδιο ανάμεσά σας',hint:'Εμπόδιο'},
   protection:{reason:'Ο αντίπαλος προστατεύεται προσωρινά μετά την επιστροφή του',hint:'Προστασία'},
-  cooldown:{reason:'Περίμενε να ετοιμαστεί η κλωτσιά',hint:`${Math.max(finite(player.kick),finite(player.kickCooldown)).toFixed(1)}″`},
+  cooldown:{reason:heavy?'Περίμενε να ετοιμαστεί το χτύπημα κοιλιάς':'Περίμενε να ετοιμαστεί η κλωτσιά',hint:`${Math.max(finite(player.kick),finite(player.kickCooldown)).toFixed(1)}″`},
   hit:{reason:'Περίμενε να τελειώσει το χτύπημα που δέχεσαι',hint:'Δέχεσαι χτύπημα'},
-  mounted:{reason:'Κατέβα από τον καταπέλτη για κλωτσιά',hint:'Κατέβα'},
+  mounted:{reason:`Κατέβα από τον καταπέλτη για ${action}`,hint:'Κατέβα'},
   incapacitated:{reason:'Περίμενε να ανακτήσεις τον έλεγχο του βατράχου',hint:'Περίμενε'},
  };
- return {state:readiness.state,...(copy[readiness.reason]||{reason:'Η κλωτσιά δεν είναι διαθέσιμη τώρα',hint:'Περίμενε'})};
+ return {state:readiness.state,...(copy[readiness.reason]||{reason:heavy?'Το χτύπημα κοιλιάς δεν είναι διαθέσιμο τώρα':'Η κλωτσιά δεν είναι διαθέσιμη τώρα',hint:'Περίμενε'})};
 }
 
 export function installContextActions(game,{kickIcon=''}={}){
@@ -140,7 +140,8 @@ export function installContextActions(game,{kickIcon=''}={}){
    button.dataset.remaining=String(remaining);button.dataset.state=readiness.state;button.disabled=!ready;button.hidden=false;
     const timerText=`ΖΑΛΗ ${Math.max(0,actor.dizzyTime).toFixed(1)}″`;if(entry.timer.textContent!==timerText)entry.timer.textContent=timerText;
    const progressText=remaining===1?'Απομένει 1 χτύπημα για KO':`Απομένουν ${remaining} χτυπήματα για KO`,label=`${readiness.reason}. ${progressText}.`;
-   button.setAttribute('aria-label',label);button.title=label;entry.caption.textContent=ready?(remaining===1?'KO':'ΚΛΩΤΣΙΑ'):readiness.hint;
+   button.setAttribute('aria-label',label);button.title=label;entry.caption.textContent=ready?(remaining===1?'KO':player.characterClass==='heavy'?'ΚΟΙΛΙΑ':'ΚΛΩΤΣΙΑ'):readiness.hint;
+   const heavy=player.characterClass==='heavy',icon=button.querySelector('.frog-action-icon');if(icon&&icon.dataset.heavy!==String(heavy)){icon.dataset.heavy=String(heavy);icon.innerHTML=heavy?'<img src="./art/cartoon/heavy-card.png" alt="" draggable="false">':kickIcon;}
    entry.badge.hidden=game.touch||!ready||nearest?.id!==actor.id;
    entry.pips.forEach((pip,index)=>pip.classList.toggle('is-filled',index<progress));
     const dimensions=size(button,88,103),rect=placeContextAction({anchor,...dimensions,viewportWidth:game.w,viewportHeight:game.h,blocked,previous:entry.rect});
