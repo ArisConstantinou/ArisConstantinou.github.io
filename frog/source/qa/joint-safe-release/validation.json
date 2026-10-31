@@ -1,0 +1,28 @@
+{
+  "version": "4.4.17",
+  "sourceTests": 1539,
+  "nativeDirectionalCases": 18,
+  "menuViewports": [
+    [
+      1280,
+      800
+    ],
+    [
+      430,
+      932
+    ],
+    [
+      932,
+      430
+    ]
+  ],
+  "menuOnceAndCancellationAndReducedMotion": true,
+  "inGameClimbEnabled": false,
+  "heavyRise": {
+    "first": 1.25,
+    "total": 1.85
+  },
+  "originalAssetsUnchanged": true,
+  "physicalPhoneVerified": false,
+  "twoTimesPerformanceClaim": false
+}

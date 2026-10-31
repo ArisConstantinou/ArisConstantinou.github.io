@@ -81,3 +81,15 @@ body #character-selection .character-selection-actions button{font-size:16px;min
 @media(max-height:520px) and (min-width:651px){body #character-selection .character-selection-actions{margin-top:6px;padding-top:7px}body #character-selection .character-selection-actions button{min-height:44px}}
 
 #character-choices{touch-action:pan-y}
+
+/* One entrance per page load; complete portraits settle on the button rims. */
+.cartoon-menu-frog{bottom:100%;margin-bottom:-13%;transform-origin:50% 77%;will-change:auto}
+.cartoon-menu-skinny{bottom:100%;margin-bottom:-6.3%;transform-origin:50% 83%}
+.menu-round-shell .round-actions{position:relative;z-index:1}
+.cartoon-menu-heavy.menu-frog-climbing{z-index:0}
+.cartoon-menu-grip{z-index:3;opacity:0;filter:none;mask-image:linear-gradient(to bottom,transparent 65%,#000 71%)}
+.cartoon-menu-grip-left{clip-path:polygon(5% 67%,23% 67%,25% 72%,21% 78%,5% 78%)}
+.cartoon-menu-grip-right{clip-path:polygon(77% 66%,91% 66%,92% 76%,79% 76%)}
+@media(max-height:680px) and (orientation:landscape){
+ body #arcade-ui .menu-round-shell .cartoon-menu-frog{margin-bottom:-11.6%}
+}

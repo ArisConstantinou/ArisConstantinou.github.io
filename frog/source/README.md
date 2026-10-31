@@ -1,4 +1,6 @@
-# Βαλτομαχίες 4.4.16 — complete game source
+# Βαλτομαχίες 4.4.17 — complete game source
+
+4.4.17 limits Heavy first/total jump rise to1.25/1.85m, including aimed rock leaps. A one-time whole-character menu entrance replaces the old limb loops:300ms delay, side arrivals, and Heavy bottom arrival with rim grip, two efforts and pull-up. Settings/pause do not replay it; reduced motion stays static. In-game ledge climb remains inactive pending anatomical/visual repair. Original models and assets are unchanged. See RELEASE-4.4.17.md.
 
 4.4.14 makes wall destinations follow mouse/touch input, adds readable constant-width trajectory guides, limits normal/double-jump height and uses the compact match clock for warmup. Existing scenery contacts and low rock access are retained. See RELEASE-4.4.14.md.
 

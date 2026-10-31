@@ -1,3 +1,4 @@
+import {jumpCeiling,jumpRise} from './arcade-jump-balance.js';
 import {ARENA_ROCKS} from './arcade-bases.js';
 import {sceneContactsEnabled,sceneryObjects,sceneryHeight} from './arcade-scenery-contact.js';
 const ROCK_GRAVITY=24;
@@ -21,6 +22,7 @@ export function rockLeapPlan(s,a,direction,ground,speed){
   // Close rocks can require a taller, slower leap than an ordinary ground hop.
   const travel=distance/(speed*1.1),requiredVy=Math.max(0,(y-startY+.5*GRAVITY*travel*travel)/travel);
   const apex=Math.max(Math.max(startY,y)+.85,startY+requiredVy*requiredVy/(2*GRAVITY)),vy=Math.sqrt(2*GRAVITY*(apex-startY)),duration=(vy+Math.sqrt(vy*vy+2*GRAVITY*(startY-y)))/GRAVITY;
+  if(a.characterClass==='heavy'&&apex>Math.min(jumpCeiling(a,a.flight?.launchBase??startY),(a.flight?.launchBase??startY)+(a.flight?.jumps>=2?1.85:jumpRise(a)))+.001)continue;
   if(distance/duration>speed*1.2)continue;
   if(!best||distance<best.distance)best={id:o.id,x:o.x,z:o.z,y,vy,duration,distance,apex,speed:speed*1.2};
  }
