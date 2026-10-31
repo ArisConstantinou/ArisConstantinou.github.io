@@ -49,3 +49,9 @@ public/art/cartoon/assets.json for imported/generated model provenance.
 
 
 4.4.16 audits and repairs all menu leg rest planes and localized fused-skin contacts. Deliberate rock leaps land and perch until a fresh jump; outer mesh perches survive save/load. See RELEASE-4.4.16.md.
+
+
+4.4.22: a safe initial Heavy lip grip can make two failed efforts then slip/fall; successful hauls and height ceilings remain unchanged. See RELEASE-4.4.22.md and qa/heavy-slip/validation.json.
+
+
+Joint4.4.22 includes a live3D menu using the same original game characters, native Jump/Land and Heavy climb controller. Rest palms/feet meet the actual button rim. The temporary menu renderer owns its private geometry/textures and is disposed when gameplay starts; it is recreated on return. No raster pose-atlas playback is part of this release. Final source1563 unit tests, live menu navigation/resource/motion/contact checks and coordinated Heavy slip/normal haul checks are recorded in qa/joint22/validation.json. Physical iPhone/battle FPS is not certified.

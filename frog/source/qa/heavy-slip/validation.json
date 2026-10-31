@@ -1,0 +1,73 @@
+{
+  "version": "4.4.22",
+  "sourceTests": 1560,
+  "nativeKeyboardAndTouchCases": 4,
+  "baselineCases": 2,
+  "normalHaulCases": 4,
+  "wallSettingsCases": 9,
+  "wallDestinationCases": 9,
+  "fullMeshPoses": 75,
+  "fullMeshCandidates": 15,
+  "maxExtension": 0.03860838755774888,
+  "maxPenetration": 0.01885219086459955,
+  "resourceRounds": 7,
+  "protectedOriginalAssets": 105,
+  "physicalIPhoneTested": false,
+  "twoTimesPerformanceClaimed": false,
+  "nativeStepTimings": [
+    {
+      "stage": "before",
+      "viewport": "desktop",
+      "scenario": "automatic-slip",
+      "step": {
+        "p95": 2.0999999046325684,
+        "max": 10.799999952316284
+      }
+    },
+    {
+      "stage": "before",
+      "viewport": "mobile-landscape",
+      "scenario": "automatic-slip",
+      "step": {
+        "p95": 3.4000000953674316,
+        "max": 9.699999809265137
+      }
+    },
+    {
+      "stage": "after",
+      "viewport": "desktop",
+      "scenario": "automatic-slip",
+      "step": {
+        "p95": 2,
+        "max": 11.099999904632568
+      }
+    },
+    {
+      "stage": "after",
+      "viewport": "desktop",
+      "scenario": "manual-release",
+      "step": {
+        "p95": 2.0999999046325684,
+        "max": 6.5
+      }
+    },
+    {
+      "stage": "after",
+      "viewport": "mobile-landscape",
+      "scenario": "automatic-slip",
+      "step": {
+        "p95": 2.700000047683716,
+        "max": 12.200000047683716
+      }
+    },
+    {
+      "stage": "after",
+      "viewport": "mobile-landscape",
+      "scenario": "manual-release",
+      "step": {
+        "p95": 1.8999998569488525,
+        "max": 6.200000047683716
+      }
+    }
+  ]
+}

@@ -1,0 +1,354 @@
+{
+  "version": "4.4.22",
+  "sourceTests": 1563,
+  "sourceUnitLog": "E:\\CodexGenerated\\Frog\\staging\\logs\\menu-articulated\\live-units.log",
+  "unchangedOriginalPublicAssets": 107,
+  "nativeNormalHaulCases": 4,
+  "nativeFailedHaulCases": 4,
+  "menuLive3D": true,
+  "menuViewports": 3,
+  "menuNativeSummary": {
+    "desktop": {
+      "viewport": [
+        1024,
+        956
+      ],
+      "fps": 180.15230842864844,
+      "p95ms": 8.400000000000546,
+      "maxMs": 12.5,
+      "nativeGripMaxErrorM": 1.1053981644898238e-07,
+      "kneeExcursionsDegrees": [
+        {
+          "character": "heavy",
+          "knees": [
+            126.82987983026051,
+            152.49767212090728
+          ]
+        },
+        {
+          "character": "medium",
+          "knees": [
+            89.83763087798191,
+            123.76659465866365
+          ]
+        },
+        {
+          "character": "skinny",
+          "knees": [
+            116.69221593899393,
+            135.1610257260788
+          ]
+        }
+      ],
+      "resourcesAfterMenu": [
+        {
+          "menu": {
+            "activeRenderer": false,
+            "initializing": false,
+            "allocatedCount": 1,
+            "preparedCount": 1,
+            "disposedCount": 1,
+            "textures": 0,
+            "geometries": 0,
+            "privateTextures": 0,
+            "privateGeometries": 0
+          },
+          "textures": 35
+        },
+        {
+          "menu": {
+            "activeRenderer": false,
+            "initializing": false,
+            "allocatedCount": 2,
+            "preparedCount": 2,
+            "disposedCount": 2,
+            "textures": 0,
+            "geometries": 0,
+            "privateTextures": 0,
+            "privateGeometries": 0
+          },
+          "textures": 35
+        },
+        {
+          "menu": {
+            "activeRenderer": false,
+            "initializing": false,
+            "allocatedCount": 3,
+            "preparedCount": 3,
+            "disposedCount": 3,
+            "textures": 0,
+            "geometries": 0,
+            "privateTextures": 0,
+            "privateGeometries": 0
+          },
+          "textures": 35
+        },
+        {
+          "menu": {
+            "activeRenderer": false,
+            "initializing": false,
+            "allocatedCount": 4,
+            "preparedCount": 4,
+            "disposedCount": 4,
+            "textures": 0,
+            "geometries": 0,
+            "privateTextures": 0,
+            "privateGeometries": 0
+          },
+          "textures": 35
+        }
+      ],
+      "finalResources": {
+        "activeRenderer": true,
+        "initializing": false,
+        "allocatedCount": 5,
+        "preparedCount": 5,
+        "disposedCount": 4,
+        "textures": 13,
+        "geometries": 6,
+        "privateTextures": 9,
+        "privateGeometries": 6
+      }
+    },
+    "mobile": {
+      "viewport": [
+        390,
+        844
+      ],
+      "fps": 235.05341041295927,
+      "p95ms": 4.300000000000182,
+      "maxMs": 8.5,
+      "nativeGripMaxErrorM": 1.1054523142404643e-07,
+      "kneeExcursionsDegrees": [
+        {
+          "character": "heavy",
+          "knees": [
+            126.82987983026064,
+            152.49767212090728
+          ]
+        },
+        {
+          "character": "medium",
+          "knees": [
+            89.83763087798177,
+            123.76659465866362
+          ]
+        },
+        {
+          "character": "skinny",
+          "knees": [
+            116.69221593899378,
+            135.1610257260788
+          ]
+        }
+      ],
+      "resourcesAfterMenu": [
+        {
+          "menu": {
+            "activeRenderer": false,
+            "initializing": false,
+            "allocatedCount": 1,
+            "preparedCount": 1,
+            "disposedCount": 1,
+            "textures": 0,
+            "geometries": 0,
+            "privateTextures": 0,
+            "privateGeometries": 0
+          },
+          "textures": 35
+        }
+      ],
+      "finalResources": {
+        "activeRenderer": true,
+        "initializing": false,
+        "allocatedCount": 2,
+        "preparedCount": 2,
+        "disposedCount": 1,
+        "textures": 13,
+        "geometries": 6,
+        "privateTextures": 9,
+        "privateGeometries": 6
+      }
+    },
+    "landscape": {
+      "viewport": [
+        844,
+        390
+      ],
+      "fps": 177.3302865888107,
+      "p95ms": 8.400000000000091,
+      "maxMs": 12.600000000000364,
+      "nativeGripMaxErrorM": 1.1038266776116936e-07,
+      "kneeExcursionsDegrees": [
+        {
+          "character": "heavy",
+          "knees": [
+            126.82987983026047,
+            152.4976721209072
+          ]
+        },
+        {
+          "character": "medium",
+          "knees": [
+            89.83763087798195,
+            123.76659465866365
+          ]
+        },
+        {
+          "character": "skinny",
+          "knees": [
+            116.69221593899378,
+            135.1610257260788
+          ]
+        }
+      ],
+      "resourcesAfterMenu": [
+        {
+          "menu": {
+            "activeRenderer": false,
+            "initializing": false,
+            "allocatedCount": 1,
+            "preparedCount": 1,
+            "disposedCount": 1,
+            "textures": 0,
+            "geometries": 0,
+            "privateTextures": 0,
+            "privateGeometries": 0
+          },
+          "textures": 35
+        }
+      ],
+      "finalResources": {
+        "activeRenderer": true,
+        "initializing": false,
+        "allocatedCount": 2,
+        "preparedCount": 2,
+        "disposedCount": 1,
+        "textures": 13,
+        "geometries": 6,
+        "privateTextures": 9,
+        "privateGeometries": 6
+      }
+    }
+  },
+  "menuAtlasRequests": 0,
+  "menuTextureControl": {
+    "menu": {
+      "ready": false,
+      "failed": false,
+      "visible": true,
+      "started": false,
+      "settled": false,
+      "phase": "waiting",
+      "elapsedMs": 0,
+      "faceMode": "live-game-character-rigs",
+      "live3D": true,
+      "sourceAnimations": [
+        "Jump",
+        "Land",
+        "native-climb-controller"
+      ],
+      "characters": [
+        "heavy",
+        "medium",
+        "skinny"
+      ],
+      "reducedMotion": false,
+      "contacts": [],
+      "resources": {
+        "activeRenderer": false,
+        "initializing": false,
+        "allocatedCount": 0,
+        "preparedCount": 0,
+        "disposedCount": 0,
+        "textures": 0,
+        "geometries": 0,
+        "privateTextures": 0,
+        "privateGeometries": 0
+      }
+    },
+    "titleTextures": 34,
+    "playTextures": 35
+  },
+  "heavySlipQuality": {
+    "version": "4.4.22",
+    "sourceTests": 1560,
+    "nativeKeyboardAndTouchCases": 4,
+    "baselineCases": 2,
+    "normalHaulCases": 4,
+    "wallSettingsCases": 9,
+    "wallDestinationCases": 9,
+    "fullMeshPoses": 75,
+    "fullMeshCandidates": 15,
+    "maxExtension": 0.03860838755774888,
+    "maxPenetration": 0.01885219086459955,
+    "resourceRounds": 7,
+    "protectedOriginalAssets": 105,
+    "physicalIPhoneTested": false,
+    "twoTimesPerformanceClaimed": false,
+    "nativeStepTimings": [
+      {
+        "stage": "before",
+        "viewport": "desktop",
+        "scenario": "automatic-slip",
+        "step": {
+          "p95": 2.0999999046325684,
+          "max": 10.799999952316284
+        }
+      },
+      {
+        "stage": "before",
+        "viewport": "mobile-landscape",
+        "scenario": "automatic-slip",
+        "step": {
+          "p95": 3.4000000953674316,
+          "max": 9.699999809265137
+        }
+      },
+      {
+        "stage": "after",
+        "viewport": "desktop",
+        "scenario": "automatic-slip",
+        "step": {
+          "p95": 2,
+          "max": 11.099999904632568
+        }
+      },
+      {
+        "stage": "after",
+        "viewport": "desktop",
+        "scenario": "manual-release",
+        "step": {
+          "p95": 2.0999999046325684,
+          "max": 6.5
+        }
+      },
+      {
+        "stage": "after",
+        "viewport": "mobile-landscape",
+        "scenario": "automatic-slip",
+        "step": {
+          "p95": 2.700000047683716,
+          "max": 12.200000047683716
+        }
+      },
+      {
+        "stage": "after",
+        "viewport": "mobile-landscape",
+        "scenario": "manual-release",
+        "step": {
+          "p95": 1.8999998569488525,
+          "max": 6.200000047683716
+        }
+      }
+    ]
+  },
+  "physicalPhoneTested": false,
+  "twoTimesPerformanceClaimed": false,
+  "releaseExclusions": [
+    "qa/menu-articulated/",
+    "public/art/cartoon/menu-poses/",
+    "_qa/",
+    "art/cartoon/menu-poses/"
+  ]
+}

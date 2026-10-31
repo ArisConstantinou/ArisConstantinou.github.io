@@ -1,0 +1,8 @@
+# Βαλτομαχίες4.4.22
+
+When a descending Heavy can hold the first lip safely but cannot finish the haul, he makes exactly two coordinated torso/hind-leg efforts with his palms attached, then slips and falls. The second effort is weaker. This is permitted only after testing the actual first hand contacts, real joint reach, body clearance and all planned effort poses. An invalid first grip remains an ordinary fall. Upward jumps retain the chance to reach their normal support; the new failed-hang route cannot intercept an ascending near miss. Successful reachable hauls and ordinary jump heights are unchanged.
+
+Space/touch Jump, moving away, dash, damage, dizziness and lost support can still release the grip. The failed route never grants top support or emits a successful haul landing. Physics, save serialization, native mouse/touch, full-mesh contact quality and GPU resource results are in qa/heavy-slip/validation.json. The original105 model/texture/source assets are preserved. Physical iPhone FPS is unverified. Package metadata and runtime version are aligned at4.4.22.
+
+
+Joint4.4.22 includes a live3D menu using the same original game characters, native Jump/Land and Heavy climb controller. Rest palms/feet meet the actual button rim. The temporary menu renderer owns its private geometry/textures and is disposed when gameplay starts; it is recreated on return. No raster pose-atlas playback is part of this release. Final source1563 unit tests, live menu navigation/resource/motion/contact checks and coordinated Heavy slip/normal haul checks are recorded in qa/joint22/validation.json. Physical iPhone/battle FPS is not certified.

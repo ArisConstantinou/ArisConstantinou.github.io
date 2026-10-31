@@ -1,3 +1,4 @@
+import{failedClimbPlan}from'./arcade-climb-failure.js';
 import{plannedRoot as ledgeRoot}from'./arcade-climb-path.js';export{plannedRoot as ledgeRoot}from'./arcade-climb-path.js';import{climbPhysicsData}from'./arcade-contact-data.js';import{retargetClimb}from'./arcade-climb-retarget.js';import{fastSolidFor}from'./arcade-climb-solid.js';import{supportHeight}from'./arcade-scenery-contact.js';import{BASES}from'./arcade-bases.js';
 import {frogBody} from './arcade-actor-bounds.js';
 import {sceneContactsEnabled,sceneryObjects} from './arcade-scenery-contact.js';
@@ -20,18 +21,19 @@ export function findLedge(s,a,ground,surfaces,accept=null){
 }
 export function catchLedge(s,a,l){if(!l)return false;const f=a.flight;a.flight={...f,kind:'ledge',ledge:l,time:0,vx:0,vz:0,vy:0,queued:false,fired:true};a.support=null;a.hop=a.hopX=a.hopZ=0;s.events.push({type:'ledgeGrab',id:a.id,surface:l.id});return true;}
 export function stepLedge(s,a,c,dt,ground,surfaces){
- const f=a.flight;if(f?.kind!=='ledge')return false;const l=f.ledge,support=surfaces(l.stand.x,l.stand.z).find(p=>p.id===l.id),release=c.dash||(c.jump&&f.time>.20)||a.hit>0||a.dizzyTime>0||!support||((c.mx||0)*l.nx+(c.mz||0)*l.nz<-.6);
+ const f=a.flight;if(f?.kind!=='ledge')return false;const l=f.ledge,failed=l.plan?.outcome==='slip',support=surfaces(failed?l.x:l.stand.x,failed?l.z:l.stand.z).find(p=>p.id===l.id),release=c.dash||(c.jump&&f.time>.20)||a.hit>0||a.dizzyTime>0||!support||((c.mx||0)*l.nx+(c.mz||0)*l.nz<-.6);
  if(release){a.ledgeCooldown=.65;a.flight={...f,kind:'fall',vy:0,vx:-l.nx*3,vz:-l.nz*3,jumps:2};return !c.dash;}
- f.time+=Math.max(0,dt);const p=ledgeRoot(l,f.time);a.x=p.x;a.z=p.z;f.y=p.y;a.height=Math.max(0,p.y-ground(p.x,p.z));a.face=Math.atan2(l.nx,l.nz);a.poseAimYaw=a.face;a.hop=a.hopX=a.hopZ=0;
+ const previous=f.time;f.time+=Math.max(0,dt);if(failed)for(const[attempt,at]of[[1,.26],[2,.64]])if(previous<at*l.duration&&f.time>=at*l.duration){f.struggleAttempts=attempt;s.events.push({type:'ledgeEffort',id:a.id,attempt});}const p=ledgeRoot(l,f.time);a.x=p.x;a.z=p.z;f.y=p.y;a.height=Math.max(0,p.y-ground(p.x,p.z));a.face=Math.atan2(l.nx,l.nz);a.poseAimYaw=a.face;a.hop=a.hopX=a.hopZ=0;
+ if(f.time>=l.duration&&failed){a.ledgeCooldown=.85;a.flight={...f,kind:'fall',time:0,vy:-.7,vx:-l.nx*2.5,vz:-l.nz*2.5,jumps:2};a.support=null;a.climbStance=null;s.events.push({type:'ledgeSlip',id:a.id,attempts:2,x:a.x,z:a.z,y:f.y});return true;}
  if(f.time>=l.duration){a.x=l.stand.x;a.z=l.stand.z;a.flight=null;a.support=support;a.height=Math.max(0,support.y-ground(a.x,a.z));a.idle=0;a.ledgeCooldown=.45;a.rockPerchWait=0;a.climbStance={id:l.id,nx:l.nx,nz:l.nz,pitch:l.endPitch??l.plan.endPitch??0};s.events.push({type:'land',id:a.id,x:a.x,z:a.z,y:support.y,surface:support.id,impactSpeed:0,heavy:false});}
  return true;
 }
 
-export function fitClimb(s,l,ground){
+export function fitClimb(s,l,ground,{allowFailure=true}={}){
  const data=climbPhysicsData();if(!data)return false;const object=sceneryObjects().find(o=>o.id===l.id)||BASES.find(b=>'roof:'+b.id===l.id);if(!object)return false;l.floor=ground(object.x,object.z);
- const plan=retargetClimb(l,data.profile,data.templates,{top:(x,z)=>supportHeight(s,l.id,x,z,()=>l.floor),ground,solid:fastSolidFor(l,ground)});if(!plan.ok)return false;l.plan=plan;l.endPitch=plan.endPitch;return true;
+ const world={top:(x,z)=>supportHeight(s,l.id,x,z,()=>l.floor),ground,solid:fastSolidFor(l,ground)};let plan=retargetClimb(l,data.profile,data.templates,world);if(!plan.ok&&allowFailure)plan=failedClimbPlan(l,data.profile,data.templates,world,plan.reason);if(!plan.ok)return false;l.plan=plan;l.endPitch=plan.endPitch;if(plan.outcome==='slip')l.duration=plan.duration;return true;
 }
-export function reachableClimb(s,a,ground,surfaces){return climbPhysicsData()?findLedge(s,a,ground,surfaces,l=>fitClimb(s,l,ground)):null;}
+export function reachableClimb(s,a,ground,surfaces){return climbPhysicsData()?findLedge(s,a,ground,surfaces,l=>fitClimb(s,l,ground,{allowFailure:a.flight.vy<=0})):null;}
 export function ownRoofClimb(s,a,target,ground,surfaces){
  if(a.characterClass!=='heavy'||a.flight?.kind!=='wallHold')return null;const wall=a.flight.wall,id='roof:'+wall.enclosureId;
  if(!surfaces(target.x,target.z).some(p=>p.id===id))return null;
