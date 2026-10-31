@@ -1,0 +1,8 @@
+#wall-destination{position:absolute;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);box-sizing:border-box;padding:9px 12px;border:1px solid #c9e593b3;border-radius:14px;background:#173b32f2;color:#f3ffcc;text-align:center;pointer-events:auto;z-index:30;box-shadow:0 3px 14px #102e3370}
+#wall-destination[hidden],#wall-destination button[hidden]{display:none}
+#wall-destination p{margin:0 0 7px;font:600 14px/1.35 system-ui}
+#wall-destination>div{display:flex;gap:8px;justify-content:center}
+#wall-destination button{min-height:44px;padding:8px 12px;border:1px solid #d6edaf;border-radius:10px;background:#345e40;color:#f4ffd7;font:800 14px/1.15 system-ui;cursor:pointer}
+#wall-destination button:disabled{opacity:.45;cursor:default}
+.wall-destination-picking #touch-controls,.wall-destination-picking #desktop-controls{visibility:hidden}
+@media(max-width:500px){#wall-destination{width:calc(100% - 32px)}#wall-destination button{flex:1;padding:8px}}

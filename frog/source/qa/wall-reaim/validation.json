@@ -1,0 +1,25 @@
+{
+  "version": "4.4.19",
+  "sourceTests": 1539,
+  "nativeWallCases": 9,
+  "viewports": [
+    [
+      1280,
+      800
+    ],
+    [
+      430,
+      932
+    ],
+    [
+      932,
+      430
+    ]
+  ],
+  "cameraPreferencePreserved": true,
+  "sceneTapDoesNotFire": true,
+  "explicitLaunch": true,
+  "originalAssetsUnchanged": 105,
+  "climbEnabled": false,
+  "physicalPhoneVerified": false
+}

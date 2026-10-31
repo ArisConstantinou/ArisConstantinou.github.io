@@ -1,4 +1,6 @@
-# Βαλτομαχίες 4.4.18 — complete game source
+# Βαλτομαχίες 4.4.19 — complete game source
+
+4.4.19 adds an explicit wall destination selector: choose a point with mouse/touch, then confirm launch. Camera preference and original assets remain preserved. See RELEASE-4.4.19.md.
 
 4.4.18 resolves the objective illustration relative to the game document, so GitHub Pages subdirectory deployment uses /frog/art instead of the site root. Original illustration bytes are unchanged. See RELEASE-4.4.18.md.
 

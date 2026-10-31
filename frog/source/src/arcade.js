@@ -1,3 +1,4 @@
+import './arcade-wall-destination.css';
 import {plantSurfaceFeet,prewarmSurfaceFeet} from './arcade-surface-contact-pose.js';
 import {enableSceneContacts} from './arcade-scenery-contact.js';
 import {installWaterReflectionSettings} from './arcade-water-reflections.js';
