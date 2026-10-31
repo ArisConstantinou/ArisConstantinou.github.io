@@ -12,7 +12,7 @@ import {ARENA_RADIUS,ARENA_MOVE_RADIUS,BATTLEGROUND_SWARMS} from './arcade-battl
 import {GUARD_BODY,createGuards,guardActive,guardOverlapsActorHeight,hitGuard,stepGuards,restoreGuards,removeBaseGuards} from './arcade-guards.js';
 export {setProjectileWorld,projectileOrigin} from './arcade-projectiles.js';
 
-export const ARCADE_VERSION = '4.4.20';
+export const ARCADE_VERSION = '4.4.21';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
 export const RULES = Object.freeze({radius:ARENA_RADIUS,capacity:90,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:2.4,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});
@@ -48,7 +48,7 @@ export function resolveActorContacts(s){
  for(let pass=0;pass<3;pass++)for(let i=0;i<actors.length;i++)for(let j=i+1;j<actors.length;j++){
   const a=actors[i],b=actors[j],minimum=frogBody(a).movementRadius+frogBody(b).movementRadius,dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz);
   if(d>=minimum-1e-5||!overlappingHeight(s,a,b))continue;
-  const movableA=!a.catapultId,movableB=!b.catapultId,total=Number(movableA)+Number(movableB);if(!total)continue;
+  const movableA=!a.catapultId&&a.flight?.kind!=='ledge',movableB=!b.catapultId&&b.flight?.kind!=='ledge',total=Number(movableA)+Number(movableB);if(!total)continue;
   const nx=d>1e-7?dx/d:1,nz=d>1e-7?dz/d:0,share=(minimum-d+1e-4)/total;
   const ax=a.x,az=a.z,bx=b.x,bz=b.z;
   if(movableA)moveBody(a,-nx*share,-nz*share,s);
@@ -361,6 +361,7 @@ export function step(s,input={},dt=1/60){
   for(const k of ['dashCooldown','airSpit','shot','tongue','invuln','spawnShield','hit','idle','kickCooldown','aimWindup','aiShotReady','aiReaction','brain','catapultAim','sabotageRecovery','revealedTime'])a[k]=Math.max(0,finite(a[k])-dt);
   if(s.phase==='battle')a.machineTimer=Math.max(0,a.machineTimer-dt);
   if(a.ko){
+   if(a.flight?.kind==='ledge'){a.flight=null;a.climbStance=null;}
    releaseCatapult(s,a);moveBody(a,a.impulseX*dt,a.impulseZ*dt,s);a.impulseX*=Math.exp(-dt*3);a.impulseZ*=Math.exp(-dt*3);a.height=Math.max(0,a.height-dt*1.6);
    if(!a.eliminated&&!ownBase(s,a)?.destroyed){a.respawnTime=Math.max(0,a.respawnTime-dt);if(a.respawnTime<1e-8)respawn(s,a);}continue;
   }

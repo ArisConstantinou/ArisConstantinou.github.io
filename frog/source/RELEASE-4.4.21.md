@@ -1,0 +1,11 @@
+# Βαλτομαχίες 4.4.21
+
+Heavy frogs can catch a reachable upper lip, hang through two effort movements, transfer their palms, push with their hind legs and pull onto the sampled support. A grab is allowed only when the real limb reach and body envelope fit; an unreachable surface keeps the ordinary jump or wall destination behavior. Jump/Space lets go after the initial catch; moving away, dash, damage, dizziness or lost support also release it. After hauling, a fresh directional jump works normally.
+
+Manual wall destination selection and Settings Manual/Automatic behavior remain available to all three classes with mouse and touch. A Heavy own-roof haul is considered only when an actual reachable hand/body fit exists; this does not grant unlimited wall ascent. Normal jump limits remain Heavy1.25m, total1.85m; Skinny2.6m/total3.1m; Medium2.3m/total3.1m.
+
+The approved original meshes, textures, editable originals and49bone rigs remain unchanged. A compact contact-only weight/topology delta is decoded against the original fingerprint. Original geometry/materials are used outside contact motion; contact transitions blend the original and contact weights. Closure UVs use sampled texels of the existing original atlas. GPU programs and the shared contact geometry are prewarmed once and reused across rounds. Identical validated motion plans are reused; other candidates go through the bounded reach/body validator, not the offline authoring search.
+
+Validation:1551 unit tests; native keyboard and CDP touch haul/release/side-jump cases;18 all-class wall settings/destination/cancel/reopen/launch/landing cases on desktop, portrait and landscape; full-mesh contact and transition inspection; original-appearance GPU comparisons, shadow shaders, exact geometry data roundtrip and unchanged105 original public assets. Matched performance/resource and public deployment results are recorded in qa/heavy-climb/validation.json after the final release gates.
+
+Physical iPhone testing is unavailable. Desktop-GPU mobile viewport results are not a physical-phone FPS certification or evidence of2x performance. Ordinary airborne skinning remains the original game path; the contact rig is scoped to the new haul.

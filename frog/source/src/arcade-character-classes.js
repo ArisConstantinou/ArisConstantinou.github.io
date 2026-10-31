@@ -19,7 +19,7 @@ export function assignRoundCharacters(state,selection){
 }
 export function aerialAttack(actor){
  const flight=actor?.flight;
- if(!flight||['wallHold','wallJump','surfaceHop','fall'].includes(flight.kind))return null;
+ if(!flight||['wallHold','wallJump','surfaceHop','fall','ledge'].includes(flight.kind))return null;
  const profile=characterProfile(actor),double=flight.jumps>=2;
  if(profile.id==='heavy')return {kind:'bodySlam',damage:double?profile.doubleDamage:profile.normalDamage,ammo:0,double};
  if(profile.id==='skinny')return {kind:'airKick',damage:double?profile.doubleDamage:profile.normalDamage,ammo:0,double};

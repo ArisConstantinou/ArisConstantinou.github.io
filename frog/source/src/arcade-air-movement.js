@@ -1,3 +1,4 @@
+import{stepLedge,catchLedge,reachableClimb}from'./arcade-ledge-movement.js';
 import {rockLeapPlan,aimRockLeap,steerRockLeap} from './arcade-rock-perch.js';
 import {jumpRise,jumpCeiling} from './arcade-jump-balance.js';
 import {sceneContactsEnabled,scenerySurfaces} from './arcade-scenery-contact.js';
@@ -12,7 +13,7 @@ const norm=(x,z)=>{const n=Math.hypot(x,z);return n>.08?{x:x/n,z:z/n}:null;};
 export const flightActive=a=>!!a?.flight;
 export const canAirVolley=(s,a)=>{
  const plan=aerialAttack(a);if(a?.characterClass&&!plan)return false;
- return !!a?.flight&&!['surfaceHop','wallHold'].includes(a.flight.kind)&&!a.ko&&!a.eliminated&&a.dizzyTime<=0&&!(a.hit>0)&&!(a.kick>0)&&!(a.knockUp>0)&&!a.catapultId&&!a.flight.fired&&(a.ammo>=(plan?.ammo??3)||s.training&&a.id==='player');
+ return !!a?.flight&&!['surfaceHop','wallHold','ledge'].includes(a.flight.kind)&&!a.ko&&!a.eliminated&&a.dizzyTime<=0&&!(a.hit>0)&&!(a.kick>0)&&!(a.knockUp>0)&&!a.catapultId&&!a.flight.fired&&(a.ammo>=(plan?.ammo??3)||s.training&&a.id==='player');
 };
 export function flightPose(a){
  const f=a.flight;if(!f)return null;
@@ -39,7 +40,7 @@ export function landingSurfaces(s,x,z,ground,actor=null){
 }
 export function clearFlight(a){a.flight=null;a.support=null;a.airSpit=0;a.height=0;a.hop=0;a.hopX=a.hopZ=0;}
 function begin(s,a,kind,direction,ground){
- const old=a.flight,manual=kind==='jump'||kind==='double',profile=characterProfile(a),desiredVelocity=(kind==='double'?AIR_RULES.doubleVelocity:kind==='dash'?AIR_RULES.dashVelocity:kind==='surfaceHop'?6:AIR_RULES.jumpVelocity)*profile.jump;
+ a.climbStance=null;const old=a.flight,manual=kind==='jump'||kind==='double',profile=characterProfile(a),desiredVelocity=(kind==='double'?AIR_RULES.doubleVelocity:kind==='dash'?AIR_RULES.dashVelocity:kind==='surfaceHop'?6:AIR_RULES.jumpVelocity)*profile.jump;
  const speed=(kind==='double'?AIR_RULES.doubleSpeed:kind==='dash'?AIR_RULES.dashSpeed:kind==='surfaceHop'?8.8:AIR_RULES.jumpSpeed)*profile.move;
  const y=old?.y??ground(a.x,a.z)+a.height,launchBase=old?.launchBase??a.support?.y??(old?.kind==='fall'?y:ground(a.x,a.z)+a.height),ceiling=old?.ceiling??jumpCeiling(a,launchBase);
  const rise=kind==='jump'?Math.min(jumpRise(a),Math.max(0,ceiling-y)):Math.max(0,ceiling-y),velocity=Math.min(desiredVelocity,Math.sqrt(2*AIR_RULES.gravity*rise));
@@ -50,10 +51,12 @@ function begin(s,a,kind,direction,ground){
  s.events.push({type:'hop',id:a.id,x:a.x,z:a.z,strength:1,kind});
 }
 export function stepFlight(s,a,c,dt,{ground,move,volley,mount}){
+ if(a.ledgeCooldown>0)a.ledgeCooldown=Math.max(0,a.ledgeCooldown-dt);
  const perched=a.support?.kind==='rock',freshRockJump=!!c.jump&&!a.rockJumpHeld;a.rockJumpHeld=!!c.jump;
  const direction=norm(finite(c.mx),finite(c.mz)),fallback=direction||norm(a.flight?.vx||0,a.flight?.vz||0)||{x:0,z:0};
  if(a.catapultId||a.ko||a.eliminated||a.knockUp>0){if(a.flight||a.support)clearFlight(a);return false;}
  if(a.dizzyTime>0){c={};if(a.flight)a.flight.queued=false;}
+ if(stepLedge(s,a,c,dt,ground,(x,z)=>landingSurfaces(s,x,z,ground,a)))return true;
  if(stepWallHold(s,a,c,ground,(x,z)=>landingSurfaces(s,x,z,ground,a),dt))return true;
  if(c.jump&&(!perched||freshRockJump)&&!a.flight?.rockTarget&&a.kick<=0&&!(a.flight?.kind==='wallJump'&&a.flight.time===0)){
   if(!a.flight)begin(s,a,'jump',fallback,ground);
@@ -98,5 +101,6 @@ export function stepFlight(s,a,c,dt,{ground,move,volley,mount}){
    }
   }
  }
+ if(a.flight&&reachableClimb){const ledge=reachableClimb(s,a,ground,(x,z)=>landingSurfaces(s,x,z,ground,a));if(ledge)catchLedge(s,a,ledge);}
  return true;
 }

@@ -1,3 +1,4 @@
+import{contactGeometry,climbPhysicsData}from'./arcade-contact-data.js';import{createClimbPoseController}from'./arcade-climb-controller.js';
 import {createCartoonLeapPose} from './arcade-cartoon-leap.js';
 import {createSkinnedBounds} from './arcade-skin-bounds.js';
 import {createMeshLOD} from './arcade-render-lod.js';
@@ -24,8 +25,8 @@ export function cartoonFrogFactory(assets,{distanceGeometries}={}){
   const restHeadWorld=bones.head.getWorldQuaternion(new THREE.Quaternion()),headAxis=new THREE.Vector3(1,0,0).applyQuaternion(restHeadWorld.invert()),offset=new THREE.Quaternion();
   let leapPose;let chosen='',clock=0,koClock=0,actor=options.actor,disposed=false,impactUntil=0,impactStrength=0,transition=null;
   const model={group,flightPivot,mesh,bones,skeleton,restPose,stats:{type:'frog',imported:true,cartoon:true,characterClass:id,vertices:skins.reduce((n,m)=>n+m.geometry.attributes.position.count,0),triangles:skins.reduce((n,m)=>n+m.geometry.index.count/3,0),bones:49,renderLOD:0},
-   setEquipment(){},setCrowned(){},setRenderLOD(level){model.stats.qualityLOD=level;},setOutline(){},
-   prepareRender(camera,width,height,enabled=true,mainView=true,{distance=true,culling=true}={}){let level=0,triangles=0;const forced=model.currentClip==='KO'||actor?.flight?.kind==='wallHold',keepOriginal=enabled&&renderParts.find(p=>p.skin===mesh).lod.keepOriginal(camera,width,height,forced);for(const p of renderParts){if(enabled&&!keepOriginal)p.bounds.update();p.skin.frustumCulled=enabled&&culling&&!keepOriginal;const selected=p.lod.apply(camera,width,height,{enabled:enabled&&distance&&!keepOriginal,box:p.bounds.box,forceOriginal:model.currentClip==='KO'||actor?.flight?.kind==='wallHold'});level=Math.max(level,selected);triangles+=p.skin.geometry.index.count/3;}if(mainView){model.stats.renderLOD=level;model.stats.drawnTriangles=triangles;}else{model.stats.reflectionLOD=level;model.stats.reflectionTriangles=triangles;}},
+   beginPose(){for(const p of renderParts)p.skin.geometry=p.lod.original;model.climbContact?.beforePose();},setEquipment(){},setCrowned(){},setRenderLOD(level){model.stats.qualityLOD=level;},setOutline(){},
+   prepareRender(camera,width,height,enabled=true,mainView=true,{distance=true,culling=true}={}){let level=0,triangles=0;const forced=model.currentClip==='KO'||actor?.flight?.kind==='wallHold',keepOriginal=enabled&&renderParts.find(p=>p.skin===mesh).lod.keepOriginal(camera,width,height,forced);for(const p of renderParts){if(model.contactActive&&p.skin===mesh){p.skin.frustumCulled=false;triangles+=mesh.geometry.index.count/3;continue;}if(enabled&&!keepOriginal)p.bounds.update();p.skin.frustumCulled=enabled&&culling&&!keepOriginal;const selected=p.lod.apply(camera,width,height,{enabled:enabled&&distance&&!keepOriginal,box:p.bounds.box,forceOriginal:model.currentClip==='KO'||actor?.flight?.kind==='wallHold'});level=Math.max(level,selected);triangles+=p.skin.geometry.index.count/3;}if(mainView){model.stats.renderLOD=level;model.stats.drawnTriangles=triangles;}else{model.stats.reflectionLOD=level;model.stats.reflectionTriangles=triangles;}},
    setImpact({strength=0,duration=.26}={}){impactStrength=Math.min(1.5,Math.max(0,strength));impactUntil=clock+duration;},
    mouthWorld(target=new THREE.Vector3()){group.updateWorldMatrix(true,true);return bones.mouth.getWorldPosition(target);},
    aimPitch(angle){bones.head.quaternion.multiply(offset.setFromAxisAngle(headAxis,-angle*.7));},
@@ -54,8 +55,8 @@ export function cartoonFrogFactory(assets,{distanceGeometries}={}){
     for(const material of materials){material.emissive.set('#ffdba3');material.emissiveIntensity=clock<impactUntil?Math.min(.38,impactStrength*.38):0;}
     model.ownsLimbPose=!!actor?.classAction?.remaining;model.currentClip=name;leapPose?.(state,actor,name);
    },
-   dispose(){if(disposed)return;disposed=true;mixer.stopAllAction();mixer.uncacheRoot(root);for(const sk of new Set(skins.map(s=>s.skeleton)))sk.dispose();for(const material of materials)material.dispose();group.removeFromParent();},
+   dispose(){if(disposed)return;disposed=true;model.climbContact?.dispose();mixer.stopAllAction();mixer.uncacheRoot(root);for(const sk of new Set(skins.map(s=>s.skeleton)))sk.dispose();for(const material of materials)material.dispose();group.removeFromParent();},
   };
-  leapPose=createCartoonLeapPose(model);model.update(0);return model;
+  leapPose=createCartoonLeapPose(model);if(id==='heavy'&&climbPhysicsData()){const data=climbPhysicsData(),geometry=contactGeometry(mesh.geometry,skeleton);model.climbContact=createClimbPoseController(model,geometry,data.rig,data.profile);}model.update(0);return model;
  };
 }

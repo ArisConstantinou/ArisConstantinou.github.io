@@ -1,0 +1,7 @@
+# Heavy contact authoring
+
+The original49bone Heavy model and its textures are preserved. These are editable authoring functions, not extra runtime dependencies. In the existing Vite/Three.js project, create a Heavy instance with `cartoonFrogFactory`, reset all bones to `restPose`, reset the group and flight pivot, and update world matrices. Call `splitContacts(model)`, then `bakeContactCapUVs(model, renderer, camera)`. `encodeContactGeometry(originalGeometry, model.mesh.geometry)` in src/arcade-contact-geometry.js exports the compact delta; its decoder checks the original topology/fingerprint. The contact package also stores the bind contact metadata, body envelope and validated motion templates. Update both package hashes in src/arcade-asset-manifest.js after a verified export.
+
+Movement and limb contacts are procedural: src/arcade-ledge-movement.js, arcade-climb-path.js, arcade-climb-retarget.js, arcade-climb-pose.js and arcade-climb-controller.js. The expensive motion search is an authoring step; it is not used in a gameplay frame. A template is accepted only after the posed surface, original limb reach and actual scenery contacts have been checked. Never increase a jump ceiling or joint scale to conceal an unreachable contact.
+
+QA input note: Chromium's CreateWebTouchEvents retains unchanged contacts internally; the native test passes only the changed contact id for each start/move/end. Reference: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/content/browser/devtools/protocol/input_handler.cc

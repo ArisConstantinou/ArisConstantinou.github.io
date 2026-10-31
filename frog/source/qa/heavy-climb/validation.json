@@ -1,0 +1,117 @@
+{
+  "version": "4.4.21",
+  "sourceTests": 1551,
+  "nativeKeyboardAndTouchCases": 4,
+  "wallSettingsCases": 9,
+  "wallDestinationCases": 9,
+  "allVertexContact": {
+    "frames": 180,
+    "maxExtension": 0.06743926410889226,
+    "maxMotion": 0.07168761119773934,
+    "maxDepth": 0.005893437210001906,
+    "maxHandError": 9.062273071892386e-08,
+    "maxFootError": 1.0438731154131027e-07
+  },
+  "settled": {
+    "frames": 30,
+    "maxDepth": 0.0038701683124853226,
+    "restored": true
+  },
+  "resourceRounds": 7,
+  "stableGPUResources": true,
+  "protectedOriginalAssets": 105,
+  "physicalIPhoneTested": false,
+  "twoTimesPerformanceClaimed": false,
+  "performance": [
+    {
+      "device": "desktop",
+      "stage": "before",
+      "version": "4.4.20",
+      "cpu": {
+        "p50": 6.1000001430511475,
+        "p95": 7.400000095367432,
+        "max": 10.099999904632568,
+        "over50": 0
+      },
+      "render": {
+        "frame": 320,
+        "calls": 335,
+        "triangles": 2869069,
+        "points": 2200,
+        "lines": 320
+      },
+      "memory": {
+        "geometries": 102,
+        "textures": 35
+      }
+    },
+    {
+      "device": "desktop",
+      "stage": "after",
+      "version": "4.4.21",
+      "cpu": {
+        "p50": 5.799999952316284,
+        "p95": 6.5,
+        "max": 9.5,
+        "over50": 0
+      },
+      "render": {
+        "frame": 321,
+        "calls": 335,
+        "triangles": 2869069,
+        "points": 2200,
+        "lines": 320
+      },
+      "memory": {
+        "geometries": 103,
+        "textures": 35
+      }
+    },
+    {
+      "device": "mobile-viewport",
+      "stage": "before",
+      "version": "4.4.20",
+      "cpu": {
+        "p50": 6.599999904632568,
+        "p95": 8.199999809265137,
+        "max": 11.100000143051147,
+        "over50": 0
+      },
+      "render": {
+        "frame": 320,
+        "calls": 366,
+        "triangles": 2802508,
+        "points": 2200,
+        "lines": 320
+      },
+      "memory": {
+        "geometries": 103,
+        "textures": 35
+      }
+    },
+    {
+      "device": "mobile-viewport",
+      "stage": "after",
+      "version": "4.4.21",
+      "cpu": {
+        "p50": 6.599999904632568,
+        "p95": 7.900000095367432,
+        "max": 9.599999904632568,
+        "over50": 0
+      },
+      "render": {
+        "frame": 321,
+        "calls": 366,
+        "triangles": 2802508,
+        "points": 2200,
+        "lines": 320
+      },
+      "memory": {
+        "geometries": 104,
+        "textures": 35
+      }
+    }
+  ],
+  "contactGeometryBytes": 1537636,
+  "scope": "Reachable Heavy lip haul and explicit release; preserved all-class wall destination controls. Ordinary airborne skinning remains the original game path."
+}

@@ -1,3 +1,4 @@
+import{ownRoofClimb,catchLedge,ledgeRoot}from'./arcade-ledge-movement.js';
 import {jumpCeiling} from './arcade-jump-balance.js';
 import {inheritSceneContacts} from './arcade-scenery-contact.js';
 import {BASES,WALLS,ARENA_ROCKS,CATAPULT_SITES,resolveArenaMove} from './arcade-bases.js';
@@ -20,9 +21,10 @@ export function wallContact(s,a,ground){
 export function wallLanding(s,x,z,ground,surfaces,nearY=Infinity){
  const available=surfaces(x,z).filter(p=>p.y<=nearY+.4);return available.sort((a,b)=>b.y-a.y)[0]||{x,z,y:ground(x,z),kind:'ground'};
 }
-export function wallPoint(plan,t){return {x:plan.start.x+plan.vx*t,y:plan.start.y+plan.vy*t-WALL_JUMP.gravity*t*t/2,z:plan.start.z+plan.vz*t};}
+export function wallPoint(plan,t){if(plan.kind==='ledge')return ledgeRoot(plan.ledge,t);return {x:plan.start.x+plan.vx*t,y:plan.start.y+plan.vy*t-WALL_JUMP.gravity*t*t/2,z:plan.start.z+plan.vz*t};}
 export function planWallJump(s,a,target,ground,surfaces){
  const wall=a.flight?.wall;if(!wall||!target||![target.x,target.z].every(Number.isFinite))return null;
+ const climb=ownRoofClimb(s,a,target,ground,surfaces);if(climb)return{kind:'ledge',valid:true,reason:null,start:{x:a.x,y:a.flight.y,z:a.z},target:{...climb.stand,kind:climb.kind,id:climb.id},duration:climb.duration,ledge:climb};
  const start={x:a.x,y:a.flight.y,z:a.z},dx=target.x-start.x,dz=target.z-start.z,distance=Math.hypot(dx,dz),surface=wallLanding(s,target.x,target.z,ground,surfaces,Number.isFinite(target.y)?target.y:Infinity),end={x:target.x,y:surface.y,z:target.z,kind:surface.kind,id:surface.id};
  const base={start,target:end,valid:false,reason:'range'};if(distance<WALL_JUMP.minRange||distance>WALL_JUMP.maxRange||Math.hypot(end.x,end.z)>ARENA_MOVE_RADIUS-.7)return base;
  if((dx*wall.nx+dz*wall.nz)/distance<.22)return {...base,reason:'wall'};
@@ -49,7 +51,7 @@ export function automaticWallTarget(s,a,ground,surfaces){
  return null;
 }
 export function startWallJump(s,a,plan){
- if(!plan?.valid)return false;const old=a.flight;a.flight={kind:'wallJump',y:old.y,launchBase:plan.launchBase,ceiling:plan.ceiling,vy:plan.vy,vx:plan.vx,vz:plan.vz,jumps:1,launchVelocity:plan.vy,time:0,queued:false,fired:old.fired||false,dashed:old.dashed||false,wall:old.wall,wallLaunchTarget:plan.target,wallLaunchDuration:plan.duration};a.support=null;a.hop=0;a.face=Math.atan2(plan.vx,plan.vz);a.poseAimYaw=a.face;a.hopX=plan.vx;a.hopZ=plan.vz;s.events.push({type:'hop',id:a.id,x:a.x,z:a.z,strength:1,kind:'wallJump'});return true;
+ if(!plan?.valid)return false;if(plan.kind==='ledge')return catchLedge(s,a,plan.ledge);const old=a.flight;a.flight={kind:'wallJump',y:old.y,launchBase:plan.launchBase,ceiling:plan.ceiling,vy:plan.vy,vx:plan.vx,vz:plan.vz,jumps:1,launchVelocity:plan.vy,time:0,queued:false,fired:old.fired||false,dashed:old.dashed||false,wall:old.wall,wallLaunchTarget:plan.target,wallLaunchDuration:plan.duration};a.support=null;a.hop=0;a.face=Math.atan2(plan.vx,plan.vz);a.poseAimYaw=a.face;a.hopX=plan.vx;a.hopZ=plan.vz;s.events.push({type:'hop',id:a.id,x:a.x,z:a.z,strength:1,kind:'wallJump'});return true;
 }
 export function stepWallHold(s,a,c,ground,surfaces,dt=1/60){
  const f=a.flight;if(!f)return false;if(c.dash){if(f.kind==='wallHold')a.flight={...f,kind:'fall',vy:0};return false;}if(a.dizzyTime>0){if(f.kind==='wallHold')a.flight={...f,kind:'fall',vy:0};return false;}
@@ -66,5 +68,5 @@ export function stepWallHold(s,a,c,ground,surfaces,dt=1/60){
  a.flight.time=(a.flight.time||0)+Math.max(0,dt);
  if(c.wallMode==='auto'&&a.flight.time>=WALL_JUMP.settleTime){const plan=automaticWallTarget(s,a,ground,surfaces);if(plan)startWallJump(s,a,plan);}
  else if(c.wallMode!=='auto'&&(c.jump||c.wallLaunch)){const plan=planWallJump(s,a,c.wallTarget,ground,surfaces);if(plan?.valid)startWallJump(s,a,plan);}
- return a.flight.kind==='wallHold';
+ return ['wallHold','ledge'].includes(a.flight.kind);
 }
