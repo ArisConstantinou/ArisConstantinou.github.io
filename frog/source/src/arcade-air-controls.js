@@ -36,20 +36,21 @@ export function installAirControls(game){
  const clear=game.clearInputs.bind(game);game.clearInputs=()=>{for(const [id,pointer] of contacts){const button=game.$(id);if(button.hasPointerCapture?.(pointer))button.releasePointerCapture(pointer);}contacts.clear();clear();};
  let visibility='';
  const updateHUD=game.updateHUD.bind(game);game.updateHUD=()=>{
-  updateHUD();const p=game.state.actors[0],ready=canAirVolley(game.state,p),queued=!!p.flight?.queued;
+  updateHUD();const p=game.state.actors[0],perched=p.support?.kind==='rock',rockBusy=!!p.flight?.rockTarget,ready=canAirVolley(game.state,p),queued=!!p.flight?.queued;
   game.$('touch-controls').classList.toggle('airborne-actions',!!p.flight);
   const mounted=!!p.catapultId,blocked=p.ko||p.eliminated||p.dizzyTime>0||p.knockUp>0;
   const jump=game.$('jump-button'),dash=game.$('dash-button'),volley=game.$('air-volley-button');
   jump.hidden=false;dash.hidden=mounted&&!game.layoutEditing;
-  jump.disabled=!game.layoutEditing&&(blocked||mounted||p.flight?.jumps>=2);
-  dash.disabled=!game.layoutEditing&&(blocked||mounted||p.dashCooldown>0||p.flight?.dashed===true);
+  jump.disabled=!game.layoutEditing&&(blocked||mounted||rockBusy||p.flight?.jumps>=2);
+  dash.disabled=!game.layoutEditing&&(blocked||mounted||perched||rockBusy||p.dashCooldown>0||p.flight?.dashed===true);
   volley.hidden=!game.layoutEditing&&(!game.touch||(!ready&&!queued));
   volley.disabled=!game.layoutEditing&&(!ready||queued);
+  jump.querySelector('span').textContent=perched||rockBusy?'ΑΛΜΑ':'ΑΛΜΑ ×2';jump.setAttribute('aria-label',perched?'Νέο άλμα από τον βράχο προς το έδαφος ή άλλον βράχο':rockBusy?'Προσγείωση στον βράχο':'Άλμα, δεύτερο πάτημα στον αέρα για διπλό άλμα');
   const plan=aerialAttack(p),label=plan?.kind==='bodySlam'?'ΒΟΥΤΙΑ':plan?.kind==='airKick'?'ΚΛΩΤΣΙΑ':plan?.count===8?'ΑΣΤΕΡΙ ×8':'3 ΚΑΤΩ';
   volley.querySelector('span').textContent=queued?'ΕΤΟΙΜΟ':label;volley.setAttribute('aria-label',plan?.kind==='bodySlam'?'Χτύπημα με το σώμα στην προσγείωση':plan?.kind==='airKick'?'Εναέρια κλωτσιά':plan?.count===8?'Ακτινωτή ριπή οκτώ μυγών':'Τρεις μύγες προς τα κάτω');
   const next=[jump.hidden,dash.hidden,volley.hidden].join();if(next!==visibility){visibility=next;game.touchLayout?.refresh();}
-  hint.hidden=!game.running||game.layoutEditing||game.touch||(!ready&&!queued);
-  if(!hint.hidden)hint.textContent='Q · '+(queued?'ΕΤΟΙΜΟ ΣΤΗΝ ΚΑΘΟΔΟ':label);
+  hint.hidden=!game.running||game.layoutEditing||game.touch||(!ready&&!queued&&!perched);
+  if(!hint.hidden)hint.textContent=perched?'SPACE · ΑΛΜΑ ΑΠΟ ΤΟΝ ΒΡΑΧΟ':'Q · '+(queued?'ΕΤΟΙΜΟ ΣΤΗΝ ΚΑΘΟΔΟ':label);
   const q=root?.querySelector('[data-key="KeyQ"]');if(q){q.classList.toggle('air-ready',ready);q.setAttribute('aria-label',ready?'Q: '+label:p.characterClass==='heavy'?'Q: χτύπημα κοιλιάς':'Q: κλωτσιά');}
  };
  return {reset,destroy(){removeEventListener('keydown',down,true);removeEventListener('keyup',up,true);hint.remove();}};

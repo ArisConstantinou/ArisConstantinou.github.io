@@ -1,3 +1,4 @@
+import {scenerySurfaces} from './arcade-scenery-contact.js';
 import {ammunitionCapacity,characterProfile,aerialAttack,CHARACTER_IDS} from './arcade-character-classes.js';
 import {freshStats,cleanStats} from './arcade-leaderboard.js';
 import {AIR_RULES,stepFlight,canAirVolley,landingSurfaces} from './arcade-air-movement.js';
@@ -11,7 +12,7 @@ import {ARENA_RADIUS,ARENA_MOVE_RADIUS,BATTLEGROUND_SWARMS} from './arcade-battl
 import {GUARD_BODY,createGuards,guardActive,guardOverlapsActorHeight,hitGuard,stepGuards,restoreGuards,removeBaseGuards} from './arcade-guards.js';
 export {setProjectileWorld,projectileOrigin} from './arcade-projectiles.js';
 
-export const ARCADE_VERSION = '4.4.15';
+export const ARCADE_VERSION = '4.4.16';
 export const SAVE_KEY = 'frog-arcade-save-v1';
 export const SETTINGS_KEY = 'frog-arcade-settings-v1';
 export const RULES = Object.freeze({radius:ARENA_RADIUS,capacity:90,dizzyHits:6,finishHits:3,dizzySeconds:4.5,tongueRange:3.2,pickupRange:3.2,tongueInterval:.22,kickRange:2.4,kickCooldown:1.1,kickDuration:.48,hopDuration:.30,landingDuration:.035,shotInterval:.14,projectileSpeed:32,projectileLifetime:.65,introSeconds:20,sabotageSeconds:8,sabotageRange:2.4,sabotageRecovery:.55,respawnSeconds:12,respawnProtectionSeconds:1,revealSeconds:2.5});
@@ -441,7 +442,7 @@ export function loadRound(raw){
    // Version 1 starts a new shared warm-up. Place each frog inside its new home
    // for that transition; ordinary version 2 resumes keep their travel position.
    if(legacy){const g=baseGeometry(home);Object.assign(a,{x:g.spawn.x,z:g.spawn.z,face:g.spawnHeading,aimX:Math.sin(g.spawnHeading),aimY:0,aimZ:Math.cos(g.spawnHeading),aim3D:false});}
-   if(!legacy&&!ko&&typeof old.support?.id==='string'&&finite(old.height)>0&&finite(old.height)<32){const support=landingSurfaces(s,a.x,a.z,()=>0,a).find(p=>p.id===old.support.id);if(support){a.support={...support,y:finite(old.support.y,support.y)};a.height=old.height;}}
+   if(!legacy&&!ko&&typeof old.support?.id==='string'&&finite(old.height)>0&&finite(old.height)<32){const support=(a.characterClass&&old.support.id.startsWith('rock:')?scenerySurfaces(s,a.x,a.z,()=>0):landingSurfaces(s,a.x,a.z,()=>0,a)).find(p=>p.id===old.support.id);if(support){a.support={...support,y:finite(old.support.y,support.y)};a.height=old.height;}}
    moveBody(a,0,0,s);
   }
   // Existing patch IDs and their first 72 flies keep their saved positions and

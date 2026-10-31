@@ -1,0 +1,7 @@
+# Βαλτομαχίες 4.4.16
+
+Jump toward a nearby rock to land on its actual top and stay there. Movement or dash alone no longer walks or automatically hops off a rock; press jump again to come down or reach a neighbouring rock. A held jump cannot bounce immediately after landing. AI frogs pause on the rock and choose a separate jump when their navigation calls for leaving, so the new rule cannot trap them. Free-space jump heights, roof/tree movement and wall controls retain their existing rules. Saved perches on the outer imported rock mesh reload correctly.
+
+Audit all menu poses on all three characters. Restore the anatomical knee bend planes; repair the narrow fused forearm/hindfoot skin contact on Heavy and the planted Skinny leg. Preserve the previously corrected Skinny kicking ankle, full actions, timing,20-FPS source,448px alpha, quality88 and original geometry/materials. Original gameplay GLBs/raw Blender assets and inactive heavy ledge prototype are untouched.
+
+Validation:156 physical approaches across13rocks/3classes/4directions, explicit rock-to-rock jumps, held movement/dash, fresh jump gating and save/load. Full source regressions and real browser keyboard/touch/menu tests accompany the release. All menu loops are evaluated pose by pose with fixed toe-pad checks and exact geometry/topology hashes. Editable menu scenes remain in canonical work/menu-performances; the retained original local asset inputs are required by qa/rock-perch-menu authoring recipes. Desktop/mobile viewport checks do not certify physical-phone performance.

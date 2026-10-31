@@ -1,0 +1,92 @@
+[
+  {
+    "id": "heavy",
+    "frames": 97,
+    "scene_sha256": "ce7faf357e9b2b0b14eac7781cdf4648f6bbb4de9f83a545ab5cdea5116fa941",
+    "bind_hash": "758d5af7271e82ca8bafdbd813a81ebc24eca480f1125d4ebb7b6537cea7a345",
+    "wrap_error_m": 0.0,
+    "max_frame_vertex_motion_m": 0.20739037896039142,
+    "rest_knee_error_m": {
+      "-1": 4.485843546238652e-08,
+      "1": 1.0536712127723508e-07
+    },
+    "legs": {
+      "-1": {
+        "max_elongation_m": 0.038575953775606735,
+        "significant_max": 1.879112484327717,
+        "foot_max": 1.879112484327717,
+        "foot_p99": 1.479297313081172,
+        "support_motion": 0.0005887612015559736,
+        "minimum_knee_z": 0.17736998200416565
+      },
+      "1": {
+        "max_elongation_m": 0.005826206903818368,
+        "significant_max": 1.192329923533669,
+        "foot_max": 1.192329923533669,
+        "foot_p99": 1.0823618631134813,
+        "support_motion": 0.0006531455794318297,
+        "minimum_knee_z": 0.18664443492889404
+      }
+    }
+  },
+  {
+    "id": "medium",
+    "frames": 109,
+    "scene_sha256": "60c1ff782061d9d0bfa0416c0344c1e9271bcbcea3a016bbe3844efbf7fd904c",
+    "bind_hash": "435b17f60276de2665f7fd64bd1834e810a6c05a24a6ce103d368a81a62eb83d",
+    "wrap_error_m": 0.0,
+    "max_frame_vertex_motion_m": 0.03447485052916089,
+    "rest_knee_error_m": {
+      "-1": 8.948454372185702e-08,
+      "1": 6.582810374748815e-08
+    },
+    "legs": {
+      "-1": {
+        "max_elongation_m": 0.0073698164924465084,
+        "significant_max": 1.475691725023414,
+        "foot_max": 1.475691725023414,
+        "foot_p99": 1.0672482096281104,
+        "support_motion": 0.000546829622053678,
+        "minimum_knee_z": 0.3160596191883087
+      },
+      "1": {
+        "max_elongation_m": 0.0075973526226318505,
+        "significant_max": 1.4346541332838278,
+        "foot_max": 1.4346541332838278,
+        "foot_p99": 1.103878405801886,
+        "support_motion": 0.0006788516482193166,
+        "minimum_knee_z": 0.2579936981201172
+      }
+    }
+  },
+  {
+    "id": "skinny",
+    "frames": 97,
+    "scene_sha256": "13051363565e289556fedab7a892dcde11237e42ff6f972b85ce6c60a16261f8",
+    "bind_hash": "a6c7e4abc64e3286de0bdf962be41ff2255b5555afc54c24038a0252eef20b0b",
+    "wrap_error_m": 0.0,
+    "max_frame_vertex_motion_m": 0.7133232941865443,
+    "rest_knee_error_m": {
+      "-1": 1.519626234052415e-07,
+      "1": 5.0669426131007984e-08
+    },
+    "legs": {
+      "-1": {
+        "max_elongation_m": 0.0005013670637735029,
+        "significant_max": 1.0213794521210604,
+        "foot_max": 1.0213794521210604,
+        "foot_p99": 1.007245879837739,
+        "support_motion": 1.1112747347879919,
+        "minimum_knee_z": 0.19228944182395935
+      },
+      "1": {
+        "max_elongation_m": 0.01967894325648161,
+        "significant_max": 2.3186297622393597,
+        "foot_max": 2.3186297622393597,
+        "foot_p99": 1.2067377542506441,
+        "support_motion": 0.0009584619022314285,
+        "minimum_knee_z": 0.33569058775901794
+      }
+    }
+  }
+]

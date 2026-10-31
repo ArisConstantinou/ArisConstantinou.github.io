@@ -1,3 +1,4 @@
+import {rockLeapPlan,aimRockLeap,steerRockLeap} from './arcade-rock-perch.js';
 import {jumpRise,jumpCeiling} from './arcade-jump-balance.js';
 import {sceneContactsEnabled,scenerySurfaces} from './arcade-scenery-contact.js';
 import {aerialAttack,characterProfile} from './arcade-character-classes.js';
@@ -43,34 +44,37 @@ function begin(s,a,kind,direction,ground){
  const y=old?.y??ground(a.x,a.z)+a.height,launchBase=old?.launchBase??a.support?.y??(old?.kind==='fall'?y:ground(a.x,a.z)+a.height),ceiling=old?.ceiling??jumpCeiling(a,launchBase);
  const rise=kind==='jump'?Math.min(jumpRise(a),Math.max(0,ceiling-y)):Math.max(0,ceiling-y),velocity=Math.min(desiredVelocity,Math.sqrt(2*AIR_RULES.gravity*rise));
  a.flight={kind,y,launchBase,ceiling,vy:velocity,vx:direction.x*speed,vz:direction.z*speed,jumps:kind==='double'?2:manual?1:old?.jumps||0,launchVelocity:velocity,time:0,queued:a.characterClass==='medium'&&manual||old?.queued||false,fired:a.characterClass==='medium'&&manual?false:old?.fired||false,sourceSupport:a.support?.id??old?.sourceSupport??null,surfaceY:kind==='surfaceHop'?a.support?.y:null,dashed:kind==='dash'||old?.dashed||false};
+ if(kind==='jump'||kind==='dash'){const plan=rockLeapPlan(s,a,direction,ground,AIR_RULES.jumpSpeed*profile.move);if(plan)aimRockLeap(a,plan);}
  a.support=null;a.hop=0;a.hopSpeed=1;a.hopX=a.flight.vx;a.hopZ=a.flight.vz;
  if(kind==='dash')a.dashCooldown=AIR_RULES.dashCooldown;
  s.events.push({type:'hop',id:a.id,x:a.x,z:a.z,strength:1,kind});
 }
 export function stepFlight(s,a,c,dt,{ground,move,volley,mount}){
+ const perched=a.support?.kind==='rock',freshRockJump=!!c.jump&&!a.rockJumpHeld;a.rockJumpHeld=!!c.jump;
  const direction=norm(finite(c.mx),finite(c.mz)),fallback=direction||norm(a.flight?.vx||0,a.flight?.vz||0)||{x:0,z:0};
  if(a.catapultId||a.ko||a.eliminated||a.knockUp>0){if(a.flight||a.support)clearFlight(a);return false;}
  if(a.dizzyTime>0){c={};if(a.flight)a.flight.queued=false;}
  if(stepWallHold(s,a,c,ground,(x,z)=>landingSurfaces(s,x,z,ground,a),dt))return true;
- if(c.jump&&a.kick<=0&&!(a.flight?.kind==='wallJump'&&a.flight.time===0)){
+ if(c.jump&&(!perched||freshRockJump)&&!a.flight?.rockTarget&&a.kick<=0&&!(a.flight?.kind==='wallJump'&&a.flight.time===0)){
   if(!a.flight)begin(s,a,'jump',fallback,ground);
   else if(a.flight.jumps===0)begin(s,a,'jump',fallback,ground);
   else if(a.flight.jumps<2&&a.flight.kind!=='double')begin(s,a,'double',fallback,ground);
- }else if(c.dash&&direction&&!a.flight?.dashed&&a.kick<=0&&!(a.dashCooldown>0))begin(s,a,'dash',direction,ground);
+ }else if(c.dash&&!perched&&!a.flight?.rockTarget&&direction&&!a.flight?.dashed&&a.kick<=0&&!(a.dashCooldown>0))begin(s,a,'dash',direction,ground);
  if(!a.flight&&a.support){
   const current=landingSurfaces(s,a.x,a.z,ground,a).find(p=>p.id===a.support.id);
-  if(current){a.support=current;a.height=Math.max(0,current.y-ground(a.x,a.z));if(direction&&a.idle<=0)begin(s,a,'surfaceHop',direction,ground);else return true;}
+  if(current){a.support=current;a.height=Math.max(0,current.y-ground(a.x,a.z));if(current.kind==='rock'){if(a.id==='player'||!direction||a.idle>0||a.kick>0||a.dizzyTime>0)return true;a.rockPerchWait=(a.rockPerchWait||0)+dt;if(a.rockPerchWait<.75)return true;a.rockPerchWait=0;begin(s,a,'jump',direction,ground);}else if(direction&&a.idle<=0)begin(s,a,'surfaceHop',direction,ground);else return true;}
   else{a.flight={kind:'fall',y:a.support.y,launchBase:a.support.y,ceiling:jumpCeiling(a,a.support.y),vy:0,vx:0,vz:0,jumps:1,launchVelocity:AIR_RULES.jumpVelocity,time:0,queued:false,fired:false,sourceSupport:a.support.id};a.support=null;}
  }
  const f=a.flight;if(!f)return false;
- if(!['dash','surfaceHop','wallJump'].includes(f.kind)&&(Number.isFinite(c.mx)||Number.isFinite(c.mz))){const speed=(f.jumps>=2?AIR_RULES.doubleSpeed:AIR_RULES.jumpSpeed)*characterProfile(a).move,blend=1-Math.exp(-dt*12*characterProfile(a).agility);f.vx+=((direction?.x||0)*speed-f.vx)*blend;f.vz+=((direction?.z||0)*speed-f.vz)*blend;}
+ if(!f.rockTarget&&['jump','double','dash'].includes(f.kind)&&direction){const plan=rockLeapPlan(s,a,direction,ground,AIR_RULES.jumpSpeed*characterProfile(a).move);if(plan)aimRockLeap(a,plan);}
+ if(!f.rockTarget&&!['dash','surfaceHop','wallJump'].includes(f.kind)&&(Number.isFinite(c.mx)||Number.isFinite(c.mz))){const speed=(f.jumps>=2?AIR_RULES.doubleSpeed:AIR_RULES.jumpSpeed)*characterProfile(a).move,blend=1-Math.exp(-dt*12*characterProfile(a).agility);f.vx+=((direction?.x||0)*speed-f.vx)*blend;f.vz+=((direction?.z||0)*speed-f.vz)*blend;}
  if(c.airVolley&&canAirVolley(s,a))f.queued=true;
  const gravity=f.kind==='dash'?AIR_RULES.dashGravity:AIR_RULES.gravity;
  let remaining=dt;
  // Substeps prevent a fast leap from tunnelling across a roof edge or thin wall.
  while(remaining>1e-8&&a.flight){
   const h=Math.min(remaining,1/120);remaining-=h;
-  const oldX=a.x,oldZ=a.z;let oldY=f.y;const oldVy=f.vy;f.time+=h;f.vy-=gravity*h;
+  steerRockLeap(a,h);const oldX=a.x,oldZ=a.z;let oldY=f.y;const oldVy=f.vy;f.time+=h;f.vy-=gravity*h;
   let nextY=oldY+oldVy*h-gravity*h*h/2;
   a.height=Math.max(0,oldY-ground(a.x,a.z));move(f.vx*h,f.vz*h);
   // Walking hops follow their supporting slope instead of tunnelling under it.
@@ -88,7 +92,7 @@ export function stepFlight(s,a,c,dt,{ground,move,volley,mount}){
    for(const p of surfaces){if(p.kind!=='ground'&&oldY<p.y-.08){const previous=landingSurfaces(s,oldX,oldZ,ground,a).find(q=>q.id===p.id);if(!previous||oldY<previous.y-.08)continue;}if(!below||p.y>below.y)below=p;if(nextY<=p.y+.001&&(!support||p.y>support.y))support=p;}
    if(below){const distance=Math.max(0,f.y-below.y),timeToLand=(f.vy+Math.sqrt(f.vy*f.vy+2*gravity*distance))/gravity;f.poseProgress=Math.max(.5-f.vy/(2*Math.max(1,f.launchVelocity)),timeToLand<.18?.73+.27*(1-timeToLand/.18):0);}
    if(support){
-    a.flight=null;a.support=support.id?support:null;a.height=Math.max(0,support.y-ground(a.x,a.z));a.hopX=a.hopZ=0;a.idle=.035;
+    if(a.id!=='player'&&support.kind==='rock')a.rockPerchWait=0;a.flight=null;a.support=support.id?support:null;a.height=Math.max(0,support.y-ground(a.x,a.z));a.hopX=a.hopZ=0;a.idle=.035;
     s.events.push({type:'land',id:a.id,x:a.x,z:a.z,y:support.y,surface:support.id,impactSpeed:Math.abs(oldVy),heavy:a.characterClass==='heavy'&&!['surfaceHop','dash'].includes(f.kind)&&Math.abs(oldVy)>7});
     if(support.kind==='machine'){const machine=s.catapults?.find(v=>v.id===support.catapultId);if(machine&&(!machine.owner||machine.owner===a.id)&&!machine.occupant&&mount()){a.support=null;a.height=0;}}
    }

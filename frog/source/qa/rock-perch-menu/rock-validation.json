@@ -1,0 +1,2502 @@
+{
+  "ok": true,
+  "cases": [
+    {
+      "id": "heavy",
+      "rock": "rock:0",
+      "angle": 0,
+      "start": {
+        "x": -14.99439476185099,
+        "z": 2
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:0",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -8,
+        "z": -4.994394761850989
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:0",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -1.0056052381490108,
+        "z": 1.9999999999999991
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:0",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -7.999999999999999,
+        "z": 8.99439476185099
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:1",
+      "angle": 0,
+      "start": {
+        "x": 0.7000000000000002,
+        "z": -3
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:1",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 7.999999999999999,
+        "z": -10.3
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:1",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 15.3,
+        "z": -3.000000000000001
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:1",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 8.000000000000002,
+        "z": 4.3
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:2",
+      "angle": 0,
+      "start": {
+        "x": -8.614768444394258,
+        "z": -12
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:2",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -2.0000000000000004,
+        "z": -18.614768444394258
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:2",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 4.614768444394257,
+        "z": -12
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:2",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -1.999999999999999,
+        "z": -5.385231555605743
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:3",
+      "angle": 0,
+      "start": {
+        "x": 5.7,
+        "z": 12
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:3",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 13,
+        "z": 4.7
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:3",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 20.3,
+        "z": 11.999999999999998
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:3",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 13.000000000000002,
+        "z": 19.3
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:4",
+      "angle": 0,
+      "start": {
+        "x": -37.47588949202406,
+        "z": -7
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:4",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -32,
+        "z": -12.47588949202406
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:4",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -26.52411050797594,
+        "z": -7.000000000000001
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:4",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -32,
+        "z": -1.5241105079759398
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:5",
+      "angle": 0,
+      "start": {
+        "x": -30.855515809480792,
+        "z": -4
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:5",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -25,
+        "z": -9.855515809480792
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:5",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -19.144484190519208,
+        "z": -4.000000000000001
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:5",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -25,
+        "z": 1.8555158094807922
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:6",
+      "angle": 0,
+      "start": {
+        "x": 19.00560523814901,
+        "z": 6
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:6",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 26,
+        "z": -0.9943947618509892
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:6",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 32.99439476185099,
+        "z": 5.999999999999999
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:6",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 26,
+        "z": 12.99439476185099
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:7",
+      "angle": 0,
+      "start": {
+        "x": 27.52411050797594,
+        "z": -5
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:7",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 33,
+        "z": -10.47588949202406
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:7",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 38.47588949202406,
+        "z": -5.000000000000001
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:7",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 33,
+        "z": 0.47588949202406017
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:8",
+      "angle": 0,
+      "start": {
+        "x": -22.855515809480792,
+        "z": -28
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:8",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -17,
+        "z": -33.85551580948079
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:8",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -11.144484190519208,
+        "z": -28
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:8",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -17,
+        "z": -22.144484190519208
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:9",
+      "angle": 0,
+      "start": {
+        "x": -29.096263174567326,
+        "z": -26
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -24,
+      "z": -26,
+      "height": 2.866052552155844,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:9",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -24,
+        "z": -31.096263174567326
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -24,
+      "z": -26,
+      "height": 2.866052552155844,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:9",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -18.903736825432674,
+        "z": -26
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -24,
+      "z": -26,
+      "height": 2.866052552155844,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:9",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -24,
+        "z": -20.903736825432674
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -23.46819882941632,
+      "z": -24.364776838003074,
+      "height": 2.6115518068439862,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:10",
+      "angle": 0,
+      "start": {
+        "x": -7.096263174567326,
+        "z": -33
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:10",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -2.0000000000000004,
+        "z": -38.096263174567326
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:10",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 3.0962631745673264,
+        "z": -33
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:10",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -1.9999999999999991,
+        "z": -27.903736825432674
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:11",
+      "angle": 0,
+      "start": {
+        "x": 7.144484190519208,
+        "z": 25
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:11",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 13,
+        "z": 19.144484190519208
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:11",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 18.855515809480792,
+        "z": 25
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:11",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 13.000000000000002,
+        "z": 30.855515809480792
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:12",
+      "angle": 0,
+      "start": {
+        "x": -1.4758894920240602,
+        "z": 33
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:12",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 3.9999999999999996,
+        "z": 27.52411050797594
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:12",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 9.47588949202406,
+        "z": 33
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    },
+    {
+      "id": "heavy",
+      "rock": "rock:12",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 4.000000000000001,
+        "z": 38.47588949202406
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:0",
+      "angle": 0,
+      "start": {
+        "x": -14.99439476185099,
+        "z": 2
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:0",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -8,
+        "z": -4.994394761850989
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:0",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -1.0056052381490108,
+        "z": 1.9999999999999991
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:0",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -7.999999999999999,
+        "z": 8.99439476185099
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:1",
+      "angle": 0,
+      "start": {
+        "x": 0.7000000000000002,
+        "z": -3
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:1",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 7.999999999999999,
+        "z": -10.3
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:1",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 15.3,
+        "z": -3.000000000000001
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:1",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 8.000000000000002,
+        "z": 4.3
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:2",
+      "angle": 0,
+      "start": {
+        "x": -8.614768444394258,
+        "z": -12
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:2",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -2.0000000000000004,
+        "z": -18.614768444394258
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:2",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 4.614768444394257,
+        "z": -12
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:2",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -1.999999999999999,
+        "z": -5.385231555605743
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:3",
+      "angle": 0,
+      "start": {
+        "x": 5.7,
+        "z": 12
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:3",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 13,
+        "z": 4.7
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:3",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 20.3,
+        "z": 11.999999999999998
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:3",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 13.000000000000002,
+        "z": 19.3
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:4",
+      "angle": 0,
+      "start": {
+        "x": -37.47588949202406,
+        "z": -7
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:4",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -32,
+        "z": -12.47588949202406
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:4",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -26.52411050797594,
+        "z": -7.000000000000001
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:4",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -32,
+        "z": -1.5241105079759398
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:5",
+      "angle": 0,
+      "start": {
+        "x": -30.855515809480792,
+        "z": -4
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:5",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -25,
+        "z": -9.855515809480792
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:5",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -19.144484190519208,
+        "z": -4.000000000000001
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:5",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -25,
+        "z": 1.8555158094807922
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:6",
+      "angle": 0,
+      "start": {
+        "x": 19.00560523814901,
+        "z": 6
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:6",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 26,
+        "z": -0.9943947618509892
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:6",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 32.99439476185099,
+        "z": 5.999999999999999
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:6",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 26,
+        "z": 12.99439476185099
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:7",
+      "angle": 0,
+      "start": {
+        "x": 27.52411050797594,
+        "z": -5
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:7",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 33,
+        "z": -10.47588949202406
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:7",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 38.47588949202406,
+        "z": -5.000000000000001
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:7",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 33,
+        "z": 0.47588949202406017
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:8",
+      "angle": 0,
+      "start": {
+        "x": -22.855515809480792,
+        "z": -28
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:8",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -17,
+        "z": -33.85551580948079
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:8",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -11.144484190519208,
+        "z": -28
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:8",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -17,
+        "z": -22.144484190519208
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:9",
+      "angle": 0,
+      "start": {
+        "x": -29.096263174567326,
+        "z": -26
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -24,
+      "z": -26,
+      "height": 2.866052552155844,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:9",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -24,
+        "z": -31.096263174567326
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -24,
+      "z": -26,
+      "height": 2.866052552155844,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:9",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -18.903736825432674,
+        "z": -26
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -24,
+      "z": -26,
+      "height": 2.866052552155844,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:9",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -24,
+        "z": -20.903736825432674
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -24,
+      "z": -26,
+      "height": 2.866052552155844,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:10",
+      "angle": 0,
+      "start": {
+        "x": -7.096263174567326,
+        "z": -33
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:10",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -2.0000000000000004,
+        "z": -38.096263174567326
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:10",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 3.0962631745673264,
+        "z": -33
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:10",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -1.9999999999999991,
+        "z": -27.903736825432674
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:11",
+      "angle": 0,
+      "start": {
+        "x": 7.144484190519208,
+        "z": 25
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:11",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 13,
+        "z": 19.144484190519208
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:11",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 18.855515809480792,
+        "z": 25
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:11",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 13.000000000000002,
+        "z": 30.855515809480792
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:12",
+      "angle": 0,
+      "start": {
+        "x": -1.4758894920240602,
+        "z": 33
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:12",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 3.9999999999999996,
+        "z": 27.52411050797594
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:12",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 9.47588949202406,
+        "z": 33
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    },
+    {
+      "id": "medium",
+      "rock": "rock:12",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 4.000000000000001,
+        "z": 38.47588949202406
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:0",
+      "angle": 0,
+      "start": {
+        "x": -14.99439476185099,
+        "z": 2
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:0",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -8,
+        "z": -4.994394761850989
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:0",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -1.0056052381490108,
+        "z": 1.9999999999999991
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:0",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -7.999999999999999,
+        "z": 8.99439476185099
+      },
+      "target": "rock:0",
+      "landed": true,
+      "x": -8,
+      "z": 2,
+      "height": 4.299078828233766,
+      "support": "rock:0",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:1",
+      "angle": 0,
+      "start": {
+        "x": 0.7000000000000002,
+        "z": -3
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:1",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 7.999999999999999,
+        "z": -10.3
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:1",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 15.3,
+        "z": -3.000000000000001
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:1",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 8.000000000000002,
+        "z": 4.3
+      },
+      "target": "rock:1",
+      "landed": true,
+      "x": 8,
+      "z": -3,
+      "height": 4.872289338664934,
+      "support": "rock:1",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:2",
+      "angle": 0,
+      "start": {
+        "x": -8.614768444394258,
+        "z": -12
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:2",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -2.0000000000000004,
+        "z": -18.614768444394258
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:2",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 4.614768444394257,
+        "z": -12
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:2",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -1.999999999999999,
+        "z": -5.385231555605743
+      },
+      "target": "rock:2",
+      "landed": true,
+      "x": -2,
+      "z": -12,
+      "height": 4.012473573018181,
+      "support": "rock:2",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:3",
+      "angle": 0,
+      "start": {
+        "x": 5.7,
+        "z": 12
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:3",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 13,
+        "z": 4.7
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:3",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 20.3,
+        "z": 11.999999999999998
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:3",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 13.000000000000002,
+        "z": 19.3
+      },
+      "target": "rock:3",
+      "landed": true,
+      "x": 13,
+      "z": 12,
+      "height": 4.585684083449351,
+      "support": "rock:3",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:4",
+      "angle": 0,
+      "start": {
+        "x": -37.47588949202406,
+        "z": -7
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:4",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -32,
+        "z": -12.47588949202406
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:4",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -26.52411050797594,
+        "z": -7.000000000000001
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:4",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -32,
+        "z": -1.5241105079759398
+      },
+      "target": "rock:4",
+      "landed": true,
+      "x": -32,
+      "z": -7,
+      "height": 3.1526578073714284,
+      "support": "rock:4",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:5",
+      "angle": 0,
+      "start": {
+        "x": -30.855515809480792,
+        "z": -4
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:5",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -25,
+        "z": -9.855515809480792
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:5",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -19.144484190519208,
+        "z": -4.000000000000001
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:5",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -25,
+        "z": 1.8555158094807922
+      },
+      "target": "rock:5",
+      "landed": true,
+      "x": -25,
+      "z": -4,
+      "height": 3.439263062587013,
+      "support": "rock:5",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:6",
+      "angle": 0,
+      "start": {
+        "x": 19.00560523814901,
+        "z": 6
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:6",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 26,
+        "z": -0.9943947618509892
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:6",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 32.99439476185099,
+        "z": 5.999999999999999
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:6",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 26,
+        "z": 12.99439476185099
+      },
+      "target": "rock:6",
+      "landed": true,
+      "x": 26,
+      "z": 6,
+      "height": 4.299078828233766,
+      "support": "rock:6",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:7",
+      "angle": 0,
+      "start": {
+        "x": 27.52411050797594,
+        "z": -5
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:7",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 33,
+        "z": -10.47588949202406
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:7",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 38.47588949202406,
+        "z": -5.000000000000001
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:7",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 33,
+        "z": 0.47588949202406017
+      },
+      "target": "rock:7",
+      "landed": true,
+      "x": 33,
+      "z": -5,
+      "height": 3.1526578073714284,
+      "support": "rock:7",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:8",
+      "angle": 0,
+      "start": {
+        "x": -22.855515809480792,
+        "z": -28
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:8",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -17,
+        "z": -33.85551580948079
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:8",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -11.144484190519208,
+        "z": -28
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:8",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -17,
+        "z": -22.144484190519208
+      },
+      "target": "rock:8",
+      "landed": true,
+      "x": -17,
+      "z": -28,
+      "height": 3.439263062587013,
+      "support": "rock:8",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:9",
+      "angle": 0,
+      "start": {
+        "x": -29.096263174567326,
+        "z": -26
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -24,
+      "z": -26,
+      "height": 2.866052552155844,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:9",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -24,
+        "z": -31.096263174567326
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -24,
+      "z": -26,
+      "height": 2.866052552155844,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:9",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": -18.903736825432674,
+        "z": -26
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -24,
+      "z": -26,
+      "height": 2.866052552155844,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:9",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -24,
+        "z": -20.903736825432674
+      },
+      "target": "rock:9",
+      "landed": true,
+      "x": -24,
+      "z": -26,
+      "height": 2.866052552155844,
+      "support": "rock:9",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:10",
+      "angle": 0,
+      "start": {
+        "x": -7.096263174567326,
+        "z": -33
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:10",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": -2.0000000000000004,
+        "z": -38.096263174567326
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:10",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 3.0962631745673264,
+        "z": -33
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:10",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": -1.9999999999999991,
+        "z": -27.903736825432674
+      },
+      "target": "rock:10",
+      "landed": true,
+      "x": -2,
+      "z": -33,
+      "height": 2.866052552155844,
+      "support": "rock:10",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:11",
+      "angle": 0,
+      "start": {
+        "x": 7.144484190519208,
+        "z": 25
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:11",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 13,
+        "z": 19.144484190519208
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:11",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 18.855515809480792,
+        "z": 25
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:11",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 13.000000000000002,
+        "z": 30.855515809480792
+      },
+      "target": "rock:11",
+      "landed": true,
+      "x": 13,
+      "z": 25,
+      "height": 3.439263062587013,
+      "support": "rock:11",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:12",
+      "angle": 0,
+      "start": {
+        "x": -1.4758894920240602,
+        "z": 33
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:12",
+      "angle": 1.5707963267948966,
+      "start": {
+        "x": 3.9999999999999996,
+        "z": 27.52411050797594
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:12",
+      "angle": 3.141592653589793,
+      "start": {
+        "x": 9.47588949202406,
+        "z": 33
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    },
+    {
+      "id": "skinny",
+      "rock": "rock:12",
+      "angle": 4.71238898038469,
+      "start": {
+        "x": 4.000000000000001,
+        "z": 38.47588949202406
+      },
+      "target": "rock:12",
+      "landed": true,
+      "x": 4,
+      "z": 33,
+      "height": 3.1526578073714284,
+      "support": "rock:12",
+      "exit": true
+    }
+  ],
+  "failures": []
+}

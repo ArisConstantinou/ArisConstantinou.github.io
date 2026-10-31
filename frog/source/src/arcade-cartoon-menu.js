@@ -1,5 +1,5 @@
 const CLASSES=['heavy','medium','skinny'];
-const MENU_REVISIONS=Object.freeze({"heavy":"044baf4ce54a","medium":"06d6ff2d4c08","skinny":"da11df866b5a"});
+const MENU_REVISIONS=Object.freeze({"heavy":"ac090ef1eaea","medium":"f1ecc55cc3a4","skinny":"d0ebc66593a6"});
 // Never expose the obsolete artwork while the actual character performances decode.
 export function installCartoonMenu(game){
  const doc=game.ui.ownerDocument,top=game.ui.querySelector('.menu-frogs-top'),bottom=game.ui.querySelector('.menu-frogs-settings'),boot=doc.getElementById('boot');top.hidden=true;bottom.hidden=true;

@@ -1,4 +1,4 @@
-# Βαλτομαχίες 4.4.15 — complete game source
+# Βαλτομαχίες 4.4.16 — complete game source
 
 4.4.14 makes wall destinations follow mouse/touch input, adds readable constant-width trajectory guides, limits normal/double-jump height and uses the compact match clock for warmup. Existing scenery contacts and low rock access are retained. See RELEASE-4.4.14.md.
 
@@ -40,3 +40,6 @@ public/art/cartoon/assets.json for imported/generated model provenance.
 
 
 4.4.15 fixes only the skinny menu kick: correct rest knee bend plane, shin-relative ankle orientation and a narrow menu-only weight transition. The original game models and4.4.14 gameplay are preserved. See RELEASE-4.4.15.md.
+
+
+4.4.16 audits and repairs all menu leg rest planes and localized fused-skin contacts. Deliberate rock leaps land and perch until a fresh jump; outer mesh perches survive save/load. See RELEASE-4.4.16.md.

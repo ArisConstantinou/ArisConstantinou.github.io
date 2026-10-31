@@ -72,3 +72,11 @@ Menu action task: user reported Fat moving a hand and dragging a leg; explicitly
 4.4.14 authorized push: wall pointer/touch confirmation, readable shared trajectory guides, bounded jumps and quiet warmup. Heavy ledge prototype is inactive/unpublished; skinny menu correction is separately pending. Release verification stored in tests/wall-aim-balance/release.
 
 4.4.15 skinny menu-only correction: original knee bend plane, shin-following kicking ankle and localized weight transition. All97 poses and actual before/after menu recordings pass; original gameGLBs/physics/heavy/medium clips remain protected. Publication verification pending; see tests/menu-skinny-leg/release.
+
+4.4.16 request: audit all menu legs and make rock leaps perch until a fresh jump. True rest knee planes and bounded fused-skin seam weights repair heavy/medium and the skinny planted leg while preserving the verified skinny kicking ankle. Actual rock arcs and stable perches replace automatic slope-hop on rocks only; a saved outer-mesh perch must reload correctly. Inactive heavy ledge prototype remains excluded. Runtime and publication verification pending.
+
+4.4.16 local validation:1531/1531 source tests,303 evaluated menu poses/300 rendered frames,13rocks×3classes×4approaches, edge approaches/rock transfers/fresh-jump/save regressions. Nine real W+Space or CDP multitouch joystick+jump sequences pass on desktop/portrait/landscape. A fixed-camera real15→16 comparison reproduces automatic departure before and stable perching after. Full-length menu actions and original source/game models are preserved. Public commit/Pages/old-tab/hash verification follows.
+
+Rock perch regression reproduced on a refilling AI frog: remained at the same rock for3seconds because navigation never emits jump. AI now pauses0.75seconds and chooses an actual jump only when navigation wants to move; player input/perch rules are unchanged. Three class regressions and actual browser AI validation added. Final source suite1534 tests.
+
+Final rock review: aimed dash arcs must use their actual30m/s² gravity, while normal leaps keep24m/s². Added all13rock dash arrivals for every class; final full suite1537 tests. Exact public native desktop entry additionally exercises Shift before fresh-jump transfers.
