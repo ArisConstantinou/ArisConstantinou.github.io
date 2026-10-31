@@ -18,7 +18,7 @@ const OBJECTIVES=[
 export function installRoundPresentation(game){
  const doc=game.ui.ownerDocument,node=(tag,css,text)=>{const e=doc.createElement(tag);if(css)e.className=css;if(text!==undefined)e.textContent=text;return e;};
  game.ui.classList.add('has-round-presentation');
- function art(index,css=''){const e=node('span','objective-art '+css);e.setAttribute('role','img');e.setAttribute('aria-label',OBJECTIVES[index].alt);e.dataset.scene=OBJECTIVES[index].id;e.style.backgroundPosition=OBJECTIVES[index].position;return e;}
+ function art(index,css=''){const e=node('span','objective-art '+css);e.setAttribute('role','img');e.setAttribute('aria-label',OBJECTIVES[index].alt);e.dataset.scene=OBJECTIVES[index].id;e.style.backgroundPosition=OBJECTIVES[index].position;e.style.backgroundImage='url("./art/round-objectives.png")';return e;}
  function cards(){const grid=node('div','objective-cards');for(const [i,item] of OBJECTIVES.entries()){const card=node('article','objective-card');card.append(art(i),node('h3',null,item.title),node('p',null,item.id==='sabotage'?(game.touch?`Κράτα ΚΑΤΑΣΤΡΟΦΗ για ${RULES.sabotageSeconds}″ μέσα στην αποθήκη.`:`Μπες μέσα και κράτα E για ${RULES.sabotageSeconds}″.`):item.copy));grid.append(card);}return grid;}
  const brand=node('h1','game-brand');brand.setAttribute('aria-label','Βαλτομαχίες');
  const titleArt=node('img','game-title-art');titleArt.src='./art/menu-title-cartoon.png';titleArt.alt='';titleArt.width=2172;titleArt.height=724;titleArt.decoding='async';titleArt.fetchPriority='high';titleArt.draggable=false;const crop=node('span','game-title-crop');crop.setAttribute('aria-hidden','true');crop.append(titleArt);brand.append(crop);

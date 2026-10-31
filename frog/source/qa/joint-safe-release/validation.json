@@ -1,5 +1,5 @@
 {
-  "version": "4.4.17",
+  "version": "4.4.18",
   "sourceTests": 1539,
   "nativeDirectionalCases": 18,
   "menuViewports": [
@@ -24,5 +24,6 @@
   },
   "originalAssetsUnchanged": true,
   "physicalPhoneVerified": false,
-  "twoTimesPerformanceClaim": false
+  "twoTimesPerformanceClaim": false,
+  "objectiveArtDocumentRelative": true
 }

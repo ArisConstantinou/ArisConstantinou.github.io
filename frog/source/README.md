@@ -1,4 +1,6 @@
-# Βαλτομαχίες 4.4.17 — complete game source
+# Βαλτομαχίες 4.4.18 — complete game source
+
+4.4.18 resolves the objective illustration relative to the game document, so GitHub Pages subdirectory deployment uses /frog/art instead of the site root. Original illustration bytes are unchanged. See RELEASE-4.4.18.md.
 
 4.4.17 limits Heavy first/total jump rise to1.25/1.85m, including aimed rock leaps. A one-time whole-character menu entrance replaces the old limb loops:300ms delay, side arrivals, and Heavy bottom arrival with rim grip, two efforts and pull-up. Settings/pause do not replay it; reduced motion stays static. In-game ledge climb remains inactive pending anatomical/visual repair. Original models and assets are unchanged. See RELEASE-4.4.17.md.
 
