@@ -1,4 +1,4 @@
-# Βαλτομαχίες 4.4.19 — complete game source
+# Βαλτομαχίες 4.4.20 — complete game source
 
 4.4.19 adds an explicit wall destination selector: choose a point with mouse/touch, then confirm launch. Camera preference and original assets remain preserved. See RELEASE-4.4.19.md.
 

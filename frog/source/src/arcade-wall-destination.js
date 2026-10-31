@@ -33,5 +33,6 @@ export function installWallDestination(game,pose){
   const reasons={range:'Διάλεξε σημείο πιο κοντά.',wall:'Διάλεξε σημείο μακριά από τον τοίχο.',height:'Το σημείο είναι πολύ ψηλά.',blocked:'Υπάρχει εμπόδιο στη διαδρομή.',speed:'Διάλεξε σημείο πιο κοντά.',roof:'Η στέγη εμποδίζει το άλμα.',terrain:'Το έδαφος εμποδίζει τη διαδρομή.'};
   const text=state.active?(state.selected?(ready?'Προορισμός έτοιμος · πάτησε ΕΚΤΟΞΕΥΣΗ':reasons[p?.reason]||'Διάλεξε άλλο σημείο.'):(game.touch?'Άγγιξε το σημείο όπου θέλεις να προσγειωθείς.':'Δείξε με το ποντίκι το σημείο προσγείωσης.')):(game.settings.wallJumpMode==='auto'&&!game.wallManualOverride?'Δεν βρέθηκε αυτόματος προορισμός.':'Κρατιέσαι στον τοίχο · διάλεξε προορισμό.');if(copy.textContent!==text)copy.textContent=text;
  };
- return{open,close,inspect:()=>({active:state.active,selected:state.selected,visible:!ui.hidden}),destroy(){close();ui.remove();for(const[type,fn]of[['pointerdown',onDown],['pointermove',onMove],['pointerup',onUp],['pointercancel',onUp],['keydown',onKey]])removeEventListener(type,fn,true);}};
+ function reset(){close();state.selected=null;game.wallDestinationTarget=null;game.wallManualOverride=false;}
+ return{open,close,reset,inspect:()=>({active:state.active,selected:state.selected,visible:!ui.hidden}),destroy(){close();ui.remove();for(const[type,fn]of[['pointerdown',onDown],['pointermove',onMove],['pointerup',onUp],['pointercancel',onUp],['keydown',onKey]])removeEventListener(type,fn,true);}};
 }
