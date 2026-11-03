@@ -33,6 +33,7 @@ export function installWallJumpControls(game,save){
 }
 
 export function applyFlightAttitude(model,flight,dt){
+ if(model.stats?.fatty)return model.applyFlightAttitude(flight,dt);
  if(model.flightPivot)return applyCartoonFlightAttitude(model,flight,dt);
  const kind=flight?.kind,held=kind==='wallHold',flying=kind==='wallJump'||model.stats.imported&&['jump','double','surfaceHop'].includes(kind),speed=flight?Math.hypot(flight.vx||0,flight.vz||0):0;
  const target=held?-.2:flying&&speed>.2?Math.max(-.75,Math.min(.95,(model.stats.restAxisPitch??.17)-Math.atan2(flight.vy,speed))):0;

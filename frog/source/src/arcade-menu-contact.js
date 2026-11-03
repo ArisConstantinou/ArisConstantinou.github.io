@@ -12,6 +12,7 @@ export function createMenuContact(model){
  const v=new Vector3(),target=new Vector3(),pole=new Vector3(),a=new Vector3(),b=new Vector3(),swing=new Quaternion(),end=new Quaternion();
  function point(l){let best=Infinity,at=null;for(const i of l.indices){mesh.getVertexPosition(i,v).applyMatrix4(mesh.matrixWorld);if(v.y<best){best=v.y;at=v.clone();}}return at;}
  function plant(){
+  if(model.stats.fatty){model.applyFlightAttitude(null,0);return limbs.map(l=>({side:l.side,fore:l.fore,point:point(l).toArray()}));}
   for(let pass=0;pass<12;pass++)for(const l of limbs){
    const h=l.h,p=point(l);if(!p)throw Error('Missing native menu pad');h.end.getWorldPosition(target);target.y-=p.y;h.root.parent.worldToLocal(target).sub(h.root.position);
    pole.copy(h.first).applyQuaternion(swing.setFromUnitVectors(a.copy(h.first).add(h.second).normalize(),b.copy(target).normalize()));end.copy(h.root.quaternion).multiply(h.middle.quaternion).multiply(h.end.quaternion);solveLimbChain(h,target,pole,null);

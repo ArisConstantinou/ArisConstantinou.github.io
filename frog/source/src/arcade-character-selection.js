@@ -13,7 +13,7 @@ export function createCharacterRepeat({windowMs=500,now=()=>performance.now()}={
 
 
 export const CHARACTER_CHOICES=Object.freeze([
- {id:'heavy',name:'Ο Βαρύς',role:'Δύναμη & απόθεμα',portrait:'./art/cartoon/heavy-card.png',strength:'Περισσότερες μύγες · χτύπημα κοιλιάς',ability:'Βουτιά σώματος μετά το άλμα',tradeoff:'Πιο αργός · χαμηλότερο άλμα',accent:'#a6d558'},
+ {id:'heavy',name:'Ο Βαρύς',role:'Δύναμη & απόθεμα',portrait:'./art/cartoon/fatty-card.png?portrait=approved-1',strength:'Περισσότερες μύγες · χτύπημα κοιλιάς',ability:'Βουτιά σώματος μετά το άλμα',tradeoff:'Πιο αργός · χαμηλότερο άλμα',accent:'#a6d558'},
  {id:'skinny',name:'Ο Σβέλτος',role:'Ταχύτητα & ευκινησία',portrait:'./art/cartoon/skinny-card.png',strength:'Ο πιο γρήγορος · κανονικό απόθεμα',ability:'Εναέρια κλωτσιά · ισχυρότερη με διπλό άλμα',tradeoff:'Χωρίς βουτιά σώματος',accent:'#c6a6f2'},
  {id:'medium',name:'Ο Πολυμήχανος',role:'Ευελιξία & διασπορά',portrait:'./art/cartoon/medium-card.png',strength:'Ενδιάμεση κίνηση · κανονικό απόθεμα',ability:'3 μύγες στο άλμα · ακτινωτή ριπή στο διπλό',tradeoff:'Δεν έχει την ωμή δύναμη ή την ταχύτητα των άλλων',accent:'#f3bb67'},
 ]);

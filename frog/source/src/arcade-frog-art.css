@@ -1,0 +1,55 @@
+/* Leaf, honey and woven wood: the same warm materials as the frog costumes.
+   Presentation only; existing positions, measured sizes and input hit areas stay. */
+:root{--frog-ink:#253c29;--frog-cream:#fff2ce;--frog-paper:#f3dfac;--frog-leaf:#6c993d;--frog-leaf-dark:#355d32;--frog-rope:#bd9559;--frog-wood:#695039}
+body #arcade-ui{color:var(--frog-cream)}
+body #arcade-ui .menu{background:radial-gradient(ellipse at 50% 24%,#f0de9412,transparent 58%),linear-gradient(0deg,#173f2b83,#153b2926);backdrop-filter:blur(3px)}
+body #arcade-ui .round-actions{border-color:#eed39a;background:#80613d;box-shadow:0 5px 0 #493b28,0 11px 20px #182c2540,inset 0 1px 0 #fff8dc}
+body #arcade-ui .round-action{color:#fff4d4;background:radial-gradient(ellipse at 30% 0%,#b5cf6a60,transparent 65%),linear-gradient(155deg,#759844,#3d6534);text-shadow:0 2px 0 #294628;box-shadow:inset 0 2px 0 #f6f8b761,inset 0 -3px 0 #2a4c2e80}
+body #arcade-ui .round-action+.round-action{border-left-color:#e5cd94}
+body #arcade-ui .round-action:disabled{background:linear-gradient(155deg,#a69b6b,#6b7550);color:#e9e3c1;opacity:.78}
+body #arcade-ui .art-button{border-color:#ead09a;background:radial-gradient(ellipse at 25% 0%,#c9d97e61,transparent 60%),linear-gradient(155deg,#7e9f46,#3e6334 85%);color:#fff3d2;text-shadow:0 2px 0 #355132;box-shadow:0 5px 0 #4f432e,0 9px 17px #172b243b,inset 0 2px 0 #fff6d177}
+body #arcade-ui .art-button:before{animation:none;display:none}
+body #arcade-ui .settings-button{background:radial-gradient(ellipse at 25% 0%,#e2c38a33,transparent 65%),linear-gradient(155deg,#8b7049,#5a5038);border-color:#d9ba7e}
+body #arcade-ui .menu-utility-button,body #arcade-ui .objectives-dock,body #arcade-ui #view-button{background:linear-gradient(145deg,#59794a,#35553c);border:2px solid #c6ba84;color:#fff1cc;box-shadow:inset 0 2px 0 #f4e3ae35,0 3px 0 #314334}
+body #arcade-ui .ammo-card,body #arcade-ui .base-card,body #arcade-ui .match-clock,body #arcade-ui .ko-card{background:radial-gradient(ellipse at 25% 0%,#758c4a55,transparent 75%),linear-gradient(145deg,#3b5d40f5,#253f32f5);border:2px solid #d0b77b;color:#fff1cd;box-shadow:inset 0 2px 0 #f4e5b32b,0 4px 0 #263d30,0 7px 15px #193a2933}
+body #arcade-ui #ammo-state{color:#ecdfb7}body #arcade-ui #ammo-track{background:#203929;box-shadow:inset 0 1px 3px #101e1a}
+body #arcade-ui #ammo-fill{background:linear-gradient(0deg,#91bf44,#d6e982);box-shadow:inset 0 2px 0 #f4f9b5}
+body #arcade-ui #callout{background:#344e37ed;border-color:#d6c38c;color:#fff1ce;backdrop-filter:none;text-shadow:0 1px 1px #203525}
+body #arcade-ui .settings-panel,body #arcade-ui .result-panel{background:radial-gradient(ellipse at 0 0,#fff4d299,transparent 70%),linear-gradient(135deg,#f2e1b9,#dbc48f);border:3px solid #9a784c;color:var(--frog-ink);box-shadow:inset 0 0 0 2px #fff1c7,0 7px 0 #4e4630,0 14px 40px #102b2555}
+body #arcade-ui .settings-panel h2,body #arcade-ui .settings-panel h3,body #arcade-ui .result-panel h1{color:#345934;text-shadow:0 1px 0 #fff9df}
+body #arcade-ui .settings-panel label{color:#304b31;font-weight:700}
+body #arcade-ui .settings-panel p,body #arcade-ui .settings-panel small,body #arcade-ui .settings-panel output,body #arcade-ui .settings-panel .camera-settings-heading{color:#4a5937}
+body #arcade-ui .settings-panel select,body #arcade-ui .settings-panel input[type=text]{background:#fff0cf;color:#304c32;border:1px solid #aa905c;box-shadow:inset 0 2px 3px #6a563219}
+body #arcade-ui .settings-panel input[type=range]{accent-color:#62853c}
+body #arcade-ui .settings-panel button:not(.art-button){background:#e5d19c;border-color:#998354;color:#375334}
+body #arcade-ui .result-kicker,body #arcade-ui .result-panel .plain-button{color:#5b7040}
+body #arcade-ui .character-selection{background:radial-gradient(ellipse at 50% 20%,#486e41ed,#203e30fc 85%);color:#fff1cc}
+body #arcade-ui .character-selection-heading>span{color:#e9cb8d}
+body #arcade-ui .character-choice{background:radial-gradient(ellipse at 50% 15%,#ffffe545,transparent 48%),linear-gradient(155deg,#f4e6bc,#dfc998);border-color:#b99257;box-shadow:inset 0 0 0 3px #fff4d2a8,0 6px 0 #5a4d32,0 12px 20px #102c2538;color:#334d32}
+body #arcade-ui .character-choice[aria-pressed=true]{background:radial-gradient(ellipse at 50% 10%,#fff8cf,transparent 60%),linear-gradient(155deg,#e2edb6,#bcce84);border-color:#c7a55a;box-shadow:inset 0 0 0 3px #ffffcf,0 6px 0 #50633a,0 0 0 3px #e3dca9}
+body #arcade-ui .character-choice strong{color:#42622f;text-shadow:0 1px 0 #fff9de}
+body #arcade-ui .character-choice[data-character=skinny] strong{color:#705187}body #arcade-ui .character-choice[data-character=medium] strong{color:#96502c}
+body #arcade-ui .character-role,body #arcade-ui .character-strength,body #arcade-ui .character-ability{color:#344d30}
+body #arcade-ui .character-tradeoff{color:#58633f}
+body #arcade-ui .character-ability{border-color:#9eaa6c}
+body #arcade-ui .character-selected-mark{background:#5d813a;color:#fff5cf}
+body #arcade-ui .character-selection-actions{background:#294b34f5;border-color:#a99864}
+body #arcade-ui .character-selection-actions button{border-color:#d4b777;background:linear-gradient(145deg,#769849,#3e6438);color:#fff0ce}
+body #arcade-ui .character-confirm:disabled{background:#646f49;color:#e3dcbb}
+body #arcade-ui .small-button,body #arcade-ui .touch-action,body #arcade-ui #desktop-controls kbd{background:linear-gradient(150deg,#63854c,#304f37);border-color:#c9b780;color:#fff0c9;box-shadow:inset 0 2px 0 #d7dc9955,0 3px 0 #283d2b}
+body #arcade-ui .stick{background:#385b3a60;border-color:#d9c68d;box-shadow:inset 0 0 20px #243b3155,0 3px 10px #1d332a33}
+body #arcade-ui .stick-inner{border-color:#e0d5a55c;background:#6e8a4440}
+body #arcade-ui .stick-knob{background:radial-gradient(circle at 30% 25%,#b7d379,#567a42);border-color:#f2dfa9}
+body #arcade-ui #minimap{border-color:#c9b77b;box-shadow:0 3px 0 #344932,inset 0 0 0 3px #304d36}
+body #arcade-ui button:focus-visible{outline:3px solid #ffe5a2;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){body #arcade-ui button{transition:none}}
+
+/* Readable supporting panels */
+body #arcade-ui .settings-panel .fire-settings,body #arcade-ui .settings-panel fieldset{background:#e5d3a6;border-color:#b29c6e}
+body #arcade-ui .settings-panel p,body #arcade-ui .settings-panel small{font-size:14px;line-height:1.45;color:#405336}
+body #arcade-ui .leaderboard-panel,body #arcade-ui .objectives-panel,body #arcade-ui .objective-reader{background:radial-gradient(ellipse at 25% 0%,#7a91563b,transparent 70%),linear-gradient(145deg,#395c3f,#243f30);border-color:#d4ba7f;color:#fff1ce;box-shadow:inset 0 0 0 2px #f1dd9b26,0 6px 0 #293c2b,0 14px 40px #102b2555}
+body #arcade-ui .leaderboard-panel h2,body #arcade-ui .objectives-panel h2,body #arcade-ui .objective-reader h2{color:#f5e4b2}
+body #arcade-ui .leaderboard-table th{color:#e5d29e;border-color:#81945d}
+body #arcade-ui .leaderboard-table td{border-color:#7a8d615c}
+body #arcade-ui .leaderboard-table small{color:#dfdfb6}
+body #arcade-ui .leaderboard-tabs button,body #arcade-ui .leaderboard-back,body #arcade-ui .objectives-minimize,body #arcade-ui .objectives-back,body #arcade-ui .small-result-button{background:linear-gradient(145deg,#7e9d4b,#42653a);border-color:#d6bb7f;color:#fff2cc;box-shadow:inset 0 1px 0 #ecedaa55,0 3px 0 #293d2b}

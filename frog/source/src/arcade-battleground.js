@@ -2,7 +2,7 @@
 // frogs, houses and machines. No object or movement scale changes with the map.
 export const ARENA_RADIUS=38;
 export const ARENA_MOVE_RADIUS=ARENA_RADIUS-1;
-export const BATTLEGROUND_PALETTE=Object.freeze({sky:'#88bfc0',fog:'#b9d0b4',earth:'#93af67',wet:'#64885c',deep:'#386e61',leaf:'#acd47b',rock:'#a4af99',moss:'#86a35f',bark:'#715b42',reed:'#b8b56e',water:'#367d71',nightWater:'#153d43'});
+export const BATTLEGROUND_PALETTE=Object.freeze({sky:'#88c7cf',fog:'#c9ddbb',earth:'#9bbf6b',wet:'#629967',deep:'#397e68',leaf:'#b5d574',rock:'#b3b99b',moss:'#95b660',bark:'#8b6943',reed:'#d0bc75',water:'#338f7e',nightWater:'#214d47'});
 
 export const BATTLEGROUND_AREAS=Object.freeze([
  {id:'crossing',name:'Κεντρικό πέρασμα',x:0,z:3,rx:7,rz:7,height:.42,tint:'#91ac5b',kind:'crossing'},

@@ -7,6 +7,7 @@ export function prewarmSurfaceFeet(model){if(!model.stats.cartoon||cache.has(mod
 // Keep original limb lengths and foot bearing. Only a small rest-aware swing
 // plants a supported foot; no joint scales, root offset or gameplay height edits.
 export function plantSurfaceFeet(model,actor,state,ground){
+ if(model.ownsSurfacePose)return;
  model.surfaceContacts=null;if(!model.stats.cartoon||actor.flight||actor.hop>0||actor.knockUp>0||!actor.support||actor.ko||model.ownsLimbPose||!['roof','rock','tree'].includes(actor.support.kind))return;
  prewarmSurfaceFeet(model);const c=cache.get(model),result=[],id=actor.support.id;
  model.group.updateMatrixWorld(true);

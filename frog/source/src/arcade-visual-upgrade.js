@@ -9,7 +9,7 @@ function meadowTexture(){
  const side=128,data=new Uint8Array(side*side*4);
  let seed=91407;const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
  for(let y=0;y<side;y++)for(let x=0;x<side;x++){
-  const i=(y*side+x)*4,broad=Math.sin(x*Math.PI/16)*Math.cos(y*Math.PI/32),grain=random(),value=216+broad*9+(grain-.5)*22;
+  const i=(y*side+x)*4,broad=Math.sin(x*Math.PI/16)*Math.cos(y*Math.PI/32),grain=random(),value=236+broad*7+(grain-.5)*10;
   data[i]=Math.round(value*.97);data[i+1]=Math.round(value);data[i+2]=Math.round(value*.91);data[i+3]=255;
  }
  const texture=new THREE.DataTexture(data,side,side,THREE.RGBAFormat);texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(72,72);texture.generateMipmaps=true;texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;texture.needsUpdate=true;return texture;
@@ -18,7 +18,7 @@ function meadowTexture(){
 function skyMaterial(){
  return new THREE.ShaderMaterial({
   side:THREE.BackSide,depthWrite:false,depthTest:false,toneMapped:false,
-  uniforms:{zenith:{value:new THREE.Color('#78b8c1')},horizon:{value:new THREE.Color('#d4dec1')},glow:{value:new THREE.Color('#f4e6b9')}},
+  uniforms:{zenith:{value:new THREE.Color('#79c4d0')},horizon:{value:new THREE.Color('#e3eac2')},glow:{value:new THREE.Color('#fff0bf')}},
   vertexShader:'varying vec3 skyDirection; void main(){ skyDirection = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
   fragmentShader:`uniform vec3 zenith; uniform vec3 horizon; uniform vec3 glow; varying vec3 skyDirection;
    void main(){
@@ -80,11 +80,11 @@ export function installArcadeVisualUpgrade(game){
   paint(terrain,(color,{x,z,index,previous})=>{
    color.fromBufferAttribute(previous,index);
    const meadow=.97+.08*Math.sin(x*.31+Math.sin(z*.23))+.035*Math.cos(x*.73-z*.59);
-   color.multiplyScalar(meadow*contactShade(x,z));
+   color.offsetHSL(-.008,.07,.018).multiplyScalar(meadow*contactShade(x,z));
   });
  }
  const road=game.battlegroundView?.roadMesh;
- if(road)paint(road,(color,{x,z,index,previous})=>color.fromBufferAttribute(previous,index).multiplyScalar(contactShade(x,z)));
+ if(road)paint(road,(color,{x,z,index,previous})=>color.fromBufferAttribute(previous,index).offsetHSL(-.008,.035,.025).multiplyScalar(contactShade(x,z)));
 
  const leafLow=new THREE.Color('#315c42'),leafHigh=new THREE.Color('#a0b95c'),rockLow=new THREE.Color('#49635b'),rockHigh=new THREE.Color('#9da990'),moss=new THREE.Color('#7e984d'),woodLow=new THREE.Color('#5c5040'),woodHigh=new THREE.Color('#a08a5b');
  for(const [index,grove] of groves.entries()){
