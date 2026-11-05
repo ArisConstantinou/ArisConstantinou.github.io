@@ -43,9 +43,10 @@ export function installCartoonMenu(game){
   function ownMeshes(){for(const f of frogs)f.model.group.traverse(o=>{if(o.isMesh)o.geometry=ownGeometry(o.geometry);});}
   const identity=f=>{f.placement.position.set(0,0,0);f.placement.scale.setScalar(1);f.placement.rotation.set(0,0,0);f.placement.updateMatrixWorld(true);};
   function rest(f,dt=.11){
-   const m=f.model;f.actor.flight=null;m.beginPose();m.group.position.set(0,f.rootY,f.id==='heavy'&&f.caught?.8:0);m.group.rotation.set(0,0,0);m.update(dt,{speed:0,hop:{phase:'land',progress:1}});m.climbContact?.update(f.actor,f.state,()=>-3,dt);
+   const m=f.model;f.actor.flight=null;m.beginPose();m.group.position.set(0,f.rootY,f.id==='heavy'&&f.caught?.8:0);m.group.rotation.set(0,0,0);m.update(dt,{speed:0,hop:{phase:'idle',progress:0}});m.climbContact?.update(f.actor,f.state,()=>-3,dt);
    if(m.stats.fatty)m.applyFlightAttitude(null,dt);
-   if(!m.contactActive&&!m.stats.fatty){for(const[n,b]of Object.entries(m.bones)){const r=f.rest[n];b.position.copy(r.p);b.quaternion.copy(r.q);b.scale.copy(r.s);}m.flightPivot.position.set(0,0,0);m.flightPivot.rotation.set(0,0,0);}f.phase='rest';m.group.updateMatrixWorld(true);
+   if(m.fullBodyLocomotion&&!m.stats.fatty){for(const[n,b]of Object.entries(m.bones)){if(!/^(hip|knee|ankle|foot|shoulder|elbow|wrist|finger|toe)/.test(n))continue;const r=f.rest[n];b.position.copy(r.p);b.quaternion.copy(r.q);}}
+   if(!m.contactActive&&!m.fullBodyLocomotion&&!m.stats.fatty){for(const[n,b]of Object.entries(m.bones)){const r=f.rest[n];b.position.copy(r.p);b.quaternion.copy(r.q);b.scale.copy(r.s);}m.flightPivot.position.set(0,0,0);m.flightPivot.rotation.set(0,0,0);}f.phase='rest';m.group.updateMatrixWorld(true);
   }
   function layout(){
    const W=win.innerWidth,H=win.innerHeight;renderer.setPixelRatio(game.renderer.getPixelRatio());renderer.setSize(W,H,false);camera.left=-W/2;camera.right=W/2;camera.top=H/2;camera.bottom=-H/2;camera.updateProjectionMatrix();
@@ -92,7 +93,7 @@ export function installCartoonMenu(game){
   const elapsed=clock()-startedAt-DELAY;
   for(const [index,f]of frogs.entries()){
    identity(f);f.model.group.visible=settled||elapsed>=(index===0?0:index===1?.08:.24);let dx=0,dy=0;
-   if(settled){rest(f,.21);rest(f,.21);}
+   if(settled){rest(f,dt);}
    else{
     const time=elapsed-(index===0?0:index===1?.08:.24),m=f.model,a=f.actor;
     if(time<0){rest(f,dt);}
@@ -117,6 +118,7 @@ export function installCartoonMenu(game){
       const [vx,vy,vz]=motion.velocity,speed=Math.hypot(vx,vz),side=(Math.cos(motion.heading)*vx-Math.sin(motion.heading)*vz)/Math.max(.001,speed),forward=(Math.sin(motion.heading)*vx+Math.cos(motion.heading)*vz)/Math.max(.001,speed);
       a.flight??={kind:'jump',jumps:1};Object.assign(a.flight,{kind:'jump',vx,vy,vz,poseProgress:motion.progress,launchVelocity:f.entrance.velocity[1]});
       a.x=motion.position[0];a.z=motion.position[2];m.beginPose();m.group.position.fromArray(motion.position);m.group.rotation.set(0,motion.heading,0);m.update(dt,{speed,locomotion:{x:side,z:forward},hop:{phase:'air',progress:motion.progress}});
+      if(m.fullBodyLocomotion&&motion.phase==='preparation')m.sampleFullBody('Jump',.24*motion.preparation);
       if(motion.phase==='flight')applyFlightAttitude(m,a.flight,dt);else{m.flightPitch=0;m.flightPivot.rotation.set(0,0,0);}
       m.climbContact?.update(a,f.state,()=>-3,dt);f.phase=motion.phase==='flight'?'jump':'preparation';
      }
@@ -145,15 +147,15 @@ export function installCartoonMenu(game){
    },
    replay(){if(!stage||initializing||!visible)return false;settled=reduced.matches;startedAt=clock();for(const f of stage.frogs){f.caught=f.finished=false;f.actor.flight=null;f.state={events:[],bases:[]};}dirty=true;render(0);return true;},
   update(dt=1/60){
-   if(destroyed)return;const old=visible;visible=!doc.hidden&&!game.$('arcade-menu').hidden&&!game.$('menu-main').hidden;
+   if(destroyed)return;const old=visible;visible=!doc.hidden&&!game.characterSelection?.inspect().open&&!game.$('arcade-menu').hidden&&!game.$('menu-main').hidden;
    if(!visible){if(old||started||initializing||game.$('arcade-menu').hidden)settled=true;if(stage)stage.canvas.style.visibility='hidden';if(game.$('arcade-menu').hidden&&!initializing)destroyStage();return;}
    if(!old||stage&&stage.renderer.getPixelRatio()!==game.renderer.getPixelRatio())dirty=true;
    if(!stage&&!initializing&&game.assetStatus?.ready)beginStage();
-   if(stage&&!initializing&&(!settled||dirty||!old))render(Math.max(0,Math.min(.05,dt)));
+   if(stage&&!initializing&&(!settled||dirty||!old||clock()>=(stage.nextAmbient||0))){stage.nextAmbient=clock()+1/30;render(Math.max(0,Math.min(.05,settled?1/30:dt)));}
   },
   inspect(){
    const contacts=stage?stage.frogs.map(f=>{const pads=f.model.ledgeContacts?.length?f.model.ledgeContacts:f.pads;return{character:f.id,phase:f.phase,currentClip:f.model.currentClip,bones:f.model.skeleton.bones.length,contactPhase:f.model.contactPhase,seatOffset:f.rootY,motion:f.motion,root:f.model.group.position.toArray(),yaw:f.model.group.rotation.y,pivot:f.model.flightPivot.rotation.toArray().slice(0,3),pads:pads?.map(p=>{const v=new THREE.Vector3().fromArray(p.point).applyMatrix4(f.placement.matrixWorld);return{side:p.side,fore:p.fore??true,x:v.x+win.innerWidth/2,y:win.innerHeight/2-v.y,gap:win.innerHeight/2-v.y-f.rim,error:p.error,phase:p.phase};}),joints:Object.fromEntries(['hip-1','knee-1','hip1','knee1','elbow-1','elbow1'].map(n=>[n,f.model.bones[n].quaternion.toArray()]))};}):[];
-   return{ready:!!stage&&!initializing,failed,visible,started,settled,phase:!started?'waiting':settled?'settled':clock()-startedAt<DELAY?'delay':stage?.frogs[0].phase,elapsedMs:started?Math.round((clock()-startedAt)*1000):0,faceMode:'live-game-character-rigs',live3D:true,sourceAnimations:['JumpProof','Jump','Land'],characters:IDS,reducedMotion:reduced.matches,contacts,resources:{activeRenderer:!!stage,initializing,allocatedCount,preparedCount,disposedCount,textures:stage?.renderer.info.memory.textures||0,geometries:stage?.renderer.info.memory.geometries||0,privateTextures:stage?.textures.size||0,privateGeometries:stage?.geometries.size||0}};
+   return{ready:!!stage&&!initializing,failed,visible,started,settled,phase:!started?'waiting':settled?'settled':clock()-startedAt<DELAY?'delay':stage?.frogs[0].phase,elapsedMs:started?Math.round((clock()-startedAt)*1000):0,faceMode:'live-game-character-rigs',live3D:true,sourceAnimations:['FullBodyHop','FullBodyJump','Idle'],characters:IDS,reducedMotion:reduced.matches,contacts,resources:{activeRenderer:!!stage,initializing,allocatedCount,preparedCount,disposedCount,textures:stage?.renderer.info.memory.textures||0,geometries:stage?.renderer.info.memory.geometries||0,privateTextures:stage?.textures.size||0,privateGeometries:stage?.geometries.size||0}};
   },
   destroy(){destroyed=true;generation++;win.removeEventListener('resize',skip);reduced.removeEventListener('change',skip);if(!initializing)destroyStage();},
  };

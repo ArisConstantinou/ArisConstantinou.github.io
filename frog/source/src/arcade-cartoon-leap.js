@@ -9,11 +9,11 @@ export function createCartoonLeapPose(model){
  const bodyDirection=(v,parent)=>{inverse.copy(parent.matrixWorld).invert();return v.transformDirection(model.flightPivot.matrixWorld).transformDirection(inverse)};
  return function pose(state,actor,clip){
   model.leapPitch=0;const airborne=state.hop?.phase==='air';if(!airborne||actor?.flight?.kind==='wallHold'||['KO','Hit','MountedIdle','OperateCatapult','ClassAttack','AirKick','DoubleKick','BodySlam'].includes(clip))return;
-  const progress=clamp(state.hop.progress),{extension,landing}=leapEnvelope(progress),sideways=Math.max(-1,Math.min(1,state.locomotion?.x||0));
+  const progress=clamp(state.hop.progress),{extension,landing}=leapEnvelope(progress),sideways=Math.max(-1,Math.min(1,state.locomotion?.x||0));const spread=Math.sin(Math.PI*smooth((progress-.08)/.80))*(model.stats.characterClass==='skinny'?1:.9);
   model.leapPitch=.32*extension;model.group.updateMatrixWorld(true);
   for(const {side,c} of hind){
-   bodyDirection(target.set(side*.12-sideways*.28,-.18,-1),c.root.parent).multiplyScalar((c.l1+c.l2)*.985);
-   bodyDirection(pole.set(side,-.12,.08),c.root.parent);bodyDirection(foot.set(side*.025-sideways*.20,-.045,-1),c.root.parent);
+   bodyDirection(target.set(side*(.12+.30*spread)-sideways*.28,-.18,-1),c.root.parent).multiplyScalar((c.l1+c.l2)*.985);
+   bodyDirection(pole.set(side,-.12,.08),c.root.parent);bodyDirection(foot.set(side*(.025+.18*spread)-sideways*.20,-.045,-1),c.root.parent);
    solveLimbChain(c,target,pole,foot);
    // Swing the sculpted thigh and shank with minimum axial twist. Preserve the
    // solved webbed-foot orientation independently; twisting the whole limb to
@@ -30,6 +30,6 @@ export function createCartoonLeapPose(model){
    bodyDirection(pole.set(side,-.4,0),c.root.parent);solveLimbChain(c,target,pole,null);const weight=Math.max(extension*.8,landing);
    c.root.quaternion.slerp(c.rootQ,weight);c.middle.quaternion.slerp(c.middleQ,weight);c.end.quaternion.slerp(c.endQ,weight);
   }
-  model.leapPose={progress,extension,landing};
+  model.leapPose={progress,extension,landing,spread};
  };
 }
