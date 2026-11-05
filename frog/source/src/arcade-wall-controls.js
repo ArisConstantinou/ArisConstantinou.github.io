@@ -33,6 +33,7 @@ export function installWallJumpControls(game,save){
 }
 
 export function applyFlightAttitude(model,flight,dt){
+ if(model.fullBodyLocomotion&&!['wallHold','wallJump','ledge'].includes(flight?.kind)){model.flightPivot.position.set(0,0,0);model.flightPivot.rotation.set(0,0,0);return;}
  if(model.stats?.fatty)return model.applyFlightAttitude(flight,dt);
  if(model.flightPivot)return applyCartoonFlightAttitude(model,flight,dt);
  const kind=flight?.kind,held=kind==='wallHold',flying=kind==='wallJump'||model.stats.imported&&['jump','double','surfaceHop'].includes(kind),speed=flight?Math.hypot(flight.vx||0,flight.vz||0):0;
