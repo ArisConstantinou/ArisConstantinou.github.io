@@ -1,0 +1,60 @@
+{
+  "version": "4.4.24",
+  "parent": "d52677e43de963925fe8a39c82911740c9b6bb65",
+  "framingOnly": true,
+  "physicsUnchanged": true,
+  "files": {
+    "source/src/arcade-character-preview.js": {
+      "sha256": "75f8e3f347568c0faf73278651610280ba8450b525d22792e33420cb394f4e0f",
+      "bytes": 4193
+    },
+    "index.html": {
+      "sha256": "51d84e5a0343098b81c93cbcee99ba75ef8e5452ad9f92606ea428f1c26810f5",
+      "bytes": 3359
+    },
+    "update.js": {
+      "sha256": "47a840c336fa1ff039ebefe2df30a34a6aa0aac4f8d320c71a52138b1bfd637e",
+      "bytes": 4133
+    },
+    "update-worker.js": {
+      "sha256": "3cb13bb83bf78584dd2303b49d59a4f13f459672b9dc1a05bc910422e8d37c8a",
+      "bytes": 1483
+    },
+    "art/cartoon/fatty-n1-game.glb": {
+      "sha256": "38bf791cba6859500ca75b723e68d8465c183580e8c535057e9543f41fa4bb6e",
+      "bytes": 5834224
+    },
+    "art/cartoon/skinny-n1-game.glb": {
+      "sha256": "bd4fbb85bde898bcbc783d316ca408557914c79ffd201ce44888d548101d7da5",
+      "bytes": 3956280
+    },
+    "art/cartoon/medium-skinweights.json": {
+      "sha256": "4bacb0cdf753588b7b66acf96a83cd55edaf580eb2e732375b6d16e8bf0bfde4",
+      "bytes": 643
+    },
+    "art/cartoon/medium-skinweights.bin": {
+      "sha256": "7b4463561a1c7d4e09cf5cbbc158be78e3954ba2bba9b8275e8c45d945a3e1ca",
+      "bytes": 595392
+    },
+    "assets/DRACOLoader-cNUU8hwV.js": {
+      "sha256": "193673f84a8f22cb2f81ac2f5b0d3f8c3bdf6fbe2b044d5194ca1af770a10bbe",
+      "bytes": 50062
+    },
+    "assets/index-C-AVPJTV.js": {
+      "sha256": "c461d1ddb548306b808c884ddba7db64b25956c7935273fbf0a8cfead8812405",
+      "bytes": 1499374
+    },
+    "assets/index-8B7dIZ7I.css": {
+      "sha256": "671df52bcb8d31207b343cd94e0506da06177aac00784244e9db20325175769c",
+      "bytes": 97402
+    },
+    "assets/arcade-asset-showcase-NqMoR01n.js": {
+      "sha256": "437a2f1a7e0caae80da0258301185b882720c897663752b255e6d50fb9945b45",
+      "bytes": 8727
+    },
+    "assets/arcade-imported-assets-DjdblItU.js": {
+      "sha256": "1be40080319e56f4eba53cbab3e6877aebeb03bc341190db72f348121f598294",
+      "bytes": 109588
+    }
+  }
+}
